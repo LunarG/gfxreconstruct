@@ -1135,7 +1135,7 @@ void MapStructHandles(Decoded_VkVideoEncodeInfoKHR* wrapper, const VulkanObjectI
     {
         VkVideoEncodeInfoKHR* value = wrapper->decoded_value;
 
-        value->dstBitstreamBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->dstBitstreamBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->dstBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->dstBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
 
         MapStructHandles(wrapper->srcPictureResource, object_info_table);
 

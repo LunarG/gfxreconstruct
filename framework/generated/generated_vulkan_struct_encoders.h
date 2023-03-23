@@ -66,10 +66,10 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264WeightTable
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264SliceHeaderFlags& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264PictureInfoFlags& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264ReferenceInfoFlags& value);
-void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264RefMgmtFlags& value);
+void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264ReferenceListsInfoFlags& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264RefListModEntry& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264RefPicMarkingEntry& value);
-void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264RefMemMgmtCtrlOperations& value);
+void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264ReferenceListsInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264PictureInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264ReferenceInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264SliceHeader& value);
@@ -101,8 +101,8 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265WeightTable
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265SliceSegmentLongTermRefPics& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265SliceSegmentHeaderFlags& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265SliceSegmentHeader& value);
-void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceModificationFlags& value);
-void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceModifications& value);
+void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceListsInfoFlags& value);
+void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceListsInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265PictureInfoFlags& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265PictureInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceInfoFlags& value);
@@ -545,6 +545,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentIdFeat
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeCapabilitiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeUsageInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRateControlLayerInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRateControlInfoKHR& value);
@@ -584,11 +585,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageViewAddressPropertiesN
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264CapabilitiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264SessionParametersAddInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264SessionParametersCreateInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264DpbSlotInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264ReferenceListsInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264NaluSliceInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264VclFrameInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264EmitPictureParametersInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264DpbSlotInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264ProfileInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264RateControlInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264QpEXT& value);
@@ -598,11 +597,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264RateControlL
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265CapabilitiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265SessionParametersAddInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265SessionParametersCreateInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265DpbSlotInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265ReferenceListsInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265NaluSliceSegmentInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265VclFrameInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265EmitPictureParametersInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265DpbSlotInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265ProfileInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265RateControlInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265QpEXT& value);
@@ -912,6 +909,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentBarrierCrea
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDiagnosticsConfigFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceDiagnosticsConfigCreateInfoNV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkQueryLowLatencySupportNV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT& value);

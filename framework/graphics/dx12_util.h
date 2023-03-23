@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -179,6 +179,9 @@ bool GetAdapterAndIndexbyLUID(LUID                              luid,
                               IDXGIAdapter*&                    adapter_ptr,
                               uint32_t&                         index,
                               graphics::dx12::ActiveAdapterMap& adapters);
+
+// Get list of active adapters
+void GetActiveAdapterLuids(graphics::dx12::ActiveAdapterMap adapters, std::vector<LUID>& adapter_luids);
 
 // Qeury the D3D12Device's IDXGIAdatper3 interface and the adapter's index
 bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,

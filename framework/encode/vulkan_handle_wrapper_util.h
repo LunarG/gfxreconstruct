@@ -28,6 +28,7 @@
 #include "format/format.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "generated/generated_vulkan_state_table.h"
 #include "util/defines.h"
 
 #include <algorithm>
@@ -38,23 +39,83 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+#if VK_USE_64_BIT_PTR_DEFINES == 1
+#define UINT64_TO_VK_HANDLE(handle_type, value) reinterpret_cast<handle_type>(value)
+#else
+#define UINT64_TO_VK_HANDLE(handle_type, value) static_cast<handle_type>(value)
+#endif
+
+// Temporary resource IDs for state processing.
+static const format::HandleId kTempQueueId = std::numeric_limits<format::HandleId>::max() - 1;
+static const VkCommandPool    kTempCommandPool =
+    UINT64_TO_VK_HANDLE(VkCommandPool, std::numeric_limits<uint64_t>::max() - 2);
+static const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
+static const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
+
 typedef format::HandleId (*PFN_GetHandleId)();
 
-template <typename T>
-T GetWrappedHandle(const T& handle)
+extern VulkanStateHandleTable state_handle_table_;
+
+template <typename Wrapper>
+format::HandleId GetTempWrapperId(const typename Wrapper::HandleType& handle)
 {
-    return (handle != VK_NULL_HANDLE) ? reinterpret_cast<HandleWrapper<T>*>(handle)->handle : VK_NULL_HANDLE;
+    return 0;
 }
 
-template <typename T>
-format::HandleId GetWrappedId(const T& handle)
+template <>
+inline format::HandleId GetTempWrapperId<CommandPoolWrapper>(const VkCommandPool& handle)
 {
-    return (handle != VK_NULL_HANDLE) ? reinterpret_cast<HandleWrapper<T>*>(handle)->handle_id : 0;
+    if (handle == kTempCommandPool)
+    {
+        return kTempCommandPoolId;
+    }
+    return 0;
 }
 
-uint64_t GetWrappedHandle(uint64_t, VkObjectType object_type);
+template <typename Wrapper>
+format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
+{
+    if (handle == VK_NULL_HANDLE)
+    {
+        return 0;
+    }
+    auto temp_id = GetTempWrapperId<Wrapper>(handle);
+    if (temp_id != 0)
+    {
+        return temp_id;
+    }
 
-uint64_t GetWrappedHandle(uint64_t object, VkDebugReportObjectTypeEXT object_type);
+    auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
+    if (wrapper == nullptr)
+    {
+        GFXRECON_LOG_WARNING("GetWrappedId() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed",
+                             handle);
+        return 0;
+    }
+    return wrapper->handle_id;
+}
+
+template <typename Wrapper>
+Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
+{
+    if (handle == VK_NULL_HANDLE)
+    {
+        return 0;
+    }
+    auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
+    if (wrapper == nullptr)
+    {
+        GFXRECON_LOG_WARNING("GetWrapper() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed",
+                             handle);
+    }
+    return wrapper;
+}
+
+template <typename Wrapper>
+bool RemoveWrapper(const Wrapper* wrapper)
+{
+    return state_handle_table_.RemoveWrapper(wrapper);
+}
 
 uint64_t GetWrappedId(uint64_t, VkObjectType object_type);
 
@@ -63,14 +124,14 @@ uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type);
 inline const InstanceTable* GetInstanceTable(VkInstance handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = reinterpret_cast<const InstanceWrapper*>(handle);
+    auto wrapper = GetWrapper<InstanceWrapper>(handle);
     return &wrapper->layer_table;
 }
 
 inline const InstanceTable* GetInstanceTable(VkPhysicalDevice handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = reinterpret_cast<const PhysicalDeviceWrapper*>(handle);
+    auto wrapper = GetWrapper<PhysicalDeviceWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
@@ -78,14 +139,14 @@ inline const InstanceTable* GetInstanceTable(VkPhysicalDevice handle)
 inline const DeviceTable* GetDeviceTable(VkDevice handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = reinterpret_cast<const DeviceWrapper*>(handle);
+    auto wrapper = GetWrapper<DeviceWrapper>(handle);
     return &wrapper->layer_table;
 }
 
 inline const DeviceTable* GetDeviceTable(VkQueue handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = reinterpret_cast<const QueueWrapper*>(handle);
+    auto wrapper = GetWrapper<QueueWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
@@ -93,7 +154,7 @@ inline const DeviceTable* GetDeviceTable(VkQueue handle)
 inline const DeviceTable* GetDeviceTable(VkCommandBuffer handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = reinterpret_cast<const CommandBufferWrapper*>(handle);
+    auto wrapper = GetWrapper<CommandBufferWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
@@ -126,8 +187,12 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
             void* disp                         = *reinterpret_cast<void* const*>(parent);
             *reinterpret_cast<void**>(*handle) = disp;
         }
-
-        (*handle) = reinterpret_cast<typename Wrapper::HandleType>(wrapper);
+        if (!state_handle_table_.InsertWrapper(wrapper))
+        {
+            GFXRECON_LOG_WARNING("Create a duplicated Handle: %" PRIu64
+                                 ". This wrapper can't be written into VulkanStateHandleTable.",
+                                 *handle);
+        }
     }
 }
 
@@ -140,7 +205,12 @@ void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_Ge
         Wrapper* wrapper   = new Wrapper;
         wrapper->handle    = (*handle);
         wrapper->handle_id = get_id();
-        (*handle)          = reinterpret_cast<typename Wrapper::HandleType>(wrapper);
+        if (!state_handle_table_.InsertWrapper(wrapper))
+        {
+            GFXRECON_LOG_WARNING("Create a duplicated Handle: %" PRIu64
+                                 ". This wrapper can't be written into VulkanStateHandleTable.",
+                                 *handle);
+        }
     }
 }
 
@@ -173,7 +243,7 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, PhysicalDevice
     assert(parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = reinterpret_cast<InstanceWrapper*>(parent);
+    auto parent_wrapper = GetWrapper<InstanceWrapper>(parent);
 
     // Filter duplicate physical device retrieval.
     PhysicalDeviceWrapper* wrapper = nullptr;
@@ -186,15 +256,11 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, PhysicalDevice
         }
     }
 
-    if (wrapper != nullptr)
-    {
-        (*handle) = reinterpret_cast<VkPhysicalDevice>(wrapper);
-    }
-    else
+    if (wrapper == nullptr)
     {
         CreateWrappedDispatchHandle<InstanceWrapper, PhysicalDeviceWrapper>(parent, handle, get_id);
 
-        wrapper                  = reinterpret_cast<PhysicalDeviceWrapper*>(*handle);
+        wrapper                  = GetWrapper<PhysicalDeviceWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_physical_devices.push_back(wrapper);
     }
@@ -220,7 +286,7 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
     assert(parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = reinterpret_cast<DeviceWrapper*>(parent);
+    auto parent_wrapper = GetWrapper<DeviceWrapper>(parent);
 
     // Filter duplicate physical device retrieval.
     QueueWrapper* wrapper = nullptr;
@@ -233,15 +299,11 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
         }
     }
 
-    if (wrapper != nullptr)
-    {
-        (*handle) = reinterpret_cast<VkQueue>(wrapper);
-    }
-    else
+    if (wrapper == nullptr)
     {
         CreateWrappedDispatchHandle<DeviceWrapper, QueueWrapper>(parent, handle, get_id);
 
-        wrapper                  = reinterpret_cast<QueueWrapper*>(*handle);
+        wrapper                  = GetWrapper<QueueWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_queues.push_back(wrapper);
     }
@@ -260,9 +322,9 @@ inline void CreateWrappedHandle<DeviceWrapper, CommandPoolWrapper, CommandBuffer
 
     // The command pool must keep track of allocated command buffers, whose wrappers will need to be destroyed when the
     // pool is destroyed.
-    auto parent_wrapper    = reinterpret_cast<DeviceWrapper*>(parent);
-    auto co_parent_wrapper = reinterpret_cast<CommandPoolWrapper*>(co_parent);
-    auto wrapper           = reinterpret_cast<CommandBufferWrapper*>(*handle);
+    auto parent_wrapper    = GetWrapper<DeviceWrapper>(parent);
+    auto co_parent_wrapper = GetWrapper<CommandPoolWrapper>(co_parent);
+    auto wrapper           = GetWrapper<CommandBufferWrapper>(*handle);
 
     wrapper->layer_table_ref = &parent_wrapper->layer_table;
     wrapper->parent_pool     = co_parent_wrapper;
@@ -283,8 +345,8 @@ inline void CreateWrappedHandle<DeviceWrapper, DescriptorPoolWrapper, Descriptor
 
     // The descriptor pool must keep track of allocated command buffers, whose wrappers will need to be destroyed when
     // the pool is destroyed.
-    auto parent_wrapper = reinterpret_cast<DescriptorPoolWrapper*>(co_parent);
-    auto wrapper        = reinterpret_cast<DescriptorSetWrapper*>(*handle);
+    auto parent_wrapper = GetWrapper<DescriptorPoolWrapper>(co_parent);
+    auto wrapper        = GetWrapper<DescriptorSetWrapper>(*handle);
 
     parent_wrapper->child_sets.insert(std::make_pair(wrapper->handle_id, wrapper));
     wrapper->parent_pool = parent_wrapper;
@@ -306,7 +368,7 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayK
     if ((*handle) != VK_NULL_HANDLE)
     {
         assert(parent != VK_NULL_HANDLE);
-        auto parent_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(parent);
+        auto parent_wrapper = GetWrapper<PhysicalDeviceWrapper>(parent);
 
         // Filter duplicate display retrieval.
         DisplayKHRWrapper* wrapper = nullptr;
@@ -319,14 +381,11 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayK
             }
         }
 
-        if (wrapper != nullptr)
-        {
-            (*handle) = reinterpret_cast<VkDisplayKHR>(wrapper);
-        }
-        else
+        if (wrapper == nullptr)
         {
             CreateWrappedNonDispatchHandle<DisplayKHRWrapper>(handle, get_id);
-            parent_wrapper->child_displays.push_back(reinterpret_cast<DisplayKHRWrapper*>(*handle));
+            wrapper = GetWrapper<DisplayKHRWrapper>(*handle);
+            parent_wrapper->child_displays.push_back(wrapper);
         }
     }
 }
@@ -343,7 +402,7 @@ CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, 
     assert(co_parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = reinterpret_cast<SwapchainKHRWrapper*>(co_parent);
+    auto parent_wrapper = GetWrapper<SwapchainKHRWrapper>(co_parent);
 
     // Filter duplicate display retrieval.
     ImageWrapper* wrapper = nullptr;
@@ -356,16 +415,12 @@ CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, 
         }
     }
 
-    if (wrapper != nullptr)
-    {
-        (*handle) = reinterpret_cast<VkImage>(wrapper);
-    }
-    else
+    if (wrapper == nullptr)
     {
         CreateWrappedNonDispatchHandle<ImageWrapper>(handle, get_id);
-        auto image_wrapper                = reinterpret_cast<ImageWrapper*>(*handle);
-        image_wrapper->is_swapchain_image = true;
-        parent_wrapper->child_images.push_back(image_wrapper);
+        wrapper                     = GetWrapper<ImageWrapper>(*handle);
+        wrapper->is_swapchain_image = true;
+        parent_wrapper->child_images.push_back(wrapper);
     }
 }
 
@@ -381,7 +436,7 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper, Displa
     assert(co_parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = reinterpret_cast<DisplayKHRWrapper*>(co_parent);
+    auto parent_wrapper = GetWrapper<DisplayKHRWrapper>(co_parent);
 
     // Display modes can either be retrieved or created; filter duplicate display mode retrieval.
     DisplayModeKHRWrapper* wrapper = nullptr;
@@ -394,14 +449,11 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper, Displa
         }
     }
 
-    if (wrapper != nullptr)
-    {
-        (*handle) = reinterpret_cast<VkDisplayModeKHR>(wrapper);
-    }
-    else
+    if (wrapper == nullptr)
     {
         CreateWrappedNonDispatchHandle<DisplayModeKHRWrapper>(handle, get_id);
-        parent_wrapper->child_display_modes.push_back(reinterpret_cast<DisplayModeKHRWrapper*>(*handle));
+        wrapper = GetWrapper<DisplayModeKHRWrapper>(*handle);
+        parent_wrapper->child_display_modes.push_back(wrapper);
     }
 }
 
@@ -426,7 +478,9 @@ void DestroyWrappedHandle(typename Wrapper::HandleType handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
-        delete reinterpret_cast<Wrapper*>(handle);
+        auto wrapper = GetWrapper<Wrapper>(handle);
+        RemoveWrapper<Wrapper>(wrapper);
+        delete wrapper;
     }
 }
 
@@ -436,7 +490,7 @@ inline void DestroyWrappedHandle<InstanceWrapper>(VkInstance handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = reinterpret_cast<InstanceWrapper*>(handle);
+        auto wrapper = GetWrapper<InstanceWrapper>(handle);
 
         for (auto physical_device_wrapper : wrapper->child_physical_devices)
         {
@@ -444,15 +498,19 @@ inline void DestroyWrappedHandle<InstanceWrapper>(VkInstance handle)
             {
                 for (auto display_mode_wrapper : display_wrapper->child_display_modes)
                 {
+                    RemoveWrapper<DisplayModeKHRWrapper>(display_mode_wrapper);
                     delete display_mode_wrapper;
                 }
 
+                RemoveWrapper<DisplayKHRWrapper>(display_wrapper);
                 delete display_wrapper;
             }
 
+            RemoveWrapper<PhysicalDeviceWrapper>(physical_device_wrapper);
             delete physical_device_wrapper;
         }
 
+        RemoveWrapper<InstanceWrapper>(wrapper);
         delete wrapper;
     }
 }
@@ -463,13 +521,15 @@ inline void DestroyWrappedHandle<DeviceWrapper>(VkDevice handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = reinterpret_cast<DeviceWrapper*>(handle);
+        auto wrapper = GetWrapper<DeviceWrapper>(handle);
 
         for (auto queue_wrapper : wrapper->child_queues)
         {
+            RemoveWrapper<QueueWrapper>(queue_wrapper);
             delete queue_wrapper;
         }
 
+        RemoveWrapper<DeviceWrapper>(wrapper);
         delete wrapper;
     }
 }
@@ -480,9 +540,10 @@ inline void DestroyWrappedHandle<CommandBufferWrapper>(VkCommandBuffer handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Remove from parent list.
-        auto wrapper = reinterpret_cast<CommandBufferWrapper*>(handle);
+        auto wrapper = GetWrapper<CommandBufferWrapper>(handle);
         wrapper->parent_pool->child_buffers.erase(wrapper->handle_id);
 
+        RemoveWrapper<CommandBufferWrapper>(wrapper);
         delete wrapper;
     }
 }
@@ -493,13 +554,15 @@ inline void DestroyWrappedHandle<CommandPoolWrapper>(VkCommandPool handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = reinterpret_cast<CommandPoolWrapper*>(handle);
+        auto wrapper = GetWrapper<CommandPoolWrapper>(handle);
 
         for (const auto& buffer_wrapper : wrapper->child_buffers)
         {
+            RemoveWrapper<CommandBufferWrapper>(buffer_wrapper.second);
             delete buffer_wrapper.second;
         }
 
+        RemoveWrapper<CommandPoolWrapper>(wrapper);
         delete wrapper;
     }
 }
@@ -510,9 +573,10 @@ inline void DestroyWrappedHandle<DescriptorSetWrapper>(VkDescriptorSet handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Remove from parent list.
-        auto wrapper = reinterpret_cast<DescriptorSetWrapper*>(handle);
+        auto wrapper = GetWrapper<DescriptorSetWrapper>(handle);
         wrapper->parent_pool->child_sets.erase(wrapper->handle_id);
 
+        RemoveWrapper<DescriptorSetWrapper>(wrapper);
         delete wrapper;
     }
 }
@@ -523,13 +587,15 @@ inline void DestroyWrappedHandle<DescriptorPoolWrapper>(VkDescriptorPool handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = reinterpret_cast<DescriptorPoolWrapper*>(handle);
+        auto wrapper = GetWrapper<DescriptorPoolWrapper>(handle);
 
         for (const auto& set_wrapper : wrapper->child_sets)
         {
+            RemoveWrapper<DescriptorSetWrapper>(set_wrapper.second);
             delete set_wrapper.second;
         }
 
+        RemoveWrapper<DescriptorPoolWrapper>(wrapper);
         delete wrapper;
     }
 }
@@ -540,13 +606,15 @@ inline void DestroyWrappedHandle<SwapchainKHRWrapper>(VkSwapchainKHR handle)
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = reinterpret_cast<SwapchainKHRWrapper*>(handle);
+        auto wrapper = GetWrapper<SwapchainKHRWrapper>(handle);
 
         for (auto image_wrapper : wrapper->child_images)
         {
+            RemoveWrapper<ImageWrapper>(image_wrapper);
             delete image_wrapper;
         }
 
+        RemoveWrapper<SwapchainKHRWrapper>(wrapper);
         delete wrapper;
     }
 }
@@ -568,35 +636,13 @@ inline void ResetDescriptorPoolWrapper(VkDescriptorPool handle)
     assert(handle != VK_NULL_HANDLE);
 
     // Destroy child wrappers.
-    auto wrapper = reinterpret_cast<DescriptorPoolWrapper*>(handle);
+    auto wrapper = GetWrapper<DescriptorPoolWrapper>(handle);
     for (const auto& set_wrapper : wrapper->child_sets)
     {
+        RemoveWrapper<DescriptorSetWrapper>(set_wrapper.second);
         delete set_wrapper.second;
     }
     wrapper->child_sets.clear();
-}
-
-// Unwrap arrays of handles.
-template <typename Handle>
-const Handle* UnwrapHandles(const Handle* handles, uint32_t len, HandleUnwrapMemory* unwrap_memory)
-{
-    if ((handles != nullptr) && (len > 0))
-    {
-        assert(unwrap_memory != nullptr);
-
-        size_t num_bytes         = len * sizeof(Handle);
-        auto   unwrapped_handles = reinterpret_cast<Handle*>(unwrap_memory->GetBuffer(num_bytes));
-
-        for (uint32_t i = 0; i < len; ++i)
-        {
-            unwrapped_handles[i] = GetWrappedHandle<Handle>(handles[i]);
-        }
-
-        return unwrapped_handles;
-    }
-
-    // Leave the original memory in place when the pointer is not null, but size is zero.
-    return handles;
 }
 
 GFXRECON_END_NAMESPACE(encode)

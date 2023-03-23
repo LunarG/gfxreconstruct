@@ -87,7 +87,7 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
                 auto   unwrapped_entry = reinterpret_cast<VkBufferView*>(unwrapped_data + offset);
                 auto   entry           = reinterpret_cast<const VkBufferView*>(bytes + offset);
 
-                *unwrapped_entry = GetWrappedHandle<VkBufferView>(*entry);
+                *unwrapped_entry = (*entry);
             }
         }
 
@@ -100,7 +100,7 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
                 auto   unwrapped_entry = reinterpret_cast<VkAccelerationStructureKHR*>(unwrapped_data + offset);
                 auto   entry           = reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
 
-                *unwrapped_entry = GetWrappedHandle<VkAccelerationStructureKHR>(*entry);
+                *unwrapped_entry = (*entry);
             }
         }
 
@@ -163,7 +163,7 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
             {
                 size_t              offset = entry_info.offset + (entry_info.stride * i);
                 const VkBufferView* entry  = reinterpret_cast<const VkBufferView*>(bytes + offset);
-                encoder->EncodeHandleValue(*entry);
+                encoder->EncodeHandleValue<BufferViewWrapper>(*entry);
             }
         }
 
@@ -180,7 +180,7 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
                     size_t                            offset = entry_info.offset + (entry_info.stride * i);
                     const VkAccelerationStructureKHR* entry =
                         reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
-                    encoder->EncodeHandleValue(*entry);
+                    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(*entry);
                 }
             }
         }
@@ -213,23 +213,20 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorSet);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleValue<DeviceWrapper>(device);
+        encoder->EncodeHandleValue<DescriptorSetWrapper>(descriptorSet);
+        encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
         manager->EndApiCallCapture();
     }
 
-    auto handle_unwrap_memory               = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    auto device_unwrapped                   = GetWrappedHandle<VkDevice>(device);
-    auto descriptorSet_unwrapped            = GetWrappedHandle<VkDescriptorSet>(descriptorSet);
-    auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
-    auto pData_unwrapped = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
     GetDeviceTable(device)->UpdateDescriptorSetWithTemplate(
-        device_unwrapped, descriptorSet_unwrapped, descriptorUpdateTemplate_unwrapped, pData_unwrapped);
+        device, descriptorSet, descriptorUpdateTemplate, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>::Dispatch(
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
@@ -258,9 +255,9 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
-        encoder->EncodeHandleValue(layout);
+        encoder->EncodeHandleValue<CommandBufferWrapper>(commandBuffer);
+        encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
+        encoder->EncodeHandleValue<PipelineLayoutWrapper>(layout);
         encoder->EncodeUInt32Value(set);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
@@ -268,15 +265,11 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
         manager->EndApiCallCapture();
     }
 
-    auto handle_unwrap_memory               = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    auto commandBuffer_unwrapped            = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
-    auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
-    auto layout_unwrapped                   = GetWrappedHandle<VkPipelineLayout>(layout);
-    auto pData_unwrapped = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)
-        ->CmdPushDescriptorSetWithTemplateKHR(
-            commandBuffer_unwrapped, descriptorUpdateTemplate_unwrapped, layout_unwrapped, set, pData_unwrapped);
+        ->CmdPushDescriptorSetWithTemplateKHR(commandBuffer, descriptorUpdateTemplate, layout, set, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
@@ -304,23 +297,20 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorSet);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleValue<DeviceWrapper>(device);
+        encoder->EncodeHandleValue<DescriptorSetWrapper>(descriptorSet);
+        encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
         manager->EndApiCallCapture();
     }
 
-    auto handle_unwrap_memory               = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    auto device_unwrapped                   = GetWrappedHandle<VkDevice>(device);
-    auto descriptorSet_unwrapped            = GetWrappedHandle<VkDescriptorSet>(descriptorSet);
-    auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
-    auto pData_unwrapped = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
     GetDeviceTable(device)->UpdateDescriptorSetWithTemplateKHR(
-        device_unwrapped, descriptorSet_unwrapped, descriptorUpdateTemplate_unwrapped, pData_unwrapped);
+        device, descriptorSet, descriptorUpdateTemplate, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);

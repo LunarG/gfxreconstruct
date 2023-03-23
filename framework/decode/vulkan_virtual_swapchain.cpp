@@ -421,11 +421,12 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
     begin_info.flags                    = 0;
     begin_info.pInheritanceInfo         = nullptr;
 
-    // 0: virtual image, 1: swapchain image
-    std::array<VkImageMemoryBarrier, 2> initial_barriers;
-    std::array<VkImageMemoryBarrier, 2> final_barriers;
+    VkImageMemoryBarrier initial_barrier_virtual_image;
+    VkImageMemoryBarrier initial_barrier_swapchain_image;
+    VkImageMemoryBarrier final_barrier_virtual_image;
+    VkImageMemoryBarrier final_barrier_swapchain_image;
 
-    initial_barriers[0] = {
+    initial_barrier_virtual_image = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
         nullptr,
         VK_ACCESS_NONE,
@@ -444,18 +445,18 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         },
     };
 
-    final_barriers[0]               = initial_barriers[0];
-    final_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    final_barriers[0].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    final_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    final_barriers[0].newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    final_barrier_virtual_image               = initial_barrier_virtual_image;
+    final_barrier_virtual_image.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    final_barrier_virtual_image.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    final_barrier_virtual_image.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    final_barrier_virtual_image.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-    initial_barriers[1]               = initial_barriers[0];
-    initial_barriers[1].dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    initial_barriers[1].newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    initial_barrier_swapchain_image               = initial_barrier_virtual_image;
+    initial_barrier_swapchain_image.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    initial_barrier_swapchain_image.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
-    final_barriers[1]           = final_barriers[0];
-    final_barriers[1].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    final_barrier_swapchain_image           = final_barrier_virtual_image;
+    final_barrier_swapchain_image.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
     VkImageSubresourceLayers subresource = {
         VK_IMAGE_ASPECT_COLOR_BIT,
@@ -504,10 +505,10 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         auto semaphore = swapchain_info->blit_semaphores[capture_image_index];
         semaphores.emplace_back(semaphore);
 
-        initial_barriers[0].image                       = virtual_image.image;
-        initial_barriers[0].subresourceRange.layerCount = swapchain_info->image_array_layers;
-        initial_barriers[1].image                       = swapchain_image;
-        initial_barriers[1].subresourceRange.layerCount = swapchain_info->image_array_layers;
+        initial_barrier_virtual_image.image                         = virtual_image.image;
+        initial_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
+        initial_barrier_swapchain_image.image                       = swapchain_image;
+        initial_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
 
         device_table_->CmdPipelineBarrier(command_buffer,
                                           VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
@@ -517,8 +518,19 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                           nullptr,
                                           0,
                                           nullptr,
-                                          2,
-                                          initial_barriers.data());
+                                          1,
+                                          &initial_barrier_virtual_image);
+
+        device_table_->CmdPipelineBarrier(command_buffer,
+                                          VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT,
+                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                          0,
+                                          0,
+                                          nullptr,
+                                          0,
+                                          nullptr,
+                                          1,
+                                          &initial_barrier_swapchain_image);
 
         subresource.layerCount = swapchain_info->image_array_layers;
 
@@ -540,10 +552,10 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                     &blit,
                                     VK_FILTER_NEAREST);
 
-        final_barriers[0].image                       = virtual_image.image;
-        final_barriers[0].subresourceRange.layerCount = swapchain_info->image_array_layers;
-        final_barriers[1].image                       = swapchain_image;
-        final_barriers[1].subresourceRange.layerCount = swapchain_info->image_array_layers;
+        final_barrier_virtual_image.image                         = virtual_image.image;
+        final_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
+        final_barrier_swapchain_image.image                       = swapchain_image;
+        final_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
 
         device_table_->CmdPipelineBarrier(command_buffer,
                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -553,8 +565,19 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                           nullptr,
                                           0,
                                           nullptr,
-                                          2,
-                                          final_barriers.data());
+                                          1,
+                                          &final_barrier_virtual_image);
+
+        device_table_->CmdPipelineBarrier(command_buffer,
+                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                          VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT,
+                                          0,
+                                          0,
+                                          nullptr,
+                                          0,
+                                          nullptr,
+                                          1,
+                                          &final_barrier_swapchain_image);
 
         result = device_table_->EndCommandBuffer(command_buffer);
         if (result != VK_SUCCESS)

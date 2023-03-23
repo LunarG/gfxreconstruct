@@ -295,10 +295,16 @@ inline std::string Array2DMatrixToString(size_t m,
                                          uint32_t      tabSize       = 4)
 {
     std::stringstream strStrm;
+    strStrm << '[';
     for (size_t i = 0; i < m; ++i)
     {
+        if (i)
+        {
+            strStrm << ',';
+        }
         strStrm << ArrayToString(n, &pObjs[i][0], toStringFlags, tabCount, tabSize);
     }
+    strStrm << ']';
     return strStrm.str();
 }
 

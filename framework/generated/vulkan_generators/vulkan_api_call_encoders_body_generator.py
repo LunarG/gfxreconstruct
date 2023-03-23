@@ -472,7 +472,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         )
 
                         if not member_array_length:
-                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return reinterpret_cast<{wrapper}Wrapper*>(handle_struct->{}); }}'.format(
+                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return GetWrapper<{wrapper}Wrapper>(handle_struct->{}); }}'.format(
                                 handle.base_type,
                                 member_handle_name,
                                 wrapper=member_handle_type[2:]
@@ -635,17 +635,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             arg_name = value.name
             if value.is_pointer or value.is_array:
                 if self.is_input_pointer(value):
-                    if self.is_handle(value.base_type):
-                        need_unwrap_memory = True
-                        arg_name += '_unwrapped'
-                        array_length = value.array_length if value.is_array else 1  # At this time, all pointer unwrap cases are arrays
-                        expr += indent + '{} {name}_unwrapped = UnwrapHandles<{}>({name}, {}, handle_unwrap_memory);\n'.format(
-                            value.full_type,
-                            value.base_type,
-                            array_length,
-                            name=value.name
-                        )
-                    elif (value.base_type in self.structs_with_handles) or (
+                    if (value.base_type in self.structs_with_handles) or (
                         value.base_type in self.GENERIC_HANDLE_STRUCTS
                     ):
                         need_unwrap_memory = True
@@ -660,19 +650,6 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                             expr += indent + '{} {name}_unwrapped = UnwrapStructPtrHandles({name}, handle_unwrap_memory);\n'.format(
                                 value.full_type, name=value.name
                             )
-            elif self.is_handle(value.base_type):
-                arg_name += '_unwrapped'
-                expr += indent + '{type} {name}_unwrapped = GetWrappedHandle<{type}>({name});\n'.format(
-                    type=value.base_type, name=value.name
-                )
-            elif self.is_generic_cmd_handle_value(name, value.name):
-                arg_name += '_unwrapped'
-                expr += indent + '{type} {name}_unwrapped = GetWrappedHandle({name}, {type_value});\n'.format(
-                    type=value.base_type,
-                    name=value.name,
-                    type_value=self.
-                    get_generic_cmd_handle_type_value(name, value.name)
-                )
             args.append(arg_name)
         return expr, ', '.join(args), need_unwrap_memory
 
