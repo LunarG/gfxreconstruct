@@ -25,8 +25,7 @@
 # Author: AMD Developer Tools Team
 # Description: CMake script for framework util target
 ###############################################################################
-
-cmake_minimum_required(VERSION 3.17.0)
+cmake_minimum_required(VERSION 3.16.3)
 project(GFXReconstruct LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
