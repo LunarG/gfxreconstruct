@@ -26,7 +26,7 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.17.0)
+cmake_minimum_required(VERSION 3.10.2)
 project(GFXReconstruct LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
