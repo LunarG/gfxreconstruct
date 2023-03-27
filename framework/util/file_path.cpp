@@ -171,7 +171,7 @@ std::string InsertFilenamePostfix(const std::string& filename, const std::string
 
 std::string GetBasedir(const std::string& path)
 {
-    std::string basedir    = path;
+    std::string basedir    = "";
     size_t      suffix_pos = path.rfind(kPathSepStr);
 #if defined(WIN32)
     size_t alt_suffix_pos = path.rfind(kAltPathSepStr);
