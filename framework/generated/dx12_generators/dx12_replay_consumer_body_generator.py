@@ -172,10 +172,12 @@ class Dx12ReplayConsumerBodyGenerator(
         code = ''
         arg_list = []
         add_object_list = []
+        set_resource_dimension_layout_list = []
         struct_add_object_list = []
         post_extenal_object_list = []
 
         is_override = name in self.REPLAY_OVERRIDES
+        is_resource_creation_methods = False
         is_object = True if name.find('_') != -1 else False
         if is_object:
             class_name = name[:name.find('_')]
@@ -183,6 +185,9 @@ class Dx12ReplayConsumerBodyGenerator(
             if class_name in self.REPLAY_OVERRIDES['classmethods']:
                 is_override = method_name in self.REPLAY_OVERRIDES[
                     'classmethods'][class_name]
+            resource_creation_methods = ["CreateCommittedResource", "CreatePlacedResource", "CreateReservedResource", "CreateCommittedResource1", "CreateReservedResource1", "CreateCommittedResource2", "CreatePlacedResource1"]
+            if method_name in resource_creation_methods:
+                is_resource_creation_methods = True
         else:
             is_override = name in self.REPLAY_OVERRIDES['functions']
 
@@ -231,7 +236,11 @@ class Dx12ReplayConsumerBodyGenerator(
                                 value.name
                             )
                         )
-
+                    set_resource_dimension_layout_list.append(
+                        'SetResourceDesc({0}, pDesc);\n'.format(
+                            value.name
+                        )
+                    )
                 else:
                     if value.pointer_count == 2:
                         if is_override:
@@ -437,6 +446,9 @@ class Dx12ReplayConsumerBodyGenerator(
                     code += '        {}'.format(e)
                 for e in struct_add_object_list:
                     code += '        {}'.format(e)
+                if is_resource_creation_methods:
+                    for e in set_resource_dimension_layout_list:
+                        code += '        {}'.format(e)
                 code += "    }\n"
 
             code += (

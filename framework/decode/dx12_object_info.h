@@ -278,6 +278,8 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
 
     std::map<uint64_t, uint64_t>                       mapped_gpu_addresses;
     std::map<uint64_t, graphics::Dx12ShaderIdentifier> mapped_shader_ids;
+
+    D3D12_RESOURCE_DESC1 desc = {};
 };
 
 struct D3D12CommandSignatureInfo : DxObjectExtraInfo

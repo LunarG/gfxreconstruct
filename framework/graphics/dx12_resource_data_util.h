@@ -112,6 +112,8 @@ class Dx12ResourceDataUtil
 
     HRESULT MapSubresourceAndReadData(ID3D12Resource* resource, UINT subresource, size_t size, uint8_t* data);
 
+    HRESULT MapSubresourceAndWriteData(ID3D12Resource* resource, UINT subresource, size_t size, const uint8_t* data);
+
   private:
     ID3D12Device*                         device_;
     dx12::ID3D12CommandQueueComPtr        command_queue_;

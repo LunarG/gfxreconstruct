@@ -662,6 +662,7 @@ class D3D12CaptureManager : public CaptureManager
     void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    device_wrapper,
                                       ID3D12Resource_Wrapper*  resource_wrapper,
                                       D3D12_RESOURCE_DIMENSION dimension,
+                                      D3D12_TEXTURE_LAYOUT     layout,
                                       UINT64                   width,
                                       UINT64                   size,
                                       D3D12_HEAP_TYPE          heap_type,
