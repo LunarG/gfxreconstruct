@@ -41,6 +41,12 @@ struct FrameRange
 
 std::vector<FrameRange> GetFrameRanges(const std::string& args);
 
+enum class ScreenshotFormat : uint32_t
+{
+    kBmp = 0,
+    kPng = 1,
+};
+
 //----------------------------------------------------------------------------
 /// Read a boolean value out of a string
 /// \param  value_string Input string

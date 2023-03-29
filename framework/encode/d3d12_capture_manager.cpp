@@ -350,7 +350,7 @@ void D3D12CaptureManager::InitializeID3D12DeviceInfo(IUnknown* adapter, void** d
     if ((device != nullptr) && (*device != nullptr))
     {
         auto device_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(*device);
-        auto info = device_wrapper->GetObjectInfo();
+        auto info           = device_wrapper->GetObjectInfo();
 
         if (info != nullptr)
         {
@@ -416,14 +416,14 @@ bool D3D12CaptureManager::IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_
 uint64_t D3D12CaptureManager::GetResourceSizeInBytes(ID3D12Device_Wrapper*      device_wrapper,
                                                      const D3D12_RESOURCE_DESC* desc)
 {
-    auto device      = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+    auto device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
     return graphics::dx12::GetResourceSizeInBytes(device, desc);
 }
 
 uint64_t D3D12CaptureManager::GetResourceSizeInBytes(ID3D12Device8_Wrapper*      device_wrapper,
                                                      const D3D12_RESOURCE_DESC1* desc)
 {
-    auto device      = device_wrapper->GetWrappedObjectAs<ID3D12Device8>();
+    auto device = device_wrapper->GetWrappedObjectAs<ID3D12Device8>();
     return graphics::dx12::GetResourceSizeInBytes(device, desc);
 }
 
@@ -533,7 +533,8 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
                                                      swapchain_info->command_queue,
                                                      swapchain,
                                                      global_frame_count_ + 1,
-                                                     screenshot_prefix_);
+                                                     screenshot_prefix_,
+                                                     screenshot_format_);
         }
         else
         {

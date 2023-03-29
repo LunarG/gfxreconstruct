@@ -31,6 +31,8 @@
 
 #include "vulkan/vulkan.h"
 
+#include <atomic>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -41,11 +43,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class ScreenshotHandler : public ScreenshotHandlerBase
 {
   public:
-    ScreenshotHandler(ScreenshotFormat screenshot_format, const std::vector<ScreenshotRange>& screenshot_ranges) :
+    ScreenshotHandler(util::ScreenshotFormat screenshot_format, const std::vector<ScreenshotRange>& screenshot_ranges) :
         ScreenshotHandlerBase(screenshot_format, screenshot_ranges)
     {}
 
-    ScreenshotHandler(ScreenshotFormat screenshot_format, std::vector<ScreenshotRange>&& screenshot_ranges) :
+    ScreenshotHandler(util::ScreenshotFormat screenshot_format, std::vector<ScreenshotRange>&& screenshot_ranges) :
         ScreenshotHandlerBase(screenshot_format, screenshot_ranges)
     {}
 

@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifdef ENABLE_ZLIB_COMPRESSION
+#ifdef GFXRECON_ENABLE_ZLIB_COMPRESSION
 
 #include "util/zlib_compressor.h"
 
@@ -110,4 +110,4 @@ size_t ZlibCompressor::Decompress(const size_t                compressed_size,
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // ENABLE_ZLIB_COMPRESSION
+#endif // GFXRECON_ENABLE_ZLIB_COMPRESSION

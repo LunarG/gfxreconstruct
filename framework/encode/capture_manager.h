@@ -116,6 +116,8 @@ class CaptureManager
 
     bool ShouldTriggerScreenshot();
 
+    util::ScreenshotFormat GetScreenshotFormat() { return screenshot_format_; }
+
     void CheckContinueCaptureForWriteMode();
 
     void CheckStartCaptureForTrackMode();
@@ -144,7 +146,6 @@ class CaptureManager
     auto GetForceCommandSerialization() const { return force_command_serialization_; }
 
   protected:
-
     enum CaptureModeFlags : uint32_t
     {
         kModeDisabled      = 0x0,
@@ -257,6 +258,7 @@ class CaptureManager
     std::mutex                        mapped_memory_lock_;
     util::Keyboard                    keyboard_;
     std::string                       screenshot_prefix_;
+    util::ScreenshotFormat            screenshot_format_;
     uint32_t                          global_frame_count_;
 
     void WriteToFile(const void* data, size_t size);

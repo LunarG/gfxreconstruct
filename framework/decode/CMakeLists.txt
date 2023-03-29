@@ -219,6 +219,12 @@ if (MSVC)
     endif()
 endif()
 
+if (TARGET ZLIB::ZLIB)
+    target_compile_definitions(gfxrecon_decode
+                               PUBLIC
+                                   GFXRECON_ENABLE_PNG_SCREENSHOT)
+endif()
+
 target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework

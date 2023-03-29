@@ -141,6 +141,7 @@ const char kApiFamilyAll[]    = "all";
 #endif
 
 const char kScreenshotFormatBmp[] = "bmp";
+const char kScreenshotFormatPng[] = "png";
 
 #if defined(__ANDROID__)
 const char kDefaultScreenshotDir[] = "/sdcard";
@@ -426,16 +427,20 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
     log_settings.output_to_os_debug_string = arg_parser.IsOptionSet(kLogDebugView);
 }
 
-static gfxrecon::decode::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util::ArgumentParser& arg_parser)
+static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    gfxrecon::decode::ScreenshotFormat format = gfxrecon::decode::ScreenshotFormat::kBmp;
-    const auto&                        value  = arg_parser.GetArgumentValue(kScreenshotFormatArgument);
+    gfxrecon::util::ScreenshotFormat format = gfxrecon::util::ScreenshotFormat::kBmp;
+    const auto&                      value  = arg_parser.GetArgumentValue(kScreenshotFormatArgument);
 
     if (!value.empty())
     {
         if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatBmp, value.c_str()) == 0)
         {
-            format = gfxrecon::decode::ScreenshotFormat::kBmp;
+            format = gfxrecon::util::ScreenshotFormat::kBmp;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatPng, value.c_str()) == 0)
+        {
+            format = gfxrecon::util::ScreenshotFormat::kPng;
         }
         else
         {
