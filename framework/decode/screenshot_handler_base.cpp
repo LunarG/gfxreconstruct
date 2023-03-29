@@ -31,14 +31,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-ScreenshotHandlerBase::ScreenshotHandlerBase(ScreenshotFormat                    screenshot_format,
-                                     const std::vector<ScreenshotRange>& screenshot_ranges) :
+ScreenshotHandlerBase::ScreenshotHandlerBase(util::ScreenshotFormat              screenshot_format,
+                                             const std::vector<ScreenshotRange>& screenshot_ranges) :
     current_frame_number_(1),
     screenshot_format_(screenshot_format), screenshot_ranges_(screenshot_ranges), current_range_index_(0)
 {}
 
-ScreenshotHandlerBase::ScreenshotHandlerBase(ScreenshotFormat               screenshot_format,
-                                     std::vector<ScreenshotRange>&& screenshot_ranges) :
+ScreenshotHandlerBase::ScreenshotHandlerBase(util::ScreenshotFormat         screenshot_format,
+                                             std::vector<ScreenshotRange>&& screenshot_ranges) :
     current_frame_number_(1),
     screenshot_format_(screenshot_format), screenshot_ranges_(std::move(screenshot_ranges)), current_range_index_(0)
 {}

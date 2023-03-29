@@ -65,13 +65,13 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  <output_file>\t\tPath to the output file to generate.");
     GFXRECON_WRITE_CONSOLE("  <compression_format>\tCompression format to apply to the output file.");
     GFXRECON_WRITE_CONSOLE("                      \tOptions are: ");
-#if defined(ENABLE_LZ4_COMPRESSION)
+#if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
     GFXRECON_WRITE_CONSOLE("                      \t  LZ4  - Use LZ4 compression.");
 #endif
-#if defined(ENABLE_ZLIB_COMPRESSION)
+#if defined(GFXRECON_ENABLE_ZLIB_COMPRESSION)
     GFXRECON_WRITE_CONSOLE("                      \t  ZLIB - Use zlib compression.");
 #endif
-#if defined(ENABLE_ZSTD_COMPRESSION)
+#if defined(GFXRECON_ENABLE_ZSTD_COMPRESSION)
     GFXRECON_WRITE_CONSOLE("                      \t  ZSTD - Use Zstandard compression.");
 #endif
     GFXRECON_WRITE_CONSOLE("                      \t  NONE - Remove compression.");

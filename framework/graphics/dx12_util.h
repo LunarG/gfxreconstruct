@@ -26,6 +26,7 @@
 
 #include "util/defines.h"
 #include "util/logging.h"
+#include "util/options.h"
 #include "util/platform.h"
 #include "graphics/dx12_image_renderer.h"
 #include "format/format.h"
@@ -105,7 +106,8 @@ void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& imag
                     ID3D12CommandQueue*                                     queue,
                     IDXGISwapChain*                                         swapchain,
                     uint32_t                                                frame_num,
-                    const std::string&                                      filename_prefix);
+                    const std::string&                                      filename_prefix,
+                    gfxrecon::util::ScreenshotFormat                        screenshot_format);
 
 // Maps a given sub resource and returns a pointer to the mapped region in data_ptr.
 HRESULT MapSubresource(ID3D12Resource*    resource,

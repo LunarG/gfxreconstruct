@@ -242,6 +242,7 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     debug_layer_                 = trace_settings.debug_layer;
     debug_device_lost_           = trace_settings.debug_device_lost;
     screenshots_enabled_         = !trace_settings.screenshot_ranges.empty();
+    screenshot_format_           = trace_settings.screenshot_format;
     screenshot_indices_          = CalcScreenshotIndices(trace_settings.screenshot_ranges);
     screenshot_prefix_           = PrepScreenshotPrefix(trace_settings.screenshot_dir);
     disable_dxr_                 = trace_settings.disable_dxr;

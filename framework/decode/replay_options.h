@@ -25,16 +25,12 @@
 #define GFXRECON_DECODE_REPLAY_OPTIONS_H
 
 #include "util/defines.h"
+#include "util/options.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 static constexpr char kDefaultScreenshotFilePrefix[] = "screenshot";
-
-enum class ScreenshotFormat : uint32_t
-{
-    kBmp = 0
-};
 
 struct ScreenshotRange
 {
