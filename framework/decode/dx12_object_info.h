@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -73,6 +74,8 @@ enum class DxObjectInfoType : uint32_t
 
 struct DxObjectInfo;
 struct D3D12StateObjectInfo;
+struct D3D12ResourceInfo;
+struct D3D12CommandSignatureInfo;
 
 // Util function for getting the extra info object from a DxObjectInfo.
 template <typename T>
@@ -137,12 +140,33 @@ static size_t GetResourceValueSize(ResourceValueType type)
     }
 }
 
+struct ArgumentBufferExtraInfo
+{
+    D3D12CommandSignatureInfo* command_signature_info{ nullptr };
+    DxObjectInfo*              argument_buffer{ nullptr };
+    uint64_t                   argument_buffer_offset{ 0 };
+};
+
 struct ResourceValueInfo
 {
     uint64_t              offset{ 0 };
     ResourceValueType     type{ ResourceValueType::kUnknown };
     uint64_t              size{ 0 };
     D3D12StateObjectInfo* state_object{ nullptr }; ///< Used to map values in shader records.
+    ArgumentBufferExtraInfo arg_buffer_extra_info;
+
+    ResourceValueInfo(uint64_t                in_offset,
+                      ResourceValueType       in_type,
+                      uint64_t                in_size,
+                      D3D12StateObjectInfo*   in_state_object,
+                      ArgumentBufferExtraInfo in_arg_buffer_extra_info)
+    {
+        offset                = in_offset;
+        type                  = in_type;
+        size                  = in_size;
+        state_object          = in_state_object;
+        arg_buffer_extra_info = in_arg_buffer_extra_info;
+    }
 
     bool operator<(const ResourceValueInfo& other) const { return offset < other.offset; }
 };
