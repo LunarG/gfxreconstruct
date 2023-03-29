@@ -1263,11 +1263,15 @@ bool Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                                    sizeof(command_count));
 
         // Insert new ArgumentBuffer RV infos, which will queue them for translation.
-        GetExecuteIndirectResourceValues(indirect_values_map[value_info.arg_buffer_extra_info.argument_buffer],
-                                         value_info.arg_buffer_extra_info.command_signature_info->resource_value_infos,
-                                         command_count,
-                                         value_info.arg_buffer_extra_info.argument_buffer_offset,
-                                         value_info.arg_buffer_extra_info.command_signature_info->byte_stride);
+        if (command_count != 0)
+        {
+            GetExecuteIndirectResourceValues(
+                indirect_values_map[value_info.arg_buffer_extra_info.argument_buffer],
+                value_info.arg_buffer_extra_info.command_signature_info->resource_value_infos,
+                command_count,
+                value_info.arg_buffer_extra_info.argument_buffer_offset,
+                value_info.arg_buffer_extra_info.command_signature_info->byte_stride);
+        }
         return false;
     }
     else
@@ -1331,10 +1335,10 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
             auto resource_extra_info = GetResourceExtraInfo(resource_object_info);
 
             MappedResourceRevertInfo revert_info;
-            revert_info.data                                    = temp_resource_data;
-            revert_info.states                                  = temp_resource_states;
-            revert_info.mapped_gpu_addresses                    = resource_extra_info->mapped_gpu_addresses;
-            revert_info.mapped_shader_ids                       = resource_extra_info->mapped_shader_ids;
+            revert_info.data                 = temp_resource_data;
+            revert_info.states               = temp_resource_states;
+            revert_info.mapped_gpu_addresses = resource_extra_info->mapped_gpu_addresses;
+            revert_info.mapped_shader_ids    = resource_extra_info->mapped_shader_ids;
 
             bool write_back = false;
             for (const auto& value_info : value_infos)
