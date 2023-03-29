@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2020 LunarG, Inc.
+# Copyright (c) 2018-2020,2023 LunarG, Inc.
 # Copyright (c) 2018-2022 Advanced Micro Devices, Inc. All rights reserved
 # All rights reserved
 #
