@@ -338,7 +338,7 @@ from gfxreconstruct's root source directory. Then install with `make install`.
 
 - The latest version of [Android Studio](https://developer.android.com/studio/) with additional items:
   - The [Android Platform tools](https://developer.android.com/studio/releases/platform-tools) for your specific platform
-  - [Android SDK 26 (8.0 Oreo) or newer](https://guides.codepath.com/android/installing-android-sdk-tools)
+  - [Android SDK 33 (13 Tiramisu) or newer](https://guides.codepath.com/android/installing-android-sdk-tools)
   - [Android NDK 21.3.6528147 (r21d)](https://developer.android.com/ndk/guides/)
 - [Java JDK 1.11](https://jdk.java.net/11)
 
