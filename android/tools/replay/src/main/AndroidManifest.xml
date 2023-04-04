@@ -16,6 +16,7 @@
         android:extractNativeLibs="true"
         android:hasCode="false">
         <activity android:name="android.app.NativeActivity"
+                  android:exported="true"
                   android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
                   android:screenOrientation="unspecified">
             <meta-data android:name="android.app.lib_name"
