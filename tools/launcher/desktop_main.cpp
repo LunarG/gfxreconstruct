@@ -152,45 +152,67 @@ int main(int argc, const char** argv)
             if (success == true)
             {
                 char working_dir[MAX_PATH] = {};
-                GetCurrentDirectory(MAX_PATH, working_dir);
+                DWORD curr_dir_len = GetCurrentDirectory(MAX_PATH, working_dir);
 
-                // Save off GFXR location in an environment variable, which is read later as our libs are loaded in
-                SetEnvironmentVariableA(gfxrecon::util::interception::kGfxrInstallEnv, working_dir);
-
-                // If we're using the launcher, we can assume detours will be used
-                SetEnvironmentVariableA("GFXRECON_USE_DETOURS_HOOKING", "true");
-
-                const std::string interceptor_path =
-                    gfxrecon::util::interception::InterceptorPath(working_dir, process_info.app_path);
-
-                if (VerifyCaptureComponents(interceptor_path) == true)
+                if (curr_dir_len != 0)
                 {
-                    STARTUPINFOA si = {};
-                    si.cb           = sizeof(si);
+                    // Save off GFXR location in an environment variable, which is read later as our libs are loaded in
+                    BOOL set_env_ret = SetEnvironmentVariableA(gfxrecon::util::interception::kGfxrInstallEnv, working_dir);
 
-                    PROCESS_INFORMATION pi = {};
+                    if (set_env_ret != 0)
+                    {
+                        // If we're using the launcher, we can assume detours will be used
+                        set_env_ret = SetEnvironmentVariableA("GFXRECON_USE_DETOURS_HOOKING", "true");
 
-                    gfxrecon::util::interception::LaunchAndInjectA(
-                        process_info.app_path.c_str(),
-                        const_cast<LPSTR>(process_info.app_path_plus_args.c_str()),
-                        nullptr,
-                        nullptr,
-                        TRUE,
-                        CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED,
-                        nullptr,
-                        process_info.app_dir.c_str(),
-                        &si,
-                        &pi,
-                        interceptor_path.c_str());
+                        if (set_env_ret != 0)
+                        {
+                            const std::string interceptor_path =
+                                gfxrecon::util::interception::InterceptorPath(working_dir, process_info.app_path);
+
+                            if (VerifyCaptureComponents(interceptor_path) == true)
+                            {
+                                STARTUPINFOA si = {};
+                                si.cb           = sizeof(si);
+
+                                PROCESS_INFORMATION pi = {};
+
+                                gfxrecon::util::interception::LaunchAndInjectA(
+                                    process_info.app_path.c_str(),
+                                    const_cast<LPSTR>(process_info.app_path_plus_args.c_str()),
+                                    nullptr,
+                                    nullptr,
+                                    TRUE,
+                                    CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED,
+                                    nullptr,
+                                    process_info.app_dir.c_str(),
+                                    &si,
+                                    &pi,
+                                    interceptor_path.c_str());
+                            }
+                            else
+                            {
+                                GFXRECON_LOG_ERROR(
+                                    "Did not find DLLs required to enable capture with gfxrecon-launcher.exe. "
+                                    "Verify that gfxrecon_interceptor.dll and the \"d3d12_capture\" directory and "
+                                    "exist "
+                                    "in the same place as gfxrecon-launcher.exe.");
+
+                                gfxrecon::util::Log::Release();
+                            }
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_ERROR("Could not set environment variable to enable gfxrecon-launcher.");
+                        }
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR("Could not set environment variable to enable gfxrecon-launcher.");
+                    }
                 }
                 else
                 {
-                    GFXRECON_LOG_ERROR(
-                        "Did not find DLLs required to enable capture with gfxrecon-launcher.exe. "
-                        "Verify that gfxrecon_interceptor.dll and the \"d3d12_capture\" directory and exist "
-                        "in the same place as gfxrecon-launcher.exe.");
-
-                    gfxrecon::util::Log::Release();
+                    GFXRECON_LOG_ERROR("Could not determine the current directory for gfxrecon-launcher.");
                 }
             }
         }
