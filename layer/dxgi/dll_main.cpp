@@ -67,10 +67,15 @@ static void LoadDxgiCaptureProcs(HMODULE system_dll, encode::DxgiDispatchTable* 
 
 static bool Initialize()
 {
-    std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
+    static bool initialized = false;
+    if (initialized == false)
+    {
+        std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
 
-    return dll_initializer.Initialize(
-        module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadDxgiCaptureProcs);
+        initialized = dll_initializer.Initialize(
+            module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadDxgiCaptureProcs);
+    }
+    return initialized;
 }
 
 static void Destroy()
