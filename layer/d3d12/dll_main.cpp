@@ -75,10 +75,15 @@ static void LoadD3D12CaptureProcs(HMODULE system_dll, encode::D3D12DispatchTable
 
 static bool Initialize()
 {
-    std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
+    static bool initialized = false;
+    if (initialized == false)
+    {
+        std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
 
-    return dll_initializer.Initialize(
-        module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadD3D12CaptureProcs);
+        initialized = dll_initializer.Initialize(
+            module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadD3D12CaptureProcs);
+    }
+    return initialized;
 }
 
 static void Destroy()
