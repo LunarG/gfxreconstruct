@@ -236,6 +236,8 @@ Building on Linux requires the installation of the following packages:
 
 #### Ubuntu
 
+GFXReconstruct is built and tested for SDK development using Ubuntu 20.04.  Older Ubuntu releases are unsupported but may work.
+
 For Ubuntu, the required packages can be installed with the following command:
 
 ```bash
