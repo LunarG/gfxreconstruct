@@ -799,7 +799,7 @@ bool VerifyAgilitySDKRuntime()
     std::vector<char> module_name(MAX_PATH);
 
     auto ret = GetModuleFileNameA(nullptr, module_name.data(), MAX_PATH);
-    if (ret == 0)
+    if ((ret == 0) || ((ret == MAX_PATH) && (GetLastError() == ERROR_INSUFFICIENT_BUFFER)))
     {
         GFXRECON_LOG_ERROR("GetModuleFileNameA failed with error code %d", GetLastError());
     }
