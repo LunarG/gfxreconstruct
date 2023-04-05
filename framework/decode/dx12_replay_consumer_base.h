@@ -289,6 +289,47 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                          Decoded_GUID                                              riid,
                                          HandlePointerDecoder<void*>*                              heap);
 
+    template <typename T>
+    void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, T* desc_src){};
+
+    template <>
+    void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, D3D12_RESOURCE_DESC1* desc_src)
+    {
+        desc_dest.SamplerFeedbackMipRegion = desc_src->SamplerFeedbackMipRegion;
+    };
+
+    // Helper to initialize the resource's D3D12ResourceInfo and set its Dimension and Layout.
+    template <typename T>
+    void SetResourceDesc(HandlePointerDecoder<void*>* resource, StructPointerDecoder<T>* desc)
+    {
+        GFXRECON_ASSERT(resource != nullptr);
+
+        auto resource_object_info = GetObjectInfo(*resource->GetPointer());
+
+        GFXRECON_ASSERT(resource_object_info != nullptr);
+
+        if (resource_object_info->extra_info == nullptr)
+        {
+            auto resource_info               = std::make_unique<D3D12ResourceInfo>();
+            resource_object_info->extra_info = std::move(resource_info);
+        }
+
+        auto extra_info = reinterpret_cast<D3D12ResourceInfo*>(resource_object_info->extra_info.get());
+
+        extra_info->desc.Dimension        = desc->GetPointer()->Dimension;
+        extra_info->desc.Alignment        = desc->GetPointer()->Alignment;
+        extra_info->desc.Width            = desc->GetPointer()->Width;
+        extra_info->desc.Height           = desc->GetPointer()->Height;
+        extra_info->desc.DepthOrArraySize = desc->GetPointer()->DepthOrArraySize;
+        extra_info->desc.MipLevels        = desc->GetPointer()->MipLevels;
+        extra_info->desc.Format           = desc->GetPointer()->Format;
+        extra_info->desc.SampleDesc       = desc->GetPointer()->SampleDesc;
+        extra_info->desc.Layout           = desc->GetPointer()->Layout;
+        extra_info->desc.Flags            = desc->GetPointer()->Flags;
+
+        SetResourceSamplerFeedbackMipRegion(extra_info->desc, desc->GetPointer());
+    };
+
     HRESULT OverrideCreateCommittedResource(DxObjectInfo*                                        replay_object_info,
                                             HRESULT                                              original_result,
                                             StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,

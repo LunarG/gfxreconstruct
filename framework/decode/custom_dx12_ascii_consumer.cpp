@@ -145,7 +145,7 @@ void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHe
     WriteApiCallToFileInfo writeApiCallToFileInfo{};
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12DescriptorHeap";
     writeApiCallToFileInfo.handleId = object_id;
-    writeApiCallToFileInfo.pFunctionName = "GetCPUDescriptorHandleForHeapStart";
+    writeApiCallToFileInfo.pFunctionName = "GetGPUDescriptorHandleForHeapStart";
     auto returnValue = ToString(*return_value.decoded_value, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(writeApiCallToFileInfo, tab_count, tab_size, [&](std::stringstream& str_strm) { });

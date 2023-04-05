@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -335,13 +335,13 @@ template <> std::string ToString<StdVideoEncodeH264ReferenceInfoFlags>(const Std
     );
 }
 
-template <> std::string ToString<StdVideoEncodeH264RefMgmtFlags>(const StdVideoEncodeH264RefMgmtFlags& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+template <> std::string ToString<StdVideoEncodeH264ReferenceListsInfoFlags>(const StdVideoEncodeH264ReferenceListsInfoFlags& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "ref_pic_list_modification_l0_flag", toStringFlags, tabCount, tabSize, ToString(obj.ref_pic_list_modification_l0_flag, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "ref_pic_list_modification_l1_flag", toStringFlags, tabCount, tabSize, ToString(obj.ref_pic_list_modification_l1_flag, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, true, "ref_pic_list_modification_flag_l0", toStringFlags, tabCount, tabSize, ToString(obj.ref_pic_list_modification_flag_l0, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "ref_pic_list_modification_flag_l1", toStringFlags, tabCount, tabSize, ToString(obj.ref_pic_list_modification_flag_l1, toStringFlags, tabCount, tabSize));
         }
     );
 }
@@ -372,17 +372,22 @@ template <> std::string ToString<StdVideoEncodeH264RefPicMarkingEntry>(const Std
     );
 }
 
-template <> std::string ToString<StdVideoEncodeH264RefMemMgmtCtrlOperations>(const StdVideoEncodeH264RefMemMgmtCtrlOperations& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+template <> std::string ToString<StdVideoEncodeH264ReferenceListsInfo>(const StdVideoEncodeH264ReferenceListsInfo& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "refPicList0EntryCount", toStringFlags, tabCount, tabSize, ToString(obj.refPicList0EntryCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "refPicList1EntryCount", toStringFlags, tabCount, tabSize, ToString(obj.refPicList1EntryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "refList0ModOpCount", toStringFlags, tabCount, tabSize, ToString(obj.refList0ModOpCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pRefList0ModOperations", toStringFlags, tabCount, tabSize, (obj.pRefList0ModOperations ? ToString(*obj.pRefList0ModOperations, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "refList1ModOpCount", toStringFlags, tabCount, tabSize, ToString(obj.refList1ModOpCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pRefList1ModOperations", toStringFlags, tabCount, tabSize, (obj.pRefList1ModOperations ? ToString(*obj.pRefList1ModOperations, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "refPicMarkingOpCount", toStringFlags, tabCount, tabSize, ToString(obj.refPicMarkingOpCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "reserved1", toStringFlags, tabCount, tabSize, ArrayToString(7, obj.reserved1, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pRefPicList0Entries", toStringFlags, tabCount, tabSize, (obj.pRefPicList0Entries ? ToString(*obj.pRefPicList0Entries, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pRefPicList1Entries", toStringFlags, tabCount, tabSize, (obj.pRefPicList1Entries ? ToString(*obj.pRefPicList1Entries, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pRefList0ModOperations", toStringFlags, tabCount, tabSize, (obj.pRefList0ModOperations ? ToString(*obj.pRefList0ModOperations, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pRefList1ModOperations", toStringFlags, tabCount, tabSize, (obj.pRefList1ModOperations ? ToString(*obj.pRefList1ModOperations, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "pRefPicMarkingOperations", toStringFlags, tabCount, tabSize, (obj.pRefPicMarkingOperations ? ToString(*obj.pRefPicMarkingOperations, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
@@ -396,6 +401,7 @@ template <> std::string ToString<StdVideoEncodeH264PictureInfo>(const StdVideoEn
             FieldToString(strStrm, true, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "seq_parameter_set_id", toStringFlags, tabCount, tabSize, ToString(obj.seq_parameter_set_id, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pic_parameter_set_id", toStringFlags, tabCount, tabSize, ToString(obj.pic_parameter_set_id, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "reserved1", toStringFlags, tabCount, tabSize, ToString(obj.reserved1, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pictureType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pictureType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "frame_num", toStringFlags, tabCount, tabSize, ToString(obj.frame_num, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "PicOrderCnt", toStringFlags, tabCount, tabSize, ToString(obj.PicOrderCnt, toStringFlags, tabCount, tabSize));
@@ -409,6 +415,7 @@ template <> std::string ToString<StdVideoEncodeH264ReferenceInfo>(const StdVideo
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pictureType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.pictureType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "FrameNum", toStringFlags, tabCount, tabSize, ToString(obj.FrameNum, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "PicOrderCnt", toStringFlags, tabCount, tabSize, ToString(obj.PicOrderCnt, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "long_term_pic_num", toStringFlags, tabCount, tabSize, ToString(obj.long_term_pic_num, toStringFlags, tabCount, tabSize));
@@ -432,6 +439,8 @@ template <> std::string ToString<StdVideoEncodeH264SliceHeader>(const StdVideoEn
             FieldToString(strStrm, false, "disable_deblocking_filter_idc", toStringFlags, tabCount, tabSize, Quote(ToString(obj.disable_deblocking_filter_idc, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "slice_alpha_c0_offset_div2", toStringFlags, tabCount, tabSize, ToString(obj.slice_alpha_c0_offset_div2, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "slice_beta_offset_div2", toStringFlags, tabCount, tabSize, ToString(obj.slice_beta_offset_div2, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "reserved1", toStringFlags, tabCount, tabSize, ToString(obj.reserved1, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "reserved2", toStringFlags, tabCount, tabSize, ToString(obj.reserved2, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pWeightTable", toStringFlags, tabCount, tabSize, (obj.pWeightTable ? ToString(*obj.pWeightTable, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
@@ -1023,7 +1032,7 @@ template <> std::string ToString<StdVideoEncodeH265SliceSegmentHeader>(const Std
     );
 }
 
-template <> std::string ToString<StdVideoEncodeH265ReferenceModificationFlags>(const StdVideoEncodeH265ReferenceModificationFlags& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+template <> std::string ToString<StdVideoEncodeH265ReferenceListsInfoFlags>(const StdVideoEncodeH265ReferenceListsInfoFlags& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
@@ -1034,16 +1043,19 @@ template <> std::string ToString<StdVideoEncodeH265ReferenceModificationFlags>(c
     );
 }
 
-template <> std::string ToString<StdVideoEncodeH265ReferenceModifications>(const StdVideoEncodeH265ReferenceModifications& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+template <> std::string ToString<StdVideoEncodeH265ReferenceListsInfo>(const StdVideoEncodeH265ReferenceListsInfo& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "referenceList0ModificationsCount", toStringFlags, tabCount, tabSize, ToString(obj.referenceList0ModificationsCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceList0Modifications", toStringFlags, tabCount, tabSize, (obj.pReferenceList0Modifications ? ToString(*obj.pReferenceList0Modifications, toStringFlags, tabCount, tabSize) : "null"));
-            FieldToString(strStrm, false, "referenceList1ModificationsCount", toStringFlags, tabCount, tabSize, ToString(obj.referenceList1ModificationsCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceList1Modifications", toStringFlags, tabCount, tabSize, (obj.pReferenceList1Modifications ? ToString(*obj.pReferenceList1Modifications, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "num_ref_idx_l0_active_minus1", toStringFlags, tabCount, tabSize, ToString(obj.num_ref_idx_l0_active_minus1, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "num_ref_idx_l1_active_minus1", toStringFlags, tabCount, tabSize, ToString(obj.num_ref_idx_l1_active_minus1, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "reserved1", toStringFlags, tabCount, tabSize, ToString(obj.reserved1, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pRefPicList0Entries", toStringFlags, tabCount, tabSize, (obj.pRefPicList0Entries ? ToString(*obj.pRefPicList0Entries, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pRefPicList1Entries", toStringFlags, tabCount, tabSize, (obj.pRefPicList1Entries ? ToString(*obj.pRefPicList1Entries, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pRefList0Modifications", toStringFlags, tabCount, tabSize, (obj.pRefList0Modifications ? ToString(*obj.pRefList0Modifications, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pRefList1Modifications", toStringFlags, tabCount, tabSize, (obj.pRefList1Modifications ? ToString(*obj.pRefList1Modifications, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }
@@ -1072,8 +1084,8 @@ template <> std::string ToString<StdVideoEncodeH265PictureInfo>(const StdVideoEn
             FieldToString(strStrm, false, "sps_video_parameter_set_id", toStringFlags, tabCount, tabSize, ToString(obj.sps_video_parameter_set_id, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pps_seq_parameter_set_id", toStringFlags, tabCount, tabSize, ToString(obj.pps_seq_parameter_set_id, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pps_pic_parameter_set_id", toStringFlags, tabCount, tabSize, ToString(obj.pps_pic_parameter_set_id, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "PicOrderCntVal", toStringFlags, tabCount, tabSize, ToString(obj.PicOrderCntVal, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "TemporalId", toStringFlags, tabCount, tabSize, ToString(obj.TemporalId, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "PicOrderCntVal", toStringFlags, tabCount, tabSize, ToString(obj.PicOrderCntVal, toStringFlags, tabCount, tabSize));
         }
     );
 }
@@ -1095,6 +1107,7 @@ template <> std::string ToString<StdVideoEncodeH265ReferenceInfo>(const StdVideo
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "PictureType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.PictureType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "PicOrderCntVal", toStringFlags, tabCount, tabSize, ToString(obj.PicOrderCntVal, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "TemporalId", toStringFlags, tabCount, tabSize, ToString(obj.TemporalId, toStringFlags, tabCount, tabSize));
         }
@@ -7001,9 +7014,9 @@ template <> std::string ToString<VkVideoEncodeInfoKHR>(const VkVideoEncodeInfoKH
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "qualityLevel", toStringFlags, tabCount, tabSize, ToString(obj.qualityLevel, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstBitstreamBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstBitstreamBuffer)));
-            FieldToString(strStrm, false, "dstBitstreamBufferOffset", toStringFlags, tabCount, tabSize, ToString(obj.dstBitstreamBufferOffset, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "dstBitstreamBufferMaxRange", toStringFlags, tabCount, tabSize, ToString(obj.dstBitstreamBufferMaxRange, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "dstBuffer", toStringFlags, tabCount, tabSize, Quote(VkHandleToString(obj.dstBuffer)));
+            FieldToString(strStrm, false, "dstBufferOffset", toStringFlags, tabCount, tabSize, ToString(obj.dstBufferOffset, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "dstBufferRange", toStringFlags, tabCount, tabSize, ToString(obj.dstBufferRange, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "srcPictureResource", toStringFlags, tabCount, tabSize, ToString(obj.srcPictureResource, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pSetupReferenceSlot", toStringFlags, tabCount, tabSize, (obj.pSetupReferenceSlot ? ToString(*obj.pSetupReferenceSlot, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "referenceSlotCount", toStringFlags, tabCount, tabSize, ToString(obj.referenceSlotCount, toStringFlags, tabCount, tabSize));
@@ -7022,9 +7035,22 @@ template <> std::string ToString<VkVideoEncodeCapabilitiesKHR>(const VkVideoEnco
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rateControlModes", toStringFlags, tabCount, tabSize, ToString(obj.rateControlModes, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "rateControlLayerCount", toStringFlags, tabCount, tabSize, ToString(obj.rateControlLayerCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "qualityLevelCount", toStringFlags, tabCount, tabSize, ToString(obj.qualityLevelCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxRateControlLayers", toStringFlags, tabCount, tabSize, ToString(obj.maxRateControlLayers, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxQualityLevels", toStringFlags, tabCount, tabSize, ToString(obj.maxQualityLevels, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "inputImageDataFillAlignment", toStringFlags, tabCount, tabSize, ToString(obj.inputImageDataFillAlignment, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "supportedEncodeFeedbackFlags", toStringFlags, tabCount, tabSize, ToString(obj.supportedEncodeFeedbackFlags, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<VkQueryPoolVideoEncodeFeedbackCreateInfoKHR>(const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "encodeFeedbackFlags", toStringFlags, tabCount, tabSize, ToString(obj.encodeFeedbackFlags, toStringFlags, tabCount, tabSize));
         }
     );
 }
@@ -7070,7 +7096,7 @@ template <> std::string ToString<VkVideoEncodeRateControlInfoKHR>(const VkVideoE
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "rateControlMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.rateControlMode, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "layerCount", toStringFlags, tabCount, tabSize, ToString(obj.layerCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pLayerConfigs", toStringFlags, tabCount, tabSize, ArrayToString(obj.layerCount, obj.pLayerConfigs, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pLayers", toStringFlags, tabCount, tabSize, ArrayToString(obj.layerCount, obj.pLayers, toStringFlags, tabCount, tabSize));
         }
     );
 }
@@ -7375,8 +7401,6 @@ template <> std::string ToString<VkVideoEncodeH264CapabilitiesEXT>(const VkVideo
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "inputModeFlags", toStringFlags, tabCount, tabSize, ToString(obj.inputModeFlags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "outputModeFlags", toStringFlags, tabCount, tabSize, ToString(obj.outputModeFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxPPictureL0ReferenceCount", toStringFlags, tabCount, tabSize, ToString(obj.maxPPictureL0ReferenceCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxBPictureL0ReferenceCount", toStringFlags, tabCount, tabSize, ToString(obj.maxBPictureL0ReferenceCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxL1ReferenceCount", toStringFlags, tabCount, tabSize, ToString(obj.maxL1ReferenceCount, toStringFlags, tabCount, tabSize));
@@ -7418,35 +7442,6 @@ template <> std::string ToString<VkVideoEncodeH264SessionParametersCreateInfoEXT
     );
 }
 
-template <> std::string ToString<VkVideoEncodeH264DpbSlotInfoEXT>(const VkVideoEncodeH264DpbSlotInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "slotIndex", toStringFlags, tabCount, tabSize, ToString(obj.slotIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pStdReferenceInfo", toStringFlags, tabCount, tabSize, (obj.pStdReferenceInfo ? ToString(*obj.pStdReferenceInfo, toStringFlags, tabCount, tabSize) : "null"));
-        }
-    );
-}
-
-template <> std::string ToString<VkVideoEncodeH264ReferenceListsInfoEXT>(const VkVideoEncodeH264ReferenceListsInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "referenceList0EntryCount", toStringFlags, tabCount, tabSize, ToString(obj.referenceList0EntryCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceList0Entries", toStringFlags, tabCount, tabSize, ArrayToString(obj.referenceList0EntryCount, obj.pReferenceList0Entries, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "referenceList1EntryCount", toStringFlags, tabCount, tabSize, ToString(obj.referenceList1EntryCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceList1Entries", toStringFlags, tabCount, tabSize, ArrayToString(obj.referenceList1EntryCount, obj.pReferenceList1Entries, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pMemMgmtCtrlOperations", toStringFlags, tabCount, tabSize, (obj.pMemMgmtCtrlOperations ? ToString(*obj.pMemMgmtCtrlOperations, toStringFlags, tabCount, tabSize) : "null"));
-        }
-    );
-}
-
 template <> std::string ToString<VkVideoEncodeH264NaluSliceInfoEXT>(const VkVideoEncodeH264NaluSliceInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7455,8 +7450,8 @@ template <> std::string ToString<VkVideoEncodeH264NaluSliceInfoEXT>(const VkVide
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "mbCount", toStringFlags, tabCount, tabSize, ToString(obj.mbCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceFinalLists", toStringFlags, tabCount, tabSize, (obj.pReferenceFinalLists ? ToString(*obj.pReferenceFinalLists, toStringFlags, tabCount, tabSize) : "null"));
-            FieldToString(strStrm, false, "pSliceHeaderStd", toStringFlags, tabCount, tabSize, (obj.pSliceHeaderStd ? ToString(*obj.pSliceHeaderStd, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdReferenceFinalLists", toStringFlags, tabCount, tabSize, (obj.pStdReferenceFinalLists ? ToString(*obj.pStdReferenceFinalLists, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdSliceHeader", toStringFlags, tabCount, tabSize, (obj.pStdSliceHeader ? ToString(*obj.pStdSliceHeader, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }
@@ -7468,25 +7463,22 @@ template <> std::string ToString<VkVideoEncodeH264VclFrameInfoEXT>(const VkVideo
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceFinalLists", toStringFlags, tabCount, tabSize, (obj.pReferenceFinalLists ? ToString(*obj.pReferenceFinalLists, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdReferenceFinalLists", toStringFlags, tabCount, tabSize, (obj.pStdReferenceFinalLists ? ToString(*obj.pStdReferenceFinalLists, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "naluSliceEntryCount", toStringFlags, tabCount, tabSize, ToString(obj.naluSliceEntryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pNaluSliceEntries", toStringFlags, tabCount, tabSize, ArrayToString(obj.naluSliceEntryCount, obj.pNaluSliceEntries, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pCurrentPictureInfo", toStringFlags, tabCount, tabSize, (obj.pCurrentPictureInfo ? ToString(*obj.pCurrentPictureInfo, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdPictureInfo", toStringFlags, tabCount, tabSize, (obj.pStdPictureInfo ? ToString(*obj.pStdPictureInfo, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }
 
-template <> std::string ToString<VkVideoEncodeH264EmitPictureParametersInfoEXT>(const VkVideoEncodeH264EmitPictureParametersInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+template <> std::string ToString<VkVideoEncodeH264DpbSlotInfoEXT>(const VkVideoEncodeH264DpbSlotInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "spsId", toStringFlags, tabCount, tabSize, ToString(obj.spsId, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "emitSpsEnable", toStringFlags, tabCount, tabSize, ToString(obj.emitSpsEnable, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "ppsIdEntryCount", toStringFlags, tabCount, tabSize, ToString(obj.ppsIdEntryCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "ppsIdEntries", toStringFlags, tabCount, tabSize, ArrayToString(obj.ppsIdEntryCount, obj.ppsIdEntries, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pStdReferenceInfo", toStringFlags, tabCount, tabSize, (obj.pStdReferenceInfo ? ToString(*obj.pStdReferenceInfo, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }
@@ -7571,8 +7563,6 @@ template <> std::string ToString<VkVideoEncodeH265CapabilitiesEXT>(const VkVideo
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "inputModeFlags", toStringFlags, tabCount, tabSize, ToString(obj.inputModeFlags, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "outputModeFlags", toStringFlags, tabCount, tabSize, ToString(obj.outputModeFlags, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "ctbSizes", toStringFlags, tabCount, tabSize, ToString(obj.ctbSizes, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "transformBlockSizes", toStringFlags, tabCount, tabSize, ToString(obj.transformBlockSizes, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxPPictureL0ReferenceCount", toStringFlags, tabCount, tabSize, ToString(obj.maxPPictureL0ReferenceCount, toStringFlags, tabCount, tabSize));
@@ -7626,35 +7616,6 @@ template <> std::string ToString<VkVideoEncodeH265SessionParametersCreateInfoEXT
     );
 }
 
-template <> std::string ToString<VkVideoEncodeH265DpbSlotInfoEXT>(const VkVideoEncodeH265DpbSlotInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "slotIndex", toStringFlags, tabCount, tabSize, ToString(obj.slotIndex, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pStdReferenceInfo", toStringFlags, tabCount, tabSize, (obj.pStdReferenceInfo ? ToString(*obj.pStdReferenceInfo, toStringFlags, tabCount, tabSize) : "null"));
-        }
-    );
-}
-
-template <> std::string ToString<VkVideoEncodeH265ReferenceListsInfoEXT>(const VkVideoEncodeH265ReferenceListsInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
-            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "referenceList0EntryCount", toStringFlags, tabCount, tabSize, ToString(obj.referenceList0EntryCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceList0Entries", toStringFlags, tabCount, tabSize, ArrayToString(obj.referenceList0EntryCount, obj.pReferenceList0Entries, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "referenceList1EntryCount", toStringFlags, tabCount, tabSize, ToString(obj.referenceList1EntryCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceList1Entries", toStringFlags, tabCount, tabSize, ArrayToString(obj.referenceList1EntryCount, obj.pReferenceList1Entries, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceModifications", toStringFlags, tabCount, tabSize, (obj.pReferenceModifications ? ToString(*obj.pReferenceModifications, toStringFlags, tabCount, tabSize) : "null"));
-        }
-    );
-}
-
 template <> std::string ToString<VkVideoEncodeH265NaluSliceSegmentInfoEXT>(const VkVideoEncodeH265NaluSliceSegmentInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -7663,8 +7624,8 @@ template <> std::string ToString<VkVideoEncodeH265NaluSliceSegmentInfoEXT>(const
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "ctbCount", toStringFlags, tabCount, tabSize, ToString(obj.ctbCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceFinalLists", toStringFlags, tabCount, tabSize, (obj.pReferenceFinalLists ? ToString(*obj.pReferenceFinalLists, toStringFlags, tabCount, tabSize) : "null"));
-            FieldToString(strStrm, false, "pSliceSegmentHeaderStd", toStringFlags, tabCount, tabSize, (obj.pSliceSegmentHeaderStd ? ToString(*obj.pSliceSegmentHeaderStd, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdReferenceFinalLists", toStringFlags, tabCount, tabSize, (obj.pStdReferenceFinalLists ? ToString(*obj.pStdReferenceFinalLists, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdSliceSegmentHeader", toStringFlags, tabCount, tabSize, (obj.pStdSliceSegmentHeader ? ToString(*obj.pStdSliceSegmentHeader, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }
@@ -7676,27 +7637,22 @@ template <> std::string ToString<VkVideoEncodeH265VclFrameInfoEXT>(const VkVideo
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pReferenceFinalLists", toStringFlags, tabCount, tabSize, (obj.pReferenceFinalLists ? ToString(*obj.pReferenceFinalLists, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdReferenceFinalLists", toStringFlags, tabCount, tabSize, (obj.pStdReferenceFinalLists ? ToString(*obj.pStdReferenceFinalLists, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "naluSliceSegmentEntryCount", toStringFlags, tabCount, tabSize, ToString(obj.naluSliceSegmentEntryCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pNaluSliceSegmentEntries", toStringFlags, tabCount, tabSize, ArrayToString(obj.naluSliceSegmentEntryCount, obj.pNaluSliceSegmentEntries, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "pCurrentPictureInfo", toStringFlags, tabCount, tabSize, (obj.pCurrentPictureInfo ? ToString(*obj.pCurrentPictureInfo, toStringFlags, tabCount, tabSize) : "null"));
+            FieldToString(strStrm, false, "pStdPictureInfo", toStringFlags, tabCount, tabSize, (obj.pStdPictureInfo ? ToString(*obj.pStdPictureInfo, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }
 
-template <> std::string ToString<VkVideoEncodeH265EmitPictureParametersInfoEXT>(const VkVideoEncodeH265EmitPictureParametersInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+template <> std::string ToString<VkVideoEncodeH265DpbSlotInfoEXT>(const VkVideoEncodeH265DpbSlotInfoEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "vpsId", toStringFlags, tabCount, tabSize, ToString(obj.vpsId, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "spsId", toStringFlags, tabCount, tabSize, ToString(obj.spsId, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "emitVpsEnable", toStringFlags, tabCount, tabSize, ToString(obj.emitVpsEnable, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "emitSpsEnable", toStringFlags, tabCount, tabSize, ToString(obj.emitSpsEnable, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "ppsIdEntryCount", toStringFlags, tabCount, tabSize, ToString(obj.ppsIdEntryCount, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "ppsIdEntries", toStringFlags, tabCount, tabSize, ArrayToString(obj.ppsIdEntryCount, obj.ppsIdEntries, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pStdReferenceInfo", toStringFlags, tabCount, tabSize, (obj.pStdReferenceInfo ? ToString(*obj.pStdReferenceInfo, toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }
@@ -10705,6 +10661,18 @@ template <> std::string ToString<VkDeviceDiagnosticsConfigCreateInfoNV>(const Vk
     );
 }
 
+template <> std::string ToString<VkQueryLowLatencySupportNV>(const VkQueryLowLatencySupportNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pQueriedLowLatencyData", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pQueriedLowLatencyData)));
+        }
+    );
+}
+
 template <> std::string ToString<VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>(const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -11802,6 +11770,7 @@ template <> std::string ToString<VkPhysicalDeviceClusterCullingShaderPropertiesH
             FieldToString(strStrm, false, "maxWorkGroupCount", toStringFlags, tabCount, tabSize, ArrayToString(3, obj.maxWorkGroupCount, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxWorkGroupSize", toStringFlags, tabCount, tabSize, ArrayToString(3, obj.maxWorkGroupSize, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "maxOutputClusterCount", toStringFlags, tabCount, tabSize, ToString(obj.maxOutputClusterCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "indirectBufferOffsetAlignment", toStringFlags, tabCount, tabSize, ToString(obj.indirectBufferOffsetAlignment, toStringFlags, tabCount, tabSize));
         }
     );
 }

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -368,6 +368,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDevicePresentIdFeaturesKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
             return ToString(*reinterpret_cast<const VkVideoEncodeCapabilitiesKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR:
+            return ToString(*reinterpret_cast<const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
             return ToString(*reinterpret_cast<const VkVideoEncodeUsageInfoKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_LAYER_INFO_KHR:
@@ -410,8 +412,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkVideoEncodeH264SessionParametersCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_VCL_FRAME_INFO_EXT:
             return ToString(*reinterpret_cast<const VkVideoEncodeH264VclFrameInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_EMIT_PICTURE_PARAMETERS_INFO_EXT:
-            return ToString(*reinterpret_cast<const VkVideoEncodeH264EmitPictureParametersInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkVideoEncodeH264DpbSlotInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_EXT:
             return ToString(*reinterpret_cast<const VkVideoEncodeH264ProfileInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_EXT:
@@ -426,8 +428,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_VCL_FRAME_INFO_EXT:
             return ToString(*reinterpret_cast<const VkVideoEncodeH265VclFrameInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_EMIT_PICTURE_PARAMETERS_INFO_EXT:
-            return ToString(*reinterpret_cast<const VkVideoEncodeH265EmitPictureParametersInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_EXT:
+            return ToString(*reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_EXT:
             return ToString(*reinterpret_cast<const VkVideoEncodeH265ProfileInfoEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_EXT:
@@ -716,6 +718,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
             return ToString(*reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
+            return ToString(*reinterpret_cast<const VkQueryLowLatencySupportNV*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT:

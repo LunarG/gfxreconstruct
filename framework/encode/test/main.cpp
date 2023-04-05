@@ -51,24 +51,11 @@ TEST_CASE("handles can be wrapped and unwrapped", "[wrapper]")
                                           gfxrecon::encode::BufferWrapper>(
         VK_NULL_HANDLE, gfxrecon::encode::NoParentWrapper::kHandleValue, &buffer, GetHandleId);
 
-    SECTION("The handle now references the wrapper instead of the buffer") { REQUIRE(buffer != kBufferHandle); }
-
-    SECTION("The handle retrieved from the wrapper is the original buffer handle")
-    {
-        REQUIRE(gfxrecon::encode::GetWrappedHandle(buffer) == kBufferHandle);
-    }
+    SECTION("The handle retrieved from the wrapper is the original buffer handle") { REQUIRE(buffer == kBufferHandle); }
 
     SECTION("The handle ID retrieved from the wrapper is 12")
     {
-        REQUIRE(gfxrecon::encode::GetWrappedId(buffer) == kBufferId);
-    }
-
-    SECTION("The handle retrieved from an integer handle with type VK_OBJECT_TYPE_BUFFER is the original buffer handle")
-    {
-        uint64_t object = gfxrecon::format::ToHandleId(buffer);
-
-        REQUIRE(gfxrecon::encode::GetWrappedHandle(object, VK_OBJECT_TYPE_BUFFER) ==
-                gfxrecon::format::ToHandleId(kBufferHandle));
+        REQUIRE(gfxrecon::encode::GetWrappedId<gfxrecon::encode::BufferWrapper>(buffer) == kBufferId);
     }
 
     SECTION("The handle ID retrieved from an integer handle with type VK_OBJECT_TYPE_BUFFER is 12")

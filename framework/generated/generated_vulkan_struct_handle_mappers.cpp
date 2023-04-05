@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1135,7 +1135,7 @@ void MapStructHandles(Decoded_VkVideoEncodeInfoKHR* wrapper, const VulkanObjectI
     {
         VkVideoEncodeInfoKHR* value = wrapper->decoded_value;
 
-        value->dstBitstreamBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->dstBitstreamBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+        value->dstBuffer = handle_mapping::MapHandle<BufferInfo>(wrapper->dstBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
 
         MapStructHandles(wrapper->srcPictureResource, object_info_table);
 

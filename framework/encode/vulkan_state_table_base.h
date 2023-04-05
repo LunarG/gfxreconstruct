@@ -71,6 +71,44 @@ class VulkanStateTableBase
         auto entry = map.find(id);
         return (entry != map.end()) ? entry->second : nullptr;
     }
+
+    template <typename Wrapper>
+    bool InsertEntry(typename Wrapper::HandleType                                handle,
+                     Wrapper*                                                    wrapper,
+                     std::unordered_map<typename Wrapper::HandleType, Wrapper*>& map)
+    {
+        const std::lock_guard<std::mutex> lock(mutex_);
+        const auto&                       inserted = map.insert(std::make_pair(handle, wrapper));
+        return inserted.second;
+    }
+
+    template <typename Wrapper>
+    bool RemoveEntry(const typename Wrapper::HandleType                          handle,
+                     std::unordered_map<typename Wrapper::HandleType, Wrapper*>& map)
+    {
+        const std::lock_guard<std::mutex> lock(mutex_);
+        return (map.erase(handle) != 0);
+    }
+
+    template <typename Wrapper>
+    Wrapper* GetWrapper(typename Wrapper::HandleType                                handle,
+                        std::unordered_map<typename Wrapper::HandleType, Wrapper*>& map)
+    {
+        const std::lock_guard<std::mutex> lock(mutex_);
+        auto                              entry = map.find(handle);
+        return (entry != map.end()) ? entry->second : nullptr;
+    }
+
+    template <typename Wrapper>
+    const Wrapper* GetWrapper(typename Wrapper::HandleType                                      handle,
+                              const std::unordered_map<typename Wrapper::HandleType, Wrapper*>& map) const
+    {
+        const std::lock_guard<std::mutex> lock(mutex_);
+        auto                              entry = map.find(handle);
+        return (entry != map.end()) ? entry->second : nullptr;
+    }
+
+    mutable std::mutex mutex_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

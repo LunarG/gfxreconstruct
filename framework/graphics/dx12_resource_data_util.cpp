@@ -44,7 +44,10 @@ Dx12ResourceDataUtil::MapSubresourceAndReadData(ID3D12Resource* resource, UINT s
     return result;
 }
 
-HRESULT MapSubresourceAndWriteData(ID3D12Resource* resource, UINT subresource, size_t size, const uint8_t* data)
+HRESULT Dx12ResourceDataUtil::MapSubresourceAndWriteData(ID3D12Resource* resource,
+                                                         UINT            subresource,
+                                                         size_t          size,
+                                                         const uint8_t*  data)
 {
     uint8_t* subresource_data;
     HRESULT  result = dx12::MapSubresource(resource, subresource, &dx12::kZeroRange, subresource_data);

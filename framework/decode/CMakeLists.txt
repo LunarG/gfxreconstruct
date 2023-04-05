@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2021 LunarG, Inc.
-# Copyright (c) 2019-2022 Advanced Micro Devices, Inc.
+# Copyright (c) 2019-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -57,14 +57,9 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_api_detection.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_api_detection.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/exe_info_consumer.h
-                    ${CMAKE_CURRENT_LIST_DIR}/exe_info_consumer_base.h
-                    ${CMAKE_CURRENT_LIST_DIR}/driver_info_consumer.h
-                    ${CMAKE_CURRENT_LIST_DIR}/driver_info_consumer_base.h
-                    ${CMAKE_CURRENT_LIST_DIR}/exe_info_decoder_base.h
-                    ${CMAKE_CURRENT_LIST_DIR}/exe_info_decoder_base.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/driver_info_decoder_base.h
-                    ${CMAKE_CURRENT_LIST_DIR}/driver_info_decoder_base.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/info_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/info_decoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/info_decoder.cpp
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx_replay_options.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_optimize_options.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>

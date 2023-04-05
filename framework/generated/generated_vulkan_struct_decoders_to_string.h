@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -59,10 +59,10 @@ template <> std::string ToString<decode::Decoded_StdVideoEncodeH264WeightTable>(
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH264SliceHeaderFlags>(const decode::Decoded_StdVideoEncodeH264SliceHeaderFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH264PictureInfoFlags>(const decode::Decoded_StdVideoEncodeH264PictureInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH264ReferenceInfoFlags>(const decode::Decoded_StdVideoEncodeH264ReferenceInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_StdVideoEncodeH264RefMgmtFlags>(const decode::Decoded_StdVideoEncodeH264RefMgmtFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264ReferenceListsInfoFlags>(const decode::Decoded_StdVideoEncodeH264ReferenceListsInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH264RefListModEntry>(const decode::Decoded_StdVideoEncodeH264RefListModEntry& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH264RefPicMarkingEntry>(const decode::Decoded_StdVideoEncodeH264RefPicMarkingEntry& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_StdVideoEncodeH264RefMemMgmtCtrlOperations>(const decode::Decoded_StdVideoEncodeH264RefMemMgmtCtrlOperations& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH264ReferenceListsInfo>(const decode::Decoded_StdVideoEncodeH264ReferenceListsInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH264PictureInfo>(const decode::Decoded_StdVideoEncodeH264PictureInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH264ReferenceInfo>(const decode::Decoded_StdVideoEncodeH264ReferenceInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH264SliceHeader>(const decode::Decoded_StdVideoEncodeH264SliceHeader& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -94,8 +94,8 @@ template <> std::string ToString<decode::Decoded_StdVideoEncodeH265WeightTable>(
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics>(const decode::Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags>(const decode::Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH265SliceSegmentHeader>(const decode::Decoded_StdVideoEncodeH265SliceSegmentHeader& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_StdVideoEncodeH265ReferenceModificationFlags>(const decode::Decoded_StdVideoEncodeH265ReferenceModificationFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_StdVideoEncodeH265ReferenceModifications>(const decode::Decoded_StdVideoEncodeH265ReferenceModifications& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265ReferenceListsInfoFlags>(const decode::Decoded_StdVideoEncodeH265ReferenceListsInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_StdVideoEncodeH265ReferenceListsInfo>(const decode::Decoded_StdVideoEncodeH265ReferenceListsInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH265PictureInfoFlags>(const decode::Decoded_StdVideoEncodeH265PictureInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH265PictureInfo>(const decode::Decoded_StdVideoEncodeH265PictureInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_StdVideoEncodeH265ReferenceInfoFlags>(const decode::Decoded_StdVideoEncodeH265ReferenceInfoFlags& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -498,6 +498,7 @@ template <> std::string ToString<decode::Decoded_VkPresentIdKHR>(const decode::D
 template <> std::string ToString<decode::Decoded_VkPhysicalDevicePresentIdFeaturesKHR>(const decode::Decoded_VkPhysicalDevicePresentIdFeaturesKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeInfoKHR>(const decode::Decoded_VkVideoEncodeInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeCapabilitiesKHR>(const decode::Decoded_VkVideoEncodeCapabilitiesKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR>(const decode::Decoded_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeUsageInfoKHR>(const decode::Decoded_VkVideoEncodeUsageInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeRateControlLayerInfoKHR>(const decode::Decoded_VkVideoEncodeRateControlLayerInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeRateControlInfoKHR>(const decode::Decoded_VkVideoEncodeRateControlInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -525,11 +526,9 @@ template <> std::string ToString<decode::Decoded_VkImageViewAddressPropertiesNVX
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH264CapabilitiesEXT>(const decode::Decoded_VkVideoEncodeH264CapabilitiesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH264SessionParametersAddInfoEXT>(const decode::Decoded_VkVideoEncodeH264SessionParametersAddInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH264SessionParametersCreateInfoEXT>(const decode::Decoded_VkVideoEncodeH264SessionParametersCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_VkVideoEncodeH264DpbSlotInfoEXT>(const decode::Decoded_VkVideoEncodeH264DpbSlotInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_VkVideoEncodeH264ReferenceListsInfoEXT>(const decode::Decoded_VkVideoEncodeH264ReferenceListsInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH264NaluSliceInfoEXT>(const decode::Decoded_VkVideoEncodeH264NaluSliceInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH264VclFrameInfoEXT>(const decode::Decoded_VkVideoEncodeH264VclFrameInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_VkVideoEncodeH264EmitPictureParametersInfoEXT>(const decode::Decoded_VkVideoEncodeH264EmitPictureParametersInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkVideoEncodeH264DpbSlotInfoEXT>(const decode::Decoded_VkVideoEncodeH264DpbSlotInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH264ProfileInfoEXT>(const decode::Decoded_VkVideoEncodeH264ProfileInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH264RateControlInfoEXT>(const decode::Decoded_VkVideoEncodeH264RateControlInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH264QpEXT>(const decode::Decoded_VkVideoEncodeH264QpEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -538,11 +537,9 @@ template <> std::string ToString<decode::Decoded_VkVideoEncodeH264RateControlLay
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH265CapabilitiesEXT>(const decode::Decoded_VkVideoEncodeH265CapabilitiesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH265SessionParametersAddInfoEXT>(const decode::Decoded_VkVideoEncodeH265SessionParametersAddInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH265SessionParametersCreateInfoEXT>(const decode::Decoded_VkVideoEncodeH265SessionParametersCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_VkVideoEncodeH265DpbSlotInfoEXT>(const decode::Decoded_VkVideoEncodeH265DpbSlotInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_VkVideoEncodeH265ReferenceListsInfoEXT>(const decode::Decoded_VkVideoEncodeH265ReferenceListsInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH265NaluSliceSegmentInfoEXT>(const decode::Decoded_VkVideoEncodeH265NaluSliceSegmentInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH265VclFrameInfoEXT>(const decode::Decoded_VkVideoEncodeH265VclFrameInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<decode::Decoded_VkVideoEncodeH265EmitPictureParametersInfoEXT>(const decode::Decoded_VkVideoEncodeH265EmitPictureParametersInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkVideoEncodeH265DpbSlotInfoEXT>(const decode::Decoded_VkVideoEncodeH265DpbSlotInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH265ProfileInfoEXT>(const decode::Decoded_VkVideoEncodeH265ProfileInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH265RateControlInfoEXT>(const decode::Decoded_VkVideoEncodeH265RateControlInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkVideoEncodeH265QpEXT>(const decode::Decoded_VkVideoEncodeH265QpEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -764,6 +761,7 @@ template <> std::string ToString<decode::Decoded_VkSurfaceCapabilitiesPresentBar
 template <> std::string ToString<decode::Decoded_VkSwapchainPresentBarrierCreateInfoNV>(const decode::Decoded_VkSwapchainPresentBarrierCreateInfoNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV>(const decode::Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkDeviceDiagnosticsConfigCreateInfoNV>(const decode::Decoded_VkDeviceDiagnosticsConfigCreateInfoNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<decode::Decoded_VkQueryLowLatencySupportNV>(const decode::Decoded_VkQueryLowLatencySupportNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<decode::Decoded_VkGraphicsPipelineLibraryCreateInfoEXT>(const decode::Decoded_VkGraphicsPipelineLibraryCreateInfoEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
