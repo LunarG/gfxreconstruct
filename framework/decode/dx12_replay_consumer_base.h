@@ -171,7 +171,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
             if (call_id != format::ApiCall_IUnknown_QueryInterface)
             {
                 IUnknown* iunknown = reinterpret_cast<IUnknown*>(*pp_object);
-                ID3D12Object* object = nullptr;
+
+                graphics::dx12::ID3D12ObjectComPtr object;
 
                 // See if this is a D3D12Object
                 if (SUCCEEDED(iunknown->QueryInterface(IID_ID3D12Object, reinterpret_cast<void**>(&object))))
@@ -180,9 +181,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
                     HRESULT res = object->SetName(constructed_name.c_str());
                     GFXRECON_ASSERT(res == S_OK);
-
-                    // QueryInterface() increases the refcount on success, so release here
-                    iunknown->Release();
                 }
             }
         }

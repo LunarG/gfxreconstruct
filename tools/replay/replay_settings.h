@@ -209,6 +209,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("                     \t(Same as --force-windowed)");
     GFXRECON_WRITE_CONSOLE("  --create-dummy-allocations Enables creation of dummy heaps and resources");
     GFXRECON_WRITE_CONSOLE("                             for replay validation.");
+    GFXRECON_WRITE_CONSOLE("  --dx12-override-object-names Generates unique names for all ID3D12Objects and");
+    GFXRECON_WRITE_CONSOLE("                               assigns each object the generated name.");
+    GFXRECON_WRITE_CONSOLE("                               This is intended to assist replay debugging.");
+
 
 #endif
 
