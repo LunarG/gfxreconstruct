@@ -23,9 +23,7 @@ to one of these other documents:
 ## Index
 
 1. [Behavior on Android](#behavior-on-android)
-    1. [Framework Updates](#framework-updates)
-    2. [Platform Differences](#platform-differences)
-    3. [Android Writable Locations](#android-writable-locations)
+    1. [Android Writable Locations](#android-writable-locations)
 2. [Capturing API Calls](#capturing-api-calls)
     1. [Before Use](#before-use)
     2. [To Root or Not To Root](#to-root-or-not-to-root)
