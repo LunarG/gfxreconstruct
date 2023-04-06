@@ -1044,6 +1044,28 @@ void Dx12ReplayConsumerBase::DetectAdapters()
     }
 }
 
+void Dx12ReplayConsumerBase::InitCommandQueueExtraInfo(ID3D12Device*                device,
+                                                       HandlePointerDecoder<void*>* command_queue_decoder)
+{
+    auto command_queue_info = std::make_unique<D3D12CommandQueueInfo>();
+
+    // Create the fence used for when command queues require sync after command list execution.
+    // Note that this fence is used only for waiting on command list execution. When needed, it will be signalled by
+    // the command queue in OverrideExecuteCommandLists and wait on in WaitForCommandListExecution.
+    auto fence_result = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_queue_info->sync_fence));
+
+    if (SUCCEEDED(fence_result))
+    {
+        command_queue_info->sync_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to create ID3D12Fence object used to sync after command list execution.");
+    }
+
+    SetExtraInfo(command_queue_decoder, std::move(command_queue_info));
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_object_info,
                                                            HRESULT       original_result,
                                                            StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* desc,
@@ -1052,8 +1074,8 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (desc != nullptr) &&
-           (command_queue != nullptr));
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (desc != nullptr) &&
+                    (command_queue != nullptr));
 
     auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
     auto replay_result =
@@ -1061,24 +1083,32 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
 
     if (SUCCEEDED(replay_result))
     {
-        auto command_queue_info = std::make_unique<D3D12CommandQueueInfo>();
+        InitCommandQueueExtraInfo(replay_object, command_queue);
+    }
 
-        // Create the fence used for when command queues require sync after command list execution.
-        // Note that this fence is used only for waiting on command list execution. When needed, it will be signalled by
-        // the command queue in OverrideExecuteCommandLists and wait on in WaitForCommandListExecution.
-        auto fence_result =
-            replay_object->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_queue_info->sync_fence));
+    return replay_result;
+}
 
-        if (SUCCEEDED(fence_result))
-        {
-            command_queue_info->sync_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Failed to create ID3D12Fence object used to sync after command list execution.");
-        }
+HRESULT
+Dx12ReplayConsumerBase::OverrideCreateCommandQueue1(DxObjectInfo* device9_object_info,
+                                                    HRESULT       original_result,
+                                                    StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* desc,
+                                                    Decoded_GUID                                            creator_id,
+                                                    Decoded_GUID                                            riid,
+                                                    HandlePointerDecoder<void*>* command_queue_decoder)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-        SetExtraInfo(command_queue, std::move(command_queue_info));
+    GFXRECON_ASSERT((device9_object_info != nullptr) && (device9_object_info->object != nullptr) && (desc != nullptr) &&
+                    (command_queue_decoder != nullptr));
+
+    auto device9       = static_cast<ID3D12Device9*>(device9_object_info->object);
+    auto replay_result = device9->CreateCommandQueue1(
+        desc->GetPointer(), *creator_id.decoded_value, *riid.decoded_value, command_queue_decoder->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        InitCommandQueueExtraInfo(device9, command_queue_decoder);
     }
 
     return replay_result;
