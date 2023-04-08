@@ -213,7 +213,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("                               assigns each object the generated name.");
     GFXRECON_WRITE_CONSOLE("                               This is intended to assist replay debugging.");
 
-
 #endif
 
 #if defined(_DEBUG)
