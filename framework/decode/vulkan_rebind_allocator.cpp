@@ -384,12 +384,13 @@ void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
     GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
 }
 
-VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer               buffer,
-                                                 VkDeviceMemory         memory,
-                                                 VkDeviceSize           memory_offset,
-                                                 ResourceData           allocator_buffer_data,
-                                                 MemoryData             allocator_memory_data,
-                                                 VkMemoryPropertyFlags* bind_memory_properties)
+VkResult VulkanRebindAllocator::BindBufferMemoryHelper(VkBuffer               buffer,
+                                                       VkDeviceMemory         memory,
+                                                       VkDeviceSize           memory_offset,
+                                                       ResourceData           allocator_buffer_data,
+                                                       MemoryData             allocator_memory_data,
+                                                       VkMemoryPropertyFlags* bind_memory_properties,
+                                                       bool                   is_direct_allocation)
 {
     GFXRECON_UNREFERENCED_PARAMETER(memory);
 
@@ -409,7 +410,9 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer               buffer,
         create_info.flags = 0;
         create_info.usage = GetBufferMemoryUsage(
             resource_alloc_info->usage,
-            capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
+            is_direct_allocation
+                ? replay_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags
+                : capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
             requirements);
         create_info.requiredFlags  = 0;
         create_info.preferredFlags = 0;
@@ -550,12 +553,13 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
     return result;
 }
 
-VkResult VulkanRebindAllocator::BindImageMemory(VkImage                image,
-                                                VkDeviceMemory         memory,
-                                                VkDeviceSize           memory_offset,
-                                                ResourceData           allocator_image_data,
-                                                MemoryData             allocator_memory_data,
-                                                VkMemoryPropertyFlags* bind_memory_properties)
+VkResult VulkanRebindAllocator::BindImageMemoryHelper(VkImage                image,
+                                                      VkDeviceMemory         memory,
+                                                      VkDeviceSize           memory_offset,
+                                                      ResourceData           allocator_image_data,
+                                                      MemoryData             allocator_memory_data,
+                                                      VkMemoryPropertyFlags* bind_memory_properties,
+                                                      bool                   is_direct_allocation)
 {
     GFXRECON_UNREFERENCED_PARAMETER(memory);
 
@@ -573,11 +577,13 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                image,
 
         VmaAllocationCreateInfo create_info;
         create_info.flags = 0;
-        create_info.usage =
-            GetImageMemoryUsage(resource_alloc_info->usage,
-                                resource_alloc_info->tiling,
-                                capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
-                                requirements);
+        create_info.usage = GetImageMemoryUsage(
+            resource_alloc_info->usage,
+            resource_alloc_info->tiling,
+            is_direct_allocation
+                ? replay_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags
+                : capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
+            requirements);
         create_info.requiredFlags  = 0;
         create_info.preferredFlags = 0;
         create_info.memoryTypeBits = 0;

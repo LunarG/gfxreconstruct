@@ -101,7 +101,11 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                       VkDeviceSize           memory_offset,
                                       ResourceData           allocator_buffer_data,
                                       MemoryData             allocator_memory_data,
-                                      VkMemoryPropertyFlags* bind_memory_properties) override;
+                                      VkMemoryPropertyFlags* bind_memory_properties) override
+    {
+        return BindBufferMemoryHelper(
+            buffer, memory, memory_offset, allocator_buffer_data, allocator_memory_data, bind_memory_properties, false);
+    }
 
     virtual VkResult BindBufferMemory2(uint32_t                      bind_info_count,
                                        const VkBindBufferMemoryInfo* bind_infos,
@@ -114,7 +118,11 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                      VkDeviceSize           memory_offset,
                                      ResourceData           allocator_image_data,
                                      MemoryData             allocator_memory_data,
-                                     VkMemoryPropertyFlags* bind_memory_properties) override;
+                                     VkMemoryPropertyFlags* bind_memory_properties) override
+    {
+        return BindImageMemoryHelper(
+            image, memory, memory_offset, allocator_image_data, allocator_memory_data, bind_memory_properties, false);
+    }
 
     virtual VkResult BindImageMemory2(uint32_t                     bind_info_count,
                                       const VkBindImageMemoryInfo* bind_infos,
@@ -217,8 +225,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                             MemoryData             allocator_memory_data,
                                             VkMemoryPropertyFlags* bind_memory_properties) override
     {
-        return BindBufferMemory(
-            buffer, memory, memory_offset, allocator_buffer_data, allocator_memory_data, bind_memory_properties);
+        return BindBufferMemoryHelper(
+            buffer, memory, memory_offset, allocator_buffer_data, allocator_memory_data, bind_memory_properties, true);
     }
 
     virtual VkResult BindImageMemoryDirect(VkImage                image,
@@ -228,8 +236,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                            MemoryData             allocator_memory_data,
                                            VkMemoryPropertyFlags* bind_memory_properties) override
     {
-        return BindImageMemory(
-            image, memory, memory_offset, allocator_image_data, allocator_memory_data, bind_memory_properties);
+        return BindImageMemoryHelper(
+            image, memory, memory_offset, allocator_image_data, allocator_memory_data, bind_memory_properties, true);
     }
 
     virtual VkResult MapResourceMemoryDirect(VkDeviceSize     size,
@@ -341,6 +349,22 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VmaMemoryUsage AdjustMemoryUsage(VmaMemoryUsage desired_usage, const VkMemoryRequirements& replay_requirements);
 
     void ReportBindIncompatibility(const ResourceData* allocator_resource_datas, uint32_t resource_count);
+
+    VkResult BindBufferMemoryHelper(VkBuffer               buffer,
+                                    VkDeviceMemory         memory,
+                                    VkDeviceSize           memory_offset,
+                                    ResourceData           allocator_buffer_data,
+                                    MemoryData             allocator_memory_data,
+                                    VkMemoryPropertyFlags* bind_memory_properties,
+                                    bool                   is_direct_allocation);
+
+    VkResult BindImageMemoryHelper(VkImage                image,
+                                   VkDeviceMemory         memory,
+                                   VkDeviceSize           memory_offset,
+                                   ResourceData           allocator_image_data,
+                                   MemoryData             allocator_memory_data,
+                                   VkMemoryPropertyFlags* bind_memory_properties,
+                                   bool                   is_direct_allocation);
 
   private:
     VkDevice                         device_;
