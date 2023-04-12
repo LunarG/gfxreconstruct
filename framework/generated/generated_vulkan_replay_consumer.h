@@ -2298,6 +2298,19 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         PointerDecoder<uint32_t>*                   pInternalRepresentationCount,
         StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>* pInternalRepresentations) override;
 
+    virtual void Process_vkMapMemory2KHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMemoryMapInfoKHR>* pMemoryMapInfo,
+        PointerDecoder<uint64_t, void*>*            ppData) override;
+
+    virtual void Process_vkUnmapMemory2KHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMemoryUnmapInfoKHR>* pMemoryUnmapInfo) override;
+
     virtual void Process_vkCmdEncodeVideoKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -3880,6 +3893,36 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            commandBuffer,
         format::HandleId                            session,
         StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo) override;
+
+    virtual void Process_vkCreateShadersEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        uint32_t                                    createInfoCount,
+        StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkShaderEXT>*          pShaders) override;
+
+    virtual void Process_vkDestroyShaderEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            shader,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkGetShaderBinaryDataEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            shader,
+        PointerDecoder<size_t>*                     pDataSize,
+        PointerDecoder<uint8_t>*                    pData) override;
+
+    virtual void Process_vkCmdBindShadersEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    stageCount,
+        PointerDecoder<VkShaderStageFlagBits>*      pStages,
+        HandlePointerDecoder<VkShaderEXT>*          pShaders) override;
 
     virtual void Process_vkGetFramebufferTilePropertiesQCOM(
         const ApiCallInfo&                          call_info,
