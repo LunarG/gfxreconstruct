@@ -28,11 +28,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 void Dx12FileOptimizer::SetFillCommandResourceValues(
-    const decode::Dx12FillCommandResourceValueMap* fill_command_resource_values)
+    const decode::Dx12FillCommandResourceValueMap* fill_command_resource_values,
+    bool                                           inject_noop_resource_value_optimization)
 {
+    inject_noop_resource_value_optimization_ = inject_noop_resource_value_optimization;
+
     fill_command_resource_values_ = fill_command_resource_values;
     if (fill_command_resource_values_ != nullptr)
     {
+        // A NOOP RV optimization block should only be added if there weren't any real fill_command_resource_values
+        // found.
+        GFXRECON_ASSERT((inject_noop_resource_value_optimization_ == false) || fill_command_resource_values->empty());
+
         resource_values_iter_ = fill_command_resource_values_->begin();
     }
 }
@@ -43,7 +50,6 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHea
     bool success = true;
 
     GFXRECON_ASSERT(resource_values_iter_->first == GetCurrentBlockIndex());
-    GFXRECON_ASSERT(!resource_values_iter_->second.empty());
 
     format::FillMemoryResourceValueCommandHeader rv_header;
     rv_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
@@ -56,46 +62,50 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHea
     const size_t uncompressed_size =
         resource_values_iter_->second.size() * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
 
-    write_buffer_.clear();
-    write_buffer_.resize(uncompressed_size);
-
-    // Write resource value data to uncompressed buffer.
-    auto type_data_pos   = write_buffer_.data();
-    auto offset_data_pos = write_buffer_.data() + (rv_header.resource_value_count * sizeof(format::ResourceValueType));
-    for (const auto& resource_value_pair : resource_values_iter_->second)
-    {
-        auto type   = resource_value_pair.type;
-        auto offset = resource_value_pair.offset;
-
-        util::platform::MemoryCopy(type_data_pos, sizeof(type), &type, sizeof(type));
-        util::platform::MemoryCopy(offset_data_pos, sizeof(offset), &offset, sizeof(offset));
-
-        type_data_pos += sizeof(resource_value_pair.type);
-        offset_data_pos += sizeof(resource_value_pair.offset);
-    }
-    GFXRECON_ASSERT(type_data_pos ==
-                    (write_buffer_.data() + (rv_header.resource_value_count * sizeof(format::ResourceValueType))));
-    GFXRECON_ASSERT(offset_data_pos == (write_buffer_.data() + uncompressed_size));
-
     bool not_compressed = true;
 
-    std::vector<uint8_t> compressed_write_buffer;
-
-    if (GetCompressor() != nullptr)
+    if (uncompressed_size > 0)
     {
-        size_t compressed_size =
-            GetCompressor()->Compress(write_buffer_.size(), write_buffer_.data(), &compressed_write_buffer, 0);
+        write_buffer_.clear();
+        write_buffer_.resize(uncompressed_size);
 
-        if ((compressed_size > 0) && (compressed_size < uncompressed_size))
+        // Write resource value data to uncompressed buffer.
+        auto type_data_pos = write_buffer_.data();
+        auto offset_data_pos =
+            write_buffer_.data() + (rv_header.resource_value_count * sizeof(format::ResourceValueType));
+        for (const auto& resource_value_pair : resource_values_iter_->second)
         {
-            not_compressed = false;
+            auto type   = resource_value_pair.type;
+            auto offset = resource_value_pair.offset;
 
-            // Calculate size of packet with compressed data size.
-            rv_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(rv_header) + compressed_size;
-            rv_header.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+            util::platform::MemoryCopy(type_data_pos, sizeof(type), &type, sizeof(type));
+            util::platform::MemoryCopy(offset_data_pos, sizeof(offset), &offset, sizeof(offset));
 
-            success = success && WriteBytes(&rv_header, header_size);
-            success = success && WriteBytes(compressed_write_buffer.data(), compressed_size);
+            type_data_pos += sizeof(resource_value_pair.type);
+            offset_data_pos += sizeof(resource_value_pair.offset);
+        }
+        GFXRECON_ASSERT(type_data_pos ==
+                        (write_buffer_.data() + (rv_header.resource_value_count * sizeof(format::ResourceValueType))));
+        GFXRECON_ASSERT(offset_data_pos == (write_buffer_.data() + uncompressed_size));
+
+        std::vector<uint8_t> compressed_write_buffer;
+
+        if (GetCompressor() != nullptr)
+        {
+            size_t compressed_size =
+                GetCompressor()->Compress(write_buffer_.size(), write_buffer_.data(), &compressed_write_buffer, 0);
+
+            if ((compressed_size > 0) && (compressed_size < uncompressed_size))
+            {
+                not_compressed = false;
+
+                // Calculate size of packet with compressed data size.
+                rv_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(rv_header) + compressed_size;
+                rv_header.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                success = success && WriteBytes(&rv_header, header_size);
+                success = success && WriteBytes(compressed_write_buffer.data(), compressed_size);
+            }
         }
     }
 
@@ -134,6 +144,25 @@ bool Dx12FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header,
                                        "optimization. Optimized file may be invalid.");
                 }
             }
+        }
+        else if (inject_noop_resource_value_optimization_)
+        {
+            // Only inject one noop block.
+            inject_noop_resource_value_optimization_ = false;
+
+            decode::Dx12FillCommandResourceValueMap rvm;
+            rvm[GetCurrentBlockIndex()]   = {};
+            fill_command_resource_values_ = &rvm;
+            resource_values_iter_         = fill_command_resource_values_->begin();
+
+            if (!AddFillMemoryResourceValueCommand(block_header, meta_data_id))
+            {
+                GFXRECON_LOG_ERROR("Failed to write the FillMemoryResourceValueCommand needed for DXR/EI optimization. "
+                                   "Optimized file may be invalid.");
+            }
+
+            fill_command_resource_values_ = nullptr;
+            resource_values_iter_         = {};
         }
     }
 

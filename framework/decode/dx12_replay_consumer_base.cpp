@@ -288,7 +288,15 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryResourceValueCommand(
     if (resource_value_mapper_ != nullptr)
     {
         resource_value_mapper_ = nullptr;
-        GFXRECON_LOG_DEBUG("Found data to enable optimized playback of DXR and/or ExecuteIndirect commands.");
+        if (resource_value_count > 0)
+        {
+            GFXRECON_LOG_DEBUG("Found data to enable optimized playback of DXR and/or ExecuteIndirect commands.");
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("This file was processed by the DXR/EI optimizer. It did not contain any DXR/EI "
+                               "commands that require additional replay processing.");
+        }
     }
 
     opt_fillmem_ = true;

@@ -32,9 +32,13 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 class Dx12FileOptimizer : public FileOptimizer
 {
   public:
-    Dx12FileOptimizer() : fill_command_resource_values_(nullptr), num_optimized_fill_commands_(0) {}
+    Dx12FileOptimizer() :
+        fill_command_resource_values_(nullptr), inject_noop_resource_value_optimization_(false),
+        num_optimized_fill_commands_(0)
+    {}
 
-    void SetFillCommandResourceValues(const decode::Dx12FillCommandResourceValueMap* fill_command_resource_values);
+    void SetFillCommandResourceValues(const decode::Dx12FillCommandResourceValueMap* fill_command_resource_values,
+                                      bool inject_noop_resource_value_optimization);
 
     uint64_t GetNumOptimizedFillCommands() { return num_optimized_fill_commands_; }
 
@@ -45,6 +49,7 @@ class Dx12FileOptimizer : public FileOptimizer
 
     const decode::Dx12FillCommandResourceValueMap*          fill_command_resource_values_;
     decode::Dx12FillCommandResourceValueMap::const_iterator resource_values_iter_;
+    bool                                                    inject_noop_resource_value_optimization_;
 
     size_t num_optimized_fill_commands_;
 
