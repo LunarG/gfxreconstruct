@@ -222,6 +222,8 @@ bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc);
 
 bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTURE_LAYOUT layout);
 
+bool VerifyAgilitySDKRuntime();
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
