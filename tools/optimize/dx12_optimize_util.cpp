@@ -44,6 +44,8 @@ struct Dx12OptimizationInfo
     // DXR optimization
     decode::Dx12FillCommandResourceValueMap  fill_command_resource_values;
     decode::Dx12UnassociatedResourceValueMap unassociated_resource_values;
+
+    bool inject_noop_resource_value_optimization{ false };
 };
 
 void CreateResourceValueTrackingConsumer(
@@ -100,7 +102,8 @@ bool FileProcessorSucceeded(const decode::FileProcessor& processor)
 }
 
 bool BypassResourceValueOptimization(gfxrecon::decode::Dx12ObjectScanningConsumer& resref_consumer,
-                                     const decode::Dx12OptimizationOptions&        options)
+                                     const decode::Dx12OptimizationOptions&        options,
+                                     Dx12OptimizationInfo&                         info)
 {
     bool bypass_resource_value_optimization = false;
 
@@ -108,24 +111,19 @@ bool BypassResourceValueOptimization(gfxrecon::decode::Dx12ObjectScanningConsume
         resref_consumer.ContainsDxrWorkload() || resref_consumer.ContainsEiWorkload();
     bool is_resource_value_optimized = resref_consumer.ContainsOptFillMem();
 
-    if ((contains_resource_value_workload == false) || (is_resource_value_optimized == true))
+    if (is_resource_value_optimized == true)
     {
         if (options.optimize_resource_values == true)
         {
-            if (contains_resource_value_workload == false)
-            {
-                GFXRECON_WRITE_CONSOLE("Bypassing DXR/ExecuteIndirect optimization. Capture file does not contain "
-                                       "DXR or EI workloads.");
-            }
-
-            if (is_resource_value_optimized == true)
-            {
-                GFXRECON_WRITE_CONSOLE("Bypassing DXR/ExecuteIndirect optimization. Capture file has already been "
-                                       "optimized for DXR/EI replay.");
-            }
+            GFXRECON_WRITE_CONSOLE("Bypassing DXR/ExecuteIndirect optimization. Capture file has already been "
+                                   "optimized for DXR/EI replay.");
         }
 
         bypass_resource_value_optimization = true;
+    }
+    else if (contains_resource_value_workload == false)
+    {
+        info.inject_noop_resource_value_optimization = true;
     }
 
     return bypass_resource_value_optimization;
@@ -154,7 +152,7 @@ bool GetPsoOptimizationInfo(const std::string&               input_filename,
 
             pso_scan_result = true;
 
-            if (BypassResourceValueOptimization(resref_consumer, options) == true)
+            if (BypassResourceValueOptimization(resref_consumer, options, info) == true)
             {
                 options.optimize_resource_values = false;
             }
@@ -183,6 +181,12 @@ bool GetDxrOptimizationInfo(const std::string&                     input_filenam
                             bool                                   first_pass,
                             const decode::Dx12OptimizationOptions& options)
 {
+    // If it was already detected that a noop RV block should be injected, exit early.
+    if (info.inject_noop_resource_value_optimization)
+    {
+        return true;
+    }
+
     bool dxr_scan_result = false;
 
     std::shared_ptr<application::Application> application;
@@ -229,6 +233,11 @@ bool GetDxrOptimizationInfo(const std::string&                     input_filenam
         {
             resource_value_tracking_consumer->GetTrackedResourceValues(info.fill_command_resource_values);
             resource_value_tracking_consumer->GetUnassociatedResourceValues(info.unassociated_resource_values);
+
+            if ((info.fill_command_resource_values.size() == 0) && (info.unassociated_resource_values.size() == 0))
+            {
+                info.inject_noop_resource_value_optimization = true;
+            }
 
             GFXRECON_WRITE_CONSOLE("Finished scanning capture file for DXR/EI optimization.");
 
@@ -331,7 +340,13 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
     // Log info about resource value optimization
     if (options.optimize_resource_values)
     {
-        if (!info.fill_command_resource_values.empty())
+        if (info.inject_noop_resource_value_optimization)
+        {
+            found_optimization_data = true;
+            GFXRECON_WRITE_CONSOLE("No DXR/EI optimization data found. Marking file as optimized for DXR/EI replay.",
+                                   info.fill_command_resource_values.size());
+        }
+        else if (!info.fill_command_resource_values.empty())
         {
             found_optimization_data = true;
             GFXRECON_WRITE_CONSOLE("Optimizing %zu FillMemoryCommand blocks for DXR/EI replay.",
@@ -358,7 +373,8 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
         if (file_optimizer.Initialize(input_filename, output_filename))
         {
             file_optimizer.SetUnreferencedBlocks(info.unreferenced_blocks);
-            file_optimizer.SetFillCommandResourceValues(&info.fill_command_resource_values);
+            file_optimizer.SetFillCommandResourceValues(&info.fill_command_resource_values,
+                                                        info.inject_noop_resource_value_optimization);
 
             file_optimizer.Process();
 
@@ -376,6 +392,10 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
                 // Check that all fill commands were optimized.
                 uint64_t optimized_fill_commands = file_optimizer.GetNumOptimizedFillCommands();
                 uint64_t expected_fill_commands  = info.fill_command_resource_values.size();
+                if (info.inject_noop_resource_value_optimization)
+                {
+                    expected_fill_commands = 1;
+                }
 
                 if (resultant_objects > 0)
                 {
