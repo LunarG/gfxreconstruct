@@ -599,10 +599,10 @@ void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT ca
 {
     if (capture_result != replay_result)
     {
-        if (replay_result == DXGI_ERROR_DEVICE_REMOVED)
+        if ((replay_result == DXGI_ERROR_DEVICE_REMOVED) || (replay_result == D3D12_ERROR_INVALID_REDIST))
         {
             GFXRECON_LOG_FATAL(
-                "%s returned %s, which does not match the value returned at capture %s.  Replay cannot continue.",
+                "%s returned %s, which does not match the value returned at capture %s. Replay cannot continue.",
                 call_name,
                 enumutil::GetResultValueString(replay_result).c_str(),
                 enumutil::GetResultValueString(capture_result).c_str());
