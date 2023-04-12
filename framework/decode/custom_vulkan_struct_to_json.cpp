@@ -60,12 +60,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, float data, const JsonOptions& o
 
 void HandleToJson(nlohmann::ordered_json& jdata,
                   const format::HandleId* data,
-                  size_t                  num_elemements,
+                  size_t                  num_elements,
                   const JsonOptions&      options)
 {
     if (data)
     {
-        for (size_t i = 0; i < num_elemements; ++i)
+        for (size_t i = 0; i < num_elements; ++i)
         {
             HandleToJson(jdata[i], data[i], options);
         }

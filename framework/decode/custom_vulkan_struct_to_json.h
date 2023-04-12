@@ -175,12 +175,12 @@ void FieldToJson(nlohmann::ordered_json&                  jdata,
 template <typename T>
 void FieldToJson(nlohmann::ordered_json& jdata,
                  const T*                data,
-                 size_t                  num_elemements,
+                 size_t                  num_elements,
                  const JsonOptions&      options = JsonOptions())
 {
     if (data)
     {
-        for (size_t i = 0; i < num_elemements; ++i)
+        for (size_t i = 0; i < num_elements; ++i)
         {
             FieldToJson(jdata[i], data[i], options);
         }
@@ -301,7 +301,7 @@ void HandleToJson(nlohmann::ordered_json&              jdata,
 
 void HandleToJson(nlohmann::ordered_json& jdata,
                   const format::HandleId* data,
-                  size_t                  num_elemements,
+                  size_t                  num_elements,
                   const JsonOptions&      options = JsonOptions());
 
 /// @brief Thunk to HandleToJson for manual conversion functions which forget to
