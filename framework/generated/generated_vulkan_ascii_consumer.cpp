@@ -5341,6 +5341,36 @@ void VulkanAsciiConsumer::Process_vkGetPipelineExecutableInternalRepresentations
     );
 }
 
+void VulkanAsciiConsumer::Process_vkMapMemory2KHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkMemoryMapInfoKHR>* pMemoryMapInfo,
+    PointerDecoder<uint64_t, void*>*            ppData)
+{
+    WriteApiCallToFile(call_info, "vkMapMemory2KHR", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "pMemoryMapInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMemoryMapInfo, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "ppData", toStringFlags, tabCount, tabSize, DataPointerDecoderToString(ppData));
+        }, ToString(returnValue)
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkUnmapMemory2KHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkMemoryUnmapInfoKHR>* pMemoryUnmapInfo)
+{
+    WriteApiCallToFile(call_info, "vkUnmapMemory2KHR", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "pMemoryUnmapInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pMemoryUnmapInfo, toStringFlags, tabCount, tabSize));
+        }, ToString(returnValue)
+    );
+}
+
 void VulkanAsciiConsumer::Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -9126,6 +9156,76 @@ void VulkanAsciiConsumer::Process_vkCmdOpticalFlowExecuteNV(
             FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
             FieldToString(strStrm, false, "session", toStringFlags, tabCount, tabSize, HandleIdToString(session));
             FieldToString(strStrm, false, "pExecuteInfo", toStringFlags, tabCount, tabSize, PointerDecoderToString(pExecuteInfo, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCreateShadersEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    createInfoCount,
+    StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkShaderEXT>*          pShaders)
+{
+    WriteApiCallToFile(call_info, "vkCreateShadersEXT", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "createInfoCount", toStringFlags, tabCount, tabSize, ToString(createInfoCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pCreateInfos", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*pCreateInfos, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pShaders", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(createInfoCount, pShaders, toStringFlags, tabCount, tabSize));
+        }, ToString(returnValue)
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkDestroyShaderEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            shader,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    WriteApiCallToFile(call_info, "vkDestroyShaderEXT", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "shader", toStringFlags, tabCount, tabSize, HandleIdToString(shader));
+            FieldToString(strStrm, false, "pAllocator", toStringFlags, tabCount, tabSize, PointerDecoderToString(pAllocator, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkGetShaderBinaryDataEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            shader,
+    PointerDecoder<size_t>*                     pDataSize,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    WriteApiCallToFile(call_info, "vkGetShaderBinaryDataEXT", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "device", toStringFlags, tabCount, tabSize, HandleIdToString(device));
+            FieldToString(strStrm, false, "shader", toStringFlags, tabCount, tabSize, HandleIdToString(shader));
+            FieldToString(strStrm, false, "pDataSize", toStringFlags, tabCount, tabSize, PointerDecoderToString(pDataSize, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pData", toStringFlags, tabCount, tabSize, DataPointerDecoderToString(pData));
+        }, ToString(returnValue)
+    );
+}
+
+void VulkanAsciiConsumer::Process_vkCmdBindShadersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    stageCount,
+    PointerDecoder<VkShaderStageFlagBits>*      pStages,
+    HandlePointerDecoder<VkShaderEXT>*          pShaders)
+{
+    WriteApiCallToFile(call_info, "vkCmdBindShadersEXT", [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "commandBuffer", toStringFlags, tabCount, tabSize, HandleIdToString(commandBuffer));
+            FieldToString(strStrm, false, "stageCount", toStringFlags, tabCount, tabSize, ToString(stageCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pStages", toStringFlags, tabCount, tabSize, EnumPointerDecoderArrayToString(stageCount, pStages, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pShaders", toStringFlags, tabCount, tabSize, HandlePointerDecoderArrayToString(stageCount, pShaders, toStringFlags, tabCount, tabSize));
         }
     );
 }

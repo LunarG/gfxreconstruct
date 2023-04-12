@@ -674,6 +674,12 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdSetDiscardRectangleEnableEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12c2),
     ApiCall_vkCmdSetDiscardRectangleModeEXT                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x12c3),
     ApiCall_vkCmdSetExclusiveScissorEnableNV                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12c4),
+    ApiCall_vkMapMemory2KHR                                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x12c5),
+    ApiCall_vkUnmapMemory2KHR                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12c6),
+    ApiCall_vkCreateShadersEXT                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x12c7),
+    ApiCall_vkDestroyShaderEXT                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x12c8),
+    ApiCall_vkGetShaderBinaryDataEXT                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x12c9),
+    ApiCall_vkCmdBindShadersEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12ca),
 
     ApiCall_VulkanLast,
 

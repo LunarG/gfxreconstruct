@@ -79,6 +79,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool InsertWrapper(format::HandleId id, SamplerWrapper* wrapper) { return InsertEntry(id, wrapper, sampler_map_); }
     bool InsertWrapper(format::HandleId id, SamplerYcbcrConversionWrapper* wrapper) { return InsertEntry(id, wrapper, samplerYcbcrConversion_map_); }
     bool InsertWrapper(format::HandleId id, SemaphoreWrapper* wrapper) { return InsertEntry(id, wrapper, semaphore_map_); }
+    bool InsertWrapper(format::HandleId id, ShaderEXTWrapper* wrapper) { return InsertEntry(id, wrapper, shaderEXT_map_); }
     bool InsertWrapper(format::HandleId id, ShaderModuleWrapper* wrapper) { return InsertEntry(id, wrapper, shaderModule_map_); }
     bool InsertWrapper(format::HandleId id, SurfaceKHRWrapper* wrapper) { return InsertEntry(id, wrapper, surfaceKHR_map_); }
     bool InsertWrapper(format::HandleId id, SwapchainKHRWrapper* wrapper) { return InsertEntry(id, wrapper, swapchainKHR_map_); }
@@ -124,6 +125,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool RemoveWrapper(const SamplerWrapper* wrapper) { return RemoveEntry(wrapper, sampler_map_); }
     bool RemoveWrapper(const SamplerYcbcrConversionWrapper* wrapper) { return RemoveEntry(wrapper, samplerYcbcrConversion_map_); }
     bool RemoveWrapper(const SemaphoreWrapper* wrapper) { return RemoveEntry(wrapper, semaphore_map_); }
+    bool RemoveWrapper(const ShaderEXTWrapper* wrapper) { return RemoveEntry(wrapper, shaderEXT_map_); }
     bool RemoveWrapper(const ShaderModuleWrapper* wrapper) { return RemoveEntry(wrapper, shaderModule_map_); }
     bool RemoveWrapper(const SurfaceKHRWrapper* wrapper) { return RemoveEntry(wrapper, surfaceKHR_map_); }
     bool RemoveWrapper(const SwapchainKHRWrapper* wrapper) { return RemoveEntry(wrapper, swapchainKHR_map_); }
@@ -169,6 +171,7 @@ class VulkanStateTable : VulkanStateTableBase
     const SamplerWrapper* GetSamplerWrapper(format::HandleId id) const { return GetWrapper<SamplerWrapper>(id, sampler_map_); }
     const SamplerYcbcrConversionWrapper* GetSamplerYcbcrConversionWrapper(format::HandleId id) const { return GetWrapper<SamplerYcbcrConversionWrapper>(id, samplerYcbcrConversion_map_); }
     const SemaphoreWrapper* GetSemaphoreWrapper(format::HandleId id) const { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
+    const ShaderEXTWrapper* GetShaderEXTWrapper(format::HandleId id) const { return GetWrapper<ShaderEXTWrapper>(id, shaderEXT_map_); }
     const ShaderModuleWrapper* GetShaderModuleWrapper(format::HandleId id) const { return GetWrapper<ShaderModuleWrapper>(id, shaderModule_map_); }
     const SurfaceKHRWrapper* GetSurfaceKHRWrapper(format::HandleId id) const { return GetWrapper<SurfaceKHRWrapper>(id, surfaceKHR_map_); }
     const SwapchainKHRWrapper* GetSwapchainKHRWrapper(format::HandleId id) const { return GetWrapper<SwapchainKHRWrapper>(id, swapchainKHR_map_); }
@@ -214,6 +217,7 @@ class VulkanStateTable : VulkanStateTableBase
     SamplerWrapper* GetSamplerWrapper(format::HandleId id) { return GetWrapper<SamplerWrapper>(id, sampler_map_); }
     SamplerYcbcrConversionWrapper* GetSamplerYcbcrConversionWrapper(format::HandleId id) { return GetWrapper<SamplerYcbcrConversionWrapper>(id, samplerYcbcrConversion_map_); }
     SemaphoreWrapper* GetSemaphoreWrapper(format::HandleId id) { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
+    ShaderEXTWrapper* GetShaderEXTWrapper(format::HandleId id) { return GetWrapper<ShaderEXTWrapper>(id, shaderEXT_map_); }
     ShaderModuleWrapper* GetShaderModuleWrapper(format::HandleId id) { return GetWrapper<ShaderModuleWrapper>(id, shaderModule_map_); }
     SurfaceKHRWrapper* GetSurfaceKHRWrapper(format::HandleId id) { return GetWrapper<SurfaceKHRWrapper>(id, surfaceKHR_map_); }
     SwapchainKHRWrapper* GetSwapchainKHRWrapper(format::HandleId id) { return GetWrapper<SwapchainKHRWrapper>(id, swapchainKHR_map_); }
@@ -259,6 +263,7 @@ class VulkanStateTable : VulkanStateTableBase
     void VisitWrappers(std::function<void(SamplerWrapper*)> visitor) const { for (auto entry : sampler_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(SamplerYcbcrConversionWrapper*)> visitor) const { for (auto entry : samplerYcbcrConversion_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(SemaphoreWrapper*)> visitor) const { for (auto entry : semaphore_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ShaderEXTWrapper*)> visitor) const { for (auto entry : shaderEXT_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ShaderModuleWrapper*)> visitor) const { for (auto entry : shaderModule_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(SurfaceKHRWrapper*)> visitor) const { for (auto entry : surfaceKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(SwapchainKHRWrapper*)> visitor) const { for (auto entry : swapchainKHR_map_) { visitor(entry.second); } }
@@ -305,6 +310,7 @@ class VulkanStateTable : VulkanStateTableBase
     std::map<format::HandleId, SamplerWrapper*> sampler_map_;
     std::map<format::HandleId, SamplerYcbcrConversionWrapper*> samplerYcbcrConversion_map_;
     std::map<format::HandleId, SemaphoreWrapper*> semaphore_map_;
+    std::map<format::HandleId, ShaderEXTWrapper*> shaderEXT_map_;
     std::map<format::HandleId, ShaderModuleWrapper*> shaderModule_map_;
     std::map<format::HandleId, SurfaceKHRWrapper*> surfaceKHR_map_;
     std::map<format::HandleId, SwapchainKHRWrapper*> swapchainKHR_map_;
@@ -357,6 +363,7 @@ class VulkanStateHandleTable : VulkanStateTableBase
     bool InsertWrapper(SamplerWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, sampler_map_); }
     bool InsertWrapper(SamplerYcbcrConversionWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, samplerYcbcrConversion_map_); }
     bool InsertWrapper(SemaphoreWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, semaphore_map_); }
+    bool InsertWrapper(ShaderEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, shaderEXT_map_); }
     bool InsertWrapper(ShaderModuleWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, shaderModule_map_); }
     bool InsertWrapper(SurfaceKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, surfaceKHR_map_); }
     bool InsertWrapper(SwapchainKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, swapchainKHR_map_); }
@@ -516,6 +523,10 @@ class VulkanStateHandleTable : VulkanStateTableBase
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, semaphore_map_);
     }
+    bool RemoveWrapper(const ShaderEXTWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, shaderEXT_map_);
+    }
     bool RemoveWrapper(const ShaderModuleWrapper* wrapper) {
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, shaderModule_map_);
@@ -584,6 +595,7 @@ class VulkanStateHandleTable : VulkanStateTableBase
     std::unordered_map<VkSampler, SamplerWrapper*> sampler_map_;
     std::unordered_map<VkSamplerYcbcrConversion, SamplerYcbcrConversionWrapper*> samplerYcbcrConversion_map_;
     std::unordered_map<VkSemaphore, SemaphoreWrapper*> semaphore_map_;
+    std::unordered_map<VkShaderEXT, ShaderEXTWrapper*> shaderEXT_map_;
     std::unordered_map<VkShaderModule, ShaderModuleWrapper*> shaderModule_map_;
     std::unordered_map<VkSurfaceKHR, SurfaceKHRWrapper*> surfaceKHR_map_;
     std::unordered_map<VkSwapchainKHR, SwapchainKHRWrapper*> swapchainKHR_map_;
@@ -630,6 +642,7 @@ template<> inline const RenderPassWrapper* VulkanStateHandleTable::GetWrapper<Re
 template<> inline const SamplerWrapper* VulkanStateHandleTable::GetWrapper<SamplerWrapper>(VkSampler handle) const { return VulkanStateTableBase::GetWrapper(handle, sampler_map_); }
 template<> inline const SamplerYcbcrConversionWrapper* VulkanStateHandleTable::GetWrapper<SamplerYcbcrConversionWrapper>(VkSamplerYcbcrConversion handle) const { return VulkanStateTableBase::GetWrapper(handle, samplerYcbcrConversion_map_); }
 template<> inline const SemaphoreWrapper* VulkanStateHandleTable::GetWrapper<SemaphoreWrapper>(VkSemaphore handle) const { return VulkanStateTableBase::GetWrapper(handle, semaphore_map_); }
+template<> inline const ShaderEXTWrapper* VulkanStateHandleTable::GetWrapper<ShaderEXTWrapper>(VkShaderEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, shaderEXT_map_); }
 template<> inline const ShaderModuleWrapper* VulkanStateHandleTable::GetWrapper<ShaderModuleWrapper>(VkShaderModule handle) const { return VulkanStateTableBase::GetWrapper(handle, shaderModule_map_); }
 template<> inline const SurfaceKHRWrapper* VulkanStateHandleTable::GetWrapper<SurfaceKHRWrapper>(VkSurfaceKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, surfaceKHR_map_); }
 template<> inline const SwapchainKHRWrapper* VulkanStateHandleTable::GetWrapper<SwapchainKHRWrapper>(VkSwapchainKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, swapchainKHR_map_); }
@@ -675,6 +688,7 @@ template<> inline RenderPassWrapper* VulkanStateHandleTable::GetWrapper<RenderPa
 template<> inline SamplerWrapper* VulkanStateHandleTable::GetWrapper<SamplerWrapper>(VkSampler handle) { return VulkanStateTableBase::GetWrapper(handle, sampler_map_); }
 template<> inline SamplerYcbcrConversionWrapper* VulkanStateHandleTable::GetWrapper<SamplerYcbcrConversionWrapper>(VkSamplerYcbcrConversion handle) { return VulkanStateTableBase::GetWrapper(handle, samplerYcbcrConversion_map_); }
 template<> inline SemaphoreWrapper* VulkanStateHandleTable::GetWrapper<SemaphoreWrapper>(VkSemaphore handle) { return VulkanStateTableBase::GetWrapper(handle, semaphore_map_); }
+template<> inline ShaderEXTWrapper* VulkanStateHandleTable::GetWrapper<ShaderEXTWrapper>(VkShaderEXT handle) { return VulkanStateTableBase::GetWrapper(handle, shaderEXT_map_); }
 template<> inline ShaderModuleWrapper* VulkanStateHandleTable::GetWrapper<ShaderModuleWrapper>(VkShaderModule handle) { return VulkanStateTableBase::GetWrapper(handle, shaderModule_map_); }
 template<> inline SurfaceKHRWrapper* VulkanStateHandleTable::GetWrapper<SurfaceKHRWrapper>(VkSurfaceKHR handle) { return VulkanStateTableBase::GetWrapper(handle, surfaceKHR_map_); }
 template<> inline SwapchainKHRWrapper* VulkanStateHandleTable::GetWrapper<SwapchainKHRWrapper>(VkSwapchainKHR handle) { return VulkanStateTableBase::GetWrapper(handle, swapchainKHR_map_); }

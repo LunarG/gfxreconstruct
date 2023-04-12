@@ -9203,6 +9203,44 @@ template <> std::string ToString<decode::Decoded_VkPipelineExecutableInternalRep
     );
 }
 
+template <> std::string ToString<decode::Decoded_VkMemoryMapInfoKHR>(const decode::Decoded_VkMemoryMapInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkMemoryMapInfoKHR& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+            FieldToString(strStrm, false, "offset", toStringFlags, tabCount, tabSize, ToString(obj.offset, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "size", toStringFlags, tabCount, tabSize, ToString(obj.size, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkMemoryUnmapInfoKHR>(const decode::Decoded_VkMemoryUnmapInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkMemoryUnmapInfoKHR& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "memory", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.memory));
+        }
+    );
+}
+
 template <> std::string ToString<decode::Decoded_VkPipelineLibraryCreateInfoKHR>(const decode::Decoded_VkPipelineLibraryCreateInfoKHR& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     if(decoded_obj.decoded_value == nullptr)
@@ -15486,6 +15524,44 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDeviceImage2DViewOf3D
     );
 }
 
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceShaderTileImageFeaturesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderTileImageColorReadAccess", toStringFlags, tabCount, tabSize, ToString(obj.shaderTileImageColorReadAccess, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderTileImageDepthReadAccess", toStringFlags, tabCount, tabSize, ToString(obj.shaderTileImageDepthReadAccess, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderTileImageStencilReadAccess", toStringFlags, tabCount, tabSize, ToString(obj.shaderTileImageStencilReadAccess, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT>(const decode::Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceShaderTileImagePropertiesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderTileImageCoherentReadAccelerated", toStringFlags, tabCount, tabSize, ToString(obj.shaderTileImageCoherentReadAccelerated, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderTileImageReadSampleFromPixelRateInvocation", toStringFlags, tabCount, tabSize, ToString(obj.shaderTileImageReadSampleFromPixelRateInvocation, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderTileImageReadFromHelperInvocation", toStringFlags, tabCount, tabSize, ToString(obj.shaderTileImageReadFromHelperInvocation, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
 template <> std::string ToString<decode::Decoded_VkMicromapUsageEXT>(const decode::Decoded_VkMicromapUsageEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     if(decoded_obj.decoded_value == nullptr)
@@ -15719,6 +15795,72 @@ template <> std::string ToString<decode::Decoded_VkMicromapTriangleEXT>(const de
             FieldToString(strStrm, true, "dataOffset", toStringFlags, tabCount, tabSize, ToString(obj.dataOffset, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "subdivisionLevel", toStringFlags, tabCount, tabSize, ToString(obj.subdivisionLevel, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, ToString(obj.format, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV>(const decode::Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceDisplacementMicromapFeaturesNV& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "displacementMicromap", toStringFlags, tabCount, tabSize, ToString(obj.displacementMicromap, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV>(const decode::Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceDisplacementMicromapPropertiesNV& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "maxDisplacementMicromapSubdivisionLevel", toStringFlags, tabCount, tabSize, ToString(obj.maxDisplacementMicromapSubdivisionLevel, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV>(const decode::Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkAccelerationStructureTrianglesDisplacementMicromapNV& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "displacementBiasAndScaleFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.displacementBiasAndScaleFormat, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "displacementVectorFormat", toStringFlags, tabCount, tabSize, Quote(ToString(obj.displacementVectorFormat, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "displacementBiasAndScaleBuffer", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.displacementBiasAndScaleBuffer), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "displacementBiasAndScaleStride", toStringFlags, tabCount, tabSize, ToString(obj.displacementBiasAndScaleStride, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "displacementVectorBuffer", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.displacementVectorBuffer), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "displacementVectorStride", toStringFlags, tabCount, tabSize, ToString(obj.displacementVectorStride, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "displacedMicromapPrimitiveFlags", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.displacedMicromapPrimitiveFlags), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "displacedMicromapPrimitiveFlagsStride", toStringFlags, tabCount, tabSize, ToString(obj.displacedMicromapPrimitiveFlagsStride, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "indexType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.indexType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "indexBuffer", toStringFlags, tabCount, tabSize, ToString(*(decoded_obj.indexBuffer), toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "indexStride", toStringFlags, tabCount, tabSize, ToString(obj.indexStride, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "baseTriangle", toStringFlags, tabCount, tabSize, ToString(obj.baseTriangle, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "usageCountsCount", toStringFlags, tabCount, tabSize, ToString(obj.usageCountsCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pUsageCounts", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pUsageCounts, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "ppUsageCounts", toStringFlags, tabCount, tabSize, PointerDecoderArrayPointerToString(*decoded_obj.ppUsageCounts, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "micromap", toStringFlags, tabCount, tabSize, decode::HandleIdToString(decoded_obj.micromap));
         }
     );
 }
@@ -16580,6 +16722,69 @@ template <> std::string ToString<decode::Decoded_VkPhysicalDevicePipelineProtect
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pipelineProtectedAccess", toStringFlags, tabCount, tabSize, ToString(obj.pipelineProtectedAccess, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT>(const decode::Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceShaderObjectFeaturesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderObject", toStringFlags, tabCount, tabSize, ToString(obj.shaderObject, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT>(const decode::Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkPhysicalDeviceShaderObjectPropertiesEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "shaderBinaryUUID", toStringFlags, tabCount, tabSize, Quote(UIDToString(VK_UUID_SIZE, obj.shaderBinaryUUID)));
+            FieldToString(strStrm, false, "shaderBinaryVersion", toStringFlags, tabCount, tabSize, ToString(obj.shaderBinaryVersion, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <> std::string ToString<decode::Decoded_VkShaderCreateInfoEXT>(const decode::Decoded_VkShaderCreateInfoEXT& decoded_obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    if(decoded_obj.decoded_value == nullptr)
+    {
+        return "null";
+    }
+    const VkShaderCreateInfoEXT& obj = *decoded_obj.decoded_value;
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.sType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextDecodedToString(decoded_obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "stage", toStringFlags, tabCount, tabSize, Quote(ToString(obj.stage, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "nextStage", toStringFlags, tabCount, tabSize, ToString(obj.nextStage, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "codeType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.codeType, toStringFlags, tabCount, tabSize)));
+            FieldToString(strStrm, false, "codeSize", toStringFlags, tabCount, tabSize, ToString(obj.codeSize, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pCode", toStringFlags, tabCount, tabSize, decode::DataPointerDecoderToString(&decoded_obj.pCode));
+            FieldToString(strStrm, false, "pName", toStringFlags, tabCount, tabSize, CStrToString(obj.pName));
+            FieldToString(strStrm, false, "setLayoutCount", toStringFlags, tabCount, tabSize, ToString(obj.setLayoutCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pSetLayouts", toStringFlags, tabCount, tabSize, decode::HandlePointerDecoderArrayToString(decoded_obj.pSetLayouts.GetLength(), &decoded_obj.pSetLayouts, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pushConstantRangeCount", toStringFlags, tabCount, tabSize, ToString(obj.pushConstantRangeCount, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pPushConstantRanges", toStringFlags, tabCount, tabSize, PointerDecoderArrayToString(*decoded_obj.pPushConstantRanges, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "pSpecializationInfo", toStringFlags, tabCount, tabSize, ((decoded_obj.pSpecializationInfo && decoded_obj.pSpecializationInfo->GetMetaStructPointer()) ? ToString(*decoded_obj.pSpecializationInfo->GetMetaStructPointer(), toStringFlags, tabCount, tabSize) : "null"));
         }
     );
 }

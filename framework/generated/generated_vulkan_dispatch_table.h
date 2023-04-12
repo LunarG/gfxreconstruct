@@ -431,6 +431,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(VkDevice, VkDefer
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(VkDevice, const VkPipelineInfoKHR*, uint32_t*, VkPipelineExecutablePropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutablePropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableStatisticKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutableStatisticsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableInternalRepresentationKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutableInternalRepresentationsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL MapMemory2KHR(VkDevice, const VkMemoryMapInfoKHR*, void**) { GFXRECON_LOG_WARNING("Unsupported function vkMapMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL UnmapMemory2KHR(VkDevice, const VkMemoryUnmapInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkUnmapMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdEncodeVideoKHR(VkCommandBuffer, const VkVideoEncodeInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEncodeVideoKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetEvent2KHR(VkCommandBuffer, VkEvent, const VkDependencyInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetEvent2KHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdResetEvent2KHR(VkCommandBuffer, VkEvent, VkPipelineStageFlags2) { GFXRECON_LOG_WARNING("Unsupported function vkCmdResetEvent2KHR was called, resulting in no-op behavior."); }
@@ -633,6 +635,10 @@ static VKAPI_ATTR VkResult VKAPI_CALL CreateOpticalFlowSessionNV(VkDevice, const
 static VKAPI_ATTR void VKAPI_CALL DestroyOpticalFlowSessionNV(VkDevice, VkOpticalFlowSessionNV, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyOpticalFlowSessionNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL BindOpticalFlowSessionImageNV(VkDevice, VkOpticalFlowSessionNV, VkOpticalFlowSessionBindingPointNV, VkImageView, VkImageLayout) { GFXRECON_LOG_WARNING("Unsupported function vkBindOpticalFlowSessionImageNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdOpticalFlowExecuteNV(VkCommandBuffer, VkOpticalFlowSessionNV, const VkOpticalFlowExecuteInfoNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdOpticalFlowExecuteNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateShadersEXT(VkDevice, uint32_t, const VkShaderCreateInfoEXT*, const VkAllocationCallbacks*, VkShaderEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateShadersEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyShaderEXT(VkDevice, VkShaderEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyShaderEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetShaderBinaryDataEXT(VkDevice, VkShaderEXT, size_t*, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetShaderBinaryDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBindShadersEXT(VkCommandBuffer, uint32_t, const VkShaderStageFlagBits*, const VkShaderEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindShadersEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL GetFramebufferTilePropertiesQCOM(VkDevice, VkFramebuffer, uint32_t*, VkTilePropertiesQCOM*) { GFXRECON_LOG_WARNING("Unsupported function vkGetFramebufferTilePropertiesQCOM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetDynamicRenderingTilePropertiesQCOM(VkDevice, const VkRenderingInfo*, VkTilePropertiesQCOM*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDynamicRenderingTilePropertiesQCOM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -1040,6 +1046,8 @@ struct DeviceTable
     PFN_vkGetPipelineExecutablePropertiesKHR GetPipelineExecutablePropertiesKHR{ noop::GetPipelineExecutablePropertiesKHR };
     PFN_vkGetPipelineExecutableStatisticsKHR GetPipelineExecutableStatisticsKHR{ noop::GetPipelineExecutableStatisticsKHR };
     PFN_vkGetPipelineExecutableInternalRepresentationsKHR GetPipelineExecutableInternalRepresentationsKHR{ noop::GetPipelineExecutableInternalRepresentationsKHR };
+    PFN_vkMapMemory2KHR MapMemory2KHR{ noop::MapMemory2KHR };
+    PFN_vkUnmapMemory2KHR UnmapMemory2KHR{ noop::UnmapMemory2KHR };
     PFN_vkCmdEncodeVideoKHR CmdEncodeVideoKHR{ noop::CmdEncodeVideoKHR };
     PFN_vkCmdSetEvent2KHR CmdSetEvent2KHR{ noop::CmdSetEvent2KHR };
     PFN_vkCmdResetEvent2KHR CmdResetEvent2KHR{ noop::CmdResetEvent2KHR };
@@ -1242,6 +1250,10 @@ struct DeviceTable
     PFN_vkDestroyOpticalFlowSessionNV DestroyOpticalFlowSessionNV{ noop::DestroyOpticalFlowSessionNV };
     PFN_vkBindOpticalFlowSessionImageNV BindOpticalFlowSessionImageNV{ noop::BindOpticalFlowSessionImageNV };
     PFN_vkCmdOpticalFlowExecuteNV CmdOpticalFlowExecuteNV{ noop::CmdOpticalFlowExecuteNV };
+    PFN_vkCreateShadersEXT CreateShadersEXT{ noop::CreateShadersEXT };
+    PFN_vkDestroyShaderEXT DestroyShaderEXT{ noop::DestroyShaderEXT };
+    PFN_vkGetShaderBinaryDataEXT GetShaderBinaryDataEXT{ noop::GetShaderBinaryDataEXT };
+    PFN_vkCmdBindShadersEXT CmdBindShadersEXT{ noop::CmdBindShadersEXT };
     PFN_vkGetFramebufferTilePropertiesQCOM GetFramebufferTilePropertiesQCOM{ noop::GetFramebufferTilePropertiesQCOM };
     PFN_vkGetDynamicRenderingTilePropertiesQCOM GetDynamicRenderingTilePropertiesQCOM{ noop::GetDynamicRenderingTilePropertiesQCOM };
     PFN_vkCreateAccelerationStructureKHR CreateAccelerationStructureKHR{ noop::CreateAccelerationStructureKHR };
@@ -1656,6 +1668,8 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetPipelineExecutablePropertiesKHR", &table->GetPipelineExecutablePropertiesKHR);
     LoadFunction(gpa, device, "vkGetPipelineExecutableStatisticsKHR", &table->GetPipelineExecutableStatisticsKHR);
     LoadFunction(gpa, device, "vkGetPipelineExecutableInternalRepresentationsKHR", &table->GetPipelineExecutableInternalRepresentationsKHR);
+    LoadFunction(gpa, device, "vkMapMemory2KHR", &table->MapMemory2KHR);
+    LoadFunction(gpa, device, "vkUnmapMemory2KHR", &table->UnmapMemory2KHR);
     LoadFunction(gpa, device, "vkCmdEncodeVideoKHR", &table->CmdEncodeVideoKHR);
     LoadFunction(gpa, device, "vkCmdSetEvent2KHR", &table->CmdSetEvent2KHR);
     LoadFunction(gpa, device, "vkCmdResetEvent2KHR", &table->CmdResetEvent2KHR);
@@ -1858,6 +1872,10 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkDestroyOpticalFlowSessionNV", &table->DestroyOpticalFlowSessionNV);
     LoadFunction(gpa, device, "vkBindOpticalFlowSessionImageNV", &table->BindOpticalFlowSessionImageNV);
     LoadFunction(gpa, device, "vkCmdOpticalFlowExecuteNV", &table->CmdOpticalFlowExecuteNV);
+    LoadFunction(gpa, device, "vkCreateShadersEXT", &table->CreateShadersEXT);
+    LoadFunction(gpa, device, "vkDestroyShaderEXT", &table->DestroyShaderEXT);
+    LoadFunction(gpa, device, "vkGetShaderBinaryDataEXT", &table->GetShaderBinaryDataEXT);
+    LoadFunction(gpa, device, "vkCmdBindShadersEXT", &table->CmdBindShadersEXT);
     LoadFunction(gpa, device, "vkGetFramebufferTilePropertiesQCOM", &table->GetFramebufferTilePropertiesQCOM);
     LoadFunction(gpa, device, "vkGetDynamicRenderingTilePropertiesQCOM", &table->GetDynamicRenderingTilePropertiesQCOM);
     LoadFunction(gpa, device, "vkCreateAccelerationStructureKHR", &table->CreateAccelerationStructureKHR);
