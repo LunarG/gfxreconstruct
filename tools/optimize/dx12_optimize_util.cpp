@@ -198,13 +198,14 @@ bool GetDxrOptimizationInfo(const std::string&                     input_filenam
         // If this is a second pass, set unassociated resource values on Dx12ResourceValueTracker.
         if (first_pass)
         {
-            GFXRECON_WRITE_CONSOLE("Scanning D3D12 capture %s for DXR optimization information.",
+            GFXRECON_WRITE_CONSOLE("Scanning D3D12 capture %s for DXR/EI optimization information.",
                                    input_filename.c_str());
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE("Scanning D3D12 file %s another time for additional DXR optimization information.",
-                                   input_filename.c_str());
+            GFXRECON_WRITE_CONSOLE(
+                "Scanning D3D12 file %s another time for additional DXR/EI optimization information.",
+                input_filename.c_str());
             resource_value_tracking_consumer->SetUnassociatedResourceValues(
                 std::move(info.fill_command_resource_values), std::move(info.unassociated_resource_values));
         }
@@ -229,22 +230,22 @@ bool GetDxrOptimizationInfo(const std::string&                     input_filenam
             resource_value_tracking_consumer->GetTrackedResourceValues(info.fill_command_resource_values);
             resource_value_tracking_consumer->GetUnassociatedResourceValues(info.unassociated_resource_values);
 
-            GFXRECON_WRITE_CONSOLE("Finished scanning capture file for DXR optimization.");
+            GFXRECON_WRITE_CONSOLE("Finished scanning capture file for DXR/EI optimization.");
 
             dxr_scan_result = true;
         }
         else if (dxr_pass_file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
         {
-            GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing for DXR optimization");
+            GFXRECON_WRITE_CONSOLE("A failure has occurred during capture processing for DXR/EI optimization");
         }
         else if (!dxr_pass_file_processor.EntireFileWasProcessed())
         {
-            GFXRECON_WRITE_CONSOLE("Failed to process the entire capture file for DXR optimization.");
+            GFXRECON_WRITE_CONSOLE("Failed to process the entire capture file for DXR/EI optimization.");
         }
         else
         {
             GFXRECON_WRITE_CONSOLE(
-                "DXR optimization detected invalid capture. Please ensure that traces input to the optimizer "
+                "DXR/EI optimization detected invalid capture. Please ensure that traces input to the optimizer "
                 "already replay on their own.");
         }
     }
@@ -278,8 +279,8 @@ bool GetDx12OptimizationInfo(const std::string&               input_filename,
         if (options.optimize_resource_values_experimental && (info.unassociated_resource_values.size() > 0))
         {
             GFXRECON_WRITE_CONSOLE(
-                "The first pass of experimental DXR optimization was unable to find all required optimization data. A "
-                "second pass will attempt to find this data using a brute-force search.");
+                "The first pass of experimental DXR/EI optimization was unable to find all required optimization data. "
+                "A second pass will attempt to find this data using a brute-force search.");
             dxr_scan_result = dxr_scan_result && GetDxrOptimizationInfo(input_filename, info, false, options);
         }
     }
@@ -333,12 +334,12 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
         if (!info.fill_command_resource_values.empty())
         {
             found_optimization_data = true;
-            GFXRECON_WRITE_CONSOLE("Optimizing %zu FillMemoryCommand blocks for DXR replay.",
+            GFXRECON_WRITE_CONSOLE("Optimizing %zu FillMemoryCommand blocks for DXR/EI replay.",
                                    info.fill_command_resource_values.size());
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE("Found no DXR optimization info. Skipping DXR optimization.");
+            GFXRECON_WRITE_CONSOLE("Found no DXR or EI optimization info. Skipping DXR/EI optimization.");
         }
     }
 
