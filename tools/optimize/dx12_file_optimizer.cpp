@@ -130,9 +130,8 @@ bool Dx12FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header,
             {
                 if (!AddFillMemoryResourceValueCommand(block_header, meta_data_id))
                 {
-                    GFXRECON_LOG_ERROR(
-                        "Failed to write the FillMemoryResourceValueCommand needed for DXR optimization. "
-                        "Optimized file may be invalid.");
+                    GFXRECON_LOG_ERROR("Failed to write the FillMemoryResourceValueCommand needed for DXR or EI "
+                                       "optimization. Optimized file may be invalid.");
                 }
             }
         }
