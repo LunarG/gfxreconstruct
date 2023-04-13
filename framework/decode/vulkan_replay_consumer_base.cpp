@@ -4155,23 +4155,32 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
     VkResult                              result = VK_SUCCESS;
     VulkanResourceAllocator::ResourceData allocator_data;
-    auto                                  replay_buffer      = pBuffer->GetHandlePointer();
-    auto                                  capture_id         = (*pBuffer->GetPointer());
-    auto                                  replay_create_info = pCreateInfo->GetPointer();
-
+    auto                                  replay_buffer               = pBuffer->GetHandlePointer();
+    auto                                  capture_id                  = (*pBuffer->GetPointer());
+    auto                                  replay_create_info          = pCreateInfo->GetPointer();
+    VkBufferCreateInfo                    modified_create_info        = *replay_create_info;
+    uint32_t                              modified_queue_family_index = 0;
     // Check for a buffer device address.
     bool                uses_address         = false;
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
+
+    if ((modified_create_info.sharingMode == VK_SHARING_MODE_CONCURRENT) &&
+        (modified_create_info.queueFamilyIndexCount > 0) && (modified_create_info.pQueueFamilyIndices != nullptr))
+    {
+        modified_create_info.queueFamilyIndexCount = 1;
+        modified_create_info.pQueueFamilyIndices   = &modified_queue_family_index;
+    }
+
     if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
-        if ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
+        if ((modified_create_info.usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
         {
             uses_address = true;
             address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
         }
-        if ((replay_create_info->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==
+        if ((modified_create_info.usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==
             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)
         {
             uses_address = true;
@@ -4182,8 +4191,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
     if (uses_address)
     {
-        VkBufferCreateInfo modified_create_info = (*replay_create_info);
-
         VkBufferOpaqueCaptureAddressCreateInfo address_info = {
             VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO
         };
@@ -4214,21 +4221,21 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     else
     {
         result = allocator->CreateBuffer(
-            replay_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
+            &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
     }
 
-    if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
+    if ((result == VK_SUCCESS) && ((*replay_buffer) != VK_NULL_HANDLE))
     {
         auto buffer_info = reinterpret_cast<BufferInfo*>(pBuffer->GetConsumerData(0));
         assert(buffer_info != nullptr);
 
         buffer_info->allocator_data = allocator_data;
-        buffer_info->usage          = replay_create_info->usage;
+        buffer_info->usage          = modified_create_info.usage;
 
-        if ((replay_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT) &&
-            (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
+        if ((modified_create_info.sharingMode == VK_SHARING_MODE_CONCURRENT) &&
+            (modified_create_info.queueFamilyIndexCount > 0) && (modified_create_info.pQueueFamilyIndices != nullptr))
         {
-            buffer_info->queue_family_index = replay_create_info->pQueueFamilyIndices[0];
+            buffer_info->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
         }
         else
         {
@@ -4283,34 +4290,42 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     assert(allocator != nullptr);
 
     VulkanResourceAllocator::ResourceData allocator_data;
-    auto                                  replay_image = pImage->GetHandlePointer();
-    auto                                  capture_id   = (*pImage->GetPointer());
+    auto                                  replay_image                = pImage->GetHandlePointer();
+    auto                                  capture_id                  = (*pImage->GetPointer());
+    auto                                  replay_create_info          = pCreateInfo->GetPointer();
+    VkImageCreateInfo                     modified_create_info        = *replay_create_info;
+    uint32_t                              modified_queue_family_index = 0;
+
+    if ((modified_create_info.sharingMode == VK_SHARING_MODE_CONCURRENT) &&
+        (modified_create_info.queueFamilyIndexCount > 0) && (modified_create_info.pQueueFamilyIndices != nullptr))
+    {
+        modified_create_info.queueFamilyIndexCount = 1;
+        modified_create_info.pQueueFamilyIndices   = &modified_queue_family_index;
+    }
 
     VkResult result = allocator->CreateImage(
-        pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
+        &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
 
-    auto replay_create_info = pCreateInfo->GetPointer();
-
-    if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_image) != VK_NULL_HANDLE))
+    if ((result == VK_SUCCESS) && ((*replay_image) != VK_NULL_HANDLE))
     {
         auto image_info = reinterpret_cast<ImageInfo*>(pImage->GetConsumerData(0));
         assert(image_info != nullptr);
 
         image_info->allocator_data = allocator_data;
-        image_info->usage          = replay_create_info->usage;
-        image_info->type           = replay_create_info->imageType;
-        image_info->format         = replay_create_info->format;
-        image_info->extent         = replay_create_info->extent;
-        image_info->tiling         = replay_create_info->tiling;
-        image_info->sample_count   = replay_create_info->samples;
-        image_info->initial_layout = replay_create_info->initialLayout;
-        image_info->layer_count    = replay_create_info->arrayLayers;
-        image_info->level_count    = replay_create_info->mipLevels;
+        image_info->usage          = modified_create_info.usage;
+        image_info->type           = modified_create_info.imageType;
+        image_info->format         = modified_create_info.format;
+        image_info->extent         = modified_create_info.extent;
+        image_info->tiling         = modified_create_info.tiling;
+        image_info->sample_count   = modified_create_info.samples;
+        image_info->initial_layout = modified_create_info.initialLayout;
+        image_info->layer_count    = modified_create_info.arrayLayers;
+        image_info->level_count    = modified_create_info.mipLevels;
 
-        if ((replay_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT) &&
-            (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
+        if ((modified_create_info.sharingMode == VK_SHARING_MODE_CONCURRENT) &&
+            (modified_create_info.queueFamilyIndexCount > 0) && (modified_create_info.pQueueFamilyIndices != nullptr))
         {
-            image_info->queue_family_index = replay_create_info->pQueueFamilyIndices[0];
+            image_info->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
         }
         else
         {
