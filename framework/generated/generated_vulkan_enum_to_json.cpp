@@ -1504,6 +1504,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructu
         case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT:
             jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT";
             break;
+        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV:
+            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -2532,6 +2535,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDiscardRectangleModeEXT&
             break;
         case VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT:
             jdata = "VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplacementMicromapFormatNV& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_DISPLACEMENT_MICROMAP_FORMAT_64_TRIANGLES_64_BYTES_NV:
+            jdata = "VK_DISPLACEMENT_MICROMAP_FORMAT_64_TRIANGLES_64_BYTES_NV";
+            break;
+        case VK_DISPLACEMENT_MICROMAP_FORMAT_256_TRIANGLES_128_BYTES_NV:
+            jdata = "VK_DISPLACEMENT_MICROMAP_FORMAT_256_TRIANGLES_128_BYTES_NV";
+            break;
+        case VK_DISPLACEMENT_MICROMAP_FORMAT_1024_TRIANGLES_128_BYTES_NV:
+            jdata = "VK_DISPLACEMENT_MICROMAP_FORMAT_1024_TRIANGLES_128_BYTES_NV";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -5092,6 +5113,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMicromapTypeEXT& value, 
         case VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT:
             jdata = "VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT";
             break;
+        case VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV:
+            jdata = "VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -5244,6 +5268,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkObjectType& value, const
             break;
         case VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV:
             jdata = "VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV";
+            break;
+        case VK_OBJECT_TYPE_SHADER_EXT:
+            jdata = "VK_OBJECT_TYPE_SHADER_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -5792,6 +5819,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits& 
             break;
         case VK_PIPELINE_CREATE_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT:
             jdata = "VK_PIPELINE_CREATE_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV:
+            jdata = "VK_PIPELINE_CREATE_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV";
             break;
         case VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT:
             jdata = "VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT";
@@ -6786,6 +6816,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkResult& value, const Jso
         case VK_ERROR_COMPRESSION_EXHAUSTED_EXT:
             jdata = "VK_ERROR_COMPRESSION_EXHAUSTED_EXT";
             break;
+        case VK_ERROR_INCOMPATIBLE_SHADER_BINARY_EXT:
+            jdata = "VK_ERROR_INCOMPATIBLE_SHADER_BINARY_EXT";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -7002,9 +7035,54 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreWaitFlagBits& v
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCodeTypeEXT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_SHADER_CODE_TYPE_BINARY_EXT:
+            jdata = "VK_SHADER_CODE_TYPE_BINARY_EXT";
+            break;
+        case VK_SHADER_CODE_TYPE_SPIRV_EXT:
+            jdata = "VK_SHADER_CODE_TYPE_SPIRV_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCorePropertiesFlagBitsAMD& value, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(value);
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCreateFlagBitsEXT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_SHADER_CREATE_LINK_STAGE_BIT_EXT:
+            jdata = "VK_SHADER_CREATE_LINK_STAGE_BIT_EXT";
+            break;
+        case VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT:
+            jdata = "VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT";
+            break;
+        case VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT:
+            jdata = "VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT";
+            break;
+        case VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT:
+            jdata = "VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT";
+            break;
+        case VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT:
+            jdata = "VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT";
+            break;
+        case VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT:
+            jdata = "VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT";
+            break;
+        case VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT:
+            jdata = "VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderFloatControlsIndependence& value, const JsonOptions& options)
@@ -8864,6 +8942,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR:
             jdata = "VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR";
             break;
+        case VK_STRUCTURE_TYPE_MEMORY_MAP_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_MEMORY_MAP_INFO_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO_KHR";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT";
             break;
@@ -9317,6 +9401,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT";
+            break;
         case VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT:
             jdata = "VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT";
             break;
@@ -9346,6 +9436,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
             jdata = "VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV";
+            break;
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+            jdata = "VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI";
@@ -9487,6 +9586,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM";
@@ -10905,6 +11013,8 @@ void FieldToJson(VkBuildAccelerationStructureFlagsKHR_t, nlohmann::ordered_json&
                 return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT");
             case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT:
                 return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT");
+            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV:
+                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV");
         }
         return to_hex_fixed_width(flags);
     });
@@ -12380,6 +12490,11 @@ void FieldToJson(VkMemoryPropertyFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
+void FieldToJson(VkMemoryUnmapFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    jdata = to_hex_fixed_width(flags);
+}
+
 void FieldToJson(VkMetalSurfaceCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
@@ -12668,6 +12783,8 @@ void FieldToJson(VkPipelineCreateFlags_t, nlohmann::ordered_json& jdata, const V
                 return std::string("VK_PIPELINE_CREATE_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT");
             case VK_PIPELINE_CREATE_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT:
                 return std::string("VK_PIPELINE_CREATE_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT");
+            case VK_PIPELINE_CREATE_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV:
+                return std::string("VK_PIPELINE_CREATE_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV");
             case VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT:
                 return std::string("VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT");
             case VK_PIPELINE_CREATE_PROTECTED_ACCESS_ONLY_BIT_EXT:
@@ -13334,6 +13451,36 @@ void FieldToJson(VkSemaphoreWaitFlags_t, nlohmann::ordered_json& jdata, const Vk
 void FieldToJson(VkShaderCorePropertiesFlagsAMD_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
+}
+
+void FieldToJson(VkShaderCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_SHADER_CREATE_LINK_STAGE_BIT_EXT:
+                return std::string("VK_SHADER_CREATE_LINK_STAGE_BIT_EXT");
+            case VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT:
+                return std::string("VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT");
+            case VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT:
+                return std::string("VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT");
+            case VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT:
+                return std::string("VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT");
+            case VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT:
+                return std::string("VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT");
+            case VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT:
+                return std::string("VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT");
+            case VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT:
+                return std::string("VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
 }
 
 void FieldToJson(VkShaderModuleCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)

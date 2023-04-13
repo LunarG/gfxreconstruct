@@ -6982,6 +6982,34 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineExecutab
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryMapInfoKHR* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkMemoryMapFlags_t(),jdata["flags"], decoded_value.flags, options);
+        HandleToJson(jdata["memory"], meta_struct.memory, options);
+        FieldToJson(jdata["offset"], decoded_value.offset, options);
+        FieldToJson(jdata["size"], decoded_value.size, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryUnmapInfoKHR* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkMemoryUnmapFlagsKHR_t(),jdata["flags"], decoded_value.flags, options);
+        HandleToJson(jdata["memory"], meta_struct.memory, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineLibraryCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11595,6 +11623,34 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["shaderTileImageColorReadAccess"] = static_cast<bool>(decoded_value.shaderTileImageColorReadAccess);
+        jdata["shaderTileImageDepthReadAccess"] = static_cast<bool>(decoded_value.shaderTileImageDepthReadAccess);
+        jdata["shaderTileImageStencilReadAccess"] = static_cast<bool>(decoded_value.shaderTileImageStencilReadAccess);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["shaderTileImageCoherentReadAccelerated"] = static_cast<bool>(decoded_value.shaderTileImageCoherentReadAccelerated);
+        jdata["shaderTileImageReadSampleFromPixelRateInvocation"] = static_cast<bool>(decoded_value.shaderTileImageReadSampleFromPixelRateInvocation);
+        jdata["shaderTileImageReadFromHelperInvocation"] = static_cast<bool>(decoded_value.shaderTileImageReadFromHelperInvocation);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapUsageEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11769,6 +11825,57 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapTriangle
         FieldToJson(jdata["dataOffset"], decoded_value.dataOffset, options);
         FieldToJson(jdata["subdivisionLevel"], decoded_value.subdivisionLevel, options);
         FieldToJson(jdata["format"], decoded_value.format, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["displacementMicromap"] = static_cast<bool>(decoded_value.displacementMicromap);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["maxDisplacementMicromapSubdivisionLevel"], decoded_value.maxDisplacementMicromapSubdivisionLevel, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["displacementBiasAndScaleFormat"], decoded_value.displacementBiasAndScaleFormat, options);
+        FieldToJson(jdata["displacementVectorFormat"], decoded_value.displacementVectorFormat, options);
+        FieldToJson(jdata["displacementBiasAndScaleBuffer"], meta_struct.displacementBiasAndScaleBuffer, options);
+        FieldToJson(jdata["displacementBiasAndScaleStride"], decoded_value.displacementBiasAndScaleStride, options);
+        FieldToJson(jdata["displacementVectorBuffer"], meta_struct.displacementVectorBuffer, options);
+        FieldToJson(jdata["displacementVectorStride"], decoded_value.displacementVectorStride, options);
+        FieldToJson(jdata["displacedMicromapPrimitiveFlags"], meta_struct.displacedMicromapPrimitiveFlags, options);
+        FieldToJson(jdata["displacedMicromapPrimitiveFlagsStride"], decoded_value.displacedMicromapPrimitiveFlagsStride, options);
+        FieldToJson(jdata["indexType"], decoded_value.indexType, options);
+        FieldToJson(jdata["indexBuffer"], meta_struct.indexBuffer, options);
+        FieldToJson(jdata["indexStride"], decoded_value.indexStride, options);
+        FieldToJson(jdata["baseTriangle"], decoded_value.baseTriangle, options);
+        FieldToJson(jdata["usageCountsCount"], decoded_value.usageCountsCount, options);
+        FieldToJson(jdata["pUsageCounts"], meta_struct.pUsageCounts, options);
+        FieldToJson(jdata["ppUsageCounts"], meta_struct.ppUsageCounts, options);
+        HandleToJson(jdata["micromap"], meta_struct.micromap, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
 
@@ -12399,6 +12506,54 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
         const auto& meta_struct   = *data;
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["pipelineProtectedAccess"] = static_cast<bool>(decoded_value.pipelineProtectedAccess);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["shaderObject"] = static_cast<bool>(decoded_value.shaderObject);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["shaderBinaryUUID"], uuid_to_string(sizeof(decoded_value.shaderBinaryUUID), decoded_value.shaderBinaryUUID), options);
+        FieldToJson(jdata["shaderBinaryVersion"], decoded_value.shaderBinaryVersion, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderCreateInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkShaderCreateFlagsEXT_t(),jdata["flags"], decoded_value.flags, options);
+        FieldToJson(jdata["stage"], decoded_value.stage, options);
+        FieldToJson(VkShaderStageFlags_t(),jdata["nextStage"], decoded_value.nextStage, options);
+        FieldToJson(jdata["codeType"], decoded_value.codeType, options);
+        FieldToJson(jdata["codeSize"], decoded_value.codeSize, options);
+        FieldToJson(jdata["pCode"], meta_struct.pCode, options);
+        FieldToJson(jdata["pName"], &meta_struct.pName, options);
+        FieldToJson(jdata["setLayoutCount"], decoded_value.setLayoutCount, options);
+        HandleToJson(jdata["pSetLayouts"], &meta_struct.pSetLayouts, options);
+        FieldToJson(jdata["pushConstantRangeCount"], decoded_value.pushConstantRangeCount, options);
+        FieldToJson(jdata["pPushConstantRanges"], meta_struct.pPushConstantRanges, options);
+        FieldToJson(jdata["pSpecializationInfo"], meta_struct.pSpecializationInfo, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -15683,6 +15838,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                break;
             }
             
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(data->GetMetaStructPointer());
@@ -15700,6 +15869,27 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV*>(data->GetMetaStructPointer());
                FieldToJson(jdata, pnext, options);
                break;
             }
@@ -15945,6 +16135,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT*>(data->GetMetaStructPointer());
                FieldToJson(jdata, pnext, options);
                break;
             }

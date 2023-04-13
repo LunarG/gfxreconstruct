@@ -6490,6 +6490,44 @@ void VulkanExportJsonConsumer::Process_vkGetPipelineExecutableInternalRepresenta
     );
 }
 
+void VulkanExportJsonConsumer::Process_vkMapMemory2KHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkMemoryMapInfoKHR>* pMemoryMapInfo,
+    PointerDecoder<uint64_t, void*>*            ppData)
+{
+    WriteApiCallToFile(call_info, "vkMapMemory2KHR",
+        [&](auto& jdata)
+        {
+            FieldToJson(jdata[NameReturn()], returnValue, json_options_);
+            auto parameters = jdata[NameArgs()];
+            HandleToJson(parameters["device"], device, json_options_);
+            FieldToJson(parameters["pMemoryMapInfo"], pMemoryMapInfo, json_options_);
+            FieldToJsonAsHex(parameters["ppData"], ppData, json_options_);
+            jdata[NameArgs()] = parameters;
+        }
+    );
+}
+
+void VulkanExportJsonConsumer::Process_vkUnmapMemory2KHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkMemoryUnmapInfoKHR>* pMemoryUnmapInfo)
+{
+    WriteApiCallToFile(call_info, "vkUnmapMemory2KHR",
+        [&](auto& jdata)
+        {
+            FieldToJson(jdata[NameReturn()], returnValue, json_options_);
+            auto parameters = jdata[NameArgs()];
+            HandleToJson(parameters["device"], device, json_options_);
+            FieldToJson(parameters["pMemoryUnmapInfo"], pMemoryUnmapInfo, json_options_);
+            jdata[NameArgs()] = parameters;
+        }
+    );
+}
+
 void VulkanExportJsonConsumer::Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -11192,6 +11230,91 @@ void VulkanExportJsonConsumer::Process_vkCmdOpticalFlowExecuteNV(
             HandleToJson(parameters["commandBuffer"], commandBuffer, json_options_);
             HandleToJson(parameters["session"], session, json_options_);
             FieldToJson(parameters["pExecuteInfo"], pExecuteInfo, json_options_);
+            jdata[NameArgs()] = parameters;
+        }
+    );
+}
+
+void VulkanExportJsonConsumer::Process_vkCreateShadersEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    createInfoCount,
+    StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkShaderEXT>*          pShaders)
+{
+    WriteApiCallToFile(call_info, "vkCreateShadersEXT",
+        [&](auto& jdata)
+        {
+            FieldToJson(jdata[NameReturn()], returnValue, json_options_);
+            auto parameters = jdata[NameArgs()];
+            HandleToJson(parameters["device"], device, json_options_);
+            FieldToJson(parameters["createInfoCount"], createInfoCount, json_options_);
+            FieldToJson(parameters["pCreateInfos"], pCreateInfos, json_options_);
+            FieldToJson(parameters["pAllocator"], pAllocator, json_options_);
+            HandleToJson(parameters["pShaders"], pShaders, json_options_);
+            jdata[NameArgs()] = parameters;
+        }
+    );
+}
+
+void VulkanExportJsonConsumer::Process_vkDestroyShaderEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            shader,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    WriteApiCallToFile(call_info, "vkDestroyShaderEXT",
+        [&](auto& jdata)
+        {
+            auto parameters = jdata[NameArgs()];
+            HandleToJson(parameters["device"], device, json_options_);
+            HandleToJson(parameters["shader"], shader, json_options_);
+            FieldToJson(parameters["pAllocator"], pAllocator, json_options_);
+            jdata[NameArgs()] = parameters;
+        }
+    );
+}
+
+void VulkanExportJsonConsumer::Process_vkGetShaderBinaryDataEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            shader,
+    PointerDecoder<size_t>*                     pDataSize,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    WriteApiCallToFile(call_info, "vkGetShaderBinaryDataEXT",
+        [&](auto& jdata)
+        {
+            FieldToJson(jdata[NameReturn()], returnValue, json_options_);
+            auto parameters = jdata[NameArgs()];
+            HandleToJson(parameters["device"], device, json_options_);
+            HandleToJson(parameters["shader"], shader, json_options_);
+            FieldToJson(parameters["pDataSize"], pDataSize, json_options_);
+            FieldToJson(parameters["pData"], pData, json_options_);
+            jdata[NameArgs()] = parameters;
+        }
+    );
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdBindShadersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    stageCount,
+    PointerDecoder<VkShaderStageFlagBits>*      pStages,
+    HandlePointerDecoder<VkShaderEXT>*          pShaders)
+{
+    WriteApiCallToFile(call_info, "vkCmdBindShadersEXT",
+        [&](auto& jdata)
+        {
+            FieldToJson(jdata["rec_command_index"], GetCommandBufferRecordIndex(commandBuffer), json_options_);
+            auto parameters = jdata[NameArgs()];
+            HandleToJson(parameters["commandBuffer"], commandBuffer, json_options_);
+            FieldToJson(parameters["stageCount"], stageCount, json_options_);
+            FieldToJson(parameters["pStages"], pStages, json_options_);
+            HandleToJson(parameters["pShaders"], pShaders, json_options_);
             jdata[NameArgs()] = parameters;
         }
     );
