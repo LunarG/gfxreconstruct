@@ -26,10 +26,10 @@
 **
 */
 
-#ifndef  GFXRECON_GENERATED_VULKAN_ASCII_CONSUMER_H
-#define  GFXRECON_GENERATED_VULKAN_ASCII_CONSUMER_H
+#ifndef  GFXRECON_GENERATED_VULKAN_EXPORT_JSON_CONSUMER_H
+#define  GFXRECON_GENERATED_VULKAN_EXPORT_JSON_CONSUMER_H
 
-#include "decode/vulkan_ascii_consumer_base.h"
+#include "decode/vulkan_export_json_consumer_base.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -44,12 +44,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
+class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
 {
   public:
-    VulkanAsciiConsumer() { }
+    VulkanExportJsonConsumer() { }
 
-    virtual ~VulkanAsciiConsumer() override { }
+    virtual ~VulkanExportJsonConsumer() override { }
 
     virtual void Process_vkCreateInstance(
         const ApiCallInfo&                          call_info,
@@ -420,41 +420,17 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         format::HandleId                            imageView,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
-    virtual void Process_vkCreateShaderModule(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkShaderModule>*       pShaderModule) override;
-
     virtual void Process_vkDestroyShaderModule(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         format::HandleId                            shaderModule,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
-    virtual void Process_vkCreatePipelineCache(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkPipelineCache>*      pPipelineCache) override;
-
     virtual void Process_vkDestroyPipelineCache(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         format::HandleId                            pipelineCache,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
-
-    virtual void Process_vkGetPipelineCacheData(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            pipelineCache,
-        PointerDecoder<size_t>*                     pDataSize,
-        PointerDecoder<uint8_t>*                    pData) override;
 
     virtual void Process_vkMergePipelineCaches(
         const ApiCallInfo&                          call_info,
@@ -970,15 +946,6 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         VkDeviceSize                                dstOffset,
         VkDeviceSize                                stride,
         VkQueryResultFlags                          flags) override;
-
-    virtual void Process_vkCmdPushConstants(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            layout,
-        VkShaderStageFlags                          stageFlags,
-        uint32_t                                    offset,
-        uint32_t                                    size,
-        PointerDecoder<uint8_t>*                    pValues) override;
 
     virtual void Process_vkCmdBeginRenderPass(
         const ApiCallInfo&                          call_info,
@@ -3959,15 +3926,6 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         uint32_t                                    infoCount,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos) override;
-
-    virtual void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    infoCount,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-        PointerDecoder<VkDeviceAddress>*            pIndirectDeviceAddresses,
-        PointerDecoder<uint32_t>*                   pIndirectStrides,
-        PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts) override;
 
     virtual void Process_vkCopyAccelerationStructureToMemoryKHR(
         const ApiCallInfo&                          call_info,

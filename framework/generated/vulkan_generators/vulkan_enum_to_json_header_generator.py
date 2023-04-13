@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2022-2023 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -24,7 +24,7 @@ import os, re, sys, inspect
 from base_generator import *
 
 
-class VulkanStructToStringHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
     def __init__(
@@ -51,10 +51,13 @@ class VulkanStructToStringHeaderGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-# VulkanStructToStringHeaderGenerator - subclass of BaseGenerator.
-# Generates C++ functions for stringifying Vulkan API structures.
-class VulkanStructToStringHeaderGenerator(BaseGenerator):
-    """Generate C++ functions for Vulkan ToString() functions"""
+# VulkanEnumToStringHeaderGenerator - subclass of BaseGenerator.
+# Generates C++ functions for stringifying Vulkan API enums.
+class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
+    """Generate C++ functions to serialize Vulkan enumaration to JSON"""
+
+    SKIP_ENUM = [
+    ]
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
@@ -69,6 +72,15 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
+        # Set of enums that have been processed since we'll encounter enums that are
+        #   referenced by extensions multiple times.  This list is prepopulated with
+        #   enums that should be skipped.
+        self.processedEnums = set()
+
+        self.enumType = dict()
+        self.flagsType = dict()
+        self.flagBitsType = dict()
+
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
@@ -76,7 +88,8 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
         includes = inspect.cleandoc(
             '''
             #include "format/platform_types.h"
-            #include "util/to_string.h"
+            #include "decode/vulkan_json_util.h"
+
             '''
         )
         write(includes, file=self.outFile)
@@ -84,7 +97,7 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
         namespace = inspect.cleandoc(
             '''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-            GFXRECON_BEGIN_NAMESPACE(util)
+            GFXRECON_BEGIN_NAMESPACE(decode)
             '''
         )
         write(namespace, file=self.outFile)
@@ -93,12 +106,13 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def endFile(self):
-        body = inspect.cleandoc(
-            '''
-            GFXRECON_END_NAMESPACE(util)
+        write('\n', file=self.outFile)
+        self.make_decls()
+
+        body = inspect.cleandoc('''
+            GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            '''
-        )
+            ''')
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -113,13 +127,48 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def generate_feature(self):
-        for struct in self.get_filtered_struct_names():
-            body = 'template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'.format(
-                struct
-            )
-            write(body, file=self.outFile)
-    # yapf: enable
+
+    def genGroup(self, groupinfo, group_name, alias):
+        BaseGenerator.genGroup(self, groupinfo, group_name, alias)
+        type_elem = groupinfo.elem
+        if type_elem.get('bitwidth') == '64':
+            self.enumType[group_name] = 'VkFlags64'
+        else:
+            self.enumType[group_name] = 'VkFlags'
+
+    def genType(self, typeinfo, name, alias):
+        super().genType(typeinfo, name, alias)
+        if self.is_flags(name) and alias is None:
+            self.flagsType[name] = self.flags_types[name]
+            bittype = typeinfo.elem.get('requires')
+            if bittype is None:
+                bittype = typeinfo.elem.get('bitvalues')
+            if bittype is not None:
+                self.flagBitsType[bittype] = name
+
+    def make_decls(self):
+        for flag in sorted(self.flagsType):
+            body = 'struct {0}_t {{ }};'
+            write(body.format(flag), file=self.outFile)
+
+
+        for enum in sorted(self.enum_names):
+            if not enum in self.enumAliases:
+                if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
+                    body = 'struct {0}_t {{ }};'
+                    write(body.format(enum), file=self.outFile)
+
+        write('\n', file=self.outFile)
+        for enum in sorted(self.enum_names):
+            if not enum in self.processedEnums and not enum in self.SKIP_ENUM:
+                self.processedEnums.add(enum)
+                if not enum in self.enumAliases:
+                    if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
+                        body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options = JsonOptions());'
+                    else:
+                        body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options = JsonOptions());'
+                    write(body.format(enum), file=self.outFile)
+
+        for flag in sorted(self.flagsType):
+            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options = JsonOptions());'
+            write(body.format(flag, self.flagsType[flag]), file=self.outFile)

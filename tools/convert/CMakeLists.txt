@@ -1,5 +1,6 @@
 ###############################################################################
-# Copyright (c) 2018-2021 LunarG, Inc.
+# Copyright (c) 2018-2023 LunarG, Inc.
+# Copyright (c) 2018-2023 Valve Corporation.
 # Copyright (c) 2020 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -21,11 +22,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 #
-# Author: LunarG Team
-# Author: AMD Developer Tools Team
-# Description: CMake script for framework util target
 ###############################################################################
-
 add_executable(gfxrecon-convert "")
 
 target_sources(gfxrecon-convert
@@ -36,13 +33,13 @@ target_sources(gfxrecon-convert
               )
 
 if (MSVC)
-    # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
-    # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
-    if(NOT CMAKE_CL_64)
-      target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
-    else()
-      target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
-    endif()
+      # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
+      # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
+      if(NOT CMAKE_CL_64)
+         target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
+      else()
+            target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+      endif()
 endif()
 
 target_include_directories(gfxrecon-convert PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/..)

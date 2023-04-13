@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2022 LunarG, Inc.
+# Copyright (c) 2022-2023 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -19,42 +19,43 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
+#
 
 import os, re, sys, inspect
 from base_generator import *
 
 
-class VulkanStructDecodersToStringHeaderGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ functions for Vulkan structure wrapper ToString() functions"""
+class VulkanStructToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ functions for to_json functions"""
 
     def __init__(
         self,
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
         directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True,
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True,
         extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
             blacklists,
-            platformTypes,
+            platform_types,
             filename,
             directory,
-            prefixText,
-            protectFile,
-            protectFeature,
+            prefix_text,
+            protect_file,
+            protect_feature,
             extraVulkanHeaders=extraVulkanHeaders
         )
 
 
-# VulkanStructDecodersToStringHeaderGenerator - subclass of BaseGenerator.
-# Generates C++ functions for stringifying Vulkan API structure wrappers.
-class VulkanStructDecodersToStringHeaderGenerator(BaseGenerator):
-    """Generate C++ functions for Vulkan ToString() functions"""
+# VulkanStructToJsonHeaderGenerator - subclass of BaseGenerator.
+# Generates C++ functions for stringifying Vulkan API structures.
+class VulkanStructToJsonHeaderGenerator(BaseGenerator):
+    """Generate C++ functions to serialize Vulkan structures to JSON"""
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
@@ -69,37 +70,34 @@ class VulkanStructDecodersToStringHeaderGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
+        self.customImplementationRequired = {
+            'VkPipelineCacheCreateInfo',
+            'VkShaderModuleCreateInfo',
+            'VkPipelineExecutableStatisticKHR',
+        }
+
     # Method override
     # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        includes = inspect.cleandoc(
-            '''
-            #include "format/platform_types.h"
-            #include "util/to_string.h"
-            #include "generated/generated_vulkan_struct_decoders.h"
-            '''
-        )
-        write(includes, file=self.outFile)
-        self.includeVulkanHeaders(genOpts)
-        namespace = inspect.cleandoc(
-            '''
+        body = inspect.cleandoc('''
+            #include "decode/custom_vulkan_struct_to_json.h"
+
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-            GFXRECON_BEGIN_NAMESPACE(util)
-            '''
-        )
-        write(namespace, file=self.outFile)
+            GFXRECON_BEGIN_NAMESPACE(decode)
+            ''')
+        write(body, file=self.outFile)
     # yapf: enable
 
     # Method override
     # yapf: disable
     def endFile(self):
-        body = inspect.cleandoc(
-            '''
-            GFXRECON_END_NAMESPACE(util)
+        body = inspect.cleandoc('''
+            void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options = JsonOptions());
+
+            GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            '''
-        )
+            ''')
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -119,8 +117,10 @@ class VulkanStructDecodersToStringHeaderGenerator(BaseGenerator):
     # yapf: disable
     def generate_feature(self):
         for struct in self.get_filtered_struct_names():
-            body = 'template <> std::string ToString<decode::Decoded_{0}>(const decode::Decoded_{0}& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);'.format(
-                struct
-            )
-            write(body, file=self.outFile)
+            if not struct in self.customImplementationRequired:
+                body = inspect.cleandoc('''
+                    void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options = JsonOptions());
+                    '''.format(struct))
+                write(body, file=self.outFile)
     # yapf: enable
+

@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018,2022 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -82,6 +82,16 @@ bool IsDirectory(const std::string& path);
 std::string Join(const std::string& lhs, const std::string& rhs);
 
 std::string InsertFilenamePostfix(const std::string& filename, const std::string& postfix);
+
+std::string GetBasedir(const std::string& path);
+
+std::string GetFilename(const std::string& path);
+
+std::string GetFilenameStem(const std::string& path);
+
+std::string GetFilenameExtension(const std::string& path);
+
+bool MakeDirectory(const std::string& path);
 
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false);
 

@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018,2022-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -167,6 +167,87 @@ std::string InsertFilenamePostfix(const std::string& filename, const std::string
     }
 
     return filename + postfix;
+}
+
+std::string GetBasedir(const std::string& path)
+{
+    std::string basedir    = "";
+    size_t      suffix_pos = path.rfind(kPathSepStr);
+#if defined(WIN32)
+    size_t alt_suffix_pos = path.rfind(kAltPathSepStr);
+    if (suffix_pos != std::string::npos)
+    {
+        if (alt_suffix_pos != std::string::npos)
+        {
+            suffix_pos = std::max(suffix_pos, alt_suffix_pos);
+        }
+    }
+    else
+    {
+        suffix_pos = alt_suffix_pos;
+    }
+#endif
+    if (suffix_pos != std::string::npos)
+    {
+        basedir = path.substr(0, suffix_pos);
+    }
+    return basedir;
+}
+
+std::string GetFilename(const std::string& path)
+{
+    size_t suffix_pos = path.rfind(kPathSepStr);
+#if defined(WIN32)
+    size_t alt_suffix_pos = path.rfind(kAltPathSepStr);
+    if (suffix_pos != std::string::npos)
+    {
+        if (alt_suffix_pos != std::string::npos)
+        {
+            suffix_pos = std::max(suffix_pos, alt_suffix_pos);
+        }
+    }
+    else
+    {
+        suffix_pos = alt_suffix_pos;
+    }
+#endif
+    if (suffix_pos != std::string::npos)
+    {
+        return path.substr(suffix_pos + 1);
+    }
+    return path;
+}
+
+std::string GetFilenameStem(const std::string& path)
+{
+    std::string filename = GetFilename(path);
+    size_t      ext_pos  = filename.rfind(".");
+    if (ext_pos != std::string::npos)
+    {
+        return filename.substr(0, ext_pos);
+    }
+    return filename;
+}
+
+std::string GetFilenameExtension(const std::string& path)
+{
+    std::string filename = GetFilename(path);
+    size_t      ext_pos  = filename.rfind(".");
+    if (ext_pos != std::string::npos)
+    {
+        return filename.substr(ext_pos);
+    }
+    return "";
+}
+
+bool MakeDirectory(const std::string& path)
+{
+#if defined(WIN32)
+    return _mkdir(path.c_str()) == 0;
+#else
+    return mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX) == 0;
+#endif
+    return false;
 }
 
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt)
