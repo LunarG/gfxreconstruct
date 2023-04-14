@@ -203,7 +203,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
             body += '            FieldToJson(jdata[NameReturn()], returnValue, json_options_);\n'
 
         if len(values) > 0:
-            body += '            auto parameters = jdata[NameArgs()];\n'
+            body += '            auto& parameters = jdata[NameArgs()];\n'
             # Handle function arguments
             for value in values:
                 flagsEnumType = value.base_type
@@ -231,8 +231,6 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
                 to_json = to_json.format(value.name, value.base_type, flagsEnumType)
                 body += '            {0};\n'.format(to_json)
-
-            body += '            jdata[NameArgs()] = parameters;\n'
         return body
     # yapf: enable
 
