@@ -177,7 +177,6 @@ int main(int argc, const char** argv)
             {
                 vulkan_replay_consumer.SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });
-                vulkan_replay_consumer.SetFpsInfo(&fps_info);
 
                 vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
                 file_processor.AddDecoder(&vulkan_decoder);
@@ -205,7 +204,6 @@ int main(int argc, const char** argv)
 
                 dx12_replay_consumer.SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });
-                dx12_replay_consumer.SetFpsInfo(&fps_info);
 
                 // check for user option if first pass tracking is enabled
                 if (dx_replay_options.enable_d3d12_two_pass_replay)

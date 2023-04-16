@@ -193,7 +193,7 @@ void FpsInfo::EndFile(uint64_t frame)
     }
 }
 
-void FpsInfo::ProcessStateEndMarker(uint64_t frame_number)
+void FpsInfo::EndLoad(uint64_t frame_number)
 {
     replay_start_frame_ = frame_number;
     replay_start_time_  = util::datetime::GetTimestamp();

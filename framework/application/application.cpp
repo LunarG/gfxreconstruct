@@ -216,6 +216,11 @@ bool Application::PlaySingleFrame()
     return success;
 }
 
+void Application::ProcessStateEndMarker(uint64_t file_processor_frame)
+{
+    fps_info_->EndLoad(file_processor_frame);
+}
+
 void Application::ProcessEvents(bool wait_for_input)
 {
     for (const auto& itr : wsi_contexts_)

@@ -72,6 +72,8 @@ class Application final
 
     bool PlaySingleFrame();
 
+    void ProcessStateEndMarker(uint64_t file_processor_frame);
+
     void ProcessEvents(bool wait_for_input);
 
     void SetFpsInfo(graphics::FpsInfo* fps_info);

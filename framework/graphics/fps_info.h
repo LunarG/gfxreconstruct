@@ -53,7 +53,7 @@ class FpsInfo
     void BeginFrame(uint64_t file_processor_frame);
     void EndFrame(uint64_t file_processor_frame);
     void EndFile(uint64_t end_file_processor_frame);
-    void ProcessStateEndMarker(uint64_t file_processor_frame);
+    void EndLoad(uint64_t file_processor_frame);
 
   private:
     uint64_t start_time_;

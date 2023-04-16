@@ -135,7 +135,6 @@ void android_main(struct android_app* app)
                                                      measurement_file_name);
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
-                replay_consumer.SetFpsInfo(&fps_info);
 
                 decoder.AddConsumer(&replay_consumer);
                 file_processor.AddDecoder(&decoder);
