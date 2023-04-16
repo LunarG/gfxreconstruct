@@ -35,6 +35,7 @@
 #include "util/logging.h"
 
 #if defined(D3D12_SUPPORT)
+#include "decode/dx12_tracked_object_info_table.h"
 #include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_replay_consumer.h"
 #ifdef GFXRECON_AGS_SUPPORT
@@ -42,7 +43,6 @@
 #include "decode/custom_ags_decoder.h"
 #include "decode/custom_ags_replay_consumer.h"
 #endif // GFXRECON_AGS_SUPPORT
-#include "decode/dx12_tracking_consumer.h"
 #include "graphics/dx12_util.h"
 #endif
 
@@ -183,7 +183,10 @@ int main(int argc, const char** argv)
             }
 
 #if defined(D3D12_SUPPORT)
-            gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser);
+            gfxrecon::decode::Dx12TrackedObjectInfoTable dx_tracked_object_info_table;
+            gfxrecon::decode::DxReplayOptions            dx_replay_options =
+                GetDxReplayOptions(arg_parser, filename, &dx_tracked_object_info_table);
+
             gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
             gfxrecon::decode::Dx12Decoder        dx12_decoder;
 
@@ -205,22 +208,6 @@ int main(int argc, const char** argv)
                 dx12_replay_consumer.SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });
 
-                // check for user option if first pass tracking is enabled
-                if (dx_replay_options.enable_d3d12_two_pass_replay)
-                {
-                    gfxrecon::decode::FileProcessor              file_processor_tracking;
-                    gfxrecon::decode::Dx12TrackedObjectInfoTable tracked_object_info_table;
-                    auto                                         tracking_consumer =
-                        new gfxrecon::decode::DX12TrackingConsumer(dx_replay_options, &tracked_object_info_table);
-                    if (file_processor_tracking.Initialize(filename))
-                    {
-                        dx12_decoder.AddConsumer(tracking_consumer);
-                        file_processor_tracking.AddDecoder(&dx12_decoder);
-                        file_processor_tracking.ProcessAllFrames();
-                        file_processor_tracking.RemoveDecoder(&dx12_decoder);
-                        dx12_decoder.RemoveConsumer(tracking_consumer);
-                    }
-                }
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);
                 file_processor.AddDecoder(&dx12_decoder);
 

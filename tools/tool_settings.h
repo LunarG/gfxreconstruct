@@ -26,6 +26,8 @@
 #if defined(D3D12_SUPPORT)
 #include "decode/dx_replay_options.h"
 #include <initguid.h>
+#include "decode/dx12_tracking_consumer.h"
+#include "decode/dx12_tracked_object_info_table.h"
 #include "generated/generated_dx12_decoder.h"
 #endif
 #include "decode/file_processor.h"
@@ -264,6 +266,27 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
             tracked_object_info_table, "Try replay with the '-m rebind' option to enable advanced memory translation.");
     };
 }
+
+#if defined(D3D12_SUPPORT)
+static void DxGetFirstPassTracking(const std::string&                            filename,
+                                   const gfxrecon::decode::DxReplayOptions&      replay_options,
+                                   gfxrecon::decode::Dx12TrackedObjectInfoTable* tracked_object_info_table)
+{
+    gfxrecon::decode::FileProcessor file_processor_tracking;
+    gfxrecon::decode::Dx12Decoder   decoder;
+
+    auto tracking_consumer = new gfxrecon::decode::DX12TrackingConsumer(replay_options, tracked_object_info_table);
+
+    if (file_processor_tracking.Initialize(filename))
+    {
+        decoder.AddConsumer(tracking_consumer);
+        file_processor_tracking.AddDecoder(&decoder);
+        file_processor_tracking.ProcessAllFrames();
+        file_processor_tracking.RemoveDecoder(&decoder);
+        decoder.RemoveConsumer(tracking_consumer);
+    }
+}
+#endif
 
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
@@ -936,7 +959,10 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 }
 
 #if defined(D3D12_SUPPORT)
-static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
+static gfxrecon::decode::DxReplayOptions
+GetDxReplayOptions(const gfxrecon::util::ArgumentParser&         arg_parser,
+                   const std::string&                            filename,
+                   gfxrecon::decode::Dx12TrackedObjectInfoTable* tracked_object_info_table)
 {
     gfxrecon::decode::DxReplayOptions replay_options;
     GetReplayOptions(replay_options, arg_parser);
@@ -948,6 +974,8 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     if (arg_parser.IsOptionSet(kDxTwoPassReplay))
     {
         replay_options.enable_d3d12_two_pass_replay = true;
+
+        DxGetFirstPassTracking(filename, replay_options, tracked_object_info_table);
     }
 
     if (arg_parser.IsOptionSet(kDiscardCachedPsosLongOption) || arg_parser.IsOptionSet(kDiscardCachedPsosShortOption))
