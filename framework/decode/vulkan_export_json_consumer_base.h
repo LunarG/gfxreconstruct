@@ -189,12 +189,12 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
     // to show up in one place in a profile.
     void WriteBlockStart();
 
+  protected:
     // Output the current in-memory json tree to the destination file:
     // Putting it in one non-inline function avoids code bloat and allows all
     // The JSON->string work to show up in one place in a profile.
     void WriteBlockEnd();
 
-  protected:
     // Wrappers for json field names allowing change without code gen and
     // leaving door open for switching output based on internal state.
     constexpr const char* NameFunction() const { return "function"; }
