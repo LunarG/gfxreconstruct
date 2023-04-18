@@ -35,7 +35,7 @@ jobs:
         config:
         - {
             name: "Ubuntu GCC Release",
-            os: ubuntu-18.04,
+            os: ubuntu-20.04,
             artifact: "gfxreconstruct-ubuntu-gcc-release",
             cc: "gcc", cxx: "g++"
           }

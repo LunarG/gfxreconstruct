@@ -40,7 +40,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 9)
-set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 19)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 20)
 
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
 
@@ -273,6 +273,7 @@ if (${RUN_TESTS})
     target_include_directories(catch2 INTERFACE external)
 endif()
 
+add_subdirectory(external/nlohmann)
 add_subdirectory(framework)
 if(NOT BUILD_STATIC)
     add_subdirectory(layer)

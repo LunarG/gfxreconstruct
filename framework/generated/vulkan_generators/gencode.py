@@ -58,7 +58,8 @@ from decode_pnext_struct_generator import DecodePNextStructGenerator, DecodePNex
 
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
-from vulkan_ascii_consumer_body_generator import VulkanAsciiConsumerBodyGenerator, VulkanAsciiConsumerBodyGeneratorOptions
+from vulkan_export_json_consumer_header_generator import VulkanExportJsonConsumerHeaderGenerator, VulkanExportJsonConsumerHeaderGeneratorOptions
+from vulkan_export_json_consumer_body_generator import VulkanExportJsonConsumerBodyGenerator, VulkanExportJsonConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator, VulkanReplayConsumerBodyGeneratorOptions
 from vulkan_referenced_resource_consumer_header_generator import VulkanReferencedResourceHeaderGenerator, VulkanReferencedResourceHeaderGeneratorOptions
 from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator, VulkanReferencedResourceBodyGeneratorOptions
@@ -84,15 +85,14 @@ from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrapp
 # To String
 from vulkan_enum_to_string_body_generator import VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
 from vulkan_enum_to_string_header_generator import VulkanEnumToStringHeaderGenerator, VulkanEnumToStringHeaderGeneratorOptions
-from vulkan_struct_to_string_body_generator import VulkanStructToStringBodyGenerator, VulkanStructToStringBodyGeneratorOptions
-from vulkan_pnext_to_string_body_generator import VulkanPNextToStringBodyGenerator, VulkanPNextToStringBodyGeneratorOptions
-from vulkan_struct_to_string_header_generator import VulkanStructToStringHeaderGenerator, VulkanStructToStringHeaderGeneratorOptions
-from vulkan_struct_decoders_to_string_header_generator import VulkanStructDecodersToStringHeaderGenerator, VulkanStructDecodersToStringHeaderGeneratorOptions
-from vulkan_struct_decoders_to_string_body_generator import VulkanStructDecodersToStringBodyGenerator, VulkanStructDecodersToStringBodyGeneratorOptions
-from vulkan_pnext_decoders_to_string_body_generator import VulkanPNextDecodersToStringBodyGenerator, VulkanPNextDecodersToStringBodyGeneratorOptions
 
 from vulkan_object_info_table_base2_header_generator import VulkanObjectInfoTableBase2HeaderGenerator, VulkanObjectInfoTableBase2HeaderGeneratorOptions
 from vulkan_state_table_header_generator import VulkanStateTableHeaderGenerator, VulkanStateTableHeaderGeneratorOptions
+
+from vulkan_enum_to_json_body_generator import VulkanEnumToJsonBodyGenerator, VulkanEnumToJsonBodyGeneratorOptions
+from vulkan_enum_to_json_header_generator import VulkanEnumToJsonHeaderGenerator, VulkanEnumToJsonHeaderGeneratorOptions
+from vulkan_struct_to_json_header_generator import VulkanStructToJsonHeaderGenerator, VulkanStructToJsonHeaderGeneratorOptions
+from vulkan_struct_to_json_body_generator import VulkanStructToJsonBodyGenerator, VulkanStructToJsonBodyGeneratorOptions
 
 # Simple timer functions
 start_time = None
@@ -302,23 +302,6 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_vulkan_ascii_consumer.h'] = [
-        VulkanConsumerHeaderGenerator,
-        VulkanConsumerHeaderGeneratorOptions(
-            class_name='VulkanAsciiConsumer',
-            base_class_header='vulkan_ascii_consumer_base.h',
-            is_override=True,
-            filename='generated_vulkan_ascii_consumer.h',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=True,
-            protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
-        )
-    ]
-
     gen_opts['generated_vulkan_referenced_resource_consumer.h'] = [
         VulkanReferencedResourceHeaderGenerator,
         VulkanReferencedResourceHeaderGeneratorOptions(
@@ -347,20 +330,6 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
-            protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
-        )
-    ]
-
-    gen_opts['generated_vulkan_ascii_consumer.cpp'] = [
-        VulkanAsciiConsumerBodyGenerator,
-        VulkanAsciiConsumerBodyGeneratorOptions(
-            filename='generated_vulkan_ascii_consumer.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
             protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
@@ -615,91 +584,6 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_vulkan_pnext_to_string.cpp'] = [
-        VulkanPNextToStringBodyGenerator,
-        VulkanPNextToStringBodyGeneratorOptions(
-            filename='generated_vulkan_pnext_to_string.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=False,
-            protectFeature=False,
-            extraVulkanHeaders=extraVulkanHeaders
-        )
-    ]
-
-    gen_opts['generated_vulkan_struct_to_string.h'] = [
-        VulkanStructToStringHeaderGenerator,
-        VulkanStructToStringHeaderGeneratorOptions(
-            filename='generated_vulkan_struct_to_string.h',
-            directory=directory,
-            blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=True,
-            protectFeature=False,
-            extraVulkanHeaders=extraVulkanHeaders
-        )
-    ]
-
-    gen_opts['generated_vulkan_struct_to_string.cpp'] = [
-        VulkanStructToStringBodyGenerator,
-        VulkanStructToStringBodyGeneratorOptions(
-            filename='generated_vulkan_struct_to_string.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=False,
-            protectFeature=False,
-            extraVulkanHeaders=extraVulkanHeaders
-        )
-    ]
-
-    gen_opts['generated_vulkan_struct_decoders_to_string.h'] = [
-        VulkanStructDecodersToStringHeaderGenerator,
-        VulkanStructDecodersToStringHeaderGeneratorOptions(
-            filename='generated_vulkan_struct_decoders_to_string.h',
-            directory=directory,
-            blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=True,
-            protectFeature=False,
-            extraVulkanHeaders=extraVulkanHeaders
-        )
-    ]
-
-    gen_opts['generated_vulkan_struct_decoders_to_string.cpp'] = [
-        VulkanStructDecodersToStringBodyGenerator,
-        VulkanStructDecodersToStringBodyGeneratorOptions(
-            filename='generated_vulkan_struct_decoders_to_string.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=False,
-            protectFeature=False,
-            extraVulkanHeaders=extraVulkanHeaders
-        )
-    ]
-
-    gen_opts['generated_vulkan_pnext_decoders_to_string.cpp'] = [
-        VulkanPNextDecodersToStringBodyGenerator,
-        VulkanPNextDecodersToStringBodyGeneratorOptions(
-            filename='generated_vulkan_pnext_decoders_to_string.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=False,
-            protectFeature=False,
-            extraVulkanHeaders=extraVulkanHeaders
-        )
-    ]
-
-
     gen_opts['generated_vulkan_object_info_table_base2.h'] = [
         VulkanObjectInfoTableBase2HeaderGenerator,
         VulkanObjectInfoTableBase2HeaderGeneratorOptions(
@@ -728,6 +612,92 @@ def make_gen_opts(args):
         )
     ]
 
+    gen_opts['generated_vulkan_export_json_consumer.h'] = [
+        VulkanExportJsonConsumerHeaderGenerator,
+        VulkanExportJsonConsumerHeaderGeneratorOptions(
+            class_name='VulkanExportJsonConsumer',
+            base_class_header='vulkan_export_json_consumer_base.h',
+            is_override=True,
+            filename='generated_vulkan_export_json_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_export_json_consumer.cpp'] = [
+        VulkanExportJsonConsumerBodyGenerator,
+        VulkanExportJsonConsumerBodyGeneratorOptions(
+            filename='generated_vulkan_export_json_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_to_json.h'] = [
+        VulkanStructToJsonHeaderGenerator,
+        VulkanStructToJsonHeaderGeneratorOptions(
+            filename='generated_vulkan_struct_to_json.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_to_json.cpp'] = [
+        VulkanStructToJsonBodyGenerator,
+        VulkanStructToJsonBodyGeneratorOptions(
+            filename='generated_vulkan_struct_to_json.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_enum_to_json.h'] = [
+        VulkanEnumToJsonHeaderGenerator,
+        VulkanEnumToJsonHeaderGeneratorOptions(
+            filename='generated_vulkan_enum_to_json.h',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + vk_prefix_strings,
+            protectFile=True,
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_enum_to_json.cpp'] = [
+        VulkanEnumToJsonBodyGenerator,
+        VulkanEnumToJsonBodyGeneratorOptions(
+            filename='generated_vulkan_enum_to_json.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + vk_prefix_strings,
+            protectFile=False,
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
 
 def gen_target(args):
     """Generate a target based on the options in the matching gen_opts{} object.

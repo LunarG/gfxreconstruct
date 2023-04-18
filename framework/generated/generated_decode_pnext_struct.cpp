@@ -1622,6 +1622,14 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceOpacityMicromapFeaturesEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -1632,6 +1640,18 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 break;
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI:
@@ -1772,6 +1792,14 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:

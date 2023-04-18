@@ -33,8 +33,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/copy_shaders.h
-                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_ascii_consumer.h
-                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_ascii_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_forward.h
@@ -49,8 +47,8 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_to_string.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_to_string.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_to_string.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_to_json.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_to_json.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.h
@@ -90,8 +88,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/swapchain_image_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/value_decoder.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_ascii_consumer_base.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_ascii_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stats_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/stat_decoder_base.h
@@ -134,6 +130,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_export_json_consumer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_export_json_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_enum_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.cpp
@@ -168,11 +166,13 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_json.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_json.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_export_json_consumer.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_export_json_consumer.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_feature_util.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.cpp
@@ -184,15 +184,9 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_to_string.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_to_string.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_decoders_to_string.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_to_string.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_forward.h>
@@ -214,9 +208,6 @@ target_sources(gfxrecon_decode
 
 if (MSVC)
     # These files may fail to compile with VS2017 and older, requiring the default section limit of 2^16 to be increased.
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_to_string.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp PROPERTIES COMPILE_FLAGS /bigobj)
     set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp PROPERTIES COMPILE_FLAGS /bigobj)
     set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_ascii_consumer.cpp PROPERTIES COMPILE_FLAGS /bigobj)
     set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/test/main.cpp PROPERTIES COMPILE_FLAGS /bigobj)
@@ -233,7 +224,7 @@ target_include_directories(gfxrecon_decode
                                ${CMAKE_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 
-target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
+target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific nlohmann_json::nlohmann_json $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
 
 common_build_directives(gfxrecon_decode)
 

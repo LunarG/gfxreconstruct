@@ -1287,6 +1287,19 @@ void TrackCmdOpticalFlowExecuteNVHandles(CommandBufferWrapper* wrapper, VkOptica
     if(session != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::OpticalFlowSessionNVHandle].insert(GetWrappedId<OpticalFlowSessionNVWrapper>(session));
 }
 
+void TrackCmdBindShadersEXTHandles(CommandBufferWrapper* wrapper, uint32_t stageCount, const VkShaderEXT* pShaders)
+{
+    assert(wrapper != nullptr);
+
+    if (pShaders != nullptr)
+    {
+        for (uint32_t pShaders_index = 0; pShaders_index < stageCount; ++pShaders_index)
+        {
+            if(pShaders[pShaders_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ShaderEXTHandle].insert(GetWrappedId<ShaderEXTWrapper>(pShaders[pShaders_index]));
+        }
+    }
+}
+
 void TrackCmdBuildAccelerationStructuresKHRHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos)
 {
     assert(wrapper != nullptr);

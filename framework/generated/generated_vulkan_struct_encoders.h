@@ -538,6 +538,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableInfoKHR& 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatisticKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableInternalRepresentationKHR& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryMapInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryUnmapInfoKHR& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLibraryCreateInfoKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPresentIdKHR& value);
@@ -1012,6 +1015,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMultiDrawIndexedInfoEXT& va
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderTileImageFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderTileImagePropertiesEXT& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkMicromapUsageEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMicromapBuildInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMicromapCreateInfoEXT& value);
@@ -1024,6 +1030,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMicromapInfoEXT& value)
 void EncodeStruct(ParameterEncoder* encoder, const VkMicromapBuildSizesInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureTrianglesOpacityMicromapEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMicromapTriangleEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDisplacementMicromapFeaturesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDisplacementMicromapPropertiesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureTrianglesDisplacementMicromapNV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI& value);
@@ -1089,6 +1099,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkOpticalFlowExecuteInfoNV& v
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLegacyDitheringFeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderObjectFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderObjectPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkShaderCreateInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTilePropertiesFeaturesQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkTilePropertiesQCOM& value);

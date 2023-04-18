@@ -39,8 +39,6 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/struct_pointer_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/swapchain_image_tracker.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/value_decoder.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_ascii_consumer_base.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_ascii_consumer_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.cpp
@@ -82,8 +80,6 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_virtual_swapchain.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_virtual_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/window.h
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp

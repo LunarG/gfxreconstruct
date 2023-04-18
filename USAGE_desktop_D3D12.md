@@ -14,7 +14,14 @@ Copyright &copy; 2022 Advanced Micro Devices, Inc.
 
 # GFXReconstruct API Capture and Replay - D3D12
 
-This document describes the GFXReconstruct software for capturing and replaying D3D12 API calls on Windows desktop systems.
+***This document describes the GFXReconstruct software for capturing and
+replaying D3D12 API calls on Windows Desktop systems.***
+
+If you are looking for capturing/replaying on a different platform, please refer
+to one of these other documents:
+ * [GfxReconstruct for Android Vulkan](./USAGE_android.md)
+ * [GfxReconstruct for Desktop Vulkan](./USAGE_desktop_Vulkan.md)
+
 
 ## Index
 

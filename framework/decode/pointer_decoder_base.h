@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -52,6 +52,11 @@ class PointerDecoderBase
     bool HasData() const
     {
         return ((attrib_ & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData) ? true : false;
+    }
+
+    bool IsArray() const
+    {
+        return ((attrib_ & format::PointerAttributes::kIsArray) == format::PointerAttributes::kIsArray) ? true : false;
     }
 
     uint32_t GetAttributeMask() const { return attrib_; }

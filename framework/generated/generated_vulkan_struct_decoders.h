@@ -4692,6 +4692,26 @@ struct Decoded_VkPipelineExecutableInternalRepresentationKHR
     PointerDecoder<uint8_t> pData;
 };
 
+struct Decoded_VkMemoryMapInfoKHR
+{
+    using struct_type = VkMemoryMapInfoKHR;
+
+    VkMemoryMapInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId memory{ format::kNullHandleId };
+};
+
+struct Decoded_VkMemoryUnmapInfoKHR
+{
+    using struct_type = VkMemoryUnmapInfoKHR;
+
+    VkMemoryUnmapInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId memory{ format::kNullHandleId };
+};
+
 typedef Decoded_VkPhysicalDeviceShaderIntegerDotProductFeatures Decoded_VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR;
 
 typedef Decoded_VkPhysicalDeviceShaderIntegerDotProductProperties Decoded_VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR;
@@ -8003,6 +8023,24 @@ struct Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderTileImageFeaturesEXT;
+
+    VkPhysicalDeviceShaderTileImageFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderTileImagePropertiesEXT;
+
+    VkPhysicalDeviceShaderTileImagePropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkMicromapUsageEXT
 {
     using struct_type = VkMicromapUsageEXT;
@@ -8123,6 +8161,40 @@ struct Decoded_VkMicromapTriangleEXT
     using struct_type = VkMicromapTriangleEXT;
 
     VkMicromapTriangleEXT* decoded_value{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceDisplacementMicromapFeaturesNV;
+
+    VkPhysicalDeviceDisplacementMicromapFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV
+{
+    using struct_type = VkPhysicalDeviceDisplacementMicromapPropertiesNV;
+
+    VkPhysicalDeviceDisplacementMicromapPropertiesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV
+{
+    using struct_type = VkAccelerationStructureTrianglesDisplacementMicromapNV;
+
+    VkAccelerationStructureTrianglesDisplacementMicromapNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkDeviceOrHostAddressConstKHR* displacementBiasAndScaleBuffer{ nullptr };
+    Decoded_VkDeviceOrHostAddressConstKHR* displacementVectorBuffer{ nullptr };
+    Decoded_VkDeviceOrHostAddressConstKHR* displacedMicromapPrimitiveFlags{ nullptr };
+    Decoded_VkDeviceOrHostAddressConstKHR* indexBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkMicromapUsageEXT>* pUsageCounts{ nullptr };
+    StructPointerDecoder<Decoded_VkMicromapUsageEXT*>* ppUsageCounts{ nullptr };
+    format::HandleId micromap{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI
@@ -8552,6 +8624,41 @@ struct Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT
 
     PNextNode* pNext{ nullptr };
 };
+
+struct Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderObjectFeaturesEXT;
+
+    VkPhysicalDeviceShaderObjectFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderObjectPropertiesEXT;
+
+    VkPhysicalDeviceShaderObjectPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint8_t> shaderBinaryUUID;
+};
+
+struct Decoded_VkShaderCreateInfoEXT
+{
+    using struct_type = VkShaderCreateInfoEXT;
+
+    VkShaderCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint8_t> pCode;
+    StringDecoder pName;
+    HandlePointerDecoder<VkDescriptorSetLayout> pSetLayouts;
+    StructPointerDecoder<Decoded_VkPushConstantRange>* pPushConstantRanges{ nullptr };
+    StructPointerDecoder<Decoded_VkSpecializationInfo>* pSpecializationInfo{ nullptr };
+};
+
+typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkShaderRequiredSubgroupSizeCreateInfoEXT;
 
 struct Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM
 {

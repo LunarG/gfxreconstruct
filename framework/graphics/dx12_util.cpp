@@ -790,6 +790,43 @@ bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc)
     return software_desc;
 }
 
+bool VerifyAgilitySDKRuntime()
+{
+    bool        detected_runtime = false;
+    std::string tool_executable_path;
+
+#if defined(D3D12_SUPPORT)
+    std::vector<char> module_name(MAX_PATH);
+
+    auto ret = GetModuleFileNameA(nullptr, module_name.data(), MAX_PATH);
+    if ((ret == 0) || ((ret == MAX_PATH) && (GetLastError() == ERROR_INSUFFICIENT_BUFFER)))
+    {
+        GFXRECON_LOG_ERROR("GetModuleFileNameA failed with error code %d", GetLastError());
+    }
+    else
+    {
+        tool_executable_path = module_name.data();
+    }
+
+    if (!tool_executable_path.empty())
+    {
+        std::string tool_working_dir = "";
+        size_t      dir_location     = tool_executable_path.find_last_of(util::filepath::kAltPathLastSepStr);
+        if (dir_location >= 0)
+        {
+            tool_working_dir = tool_executable_path.substr(0, dir_location);
+        }
+        const std::string runtime_path = "\\D3D12\\D3D12Core.dll";
+        if (gfxrecon::util::filepath::IsFile(tool_working_dir + runtime_path))
+        {
+            detected_runtime = true;
+        }
+    }
+#endif
+
+    return detected_runtime;
+}
+
 bool GetAdapterAndIndexbyLUID(LUID                              luid,
                               IDXGIAdapter*&                    adapter_ptr,
                               uint32_t&                         index,
