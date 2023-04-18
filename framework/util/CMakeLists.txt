@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020,2023 LunarG, Inc.
-# Copyright (c) 2018-2022 Advanced Micro Devices, Inc. All rights reserved
+# Copyright (c) 2018-2023 Advanced Micro Devices, Inc. All rights reserved
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -71,6 +71,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/options.cpp
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/interception_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/interception_util.cpp>
                     $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.h>
                     $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.cpp>
                     $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:${CMAKE_CURRENT_LIST_DIR}/interception/load_library.h>
@@ -106,8 +108,8 @@ target_sources(gfxrecon_util
 )
 
 
-target_include_directories(gfxrecon_util 
-                           PUBLIC 
+target_include_directories(gfxrecon_util
+                           PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 target_link_libraries(gfxrecon_util platform_specific vulkan_registry nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
