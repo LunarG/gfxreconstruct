@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2019-2023 LunarG, Inc.
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -104,8 +104,9 @@ const char kIncludeBinariesOption[]              = "--include-binaries";
 const char kExpandFlagsOption[]                  = "--expand-flags";
 const char kFilePerFrameOption[]                 = "--file-per-frame";
 #if defined(WIN32)
-const char kApiFamilyOption[] = "--api";
-const char kDxTwoPassReplay[] = "--dx12-two-pass-replay";
+const char kApiFamilyOption[]       = "--api";
+const char kDxTwoPassReplay[]       = "--dx12-two-pass-replay";
+const char kDxOverrideObjectNames[] = "--dx12-override-object-names";
 #endif
 
 enum class WsiPlatform
@@ -826,6 +827,11 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     if (arg_parser.IsOptionSet(kDiscardCachedPsosLongOption) || arg_parser.IsOptionSet(kDiscardCachedPsosShortOption))
     {
         replay_options.discard_cached_psos = true;
+    }
+
+    if (arg_parser.IsOptionSet(kDxOverrideObjectNames))
+    {
+        replay_options.override_object_names = true;
     }
 
     replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);

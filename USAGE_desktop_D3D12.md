@@ -287,6 +287,9 @@ D3D12-only:
                         (Same as --force-windowed)
   --create-dummy-allocations Enables creation of dummy heaps and resources
                              for replay validation.
+  --dx12-override-object-names Generates unique names for all ID3D12Objects and
+                               assigns each object the generated name.
+                               This is intended to assist replay debugging.
 ```
 
 

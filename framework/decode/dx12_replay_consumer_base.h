@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
-** Copyright (c) 2021-2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -163,15 +163,49 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
     template <typename T>
-    void AddObject(const format::HandleId* p_id, T** pp_object)
+    void SetObjectName(const format::HandleId* p_id, T** pp_object, format::ApiCallId call_id)
     {
-        object_mapping::AddObject<T>(p_id, pp_object, &object_info_table_);
+        if ((p_id != nullptr) && (pp_object != nullptr) && (*pp_object != nullptr))
+        {
+            // Don't override object name if this AddObject() call is triggered by a QueryInterface() call
+            if (call_id != format::ApiCall_IUnknown_QueryInterface)
+            {
+                IUnknown* iunknown = reinterpret_cast<IUnknown*>(*pp_object);
+
+                graphics::dx12::ID3D12ObjectComPtr object;
+
+                // See if this is a D3D12Object
+                if (SUCCEEDED(iunknown->QueryInterface(IID_ID3D12Object, reinterpret_cast<void**>(&object))))
+                {
+                    const std::wstring constructed_name = ConstructObjectName(*p_id, call_id);
+
+                    HRESULT res = object->SetName(constructed_name.c_str());
+                    GFXRECON_ASSERT(res == S_OK);
+                }
+            }
+        }
     }
 
     template <typename T>
-    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfo&& initial_info)
+    void AddObject(const format::HandleId* p_id, T** pp_object, format::ApiCallId call_id)
+    {
+        object_mapping::AddObject<T>(p_id, pp_object, &object_info_table_);
+
+        if (options_.override_object_names)
+        {
+            SetObjectName(p_id, pp_object, call_id);
+        }
+    }
+
+    template <typename T>
+    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfo&& initial_info, format::ApiCallId call_id)
     {
         object_mapping::AddObject<T>(p_id, pp_object, std::move(initial_info), &object_info_table_);
+
+        if (options_.override_object_names)
+        {
+            SetObjectName(p_id, pp_object, call_id);
+        }
     }
 
     void RemoveObject(DxObjectInfo* info);
@@ -629,6 +663,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                     UINT                                                    num_views,
                                     StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* views_decoder);
 
+    HRESULT OverrideSetName(DxObjectInfo* replay_object_info, HRESULT original_result, WStringDecoder* Name);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -787,6 +823,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void SetResourceInitInfoState(ResourceInitInfo&                           resource_info,
                                   const format::InitSubresourceCommandHeader& command_header,
                                   const uint8_t*                              data);
+
+    std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
     std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
     Dx12ObjectInfoTable                                   object_info_table_;

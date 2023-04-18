@@ -45,7 +45,7 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory(
                                            out_hp_ppFactory);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppFactory, out_hp_ppFactory);
+        AddObject(out_p_ppFactory, out_hp_ppFactory, format::ApiCall_CreateDXGIFactory);
     }
     CheckReplayResult("CreateDXGIFactory", return_value, replay_result);
 }
@@ -63,7 +63,7 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory1(
                                             out_hp_ppFactory);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppFactory, out_hp_ppFactory);
+        AddObject(out_p_ppFactory, out_hp_ppFactory, format::ApiCall_CreateDXGIFactory1);
     }
     CheckReplayResult("CreateDXGIFactory1", return_value, replay_result);
 }
@@ -84,7 +84,7 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory2(
                                                     ppFactory);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(ppFactory->GetPointer(), ppFactory->GetHandlePointer(), std::move(object_info));
+        AddObject(ppFactory->GetPointer(), ppFactory->GetHandlePointer(), std::move(object_info), format::ApiCall_CreateDXGIFactory2);
     }
     CheckReplayResult("CreateDXGIFactory2", return_value, replay_result);
 }
@@ -104,7 +104,7 @@ void Dx12ReplayConsumer::Process_DXGIGetDebugInterface1(
                                                 out_hp_pDebug);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_pDebug, out_hp_pDebug);
+        AddObject(out_p_pDebug, out_hp_pDebug, format::ApiCall_DXGIGetDebugInterface1);
     }
     CheckReplayResult("DXGIGetDebugInterface1", return_value, replay_result);
 }
@@ -137,8 +137,8 @@ void Dx12ReplayConsumer::Process_D3D12SerializeRootSignature(
                                                      out_hp_ppErrorBlob);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppBlob, out_hp_ppBlob);
-        AddObject(out_p_ppErrorBlob, out_hp_ppErrorBlob);
+        AddObject(out_p_ppBlob, out_hp_ppBlob, format::ApiCall_D3D12SerializeRootSignature);
+        AddObject(out_p_ppErrorBlob, out_hp_ppErrorBlob, format::ApiCall_D3D12SerializeRootSignature);
     }
     CheckReplayResult("D3D12SerializeRootSignature", return_value, replay_result);
 }
@@ -160,7 +160,7 @@ void Dx12ReplayConsumer::Process_D3D12CreateRootSignatureDeserializer(
                                                               out_hp_ppRootSignatureDeserializer);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppRootSignatureDeserializer, out_hp_ppRootSignatureDeserializer);
+        AddObject(out_p_ppRootSignatureDeserializer, out_hp_ppRootSignatureDeserializer, format::ApiCall_D3D12CreateRootSignatureDeserializer);
     }
     CheckReplayResult("D3D12CreateRootSignatureDeserializer", return_value, replay_result);
 }
@@ -183,8 +183,8 @@ void Dx12ReplayConsumer::Process_D3D12SerializeVersionedRootSignature(
                                                               out_hp_ppErrorBlob);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppBlob, out_hp_ppBlob);
-        AddObject(out_p_ppErrorBlob, out_hp_ppErrorBlob);
+        AddObject(out_p_ppBlob, out_hp_ppBlob, format::ApiCall_D3D12SerializeVersionedRootSignature);
+        AddObject(out_p_ppErrorBlob, out_hp_ppErrorBlob, format::ApiCall_D3D12SerializeVersionedRootSignature);
     }
     CheckReplayResult("D3D12SerializeVersionedRootSignature", return_value, replay_result);
 }
@@ -206,7 +206,7 @@ void Dx12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
                                                                        out_hp_ppRootSignatureDeserializer);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppRootSignatureDeserializer, out_hp_ppRootSignatureDeserializer);
+        AddObject(out_p_ppRootSignatureDeserializer, out_hp_ppRootSignatureDeserializer, format::ApiCall_D3D12CreateVersionedRootSignatureDeserializer);
     }
     CheckReplayResult("D3D12CreateVersionedRootSignatureDeserializer", return_value, replay_result);
 }
@@ -230,7 +230,7 @@ void Dx12ReplayConsumer::Process_D3D12CreateDevice(
                                                    ppDevice);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(ppDevice->GetPointer(), ppDevice->GetHandlePointer(), std::move(object_info));
+        AddObject(ppDevice->GetPointer(), ppDevice->GetHandlePointer(), std::move(object_info), format::ApiCall_D3D12CreateDevice);
     }
     CheckReplayResult("D3D12CreateDevice", return_value, replay_result);
 }
@@ -248,7 +248,7 @@ void Dx12ReplayConsumer::Process_D3D12GetDebugInterface(
                                                 out_hp_ppvDebug);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppvDebug, out_hp_ppvDebug);
+        AddObject(out_p_ppvDebug, out_hp_ppvDebug, format::ApiCall_D3D12GetDebugInterface);
     }
     CheckReplayResult("D3D12GetDebugInterface", return_value, replay_result);
 }
@@ -283,7 +283,7 @@ void Dx12ReplayConsumer::Process_D3D12GetInterface(
                                            out_hp_ppvDebug);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppvDebug, out_hp_ppvDebug);
+        AddObject(out_p_ppvDebug, out_hp_ppvDebug, format::ApiCall_D3D12GetInterface);
     }
     CheckReplayResult("D3D12GetInterface", return_value, replay_result);
 }
@@ -357,7 +357,7 @@ void Dx12ReplayConsumer::Process_IDXGIObject_GetParent(
                                                       out_hp_ppParent);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppParent, out_hp_ppParent);
+            AddObject(out_p_ppParent, out_hp_ppParent, format::ApiCall_IDXGIObject_GetParent);
         }
         CheckReplayResult("IDXGIObject_GetParent", return_value, replay_result);
     }
@@ -380,7 +380,7 @@ void Dx12ReplayConsumer::Process_IDXGIDeviceSubObject_GetDevice(
                                                       out_hp_ppDevice);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppDevice, out_hp_ppDevice);
+            AddObject(out_p_ppDevice, out_hp_ppDevice, format::ApiCall_IDXGIDeviceSubObject_GetDevice);
         }
         CheckReplayResult("IDXGIDeviceSubObject_GetDevice", return_value, replay_result);
     }
@@ -576,7 +576,7 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_EnumOutputs(
                                                         out_hp_ppOutput);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppOutput, out_hp_ppOutput);
+            AddObject(out_p_ppOutput, out_hp_ppOutput, format::ApiCall_IDXGIAdapter_EnumOutputs);
         }
         CheckReplayResult("IDXGIAdapter_EnumOutputs", return_value, replay_result);
     }
@@ -831,7 +831,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetBuffer(
                                                ppSurface);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppSurface->GetPointer(), ppSurface->GetHandlePointer(), std::move(object_info));
+            AddObject(ppSurface->GetPointer(), ppSurface->GetHandlePointer(), std::move(object_info), format::ApiCall_IDXGISwapChain_GetBuffer);
         }
         CheckReplayResult("IDXGISwapChain_GetBuffer", return_value, replay_result);
     }
@@ -873,7 +873,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFullscreenState(
                                                                out_hp_ppTarget);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppTarget, out_hp_ppTarget);
+            AddObject(out_p_ppTarget, out_hp_ppTarget, format::ApiCall_IDXGISwapChain_GetFullscreenState);
         }
         CheckReplayResult("IDXGISwapChain_GetFullscreenState", return_value, replay_result);
     }
@@ -946,7 +946,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetContainingOutput(
         auto replay_result = replay_object->GetContainingOutput(out_hp_ppOutput);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppOutput, out_hp_ppOutput);
+            AddObject(out_p_ppOutput, out_hp_ppOutput, format::ApiCall_IDXGISwapChain_GetContainingOutput);
         }
         CheckReplayResult("IDXGISwapChain_GetContainingOutput", return_value, replay_result);
     }
@@ -997,7 +997,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_EnumAdapters(
                                                          out_hp_ppAdapter);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppAdapter, out_hp_ppAdapter);
+            AddObject(out_p_ppAdapter, out_hp_ppAdapter, format::ApiCall_IDXGIFactory_EnumAdapters);
         }
         CheckReplayResult("IDXGIFactory_EnumAdapters", return_value, replay_result);
     }
@@ -1063,7 +1063,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
                                                      ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info), format::ApiCall_IDXGIFactory_CreateSwapChain);
         }
         CheckReplayResult("IDXGIFactory_CreateSwapChain", return_value, replay_result);
     }
@@ -1087,7 +1087,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
                                                                   out_hp_ppAdapter);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppAdapter, out_hp_ppAdapter);
+            AddObject(out_p_ppAdapter, out_hp_ppAdapter, format::ApiCall_IDXGIFactory_CreateSoftwareAdapter);
         }
         CheckReplayResult("IDXGIFactory_CreateSoftwareAdapter", return_value, replay_result);
     }
@@ -1108,7 +1108,7 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_GetAdapter(
         auto replay_result = replay_object->GetAdapter(out_hp_pAdapter);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_pAdapter, out_hp_pAdapter);
+            AddObject(out_p_pAdapter, out_hp_pAdapter, format::ApiCall_IDXGIDevice_GetAdapter);
         }
         CheckReplayResult("IDXGIDevice_GetAdapter", return_value, replay_result);
     }
@@ -1137,7 +1137,7 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_CreateSurface(
                                                           out_hp_ppSurface);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSurface, out_hp_ppSurface);
+            AddObject(out_p_ppSurface, out_hp_ppSurface, format::ApiCall_IDXGIDevice_CreateSurface);
         }
         CheckReplayResult("IDXGIDevice_CreateSurface", return_value, replay_result);
     }
@@ -1207,7 +1207,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory1_EnumAdapters1(
                                                           out_hp_ppAdapter);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppAdapter, out_hp_ppAdapter);
+            AddObject(out_p_ppAdapter, out_hp_ppAdapter, format::ApiCall_IDXGIFactory1_EnumAdapters1);
         }
         CheckReplayResult("IDXGIFactory1_EnumAdapters1", return_value, replay_result);
     }
@@ -1322,7 +1322,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
                                                              out_hp_ppDesktopResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppDesktopResource, out_hp_ppDesktopResource);
+            AddObject(out_p_ppDesktopResource, out_hp_ppDesktopResource, format::ApiCall_IDXGIOutputDuplication_AcquireNextFrame);
         }
         CheckReplayResult("IDXGIOutputDuplication_AcquireNextFrame", return_value, replay_result);
     }
@@ -1443,7 +1443,7 @@ void Dx12ReplayConsumer::Process_IDXGISurface2_GetResource(
                                                         pSubresourceIndex->GetPointer());
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppParentResource, out_hp_ppParentResource);
+            AddObject(out_p_ppParentResource, out_hp_ppParentResource, format::ApiCall_IDXGISurface2_GetResource);
         }
         CheckReplayResult("IDXGISurface2_GetResource", return_value, replay_result);
     }
@@ -1466,7 +1466,7 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
                                                                      out_hp_ppSurface);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSurface, out_hp_ppSurface);
+            AddObject(out_p_ppSurface, out_hp_ppSurface, format::ApiCall_IDXGIResource1_CreateSubresourceSurface);
         }
         CheckReplayResult("IDXGIResource1_CreateSubresourceSurface", return_value, replay_result);
     }
@@ -1618,7 +1618,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetCoreWindow(
                                                           out_hp_ppUnk);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppUnk, out_hp_ppUnk);
+            AddObject(out_p_ppUnk, out_hp_ppUnk, format::ApiCall_IDXGISwapChain1_GetCoreWindow);
         }
         CheckReplayResult("IDXGISwapChain1_GetCoreWindow", return_value, replay_result);
     }
@@ -1671,7 +1671,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
         auto replay_result = replay_object->GetRestrictToOutput(out_hp_ppRestrictToOutput);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppRestrictToOutput, out_hp_ppRestrictToOutput);
+            AddObject(out_p_ppRestrictToOutput, out_hp_ppRestrictToOutput, format::ApiCall_IDXGISwapChain1_GetRestrictToOutput);
         }
         CheckReplayResult("IDXGISwapChain1_GetRestrictToOutput", return_value, replay_result);
     }
@@ -1774,7 +1774,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
                                                             ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info), format::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd);
         }
         CheckReplayResult("IDXGIFactory2_CreateSwapChainForHwnd", return_value, replay_result);
     }
@@ -1808,7 +1808,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
                                                                   ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info), format::ApiCall_IDXGIFactory2_CreateSwapChainForCoreWindow);
         }
         CheckReplayResult("IDXGIFactory2_CreateSwapChainForCoreWindow", return_value, replay_result);
     }
@@ -1952,7 +1952,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
                                                                    ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info), format::ApiCall_IDXGIFactory2_CreateSwapChainForComposition);
         }
         CheckReplayResult("IDXGIFactory2_CreateSwapChainForComposition", return_value, replay_result);
     }
@@ -2044,7 +2044,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_DuplicateOutput(
                                                             out_hp_ppOutputDuplication);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppOutputDuplication, out_hp_ppOutputDuplication);
+            AddObject(out_p_ppOutputDuplication, out_hp_ppOutputDuplication, format::ApiCall_IDXGIOutput1_DuplicateOutput);
         }
         CheckReplayResult("IDXGIOutput1_DuplicateOutput", return_value, replay_result);
     }
@@ -2343,7 +2343,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForComposition
                                                                                        out_hp_ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
+            AddObject(out_p_ppSwapChain, out_hp_ppSwapChain, format::ApiCall_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle);
         }
         CheckReplayResult("IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle", return_value, replay_result);
     }
@@ -2378,7 +2378,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompo
                                                                                              out_hp_ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
+            AddObject(out_p_ppSwapChain, out_hp_ppSwapChain, format::ApiCall_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle);
         }
         CheckReplayResult("IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle", return_value, replay_result);
     }
@@ -2560,7 +2560,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
                                                               out_hp_ppvAdapter);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvAdapter, out_hp_ppvAdapter);
+            AddObject(out_p_ppvAdapter, out_hp_ppvAdapter, format::ApiCall_IDXGIFactory4_EnumAdapterByLuid);
         }
         CheckReplayResult("IDXGIFactory4_EnumAdapterByLuid", return_value, replay_result);
     }
@@ -2583,7 +2583,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
                                                             out_hp_ppvAdapter);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvAdapter, out_hp_ppvAdapter);
+            AddObject(out_p_ppvAdapter, out_hp_ppvAdapter, format::ApiCall_IDXGIFactory4_EnumWarpAdapter);
         }
         CheckReplayResult("IDXGIFactory4_EnumWarpAdapter", return_value, replay_result);
     }
@@ -2707,7 +2707,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutput5_DuplicateOutput1(
                                                              out_hp_ppOutputDuplication);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppOutputDuplication, out_hp_ppOutputDuplication);
+            AddObject(out_p_ppOutputDuplication, out_hp_ppOutputDuplication, format::ApiCall_IDXGIOutput5_DuplicateOutput1);
         }
         CheckReplayResult("IDXGIOutput5_DuplicateOutput1", return_value, replay_result);
     }
@@ -2834,7 +2834,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
                                                                        out_hp_ppvAdapter);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvAdapter, out_hp_ppvAdapter);
+            AddObject(out_p_ppvAdapter, out_hp_ppvAdapter, format::ApiCall_IDXGIFactory6_EnumAdapterByGpuPreference);
         }
         CheckReplayResult("IDXGIFactory6_EnumAdapterByGpuPreference", return_value, replay_result);
     }
@@ -2930,10 +2930,12 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetName(
     HRESULT                                     return_value,
     WStringDecoder*                             Name)
 {
-    auto replay_object = MapObject<ID3D12Object>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->SetName(Name->GetPointer());
+        auto replay_result = OverrideSetName(replay_object,
+                                             return_value,
+                                             Name);
         CheckReplayResult("ID3D12Object_SetName", return_value, replay_result);
     }
 }
@@ -2955,7 +2957,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceChild_GetDevice(
                                                       out_hp_ppvDevice);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvDevice, out_hp_ppvDevice);
+            AddObject(out_p_ppvDevice, out_hp_ppvDevice, format::ApiCall_ID3D12DeviceChild_GetDevice);
         }
         CheckReplayResult("ID3D12DeviceChild_GetDevice", return_value, replay_result);
     }
@@ -3205,7 +3207,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineState_GetCachedBlob(
         auto replay_result = replay_object->GetCachedBlob(out_hp_ppBlob);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppBlob, out_hp_ppBlob);
+            AddObject(out_p_ppBlob, out_hp_ppBlob, format::ApiCall_ID3D12PipelineState_GetCachedBlob);
         }
         CheckReplayResult("ID3D12PipelineState_GetCachedBlob", return_value, replay_result);
     }
@@ -4497,7 +4499,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
                                                         ppCommandQueue);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppCommandQueue->GetPointer(), ppCommandQueue->GetHandlePointer(), std::move(object_info));
+            AddObject(ppCommandQueue->GetPointer(), ppCommandQueue->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateCommandQueue);
         }
         CheckReplayResult("ID3D12Device_CreateCommandQueue", return_value, replay_result);
     }
@@ -4522,7 +4524,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandAllocator(
                                                                    out_hp_ppCommandAllocator);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppCommandAllocator, out_hp_ppCommandAllocator);
+            AddObject(out_p_ppCommandAllocator, out_hp_ppCommandAllocator, format::ApiCall_ID3D12Device_CreateCommandAllocator);
         }
         CheckReplayResult("ID3D12Device_CreateCommandAllocator", return_value, replay_result);
     }
@@ -4550,7 +4552,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
                                                                  ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
+            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateGraphicsPipelineState);
         }
         CheckReplayResult("ID3D12Device_CreateGraphicsPipelineState", return_value, replay_result);
     }
@@ -4578,7 +4580,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateComputePipelineState(
                                                                 ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
+            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateComputePipelineState);
         }
         CheckReplayResult("ID3D12Device_CreateComputePipelineState", return_value, replay_result);
     }
@@ -4613,7 +4615,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandList(
                                                        ppCommandList);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppCommandList->GetPointer(), ppCommandList->GetHandlePointer(), std::move(object_info));
+            AddObject(ppCommandList->GetPointer(), ppCommandList->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateCommandList);
         }
         CheckReplayResult("ID3D12Device_CreateCommandList", return_value, replay_result);
     }
@@ -4640,7 +4642,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
                                                           ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info));
+            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateDescriptorHeap);
         }
         CheckReplayResult("ID3D12Device_CreateDescriptorHeap", return_value, replay_result);
     }
@@ -4686,7 +4688,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateRootSignature(
                                                          ppvRootSignature);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvRootSignature->GetPointer(), ppvRootSignature->GetHandlePointer(), std::move(object_info));
+            AddObject(ppvRootSignature->GetPointer(), ppvRootSignature->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateRootSignature);
         }
         CheckReplayResult("ID3D12Device_CreateRootSignature", return_value, replay_result);
     }
@@ -4906,7 +4908,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommittedResource(
                                                              ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateCommittedResource);
             SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device_CreateCommittedResource", return_value, replay_result);
@@ -4932,7 +4934,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateHeap(
                                                        out_hp_ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvHeap, out_hp_ppvHeap);
+            AddObject(out_p_ppvHeap, out_hp_ppvHeap, format::ApiCall_ID3D12Device_CreateHeap);
         }
         CheckReplayResult("ID3D12Device_CreateHeap", return_value, replay_result);
     }
@@ -4966,7 +4968,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreatePlacedResource(
                                                                  out_hp_ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource);
+            AddObject(out_p_ppvResource, out_hp_ppvResource, format::ApiCall_ID3D12Device_CreatePlacedResource);
             SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device_CreatePlacedResource", return_value, replay_result);
@@ -4998,7 +5000,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateReservedResource(
                                                             ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateReservedResource);
             SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device_CreateReservedResource", return_value, replay_result);
@@ -5055,7 +5057,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
                                                              out_hp_ppvObj);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvObj, out_hp_ppvObj);
+            AddObject(out_p_ppvObj, out_hp_ppvObj, format::ApiCall_ID3D12Device_OpenSharedHandle);
         }
         CheckReplayResult("ID3D12Device_OpenSharedHandle", return_value, replay_result);
     }
@@ -5143,7 +5145,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateFence(
                                                  ppFence);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppFence->GetPointer(), ppFence->GetHandlePointer(), std::move(object_info));
+            AddObject(ppFence->GetPointer(), ppFence->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateFence);
         }
         CheckReplayResult("ID3D12Device_CreateFence", return_value, replay_result);
     }
@@ -5207,7 +5209,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateQueryHeap(
                                                             out_hp_ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvHeap, out_hp_ppvHeap);
+            AddObject(out_p_ppvHeap, out_hp_ppvHeap, format::ApiCall_ID3D12Device_CreateQueryHeap);
         }
         CheckReplayResult("ID3D12Device_CreateQueryHeap", return_value, replay_result);
     }
@@ -5251,7 +5253,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandSignature(
                                                             ppvCommandSignature);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvCommandSignature->GetPointer(), ppvCommandSignature->GetHandlePointer(), std::move(object_info));
+            AddObject(ppvCommandSignature->GetPointer(), ppvCommandSignature->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateCommandSignature);
         }
         CheckReplayResult("ID3D12Device_CreateCommandSignature", return_value, replay_result);
     }
@@ -5335,7 +5337,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
                                                           ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
+            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12PipelineLibrary_LoadGraphicsPipeline);
         }
         CheckReplayResult("ID3D12PipelineLibrary_LoadGraphicsPipeline", return_value, replay_result);
     }
@@ -5365,7 +5367,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
                                                          ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
+            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12PipelineLibrary_LoadComputePipeline);
         }
         CheckReplayResult("ID3D12PipelineLibrary_LoadComputePipeline", return_value, replay_result);
     }
@@ -5423,7 +5425,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
                                                   ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
+            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12PipelineLibrary1_LoadPipeline);
         }
         CheckReplayResult("ID3D12PipelineLibrary1_LoadPipeline", return_value, replay_result);
     }
@@ -5452,7 +5454,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
                                                            ppPipelineLibrary);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppPipelineLibrary->GetPointer(), ppPipelineLibrary->GetHandlePointer(), std::move(object_info));
+            AddObject(ppPipelineLibrary->GetPointer(), ppPipelineLibrary->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device1_CreatePipelineLibrary);
         }
         CheckReplayResult("ID3D12Device1_CreatePipelineLibrary", return_value, replay_result);
     }
@@ -5521,7 +5523,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device2_CreatePipelineState(
                                                                 out_hp_ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppPipelineState, out_hp_ppPipelineState);
+            AddObject(out_p_ppPipelineState, out_hp_ppPipelineState, format::ApiCall_ID3D12Device2_CreatePipelineState);
         }
         CheckReplayResult("ID3D12Device2_CreatePipelineState", return_value, replay_result);
     }
@@ -5548,7 +5550,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
                                                                  ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info));
+            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device3_OpenExistingHeapFromAddress);
         }
         CheckReplayResult("ID3D12Device3_OpenExistingHeapFromAddress", return_value, replay_result);
     }
@@ -5574,7 +5576,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
                                                                             out_hp_ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvHeap, out_hp_ppvHeap);
+            AddObject(out_p_ppvHeap, out_hp_ppvHeap, format::ApiCall_ID3D12Device3_OpenExistingHeapFromFileMapping);
         }
         CheckReplayResult("ID3D12Device3_OpenExistingHeapFromFileMapping", return_value, replay_result);
     }
@@ -5623,7 +5625,7 @@ void Dx12ReplayConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
                                                            out_hp_ppFence);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppFence, out_hp_ppFence);
+            AddObject(out_p_ppFence, out_hp_ppFence, format::ApiCall_ID3D12ProtectedSession_GetStatusFence);
         }
         CheckReplayResult("ID3D12ProtectedSession_GetStatusFence", return_value, replay_result);
     }
@@ -5678,7 +5680,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommandList1(
                                                         ppCommandList);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppCommandList->GetPointer(), ppCommandList->GetHandlePointer(), std::move(object_info));
+            AddObject(ppCommandList->GetPointer(), ppCommandList->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device4_CreateCommandList1);
         }
         CheckReplayResult("ID3D12Device4_CreateCommandList1", return_value, replay_result);
     }
@@ -5703,7 +5705,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
                                                                            out_hp_ppSession);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSession, out_hp_ppSession);
+            AddObject(out_p_ppSession, out_hp_ppSession, format::ApiCall_ID3D12Device4_CreateProtectedResourceSession);
         }
         CheckReplayResult("ID3D12Device4_CreateProtectedResourceSession", return_value, replay_result);
     }
@@ -5741,7 +5743,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommittedResource1(
                                                               ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device4_CreateCommittedResource1);
             SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device4_CreateCommittedResource1", return_value, replay_result);
@@ -5770,7 +5772,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateHeap1(
                                                         out_hp_ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvHeap, out_hp_ppvHeap);
+            AddObject(out_p_ppvHeap, out_hp_ppvHeap, format::ApiCall_ID3D12Device4_CreateHeap1);
         }
         CheckReplayResult("ID3D12Device4_CreateHeap1", return_value, replay_result);
     }
@@ -5804,7 +5806,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateReservedResource1(
                                                              ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device4_CreateReservedResource1);
             SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device4_CreateReservedResource1", return_value, replay_result);
@@ -5871,7 +5873,7 @@ void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
                                                                out_hp_ppv);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppv, out_hp_ppv);
+            AddObject(out_p_ppv, out_hp_ppv, format::ApiCall_ID3D12SwapChainAssistant_GetSwapChainObject);
         }
         CheckReplayResult("ID3D12SwapChainAssistant_GetSwapChainObject", return_value, replay_result);
     }
@@ -5901,8 +5903,8 @@ void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndC
                                                                               out_hp_ppvQueue);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource);
-            AddObject(out_p_ppvQueue, out_hp_ppvQueue);
+            AddObject(out_p_ppvResource, out_hp_ppvResource, format::ApiCall_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue);
+            AddObject(out_p_ppvQueue, out_hp_ppvQueue, format::ApiCall_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue);
         }
         CheckReplayResult("ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue", return_value, replay_result);
     }
@@ -6008,7 +6010,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
                                                                   out_hp_ppvTracker);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvTracker, out_hp_ppvTracker);
+            AddObject(out_p_ppvTracker, out_hp_ppvTracker, format::ApiCall_ID3D12Device5_CreateLifetimeTracker);
         }
         CheckReplayResult("ID3D12Device5_CreateLifetimeTracker", return_value, replay_result);
     }
@@ -6088,7 +6090,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
                                                               out_hp_ppMetaCommand);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppMetaCommand, out_hp_ppMetaCommand);
+            AddObject(out_p_ppMetaCommand, out_hp_ppMetaCommand, format::ApiCall_ID3D12Device5_CreateMetaCommand);
         }
         CheckReplayResult("ID3D12Device5_CreateMetaCommand", return_value, replay_result);
     }
@@ -6116,7 +6118,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateStateObject(
                                                        ppStateObject);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppStateObject->GetPointer(), ppStateObject->GetHandlePointer(), std::move(object_info));
+            AddObject(ppStateObject->GetPointer(), ppStateObject->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device5_CreateStateObject);
         }
         CheckReplayResult("ID3D12Device5_CreateStateObject", return_value, replay_result);
     }
@@ -6375,7 +6377,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device7_AddToStateObject(
                                                       ppNewStateObject);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppNewStateObject->GetPointer(), ppNewStateObject->GetHandlePointer(), std::move(object_info));
+            AddObject(ppNewStateObject->GetPointer(), ppNewStateObject->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device7_AddToStateObject);
         }
         CheckReplayResult("ID3D12Device7_AddToStateObject", return_value, replay_result);
     }
@@ -6400,7 +6402,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
                                                                             out_hp_ppSession);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSession, out_hp_ppSession);
+            AddObject(out_p_ppSession, out_hp_ppSession, format::ApiCall_ID3D12Device7_CreateProtectedResourceSession1);
         }
         CheckReplayResult("ID3D12Device7_CreateProtectedResourceSession1", return_value, replay_result);
     }
@@ -6457,7 +6459,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_CreateCommittedResource2(
                                                               ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device8_CreateCommittedResource2);
             SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device8_CreateCommittedResource2", return_value, replay_result);
@@ -6492,7 +6494,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_CreatePlacedResource1(
                                                                   out_hp_ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource);
+            AddObject(out_p_ppvResource, out_hp_ppvResource, format::ApiCall_ID3D12Device8_CreatePlacedResource1);
             SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device8_CreatePlacedResource1", return_value, replay_result);
@@ -6561,7 +6563,7 @@ void Dx12ReplayConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
                                                                         out_hp_ppProtectedSession);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppProtectedSession, out_hp_ppProtectedSession);
+            AddObject(out_p_ppProtectedSession, out_hp_ppProtectedSession, format::ApiCall_ID3D12Resource1_GetProtectedResourceSession);
         }
         CheckReplayResult("ID3D12Resource1_GetProtectedResourceSession", return_value, replay_result);
     }
@@ -6596,7 +6598,7 @@ void Dx12ReplayConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
                                                                         out_hp_ppProtectedSession);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppProtectedSession, out_hp_ppProtectedSession);
+            AddObject(out_p_ppProtectedSession, out_hp_ppProtectedSession, format::ApiCall_ID3D12Heap1_GetProtectedResourceSession);
         }
         CheckReplayResult("ID3D12Heap1_GetProtectedResourceSession", return_value, replay_result);
     }
@@ -6863,7 +6865,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device9_CreateShaderCacheSession(
                                                                      out_hp_ppvSession);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvSession, out_hp_ppvSession);
+            AddObject(out_p_ppvSession, out_hp_ppvSession, format::ApiCall_ID3D12Device9_CreateShaderCacheSession);
         }
         CheckReplayResult("ID3D12Device9_CreateShaderCacheSession", return_value, replay_result);
     }
@@ -6906,7 +6908,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device9_CreateCommandQueue1(
                                                                 out_hp_ppCommandQueue);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppCommandQueue, out_hp_ppCommandQueue);
+            AddObject(out_p_ppCommandQueue, out_hp_ppCommandQueue, format::ApiCall_ID3D12Device9_CreateCommandQueue1);
         }
         CheckReplayResult("ID3D12Device9_CreateCommandQueue1", return_value, replay_result);
     }
@@ -6946,7 +6948,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device10_CreateCommittedResource3(
                                                                      out_hp_ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource);
+            AddObject(out_p_ppvResource, out_hp_ppvResource, format::ApiCall_ID3D12Device10_CreateCommittedResource3);
         }
         CheckReplayResult("ID3D12Device10_CreateCommittedResource3", return_value, replay_result);
     }
@@ -6984,7 +6986,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device10_CreatePlacedResource2(
                                                                   out_hp_ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource);
+            AddObject(out_p_ppvResource, out_hp_ppvResource, format::ApiCall_ID3D12Device10_CreatePlacedResource2);
         }
         CheckReplayResult("ID3D12Device10_CreatePlacedResource2", return_value, replay_result);
     }
@@ -7020,7 +7022,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device10_CreateReservedResource2(
                                                                     out_hp_ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource);
+            AddObject(out_p_ppvResource, out_hp_ppvResource, format::ApiCall_ID3D12Device10_CreateReservedResource2);
         }
         CheckReplayResult("ID3D12Device10_CreateReservedResource2", return_value, replay_result);
     }
@@ -7145,7 +7147,7 @@ void Dx12ReplayConsumer::Process_ID3D12SDKConfiguration1_CreateDeviceFactory(
                                                                 out_hp_ppvFactory);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvFactory, out_hp_ppvFactory);
+            AddObject(out_p_ppvFactory, out_hp_ppvFactory, format::ApiCall_ID3D12SDKConfiguration1_CreateDeviceFactory);
         }
         CheckReplayResult("ID3D12SDKConfiguration1_CreateDeviceFactory", return_value, replay_result);
     }
@@ -7233,7 +7235,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_GetConfigurationInterface(
                                                                       out_hp_ppv);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppv, out_hp_ppv);
+            AddObject(out_p_ppv, out_hp_ppv, format::ApiCall_ID3D12DeviceFactory_GetConfigurationInterface);
         }
         CheckReplayResult("ID3D12DeviceFactory_GetConfigurationInterface", return_value, replay_result);
     }
@@ -7281,7 +7283,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_CreateDevice(
                                                          out_hp_ppvDevice);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvDevice, out_hp_ppvDevice);
+            AddObject(out_p_ppvDevice, out_hp_ppvDevice, format::ApiCall_ID3D12DeviceFactory_CreateDevice);
         }
         CheckReplayResult("ID3D12DeviceFactory_CreateDevice", return_value, replay_result);
     }
@@ -7337,8 +7339,8 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceConfiguration_SerializeVersionedRoo
                                                                             out_hp_ppError);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppResult, out_hp_ppResult);
-            AddObject(out_p_ppError, out_hp_ppError);
+            AddObject(out_p_ppResult, out_hp_ppResult, format::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature);
+            AddObject(out_p_ppError, out_hp_ppError, format::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature);
         }
         CheckReplayResult("ID3D12DeviceConfiguration_SerializeVersionedRootSignature", return_value, replay_result);
     }
@@ -7365,7 +7367,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceConfiguration_CreateVersionedRootSi
                                                                                      out_hp_ppvDeserializer);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvDeserializer, out_hp_ppvDeserializer);
+            AddObject(out_p_ppvDeserializer, out_hp_ppvDeserializer, format::ApiCall_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer);
         }
         CheckReplayResult("ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer", return_value, replay_result);
     }
@@ -8554,7 +8556,7 @@ void Dx12ReplayConsumer::Process_IUnknown_QueryInterface(
                                                            out_hp_ppvObject);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvObject, out_hp_ppvObject);
+            AddObject(out_p_ppvObject, out_hp_ppvObject, format::ApiCall_IUnknown_QueryInterface);
         }
         CheckReplayResult("IUnknown_QueryInterface", return_value, replay_result);
     }

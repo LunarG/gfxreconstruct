@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2022 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -29,7 +30,8 @@ const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
-    "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos";
+    "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos,"
+    "--dx12-override-object-names";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -207,6 +209,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("                     \t(Same as --force-windowed)");
     GFXRECON_WRITE_CONSOLE("  --create-dummy-allocations Enables creation of dummy heaps and resources");
     GFXRECON_WRITE_CONSOLE("                             for replay validation.");
+    GFXRECON_WRITE_CONSOLE("  --dx12-override-object-names Generates unique names for all ID3D12Objects and");
+    GFXRECON_WRITE_CONSOLE("                               assigns each object the generated name.");
+    GFXRECON_WRITE_CONSOLE("                               This is intended to assist replay debugging.");
 
 #endif
 

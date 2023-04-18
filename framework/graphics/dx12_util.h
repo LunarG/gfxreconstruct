@@ -66,6 +66,7 @@ typedef _com_ptr_t<_com_IIID<ID3D12StateObjectProperties, &__uuidof(ID3D12StateO
 typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
     ID3D12VersionedRootSignatureDeserializerComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
 
 struct ActiveAdapterInfo
 {
