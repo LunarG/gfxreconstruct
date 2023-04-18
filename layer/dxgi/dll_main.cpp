@@ -29,6 +29,7 @@
 
 #include <cassert>
 #include <array>
+#include <mutex>
 #include <string>
 #include <windows.h>
 
@@ -67,14 +68,22 @@ static void LoadDxgiCaptureProcs(HMODULE system_dll, encode::DxgiDispatchTable* 
 
 static bool Initialize()
 {
-    static bool initialized = false;
+    static bool       initialized = false;
+    static std::mutex initialization_mutex;
+
+    // Check `initialized` before locking to avoid locking unnecessarily.
     if (initialized == false)
     {
-        std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
+        std::unique_lock<std::mutex> initialization_lock(initialization_mutex);
+        if (initialized == false)
+        {
+            std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
 
-        initialized = dll_initializer.Initialize(
-            module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadDxgiCaptureProcs);
+            initialized = dll_initializer.Initialize(
+                module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadDxgiCaptureProcs);
+        }
     }
+
     return initialized;
 }
 
