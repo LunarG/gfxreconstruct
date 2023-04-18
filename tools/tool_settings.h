@@ -109,6 +109,7 @@ const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-r
 const char kSwapchainOption[]                    = "--swapchain";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
+const char kLoopingEndAfterCountArgument[]    = "--looping-end-after-count";
 const char kColorspaceFallback[]              = "--use-colorspace-fallback";
 const char kOffscreenSwapchainFrameBoundary[] = "--offscreen-swapchain-frame-boundary";
 const char kFormatArgument[]                  = "--format";
@@ -303,6 +304,19 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
     }
 
     return pause_frame;
+}
+
+static uint32_t GetLoopingEndAfterCount(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t    looping_end_after_count = 1;
+    const auto& value                   = arg_parser.GetArgumentValue(kLoopingEndAfterCountArgument);
+
+    if (!value.empty())
+    {
+        looping_end_after_count = std::stoi(value);
+    }
+
+    return looping_end_after_count;
 }
 
 static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_parser)

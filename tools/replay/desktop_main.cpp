@@ -131,6 +131,7 @@ int main(int argc, const char** argv)
         }
         else
         {
+
             // Select WSI context based on CLI
             std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
             auto        application =
@@ -139,6 +140,23 @@ int main(int argc, const char** argv)
             gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
             gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
                 GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+
+#if defined(D3D12_SUPPORT)
+            gfxrecon::decode::Dx12TrackedObjectInfoTable dx_tracked_object_info_table;
+            gfxrecon::decode::DxReplayOptions            dx_replay_options =
+                GetDxReplayOptions(arg_parser, filename, &dx_tracked_object_info_table);
+
+            if (dx_replay_options.enable_d3d12)
+            {
+                application->InitializeDx12WsiContext();
+                if (gfxrecon::graphics::dx12::VerifyAgilitySDKRuntime() == false)
+                {
+                    GFXRECON_LOG_ERROR(
+                        "Did not find Agility SDK runtimes. Verify \\D3D12\\D3D12Core.dll exists in the same "
+                        "directory as gfxrecon-replay.exe.");
+                }
+            }
+#endif
 
             uint32_t start_frame = 0;
             uint32_t end_frame   = 0;
@@ -168,57 +186,8 @@ int main(int argc, const char** argv)
                                                  quit_after_measurement_frame_range,
                                                  flush_measurement_frame_range,
                                                  flush_inside_measurement_range,
+                                                 GetLoopingEndAfterCount(arg_parser),
                                                  measurement_file_name);
-
-            gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
-            gfxrecon::decode::VulkanDecoder        vulkan_decoder;
-
-            if (vulkan_replay_options.enable_vulkan)
-            {
-                vulkan_replay_consumer.SetFatalErrorHandler(
-                    [](const char* message) { throw std::runtime_error(message); });
-
-                vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
-                file_processor.AddDecoder(&vulkan_decoder);
-            }
-
-#if defined(D3D12_SUPPORT)
-            gfxrecon::decode::Dx12TrackedObjectInfoTable dx_tracked_object_info_table;
-            gfxrecon::decode::DxReplayOptions            dx_replay_options =
-                GetDxReplayOptions(arg_parser, filename, &dx_tracked_object_info_table);
-
-            gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
-            gfxrecon::decode::Dx12Decoder        dx12_decoder;
-
-#ifdef GFXRECON_AGS_SUPPORT
-            gfxrecon::decode::AgsReplayConsumer ags_replay_consumer;
-            gfxrecon::decode::AgsDecoder        ags_decoder;
-#endif // GFXRECON_AGS_SUPPORT
-
-            if (dx_replay_options.enable_d3d12)
-            {
-                application->InitializeDx12WsiContext();
-                if (gfxrecon::graphics::dx12::VerifyAgilitySDKRuntime() == false)
-                {
-                    GFXRECON_LOG_ERROR(
-                        "Did not find Agility SDK runtimes. Verify \\D3D12\\D3D12Core.dll exists in the same "
-                        "directory as gfxrecon-replay.exe.");
-                }
-
-                dx12_replay_consumer.SetFatalErrorHandler(
-                    [](const char* message) { throw std::runtime_error(message); });
-
-                dx12_decoder.AddConsumer(&dx12_replay_consumer);
-                file_processor.AddDecoder(&dx12_decoder);
-
-#ifdef GFXRECON_AGS_SUPPORT
-                ags_replay_consumer.AddDx12Consumer(&dx12_replay_consumer);
-                ags_decoder.AddConsumer(reinterpret_cast<gfxrecon::decode::AgsConsumerBase*>(&ags_replay_consumer));
-
-                file_processor.AddDecoder(&ags_decoder);
-#endif // GFXRECON_AGS_SUPPORT
-            }
-#endif
 
             // Warn if the capture layer is active.
             CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
@@ -227,41 +196,121 @@ int main(int argc, const char** argv)
 
             application->SetPauseFrame(GetPauseFrame(arg_parser));
             application->SetFpsInfo(&fps_info);
-            application->Run();
+
+            while (true)
+            {
+                // Loop setup
+                gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
+                gfxrecon::decode::VulkanDecoder        vulkan_decoder;
+
+                if (vulkan_replay_options.enable_vulkan)
+                {
+                    vulkan_replay_consumer.SetFatalErrorHandler(
+                        [](const char* message) { throw std::runtime_error(message); });
+
+                    vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
+                    file_processor.AddDecoder(&vulkan_decoder);
+                }
+
+#if defined(D3D12_SUPPORT)
+                gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
+                gfxrecon::decode::Dx12Decoder        dx12_decoder;
+
+#ifdef GFXRECON_AGS_SUPPORT
+                gfxrecon::decode::AgsReplayConsumer ags_replay_consumer;
+                gfxrecon::decode::AgsDecoder        ags_decoder;
+#endif // GFXRECON_AGS_SUPPORT
+
+                if (dx_replay_options.enable_d3d12)
+                {
+                    dx12_replay_consumer.SetFatalErrorHandler(
+                        [](const char* message) { throw std::runtime_error(message); });
+
+                    dx12_decoder.AddConsumer(&dx12_replay_consumer);
+                    file_processor.AddDecoder(&dx12_decoder);
+
+#ifdef GFXRECON_AGS_SUPPORT
+                    ags_replay_consumer.AddDx12Consumer(&dx12_replay_consumer);
+                    ags_decoder.AddConsumer(reinterpret_cast<gfxrecon::decode::AgsConsumerBase*>(&ags_replay_consumer));
+
+                    file_processor.AddDecoder(&ags_decoder);
+#endif // GFXRECON_AGS_SUPPORT
+                }
+#endif
+
+                // Main replay processing
+                application->Run();
+
+                // Error checking and loop cleanup
+                if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                {
+                    if (file_processor.GetCurrentFrameNumber() < start_frame)
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
+                            "Measurements were never started, cannot calculate measurement range FPS.",
+                            start_frame,
+                            file_processor.GetCurrentFrameNumber());
+                    }
+                    else
+                    {
+#if defined(D3D12_SUPPORT)
+                        dx12_replay_consumer.PostReplay();
+#endif
+                    }
+                }
+                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                {
+                    GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
+                    return_code = -1;
+                    break;
+                }
+                else
+                {
+                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+                    break;
+                }
+
+                if (vulkan_replay_options.enable_vulkan)
+                {
+                    vulkan_decoder.RemoveConsumer(&vulkan_replay_consumer);
+                    file_processor.RemoveDecoder(&vulkan_decoder);
+                }
+
+#if defined(D3D12_SUPPORT)
+                if (dx_replay_options.enable_d3d12)
+                {
+                    dx12_decoder.RemoveConsumer(&dx12_replay_consumer);
+                    file_processor.RemoveDecoder(&dx12_decoder);
+                }
+#endif
+
+                // Looping processing
+                if (!file_processor.EntireFileWasProcessed())
+                {
+                    GFXRECON_WRITE_CONSOLE("File was not completely processed, aborting looping early")
+                    break;
+                }
+
+                uint32_t loop_number = file_processor.GetCurrentLoopNumber() + 1;
+
+                if (fps_info.ShouldLoop(loop_number))
+                {
+                    GFXRECON_LOG_INFO("Looping, starting loop number %" PRIu32, loop_number);
+                    file_processor.Loop();
+                }
+                else
+                {
+                    break;
+                }
+            }
 
             // XXX if the final frame ended with a Present, this would be the *next* frame
             // Add one so that it matches the trim range frame number semantic
             fps_info.EndFile(file_processor.GetCurrentFrameNumber() + 1);
 
-            if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
-            {
-                if (file_processor.GetCurrentFrameNumber() < start_frame)
-                {
-                    GFXRECON_LOG_WARNING(
-                        "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
-                        "Measurements were never started, cannot calculate measurement range FPS.",
-                        start_frame,
-                        file_processor.GetCurrentFrameNumber());
-                }
-                else
-                {
-#if defined(D3D12_SUPPORT)
-                    dx12_replay_consumer.PostReplay();
-#endif
-
-                    fps_info.LogToConsole();
-                }
-            }
-            else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
-            {
-                GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
-                return_code = -1;
-            }
-            else
-            {
-                GFXRECON_WRITE_CONSOLE("File did not contain any frames");
-            }
+            fps_info.LogToConsole();
         }
     }
     catch (const std::runtime_error& error)

@@ -85,11 +85,16 @@ class FileProcessor
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
+    // Resets the file processor to the first block directly following the header. Returns false on failure.
+    bool Loop();
+
     const format::FileHeader& GetFileHeader() const { return file_header_; }
 
     const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
 
     uint32_t GetCurrentFrameNumber() const { return current_frame_number_; }
+
+    uint32_t GetCurrentLoopNumber() const { return current_loop_number_; }
 
     uint64_t GetNumBytesRead() const { return bytes_read_; }
 
@@ -127,6 +132,7 @@ class FileProcessor
   protected:
     FILE*                    file_descriptor_;
     uint32_t                 current_frame_number_;
+    uint32_t                 current_loop_number_;
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
     Error                    error_state_;
@@ -155,6 +161,7 @@ class FileProcessor
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     uint64_t                            bytes_read_;
+    uint64_t                            bytes_read_header_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;

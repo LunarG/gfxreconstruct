@@ -42,6 +42,7 @@ class FpsInfo
             bool                   quit_after_range               = false,
             bool                   flush_measurement_range        = false,
             bool                   flush_inside_measurement_range = false,
+            uint32_t               looping_end_after_count        = 1,
             const std::string_view measurement_file_name          = "");
 
     void LogToConsole();
@@ -54,6 +55,8 @@ class FpsInfo
     void EndFrame(uint64_t file_processor_frame);
     void EndFile(uint64_t end_file_processor_frame);
     void EndLoad(uint64_t file_processor_frame);
+
+    bool ShouldLoop(uint32_t file_processor_loop);
 
   private:
     uint64_t start_time_;
@@ -71,6 +74,8 @@ class FpsInfo
     bool quit_after_range_;
     bool flush_measurement_range_;
     bool flush_inside_measurement_range_;
+
+    uint32_t looping_end_after_count_;
 
     bool started_measurement_;
     bool ended_measurement_;
