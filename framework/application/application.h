@@ -58,6 +58,8 @@ class Application final
 
     WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false);
 
+    const std::string& GetWsiCliContext() const { return cli_wsi_extension_; }
+
     bool IsRunning() const { return running_; }
 
     void Run();

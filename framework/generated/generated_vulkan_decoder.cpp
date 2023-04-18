@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -7125,6 +7125,48 @@ size_t VulkanDecoder::Decode_vkGetPipelineExecutableInternalRepresentationsKHR(c
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkMapMemory2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkMemoryMapInfoKHR> pMemoryMapInfo;
+    PointerDecoder<uint64_t, void*> ppData;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pMemoryMapInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppData.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkMapMemory2KHR(call_info, return_value, device, &pMemoryMapInfo, &ppData);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkUnmapMemory2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkMemoryUnmapInfoKHR> pMemoryUnmapInfo;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pMemoryUnmapInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkUnmapMemory2KHR(call_info, return_value, device, &pMemoryUnmapInfo);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdEncodeVideoKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -12187,6 +12229,98 @@ size_t VulkanDecoder::Decode_vkCmdOpticalFlowExecuteNV(const ApiCallInfo& call_i
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCreateShadersEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    uint32_t createInfoCount;
+    StructPointerDecoder<Decoded_VkShaderCreateInfoEXT> pCreateInfos;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkShaderEXT> pShaders;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &createInfoCount);
+    bytes_read += pCreateInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pShaders.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateShadersEXT(call_info, return_value, device, createInfoCount, &pCreateInfos, &pAllocator, &pShaders);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkDestroyShaderEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId shader;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &shader);
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkDestroyShaderEXT(call_info, device, shader, &pAllocator);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetShaderBinaryDataEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId shader;
+    PointerDecoder<size_t> pDataSize;
+    PointerDecoder<uint8_t> pData;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &shader);
+    bytes_read += pDataSize.DecodeSizeT((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetShaderBinaryDataEXT(call_info, return_value, device, shader, &pDataSize, &pData);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBindShadersEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t stageCount;
+    PointerDecoder<VkShaderStageFlagBits> pStages;
+    HandlePointerDecoder<VkShaderEXT> pShaders;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stageCount);
+    bytes_read += pStages.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pShaders.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBindShadersEXT(call_info, commandBuffer, stageCount, &pStages, &pShaders);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkGetFramebufferTilePropertiesQCOM(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -13725,6 +13859,12 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR:
         Decode_vkGetPipelineExecutableInternalRepresentationsKHR(call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkMapMemory2KHR:
+        Decode_vkMapMemory2KHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkUnmapMemory2KHR:
+        Decode_vkUnmapMemory2KHR(call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkCmdEncodeVideoKHR:
         Decode_vkCmdEncodeVideoKHR(call_info, parameter_buffer, buffer_size);
         break;
@@ -14435,6 +14575,18 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdOpticalFlowExecuteNV:
         Decode_vkCmdOpticalFlowExecuteNV(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCreateShadersEXT:
+        Decode_vkCreateShadersEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkDestroyShaderEXT:
+        Decode_vkDestroyShaderEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetShaderBinaryDataEXT:
+        Decode_vkGetShaderBinaryDataEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBindShadersEXT:
+        Decode_vkCmdBindShadersEXT(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkGetFramebufferTilePropertiesQCOM:
         Decode_vkGetFramebufferTilePropertiesQCOM(call_info, parameter_buffer, buffer_size);

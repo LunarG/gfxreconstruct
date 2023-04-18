@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2022 LunarG, Inc.
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -172,7 +172,7 @@ class Dx12ResourceValueMapper
 
     void ProcessResourceMappings(ProcessResourceMappingsArgs args);
 
-    void MapValue(const ResourceValueInfo& value_info,
+    bool MapValue(const ResourceValueInfo& value_info,
                   std::vector<uint8_t>&    result_data,
                   format::HandleId         resource_id,
                   D3D12ResourceInfo*       resource_info,
@@ -196,6 +196,12 @@ class Dx12ResourceValueMapper
     void GetDispatchRaysResourceValues(ResourceValueInfoMap&           resource_value_info_map,
                                        D3D12StateObjectInfo*           state_object_extra_info,
                                        const D3D12_DISPATCH_RAYS_DESC& desc);
+
+    void GetExecuteIndirectResourceValues(std::set<ResourceValueInfo>& dst_resource_value_info_map,
+                                          std::set<ResourceValueInfo>& command_signature_resource_value_info_map,
+                                          uint32_t                     command_count,
+                                          uint64_t                     command_offset,
+                                          uint8_t                      stride);
 
     // Parse the D3D12_STATE_OBJECT_DESC for LRS association information.
     void GetStateObjectLrsAssociationInfo(

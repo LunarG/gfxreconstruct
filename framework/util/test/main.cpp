@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 // Copyright (c) 2022 Valve Corporation
-// Copyright (c) 2022 LunarG, Inc.
+// Copyright (c) 2022-2023 LunarG, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -36,85 +36,12 @@
 using namespace gfxrecon::util::strings;
 using namespace gfxrecon::util::datetime;
 
-TEST_CASE("JSONEscape", "[to_string]")
-{
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
-
-    std::string escaped;
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("", escaped);
-    REQUIRE(escaped == "");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("a", escaped);
-    REQUIRE(escaped == "a");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("a.b", escaped);
-    REQUIRE(escaped == "a.b");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\"", escaped);
-    REQUIRE(escaped == "\\\"");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\"\"", escaped);
-    REQUIRE(escaped == "\\\"\\\"");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\"\"\"", escaped);
-    REQUIRE(escaped == "\\\"\\\"\\\"");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\"\"\"\"", escaped);
-    REQUIRE(escaped == "\\\"\\\"\\\"\\\"");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\t", escaped);
-    REQUIRE(escaped == "\\t");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\r", escaped);
-    REQUIRE(escaped == "\\r");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\n", escaped);
-    REQUIRE(escaped == "\\n");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\f", escaped);
-    REQUIRE(escaped == "\\f");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\b", escaped);
-    REQUIRE(escaped == "\\b");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("/", escaped);
-    REQUIRE(escaped == "/");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\\", escaped);
-    REQUIRE(escaped == "\\\\");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("/home/tracer/captures/app1/capture.gfxr", escaped);
-    REQUIRE(escaped == "/home/tracer/captures/app1/capture.gfxr");
-
-    escaped = "";
-    gfxrecon::util::JSONEscape("\\home\\tracer\\captures\\app1\\capture.gfxr", escaped);
-    REQUIRE(escaped == "\\\\home\\\\tracer\\\\captures\\\\app1\\\\capture.gfxr");
-
-    gfxrecon::util::Log::Release();
-}
 
 TEST_CASE("Quote", "[to_string]")
 {
     using namespace gfxrecon::util;
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
 
-    REQUIRE(gfxrecon::util::Quote(nullptr) == "\"\"");
     REQUIRE(gfxrecon::util::Quote("") == "\"\"");
     REQUIRE(gfxrecon::util::Quote(std::string("")) == "\"\"");
 

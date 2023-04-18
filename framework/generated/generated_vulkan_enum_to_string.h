@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -398,6 +398,7 @@ template <> std::string ToString<VkMicromapCreateFlagBitsEXT>(VkFlags vkFlags, T
 template <> std::string ToString<VkMicromapTypeEXT>(const VkMicromapTypeEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkOpacityMicromapFormatEXT>(const VkOpacityMicromapFormatEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkOpacityMicromapSpecialIndexEXT>(const VkOpacityMicromapSpecialIndexEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkDisplacementMicromapFormatNV>(const VkDisplacementMicromapFormatNV& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSubpassMergeStatusEXT>(const VkSubpassMergeStatusEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDirectDriverLoadingModeLUNARG>(const VkDirectDriverLoadingModeLUNARG& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkOpticalFlowExecuteFlagBitsNV>(const VkOpticalFlowExecuteFlagBitsNV& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -410,6 +411,9 @@ template <> std::string ToString<VkOpticalFlowSessionCreateFlagBitsNV>(const VkO
 template <> std::string ToString<VkOpticalFlowSessionCreateFlagBitsNV>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkOpticalFlowUsageFlagBitsNV>(const VkOpticalFlowUsageFlagBitsNV& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkOpticalFlowUsageFlagBitsNV>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkShaderCodeTypeEXT>(const VkShaderCodeTypeEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkShaderCreateFlagBitsEXT>(const VkShaderCreateFlagBitsEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkShaderCreateFlagBitsEXT>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkRayTracingInvocationReorderModeNV>(const VkRayTracingInvocationReorderModeNV& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccelerationStructureCreateFlagBitsKHR>(const VkAccelerationStructureCreateFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAccelerationStructureCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

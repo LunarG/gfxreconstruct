@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -233,6 +233,8 @@ void TrackCmdWriteMicromapsPropertiesEXTHandles(CommandBufferWrapper* wrapper, u
 void TrackCmdDrawClusterIndirectHUAWEIHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
 
 void TrackCmdOpticalFlowExecuteNVHandles(CommandBufferWrapper* wrapper, VkOpticalFlowSessionNV session);
+
+void TrackCmdBindShadersEXTHandles(CommandBufferWrapper* wrapper, uint32_t stageCount, const VkShaderEXT* pShaders);
 
 void TrackCmdBuildAccelerationStructuresKHRHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos);
 

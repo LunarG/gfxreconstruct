@@ -39,13 +39,8 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/strings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/util/custom_vulkan_to_string.h
-                   ${GFXRECON_SOURCE_DIR}/framework/util/custom_vulkan_to_string.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_to_string.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.h
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp
               )
 
 target_compile_definitions(gfxrecon_util

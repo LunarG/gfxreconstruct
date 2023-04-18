@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1119,6 +1119,26 @@ void MapStructHandles(Decoded_VkPipelineExecutableInfoKHR* wrapper, const Vulkan
     }
 }
 
+void MapStructHandles(Decoded_VkMemoryMapInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkMemoryMapInfoKHR* value = wrapper->decoded_value;
+
+        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkMemoryUnmapInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkMemoryUnmapInfoKHR* value = wrapper->decoded_value;
+
+        value->memory = handle_mapping::MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkPipelineLibraryCreateInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -1557,6 +1577,16 @@ void MapStructHandles(Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT
     }
 }
 
+void MapStructHandles(Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkAccelerationStructureTrianglesDisplacementMicromapNV* value = wrapper->decoded_value;
+
+        value->micromap = handle_mapping::MapHandle<MicromapEXTInfo>(wrapper->micromap, object_info_table, &VulkanObjectInfoTable::GetMicromapEXTInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkDescriptorSetBindingReferenceVALVE* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -1564,6 +1594,16 @@ void MapStructHandles(Decoded_VkDescriptorSetBindingReferenceVALVE* wrapper, con
         VkDescriptorSetBindingReferenceVALVE* value = wrapper->decoded_value;
 
         value->descriptorSetLayout = handle_mapping::MapHandle<DescriptorSetLayoutInfo>(wrapper->descriptorSetLayout, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkShaderCreateInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkShaderCreateInfoEXT* value = wrapper->decoded_value;
+
+        value->pSetLayouts = handle_mapping::MapHandleArray<DescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
     }
 }
 
@@ -1732,6 +1772,9 @@ void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectI
             break;
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
             MapStructHandles(reinterpret_cast<Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+            MapStructHandles(reinterpret_cast<Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             MapStructHandles(reinterpret_cast<Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(wrapper), object_info_table);

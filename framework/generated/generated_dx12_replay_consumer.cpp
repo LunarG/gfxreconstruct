@@ -4907,6 +4907,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommittedResource(
         if (SUCCEEDED(replay_result))
         {
             AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device_CreateCommittedResource", return_value, replay_result);
     }
@@ -4966,6 +4967,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreatePlacedResource(
         if (SUCCEEDED(replay_result))
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource);
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device_CreatePlacedResource", return_value, replay_result);
     }
@@ -4997,6 +4999,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateReservedResource(
         if (SUCCEEDED(replay_result))
         {
             AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device_CreateReservedResource", return_value, replay_result);
     }
@@ -5739,6 +5742,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommittedResource1(
         if (SUCCEEDED(replay_result))
         {
             AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device4_CreateCommittedResource1", return_value, replay_result);
     }
@@ -5801,6 +5805,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateReservedResource1(
         if (SUCCEEDED(replay_result))
         {
             AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device4_CreateReservedResource1", return_value, replay_result);
     }
@@ -6453,6 +6458,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_CreateCommittedResource2(
         if (SUCCEEDED(replay_result))
         {
             AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device8_CreateCommittedResource2", return_value, replay_result);
     }
@@ -6487,6 +6493,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_CreatePlacedResource1(
         if (SUCCEEDED(replay_result))
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource);
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device8_CreatePlacedResource1", return_value, replay_result);
     }

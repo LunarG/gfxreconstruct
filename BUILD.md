@@ -8,7 +8,7 @@ Windows, and Android platforms.
 [1]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [2]: https://creativecommons.org/licenses/by-nd/4.0/
 
-Copyright &copy; 2018-2022 LunarG, Inc.
+Copyright &copy; 2018-2023 LunarG, Inc.
 
 ## Index
 
@@ -143,7 +143,7 @@ Run the script with the `-h` option for additional usage information.
     - [2019](https://www.visualstudio.com/vs/older-downloads/)
     - [2017](https://www.visualstudio.com/vs/older-downloads/)
   - The Community Edition for each of the above versions is sufficient
-- [CMake](http://www.cmake.org/download/) (Version 3.1 or better)
+- [CMake](http://www.cmake.org/download/) (Version 3.16.3 or newer)
   - The build instructions assume that CMake has been added to the system PATH
 - Git Client Support
   - [Git for Windows](http://git-scm.com/download/win) is a popular solution
@@ -235,6 +235,8 @@ Building on Linux requires the installation of the following packages:
 - X11 + XCB and/or Wayland development libraries
 
 #### Ubuntu
+
+GFXReconstruct is built and tested for SDK development using Ubuntu 20.04 and 22.04.  Older Ubuntu releases are unsupported.
 
 For Ubuntu, the required packages can be installed with the following command:
 
@@ -338,6 +340,29 @@ from gfxreconstruct's root source directory. Then install with `make install`.
   - The [Android Platform tools](https://developer.android.com/studio/releases/platform-tools) for your specific platform
   - [Android SDK 26 (8.0 Oreo) or newer](https://guides.codepath.com/android/installing-android-sdk-tools)
   - [Android NDK 21.3.6528147 (r21d)](https://developer.android.com/ndk/guides/)
+- [Java JDK 1.11](https://jdk.java.net/11)
+
+#### Additional Linux Command-Linux Prerequisites
+
+Additional requirements for building from the Linux command-line:
+- Define `ANDROID_HOME`to be the path to the SDK installed on your system by Android Studio.
+  - Refer to Android Studio to find out where the files are installed
+    - **NOTE:** For older Android Stud io's you may also have to set `ANDROID_SDK_ROOT` to the same value
+  - For example:
+
+```bash
+        export ANDROID_HOME=$HOME/Android/Sdk`
+```
+
+- Define JAVA_HOME to the path to the directory of the JDK.
+  - For example:
+
+```bash
+      export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.18.0.10-1.fc37.x86_64
+```
+
+- Make the `gradlew` script executable
+  - `chmod +x android/gradlew`
 
 ### Android Build
 
@@ -397,6 +422,10 @@ Next, add the following lines to the application's `build.gradle` file:
         implementation project(':VkLayer_gfxreconstruct')
     }
 ```
+
+**NOTE:** Make sure it is the app version of `build.gradle` (usually found in an
+app folder).
+This may not necessarily be the top `build.gradle` in the tree.
 
 #### Adding the Vulkan Validation Layer to `gfxrecon-replay`
 

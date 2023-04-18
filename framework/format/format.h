@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -213,7 +214,8 @@ enum class ResourceValueType : uint8_t
     kGpuVirtualAddress            = 1,
     kGpuDescriptorHandle          = 2,
     kShaderIdentifier             = 3,
-    kIndirectArgumentDispatchRays = 4
+    kIndirectArgumentDispatchRays = 4,
+    kExecuteIndirectCountBuffer   = 5
 };
 
 #pragma pack(push)

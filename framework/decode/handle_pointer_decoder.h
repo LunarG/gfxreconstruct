@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2019-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -46,6 +46,8 @@ class HandlePointerDecoder
     bool HasAddress() const { return decoder_.HasAddress(); }
 
     bool HasData() const { return decoder_.HasData(); }
+
+    bool IsArray() const { return decoder_.IsArray(); }
 
     uint32_t GetAttributeMask() const { return decoder_.GetAttributeMask(); }
 

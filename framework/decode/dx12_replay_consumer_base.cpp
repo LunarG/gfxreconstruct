@@ -391,12 +391,17 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
     ResourceInitInfo resource_init_info = {};
     resource_init_info.resource         = resource;
     bool is_reserved_resource           = false;
+    bool is_texture_with_unknown_layout = false;
     if (resource_info->extra_info != nullptr)
     {
         // Reserved resource has to be uploaded via staging buffer
-        is_reserved_resource = GetExtraInfo<D3D12ResourceInfo>(resource_info)->is_reserved_resource;
+        auto resource_extra_info       = GetExtraInfo<D3D12ResourceInfo>(resource_info);
+        is_reserved_resource           = resource_extra_info->is_reserved_resource;
+        is_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(resource_extra_info->desc.Dimension,
+                                                                                    resource_extra_info->desc.Layout);
     }
-    resource_init_info.try_map_and_copy = !is_reserved_resource;
+
+    resource_init_info.try_map_and_copy = !is_reserved_resource && !is_texture_with_unknown_layout;
 
     auto find_resource_info = resource_init_infos_.find(resource);
     if (find_resource_info == resource_init_infos_.end())
@@ -594,10 +599,10 @@ void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT ca
 {
     if (capture_result != replay_result)
     {
-        if (replay_result == DXGI_ERROR_DEVICE_REMOVED)
+        if ((replay_result == DXGI_ERROR_DEVICE_REMOVED) || (replay_result == D3D12_ERROR_INVALID_REDIST))
         {
             GFXRECON_LOG_FATAL(
-                "%s returned %s, which does not match the value returned at capture %s.  Replay cannot continue.",
+                "%s returned %s, which does not match the value returned at capture %s. Replay cannot continue.",
                 call_name,
                 enumutil::GetResultValueString(replay_result).c_str(),
                 enumutil::GetResultValueString(capture_result).c_str());

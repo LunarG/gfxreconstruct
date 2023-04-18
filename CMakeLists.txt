@@ -25,8 +25,7 @@
 # Author: AMD Developer Tools Team
 # Description: CMake script for framework util target
 ###############################################################################
-
-cmake_minimum_required(VERSION 3.17.0)
+cmake_minimum_required(VERSION 3.16.3)
 project(GFXReconstruct LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
@@ -41,7 +40,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 9)
-set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 19)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 20)
 
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
 
@@ -274,6 +273,7 @@ if (${RUN_TESTS})
     target_include_directories(catch2 INTERFACE external)
 endif()
 
+add_subdirectory(external/nlohmann)
 add_subdirectory(framework)
 if(NOT BUILD_STATIC)
     add_subdirectory(layer)

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1023,6 +1023,12 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineExecutableStatisticKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineExecutableInternalRepresentationKHR* wrapper);
 
+struct Decoded_VkMemoryMapInfoKHR;
+struct Decoded_VkMemoryUnmapInfoKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryMapInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryUnmapInfoKHR* wrapper);
+
 struct Decoded_VkPipelineLibraryCreateInfoKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineLibraryCreateInfoKHR* wrapper);
@@ -1971,6 +1977,12 @@ struct Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT* wrapper);
 
+struct Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT;
+struct Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT* wrapper);
+
 struct Decoded_VkMicromapUsageEXT;
 struct Decoded_VkMicromapBuildInfoEXT;
 struct Decoded_VkMicromapCreateInfoEXT;
@@ -1996,6 +2008,14 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMicromapBuildSizesInfoEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMicromapTriangleEXT* wrapper);
+
+struct Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV;
+struct Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV;
+struct Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV* wrapper);
 
 struct Decoded_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI;
 struct Decoded_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI;
@@ -2126,6 +2146,14 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 struct Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT* wrapper);
+
+struct Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT;
+struct Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT;
+struct Decoded_VkShaderCreateInfoEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkShaderCreateInfoEXT* wrapper);
 
 struct Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM;
 struct Decoded_VkTilePropertiesQCOM;

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1238,6 +1238,12 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderTileImageFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderTileImagePropertiesEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(base));
             break;
@@ -1246,6 +1252,15 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDisplacementMicromapFeaturesNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDisplacementMicromapPropertiesNV*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkAccelerationStructureTrianglesDisplacementMicromapNV*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(base));
@@ -1351,6 +1366,12 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderObjectFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderObjectPropertiesEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(base));

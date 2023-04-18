@@ -77,6 +77,8 @@ enum PhysicalDeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayGetPhysicalDeviceOpticalFlowImageFormatsNV                      = 18,
     kPhysicalDeviceArrayGetPhysicalDeviceVideoFormatPropertiesKHR                       = 19,
     kVideoSessionKHRArrayGetVideoSessionMemoryRequirementsKHR                           = 20,
+    kShaderEXTArrayGetShaderBinaryDataEXT                                               = 21,
+
     // Aliases for extensions functions that were promoted to core.
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR =
         kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2,
@@ -444,6 +446,11 @@ struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR
 };
 
 struct VideoSessionKHRInfo : VulkanObjectInfo<VkVideoSessionKHR>
+{
+    std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct ShaderEXTInfo : VulkanObjectInfo<VkShaderEXT>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
 };

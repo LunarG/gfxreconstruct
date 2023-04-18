@@ -75,6 +75,7 @@ static std::string GetResultValueString(HRESULT result)
         case DXGI_ERROR_WAS_STILL_DRAWING:              return "DXGI_ERROR_WAS_STILL_DRAWING";
         case D3D12_ERROR_ADAPTER_NOT_FOUND:             return "D3D12_ERROR_ADAPTER_NOT_FOUND";
         case D3D12_ERROR_DRIVER_VERSION_MISMATCH:       return "D3D12_ERROR_DRIVER_VERSION_MISMATCH";
+        case D3D12_ERROR_INVALID_REDIST:                return "D3D12_ERROR_INVALID_REDIST";
         default:                                        return std::to_string(result);
     }
     // clang-format on
@@ -83,8 +84,8 @@ static std::string GetResultValueString(HRESULT result)
 /**
  * Get HRESULT code description.
  *
- * Returns a string describing the specified HRESULT code.  The description is based on the language in the Dx12 API
- * specification.
+ * Returns a string describing the specified HRESULT code.  The descriptions are based on the language in the Dx12 API
+ * specification or winerror.h.
  *
  * @param value HRESULT code to process.
  * @return String describing the specified HRESULT code.
@@ -132,6 +133,7 @@ static const char* GetResultDescription(HRESULT result)
         case DXGI_ERROR_WAS_STILL_DRAWING:              return "The GPU was busy at the moment when a call was made to perform an operation, and did not execute or schedule the operation.";
         case D3D12_ERROR_ADAPTER_NOT_FOUND:             return "The specified cached PSO was created on a different adapter and cannot be reused on the current adapter.";
         case D3D12_ERROR_DRIVER_VERSION_MISMATCH:       return "The specified cached PSO was created on a different driver version and cannot be reused on the current adapter.";
+        case D3D12_ERROR_INVALID_REDIST:                return "The D3D12 SDK version configuration of the host exe is invalid.";
         default:                                        return "An error has occurred";
     }
     // clang-format on

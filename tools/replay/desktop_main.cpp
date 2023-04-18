@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -37,6 +38,7 @@
 #include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_replay_consumer.h"
 #include "decode/dx12_tracking_consumer.h"
+#include "graphics/dx12_util.h"
 #endif
 
 #include <exception>
@@ -134,24 +136,24 @@ int main(int argc, const char** argv)
                 GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
 
             uint32_t start_frame = 0;
-            uint32_t end_frame = 0;
+            uint32_t end_frame   = 0;
 
-            bool has_mfr = false;
+            bool has_mfr                            = false;
             bool quit_after_measurement_frame_range = false;
-            bool flush_measurement_frame_range = false;
+            bool flush_measurement_frame_range      = false;
 
             if (vulkan_replay_options.enable_vulkan)
             {
-                has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
+                has_mfr                            = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
                 quit_after_measurement_frame_range = vulkan_replay_options.quit_after_measurement_frame_range;
-                flush_measurement_frame_range = vulkan_replay_options.flush_measurement_frame_range;
+                flush_measurement_frame_range      = vulkan_replay_options.flush_measurement_frame_range;
             }
 
             gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
-                static_cast<uint64_t>(end_frame),
-                has_mfr,
-                quit_after_measurement_frame_range,
-                flush_measurement_frame_range);
+                                                 static_cast<uint64_t>(end_frame),
+                                                 has_mfr,
+                                                 quit_after_measurement_frame_range,
+                                                 flush_measurement_frame_range);
 
             gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
             gfxrecon::decode::VulkanDecoder        vulkan_decoder;
@@ -174,6 +176,12 @@ int main(int argc, const char** argv)
             if (dx_replay_options.enable_d3d12)
             {
                 application->InitializeDx12WsiContext();
+                if (gfxrecon::graphics::dx12::VerifyAgilitySDKRuntime() == false)
+                {
+                    GFXRECON_LOG_ERROR(
+                        "Did not find Agility SDK runtimes. Verify \\D3D12\\D3D12Core.dll exists in the same "
+                        "directory as gfxrecon-replay.exe.");
+                }
 
                 dx12_replay_consumer.SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });

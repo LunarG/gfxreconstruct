@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2023 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -61,8 +61,6 @@ generate_targets = [
     'generated_vulkan_decoder.cpp',
     'generated_decode_pnext_struct.cpp',
     'generated_vulkan_consumer.h',
-    'generated_vulkan_ascii_consumer.h',
-    'generated_vulkan_ascii_consumer.cpp',
     'generated_vulkan_replay_consumer.h',
     'generated_vulkan_replay_consumer.cpp',
     'generated_vulkan_referenced_resource_consumer.h',
@@ -72,14 +70,14 @@ generate_targets = [
     'generated_vulkan_feature_util.cpp',
     'generated_vulkan_enum_to_string.h',
     'generated_vulkan_enum_to_string.cpp',
-    'generated_vulkan_pnext_to_string.cpp',
-    'generated_vulkan_struct_to_string.h',
-    'generated_vulkan_struct_to_string.cpp',
-    'generated_vulkan_struct_decoders_to_string.h',
-    'generated_vulkan_struct_decoders_to_string.cpp',
-    'generated_vulkan_pnext_decoders_to_string.cpp',
     'generated_vulkan_object_info_table_base2.h',
-    'generated_vulkan_state_table.h'
+    'generated_vulkan_state_table.h',
+    'generated_vulkan_export_json_consumer.h',
+    'generated_vulkan_export_json_consumer.cpp',
+    'generated_vulkan_struct_to_json.h',
+    'generated_vulkan_struct_to_json.cpp',
+    'generated_vulkan_enum_to_json.h',
+    'generated_vulkan_enum_to_json.cpp',
 ]
 
 if __name__ == '__main__':

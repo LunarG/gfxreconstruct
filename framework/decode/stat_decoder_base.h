@@ -47,7 +47,7 @@ class StatDecoderBase : public ApiDecoder
 
     virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) override {}
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override{};
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override {}
 
     void AddConsumer(StatConsumerBase* consumer) { consumers_.push_back(consumer); }
 

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -4784,6 +4784,24 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableInternalR
     encoder->EncodeVoidArray(value.pData, value.dataSize);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryMapInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeVkDeviceSizeValue(value.offset);
+    encoder->EncodeVkDeviceSizeValue(value.size);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryUnmapInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLibraryCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -7712,6 +7730,24 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImage2DViewOf
     encoder->EncodeVkBool32Value(value.sampler2DViewOf3D);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderTileImageFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderTileImageColorReadAccess);
+    encoder->EncodeVkBool32Value(value.shaderTileImageDepthReadAccess);
+    encoder->EncodeVkBool32Value(value.shaderTileImageStencilReadAccess);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderTileImagePropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderTileImageCoherentReadAccelerated);
+    encoder->EncodeVkBool32Value(value.shaderTileImageReadSampleFromPixelRateInvocation);
+    encoder->EncodeVkBool32Value(value.shaderTileImageReadFromHelperInvocation);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkMicromapUsageEXT& value)
 {
     encoder->EncodeUInt32Value(value.count);
@@ -7827,6 +7863,42 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMicromapTriangleEXT& value)
     encoder->EncodeUInt32Value(value.dataOffset);
     encoder->EncodeUInt16Value(value.subdivisionLevel);
     encoder->EncodeUInt16Value(value.format);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDisplacementMicromapFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.displacementMicromap);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDisplacementMicromapPropertiesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxDisplacementMicromapSubdivisionLevel);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureTrianglesDisplacementMicromapNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.displacementBiasAndScaleFormat);
+    encoder->EncodeEnumValue(value.displacementVectorFormat);
+    EncodeStruct(encoder, value.displacementBiasAndScaleBuffer);
+    encoder->EncodeVkDeviceSizeValue(value.displacementBiasAndScaleStride);
+    EncodeStruct(encoder, value.displacementVectorBuffer);
+    encoder->EncodeVkDeviceSizeValue(value.displacementVectorStride);
+    EncodeStruct(encoder, value.displacedMicromapPrimitiveFlags);
+    encoder->EncodeVkDeviceSizeValue(value.displacedMicromapPrimitiveFlagsStride);
+    encoder->EncodeEnumValue(value.indexType);
+    EncodeStruct(encoder, value.indexBuffer);
+    encoder->EncodeVkDeviceSizeValue(value.indexStride);
+    encoder->EncodeUInt32Value(value.baseTriangle);
+    encoder->EncodeUInt32Value(value.usageCountsCount);
+    EncodeStructArray(encoder, value.pUsageCounts, value.usageCountsCount);
+    EncodeStructArray2D(encoder, value.ppUsageCounts, value.usageCountsCount, 1);
+    encoder->EncodeHandleValue<MicromapEXTWrapper>(value.micromap);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI& value)
@@ -8228,6 +8300,39 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineProte
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVkBool32Value(value.pipelineProtectedAccess);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderObjectFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderObject);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderObjectPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt8Array(value.shaderBinaryUUID, VK_UUID_SIZE);
+    encoder->EncodeUInt32Value(value.shaderBinaryVersion);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkShaderCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeEnumValue(value.stage);
+    encoder->EncodeFlagsValue(value.nextStage);
+    encoder->EncodeEnumValue(value.codeType);
+    encoder->EncodeSizeTValue(value.codeSize);
+    encoder->EncodeVoidArray(value.pCode, value.codeSize);
+    encoder->EncodeString(value.pName);
+    encoder->EncodeUInt32Value(value.setLayoutCount);
+    encoder->EncodeHandleArray<DescriptorSetLayoutWrapper>(value.pSetLayouts, value.setLayoutCount);
+    encoder->EncodeUInt32Value(value.pushConstantRangeCount);
+    EncodeStructArray(encoder, value.pPushConstantRanges, value.pushConstantRangeCount);
+    EncodeStructPtr(encoder, value.pSpecializationInfo);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTilePropertiesFeaturesQCOM& value)

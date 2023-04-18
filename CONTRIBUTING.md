@@ -259,19 +259,6 @@ For earlier versions of Ubuntu, the required version of `clang-format` can be
 obtained through the [LLVM toolchain repository](https://apt.llvm.org) by
 following the instructions described here:
 
-- Ubuntu 18 (Bionic)
-
-```bash
-echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main" | sudo tee /etc/apt/sources.list.d/llvm.list
-wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-```
-
-- Ubuntu 16 (Xenial)
-
-```bash
-echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main" | sudo tee /etc/apt/sources.list.d/llvm.list
-wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-```
 
 On any version of Ubuntu, continue with:
 

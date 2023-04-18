@@ -94,7 +94,11 @@ void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& imag
                     const std::string&                                      filename_prefix);
 
 // Maps a given sub resource and returns a pointer to the mapped region in data_ptr.
-HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, const D3D12_RANGE* read_range, uint8_t*& data_ptr);
+HRESULT MapSubresource(ID3D12Resource*    resource,
+                       UINT               subresource,
+                       const D3D12_RANGE* read_range,
+                       uint8_t*&          data_ptr,
+                       bool               is_texture_with_unknown_layout = false);
 
 // Waits for the given queue to complete all pending tasks.
 HRESULT WaitForQueue(ID3D12CommandQueue* queue, ID3D12Fence* fence = nullptr, uint64_t fence_value = 0);
@@ -215,6 +219,10 @@ uint64_t GetResourceSizeInBytes(ID3D12Device* device, const D3D12_RESOURCE_DESC*
 uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const D3D12_RESOURCE_DESC1* desc);
 
 bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc);
+
+bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTURE_LAYOUT layout);
+
+bool VerifyAgilitySDKRuntime();
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
