@@ -235,7 +235,8 @@ class Dx12StateTracker
                                format::ApiCallId               call_id,
                                const util::MemoryOutputStream* parameter_buffer);
 
-    ID3D12Resource_Wrapper* GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va);
+    ID3D12Resource_Wrapper* GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va,
+                                                       uint64_t                  minimum_end_address = 0Ui64);
 
     uint64_t CommitAccelerationStructureBuildInfo(DxAccelerationStructureBuildInfo& accel_struct_build);
 

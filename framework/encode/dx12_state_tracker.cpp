@@ -653,7 +653,8 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                 ID3D12Resource_Wrapper* src_resource_wrapper = nullptr;
                 {
                     std::unique_lock<std::mutex> lock(state_table_mutex_);
-                    src_resource_wrapper = GetResourceWrapperForGpuVa(*curr_entry_iter->desc_gpu_va);
+                    src_resource_wrapper = GetResourceWrapperForGpuVa(
+                        *curr_entry_iter->desc_gpu_va, *curr_entry_iter->desc_gpu_va + curr_entry_iter->size);
                 }
 
                 if (src_resource_wrapper == nullptr)
@@ -886,10 +887,11 @@ void Dx12StateTracker::TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrap
         std::make_shared<util::MemoryOutputStream>(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
 }
 
-ID3D12Resource_Wrapper* Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va)
+ID3D12Resource_Wrapper* Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va,
+                                                                     uint64_t                  minimum_end_address)
 {
     ID3D12Resource_Wrapper* result      = nullptr;
-    auto                    resource_id = state_table_.GetResourceForGpuVa(gpu_va);
+    auto                    resource_id = state_table_.GetResourceForGpuVa(gpu_va, minimum_end_address);
     if (resource_id != format::kNullHandleId)
     {
         result = state_table_.GetID3D12Resource_Wrapper(resource_id);
