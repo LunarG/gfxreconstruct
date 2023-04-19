@@ -188,6 +188,8 @@ Page Guard Unblock SIGSEGV | GFXRECON_PAGE_GUARD_UNBLOCK_SIGSEGV | BOOL | When t
 Page Guard Signal Handler Watcher | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER | BOOL | When the `page_guard` memory tracking mode is enabled, setting this enviroment variable to `true` will spawn a thread which will will periodically reinstall the `SIGSEGV` handler if it has been replaced by the application being traced. Default is `false`
 Page Guard Signal Handler Watcher Max Restores | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES | INTEGER | Sets the number of times the watcher will attempt to restore the signal handler. Setting it to a negative will make the watcher thread run indefinitely. Default is `1`
 Force Command Serialization | GFXRECON_FORCE_COMMAND_SERIALIZATION | BOOL | Sets exclusive locks(unique_lock) for every ApiCall. It can avoid external multi-thread to cause captured issue.
+Plugin Path | GFXRECON_PLUGIN_PATH | STRING | Describes full path to plugin binary to load during capture. Multiple plugins can be provided using `;` as a delimeter. By default no plugins will be loaded.
+
 #### Memory Tracking Known Issues
 
 There is a known issue with the page guard memory tracking method. The logic behind that method is to apply a memory protection to the guarded/shadowed regions so that accesses made by the user to trigger a segmentation fault which is handled by GFXReconstruct.
@@ -368,6 +370,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--use-captured-swapchain-indices]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--api <api>] [--no-debug-popup] <file>
+                        [--replay-plugin-paths]
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -469,6 +472,9 @@ Optional arguments:
                         setup for replay. The default without this option is to use a Virtual Swapchain
                         of images which match the swapchain in effect at capture time and which are
                         copied to the underlying swapchain of the implementation being replayed on.
+--replay-plugin-paths
+                        Describes full path to plugin binary to load during replay. Multiple
+                        plugins can be provided using `;` as a delimeter.
 ```
 
 ### Key Controls

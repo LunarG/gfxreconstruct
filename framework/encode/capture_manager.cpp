@@ -94,7 +94,8 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0),
-    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false)
+    block_index_(0), disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false),
+    force_command_serialization_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -103,6 +104,16 @@ CaptureManager::~CaptureManager()
     {
         util::PageGuardManager::Destroy();
     }
+
+    for (const auto& plugin : loaded_plugins_)
+    {
+        if (plugin.handle)
+        {
+            util::platform::CloseLibrary(plugin.handle);
+        }
+    }
+
+    loaded_plugins_.clear();
 }
 
 bool CaptureManager::CreateInstance(std::function<CaptureManager*()> GetInstanceFunc,
@@ -376,6 +387,11 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     else
     {
         capture_mode_ = kModeDisabled;
+    }
+
+    if (success)
+    {
+        LoadPlugins(trace_settings.plugin_paths);
     }
 
     return success;
@@ -832,6 +848,8 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
         message_cmd.thread_id = GetThreadData()->thread_id_;
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
+
+        ++block_index_;
     }
 }
 
@@ -848,6 +866,8 @@ void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& 
     exe_info_header.thread_id = GetThreadData()->thread_id_;
 
     WriteToFile(&exe_info_header, sizeof(exe_info_header));
+
+    ++block_index_;
 }
 
 void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
@@ -866,6 +886,8 @@ void CaptureManager::WriteAnnotation(const format::AnnotationType type, const ch
         annotation.data_length  = data_length;
 
         CombineAndWriteToFile({ { &annotation, sizeof(annotation) }, { label, label_length }, { data, data_length } });
+
+        ++block_index_;
     }
 }
 
@@ -885,6 +907,8 @@ void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t 
         resize_cmd.height     = height;
 
         WriteToFile(&resize_cmd, sizeof(resize_cmd));
+
+        ++block_index_;
     }
 }
 
@@ -942,6 +966,8 @@ void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id, uint64_t off
 
             CombineAndWriteToFile({ { &fill_cmd, header_size }, { uncompressed_data, uncompressed_size } });
         }
+
+        ++block_index_;
     }
 }
 
@@ -963,6 +989,8 @@ void CaptureManager::WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64
         allocation_cmd.allocation_size = allocation_size;
 
         WriteToFile(&allocation_cmd, sizeof(allocation_cmd));
+
+        ++block_index_;
     }
 }
 
@@ -979,6 +1007,33 @@ CaptureSettings::TraceSettings CaptureManager::GetDefaultTraceSettings()
 {
     // Return default trace settings.
     return CaptureSettings::TraceSettings();
+}
+
+void CaptureManager::LoadPlugins(const std::unordered_set<std::string>& plugin_paths)
+{
+    for (const auto& plugin_path : plugin_paths)
+    {
+        loaded_plugin plugin;
+        plugin.handle = util::platform::OpenLibrary(plugin_path.c_str());
+
+        if (plugin.handle)
+        {
+            plugins::capture::LoadPreFunctionTable(
+                util::platform::GetProcAddress, plugin.handle, &plugin.func_table_pre);
+            plugins::capture::LoadPostFunctionTable(
+                util::platform::GetProcAddress, plugin.handle, &plugin.func_table_post);
+            plugins::capture::LoadBaseFunctionTable(
+                util::platform::GetProcAddress, plugin.handle, &plugin.func_table_general);
+
+            GFXRECON_WRITE_CONSOLE("Loaded plugin: %s", plugin_path.c_str())
+
+            loaded_plugins_.push_back(std::move(plugin));
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed loading plugin: %s", plugin_path.c_str());
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

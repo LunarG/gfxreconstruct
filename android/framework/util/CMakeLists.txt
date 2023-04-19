@@ -51,6 +51,7 @@ target_compile_definitions(gfxrecon_util
 target_include_directories(gfxrecon_util
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
+                               ${GFXRECON_SOURCE_DIR}/external/Vulkan-Headers/include
                                ${GFXRECON_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_util

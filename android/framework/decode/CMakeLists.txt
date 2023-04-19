@@ -99,6 +99,7 @@ target_sources(gfxrecon_decode
 
 target_include_directories(gfxrecon_decode
                            PUBLIC
+                               ${GFXRECON_SOURCE_DIR}/plugins
                                ${GFXRECON_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific)

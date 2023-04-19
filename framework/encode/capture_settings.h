@@ -33,6 +33,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -73,30 +74,31 @@ class CaptureSettings
 
     struct TraceSettings
     {
-        std::string                   capture_file{ kDefaultCaptureFileName };
-        format::EnabledOptions        capture_file_options;
-        bool                          time_stamp_file{ true };
-        bool                          force_flush{ false };
-        MemoryTrackingMode            memory_tracking_mode{ kPageGuard };
-        std::string                   screenshot_dir;
-        std::vector<util::FrameRange> screenshot_ranges;
-        std::vector<TrimRange>        trim_ranges;
-        std::string                   trim_key;
-        uint32_t                      trim_key_frames{ 0 };
-        RuntimeTriggerState           runtime_capture_trigger{ kNotUsed };
-        int                           page_guard_signal_handler_watcher_max_restores{ 1 };
-        bool                          page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
-        bool                          page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
-        bool                          page_guard_persistent_memory{ false };
-        bool                          page_guard_align_buffer_sizes{ false };
-        bool                          page_guard_track_ahb_memory{ false };
-        bool                          page_guard_unblock_sigsegv{ false };
-        bool                          page_guard_signal_handler_watcher{ false };
-        bool                          debug_layer{ false };
-        bool                          debug_device_lost{ false };
-        bool                          disable_dxr{ false };
-        uint32_t                      accel_struct_padding{ 0 };
-        bool                          force_command_serialization{ false };
+        std::string                     capture_file{ kDefaultCaptureFileName };
+        format::EnabledOptions          capture_file_options;
+        bool                            time_stamp_file{ true };
+        bool                            force_flush{ false };
+        MemoryTrackingMode              memory_tracking_mode{ kPageGuard };
+        std::string                     screenshot_dir;
+        std::vector<util::FrameRange>   screenshot_ranges;
+        std::vector<TrimRange>          trim_ranges;
+        std::string                     trim_key;
+        uint32_t                        trim_key_frames{ 0 };
+        RuntimeTriggerState             runtime_capture_trigger{ kNotUsed };
+        int                             page_guard_signal_handler_watcher_max_restores{ 1 };
+        bool                            page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
+        bool                            page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
+        bool                            page_guard_persistent_memory{ false };
+        bool                            page_guard_align_buffer_sizes{ false };
+        bool                            page_guard_track_ahb_memory{ false };
+        bool                            page_guard_unblock_sigsegv{ false };
+        bool                            page_guard_signal_handler_watcher{ false };
+        bool                            debug_layer{ false };
+        bool                            debug_device_lost{ false };
+        bool                            disable_dxr{ false };
+        uint32_t                        accel_struct_padding{ 0 };
+        bool                            force_command_serialization{ false };
+        std::unordered_set<std::string> plugin_paths;
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a
@@ -164,6 +166,8 @@ class CaptureSettings
     static std::string ParseTrimKeyString(const std::string& value_string);
 
     static uint32_t ParseTrimKeyFramesString(const std::string& value_string);
+
+    static void ParseEnabledPlugins(const std::string& value_string, std::unordered_set<std::string>& frames);
 
   private:
     TraceSettings       trace_settings_;

@@ -95,6 +95,7 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
         get_code = ''
         visit_code = ''
         map_code = ''
+        handle_id_insertion = ''
 
         for handle_name in sorted(self.handle_names):
             if handle_name in self.DUPLICATE_HANDLE_TYPES:
@@ -108,6 +109,14 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
             get_code += '    {0}* Get{0}(format::HandleId id) {{ return GetObjectInfo<{0}>(id, &{1}); }}\n'.format(handle_info, handle_map)
             visit_code += '    void Visit{0}(std::function<void(const {0}*)> visitor) const {{  for (const auto& entry : {1}) {{ visitor(&entry.second); }}  }}\n'.format(handle_info, handle_map)
             map_code += '     std::unordered_map<format::HandleId, {0}> {1};\n'.format(handle_info, handle_map)
+
+            handle_id_insertion += '        if ({0}.find(id) != {0}.end())\n'.format(handle_map)
+            handle_id_insertion += '        {\n'
+            handle_id_insertion += '            {0}[id].capture_handle = GFXRECON_UINT_TO_PTR<{1}::HandleType, uint64_t>(handle);\n'.format(handle_map, handle_info)
+            handle_id_insertion += '            return reinterpret_cast<void *>({0}[id].handle);\n'.format(handle_map)
+            handle_id_insertion += '        }\n\n'
+
+        handle_id_insertion += '        return nullptr;\n'
 
         self.newline()
         code = 'class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase\n'
@@ -126,6 +135,10 @@ class VulkanObjectInfoTableBase2HeaderGenerator(BaseGenerator):
         code += '\n'
         code += visit_code
         code += '\n'
+        code += '    void* InsertHandleIdPair(format::HandleId id, uint64_t handle)\n'
+        code += '    {\n'
+        code += handle_id_insertion
+        code += '    }\n\n'
         code += '  protected:\n'
         code += map_code
         code += '};\n'

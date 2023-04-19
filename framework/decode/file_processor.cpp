@@ -475,11 +475,12 @@ void FileProcessor::HandleBlockReadError(Error error_code, const char* error_mes
 
 bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
 {
-    size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
-    uint64_t    uncompressed_size     = 0;
-    ApiCallInfo call_info             = {};
-    call_info.index                   = block_index_;
-    bool success                      = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
+    size_t   parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
+    uint64_t uncompressed_size     = 0;
+
+    ApiCallInfo call_info;
+    call_info.index = block_index_;
+    bool success    = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
 
     if (success)
     {
@@ -1708,6 +1709,31 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read runtime info meta-data block");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kCaptureIDHandleMapping)
+    {
+        format::CaptureIDHandleMapping id_handle_pair = {};
+
+        success = ReadBytes(&id_handle_pair.thread_id, sizeof(id_handle_pair.thread_id));
+        success = success && ReadBytes(&id_handle_pair.pair_count, sizeof(id_handle_pair.pair_count));
+
+        std::vector<format::CaptureIDHandleMapping::handle_id_pair> pairs;
+        for (uint32_t i = 0; (i < id_handle_pair.pair_count) && success; ++i)
+        {
+            format::CaptureIDHandleMapping::handle_id_pair pair;
+            success = success && ReadBytes(&pair.id, sizeof(pair.id));
+            success = success && ReadBytes(&pair.capture_handle, sizeof(pair.capture_handle));
+
+            pairs.push_back(std::move(pair));
+        }
+
+        for (auto decoder : decoders_)
+        {
+            if (decoder->SupportsMetaDataId(meta_data_id))
+            {
+                decoder->AddHandleIdMappings(pairs);
+            }
+        }
+    }
     else
     {
         // Unrecognized metadata type.
@@ -1762,7 +1788,7 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
 
 bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
 {
-    bool     success      = false;
+    bool                                             success      = false;
     decltype(format::AnnotationHeader::label_length) label_length = 0;
     decltype(format::AnnotationHeader::data_length)  data_length  = 0;
 

@@ -36,6 +36,8 @@
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/keyboard.h"
+#include "util/platform.h"
+#include "includes/capture/plugins_entry_point_tables.h"
 
 #include <atomic>
 #include <cassert>
@@ -72,6 +74,7 @@ class CaptureManager
     {
         if (capture_mode_ != kModeDisabled)
         {
+            ++block_index_;
             return InitApiCallCapture(call_id);
         }
 
@@ -82,6 +85,7 @@ class CaptureManager
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
+            ++block_index_;
             return InitApiCallCapture(call_id);
         }
 
@@ -143,8 +147,11 @@ class CaptureManager
     bool GetIUnknownWrappingSetting() const { return iunknown_wrapping_; }
     auto GetForceCommandSerialization() const { return force_command_serialization_; }
 
-  protected:
+    uint64_t GetBlockIndex() const { return block_index_; }
 
+    const auto& GetLoadedPlugins() const { return loaded_plugins_; }
+
+  protected:
     enum CaptureModeFlags : uint32_t
     {
         kModeDisabled      = 0x0,
@@ -258,6 +265,19 @@ class CaptureManager
     util::Keyboard                    keyboard_;
     std::string                       screenshot_prefix_;
     uint32_t                          global_frame_count_;
+    uint64_t                          block_index_;
+
+    struct loaded_plugin
+    {
+        util::platform::LibraryHandle               handle;
+        plugins::capture::plugin_func_table_pre     func_table_pre;
+        plugins::capture::plugin_func_table_post    func_table_post;
+        plugins::capture::plugin_func_table_general func_table_general;
+    };
+
+    std::vector<loaded_plugin> loaded_plugins_;
+
+    void LoadPlugins(const std::unordered_set<std::string>& plugin_paths);
 
     void WriteToFile(const void* data, size_t size);
 

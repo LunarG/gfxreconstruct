@@ -95,10 +95,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             file=self.outFile
         )
         self.newline()
-        write(
-            '#include "encode/custom_vulkan_encoder_commands.h"',
-            file=self.outFile
-        )
+        write('#include "generated/generated_vulkan_encoder_post_commands.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_encoder_pre_commands.h"', file=self.outFile)
         write(
             '#include "encode/custom_vulkan_array_size_2d.h"',
             file=self.outFile
@@ -255,7 +253,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + 'bool omit_output_data = false;\n'
             body += '\n'
 
-        body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(VulkanCaptureManager::Get(), {});\n'.format(
+        body += indent + 'EncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(VulkanCaptureManager::Get(), {});\n'.format(
             name, arg_list
         )
 
@@ -338,11 +336,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body += '\n'
         if return_type and return_type != 'void':
-            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(VulkanCaptureManager::Get(), result, {});\n'.format(
+            body += '    EncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(VulkanCaptureManager::Get(), result, {});\n'.format(
                 name, arg_list
             )
         else:
-            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(VulkanCaptureManager::Get(), {});\n'.format(
+            body += '    EncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(VulkanCaptureManager::Get(), {});\n'.format(
                 name, arg_list
             )
 

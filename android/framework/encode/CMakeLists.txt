@@ -3,7 +3,7 @@ add_library(gfxrecon_encode STATIC "")
 target_sources(gfxrecon_encode
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.h
-                   ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.cpp               
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_encoder_commands.h
@@ -47,6 +47,7 @@ target_sources(gfxrecon_encode
 target_include_directories(gfxrecon_encode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
+                               ${GFXRECON_SOURCE_DIR}/plugins
                                ${GFXRECON_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific android)

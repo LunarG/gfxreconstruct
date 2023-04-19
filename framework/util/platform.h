@@ -98,6 +98,8 @@ inline void CloseLibrary(LibraryHandle handle)
     FreeLibrary(handle);
 }
 
+typedef void* (*GetProcAddress_t)(LibraryHandle handle, const char* name);
+
 inline void* GetProcAddress(LibraryHandle handle, const char* name)
 {
     return ::GetProcAddress(handle, name);
@@ -282,6 +284,8 @@ inline void CloseLibrary(LibraryHandle handle)
 {
     dlclose(handle);
 }
+
+typedef void* (*GetProcAddress_t)(LibraryHandle handle, const char* name);
 
 inline void* GetProcAddress(LibraryHandle handle, const char* name)
 {

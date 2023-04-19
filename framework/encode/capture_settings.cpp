@@ -115,6 +115,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define ACCEL_STRUCT_PADDING_UPPER                           "ACCEL_STRUCT_PADDING"
 #define FORCE_COMMAND_SERIALIZATION_LOWER                    "force_command_serialization"
 #define FORCE_COMMAND_SERIALIZATION_UPPER                    "FORCE_COMMAND_SERIALIZATION"
+#define PLUGIN_PATH_LOWER                                    "plugin_path"
+#define PLUGIN_PATH_UPPER                                    "PLUGIN_PATH"
 
 #if defined(__ANDROID__)
 // Android Properties
@@ -159,7 +161,7 @@ const char kCaptureAndroidTriggerEnvVar[]                    = GFXRECON_ENV_VAR_
 const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_LOWER;
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_LOWER;
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_LOWER;
-
+const char kPluginPathsEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX PLUGIN_PATH_LOWER;
 
 #else
 // Desktop environment settings
@@ -203,6 +205,7 @@ const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_
 const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_UPPER;
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_UPPER;
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_UPPER;
+const char kPluginPathsEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX PLUGIN_PATH_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -244,6 +247,7 @@ const std::string kDebugDeviceLost                                   = std::stri
 const std::string kOptionDisableDxr                                  = std::string(kSettingsFilter) + std::string(DISABLE_DXR_LOWER);
 const std::string kOptionAccelStructPadding                          = std::string(kSettingsFilter) + std::string(ACCEL_STRUCT_PADDING_LOWER);
 const std::string kOptionForceCommandSerialization                   = std::string(kSettingsFilter) + std::string(FORCE_COMMAND_SERIALIZATION_LOWER);
+const std::string kPluginPaths                                       = std::string(kSettingsFilter) + std::string(PLUGIN_PATH_LOWER);
 
 #if defined(ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -384,6 +388,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kCaptureIUnknownWrappingEnvVar, kOptionKeyCaptureIUnknownWrapping);
 
     LoadSingleOptionEnvVar(options, kForceCommandSerializationEnvVar, kOptionForceCommandSerialization);
+    LoadSingleOptionEnvVar(options, kPluginPathsEnvVar, kPluginPaths);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -499,6 +504,9 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
 
     settings->trace_settings_.force_command_serialization = ParseBoolString(
         FindOption(options, kOptionForceCommandSerialization), settings->trace_settings_.force_command_serialization);
+
+    // Get paths to plugin shared object files
+    ParseEnabledPlugins(FindOption(options, kPluginPaths), settings->trace_settings_.plugin_paths);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
@@ -847,6 +855,30 @@ uint32_t CaptureSettings::ParseTrimKeyFramesString(const std::string& value_stri
         GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid trim trigger key frames \"%s\"", value_string.c_str());
     }
     return frames;
+}
+
+void CaptureSettings::ParseEnabledPlugins(const std::string&               value_string,
+                                          std::unordered_set<std::string>& plugin_paths)
+{
+    if (!value_string.empty())
+    {
+        std::string value_copy = value_string;
+
+        size_t pos = 0;
+        while ((pos = value_copy.find(";")) != std::string::npos)
+        {
+            std::string path = value_copy.substr(0, pos);
+            printf("plugin: %s\n", path.c_str());
+            value_copy.erase(0, pos + 1);
+            plugin_paths.insert(std::move(path));
+        }
+
+        if (value_copy.size())
+        {
+            printf("plugin: %s\n", value_copy.c_str());
+            plugin_paths.insert(std::move(value_copy));
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

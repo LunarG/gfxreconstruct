@@ -171,7 +171,7 @@ if(MSVC)
     if(${BUILD_LAUNCHER_AND_INTERCEPTOR})
         add_definitions(-DBUILD_LAUNCHER_AND_INTERCEPTOR)
     endif()
-	
+
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.
     set(D3D12_SUPPORT OFF)
@@ -287,3 +287,4 @@ if (${RUN_TESTS})
 endif()
 
 add_subdirectory(scripts)
+add_subdirectory(plugins)
