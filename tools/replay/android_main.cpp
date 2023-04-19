@@ -152,8 +152,11 @@ void android_main(struct android_app* app)
                 application->SetFpsInfo(&fps_info);
 
                 fps_info.BeginFile();
+                fps_info.BeginLoop();
 
                 application->Run();
+
+                fps_info.EndLoop();
 
                 // Add one so that it matches the trim range frame number semantic
                 fps_info.EndFile(file_processor.GetCurrentFrameNumber() + 1);

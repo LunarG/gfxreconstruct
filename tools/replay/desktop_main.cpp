@@ -200,6 +200,8 @@ int main(int argc, const char** argv)
             while (true)
             {
                 // Loop setup
+                fps_info.BeginLoop();
+
                 gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
                 gfxrecon::decode::VulkanDecoder        vulkan_decoder;
 
@@ -271,6 +273,8 @@ int main(int argc, const char** argv)
                     GFXRECON_WRITE_CONSOLE("File did not contain any frames");
                     break;
                 }
+
+                fps_info.EndLoop();
 
                 if (vulkan_replay_options.enable_vulkan)
                 {
