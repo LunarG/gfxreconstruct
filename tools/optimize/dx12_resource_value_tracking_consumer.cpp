@@ -85,6 +85,8 @@ void Dx12ResourceValueTrackingConsumer::ProcessInitDx12AccelerationStructureComm
     std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
     const uint8_t*                                                  build_inputs_data)
 {
+    dxr_workload_ = true;
+
     if (replay_resource_value_calls_)
     {
         Dx12ReplayConsumer::ProcessInitDx12AccelerationStructureCommand(
@@ -100,6 +102,8 @@ void Dx12ResourceValueTrackingConsumer::OverrideExecuteIndirect(DxObjectInfo* co
                                                                 DxObjectInfo* count_buffer_object_info,
                                                                 UINT64        count_buffer_offset)
 {
+    ei_workload_ = true;
+
     auto command_list      = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
     auto command_signature = static_cast<ID3D12CommandSignature*>(command_signature_object_info->object);
     auto argument_buffer   = static_cast<ID3D12Resource*>(argument_buffer_object_info->object);
@@ -145,6 +149,8 @@ void Dx12ResourceValueTrackingConsumer::OverrideBuildRaytracingAccelerationStruc
 {
     GFXRECON_ASSERT(command_list4_object_info != nullptr);
     GFXRECON_ASSERT(command_list4_object_info->object != nullptr);
+
+    dxr_workload_ = true;
 
     auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
 
