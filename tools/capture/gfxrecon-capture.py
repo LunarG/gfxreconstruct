@@ -46,5 +46,5 @@ if __name__ == '__main__':
         sys.exit(1)
 
     print("Warning: the 'gfxrecon-capture.py' script is deprecated and will be removed in a future update. Use 'gfxrecon-capture-vulkan.py' instead.", flush=True)
-    result = subprocess.run(["gfxrecon-capture-vulkan.py",] + argv[1:])
+    result = subprocess.run(["gfxrecon-capture-vulkan.py",] + argv[1:], shell = True)
     sys.exit(result.returncode)
