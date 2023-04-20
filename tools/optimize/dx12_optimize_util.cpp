@@ -233,7 +233,14 @@ bool GetDxrOptimizationInfo(const std::string&               input_filename,
 
             if (BypassResourceValueOptimization(*resource_value_tracking_consumer, options, info))
             {
+                // No further DXR/EI optimization needed if the file was already optimized.
                 options.optimize_resource_values = false;
+            }
+            else if (info.fill_command_resource_values.empty() && info.unassociated_resource_values.empty())
+            {
+                // If the file is not optimized for DXR/EI but does not contain any resource values that need to be
+                // mapped during replay, mark it as optimized.
+                info.inject_noop_resource_value_optimization = true;
             }
 
             GFXRECON_WRITE_CONSOLE("Finished scanning capture file for DXR/EI optimization.");
