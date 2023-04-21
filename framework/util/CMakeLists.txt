@@ -185,6 +185,7 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_util_test "")
     target_sources(gfxrecon_util_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/gpu_va_map_tests.cpp>
@@ -196,6 +197,15 @@ if (${RUN_TESTS})
                             gfxrecon_util
                             $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                             $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
+    if (MSVC)
+        # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
+        # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
+        if(NOT CMAKE_CL_64)
+            target_link_options(gfxrecon_util_test PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
+        else()
+            target_link_options(gfxrecon_util_test PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+        endif()
+    endif()
     common_build_directives(gfxrecon_util_test)
     common_test_directives(gfxrecon_util_test)
 endif()
