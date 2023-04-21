@@ -50,8 +50,18 @@ common_build_directives(gfxrecon_format)
 if (${RUN_TESTS})
     add_executable(gfxrecon_format_test "")
     target_sources(gfxrecon_format_test PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
+        ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_format_test PRIVATE gfxrecon_format)
+    if (MSVC)
+        # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
+        # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
+        if(NOT CMAKE_CL_64)
+            target_link_options(gfxrecon_format_test PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
+        else()
+            target_link_options(gfxrecon_format_test PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+        endif()
+    endif()
     common_build_directives(gfxrecon_format_test)
     common_test_directives(gfxrecon_format_test)
 endif()

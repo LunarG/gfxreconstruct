@@ -94,9 +94,18 @@ if (${RUN_TESTS})
     add_executable(VkLayer_gfxreconstruct_test "")
 
     target_sources(VkLayer_gfxreconstruct_test PRIVATE
-            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
+            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/../tools/platform_debug_helper.cpp)
     target_link_libraries(VkLayer_gfxreconstruct_test PRIVATE VkLayer_gfxreconstruct)
-
+    if (MSVC)
+        # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
+        # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
+        if(NOT CMAKE_CL_64)
+            target_link_options(VkLayer_gfxreconstruct_test PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
+        else()
+            target_link_options(VkLayer_gfxreconstruct_test PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+        endif()
+    endif()
     common_build_directives(VkLayer_gfxreconstruct_test)
     common_test_directives(VkLayer_gfxreconstruct_test)
 endif()
