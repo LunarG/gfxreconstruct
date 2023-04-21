@@ -130,7 +130,7 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                 const auto& parametersStr = ObjectToString(to_string_flags_, tabCount, tabSize, toStringFunction);
                 for (auto c : parametersStr)
                 {
-                    if (c != '{' && !isspace(static_cast<int>(c)) && c != '}')
+                    if (c != '{' && !isspace(static_cast<unsigned char>(c)) && c != '}')
                     {
                         FieldToString(strStrm, false, "parameters", to_string_flags_, tabCount, tabSize, parametersStr);
                         break;

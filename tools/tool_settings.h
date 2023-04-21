@@ -513,8 +513,7 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
 
         for (std::string& num : values)
         {
-            // Remove whitespace.
-            num.erase(std::remove_if(num.begin(), num.end(), ::isspace), num.end());
+            gfxrecon::util::strings::RemoveWhitespace(num);
 
             // Check that the range string only contains numbers.
             const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);

@@ -45,6 +45,11 @@ std::string TabRight(const std::string& str);
 /// the separator.
 std::vector<std::string> SplitString(const std::string_view compound, const char separator);
 
+/// Removes all whitespace anywhere in the given string, not just trimming it
+/// from front and back of the string.
+/// @note This will turn a space separated list of numbers into one long number.
+void RemoveWhitespace(std::string& str);
+
 GFXRECON_END_NAMESPACE(strings)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
