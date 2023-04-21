@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -552,18 +553,20 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
 {
     // Get the wrapper of the destination resource.
     ID3D12Resource_Wrapper* resource_wrapper = nullptr;
+    auto                    device5          = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device5>(
+        list_wrapper->GetWrappedObjectAs<ID3D12GraphicsCommandList4>());
+
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info;
+    device5->GetRaytracingAccelerationStructurePrebuildInfo(&desc->Inputs, &prebuild_info);
     {
         std::unique_lock<std::mutex> lock(state_table_mutex_);
-        resource_wrapper = GetResourceWrapperForGpuVa(desc->DestAccelerationStructureData);
+        resource_wrapper =
+            GetResourceWrapperForGpuVa(desc->DestAccelerationStructureData,
+                                       desc->DestAccelerationStructureData + prebuild_info.ResultDataMaxSizeInBytes);
     }
 
     if (resource_wrapper)
     {
-        auto device5 = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device5>(
-            list_wrapper->GetWrappedObjectAs<ID3D12GraphicsCommandList4>());
-
-        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info;
-        device5->GetRaytracingAccelerationStructurePrebuildInfo(&desc->Inputs, &prebuild_info);
 
         DxAccelerationStructureBuildInfo build_info;
         build_info.dest_gpu_va          = desc->DestAccelerationStructureData;
@@ -777,8 +780,10 @@ void Dx12StateTracker::TrackCopyRaytracingAccelerationStructure(
     ID3D12Resource_Wrapper* source_resource_wrapper = nullptr;
     {
         std::unique_lock<std::mutex> lock(state_table_mutex_);
-        dest_resource_wrapper   = GetResourceWrapperForGpuVa(dest_acceleration_structure_data);
-        source_resource_wrapper = GetResourceWrapperForGpuVa(source_acceleration_structure_data);
+        // TODO: find and use the data size of acceleration structure to replace 0
+        //       for function GetResourceWrapperForGpuVa.
+        dest_resource_wrapper   = GetResourceWrapperForGpuVa(dest_acceleration_structure_data, 0);
+        source_resource_wrapper = GetResourceWrapperForGpuVa(source_acceleration_structure_data, 0);
     }
 
     if (dest_resource_wrapper && source_resource_wrapper)

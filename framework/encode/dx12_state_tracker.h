@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -235,8 +236,7 @@ class Dx12StateTracker
                                format::ApiCallId               call_id,
                                const util::MemoryOutputStream* parameter_buffer);
 
-    ID3D12Resource_Wrapper* GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va,
-                                                       uint64_t                  minimum_end_address = 0Ui64);
+    ID3D12Resource_Wrapper* GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va, uint64_t minimum_end_address);
 
     uint64_t CommitAccelerationStructureBuildInfo(DxAccelerationStructureBuildInfo& accel_struct_build);
 

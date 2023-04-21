@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to
@@ -46,7 +47,7 @@ class Dx12StateTableBase
     }
 
     // Returns the handle ID for the resource that contains the GPU VA address or kNullHandleId if no match is found.
-    format::HandleId GetResourceForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address, uint64_t minimum_end_address = 0Ui64)
+    format::HandleId GetResourceForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address, uint64_t minimum_end_address)
     {
         bool             found  = false;
         format::HandleId result = format::kNullHandleId;
