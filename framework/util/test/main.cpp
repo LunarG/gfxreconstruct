@@ -36,7 +36,6 @@
 using namespace gfxrecon::util::strings;
 using namespace gfxrecon::util::datetime;
 
-
 TEST_CASE("Quote", "[to_string]")
 {
     using namespace gfxrecon::util;
@@ -124,6 +123,33 @@ TEST_CASE("TabRight", "[strings]")
     REQUIRE(gfxrecon::util::strings::TabRight("\t\t") == "\t\t\t");
     REQUIRE(gfxrecon::util::strings::TabRight("l1\nl2\nl3") == "\tl1\n\tl2\n\tl3");
     REQUIRE_FALSE(gfxrecon::util::strings::TabRight("l1\nl2\n\nl3") == "\tl1\n\tl2\n\tl3");
+
+    gfxrecon::util::Log::Release();
+}
+
+TEST_CASE("SplitString", "[strings]")
+{
+    using std::string;
+    auto s = [](auto x) { return string{ x }; };
+
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+
+    REQUIRE(gfxrecon::util::strings::SplitString("", '+') == std::vector<string>());
+    REQUIRE(gfxrecon::util::strings::SplitString("a", '.') == std::vector<string>({ s("a") }));
+    REQUIRE(gfxrecon::util::strings::SplitString("foobar", '.') == std::vector<string>({ s("foobar") }));
+    REQUIRE(gfxrecon::util::strings::SplitString("+", '+') == std::vector<string>());
+    REQUIRE(gfxrecon::util::strings::SplitString("++", '+') == std::vector<string>());
+    REQUIRE(gfxrecon::util::strings::SplitString("+++", '+') == std::vector<string>());
+    REQUIRE(gfxrecon::util::strings::SplitString("++++++++++++++++++++", '+') == std::vector<string>());
+    REQUIRE(gfxrecon::util::strings::SplitString("+++++++++++++++++++++", '+') == std::vector<string>());
+    REQUIRE(gfxrecon::util::strings::SplitString(" + ", '+') == std::vector<string>({ s(" "), s(" ") }));
+    REQUIRE(gfxrecon::util::strings::SplitString("z+y", '+') == std::vector<string>({ s("z"), s("y") }));
+    REQUIRE(gfxrecon::util::strings::SplitString(".a..b...c....d.....", '.') ==
+            std::vector<string>({ s('a'), s('b'), s('c'), s('d') }));
+    REQUIRE(gfxrecon::util::strings::SplitString(".a..b...c....d.....", ',') ==
+            std::vector<string>({ s(".a..b...c....d.....") }));
+    REQUIRE(gfxrecon::util::strings::SplitString(".a..b...c,,,,d.....", ',') ==
+            std::vector<string>({ s(".a..b...c"), s("d.....") }));
 
     gfxrecon::util::Log::Release();
 }
