@@ -21,6 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 /// @file Helper functions for working with strings.
+/// @see platform.h for wrappers of C-string functions.
 
 #ifndef GFXRECON_UTIL_STRINGS_H
 #define GFXRECON_UTIL_STRINGS_H
@@ -28,14 +29,21 @@
 #include "util/defines.h"
 
 #include <string>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(strings)
 
-/// Return a a string with a tab added at the start of each new line.
+/// @return A string with a tab added at the start of each new line.
 /// A string is considered to start at a new line, even an empty string.
 std::string TabRight(const std::string& str);
+
+/// @return A vector of strings based on chopping compound everywhere that the
+/// separator character is found, adding the pieces to the returned vector from
+/// left to right in the original order and discarding the found instances of
+/// the separator.
+std::vector<std::string> SplitString(const std::string_view compound, const char separator);
 
 GFXRECON_END_NAMESPACE(strings)
 GFXRECON_END_NAMESPACE(util)

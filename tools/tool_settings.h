@@ -41,6 +41,7 @@
 #include "util/logging.h"
 #include "util/platform.h"
 #include "util/options.h"
+#include "util/strings.h"
 
 #include "vulkan/vulkan_core.h"
 
@@ -499,54 +500,32 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
     const auto& value = arg_parser.GetArgumentValue(kMeasurementRangeArgument);
     if (!value.empty())
     {
-        std::string range = value;
+        std::vector<std::string> values  = gfxrecon::util::strings::SplitString(value, '-');
+        bool                     invalid = false;
 
-        if (std::count(range.begin(), range.end(), '-') != 1)
+        if (values.size() != 2)
         {
             GFXRECON_LOG_WARNING(
                 "Ignoring invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
-                range.c_str());
-            return false;
+                value.c_str());
+            invalid = true;
         }
 
-        // Remove whitespace.
-        range.erase(std::remove_if(range.begin(), range.end(), ::isspace), range.end());
-
-        // Split string on '-' delimiter.
-        bool                     invalid = false;
-        std::vector<std::string> values;
-        std::istringstream       range_input;
-        range_input.str(range);
-
-        for (std::string token; std::getline(range_input, token, '-');)
+        for (std::string& num : values)
         {
-            if (token.empty())
-            {
-                break;
-            }
+            // Remove whitespace.
+            num.erase(std::remove_if(num.begin(), num.end(), ::isspace), num.end());
 
             // Check that the range string only contains numbers.
-            size_t count = std::count_if(token.begin(), token.end(), ::isdigit);
-            if (count == token.length())
-            {
-                values.push_back(token);
-            }
-            else
+            const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);
+            if (count != num.length())
             {
                 GFXRECON_LOG_WARNING(
                     "Ignoring invalid measurement frame range \"%s\", which contains non-numeric values",
-                    range.c_str());
+                    value.c_str());
                 invalid = true;
                 break;
             }
-        }
-
-        if (values.size() < 2)
-        {
-            GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", does not have two values.",
-                                 range.c_str());
-
-            invalid = true;
         }
 
         if (!invalid)
@@ -558,7 +537,7 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
             {
                 GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", where first frame is "
                                      "greater than or equal to the last frame",
-                                     range.c_str());
+                                     value.c_str());
 
                 return false;
             }
@@ -566,10 +545,6 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
             start_frame = start_frame_arg;
             end_frame   = end_frame_arg;
             return true;
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\".", range.c_str());
         }
     }
 

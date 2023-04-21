@@ -22,6 +22,8 @@
 */
 
 #include "util/strings.h"
+#include <algorithm>
+#include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -38,6 +40,37 @@ std::string TabRight(const std::string& str)
         tabbed.replace(match, 1, "\n\t");
     }
     return tabbed;
+}
+
+std::vector<std::string> SplitString(const std::string_view compound, const char separator)
+{
+    std::vector<std::string> values;
+
+    if (!compound.empty())
+    {
+        // Avoid most of the work if the string doesn't need splitting:
+        if (std::count(compound.begin(), compound.end(), separator) < 1)
+        {
+            values.emplace_back(compound);
+            return values;
+        }
+        else
+        {
+            // Split string on separator.
+            bool               invalid = false;
+            std::istringstream range_input;
+            range_input.str(std::string{ compound });
+
+            for (std::string token; std::getline(range_input, token, separator);)
+            {
+                if (!token.empty())
+                {
+                    values.push_back(token);
+                }
+            }
+        }
+    }
+    return values;
 }
 
 GFXRECON_END_NAMESPACE(strings)
