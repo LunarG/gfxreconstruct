@@ -28,8 +28,8 @@
 
 #include "generated/generated_vulkan_api_call_encoders.h"
 
-#include "generated/generated_vulkan_encoder_post_commands.h"
-#include "generated/generated_vulkan_encoder_pre_commands.h"
+#include "generated/generated_vulkan_api_call_encoders_post_call_commands.h"
+#include "generated/generated_vulkan_api_call_encoders_pre_call_commands.h"
 #include "encode/custom_vulkan_array_size_2d.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"

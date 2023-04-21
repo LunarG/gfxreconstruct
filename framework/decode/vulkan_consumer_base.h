@@ -170,9 +170,6 @@ class VulkanConsumerBase
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData)
     {}
-
-    virtual void Process_AddHandleIdMappings(const std::vector<format::CaptureIDHandleMapping::handle_id_pair>& pairs)
-    {}
 };
 
 GFXRECON_END_NAMESPACE(decode)

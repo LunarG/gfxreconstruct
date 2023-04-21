@@ -27,6 +27,10 @@
     <Compile Include="vulkan_decoder_body_generator.py" />
     <Compile Include="vulkan_decoder_header_generator.py" />
     <Compile Include="vulkan_api_call_encoders_body_generator.py" />
+    <Compile Include="vulkan_api_call_encoders_pre_call_generator.py" />
+    <Compile Include="vulkan_api_call_encoders_post_call_generator.py" />
+    <Compile Include="vulkan_capture_plugins_entrypoints_pre_generator.py" />
+    <Compile Include="vulkan_capture_plugins_entrypoints_post_generator.py" />
     <Compile Include="vulkan_api_call_encoders_header_generator.py" />
     <Compile Include="vulkan_dispatch_table_generator.py" />
     <Compile Include="vulkan_enum_to_string_body_generator.py" />

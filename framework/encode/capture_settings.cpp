@@ -868,14 +868,12 @@ void CaptureSettings::ParseEnabledPlugins(const std::string&               value
         while ((pos = value_copy.find(";")) != std::string::npos)
         {
             std::string path = value_copy.substr(0, pos);
-            printf("plugin: %s\n", path.c_str());
             value_copy.erase(0, pos + 1);
             plugin_paths.insert(std::move(path));
         }
 
         if (value_copy.size())
         {
-            printf("plugin: %s\n", value_copy.c_str());
             plugin_paths.insert(std::move(value_copy));
         }
     }

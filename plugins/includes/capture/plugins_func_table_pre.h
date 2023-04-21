@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2023 Valve Corporation
-** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,6 +21,11 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+/*
+** This file is generated from the Khronos Vulkan XML API Registry.
+**
+*/
+
 #ifndef GFXRECON_PLUGINS_CAPTURE_FUNC_TABLE_PRE_H
 #define GFXRECON_PLUGINS_CAPTURE_FUNC_TABLE_PRE_H
 
@@ -30,21 +35,20 @@
 
 #include "vulkan/vk_layer.h"
 #include "vulkan/vulkan.h"
-
-#ifdef WIN32
-#ifdef CreateEvent
-#undef CreateEvent
-#endif
-#ifdef CreateSemaphore
-#undef CreateSemaphore
-#endif
-#endif
+#include "vk_video/vulkan_video_codec_h264std.h"
+#include "vk_video/vulkan_video_codec_h264std_decode.h"
+#include "vk_video/vulkan_video_codec_h264std_encode.h"
+#include "vk_video/vulkan_video_codec_h265std.h"
+#include "vk_video/vulkan_video_codec_h265std_decode.h"
+#include "vk_video/vulkan_video_codec_h265std_encode.h"
+#include "vk_video/vulkan_video_codecs_common.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(plugins)
 GFXRECON_BEGIN_NAMESPACE(capture)
 
 // clang-format off
+
 typedef void (VKAPI_PTR *PFN_CreateInstance_PreCall)(uint64_t block_index, const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance);
 typedef void (VKAPI_PTR *PFN_DestroyInstance_PreCall)(uint64_t block_index, VkInstance instance, const VkAllocationCallbacks* pAllocator);
 typedef void (VKAPI_PTR *PFN_EnumeratePhysicalDevices_PreCall)(uint64_t block_index, VkInstance instance, uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices);
@@ -54,8 +58,14 @@ typedef void (VKAPI_PTR *PFN_GetPhysicalDeviceImageFormatProperties_PreCall)(uin
 typedef void (VKAPI_PTR *PFN_GetPhysicalDeviceProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties* pProperties);
 typedef void (VKAPI_PTR *PFN_GetPhysicalDeviceQueueFamilyProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties* pQueueFamilyProperties);
 typedef void (VKAPI_PTR *PFN_GetPhysicalDeviceMemoryProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, VkPhysicalDeviceMemoryProperties* pMemoryProperties);
+typedef void (VKAPI_PTR *PFN_GetInstanceProcAddr_PreCall)(uint64_t block_index, VkInstance instance, const char* pName);
+typedef void (VKAPI_PTR *PFN_GetDeviceProcAddr_PreCall)(uint64_t block_index, VkDevice device, const char* pName);
 typedef void (VKAPI_PTR *PFN_CreateDevice_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice);
 typedef void (VKAPI_PTR *PFN_DestroyDevice_PreCall)(uint64_t block_index, VkDevice device, const VkAllocationCallbacks* pAllocator);
+typedef void (VKAPI_PTR *PFN_EnumerateInstanceExtensionProperties_PreCall)(uint64_t block_index, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
+typedef void (VKAPI_PTR *PFN_EnumerateDeviceExtensionProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
+typedef void (VKAPI_PTR *PFN_EnumerateInstanceLayerProperties_PreCall)(uint64_t block_index, uint32_t* pPropertyCount, VkLayerProperties* pProperties);
+typedef void (VKAPI_PTR *PFN_EnumerateDeviceLayerProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties);
 typedef void (VKAPI_PTR *PFN_GetDeviceQueue_PreCall)(uint64_t block_index, VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue);
 typedef void (VKAPI_PTR *PFN_QueueSubmit_PreCall)(uint64_t block_index, VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence);
 typedef void (VKAPI_PTR *PFN_QueueWaitIdle_PreCall)(uint64_t block_index, VkQueue queue);
@@ -176,6 +186,7 @@ typedef void (VKAPI_PTR *PFN_CmdBeginRenderPass_PreCall)(uint64_t block_index, V
 typedef void (VKAPI_PTR *PFN_CmdNextSubpass_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, VkSubpassContents contents);
 typedef void (VKAPI_PTR *PFN_CmdEndRenderPass_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer);
 typedef void (VKAPI_PTR *PFN_CmdExecuteCommands_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers);
+typedef void (VKAPI_PTR *PFN_EnumerateInstanceVersion_PreCall)(uint64_t block_index, uint32_t* pApiVersion);
 typedef void (VKAPI_PTR *PFN_BindBufferMemory2_PreCall)(uint64_t block_index, VkDevice device, uint32_t bindInfoCount, const VkBindBufferMemoryInfo* pBindInfos);
 typedef void (VKAPI_PTR *PFN_BindImageMemory2_PreCall)(uint64_t block_index, VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
 typedef void (VKAPI_PTR *PFN_GetDeviceGroupPeerMemoryFeatures_PreCall)(uint64_t block_index, VkDevice device, uint32_t heapIndex, uint32_t localDeviceIndex, uint32_t remoteDeviceIndex, VkPeerMemoryFeatureFlags* pPeerMemoryFeatures);
@@ -198,6 +209,7 @@ typedef void (VKAPI_PTR *PFN_CreateSamplerYcbcrConversion_PreCall)(uint64_t bloc
 typedef void (VKAPI_PTR *PFN_DestroySamplerYcbcrConversion_PreCall)(uint64_t block_index, VkDevice device, VkSamplerYcbcrConversion ycbcrConversion, const VkAllocationCallbacks* pAllocator);
 typedef void (VKAPI_PTR *PFN_CreateDescriptorUpdateTemplate_PreCall)(uint64_t block_index, VkDevice device, const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 typedef void (VKAPI_PTR *PFN_DestroyDescriptorUpdateTemplate_PreCall)(uint64_t block_index, VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator);
+typedef void (VKAPI_PTR *PFN_UpdateDescriptorSetWithTemplate_PreCall)(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData);
 typedef void (VKAPI_PTR *PFN_GetPhysicalDeviceExternalBufferProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalBufferInfo* pExternalBufferInfo, VkExternalBufferProperties* pExternalBufferProperties);
 typedef void (VKAPI_PTR *PFN_GetPhysicalDeviceExternalFenceProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalFenceInfo* pExternalFenceInfo, VkExternalFenceProperties* pExternalFenceProperties);
 typedef void (VKAPI_PTR *PFN_GetPhysicalDeviceExternalSemaphoreProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalSemaphoreInfo* pExternalSemaphoreInfo, VkExternalSemaphoreProperties* pExternalSemaphoreProperties);
@@ -321,8 +333,10 @@ typedef void (VKAPI_PTR *PFN_GetSemaphoreWin32HandleKHR_PreCall)(uint64_t block_
 typedef void (VKAPI_PTR *PFN_ImportSemaphoreFdKHR_PreCall)(uint64_t block_index, VkDevice device, const VkImportSemaphoreFdInfoKHR* pImportSemaphoreFdInfo);
 typedef void (VKAPI_PTR *PFN_GetSemaphoreFdKHR_PreCall)(uint64_t block_index, VkDevice device, const VkSemaphoreGetFdInfoKHR* pGetFdInfo, int* pFd);
 typedef void (VKAPI_PTR *PFN_CmdPushDescriptorSetKHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t set, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites);
+typedef void (VKAPI_PTR *PFN_CmdPushDescriptorSetWithTemplateKHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, VkDescriptorUpdateTemplate descriptorUpdateTemplate, VkPipelineLayout layout, uint32_t set, const void* pData);
 typedef void (VKAPI_PTR *PFN_CreateDescriptorUpdateTemplateKHR_PreCall)(uint64_t block_index, VkDevice device, const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 typedef void (VKAPI_PTR *PFN_DestroyDescriptorUpdateTemplateKHR_PreCall)(uint64_t block_index, VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator);
+typedef void (VKAPI_PTR *PFN_UpdateDescriptorSetWithTemplateKHR_PreCall)(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData);
 typedef void (VKAPI_PTR *PFN_CreateRenderPass2KHR_PreCall)(uint64_t block_index, VkDevice device, const VkRenderPassCreateInfo2* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass);
 typedef void (VKAPI_PTR *PFN_CmdBeginRenderPass2KHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo* pRenderPassBegin, const VkSubpassBeginInfo* pSubpassBeginInfo);
 typedef void (VKAPI_PTR *PFN_CmdNextSubpass2KHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, const VkSubpassBeginInfo* pSubpassBeginInfo, const VkSubpassEndInfo* pSubpassEndInfo);
@@ -370,6 +384,8 @@ typedef void (VKAPI_PTR *PFN_DeferredOperationJoinKHR_PreCall)(uint64_t block_in
 typedef void (VKAPI_PTR *PFN_GetPipelineExecutablePropertiesKHR_PreCall)(uint64_t block_index, VkDevice device, const VkPipelineInfoKHR* pPipelineInfo, uint32_t* pExecutableCount, VkPipelineExecutablePropertiesKHR* pProperties);
 typedef void (VKAPI_PTR *PFN_GetPipelineExecutableStatisticsKHR_PreCall)(uint64_t block_index, VkDevice device, const VkPipelineExecutableInfoKHR* pExecutableInfo, uint32_t* pStatisticCount, VkPipelineExecutableStatisticKHR* pStatistics);
 typedef void (VKAPI_PTR *PFN_GetPipelineExecutableInternalRepresentationsKHR_PreCall)(uint64_t block_index, VkDevice device, const VkPipelineExecutableInfoKHR* pExecutableInfo, uint32_t* pInternalRepresentationCount, VkPipelineExecutableInternalRepresentationKHR* pInternalRepresentations);
+typedef void (VKAPI_PTR *PFN_MapMemory2KHR_PreCall)(uint64_t block_index, VkDevice device, const VkMemoryMapInfoKHR* pMemoryMapInfo, void** ppData);
+typedef void (VKAPI_PTR *PFN_UnmapMemory2KHR_PreCall)(uint64_t block_index, VkDevice device, const VkMemoryUnmapInfoKHR* pMemoryUnmapInfo);
 typedef void (VKAPI_PTR *PFN_CmdEncodeVideoKHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, const VkVideoEncodeInfoKHR* pEncodeInfo);
 typedef void (VKAPI_PTR *PFN_CmdSetEvent2KHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, VkEvent event, const VkDependencyInfo* pDependencyInfo);
 typedef void (VKAPI_PTR *PFN_CmdResetEvent2KHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, VkEvent event, VkPipelineStageFlags2 stageMask);
@@ -607,12 +623,18 @@ typedef void (VKAPI_PTR *PFN_CreateOpticalFlowSessionNV_PreCall)(uint64_t block_
 typedef void (VKAPI_PTR *PFN_DestroyOpticalFlowSessionNV_PreCall)(uint64_t block_index, VkDevice device, VkOpticalFlowSessionNV session, const VkAllocationCallbacks* pAllocator);
 typedef void (VKAPI_PTR *PFN_BindOpticalFlowSessionImageNV_PreCall)(uint64_t block_index, VkDevice device, VkOpticalFlowSessionNV session, VkOpticalFlowSessionBindingPointNV bindingPoint, VkImageView view, VkImageLayout layout);
 typedef void (VKAPI_PTR *PFN_CmdOpticalFlowExecuteNV_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, VkOpticalFlowSessionNV session, const VkOpticalFlowExecuteInfoNV* pExecuteInfo);
+typedef void (VKAPI_PTR *PFN_CreateShadersEXT_PreCall)(uint64_t block_index, VkDevice device, uint32_t createInfoCount, const VkShaderCreateInfoEXT* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkShaderEXT* pShaders);
+typedef void (VKAPI_PTR *PFN_DestroyShaderEXT_PreCall)(uint64_t block_index, VkDevice device, VkShaderEXT shader, const VkAllocationCallbacks* pAllocator);
+typedef void (VKAPI_PTR *PFN_GetShaderBinaryDataEXT_PreCall)(uint64_t block_index, VkDevice device, VkShaderEXT shader, size_t* pDataSize, void* pData);
+typedef void (VKAPI_PTR *PFN_CmdBindShadersEXT_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t stageCount, const VkShaderStageFlagBits* pStages, const VkShaderEXT* pShaders);
 typedef void (VKAPI_PTR *PFN_GetFramebufferTilePropertiesQCOM_PreCall)(uint64_t block_index, VkDevice device, VkFramebuffer framebuffer, uint32_t* pPropertiesCount, VkTilePropertiesQCOM* pProperties);
 typedef void (VKAPI_PTR *PFN_GetDynamicRenderingTilePropertiesQCOM_PreCall)(uint64_t block_index, VkDevice device, const VkRenderingInfo* pRenderingInfo, VkTilePropertiesQCOM* pProperties);
 typedef void (VKAPI_PTR *PFN_CreateAccelerationStructureKHR_PreCall)(uint64_t block_index, VkDevice device, const VkAccelerationStructureCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkAccelerationStructureKHR* pAccelerationStructure);
 typedef void (VKAPI_PTR *PFN_DestroyAccelerationStructureKHR_PreCall)(uint64_t block_index, VkDevice device, VkAccelerationStructureKHR accelerationStructure, const VkAllocationCallbacks* pAllocator);
 typedef void (VKAPI_PTR *PFN_CmdBuildAccelerationStructuresKHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
 typedef void (VKAPI_PTR *PFN_CmdBuildAccelerationStructuresIndirectKHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkDeviceAddress* pIndirectDeviceAddresses, const uint32_t* pIndirectStrides, const uint32_t* const* ppMaxPrimitiveCounts);
+typedef void (VKAPI_PTR *PFN_BuildAccelerationStructuresKHR_PreCall)(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
+typedef void (VKAPI_PTR *PFN_CopyAccelerationStructureKHR_PreCall)(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureInfoKHR* pInfo);
 typedef void (VKAPI_PTR *PFN_CopyAccelerationStructureToMemoryKHR_PreCall)(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo);
 typedef void (VKAPI_PTR *PFN_CopyMemoryToAccelerationStructureKHR_PreCall)(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo);
 typedef void (VKAPI_PTR *PFN_WriteAccelerationStructuresPropertiesKHR_PreCall)(uint64_t block_index, VkDevice device, uint32_t accelerationStructureCount, const VkAccelerationStructureKHR* pAccelerationStructures, VkQueryType queryType, size_t dataSize, void* pData, size_t stride);
@@ -632,37 +654,9 @@ typedef void (VKAPI_PTR *PFN_CmdSetRayTracingPipelineStackSizeKHR_PreCall)(uint6
 typedef void (VKAPI_PTR *PFN_CmdDrawMeshTasksEXT_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 typedef void (VKAPI_PTR *PFN_CmdDrawMeshTasksIndirectEXT_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
 typedef void (VKAPI_PTR *PFN_CmdDrawMeshTasksIndirectCountEXT_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride);
-typedef void (VKAPI_PTR *PFN_GetInstanceProcAddr_PreCall)(uint64_t block_index, VkInstance instance, const char* pName);
-typedef void (VKAPI_PTR *PFN_GetDeviceProcAddr_PreCall)(uint64_t block_index, VkDevice device, const char* pName);
-typedef void (VKAPI_PTR *PFN_EnumerateInstanceExtensionProperties_PreCall)(uint64_t block_index, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
-typedef void (VKAPI_PTR *PFN_EnumerateDeviceExtensionProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
-typedef void (VKAPI_PTR *PFN_EnumerateInstanceLayerProperties_PreCall)(uint64_t block_index, uint32_t* pPropertyCount, VkLayerProperties* pProperties);
-typedef void (VKAPI_PTR *PFN_EnumerateDeviceLayerProperties_PreCall)(uint64_t block_index, VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties);
-typedef void (VKAPI_PTR *PFN_EnumerateInstanceVersion_PreCall)(uint64_t block_index, uint32_t* pApiVersion);
-typedef void (VKAPI_PTR *PFN_UpdateDescriptorSetWithTemplate_PreCall)(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData);
-typedef void (VKAPI_PTR *PFN_CmdPushDescriptorSetWithTemplateKHR_PreCall)(uint64_t block_index, VkCommandBuffer commandBuffer, VkDescriptorUpdateTemplate descriptorUpdateTemplate, VkPipelineLayout layout, uint32_t set, const void* pData);
-typedef void (VKAPI_PTR *PFN_UpdateDescriptorSetWithTemplateKHR_PreCall)(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData);
-typedef void (VKAPI_PTR *PFN_BuildAccelerationStructuresKHR_PreCall)(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
-typedef void (VKAPI_PTR *PFN_CopyAccelerationStructureKHR_PreCall)(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureInfoKHR* pInfo);
-typedef void (VKAPI_PTR *PFN_CreateMirSurfaceKHR_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_GetPhysicalDeviceMirPresentationSupportKHR_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_CmdProcessCommandsNVX_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_CmdReserveSpaceForCommandsNVX_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_CreateIndirectCommandsLayoutNVX_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_DestroyIndirectCommandsLayoutNVX_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_CreateObjectTableNVX_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_DestroyObjectTableNVX_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_RegisterObjectsNVX_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_UnregisterObjectsNVX_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_GetPhysicalDeviceGeneratedCommandsPropertiesNVX_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_GetAccelerationStructureMemoryRequirementsKHR_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_BindAccelerationStructureMemoryKHR_PreCall)(uint64_t block_index);
-typedef void (VKAPI_PTR *PFN_GetPipelinePropertiesEXT_PreCall)(uint64_t block_index);
-// clang-format on
+
 
 GFXRECON_BEGIN_NAMESPACE(noop)
-
-// clang-format off
 static VKAPI_ATTR void VKAPI_CALL CreateInstance_PreCall(uint64_t block_index, const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance) { }
 static VKAPI_ATTR void VKAPI_CALL DestroyInstance_PreCall(uint64_t block_index, VkInstance instance, const VkAllocationCallbacks* pAllocator) { }
 static VKAPI_ATTR void VKAPI_CALL EnumeratePhysicalDevices_PreCall(uint64_t block_index, VkInstance instance, uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices) { }
@@ -672,8 +666,14 @@ static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceImageFormatProperties_PreCall
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties* pProperties) { }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties* pQueueFamilyProperties) { }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, VkPhysicalDeviceMemoryProperties* pMemoryProperties) { }
+static VKAPI_ATTR void VKAPI_CALL GetInstanceProcAddr_PreCall(uint64_t block_index, VkInstance instance, const char* pName) { }
+static VKAPI_ATTR void VKAPI_CALL GetDeviceProcAddr_PreCall(uint64_t block_index, VkDevice device, const char* pName) { }
 static VKAPI_ATTR void VKAPI_CALL CreateDevice_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice) { }
 static VKAPI_ATTR void VKAPI_CALL DestroyDevice_PreCall(uint64_t block_index, VkDevice device, const VkAllocationCallbacks* pAllocator) { }
+static VKAPI_ATTR void VKAPI_CALL EnumerateInstanceExtensionProperties_PreCall(uint64_t block_index, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties) { }
+static VKAPI_ATTR void VKAPI_CALL EnumerateDeviceExtensionProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties) { }
+static VKAPI_ATTR void VKAPI_CALL EnumerateInstanceLayerProperties_PreCall(uint64_t block_index, uint32_t* pPropertyCount, VkLayerProperties* pProperties) { }
+static VKAPI_ATTR void VKAPI_CALL EnumerateDeviceLayerProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties) { }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceQueue_PreCall(uint64_t block_index, VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue) { }
 static VKAPI_ATTR void VKAPI_CALL QueueSubmit_PreCall(uint64_t block_index, VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence) { }
 static VKAPI_ATTR void VKAPI_CALL QueueWaitIdle_PreCall(uint64_t block_index, VkQueue queue) { }
@@ -794,6 +794,7 @@ static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass_PreCall(uint64_t block_inde
 static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkSubpassContents contents) { }
 static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer) { }
 static VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers) { }
+static VKAPI_ATTR void VKAPI_CALL EnumerateInstanceVersion_PreCall(uint64_t block_index, uint32_t* pApiVersion) { }
 static VKAPI_ATTR void VKAPI_CALL BindBufferMemory2_PreCall(uint64_t block_index, VkDevice device, uint32_t bindInfoCount, const VkBindBufferMemoryInfo* pBindInfos) { }
 static VKAPI_ATTR void VKAPI_CALL BindImageMemory2_PreCall(uint64_t block_index, VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos) { }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures_PreCall(uint64_t block_index, VkDevice device, uint32_t heapIndex, uint32_t localDeviceIndex, uint32_t remoteDeviceIndex, VkPeerMemoryFeatureFlags* pPeerMemoryFeatures) { }
@@ -816,6 +817,7 @@ static VKAPI_ATTR void VKAPI_CALL CreateSamplerYcbcrConversion_PreCall(uint64_t 
 static VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion_PreCall(uint64_t block_index, VkDevice device, VkSamplerYcbcrConversion ycbcrConversion, const VkAllocationCallbacks* pAllocator) { }
 static VKAPI_ATTR void VKAPI_CALL CreateDescriptorUpdateTemplate_PreCall(uint64_t block_index, VkDevice device, const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate) { }
 static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate_PreCall(uint64_t block_index, VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator) { }
+static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate_PreCall(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData) { }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalBufferInfo* pExternalBufferInfo, VkExternalBufferProperties* pExternalBufferProperties) { }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalFenceInfo* pExternalFenceInfo, VkExternalFenceProperties* pExternalFenceProperties) { }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalSemaphoreInfo* pExternalSemaphoreInfo, VkExternalSemaphoreProperties* pExternalSemaphoreProperties) { }
@@ -939,8 +941,10 @@ static VKAPI_ATTR void VKAPI_CALL GetSemaphoreWin32HandleKHR_PreCall(uint64_t bl
 static VKAPI_ATTR void VKAPI_CALL ImportSemaphoreFdKHR_PreCall(uint64_t block_index, VkDevice device, const VkImportSemaphoreFdInfoKHR* pImportSemaphoreFdInfo) { }
 static VKAPI_ATTR void VKAPI_CALL GetSemaphoreFdKHR_PreCall(uint64_t block_index, VkDevice device, const VkSemaphoreGetFdInfoKHR* pGetFdInfo, int* pFd) { }
 static VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t set, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites) { }
+static VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkDescriptorUpdateTemplate descriptorUpdateTemplate, VkPipelineLayout layout, uint32_t set, const void* pData) { }
 static VKAPI_ATTR void VKAPI_CALL CreateDescriptorUpdateTemplateKHR_PreCall(uint64_t block_index, VkDevice device, const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate) { }
 static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR_PreCall(uint64_t block_index, VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator) { }
+static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR_PreCall(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData) { }
 static VKAPI_ATTR void VKAPI_CALL CreateRenderPass2KHR_PreCall(uint64_t block_index, VkDevice device, const VkRenderPassCreateInfo2* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass) { }
 static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo* pRenderPassBegin, const VkSubpassBeginInfo* pSubpassBeginInfo) { }
 static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, const VkSubpassBeginInfo* pSubpassBeginInfo, const VkSubpassEndInfo* pSubpassEndInfo) { }
@@ -988,6 +992,8 @@ static VKAPI_ATTR void VKAPI_CALL DeferredOperationJoinKHR_PreCall(uint64_t bloc
 static VKAPI_ATTR void VKAPI_CALL GetPipelineExecutablePropertiesKHR_PreCall(uint64_t block_index, VkDevice device, const VkPipelineInfoKHR* pPipelineInfo, uint32_t* pExecutableCount, VkPipelineExecutablePropertiesKHR* pProperties) { }
 static VKAPI_ATTR void VKAPI_CALL GetPipelineExecutableStatisticsKHR_PreCall(uint64_t block_index, VkDevice device, const VkPipelineExecutableInfoKHR* pExecutableInfo, uint32_t* pStatisticCount, VkPipelineExecutableStatisticKHR* pStatistics) { }
 static VKAPI_ATTR void VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR_PreCall(uint64_t block_index, VkDevice device, const VkPipelineExecutableInfoKHR* pExecutableInfo, uint32_t* pInternalRepresentationCount, VkPipelineExecutableInternalRepresentationKHR* pInternalRepresentations) { }
+static VKAPI_ATTR void VKAPI_CALL MapMemory2KHR_PreCall(uint64_t block_index, VkDevice device, const VkMemoryMapInfoKHR* pMemoryMapInfo, void** ppData) { }
+static VKAPI_ATTR void VKAPI_CALL UnmapMemory2KHR_PreCall(uint64_t block_index, VkDevice device, const VkMemoryUnmapInfoKHR* pMemoryUnmapInfo) { }
 static VKAPI_ATTR void VKAPI_CALL CmdEncodeVideoKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, const VkVideoEncodeInfoKHR* pEncodeInfo) { }
 static VKAPI_ATTR void VKAPI_CALL CmdSetEvent2KHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkEvent event, const VkDependencyInfo* pDependencyInfo) { }
 static VKAPI_ATTR void VKAPI_CALL CmdResetEvent2KHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkEvent event, VkPipelineStageFlags2 stageMask) { }
@@ -1225,12 +1231,18 @@ static VKAPI_ATTR void VKAPI_CALL CreateOpticalFlowSessionNV_PreCall(uint64_t bl
 static VKAPI_ATTR void VKAPI_CALL DestroyOpticalFlowSessionNV_PreCall(uint64_t block_index, VkDevice device, VkOpticalFlowSessionNV session, const VkAllocationCallbacks* pAllocator) { }
 static VKAPI_ATTR void VKAPI_CALL BindOpticalFlowSessionImageNV_PreCall(uint64_t block_index, VkDevice device, VkOpticalFlowSessionNV session, VkOpticalFlowSessionBindingPointNV bindingPoint, VkImageView view, VkImageLayout layout) { }
 static VKAPI_ATTR void VKAPI_CALL CmdOpticalFlowExecuteNV_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkOpticalFlowSessionNV session, const VkOpticalFlowExecuteInfoNV* pExecuteInfo) { }
+static VKAPI_ATTR void VKAPI_CALL CreateShadersEXT_PreCall(uint64_t block_index, VkDevice device, uint32_t createInfoCount, const VkShaderCreateInfoEXT* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkShaderEXT* pShaders) { }
+static VKAPI_ATTR void VKAPI_CALL DestroyShaderEXT_PreCall(uint64_t block_index, VkDevice device, VkShaderEXT shader, const VkAllocationCallbacks* pAllocator) { }
+static VKAPI_ATTR void VKAPI_CALL GetShaderBinaryDataEXT_PreCall(uint64_t block_index, VkDevice device, VkShaderEXT shader, size_t* pDataSize, void* pData) { }
+static VKAPI_ATTR void VKAPI_CALL CmdBindShadersEXT_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t stageCount, const VkShaderStageFlagBits* pStages, const VkShaderEXT* pShaders) { }
 static VKAPI_ATTR void VKAPI_CALL GetFramebufferTilePropertiesQCOM_PreCall(uint64_t block_index, VkDevice device, VkFramebuffer framebuffer, uint32_t* pPropertiesCount, VkTilePropertiesQCOM* pProperties) { }
 static VKAPI_ATTR void VKAPI_CALL GetDynamicRenderingTilePropertiesQCOM_PreCall(uint64_t block_index, VkDevice device, const VkRenderingInfo* pRenderingInfo, VkTilePropertiesQCOM* pProperties) { }
 static VKAPI_ATTR void VKAPI_CALL CreateAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, const VkAccelerationStructureCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkAccelerationStructureKHR* pAccelerationStructure) { }
 static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, VkAccelerationStructureKHR accelerationStructure, const VkAllocationCallbacks* pAllocator) { }
 static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos) { }
 static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkDeviceAddress* pIndirectDeviceAddresses, const uint32_t* pIndirectStrides, const uint32_t* const* ppMaxPrimitiveCounts) { }
+static VKAPI_ATTR void VKAPI_CALL BuildAccelerationStructuresKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos) { }
+static VKAPI_ATTR void VKAPI_CALL CopyAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureInfoKHR* pInfo) { }
 static VKAPI_ATTR void VKAPI_CALL CopyAccelerationStructureToMemoryKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo) { }
 static VKAPI_ATTR void VKAPI_CALL CopyMemoryToAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo) { }
 static VKAPI_ATTR void VKAPI_CALL WriteAccelerationStructuresPropertiesKHR_PreCall(uint64_t block_index, VkDevice device, uint32_t accelerationStructureCount, const VkAccelerationStructureKHR* pAccelerationStructures, VkQueryType queryType, size_t dataSize, void* pData, size_t stride) { }
@@ -1250,654 +1262,616 @@ static VKAPI_ATTR void VKAPI_CALL CmdSetRayTracingPipelineStackSizeKHR_PreCall(u
 static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksEXT_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) { }
 static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectEXT_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride) { }
 static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountEXT_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride) { }
-static VKAPI_ATTR void VKAPI_CALL GetInstanceProcAddr_PreCall(uint64_t block_index, VkInstance instance, const char* pName) { }
-static VKAPI_ATTR void VKAPI_CALL GetDeviceProcAddr_PreCall(uint64_t block_index, VkDevice device, const char* pName) { }
-static VKAPI_ATTR void VKAPI_CALL EnumerateInstanceExtensionProperties_PreCall(uint64_t block_index, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties) { }
-static VKAPI_ATTR void VKAPI_CALL EnumerateDeviceExtensionProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties) { }
-static VKAPI_ATTR void VKAPI_CALL EnumerateInstanceLayerProperties_PreCall(uint64_t block_index, uint32_t* pPropertyCount, VkLayerProperties* pProperties) { }
-static VKAPI_ATTR void VKAPI_CALL EnumerateDeviceLayerProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties) { }
-static VKAPI_ATTR void VKAPI_CALL EnumerateInstanceVersion_PreCall(uint64_t block_index, uint32_t* pApiVersion) { }
-static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate_PreCall(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData) { }
-static VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkDescriptorUpdateTemplate descriptorUpdateTemplate, VkPipelineLayout layout, uint32_t set, const void* pData) { }
-static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR_PreCall(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData) { }
-static VKAPI_ATTR void VKAPI_CALL BuildAccelerationStructuresKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos) { }
-static VKAPI_ATTR void VKAPI_CALL CopyAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureInfoKHR* pInfo) { }
-static VKAPI_ATTR void VKAPI_CALL CreateMirSurfaceKHR_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMirPresentationSupportKHR_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL CmdProcessCommandsNVX_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL CmdReserveSpaceForCommandsNVX_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL CreateIndirectCommandsLayoutNVX_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNVX_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL CreateObjectTableNVX_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL DestroyObjectTableNVX_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL RegisterObjectsNVX_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL UnregisterObjectsNVX_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceGeneratedCommandsPropertiesNVX_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsKHR_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL BindAccelerationStructureMemoryKHR_PreCall(uint64_t block_index) { }
-static VKAPI_ATTR void VKAPI_CALL GetPipelinePropertiesEXT_PreCall(uint64_t block_index) { }
-// clang-format on
-
 GFXRECON_END_NAMESPACE(noop)
 
-// clang-format off
 struct plugin_func_table_pre
 {
-    PFN_CreateInstance_PreCall CreateInstance_PreCall{ noop::CreateInstance_PreCall };
-    PFN_DestroyInstance_PreCall DestroyInstance_PreCall{ noop::DestroyInstance_PreCall };
-    PFN_EnumeratePhysicalDevices_PreCall EnumeratePhysicalDevices_PreCall{ noop::EnumeratePhysicalDevices_PreCall };
-    PFN_GetPhysicalDeviceFeatures_PreCall GetPhysicalDeviceFeatures_PreCall{ noop::GetPhysicalDeviceFeatures_PreCall };
-    PFN_GetPhysicalDeviceFormatProperties_PreCall GetPhysicalDeviceFormatProperties_PreCall{ noop::GetPhysicalDeviceFormatProperties_PreCall };
-    PFN_GetPhysicalDeviceImageFormatProperties_PreCall GetPhysicalDeviceImageFormatProperties_PreCall{ noop::GetPhysicalDeviceImageFormatProperties_PreCall };
-    PFN_GetPhysicalDeviceProperties_PreCall GetPhysicalDeviceProperties_PreCall{ noop::GetPhysicalDeviceProperties_PreCall };
-    PFN_GetPhysicalDeviceQueueFamilyProperties_PreCall GetPhysicalDeviceQueueFamilyProperties_PreCall{ noop::GetPhysicalDeviceQueueFamilyProperties_PreCall };
-    PFN_GetPhysicalDeviceMemoryProperties_PreCall GetPhysicalDeviceMemoryProperties_PreCall{ noop::GetPhysicalDeviceMemoryProperties_PreCall };
-    PFN_CreateDevice_PreCall CreateDevice_PreCall{ noop::CreateDevice_PreCall };
-    PFN_DestroyDevice_PreCall DestroyDevice_PreCall{ noop::DestroyDevice_PreCall };
-    PFN_GetDeviceQueue_PreCall GetDeviceQueue_PreCall{ noop::GetDeviceQueue_PreCall };
-    PFN_QueueSubmit_PreCall QueueSubmit_PreCall{ noop::QueueSubmit_PreCall };
-    PFN_QueueWaitIdle_PreCall QueueWaitIdle_PreCall{ noop::QueueWaitIdle_PreCall };
-    PFN_DeviceWaitIdle_PreCall DeviceWaitIdle_PreCall{ noop::DeviceWaitIdle_PreCall };
-    PFN_AllocateMemory_PreCall AllocateMemory_PreCall{ noop::AllocateMemory_PreCall };
-    PFN_FreeMemory_PreCall FreeMemory_PreCall{ noop::FreeMemory_PreCall };
-    PFN_MapMemory_PreCall MapMemory_PreCall{ noop::MapMemory_PreCall };
-    PFN_UnmapMemory_PreCall UnmapMemory_PreCall{ noop::UnmapMemory_PreCall };
-    PFN_FlushMappedMemoryRanges_PreCall FlushMappedMemoryRanges_PreCall{ noop::FlushMappedMemoryRanges_PreCall };
-    PFN_InvalidateMappedMemoryRanges_PreCall InvalidateMappedMemoryRanges_PreCall{ noop::InvalidateMappedMemoryRanges_PreCall };
-    PFN_GetDeviceMemoryCommitment_PreCall GetDeviceMemoryCommitment_PreCall{ noop::GetDeviceMemoryCommitment_PreCall };
-    PFN_BindBufferMemory_PreCall BindBufferMemory_PreCall{ noop::BindBufferMemory_PreCall };
-    PFN_BindImageMemory_PreCall BindImageMemory_PreCall{ noop::BindImageMemory_PreCall };
-    PFN_GetBufferMemoryRequirements_PreCall GetBufferMemoryRequirements_PreCall{ noop::GetBufferMemoryRequirements_PreCall };
-    PFN_GetImageMemoryRequirements_PreCall GetImageMemoryRequirements_PreCall{ noop::GetImageMemoryRequirements_PreCall };
-    PFN_GetImageSparseMemoryRequirements_PreCall GetImageSparseMemoryRequirements_PreCall{ noop::GetImageSparseMemoryRequirements_PreCall };
-    PFN_GetPhysicalDeviceSparseImageFormatProperties_PreCall GetPhysicalDeviceSparseImageFormatProperties_PreCall{ noop::GetPhysicalDeviceSparseImageFormatProperties_PreCall };
-    PFN_QueueBindSparse_PreCall QueueBindSparse_PreCall{ noop::QueueBindSparse_PreCall };
-    PFN_CreateFence_PreCall CreateFence_PreCall{ noop::CreateFence_PreCall };
-    PFN_DestroyFence_PreCall DestroyFence_PreCall{ noop::DestroyFence_PreCall };
-    PFN_ResetFences_PreCall ResetFences_PreCall{ noop::ResetFences_PreCall };
-    PFN_GetFenceStatus_PreCall GetFenceStatus_PreCall{ noop::GetFenceStatus_PreCall };
-    PFN_WaitForFences_PreCall WaitForFences_PreCall{ noop::WaitForFences_PreCall };
-    PFN_CreateSemaphore_PreCall CreateSemaphore_PreCall{ noop::CreateSemaphore_PreCall };
-    PFN_DestroySemaphore_PreCall DestroySemaphore_PreCall{ noop::DestroySemaphore_PreCall };
-    PFN_CreateEvent_PreCall CreateEvent_PreCall{ noop::CreateEvent_PreCall };
-    PFN_DestroyEvent_PreCall DestroyEvent_PreCall{ noop::DestroyEvent_PreCall };
-    PFN_GetEventStatus_PreCall GetEventStatus_PreCall{ noop::GetEventStatus_PreCall };
-    PFN_SetEvent_PreCall SetEvent_PreCall{ noop::SetEvent_PreCall };
-    PFN_ResetEvent_PreCall ResetEvent_PreCall{ noop::ResetEvent_PreCall };
-    PFN_CreateQueryPool_PreCall CreateQueryPool_PreCall{ noop::CreateQueryPool_PreCall };
-    PFN_DestroyQueryPool_PreCall DestroyQueryPool_PreCall{ noop::DestroyQueryPool_PreCall };
-    PFN_GetQueryPoolResults_PreCall GetQueryPoolResults_PreCall{ noop::GetQueryPoolResults_PreCall };
-    PFN_CreateBuffer_PreCall CreateBuffer_PreCall{ noop::CreateBuffer_PreCall };
-    PFN_DestroyBuffer_PreCall DestroyBuffer_PreCall{ noop::DestroyBuffer_PreCall };
-    PFN_CreateBufferView_PreCall CreateBufferView_PreCall{ noop::CreateBufferView_PreCall };
-    PFN_DestroyBufferView_PreCall DestroyBufferView_PreCall{ noop::DestroyBufferView_PreCall };
-    PFN_CreateImage_PreCall CreateImage_PreCall{ noop::CreateImage_PreCall };
-    PFN_DestroyImage_PreCall DestroyImage_PreCall{ noop::DestroyImage_PreCall };
-    PFN_GetImageSubresourceLayout_PreCall GetImageSubresourceLayout_PreCall{ noop::GetImageSubresourceLayout_PreCall };
-    PFN_CreateImageView_PreCall CreateImageView_PreCall{ noop::CreateImageView_PreCall };
-    PFN_DestroyImageView_PreCall DestroyImageView_PreCall{ noop::DestroyImageView_PreCall };
-    PFN_CreateShaderModule_PreCall CreateShaderModule_PreCall{ noop::CreateShaderModule_PreCall };
-    PFN_DestroyShaderModule_PreCall DestroyShaderModule_PreCall{ noop::DestroyShaderModule_PreCall };
-    PFN_CreatePipelineCache_PreCall CreatePipelineCache_PreCall{ noop::CreatePipelineCache_PreCall };
-    PFN_DestroyPipelineCache_PreCall DestroyPipelineCache_PreCall{ noop::DestroyPipelineCache_PreCall };
-    PFN_GetPipelineCacheData_PreCall GetPipelineCacheData_PreCall{ noop::GetPipelineCacheData_PreCall };
-    PFN_MergePipelineCaches_PreCall MergePipelineCaches_PreCall{ noop::MergePipelineCaches_PreCall };
-    PFN_CreateGraphicsPipelines_PreCall CreateGraphicsPipelines_PreCall{ noop::CreateGraphicsPipelines_PreCall };
-    PFN_CreateComputePipelines_PreCall CreateComputePipelines_PreCall{ noop::CreateComputePipelines_PreCall };
-    PFN_DestroyPipeline_PreCall DestroyPipeline_PreCall{ noop::DestroyPipeline_PreCall };
-    PFN_CreatePipelineLayout_PreCall CreatePipelineLayout_PreCall{ noop::CreatePipelineLayout_PreCall };
-    PFN_DestroyPipelineLayout_PreCall DestroyPipelineLayout_PreCall{ noop::DestroyPipelineLayout_PreCall };
-    PFN_CreateSampler_PreCall CreateSampler_PreCall{ noop::CreateSampler_PreCall };
-    PFN_DestroySampler_PreCall DestroySampler_PreCall{ noop::DestroySampler_PreCall };
-    PFN_CreateDescriptorSetLayout_PreCall CreateDescriptorSetLayout_PreCall{ noop::CreateDescriptorSetLayout_PreCall };
-    PFN_DestroyDescriptorSetLayout_PreCall DestroyDescriptorSetLayout_PreCall{ noop::DestroyDescriptorSetLayout_PreCall };
-    PFN_CreateDescriptorPool_PreCall CreateDescriptorPool_PreCall{ noop::CreateDescriptorPool_PreCall };
-    PFN_DestroyDescriptorPool_PreCall DestroyDescriptorPool_PreCall{ noop::DestroyDescriptorPool_PreCall };
-    PFN_ResetDescriptorPool_PreCall ResetDescriptorPool_PreCall{ noop::ResetDescriptorPool_PreCall };
-    PFN_AllocateDescriptorSets_PreCall AllocateDescriptorSets_PreCall{ noop::AllocateDescriptorSets_PreCall };
-    PFN_FreeDescriptorSets_PreCall FreeDescriptorSets_PreCall{ noop::FreeDescriptorSets_PreCall };
-    PFN_UpdateDescriptorSets_PreCall UpdateDescriptorSets_PreCall{ noop::UpdateDescriptorSets_PreCall };
-    PFN_CreateFramebuffer_PreCall CreateFramebuffer_PreCall{ noop::CreateFramebuffer_PreCall };
-    PFN_DestroyFramebuffer_PreCall DestroyFramebuffer_PreCall{ noop::DestroyFramebuffer_PreCall };
-    PFN_CreateRenderPass_PreCall CreateRenderPass_PreCall{ noop::CreateRenderPass_PreCall };
-    PFN_DestroyRenderPass_PreCall DestroyRenderPass_PreCall{ noop::DestroyRenderPass_PreCall };
-    PFN_GetRenderAreaGranularity_PreCall GetRenderAreaGranularity_PreCall{ noop::GetRenderAreaGranularity_PreCall };
-    PFN_CreateCommandPool_PreCall CreateCommandPool_PreCall{ noop::CreateCommandPool_PreCall };
-    PFN_DestroyCommandPool_PreCall DestroyCommandPool_PreCall{ noop::DestroyCommandPool_PreCall };
-    PFN_ResetCommandPool_PreCall ResetCommandPool_PreCall{ noop::ResetCommandPool_PreCall };
-    PFN_AllocateCommandBuffers_PreCall AllocateCommandBuffers_PreCall{ noop::AllocateCommandBuffers_PreCall };
-    PFN_FreeCommandBuffers_PreCall FreeCommandBuffers_PreCall{ noop::FreeCommandBuffers_PreCall };
-    PFN_BeginCommandBuffer_PreCall BeginCommandBuffer_PreCall{ noop::BeginCommandBuffer_PreCall };
-    PFN_EndCommandBuffer_PreCall EndCommandBuffer_PreCall{ noop::EndCommandBuffer_PreCall };
-    PFN_ResetCommandBuffer_PreCall ResetCommandBuffer_PreCall{ noop::ResetCommandBuffer_PreCall };
-    PFN_CmdBindPipeline_PreCall CmdBindPipeline_PreCall{ noop::CmdBindPipeline_PreCall };
-    PFN_CmdSetViewport_PreCall CmdSetViewport_PreCall{ noop::CmdSetViewport_PreCall };
-    PFN_CmdSetScissor_PreCall CmdSetScissor_PreCall{ noop::CmdSetScissor_PreCall };
-    PFN_CmdSetLineWidth_PreCall CmdSetLineWidth_PreCall{ noop::CmdSetLineWidth_PreCall };
-    PFN_CmdSetDepthBias_PreCall CmdSetDepthBias_PreCall{ noop::CmdSetDepthBias_PreCall };
-    PFN_CmdSetBlendConstants_PreCall CmdSetBlendConstants_PreCall{ noop::CmdSetBlendConstants_PreCall };
-    PFN_CmdSetDepthBounds_PreCall CmdSetDepthBounds_PreCall{ noop::CmdSetDepthBounds_PreCall };
-    PFN_CmdSetStencilCompareMask_PreCall CmdSetStencilCompareMask_PreCall{ noop::CmdSetStencilCompareMask_PreCall };
-    PFN_CmdSetStencilWriteMask_PreCall CmdSetStencilWriteMask_PreCall{ noop::CmdSetStencilWriteMask_PreCall };
-    PFN_CmdSetStencilReference_PreCall CmdSetStencilReference_PreCall{ noop::CmdSetStencilReference_PreCall };
-    PFN_CmdBindDescriptorSets_PreCall CmdBindDescriptorSets_PreCall{ noop::CmdBindDescriptorSets_PreCall };
-    PFN_CmdBindIndexBuffer_PreCall CmdBindIndexBuffer_PreCall{ noop::CmdBindIndexBuffer_PreCall };
-    PFN_CmdBindVertexBuffers_PreCall CmdBindVertexBuffers_PreCall{ noop::CmdBindVertexBuffers_PreCall };
-    PFN_CmdDraw_PreCall CmdDraw_PreCall{ noop::CmdDraw_PreCall };
-    PFN_CmdDrawIndexed_PreCall CmdDrawIndexed_PreCall{ noop::CmdDrawIndexed_PreCall };
-    PFN_CmdDrawIndirect_PreCall CmdDrawIndirect_PreCall{ noop::CmdDrawIndirect_PreCall };
-    PFN_CmdDrawIndexedIndirect_PreCall CmdDrawIndexedIndirect_PreCall{ noop::CmdDrawIndexedIndirect_PreCall };
-    PFN_CmdDispatch_PreCall CmdDispatch_PreCall{ noop::CmdDispatch_PreCall };
-    PFN_CmdDispatchIndirect_PreCall CmdDispatchIndirect_PreCall{ noop::CmdDispatchIndirect_PreCall };
-    PFN_CmdCopyBuffer_PreCall CmdCopyBuffer_PreCall{ noop::CmdCopyBuffer_PreCall };
-    PFN_CmdCopyImage_PreCall CmdCopyImage_PreCall{ noop::CmdCopyImage_PreCall };
-    PFN_CmdBlitImage_PreCall CmdBlitImage_PreCall{ noop::CmdBlitImage_PreCall };
-    PFN_CmdCopyBufferToImage_PreCall CmdCopyBufferToImage_PreCall{ noop::CmdCopyBufferToImage_PreCall };
-    PFN_CmdCopyImageToBuffer_PreCall CmdCopyImageToBuffer_PreCall{ noop::CmdCopyImageToBuffer_PreCall };
-    PFN_CmdUpdateBuffer_PreCall CmdUpdateBuffer_PreCall{ noop::CmdUpdateBuffer_PreCall };
-    PFN_CmdFillBuffer_PreCall CmdFillBuffer_PreCall{ noop::CmdFillBuffer_PreCall };
-    PFN_CmdClearColorImage_PreCall CmdClearColorImage_PreCall{ noop::CmdClearColorImage_PreCall };
-    PFN_CmdClearDepthStencilImage_PreCall CmdClearDepthStencilImage_PreCall{ noop::CmdClearDepthStencilImage_PreCall };
-    PFN_CmdClearAttachments_PreCall CmdClearAttachments_PreCall{ noop::CmdClearAttachments_PreCall };
-    PFN_CmdResolveImage_PreCall CmdResolveImage_PreCall{ noop::CmdResolveImage_PreCall };
-    PFN_CmdSetEvent_PreCall CmdSetEvent_PreCall{ noop::CmdSetEvent_PreCall };
-    PFN_CmdResetEvent_PreCall CmdResetEvent_PreCall{ noop::CmdResetEvent_PreCall };
-    PFN_CmdWaitEvents_PreCall CmdWaitEvents_PreCall{ noop::CmdWaitEvents_PreCall };
-    PFN_CmdPipelineBarrier_PreCall CmdPipelineBarrier_PreCall{ noop::CmdPipelineBarrier_PreCall };
-    PFN_CmdBeginQuery_PreCall CmdBeginQuery_PreCall{ noop::CmdBeginQuery_PreCall };
-    PFN_CmdEndQuery_PreCall CmdEndQuery_PreCall{ noop::CmdEndQuery_PreCall };
-    PFN_CmdResetQueryPool_PreCall CmdResetQueryPool_PreCall{ noop::CmdResetQueryPool_PreCall };
-    PFN_CmdWriteTimestamp_PreCall CmdWriteTimestamp_PreCall{ noop::CmdWriteTimestamp_PreCall };
-    PFN_CmdCopyQueryPoolResults_PreCall CmdCopyQueryPoolResults_PreCall{ noop::CmdCopyQueryPoolResults_PreCall };
-    PFN_CmdPushConstants_PreCall CmdPushConstants_PreCall{ noop::CmdPushConstants_PreCall };
-    PFN_CmdBeginRenderPass_PreCall CmdBeginRenderPass_PreCall{ noop::CmdBeginRenderPass_PreCall };
-    PFN_CmdNextSubpass_PreCall CmdNextSubpass_PreCall{ noop::CmdNextSubpass_PreCall };
-    PFN_CmdEndRenderPass_PreCall CmdEndRenderPass_PreCall{ noop::CmdEndRenderPass_PreCall };
-    PFN_CmdExecuteCommands_PreCall CmdExecuteCommands_PreCall{ noop::CmdExecuteCommands_PreCall };
-    PFN_BindBufferMemory2_PreCall BindBufferMemory2_PreCall{ noop::BindBufferMemory2_PreCall };
-    PFN_BindImageMemory2_PreCall BindImageMemory2_PreCall{ noop::BindImageMemory2_PreCall };
-    PFN_GetDeviceGroupPeerMemoryFeatures_PreCall GetDeviceGroupPeerMemoryFeatures_PreCall{ noop::GetDeviceGroupPeerMemoryFeatures_PreCall };
-    PFN_CmdSetDeviceMask_PreCall CmdSetDeviceMask_PreCall{ noop::CmdSetDeviceMask_PreCall };
-    PFN_CmdDispatchBase_PreCall CmdDispatchBase_PreCall{ noop::CmdDispatchBase_PreCall };
-    PFN_EnumeratePhysicalDeviceGroups_PreCall EnumeratePhysicalDeviceGroups_PreCall{ noop::EnumeratePhysicalDeviceGroups_PreCall };
-    PFN_GetImageMemoryRequirements2_PreCall GetImageMemoryRequirements2_PreCall{ noop::GetImageMemoryRequirements2_PreCall };
-    PFN_GetBufferMemoryRequirements2_PreCall GetBufferMemoryRequirements2_PreCall{ noop::GetBufferMemoryRequirements2_PreCall };
-    PFN_GetImageSparseMemoryRequirements2_PreCall GetImageSparseMemoryRequirements2_PreCall{ noop::GetImageSparseMemoryRequirements2_PreCall };
-    PFN_GetPhysicalDeviceFeatures2_PreCall GetPhysicalDeviceFeatures2_PreCall{ noop::GetPhysicalDeviceFeatures2_PreCall };
-    PFN_GetPhysicalDeviceProperties2_PreCall GetPhysicalDeviceProperties2_PreCall{ noop::GetPhysicalDeviceProperties2_PreCall };
-    PFN_GetPhysicalDeviceFormatProperties2_PreCall GetPhysicalDeviceFormatProperties2_PreCall{ noop::GetPhysicalDeviceFormatProperties2_PreCall };
-    PFN_GetPhysicalDeviceImageFormatProperties2_PreCall GetPhysicalDeviceImageFormatProperties2_PreCall{ noop::GetPhysicalDeviceImageFormatProperties2_PreCall };
-    PFN_GetPhysicalDeviceQueueFamilyProperties2_PreCall GetPhysicalDeviceQueueFamilyProperties2_PreCall{ noop::GetPhysicalDeviceQueueFamilyProperties2_PreCall };
-    PFN_GetPhysicalDeviceMemoryProperties2_PreCall GetPhysicalDeviceMemoryProperties2_PreCall{ noop::GetPhysicalDeviceMemoryProperties2_PreCall };
-    PFN_GetPhysicalDeviceSparseImageFormatProperties2_PreCall GetPhysicalDeviceSparseImageFormatProperties2_PreCall{ noop::GetPhysicalDeviceSparseImageFormatProperties2_PreCall };
-    PFN_TrimCommandPool_PreCall TrimCommandPool_PreCall{ noop::TrimCommandPool_PreCall };
-    PFN_GetDeviceQueue2_PreCall GetDeviceQueue2_PreCall{ noop::GetDeviceQueue2_PreCall };
-    PFN_CreateSamplerYcbcrConversion_PreCall CreateSamplerYcbcrConversion_PreCall{ noop::CreateSamplerYcbcrConversion_PreCall };
-    PFN_DestroySamplerYcbcrConversion_PreCall DestroySamplerYcbcrConversion_PreCall{ noop::DestroySamplerYcbcrConversion_PreCall };
-    PFN_CreateDescriptorUpdateTemplate_PreCall CreateDescriptorUpdateTemplate_PreCall{ noop::CreateDescriptorUpdateTemplate_PreCall };
-    PFN_DestroyDescriptorUpdateTemplate_PreCall DestroyDescriptorUpdateTemplate_PreCall{ noop::DestroyDescriptorUpdateTemplate_PreCall };
-    PFN_GetPhysicalDeviceExternalBufferProperties_PreCall GetPhysicalDeviceExternalBufferProperties_PreCall{ noop::GetPhysicalDeviceExternalBufferProperties_PreCall };
-    PFN_GetPhysicalDeviceExternalFenceProperties_PreCall GetPhysicalDeviceExternalFenceProperties_PreCall{ noop::GetPhysicalDeviceExternalFenceProperties_PreCall };
-    PFN_GetPhysicalDeviceExternalSemaphoreProperties_PreCall GetPhysicalDeviceExternalSemaphoreProperties_PreCall{ noop::GetPhysicalDeviceExternalSemaphoreProperties_PreCall };
-    PFN_GetDescriptorSetLayoutSupport_PreCall GetDescriptorSetLayoutSupport_PreCall{ noop::GetDescriptorSetLayoutSupport_PreCall };
-    PFN_CmdDrawIndirectCount_PreCall CmdDrawIndirectCount_PreCall{ noop::CmdDrawIndirectCount_PreCall };
-    PFN_CmdDrawIndexedIndirectCount_PreCall CmdDrawIndexedIndirectCount_PreCall{ noop::CmdDrawIndexedIndirectCount_PreCall };
-    PFN_CreateRenderPass2_PreCall CreateRenderPass2_PreCall{ noop::CreateRenderPass2_PreCall };
-    PFN_CmdBeginRenderPass2_PreCall CmdBeginRenderPass2_PreCall{ noop::CmdBeginRenderPass2_PreCall };
-    PFN_CmdNextSubpass2_PreCall CmdNextSubpass2_PreCall{ noop::CmdNextSubpass2_PreCall };
-    PFN_CmdEndRenderPass2_PreCall CmdEndRenderPass2_PreCall{ noop::CmdEndRenderPass2_PreCall };
-    PFN_ResetQueryPool_PreCall ResetQueryPool_PreCall{ noop::ResetQueryPool_PreCall };
-    PFN_GetSemaphoreCounterValue_PreCall GetSemaphoreCounterValue_PreCall{ noop::GetSemaphoreCounterValue_PreCall };
-    PFN_WaitSemaphores_PreCall WaitSemaphores_PreCall{ noop::WaitSemaphores_PreCall };
-    PFN_SignalSemaphore_PreCall SignalSemaphore_PreCall{ noop::SignalSemaphore_PreCall };
-    PFN_GetBufferDeviceAddress_PreCall GetBufferDeviceAddress_PreCall{ noop::GetBufferDeviceAddress_PreCall };
-    PFN_GetBufferOpaqueCaptureAddress_PreCall GetBufferOpaqueCaptureAddress_PreCall{ noop::GetBufferOpaqueCaptureAddress_PreCall };
-    PFN_GetDeviceMemoryOpaqueCaptureAddress_PreCall GetDeviceMemoryOpaqueCaptureAddress_PreCall{ noop::GetDeviceMemoryOpaqueCaptureAddress_PreCall };
-    PFN_GetPhysicalDeviceToolProperties_PreCall GetPhysicalDeviceToolProperties_PreCall{ noop::GetPhysicalDeviceToolProperties_PreCall };
-    PFN_CreatePrivateDataSlot_PreCall CreatePrivateDataSlot_PreCall{ noop::CreatePrivateDataSlot_PreCall };
-    PFN_DestroyPrivateDataSlot_PreCall DestroyPrivateDataSlot_PreCall{ noop::DestroyPrivateDataSlot_PreCall };
-    PFN_SetPrivateData_PreCall SetPrivateData_PreCall{ noop::SetPrivateData_PreCall };
-    PFN_GetPrivateData_PreCall GetPrivateData_PreCall{ noop::GetPrivateData_PreCall };
-    PFN_CmdSetEvent2_PreCall CmdSetEvent2_PreCall{ noop::CmdSetEvent2_PreCall };
-    PFN_CmdResetEvent2_PreCall CmdResetEvent2_PreCall{ noop::CmdResetEvent2_PreCall };
-    PFN_CmdWaitEvents2_PreCall CmdWaitEvents2_PreCall{ noop::CmdWaitEvents2_PreCall };
-    PFN_CmdPipelineBarrier2_PreCall CmdPipelineBarrier2_PreCall{ noop::CmdPipelineBarrier2_PreCall };
-    PFN_CmdWriteTimestamp2_PreCall CmdWriteTimestamp2_PreCall{ noop::CmdWriteTimestamp2_PreCall };
-    PFN_QueueSubmit2_PreCall QueueSubmit2_PreCall{ noop::QueueSubmit2_PreCall };
-    PFN_CmdCopyBuffer2_PreCall CmdCopyBuffer2_PreCall{ noop::CmdCopyBuffer2_PreCall };
-    PFN_CmdCopyImage2_PreCall CmdCopyImage2_PreCall{ noop::CmdCopyImage2_PreCall };
-    PFN_CmdCopyBufferToImage2_PreCall CmdCopyBufferToImage2_PreCall{ noop::CmdCopyBufferToImage2_PreCall };
-    PFN_CmdCopyImageToBuffer2_PreCall CmdCopyImageToBuffer2_PreCall{ noop::CmdCopyImageToBuffer2_PreCall };
-    PFN_CmdBlitImage2_PreCall CmdBlitImage2_PreCall{ noop::CmdBlitImage2_PreCall };
-    PFN_CmdResolveImage2_PreCall CmdResolveImage2_PreCall{ noop::CmdResolveImage2_PreCall };
-    PFN_CmdBeginRendering_PreCall CmdBeginRendering_PreCall{ noop::CmdBeginRendering_PreCall };
-    PFN_CmdEndRendering_PreCall CmdEndRendering_PreCall{ noop::CmdEndRendering_PreCall };
-    PFN_CmdSetCullMode_PreCall CmdSetCullMode_PreCall{ noop::CmdSetCullMode_PreCall };
-    PFN_CmdSetFrontFace_PreCall CmdSetFrontFace_PreCall{ noop::CmdSetFrontFace_PreCall };
-    PFN_CmdSetPrimitiveTopology_PreCall CmdSetPrimitiveTopology_PreCall{ noop::CmdSetPrimitiveTopology_PreCall };
-    PFN_CmdSetViewportWithCount_PreCall CmdSetViewportWithCount_PreCall{ noop::CmdSetViewportWithCount_PreCall };
-    PFN_CmdSetScissorWithCount_PreCall CmdSetScissorWithCount_PreCall{ noop::CmdSetScissorWithCount_PreCall };
-    PFN_CmdBindVertexBuffers2_PreCall CmdBindVertexBuffers2_PreCall{ noop::CmdBindVertexBuffers2_PreCall };
-    PFN_CmdSetDepthTestEnable_PreCall CmdSetDepthTestEnable_PreCall{ noop::CmdSetDepthTestEnable_PreCall };
-    PFN_CmdSetDepthWriteEnable_PreCall CmdSetDepthWriteEnable_PreCall{ noop::CmdSetDepthWriteEnable_PreCall };
-    PFN_CmdSetDepthCompareOp_PreCall CmdSetDepthCompareOp_PreCall{ noop::CmdSetDepthCompareOp_PreCall };
-    PFN_CmdSetDepthBoundsTestEnable_PreCall CmdSetDepthBoundsTestEnable_PreCall{ noop::CmdSetDepthBoundsTestEnable_PreCall };
-    PFN_CmdSetStencilTestEnable_PreCall CmdSetStencilTestEnable_PreCall{ noop::CmdSetStencilTestEnable_PreCall };
-    PFN_CmdSetStencilOp_PreCall CmdSetStencilOp_PreCall{ noop::CmdSetStencilOp_PreCall };
-    PFN_CmdSetRasterizerDiscardEnable_PreCall CmdSetRasterizerDiscardEnable_PreCall{ noop::CmdSetRasterizerDiscardEnable_PreCall };
-    PFN_CmdSetDepthBiasEnable_PreCall CmdSetDepthBiasEnable_PreCall{ noop::CmdSetDepthBiasEnable_PreCall };
-    PFN_CmdSetPrimitiveRestartEnable_PreCall CmdSetPrimitiveRestartEnable_PreCall{ noop::CmdSetPrimitiveRestartEnable_PreCall };
-    PFN_GetDeviceBufferMemoryRequirements_PreCall GetDeviceBufferMemoryRequirements_PreCall{ noop::GetDeviceBufferMemoryRequirements_PreCall };
-    PFN_GetDeviceImageMemoryRequirements_PreCall GetDeviceImageMemoryRequirements_PreCall{ noop::GetDeviceImageMemoryRequirements_PreCall };
-    PFN_GetDeviceImageSparseMemoryRequirements_PreCall GetDeviceImageSparseMemoryRequirements_PreCall{ noop::GetDeviceImageSparseMemoryRequirements_PreCall };
-    PFN_DestroySurfaceKHR_PreCall DestroySurfaceKHR_PreCall{ noop::DestroySurfaceKHR_PreCall };
-    PFN_GetPhysicalDeviceSurfaceSupportKHR_PreCall GetPhysicalDeviceSurfaceSupportKHR_PreCall{ noop::GetPhysicalDeviceSurfaceSupportKHR_PreCall };
-    PFN_GetPhysicalDeviceSurfaceCapabilitiesKHR_PreCall GetPhysicalDeviceSurfaceCapabilitiesKHR_PreCall{ noop::GetPhysicalDeviceSurfaceCapabilitiesKHR_PreCall };
-    PFN_GetPhysicalDeviceSurfaceFormatsKHR_PreCall GetPhysicalDeviceSurfaceFormatsKHR_PreCall{ noop::GetPhysicalDeviceSurfaceFormatsKHR_PreCall };
-    PFN_GetPhysicalDeviceSurfacePresentModesKHR_PreCall GetPhysicalDeviceSurfacePresentModesKHR_PreCall{ noop::GetPhysicalDeviceSurfacePresentModesKHR_PreCall };
-    PFN_CreateSwapchainKHR_PreCall CreateSwapchainKHR_PreCall{ noop::CreateSwapchainKHR_PreCall };
-    PFN_DestroySwapchainKHR_PreCall DestroySwapchainKHR_PreCall{ noop::DestroySwapchainKHR_PreCall };
-    PFN_GetSwapchainImagesKHR_PreCall GetSwapchainImagesKHR_PreCall{ noop::GetSwapchainImagesKHR_PreCall };
-    PFN_AcquireNextImageKHR_PreCall AcquireNextImageKHR_PreCall{ noop::AcquireNextImageKHR_PreCall };
-    PFN_QueuePresentKHR_PreCall QueuePresentKHR_PreCall{ noop::QueuePresentKHR_PreCall };
-    PFN_GetDeviceGroupPresentCapabilitiesKHR_PreCall GetDeviceGroupPresentCapabilitiesKHR_PreCall{ noop::GetDeviceGroupPresentCapabilitiesKHR_PreCall };
-    PFN_GetDeviceGroupSurfacePresentModesKHR_PreCall GetDeviceGroupSurfacePresentModesKHR_PreCall{ noop::GetDeviceGroupSurfacePresentModesKHR_PreCall };
-    PFN_GetPhysicalDevicePresentRectanglesKHR_PreCall GetPhysicalDevicePresentRectanglesKHR_PreCall{ noop::GetPhysicalDevicePresentRectanglesKHR_PreCall };
-    PFN_AcquireNextImage2KHR_PreCall AcquireNextImage2KHR_PreCall{ noop::AcquireNextImage2KHR_PreCall };
-    PFN_GetPhysicalDeviceDisplayPropertiesKHR_PreCall GetPhysicalDeviceDisplayPropertiesKHR_PreCall{ noop::GetPhysicalDeviceDisplayPropertiesKHR_PreCall };
-    PFN_GetPhysicalDeviceDisplayPlanePropertiesKHR_PreCall GetPhysicalDeviceDisplayPlanePropertiesKHR_PreCall{ noop::GetPhysicalDeviceDisplayPlanePropertiesKHR_PreCall };
-    PFN_GetDisplayPlaneSupportedDisplaysKHR_PreCall GetDisplayPlaneSupportedDisplaysKHR_PreCall{ noop::GetDisplayPlaneSupportedDisplaysKHR_PreCall };
-    PFN_GetDisplayModePropertiesKHR_PreCall GetDisplayModePropertiesKHR_PreCall{ noop::GetDisplayModePropertiesKHR_PreCall };
-    PFN_CreateDisplayModeKHR_PreCall CreateDisplayModeKHR_PreCall{ noop::CreateDisplayModeKHR_PreCall };
-    PFN_GetDisplayPlaneCapabilitiesKHR_PreCall GetDisplayPlaneCapabilitiesKHR_PreCall{ noop::GetDisplayPlaneCapabilitiesKHR_PreCall };
-    PFN_CreateDisplayPlaneSurfaceKHR_PreCall CreateDisplayPlaneSurfaceKHR_PreCall{ noop::CreateDisplayPlaneSurfaceKHR_PreCall };
-    PFN_CreateSharedSwapchainsKHR_PreCall CreateSharedSwapchainsKHR_PreCall{ noop::CreateSharedSwapchainsKHR_PreCall };
-    PFN_CreateXlibSurfaceKHR_PreCall CreateXlibSurfaceKHR_PreCall{ noop::CreateXlibSurfaceKHR_PreCall };
-    PFN_GetPhysicalDeviceXlibPresentationSupportKHR_PreCall GetPhysicalDeviceXlibPresentationSupportKHR_PreCall{ noop::GetPhysicalDeviceXlibPresentationSupportKHR_PreCall };
-    PFN_CreateXcbSurfaceKHR_PreCall CreateXcbSurfaceKHR_PreCall{ noop::CreateXcbSurfaceKHR_PreCall };
-    PFN_GetPhysicalDeviceXcbPresentationSupportKHR_PreCall GetPhysicalDeviceXcbPresentationSupportKHR_PreCall{ noop::GetPhysicalDeviceXcbPresentationSupportKHR_PreCall };
-    PFN_CreateWaylandSurfaceKHR_PreCall CreateWaylandSurfaceKHR_PreCall{ noop::CreateWaylandSurfaceKHR_PreCall };
-    PFN_GetPhysicalDeviceWaylandPresentationSupportKHR_PreCall GetPhysicalDeviceWaylandPresentationSupportKHR_PreCall{ noop::GetPhysicalDeviceWaylandPresentationSupportKHR_PreCall };
-    PFN_CreateAndroidSurfaceKHR_PreCall CreateAndroidSurfaceKHR_PreCall{ noop::CreateAndroidSurfaceKHR_PreCall };
-    PFN_CreateWin32SurfaceKHR_PreCall CreateWin32SurfaceKHR_PreCall{ noop::CreateWin32SurfaceKHR_PreCall };
-    PFN_GetPhysicalDeviceWin32PresentationSupportKHR_PreCall GetPhysicalDeviceWin32PresentationSupportKHR_PreCall{ noop::GetPhysicalDeviceWin32PresentationSupportKHR_PreCall };
-    PFN_GetPhysicalDeviceVideoCapabilitiesKHR_PreCall GetPhysicalDeviceVideoCapabilitiesKHR_PreCall{ noop::GetPhysicalDeviceVideoCapabilitiesKHR_PreCall };
-    PFN_GetPhysicalDeviceVideoFormatPropertiesKHR_PreCall GetPhysicalDeviceVideoFormatPropertiesKHR_PreCall{ noop::GetPhysicalDeviceVideoFormatPropertiesKHR_PreCall };
-    PFN_CreateVideoSessionKHR_PreCall CreateVideoSessionKHR_PreCall{ noop::CreateVideoSessionKHR_PreCall };
-    PFN_DestroyVideoSessionKHR_PreCall DestroyVideoSessionKHR_PreCall{ noop::DestroyVideoSessionKHR_PreCall };
-    PFN_GetVideoSessionMemoryRequirementsKHR_PreCall GetVideoSessionMemoryRequirementsKHR_PreCall{ noop::GetVideoSessionMemoryRequirementsKHR_PreCall };
-    PFN_BindVideoSessionMemoryKHR_PreCall BindVideoSessionMemoryKHR_PreCall{ noop::BindVideoSessionMemoryKHR_PreCall };
-    PFN_CreateVideoSessionParametersKHR_PreCall CreateVideoSessionParametersKHR_PreCall{ noop::CreateVideoSessionParametersKHR_PreCall };
-    PFN_UpdateVideoSessionParametersKHR_PreCall UpdateVideoSessionParametersKHR_PreCall{ noop::UpdateVideoSessionParametersKHR_PreCall };
-    PFN_DestroyVideoSessionParametersKHR_PreCall DestroyVideoSessionParametersKHR_PreCall{ noop::DestroyVideoSessionParametersKHR_PreCall };
-    PFN_CmdBeginVideoCodingKHR_PreCall CmdBeginVideoCodingKHR_PreCall{ noop::CmdBeginVideoCodingKHR_PreCall };
-    PFN_CmdEndVideoCodingKHR_PreCall CmdEndVideoCodingKHR_PreCall{ noop::CmdEndVideoCodingKHR_PreCall };
-    PFN_CmdControlVideoCodingKHR_PreCall CmdControlVideoCodingKHR_PreCall{ noop::CmdControlVideoCodingKHR_PreCall };
-    PFN_CmdDecodeVideoKHR_PreCall CmdDecodeVideoKHR_PreCall{ noop::CmdDecodeVideoKHR_PreCall };
-    PFN_CmdBeginRenderingKHR_PreCall CmdBeginRenderingKHR_PreCall{ noop::CmdBeginRenderingKHR_PreCall };
-    PFN_CmdEndRenderingKHR_PreCall CmdEndRenderingKHR_PreCall{ noop::CmdEndRenderingKHR_PreCall };
-    PFN_GetPhysicalDeviceFeatures2KHR_PreCall GetPhysicalDeviceFeatures2KHR_PreCall{ noop::GetPhysicalDeviceFeatures2KHR_PreCall };
-    PFN_GetPhysicalDeviceProperties2KHR_PreCall GetPhysicalDeviceProperties2KHR_PreCall{ noop::GetPhysicalDeviceProperties2KHR_PreCall };
-    PFN_GetPhysicalDeviceFormatProperties2KHR_PreCall GetPhysicalDeviceFormatProperties2KHR_PreCall{ noop::GetPhysicalDeviceFormatProperties2KHR_PreCall };
-    PFN_GetPhysicalDeviceImageFormatProperties2KHR_PreCall GetPhysicalDeviceImageFormatProperties2KHR_PreCall{ noop::GetPhysicalDeviceImageFormatProperties2KHR_PreCall };
-    PFN_GetPhysicalDeviceQueueFamilyProperties2KHR_PreCall GetPhysicalDeviceQueueFamilyProperties2KHR_PreCall{ noop::GetPhysicalDeviceQueueFamilyProperties2KHR_PreCall };
-    PFN_GetPhysicalDeviceMemoryProperties2KHR_PreCall GetPhysicalDeviceMemoryProperties2KHR_PreCall{ noop::GetPhysicalDeviceMemoryProperties2KHR_PreCall };
-    PFN_GetPhysicalDeviceSparseImageFormatProperties2KHR_PreCall GetPhysicalDeviceSparseImageFormatProperties2KHR_PreCall{ noop::GetPhysicalDeviceSparseImageFormatProperties2KHR_PreCall };
-    PFN_GetDeviceGroupPeerMemoryFeaturesKHR_PreCall GetDeviceGroupPeerMemoryFeaturesKHR_PreCall{ noop::GetDeviceGroupPeerMemoryFeaturesKHR_PreCall };
-    PFN_CmdSetDeviceMaskKHR_PreCall CmdSetDeviceMaskKHR_PreCall{ noop::CmdSetDeviceMaskKHR_PreCall };
-    PFN_CmdDispatchBaseKHR_PreCall CmdDispatchBaseKHR_PreCall{ noop::CmdDispatchBaseKHR_PreCall };
-    PFN_TrimCommandPoolKHR_PreCall TrimCommandPoolKHR_PreCall{ noop::TrimCommandPoolKHR_PreCall };
-    PFN_EnumeratePhysicalDeviceGroupsKHR_PreCall EnumeratePhysicalDeviceGroupsKHR_PreCall{ noop::EnumeratePhysicalDeviceGroupsKHR_PreCall };
-    PFN_GetPhysicalDeviceExternalBufferPropertiesKHR_PreCall GetPhysicalDeviceExternalBufferPropertiesKHR_PreCall{ noop::GetPhysicalDeviceExternalBufferPropertiesKHR_PreCall };
-    PFN_GetMemoryWin32HandleKHR_PreCall GetMemoryWin32HandleKHR_PreCall{ noop::GetMemoryWin32HandleKHR_PreCall };
-    PFN_GetMemoryWin32HandlePropertiesKHR_PreCall GetMemoryWin32HandlePropertiesKHR_PreCall{ noop::GetMemoryWin32HandlePropertiesKHR_PreCall };
-    PFN_GetMemoryFdKHR_PreCall GetMemoryFdKHR_PreCall{ noop::GetMemoryFdKHR_PreCall };
-    PFN_GetMemoryFdPropertiesKHR_PreCall GetMemoryFdPropertiesKHR_PreCall{ noop::GetMemoryFdPropertiesKHR_PreCall };
-    PFN_GetPhysicalDeviceExternalSemaphorePropertiesKHR_PreCall GetPhysicalDeviceExternalSemaphorePropertiesKHR_PreCall{ noop::GetPhysicalDeviceExternalSemaphorePropertiesKHR_PreCall };
-    PFN_ImportSemaphoreWin32HandleKHR_PreCall ImportSemaphoreWin32HandleKHR_PreCall{ noop::ImportSemaphoreWin32HandleKHR_PreCall };
-    PFN_GetSemaphoreWin32HandleKHR_PreCall GetSemaphoreWin32HandleKHR_PreCall{ noop::GetSemaphoreWin32HandleKHR_PreCall };
-    PFN_ImportSemaphoreFdKHR_PreCall ImportSemaphoreFdKHR_PreCall{ noop::ImportSemaphoreFdKHR_PreCall };
-    PFN_GetSemaphoreFdKHR_PreCall GetSemaphoreFdKHR_PreCall{ noop::GetSemaphoreFdKHR_PreCall };
-    PFN_CmdPushDescriptorSetKHR_PreCall CmdPushDescriptorSetKHR_PreCall{ noop::CmdPushDescriptorSetKHR_PreCall };
-    PFN_CreateDescriptorUpdateTemplateKHR_PreCall CreateDescriptorUpdateTemplateKHR_PreCall{ noop::CreateDescriptorUpdateTemplateKHR_PreCall };
-    PFN_DestroyDescriptorUpdateTemplateKHR_PreCall DestroyDescriptorUpdateTemplateKHR_PreCall{ noop::DestroyDescriptorUpdateTemplateKHR_PreCall };
-    PFN_CreateRenderPass2KHR_PreCall CreateRenderPass2KHR_PreCall{ noop::CreateRenderPass2KHR_PreCall };
-    PFN_CmdBeginRenderPass2KHR_PreCall CmdBeginRenderPass2KHR_PreCall{ noop::CmdBeginRenderPass2KHR_PreCall };
-    PFN_CmdNextSubpass2KHR_PreCall CmdNextSubpass2KHR_PreCall{ noop::CmdNextSubpass2KHR_PreCall };
-    PFN_CmdEndRenderPass2KHR_PreCall CmdEndRenderPass2KHR_PreCall{ noop::CmdEndRenderPass2KHR_PreCall };
-    PFN_GetSwapchainStatusKHR_PreCall GetSwapchainStatusKHR_PreCall{ noop::GetSwapchainStatusKHR_PreCall };
-    PFN_GetPhysicalDeviceExternalFencePropertiesKHR_PreCall GetPhysicalDeviceExternalFencePropertiesKHR_PreCall{ noop::GetPhysicalDeviceExternalFencePropertiesKHR_PreCall };
-    PFN_ImportFenceWin32HandleKHR_PreCall ImportFenceWin32HandleKHR_PreCall{ noop::ImportFenceWin32HandleKHR_PreCall };
-    PFN_GetFenceWin32HandleKHR_PreCall GetFenceWin32HandleKHR_PreCall{ noop::GetFenceWin32HandleKHR_PreCall };
-    PFN_ImportFenceFdKHR_PreCall ImportFenceFdKHR_PreCall{ noop::ImportFenceFdKHR_PreCall };
-    PFN_GetFenceFdKHR_PreCall GetFenceFdKHR_PreCall{ noop::GetFenceFdKHR_PreCall };
-    PFN_EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR_PreCall EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR_PreCall{ noop::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR_PreCall };
-    PFN_GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR_PreCall GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR_PreCall{ noop::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR_PreCall };
-    PFN_AcquireProfilingLockKHR_PreCall AcquireProfilingLockKHR_PreCall{ noop::AcquireProfilingLockKHR_PreCall };
-    PFN_ReleaseProfilingLockKHR_PreCall ReleaseProfilingLockKHR_PreCall{ noop::ReleaseProfilingLockKHR_PreCall };
-    PFN_GetPhysicalDeviceSurfaceCapabilities2KHR_PreCall GetPhysicalDeviceSurfaceCapabilities2KHR_PreCall{ noop::GetPhysicalDeviceSurfaceCapabilities2KHR_PreCall };
-    PFN_GetPhysicalDeviceSurfaceFormats2KHR_PreCall GetPhysicalDeviceSurfaceFormats2KHR_PreCall{ noop::GetPhysicalDeviceSurfaceFormats2KHR_PreCall };
-    PFN_GetPhysicalDeviceDisplayProperties2KHR_PreCall GetPhysicalDeviceDisplayProperties2KHR_PreCall{ noop::GetPhysicalDeviceDisplayProperties2KHR_PreCall };
-    PFN_GetPhysicalDeviceDisplayPlaneProperties2KHR_PreCall GetPhysicalDeviceDisplayPlaneProperties2KHR_PreCall{ noop::GetPhysicalDeviceDisplayPlaneProperties2KHR_PreCall };
-    PFN_GetDisplayModeProperties2KHR_PreCall GetDisplayModeProperties2KHR_PreCall{ noop::GetDisplayModeProperties2KHR_PreCall };
-    PFN_GetDisplayPlaneCapabilities2KHR_PreCall GetDisplayPlaneCapabilities2KHR_PreCall{ noop::GetDisplayPlaneCapabilities2KHR_PreCall };
-    PFN_GetImageMemoryRequirements2KHR_PreCall GetImageMemoryRequirements2KHR_PreCall{ noop::GetImageMemoryRequirements2KHR_PreCall };
-    PFN_GetBufferMemoryRequirements2KHR_PreCall GetBufferMemoryRequirements2KHR_PreCall{ noop::GetBufferMemoryRequirements2KHR_PreCall };
-    PFN_GetImageSparseMemoryRequirements2KHR_PreCall GetImageSparseMemoryRequirements2KHR_PreCall{ noop::GetImageSparseMemoryRequirements2KHR_PreCall };
-    PFN_CreateSamplerYcbcrConversionKHR_PreCall CreateSamplerYcbcrConversionKHR_PreCall{ noop::CreateSamplerYcbcrConversionKHR_PreCall };
-    PFN_DestroySamplerYcbcrConversionKHR_PreCall DestroySamplerYcbcrConversionKHR_PreCall{ noop::DestroySamplerYcbcrConversionKHR_PreCall };
-    PFN_BindBufferMemory2KHR_PreCall BindBufferMemory2KHR_PreCall{ noop::BindBufferMemory2KHR_PreCall };
-    PFN_BindImageMemory2KHR_PreCall BindImageMemory2KHR_PreCall{ noop::BindImageMemory2KHR_PreCall };
-    PFN_GetDescriptorSetLayoutSupportKHR_PreCall GetDescriptorSetLayoutSupportKHR_PreCall{ noop::GetDescriptorSetLayoutSupportKHR_PreCall };
-    PFN_CmdDrawIndirectCountKHR_PreCall CmdDrawIndirectCountKHR_PreCall{ noop::CmdDrawIndirectCountKHR_PreCall };
-    PFN_CmdDrawIndexedIndirectCountKHR_PreCall CmdDrawIndexedIndirectCountKHR_PreCall{ noop::CmdDrawIndexedIndirectCountKHR_PreCall };
-    PFN_GetSemaphoreCounterValueKHR_PreCall GetSemaphoreCounterValueKHR_PreCall{ noop::GetSemaphoreCounterValueKHR_PreCall };
-    PFN_WaitSemaphoresKHR_PreCall WaitSemaphoresKHR_PreCall{ noop::WaitSemaphoresKHR_PreCall };
-    PFN_SignalSemaphoreKHR_PreCall SignalSemaphoreKHR_PreCall{ noop::SignalSemaphoreKHR_PreCall };
-    PFN_GetPhysicalDeviceFragmentShadingRatesKHR_PreCall GetPhysicalDeviceFragmentShadingRatesKHR_PreCall{ noop::GetPhysicalDeviceFragmentShadingRatesKHR_PreCall };
-    PFN_CmdSetFragmentShadingRateKHR_PreCall CmdSetFragmentShadingRateKHR_PreCall{ noop::CmdSetFragmentShadingRateKHR_PreCall };
-    PFN_WaitForPresentKHR_PreCall WaitForPresentKHR_PreCall{ noop::WaitForPresentKHR_PreCall };
-    PFN_GetBufferDeviceAddressKHR_PreCall GetBufferDeviceAddressKHR_PreCall{ noop::GetBufferDeviceAddressKHR_PreCall };
-    PFN_GetBufferOpaqueCaptureAddressKHR_PreCall GetBufferOpaqueCaptureAddressKHR_PreCall{ noop::GetBufferOpaqueCaptureAddressKHR_PreCall };
-    PFN_GetDeviceMemoryOpaqueCaptureAddressKHR_PreCall GetDeviceMemoryOpaqueCaptureAddressKHR_PreCall{ noop::GetDeviceMemoryOpaqueCaptureAddressKHR_PreCall };
-    PFN_CreateDeferredOperationKHR_PreCall CreateDeferredOperationKHR_PreCall{ noop::CreateDeferredOperationKHR_PreCall };
-    PFN_DestroyDeferredOperationKHR_PreCall DestroyDeferredOperationKHR_PreCall{ noop::DestroyDeferredOperationKHR_PreCall };
-    PFN_GetDeferredOperationMaxConcurrencyKHR_PreCall GetDeferredOperationMaxConcurrencyKHR_PreCall{ noop::GetDeferredOperationMaxConcurrencyKHR_PreCall };
-    PFN_GetDeferredOperationResultKHR_PreCall GetDeferredOperationResultKHR_PreCall{ noop::GetDeferredOperationResultKHR_PreCall };
-    PFN_DeferredOperationJoinKHR_PreCall DeferredOperationJoinKHR_PreCall{ noop::DeferredOperationJoinKHR_PreCall };
-    PFN_GetPipelineExecutablePropertiesKHR_PreCall GetPipelineExecutablePropertiesKHR_PreCall{ noop::GetPipelineExecutablePropertiesKHR_PreCall };
-    PFN_GetPipelineExecutableStatisticsKHR_PreCall GetPipelineExecutableStatisticsKHR_PreCall{ noop::GetPipelineExecutableStatisticsKHR_PreCall };
-    PFN_GetPipelineExecutableInternalRepresentationsKHR_PreCall GetPipelineExecutableInternalRepresentationsKHR_PreCall{ noop::GetPipelineExecutableInternalRepresentationsKHR_PreCall };
-    PFN_CmdEncodeVideoKHR_PreCall CmdEncodeVideoKHR_PreCall{ noop::CmdEncodeVideoKHR_PreCall };
-    PFN_CmdSetEvent2KHR_PreCall CmdSetEvent2KHR_PreCall{ noop::CmdSetEvent2KHR_PreCall };
-    PFN_CmdResetEvent2KHR_PreCall CmdResetEvent2KHR_PreCall{ noop::CmdResetEvent2KHR_PreCall };
-    PFN_CmdWaitEvents2KHR_PreCall CmdWaitEvents2KHR_PreCall{ noop::CmdWaitEvents2KHR_PreCall };
-    PFN_CmdPipelineBarrier2KHR_PreCall CmdPipelineBarrier2KHR_PreCall{ noop::CmdPipelineBarrier2KHR_PreCall };
-    PFN_CmdWriteTimestamp2KHR_PreCall CmdWriteTimestamp2KHR_PreCall{ noop::CmdWriteTimestamp2KHR_PreCall };
-    PFN_QueueSubmit2KHR_PreCall QueueSubmit2KHR_PreCall{ noop::QueueSubmit2KHR_PreCall };
-    PFN_CmdWriteBufferMarker2AMD_PreCall CmdWriteBufferMarker2AMD_PreCall{ noop::CmdWriteBufferMarker2AMD_PreCall };
-    PFN_GetQueueCheckpointData2NV_PreCall GetQueueCheckpointData2NV_PreCall{ noop::GetQueueCheckpointData2NV_PreCall };
-    PFN_CmdCopyBuffer2KHR_PreCall CmdCopyBuffer2KHR_PreCall{ noop::CmdCopyBuffer2KHR_PreCall };
-    PFN_CmdCopyImage2KHR_PreCall CmdCopyImage2KHR_PreCall{ noop::CmdCopyImage2KHR_PreCall };
-    PFN_CmdCopyBufferToImage2KHR_PreCall CmdCopyBufferToImage2KHR_PreCall{ noop::CmdCopyBufferToImage2KHR_PreCall };
-    PFN_CmdCopyImageToBuffer2KHR_PreCall CmdCopyImageToBuffer2KHR_PreCall{ noop::CmdCopyImageToBuffer2KHR_PreCall };
-    PFN_CmdBlitImage2KHR_PreCall CmdBlitImage2KHR_PreCall{ noop::CmdBlitImage2KHR_PreCall };
-    PFN_CmdResolveImage2KHR_PreCall CmdResolveImage2KHR_PreCall{ noop::CmdResolveImage2KHR_PreCall };
-    PFN_CmdTraceRaysIndirect2KHR_PreCall CmdTraceRaysIndirect2KHR_PreCall{ noop::CmdTraceRaysIndirect2KHR_PreCall };
-    PFN_GetDeviceBufferMemoryRequirementsKHR_PreCall GetDeviceBufferMemoryRequirementsKHR_PreCall{ noop::GetDeviceBufferMemoryRequirementsKHR_PreCall };
-    PFN_GetDeviceImageMemoryRequirementsKHR_PreCall GetDeviceImageMemoryRequirementsKHR_PreCall{ noop::GetDeviceImageMemoryRequirementsKHR_PreCall };
-    PFN_GetDeviceImageSparseMemoryRequirementsKHR_PreCall GetDeviceImageSparseMemoryRequirementsKHR_PreCall{ noop::GetDeviceImageSparseMemoryRequirementsKHR_PreCall };
-    PFN_CreateDebugReportCallbackEXT_PreCall CreateDebugReportCallbackEXT_PreCall{ noop::CreateDebugReportCallbackEXT_PreCall };
-    PFN_DestroyDebugReportCallbackEXT_PreCall DestroyDebugReportCallbackEXT_PreCall{ noop::DestroyDebugReportCallbackEXT_PreCall };
-    PFN_DebugReportMessageEXT_PreCall DebugReportMessageEXT_PreCall{ noop::DebugReportMessageEXT_PreCall };
-    PFN_DebugMarkerSetObjectTagEXT_PreCall DebugMarkerSetObjectTagEXT_PreCall{ noop::DebugMarkerSetObjectTagEXT_PreCall };
-    PFN_DebugMarkerSetObjectNameEXT_PreCall DebugMarkerSetObjectNameEXT_PreCall{ noop::DebugMarkerSetObjectNameEXT_PreCall };
-    PFN_CmdDebugMarkerBeginEXT_PreCall CmdDebugMarkerBeginEXT_PreCall{ noop::CmdDebugMarkerBeginEXT_PreCall };
-    PFN_CmdDebugMarkerEndEXT_PreCall CmdDebugMarkerEndEXT_PreCall{ noop::CmdDebugMarkerEndEXT_PreCall };
-    PFN_CmdDebugMarkerInsertEXT_PreCall CmdDebugMarkerInsertEXT_PreCall{ noop::CmdDebugMarkerInsertEXT_PreCall };
-    PFN_CmdBindTransformFeedbackBuffersEXT_PreCall CmdBindTransformFeedbackBuffersEXT_PreCall{ noop::CmdBindTransformFeedbackBuffersEXT_PreCall };
-    PFN_CmdBeginTransformFeedbackEXT_PreCall CmdBeginTransformFeedbackEXT_PreCall{ noop::CmdBeginTransformFeedbackEXT_PreCall };
-    PFN_CmdEndTransformFeedbackEXT_PreCall CmdEndTransformFeedbackEXT_PreCall{ noop::CmdEndTransformFeedbackEXT_PreCall };
-    PFN_CmdBeginQueryIndexedEXT_PreCall CmdBeginQueryIndexedEXT_PreCall{ noop::CmdBeginQueryIndexedEXT_PreCall };
-    PFN_CmdEndQueryIndexedEXT_PreCall CmdEndQueryIndexedEXT_PreCall{ noop::CmdEndQueryIndexedEXT_PreCall };
-    PFN_CmdDrawIndirectByteCountEXT_PreCall CmdDrawIndirectByteCountEXT_PreCall{ noop::CmdDrawIndirectByteCountEXT_PreCall };
-    PFN_GetImageViewHandleNVX_PreCall GetImageViewHandleNVX_PreCall{ noop::GetImageViewHandleNVX_PreCall };
-    PFN_GetImageViewAddressNVX_PreCall GetImageViewAddressNVX_PreCall{ noop::GetImageViewAddressNVX_PreCall };
-    PFN_CmdDrawIndirectCountAMD_PreCall CmdDrawIndirectCountAMD_PreCall{ noop::CmdDrawIndirectCountAMD_PreCall };
-    PFN_CmdDrawIndexedIndirectCountAMD_PreCall CmdDrawIndexedIndirectCountAMD_PreCall{ noop::CmdDrawIndexedIndirectCountAMD_PreCall };
-    PFN_GetShaderInfoAMD_PreCall GetShaderInfoAMD_PreCall{ noop::GetShaderInfoAMD_PreCall };
-    PFN_CreateStreamDescriptorSurfaceGGP_PreCall CreateStreamDescriptorSurfaceGGP_PreCall{ noop::CreateStreamDescriptorSurfaceGGP_PreCall };
-    PFN_GetPhysicalDeviceExternalImageFormatPropertiesNV_PreCall GetPhysicalDeviceExternalImageFormatPropertiesNV_PreCall{ noop::GetPhysicalDeviceExternalImageFormatPropertiesNV_PreCall };
-    PFN_GetMemoryWin32HandleNV_PreCall GetMemoryWin32HandleNV_PreCall{ noop::GetMemoryWin32HandleNV_PreCall };
-    PFN_CreateViSurfaceNN_PreCall CreateViSurfaceNN_PreCall{ noop::CreateViSurfaceNN_PreCall };
-    PFN_CmdBeginConditionalRenderingEXT_PreCall CmdBeginConditionalRenderingEXT_PreCall{ noop::CmdBeginConditionalRenderingEXT_PreCall };
-    PFN_CmdEndConditionalRenderingEXT_PreCall CmdEndConditionalRenderingEXT_PreCall{ noop::CmdEndConditionalRenderingEXT_PreCall };
-    PFN_CmdSetViewportWScalingNV_PreCall CmdSetViewportWScalingNV_PreCall{ noop::CmdSetViewportWScalingNV_PreCall };
-    PFN_ReleaseDisplayEXT_PreCall ReleaseDisplayEXT_PreCall{ noop::ReleaseDisplayEXT_PreCall };
-    PFN_AcquireXlibDisplayEXT_PreCall AcquireXlibDisplayEXT_PreCall{ noop::AcquireXlibDisplayEXT_PreCall };
-    PFN_GetRandROutputDisplayEXT_PreCall GetRandROutputDisplayEXT_PreCall{ noop::GetRandROutputDisplayEXT_PreCall };
-    PFN_GetPhysicalDeviceSurfaceCapabilities2EXT_PreCall GetPhysicalDeviceSurfaceCapabilities2EXT_PreCall{ noop::GetPhysicalDeviceSurfaceCapabilities2EXT_PreCall };
-    PFN_DisplayPowerControlEXT_PreCall DisplayPowerControlEXT_PreCall{ noop::DisplayPowerControlEXT_PreCall };
-    PFN_RegisterDeviceEventEXT_PreCall RegisterDeviceEventEXT_PreCall{ noop::RegisterDeviceEventEXT_PreCall };
-    PFN_RegisterDisplayEventEXT_PreCall RegisterDisplayEventEXT_PreCall{ noop::RegisterDisplayEventEXT_PreCall };
-    PFN_GetSwapchainCounterEXT_PreCall GetSwapchainCounterEXT_PreCall{ noop::GetSwapchainCounterEXT_PreCall };
-    PFN_GetRefreshCycleDurationGOOGLE_PreCall GetRefreshCycleDurationGOOGLE_PreCall{ noop::GetRefreshCycleDurationGOOGLE_PreCall };
-    PFN_GetPastPresentationTimingGOOGLE_PreCall GetPastPresentationTimingGOOGLE_PreCall{ noop::GetPastPresentationTimingGOOGLE_PreCall };
-    PFN_CmdSetDiscardRectangleEXT_PreCall CmdSetDiscardRectangleEXT_PreCall{ noop::CmdSetDiscardRectangleEXT_PreCall };
-    PFN_CmdSetDiscardRectangleEnableEXT_PreCall CmdSetDiscardRectangleEnableEXT_PreCall{ noop::CmdSetDiscardRectangleEnableEXT_PreCall };
-    PFN_CmdSetDiscardRectangleModeEXT_PreCall CmdSetDiscardRectangleModeEXT_PreCall{ noop::CmdSetDiscardRectangleModeEXT_PreCall };
-    PFN_SetHdrMetadataEXT_PreCall SetHdrMetadataEXT_PreCall{ noop::SetHdrMetadataEXT_PreCall };
-    PFN_CreateIOSSurfaceMVK_PreCall CreateIOSSurfaceMVK_PreCall{ noop::CreateIOSSurfaceMVK_PreCall };
-    PFN_CreateMacOSSurfaceMVK_PreCall CreateMacOSSurfaceMVK_PreCall{ noop::CreateMacOSSurfaceMVK_PreCall };
-    PFN_SetDebugUtilsObjectNameEXT_PreCall SetDebugUtilsObjectNameEXT_PreCall{ noop::SetDebugUtilsObjectNameEXT_PreCall };
-    PFN_SetDebugUtilsObjectTagEXT_PreCall SetDebugUtilsObjectTagEXT_PreCall{ noop::SetDebugUtilsObjectTagEXT_PreCall };
-    PFN_QueueBeginDebugUtilsLabelEXT_PreCall QueueBeginDebugUtilsLabelEXT_PreCall{ noop::QueueBeginDebugUtilsLabelEXT_PreCall };
-    PFN_QueueEndDebugUtilsLabelEXT_PreCall QueueEndDebugUtilsLabelEXT_PreCall{ noop::QueueEndDebugUtilsLabelEXT_PreCall };
-    PFN_QueueInsertDebugUtilsLabelEXT_PreCall QueueInsertDebugUtilsLabelEXT_PreCall{ noop::QueueInsertDebugUtilsLabelEXT_PreCall };
-    PFN_CmdBeginDebugUtilsLabelEXT_PreCall CmdBeginDebugUtilsLabelEXT_PreCall{ noop::CmdBeginDebugUtilsLabelEXT_PreCall };
-    PFN_CmdEndDebugUtilsLabelEXT_PreCall CmdEndDebugUtilsLabelEXT_PreCall{ noop::CmdEndDebugUtilsLabelEXT_PreCall };
-    PFN_CmdInsertDebugUtilsLabelEXT_PreCall CmdInsertDebugUtilsLabelEXT_PreCall{ noop::CmdInsertDebugUtilsLabelEXT_PreCall };
-    PFN_CreateDebugUtilsMessengerEXT_PreCall CreateDebugUtilsMessengerEXT_PreCall{ noop::CreateDebugUtilsMessengerEXT_PreCall };
-    PFN_DestroyDebugUtilsMessengerEXT_PreCall DestroyDebugUtilsMessengerEXT_PreCall{ noop::DestroyDebugUtilsMessengerEXT_PreCall };
-    PFN_SubmitDebugUtilsMessageEXT_PreCall SubmitDebugUtilsMessageEXT_PreCall{ noop::SubmitDebugUtilsMessageEXT_PreCall };
-    PFN_GetAndroidHardwareBufferPropertiesANDROID_PreCall GetAndroidHardwareBufferPropertiesANDROID_PreCall{ noop::GetAndroidHardwareBufferPropertiesANDROID_PreCall };
-    PFN_GetMemoryAndroidHardwareBufferANDROID_PreCall GetMemoryAndroidHardwareBufferANDROID_PreCall{ noop::GetMemoryAndroidHardwareBufferANDROID_PreCall };
-    PFN_CmdSetSampleLocationsEXT_PreCall CmdSetSampleLocationsEXT_PreCall{ noop::CmdSetSampleLocationsEXT_PreCall };
-    PFN_GetPhysicalDeviceMultisamplePropertiesEXT_PreCall GetPhysicalDeviceMultisamplePropertiesEXT_PreCall{ noop::GetPhysicalDeviceMultisamplePropertiesEXT_PreCall };
-    PFN_GetImageDrmFormatModifierPropertiesEXT_PreCall GetImageDrmFormatModifierPropertiesEXT_PreCall{ noop::GetImageDrmFormatModifierPropertiesEXT_PreCall };
-    PFN_CreateValidationCacheEXT_PreCall CreateValidationCacheEXT_PreCall{ noop::CreateValidationCacheEXT_PreCall };
-    PFN_DestroyValidationCacheEXT_PreCall DestroyValidationCacheEXT_PreCall{ noop::DestroyValidationCacheEXT_PreCall };
-    PFN_MergeValidationCachesEXT_PreCall MergeValidationCachesEXT_PreCall{ noop::MergeValidationCachesEXT_PreCall };
-    PFN_GetValidationCacheDataEXT_PreCall GetValidationCacheDataEXT_PreCall{ noop::GetValidationCacheDataEXT_PreCall };
-    PFN_CmdBindShadingRateImageNV_PreCall CmdBindShadingRateImageNV_PreCall{ noop::CmdBindShadingRateImageNV_PreCall };
-    PFN_CmdSetViewportShadingRatePaletteNV_PreCall CmdSetViewportShadingRatePaletteNV_PreCall{ noop::CmdSetViewportShadingRatePaletteNV_PreCall };
-    PFN_CmdSetCoarseSampleOrderNV_PreCall CmdSetCoarseSampleOrderNV_PreCall{ noop::CmdSetCoarseSampleOrderNV_PreCall };
-    PFN_CreateAccelerationStructureNV_PreCall CreateAccelerationStructureNV_PreCall{ noop::CreateAccelerationStructureNV_PreCall };
-    PFN_DestroyAccelerationStructureNV_PreCall DestroyAccelerationStructureNV_PreCall{ noop::DestroyAccelerationStructureNV_PreCall };
-    PFN_GetAccelerationStructureMemoryRequirementsNV_PreCall GetAccelerationStructureMemoryRequirementsNV_PreCall{ noop::GetAccelerationStructureMemoryRequirementsNV_PreCall };
-    PFN_BindAccelerationStructureMemoryNV_PreCall BindAccelerationStructureMemoryNV_PreCall{ noop::BindAccelerationStructureMemoryNV_PreCall };
-    PFN_CmdBuildAccelerationStructureNV_PreCall CmdBuildAccelerationStructureNV_PreCall{ noop::CmdBuildAccelerationStructureNV_PreCall };
-    PFN_CmdCopyAccelerationStructureNV_PreCall CmdCopyAccelerationStructureNV_PreCall{ noop::CmdCopyAccelerationStructureNV_PreCall };
-    PFN_CmdTraceRaysNV_PreCall CmdTraceRaysNV_PreCall{ noop::CmdTraceRaysNV_PreCall };
-    PFN_CreateRayTracingPipelinesNV_PreCall CreateRayTracingPipelinesNV_PreCall{ noop::CreateRayTracingPipelinesNV_PreCall };
-    PFN_GetRayTracingShaderGroupHandlesKHR_PreCall GetRayTracingShaderGroupHandlesKHR_PreCall{ noop::GetRayTracingShaderGroupHandlesKHR_PreCall };
-    PFN_GetRayTracingShaderGroupHandlesNV_PreCall GetRayTracingShaderGroupHandlesNV_PreCall{ noop::GetRayTracingShaderGroupHandlesNV_PreCall };
-    PFN_GetAccelerationStructureHandleNV_PreCall GetAccelerationStructureHandleNV_PreCall{ noop::GetAccelerationStructureHandleNV_PreCall };
-    PFN_CmdWriteAccelerationStructuresPropertiesNV_PreCall CmdWriteAccelerationStructuresPropertiesNV_PreCall{ noop::CmdWriteAccelerationStructuresPropertiesNV_PreCall };
-    PFN_CompileDeferredNV_PreCall CompileDeferredNV_PreCall{ noop::CompileDeferredNV_PreCall };
-    PFN_GetMemoryHostPointerPropertiesEXT_PreCall GetMemoryHostPointerPropertiesEXT_PreCall{ noop::GetMemoryHostPointerPropertiesEXT_PreCall };
-    PFN_CmdWriteBufferMarkerAMD_PreCall CmdWriteBufferMarkerAMD_PreCall{ noop::CmdWriteBufferMarkerAMD_PreCall };
-    PFN_GetPhysicalDeviceCalibrateableTimeDomainsEXT_PreCall GetPhysicalDeviceCalibrateableTimeDomainsEXT_PreCall{ noop::GetPhysicalDeviceCalibrateableTimeDomainsEXT_PreCall };
-    PFN_GetCalibratedTimestampsEXT_PreCall GetCalibratedTimestampsEXT_PreCall{ noop::GetCalibratedTimestampsEXT_PreCall };
-    PFN_CmdDrawMeshTasksNV_PreCall CmdDrawMeshTasksNV_PreCall{ noop::CmdDrawMeshTasksNV_PreCall };
-    PFN_CmdDrawMeshTasksIndirectNV_PreCall CmdDrawMeshTasksIndirectNV_PreCall{ noop::CmdDrawMeshTasksIndirectNV_PreCall };
-    PFN_CmdDrawMeshTasksIndirectCountNV_PreCall CmdDrawMeshTasksIndirectCountNV_PreCall{ noop::CmdDrawMeshTasksIndirectCountNV_PreCall };
-    PFN_CmdSetExclusiveScissorEnableNV_PreCall CmdSetExclusiveScissorEnableNV_PreCall{ noop::CmdSetExclusiveScissorEnableNV_PreCall };
-    PFN_CmdSetExclusiveScissorNV_PreCall CmdSetExclusiveScissorNV_PreCall{ noop::CmdSetExclusiveScissorNV_PreCall };
-    PFN_CmdSetCheckpointNV_PreCall CmdSetCheckpointNV_PreCall{ noop::CmdSetCheckpointNV_PreCall };
-    PFN_GetQueueCheckpointDataNV_PreCall GetQueueCheckpointDataNV_PreCall{ noop::GetQueueCheckpointDataNV_PreCall };
-    PFN_InitializePerformanceApiINTEL_PreCall InitializePerformanceApiINTEL_PreCall{ noop::InitializePerformanceApiINTEL_PreCall };
-    PFN_UninitializePerformanceApiINTEL_PreCall UninitializePerformanceApiINTEL_PreCall{ noop::UninitializePerformanceApiINTEL_PreCall };
-    PFN_CmdSetPerformanceMarkerINTEL_PreCall CmdSetPerformanceMarkerINTEL_PreCall{ noop::CmdSetPerformanceMarkerINTEL_PreCall };
-    PFN_CmdSetPerformanceStreamMarkerINTEL_PreCall CmdSetPerformanceStreamMarkerINTEL_PreCall{ noop::CmdSetPerformanceStreamMarkerINTEL_PreCall };
-    PFN_CmdSetPerformanceOverrideINTEL_PreCall CmdSetPerformanceOverrideINTEL_PreCall{ noop::CmdSetPerformanceOverrideINTEL_PreCall };
-    PFN_AcquirePerformanceConfigurationINTEL_PreCall AcquirePerformanceConfigurationINTEL_PreCall{ noop::AcquirePerformanceConfigurationINTEL_PreCall };
-    PFN_ReleasePerformanceConfigurationINTEL_PreCall ReleasePerformanceConfigurationINTEL_PreCall{ noop::ReleasePerformanceConfigurationINTEL_PreCall };
-    PFN_QueueSetPerformanceConfigurationINTEL_PreCall QueueSetPerformanceConfigurationINTEL_PreCall{ noop::QueueSetPerformanceConfigurationINTEL_PreCall };
-    PFN_GetPerformanceParameterINTEL_PreCall GetPerformanceParameterINTEL_PreCall{ noop::GetPerformanceParameterINTEL_PreCall };
-    PFN_SetLocalDimmingAMD_PreCall SetLocalDimmingAMD_PreCall{ noop::SetLocalDimmingAMD_PreCall };
-    PFN_CreateImagePipeSurfaceFUCHSIA_PreCall CreateImagePipeSurfaceFUCHSIA_PreCall{ noop::CreateImagePipeSurfaceFUCHSIA_PreCall };
-    PFN_CreateMetalSurfaceEXT_PreCall CreateMetalSurfaceEXT_PreCall{ noop::CreateMetalSurfaceEXT_PreCall };
-    PFN_GetBufferDeviceAddressEXT_PreCall GetBufferDeviceAddressEXT_PreCall{ noop::GetBufferDeviceAddressEXT_PreCall };
-    PFN_GetPhysicalDeviceToolPropertiesEXT_PreCall GetPhysicalDeviceToolPropertiesEXT_PreCall{ noop::GetPhysicalDeviceToolPropertiesEXT_PreCall };
-    PFN_GetPhysicalDeviceCooperativeMatrixPropertiesNV_PreCall GetPhysicalDeviceCooperativeMatrixPropertiesNV_PreCall{ noop::GetPhysicalDeviceCooperativeMatrixPropertiesNV_PreCall };
-    PFN_GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV_PreCall GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV_PreCall{ noop::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV_PreCall };
-    PFN_GetPhysicalDeviceSurfacePresentModes2EXT_PreCall GetPhysicalDeviceSurfacePresentModes2EXT_PreCall{ noop::GetPhysicalDeviceSurfacePresentModes2EXT_PreCall };
-    PFN_AcquireFullScreenExclusiveModeEXT_PreCall AcquireFullScreenExclusiveModeEXT_PreCall{ noop::AcquireFullScreenExclusiveModeEXT_PreCall };
-    PFN_ReleaseFullScreenExclusiveModeEXT_PreCall ReleaseFullScreenExclusiveModeEXT_PreCall{ noop::ReleaseFullScreenExclusiveModeEXT_PreCall };
-    PFN_GetDeviceGroupSurfacePresentModes2EXT_PreCall GetDeviceGroupSurfacePresentModes2EXT_PreCall{ noop::GetDeviceGroupSurfacePresentModes2EXT_PreCall };
-    PFN_CreateHeadlessSurfaceEXT_PreCall CreateHeadlessSurfaceEXT_PreCall{ noop::CreateHeadlessSurfaceEXT_PreCall };
-    PFN_CmdSetLineStippleEXT_PreCall CmdSetLineStippleEXT_PreCall{ noop::CmdSetLineStippleEXT_PreCall };
-    PFN_ResetQueryPoolEXT_PreCall ResetQueryPoolEXT_PreCall{ noop::ResetQueryPoolEXT_PreCall };
-    PFN_CmdSetCullModeEXT_PreCall CmdSetCullModeEXT_PreCall{ noop::CmdSetCullModeEXT_PreCall };
-    PFN_CmdSetFrontFaceEXT_PreCall CmdSetFrontFaceEXT_PreCall{ noop::CmdSetFrontFaceEXT_PreCall };
-    PFN_CmdSetPrimitiveTopologyEXT_PreCall CmdSetPrimitiveTopologyEXT_PreCall{ noop::CmdSetPrimitiveTopologyEXT_PreCall };
-    PFN_CmdSetViewportWithCountEXT_PreCall CmdSetViewportWithCountEXT_PreCall{ noop::CmdSetViewportWithCountEXT_PreCall };
-    PFN_CmdSetScissorWithCountEXT_PreCall CmdSetScissorWithCountEXT_PreCall{ noop::CmdSetScissorWithCountEXT_PreCall };
-    PFN_CmdBindVertexBuffers2EXT_PreCall CmdBindVertexBuffers2EXT_PreCall{ noop::CmdBindVertexBuffers2EXT_PreCall };
-    PFN_CmdSetDepthTestEnableEXT_PreCall CmdSetDepthTestEnableEXT_PreCall{ noop::CmdSetDepthTestEnableEXT_PreCall };
-    PFN_CmdSetDepthWriteEnableEXT_PreCall CmdSetDepthWriteEnableEXT_PreCall{ noop::CmdSetDepthWriteEnableEXT_PreCall };
-    PFN_CmdSetDepthCompareOpEXT_PreCall CmdSetDepthCompareOpEXT_PreCall{ noop::CmdSetDepthCompareOpEXT_PreCall };
-    PFN_CmdSetDepthBoundsTestEnableEXT_PreCall CmdSetDepthBoundsTestEnableEXT_PreCall{ noop::CmdSetDepthBoundsTestEnableEXT_PreCall };
-    PFN_CmdSetStencilTestEnableEXT_PreCall CmdSetStencilTestEnableEXT_PreCall{ noop::CmdSetStencilTestEnableEXT_PreCall };
-    PFN_CmdSetStencilOpEXT_PreCall CmdSetStencilOpEXT_PreCall{ noop::CmdSetStencilOpEXT_PreCall };
-    PFN_ReleaseSwapchainImagesEXT_PreCall ReleaseSwapchainImagesEXT_PreCall{ noop::ReleaseSwapchainImagesEXT_PreCall };
-    PFN_GetGeneratedCommandsMemoryRequirementsNV_PreCall GetGeneratedCommandsMemoryRequirementsNV_PreCall{ noop::GetGeneratedCommandsMemoryRequirementsNV_PreCall };
-    PFN_CmdPreprocessGeneratedCommandsNV_PreCall CmdPreprocessGeneratedCommandsNV_PreCall{ noop::CmdPreprocessGeneratedCommandsNV_PreCall };
-    PFN_CmdExecuteGeneratedCommandsNV_PreCall CmdExecuteGeneratedCommandsNV_PreCall{ noop::CmdExecuteGeneratedCommandsNV_PreCall };
-    PFN_CmdBindPipelineShaderGroupNV_PreCall CmdBindPipelineShaderGroupNV_PreCall{ noop::CmdBindPipelineShaderGroupNV_PreCall };
-    PFN_CreateIndirectCommandsLayoutNV_PreCall CreateIndirectCommandsLayoutNV_PreCall{ noop::CreateIndirectCommandsLayoutNV_PreCall };
-    PFN_DestroyIndirectCommandsLayoutNV_PreCall DestroyIndirectCommandsLayoutNV_PreCall{ noop::DestroyIndirectCommandsLayoutNV_PreCall };
-    PFN_AcquireDrmDisplayEXT_PreCall AcquireDrmDisplayEXT_PreCall{ noop::AcquireDrmDisplayEXT_PreCall };
-    PFN_GetDrmDisplayEXT_PreCall GetDrmDisplayEXT_PreCall{ noop::GetDrmDisplayEXT_PreCall };
-    PFN_CreatePrivateDataSlotEXT_PreCall CreatePrivateDataSlotEXT_PreCall{ noop::CreatePrivateDataSlotEXT_PreCall };
-    PFN_DestroyPrivateDataSlotEXT_PreCall DestroyPrivateDataSlotEXT_PreCall{ noop::DestroyPrivateDataSlotEXT_PreCall };
-    PFN_SetPrivateDataEXT_PreCall SetPrivateDataEXT_PreCall{ noop::SetPrivateDataEXT_PreCall };
-    PFN_GetPrivateDataEXT_PreCall GetPrivateDataEXT_PreCall{ noop::GetPrivateDataEXT_PreCall };
-    PFN_CmdSetFragmentShadingRateEnumNV_PreCall CmdSetFragmentShadingRateEnumNV_PreCall{ noop::CmdSetFragmentShadingRateEnumNV_PreCall };
-    PFN_GetImageSubresourceLayout2EXT_PreCall GetImageSubresourceLayout2EXT_PreCall{ noop::GetImageSubresourceLayout2EXT_PreCall };
-    PFN_GetDeviceFaultInfoEXT_PreCall GetDeviceFaultInfoEXT_PreCall{ noop::GetDeviceFaultInfoEXT_PreCall };
-    PFN_AcquireWinrtDisplayNV_PreCall AcquireWinrtDisplayNV_PreCall{ noop::AcquireWinrtDisplayNV_PreCall };
-    PFN_GetWinrtDisplayNV_PreCall GetWinrtDisplayNV_PreCall{ noop::GetWinrtDisplayNV_PreCall };
-    PFN_CreateDirectFBSurfaceEXT_PreCall CreateDirectFBSurfaceEXT_PreCall{ noop::CreateDirectFBSurfaceEXT_PreCall };
-    PFN_GetPhysicalDeviceDirectFBPresentationSupportEXT_PreCall GetPhysicalDeviceDirectFBPresentationSupportEXT_PreCall{ noop::GetPhysicalDeviceDirectFBPresentationSupportEXT_PreCall };
-    PFN_CmdSetVertexInputEXT_PreCall CmdSetVertexInputEXT_PreCall{ noop::CmdSetVertexInputEXT_PreCall };
-    PFN_GetMemoryZirconHandleFUCHSIA_PreCall GetMemoryZirconHandleFUCHSIA_PreCall{ noop::GetMemoryZirconHandleFUCHSIA_PreCall };
-    PFN_GetMemoryZirconHandlePropertiesFUCHSIA_PreCall GetMemoryZirconHandlePropertiesFUCHSIA_PreCall{ noop::GetMemoryZirconHandlePropertiesFUCHSIA_PreCall };
-    PFN_ImportSemaphoreZirconHandleFUCHSIA_PreCall ImportSemaphoreZirconHandleFUCHSIA_PreCall{ noop::ImportSemaphoreZirconHandleFUCHSIA_PreCall };
-    PFN_GetSemaphoreZirconHandleFUCHSIA_PreCall GetSemaphoreZirconHandleFUCHSIA_PreCall{ noop::GetSemaphoreZirconHandleFUCHSIA_PreCall };
-    PFN_CmdBindInvocationMaskHUAWEI_PreCall CmdBindInvocationMaskHUAWEI_PreCall{ noop::CmdBindInvocationMaskHUAWEI_PreCall };
-    PFN_GetMemoryRemoteAddressNV_PreCall GetMemoryRemoteAddressNV_PreCall{ noop::GetMemoryRemoteAddressNV_PreCall };
-    PFN_CmdSetPatchControlPointsEXT_PreCall CmdSetPatchControlPointsEXT_PreCall{ noop::CmdSetPatchControlPointsEXT_PreCall };
-    PFN_CmdSetRasterizerDiscardEnableEXT_PreCall CmdSetRasterizerDiscardEnableEXT_PreCall{ noop::CmdSetRasterizerDiscardEnableEXT_PreCall };
-    PFN_CmdSetDepthBiasEnableEXT_PreCall CmdSetDepthBiasEnableEXT_PreCall{ noop::CmdSetDepthBiasEnableEXT_PreCall };
-    PFN_CmdSetLogicOpEXT_PreCall CmdSetLogicOpEXT_PreCall{ noop::CmdSetLogicOpEXT_PreCall };
-    PFN_CmdSetPrimitiveRestartEnableEXT_PreCall CmdSetPrimitiveRestartEnableEXT_PreCall{ noop::CmdSetPrimitiveRestartEnableEXT_PreCall };
-    PFN_CreateScreenSurfaceQNX_PreCall CreateScreenSurfaceQNX_PreCall{ noop::CreateScreenSurfaceQNX_PreCall };
-    PFN_GetPhysicalDeviceScreenPresentationSupportQNX_PreCall GetPhysicalDeviceScreenPresentationSupportQNX_PreCall{ noop::GetPhysicalDeviceScreenPresentationSupportQNX_PreCall };
-    PFN_CmdSetColorWriteEnableEXT_PreCall CmdSetColorWriteEnableEXT_PreCall{ noop::CmdSetColorWriteEnableEXT_PreCall };
-    PFN_CmdDrawMultiEXT_PreCall CmdDrawMultiEXT_PreCall{ noop::CmdDrawMultiEXT_PreCall };
-    PFN_CmdDrawMultiIndexedEXT_PreCall CmdDrawMultiIndexedEXT_PreCall{ noop::CmdDrawMultiIndexedEXT_PreCall };
-    PFN_CreateMicromapEXT_PreCall CreateMicromapEXT_PreCall{ noop::CreateMicromapEXT_PreCall };
-    PFN_DestroyMicromapEXT_PreCall DestroyMicromapEXT_PreCall{ noop::DestroyMicromapEXT_PreCall };
-    PFN_CmdBuildMicromapsEXT_PreCall CmdBuildMicromapsEXT_PreCall{ noop::CmdBuildMicromapsEXT_PreCall };
-    PFN_BuildMicromapsEXT_PreCall BuildMicromapsEXT_PreCall{ noop::BuildMicromapsEXT_PreCall };
-    PFN_CopyMicromapEXT_PreCall CopyMicromapEXT_PreCall{ noop::CopyMicromapEXT_PreCall };
-    PFN_CopyMicromapToMemoryEXT_PreCall CopyMicromapToMemoryEXT_PreCall{ noop::CopyMicromapToMemoryEXT_PreCall };
-    PFN_CopyMemoryToMicromapEXT_PreCall CopyMemoryToMicromapEXT_PreCall{ noop::CopyMemoryToMicromapEXT_PreCall };
-    PFN_WriteMicromapsPropertiesEXT_PreCall WriteMicromapsPropertiesEXT_PreCall{ noop::WriteMicromapsPropertiesEXT_PreCall };
-    PFN_CmdCopyMicromapEXT_PreCall CmdCopyMicromapEXT_PreCall{ noop::CmdCopyMicromapEXT_PreCall };
-    PFN_CmdCopyMicromapToMemoryEXT_PreCall CmdCopyMicromapToMemoryEXT_PreCall{ noop::CmdCopyMicromapToMemoryEXT_PreCall };
-    PFN_CmdCopyMemoryToMicromapEXT_PreCall CmdCopyMemoryToMicromapEXT_PreCall{ noop::CmdCopyMemoryToMicromapEXT_PreCall };
-    PFN_CmdWriteMicromapsPropertiesEXT_PreCall CmdWriteMicromapsPropertiesEXT_PreCall{ noop::CmdWriteMicromapsPropertiesEXT_PreCall };
-    PFN_GetDeviceMicromapCompatibilityEXT_PreCall GetDeviceMicromapCompatibilityEXT_PreCall{ noop::GetDeviceMicromapCompatibilityEXT_PreCall };
-    PFN_GetMicromapBuildSizesEXT_PreCall GetMicromapBuildSizesEXT_PreCall{ noop::GetMicromapBuildSizesEXT_PreCall };
-    PFN_CmdDrawClusterHUAWEI_PreCall CmdDrawClusterHUAWEI_PreCall{ noop::CmdDrawClusterHUAWEI_PreCall };
-    PFN_CmdDrawClusterIndirectHUAWEI_PreCall CmdDrawClusterIndirectHUAWEI_PreCall{ noop::CmdDrawClusterIndirectHUAWEI_PreCall };
-    PFN_SetDeviceMemoryPriorityEXT_PreCall SetDeviceMemoryPriorityEXT_PreCall{ noop::SetDeviceMemoryPriorityEXT_PreCall };
-    PFN_GetDescriptorSetLayoutHostMappingInfoVALVE_PreCall GetDescriptorSetLayoutHostMappingInfoVALVE_PreCall{ noop::GetDescriptorSetLayoutHostMappingInfoVALVE_PreCall };
-    PFN_GetDescriptorSetHostMappingVALVE_PreCall GetDescriptorSetHostMappingVALVE_PreCall{ noop::GetDescriptorSetHostMappingVALVE_PreCall };
-    PFN_CmdSetTessellationDomainOriginEXT_PreCall CmdSetTessellationDomainOriginEXT_PreCall{ noop::CmdSetTessellationDomainOriginEXT_PreCall };
-    PFN_CmdSetDepthClampEnableEXT_PreCall CmdSetDepthClampEnableEXT_PreCall{ noop::CmdSetDepthClampEnableEXT_PreCall };
-    PFN_CmdSetPolygonModeEXT_PreCall CmdSetPolygonModeEXT_PreCall{ noop::CmdSetPolygonModeEXT_PreCall };
-    PFN_CmdSetRasterizationSamplesEXT_PreCall CmdSetRasterizationSamplesEXT_PreCall{ noop::CmdSetRasterizationSamplesEXT_PreCall };
-    PFN_CmdSetSampleMaskEXT_PreCall CmdSetSampleMaskEXT_PreCall{ noop::CmdSetSampleMaskEXT_PreCall };
-    PFN_CmdSetAlphaToCoverageEnableEXT_PreCall CmdSetAlphaToCoverageEnableEXT_PreCall{ noop::CmdSetAlphaToCoverageEnableEXT_PreCall };
-    PFN_CmdSetAlphaToOneEnableEXT_PreCall CmdSetAlphaToOneEnableEXT_PreCall{ noop::CmdSetAlphaToOneEnableEXT_PreCall };
-    PFN_CmdSetLogicOpEnableEXT_PreCall CmdSetLogicOpEnableEXT_PreCall{ noop::CmdSetLogicOpEnableEXT_PreCall };
-    PFN_CmdSetColorBlendEnableEXT_PreCall CmdSetColorBlendEnableEXT_PreCall{ noop::CmdSetColorBlendEnableEXT_PreCall };
-    PFN_CmdSetColorBlendEquationEXT_PreCall CmdSetColorBlendEquationEXT_PreCall{ noop::CmdSetColorBlendEquationEXT_PreCall };
-    PFN_CmdSetColorWriteMaskEXT_PreCall CmdSetColorWriteMaskEXT_PreCall{ noop::CmdSetColorWriteMaskEXT_PreCall };
-    PFN_CmdSetRasterizationStreamEXT_PreCall CmdSetRasterizationStreamEXT_PreCall{ noop::CmdSetRasterizationStreamEXT_PreCall };
-    PFN_CmdSetConservativeRasterizationModeEXT_PreCall CmdSetConservativeRasterizationModeEXT_PreCall{ noop::CmdSetConservativeRasterizationModeEXT_PreCall };
-    PFN_CmdSetExtraPrimitiveOverestimationSizeEXT_PreCall CmdSetExtraPrimitiveOverestimationSizeEXT_PreCall{ noop::CmdSetExtraPrimitiveOverestimationSizeEXT_PreCall };
-    PFN_CmdSetDepthClipEnableEXT_PreCall CmdSetDepthClipEnableEXT_PreCall{ noop::CmdSetDepthClipEnableEXT_PreCall };
-    PFN_CmdSetSampleLocationsEnableEXT_PreCall CmdSetSampleLocationsEnableEXT_PreCall{ noop::CmdSetSampleLocationsEnableEXT_PreCall };
-    PFN_CmdSetColorBlendAdvancedEXT_PreCall CmdSetColorBlendAdvancedEXT_PreCall{ noop::CmdSetColorBlendAdvancedEXT_PreCall };
-    PFN_CmdSetProvokingVertexModeEXT_PreCall CmdSetProvokingVertexModeEXT_PreCall{ noop::CmdSetProvokingVertexModeEXT_PreCall };
-    PFN_CmdSetLineRasterizationModeEXT_PreCall CmdSetLineRasterizationModeEXT_PreCall{ noop::CmdSetLineRasterizationModeEXT_PreCall };
-    PFN_CmdSetLineStippleEnableEXT_PreCall CmdSetLineStippleEnableEXT_PreCall{ noop::CmdSetLineStippleEnableEXT_PreCall };
-    PFN_CmdSetDepthClipNegativeOneToOneEXT_PreCall CmdSetDepthClipNegativeOneToOneEXT_PreCall{ noop::CmdSetDepthClipNegativeOneToOneEXT_PreCall };
-    PFN_CmdSetViewportWScalingEnableNV_PreCall CmdSetViewportWScalingEnableNV_PreCall{ noop::CmdSetViewportWScalingEnableNV_PreCall };
-    PFN_CmdSetViewportSwizzleNV_PreCall CmdSetViewportSwizzleNV_PreCall{ noop::CmdSetViewportSwizzleNV_PreCall };
-    PFN_CmdSetCoverageToColorEnableNV_PreCall CmdSetCoverageToColorEnableNV_PreCall{ noop::CmdSetCoverageToColorEnableNV_PreCall };
-    PFN_CmdSetCoverageToColorLocationNV_PreCall CmdSetCoverageToColorLocationNV_PreCall{ noop::CmdSetCoverageToColorLocationNV_PreCall };
-    PFN_CmdSetCoverageModulationModeNV_PreCall CmdSetCoverageModulationModeNV_PreCall{ noop::CmdSetCoverageModulationModeNV_PreCall };
-    PFN_CmdSetCoverageModulationTableEnableNV_PreCall CmdSetCoverageModulationTableEnableNV_PreCall{ noop::CmdSetCoverageModulationTableEnableNV_PreCall };
-    PFN_CmdSetCoverageModulationTableNV_PreCall CmdSetCoverageModulationTableNV_PreCall{ noop::CmdSetCoverageModulationTableNV_PreCall };
-    PFN_CmdSetShadingRateImageEnableNV_PreCall CmdSetShadingRateImageEnableNV_PreCall{ noop::CmdSetShadingRateImageEnableNV_PreCall };
-    PFN_CmdSetRepresentativeFragmentTestEnableNV_PreCall CmdSetRepresentativeFragmentTestEnableNV_PreCall{ noop::CmdSetRepresentativeFragmentTestEnableNV_PreCall };
-    PFN_CmdSetCoverageReductionModeNV_PreCall CmdSetCoverageReductionModeNV_PreCall{ noop::CmdSetCoverageReductionModeNV_PreCall };
-    PFN_GetShaderModuleIdentifierEXT_PreCall GetShaderModuleIdentifierEXT_PreCall{ noop::GetShaderModuleIdentifierEXT_PreCall };
-    PFN_GetShaderModuleCreateInfoIdentifierEXT_PreCall GetShaderModuleCreateInfoIdentifierEXT_PreCall{ noop::GetShaderModuleCreateInfoIdentifierEXT_PreCall };
-    PFN_GetPhysicalDeviceOpticalFlowImageFormatsNV_PreCall GetPhysicalDeviceOpticalFlowImageFormatsNV_PreCall{ noop::GetPhysicalDeviceOpticalFlowImageFormatsNV_PreCall };
-    PFN_CreateOpticalFlowSessionNV_PreCall CreateOpticalFlowSessionNV_PreCall{ noop::CreateOpticalFlowSessionNV_PreCall };
-    PFN_DestroyOpticalFlowSessionNV_PreCall DestroyOpticalFlowSessionNV_PreCall{ noop::DestroyOpticalFlowSessionNV_PreCall };
-    PFN_BindOpticalFlowSessionImageNV_PreCall BindOpticalFlowSessionImageNV_PreCall{ noop::BindOpticalFlowSessionImageNV_PreCall };
-    PFN_CmdOpticalFlowExecuteNV_PreCall CmdOpticalFlowExecuteNV_PreCall{ noop::CmdOpticalFlowExecuteNV_PreCall };
-    PFN_GetFramebufferTilePropertiesQCOM_PreCall GetFramebufferTilePropertiesQCOM_PreCall{ noop::GetFramebufferTilePropertiesQCOM_PreCall };
-    PFN_GetDynamicRenderingTilePropertiesQCOM_PreCall GetDynamicRenderingTilePropertiesQCOM_PreCall{ noop::GetDynamicRenderingTilePropertiesQCOM_PreCall };
-    PFN_CreateAccelerationStructureKHR_PreCall CreateAccelerationStructureKHR_PreCall{ noop::CreateAccelerationStructureKHR_PreCall };
-    PFN_DestroyAccelerationStructureKHR_PreCall DestroyAccelerationStructureKHR_PreCall{ noop::DestroyAccelerationStructureKHR_PreCall };
-    PFN_CmdBuildAccelerationStructuresKHR_PreCall CmdBuildAccelerationStructuresKHR_PreCall{ noop::CmdBuildAccelerationStructuresKHR_PreCall };
-    PFN_CmdBuildAccelerationStructuresIndirectKHR_PreCall CmdBuildAccelerationStructuresIndirectKHR_PreCall{ noop::CmdBuildAccelerationStructuresIndirectKHR_PreCall };
-    PFN_CopyAccelerationStructureToMemoryKHR_PreCall CopyAccelerationStructureToMemoryKHR_PreCall{ noop::CopyAccelerationStructureToMemoryKHR_PreCall };
-    PFN_CopyMemoryToAccelerationStructureKHR_PreCall CopyMemoryToAccelerationStructureKHR_PreCall{ noop::CopyMemoryToAccelerationStructureKHR_PreCall };
-    PFN_WriteAccelerationStructuresPropertiesKHR_PreCall WriteAccelerationStructuresPropertiesKHR_PreCall{ noop::WriteAccelerationStructuresPropertiesKHR_PreCall };
-    PFN_CmdCopyAccelerationStructureKHR_PreCall CmdCopyAccelerationStructureKHR_PreCall{ noop::CmdCopyAccelerationStructureKHR_PreCall };
-    PFN_CmdCopyAccelerationStructureToMemoryKHR_PreCall CmdCopyAccelerationStructureToMemoryKHR_PreCall{ noop::CmdCopyAccelerationStructureToMemoryKHR_PreCall };
-    PFN_CmdCopyMemoryToAccelerationStructureKHR_PreCall CmdCopyMemoryToAccelerationStructureKHR_PreCall{ noop::CmdCopyMemoryToAccelerationStructureKHR_PreCall };
-    PFN_GetAccelerationStructureDeviceAddressKHR_PreCall GetAccelerationStructureDeviceAddressKHR_PreCall{ noop::GetAccelerationStructureDeviceAddressKHR_PreCall };
-    PFN_CmdWriteAccelerationStructuresPropertiesKHR_PreCall CmdWriteAccelerationStructuresPropertiesKHR_PreCall{ noop::CmdWriteAccelerationStructuresPropertiesKHR_PreCall };
-    PFN_GetDeviceAccelerationStructureCompatibilityKHR_PreCall GetDeviceAccelerationStructureCompatibilityKHR_PreCall{ noop::GetDeviceAccelerationStructureCompatibilityKHR_PreCall };
-    PFN_GetAccelerationStructureBuildSizesKHR_PreCall GetAccelerationStructureBuildSizesKHR_PreCall{ noop::GetAccelerationStructureBuildSizesKHR_PreCall };
-    PFN_CmdTraceRaysKHR_PreCall CmdTraceRaysKHR_PreCall{ noop::CmdTraceRaysKHR_PreCall };
-    PFN_CreateRayTracingPipelinesKHR_PreCall CreateRayTracingPipelinesKHR_PreCall{ noop::CreateRayTracingPipelinesKHR_PreCall };
-    PFN_GetRayTracingCaptureReplayShaderGroupHandlesKHR_PreCall GetRayTracingCaptureReplayShaderGroupHandlesKHR_PreCall{ noop::GetRayTracingCaptureReplayShaderGroupHandlesKHR_PreCall };
-    PFN_CmdTraceRaysIndirectKHR_PreCall CmdTraceRaysIndirectKHR_PreCall{ noop::CmdTraceRaysIndirectKHR_PreCall };
-    PFN_GetRayTracingShaderGroupStackSizeKHR_PreCall GetRayTracingShaderGroupStackSizeKHR_PreCall{ noop::GetRayTracingShaderGroupStackSizeKHR_PreCall };
-    PFN_CmdSetRayTracingPipelineStackSizeKHR_PreCall CmdSetRayTracingPipelineStackSizeKHR_PreCall{ noop::CmdSetRayTracingPipelineStackSizeKHR_PreCall };
-    PFN_CmdDrawMeshTasksEXT_PreCall CmdDrawMeshTasksEXT_PreCall{ noop::CmdDrawMeshTasksEXT_PreCall };
-    PFN_CmdDrawMeshTasksIndirectEXT_PreCall CmdDrawMeshTasksIndirectEXT_PreCall{ noop::CmdDrawMeshTasksIndirectEXT_PreCall };
-    PFN_CmdDrawMeshTasksIndirectCountEXT_PreCall CmdDrawMeshTasksIndirectCountEXT_PreCall{ noop::CmdDrawMeshTasksIndirectCountEXT_PreCall };
-    PFN_GetInstanceProcAddr_PreCall GetInstanceProcAddr_PreCall{ noop::GetInstanceProcAddr_PreCall };
-    PFN_GetDeviceProcAddr_PreCall GetDeviceProcAddr_PreCall{ noop::GetDeviceProcAddr_PreCall };
-    PFN_EnumerateInstanceExtensionProperties_PreCall EnumerateInstanceExtensionProperties_PreCall{ noop::EnumerateInstanceExtensionProperties_PreCall };
-    PFN_EnumerateDeviceExtensionProperties_PreCall EnumerateDeviceExtensionProperties_PreCall{ noop::EnumerateDeviceExtensionProperties_PreCall };
-    PFN_EnumerateInstanceLayerProperties_PreCall EnumerateInstanceLayerProperties_PreCall{ noop::EnumerateInstanceLayerProperties_PreCall };
-    PFN_EnumerateDeviceLayerProperties_PreCall EnumerateDeviceLayerProperties_PreCall{ noop::EnumerateDeviceLayerProperties_PreCall };
-    PFN_EnumerateInstanceVersion_PreCall EnumerateInstanceVersion_PreCall{ noop::EnumerateInstanceVersion_PreCall };
-    PFN_UpdateDescriptorSetWithTemplate_PreCall UpdateDescriptorSetWithTemplate_PreCall{ noop::UpdateDescriptorSetWithTemplate_PreCall };
-    PFN_CmdPushDescriptorSetWithTemplateKHR_PreCall CmdPushDescriptorSetWithTemplateKHR_PreCall{ noop::CmdPushDescriptorSetWithTemplateKHR_PreCall };
-    PFN_UpdateDescriptorSetWithTemplateKHR_PreCall UpdateDescriptorSetWithTemplateKHR_PreCall{ noop::UpdateDescriptorSetWithTemplateKHR_PreCall };
-    PFN_BuildAccelerationStructuresKHR_PreCall BuildAccelerationStructuresKHR_PreCall{ noop::BuildAccelerationStructuresKHR_PreCall };
-    PFN_CopyAccelerationStructureKHR_PreCall CopyAccelerationStructureKHR_PreCall{ noop::CopyAccelerationStructureKHR_PreCall };
-    PFN_CreateMirSurfaceKHR_PreCall CreateMirSurfaceKHR_PreCall{ noop::CreateMirSurfaceKHR_PreCall };
-    PFN_GetPhysicalDeviceMirPresentationSupportKHR_PreCall GetPhysicalDeviceMirPresentationSupportKHR_PreCall{ noop::GetPhysicalDeviceMirPresentationSupportKHR_PreCall };
-    PFN_CmdProcessCommandsNVX_PreCall CmdProcessCommandsNVX_PreCall{ noop::CmdProcessCommandsNVX_PreCall };
-    PFN_CmdReserveSpaceForCommandsNVX_PreCall CmdReserveSpaceForCommandsNVX_PreCall{ noop::CmdReserveSpaceForCommandsNVX_PreCall };
-    PFN_CreateIndirectCommandsLayoutNVX_PreCall CreateIndirectCommandsLayoutNVX_PreCall{ noop::CreateIndirectCommandsLayoutNVX_PreCall };
-    PFN_DestroyIndirectCommandsLayoutNVX_PreCall DestroyIndirectCommandsLayoutNVX_PreCall{ noop::DestroyIndirectCommandsLayoutNVX_PreCall };
-    PFN_CreateObjectTableNVX_PreCall CreateObjectTableNVX_PreCall{ noop::CreateObjectTableNVX_PreCall };
-    PFN_DestroyObjectTableNVX_PreCall DestroyObjectTableNVX_PreCall{ noop::DestroyObjectTableNVX_PreCall };
-    PFN_RegisterObjectsNVX_PreCall RegisterObjectsNVX_PreCall{ noop::RegisterObjectsNVX_PreCall };
-    PFN_UnregisterObjectsNVX_PreCall UnregisterObjectsNVX_PreCall{ noop::UnregisterObjectsNVX_PreCall };
-    PFN_GetPhysicalDeviceGeneratedCommandsPropertiesNVX_PreCall GetPhysicalDeviceGeneratedCommandsPropertiesNVX_PreCall{ noop::GetPhysicalDeviceGeneratedCommandsPropertiesNVX_PreCall };
-    PFN_GetAccelerationStructureMemoryRequirementsKHR_PreCall GetAccelerationStructureMemoryRequirementsKHR_PreCall{ noop::GetAccelerationStructureMemoryRequirementsKHR_PreCall };
-    PFN_BindAccelerationStructureMemoryKHR_PreCall BindAccelerationStructureMemoryKHR_PreCall{ noop::BindAccelerationStructureMemoryKHR_PreCall };
-    PFN_GetPipelinePropertiesEXT_PreCall GetPipelinePropertiesEXT_PreCall{ noop::GetPipelinePropertiesEXT_PreCall };
+    PFN_CreateInstance_PreCall CreateInstance_PreCall { noop::CreateInstance_PreCall };
+    PFN_DestroyInstance_PreCall DestroyInstance_PreCall { noop::DestroyInstance_PreCall };
+    PFN_EnumeratePhysicalDevices_PreCall EnumeratePhysicalDevices_PreCall { noop::EnumeratePhysicalDevices_PreCall };
+    PFN_GetPhysicalDeviceFeatures_PreCall GetPhysicalDeviceFeatures_PreCall { noop::GetPhysicalDeviceFeatures_PreCall };
+    PFN_GetPhysicalDeviceFormatProperties_PreCall GetPhysicalDeviceFormatProperties_PreCall { noop::GetPhysicalDeviceFormatProperties_PreCall };
+    PFN_GetPhysicalDeviceImageFormatProperties_PreCall GetPhysicalDeviceImageFormatProperties_PreCall { noop::GetPhysicalDeviceImageFormatProperties_PreCall };
+    PFN_GetPhysicalDeviceProperties_PreCall GetPhysicalDeviceProperties_PreCall { noop::GetPhysicalDeviceProperties_PreCall };
+    PFN_GetPhysicalDeviceQueueFamilyProperties_PreCall GetPhysicalDeviceQueueFamilyProperties_PreCall { noop::GetPhysicalDeviceQueueFamilyProperties_PreCall };
+    PFN_GetPhysicalDeviceMemoryProperties_PreCall GetPhysicalDeviceMemoryProperties_PreCall { noop::GetPhysicalDeviceMemoryProperties_PreCall };
+    PFN_GetInstanceProcAddr_PreCall GetInstanceProcAddr_PreCall { noop::GetInstanceProcAddr_PreCall };
+    PFN_GetDeviceProcAddr_PreCall GetDeviceProcAddr_PreCall { noop::GetDeviceProcAddr_PreCall };
+    PFN_CreateDevice_PreCall CreateDevice_PreCall { noop::CreateDevice_PreCall };
+    PFN_DestroyDevice_PreCall DestroyDevice_PreCall { noop::DestroyDevice_PreCall };
+    PFN_EnumerateInstanceExtensionProperties_PreCall EnumerateInstanceExtensionProperties_PreCall { noop::EnumerateInstanceExtensionProperties_PreCall };
+    PFN_EnumerateDeviceExtensionProperties_PreCall EnumerateDeviceExtensionProperties_PreCall { noop::EnumerateDeviceExtensionProperties_PreCall };
+    PFN_EnumerateInstanceLayerProperties_PreCall EnumerateInstanceLayerProperties_PreCall { noop::EnumerateInstanceLayerProperties_PreCall };
+    PFN_EnumerateDeviceLayerProperties_PreCall EnumerateDeviceLayerProperties_PreCall { noop::EnumerateDeviceLayerProperties_PreCall };
+    PFN_GetDeviceQueue_PreCall GetDeviceQueue_PreCall { noop::GetDeviceQueue_PreCall };
+    PFN_QueueSubmit_PreCall QueueSubmit_PreCall { noop::QueueSubmit_PreCall };
+    PFN_QueueWaitIdle_PreCall QueueWaitIdle_PreCall { noop::QueueWaitIdle_PreCall };
+    PFN_DeviceWaitIdle_PreCall DeviceWaitIdle_PreCall { noop::DeviceWaitIdle_PreCall };
+    PFN_AllocateMemory_PreCall AllocateMemory_PreCall { noop::AllocateMemory_PreCall };
+    PFN_FreeMemory_PreCall FreeMemory_PreCall { noop::FreeMemory_PreCall };
+    PFN_MapMemory_PreCall MapMemory_PreCall { noop::MapMemory_PreCall };
+    PFN_UnmapMemory_PreCall UnmapMemory_PreCall { noop::UnmapMemory_PreCall };
+    PFN_FlushMappedMemoryRanges_PreCall FlushMappedMemoryRanges_PreCall { noop::FlushMappedMemoryRanges_PreCall };
+    PFN_InvalidateMappedMemoryRanges_PreCall InvalidateMappedMemoryRanges_PreCall { noop::InvalidateMappedMemoryRanges_PreCall };
+    PFN_GetDeviceMemoryCommitment_PreCall GetDeviceMemoryCommitment_PreCall { noop::GetDeviceMemoryCommitment_PreCall };
+    PFN_BindBufferMemory_PreCall BindBufferMemory_PreCall { noop::BindBufferMemory_PreCall };
+    PFN_BindImageMemory_PreCall BindImageMemory_PreCall { noop::BindImageMemory_PreCall };
+    PFN_GetBufferMemoryRequirements_PreCall GetBufferMemoryRequirements_PreCall { noop::GetBufferMemoryRequirements_PreCall };
+    PFN_GetImageMemoryRequirements_PreCall GetImageMemoryRequirements_PreCall { noop::GetImageMemoryRequirements_PreCall };
+    PFN_GetImageSparseMemoryRequirements_PreCall GetImageSparseMemoryRequirements_PreCall { noop::GetImageSparseMemoryRequirements_PreCall };
+    PFN_GetPhysicalDeviceSparseImageFormatProperties_PreCall GetPhysicalDeviceSparseImageFormatProperties_PreCall { noop::GetPhysicalDeviceSparseImageFormatProperties_PreCall };
+    PFN_QueueBindSparse_PreCall QueueBindSparse_PreCall { noop::QueueBindSparse_PreCall };
+    PFN_CreateFence_PreCall CreateFence_PreCall { noop::CreateFence_PreCall };
+    PFN_DestroyFence_PreCall DestroyFence_PreCall { noop::DestroyFence_PreCall };
+    PFN_ResetFences_PreCall ResetFences_PreCall { noop::ResetFences_PreCall };
+    PFN_GetFenceStatus_PreCall GetFenceStatus_PreCall { noop::GetFenceStatus_PreCall };
+    PFN_WaitForFences_PreCall WaitForFences_PreCall { noop::WaitForFences_PreCall };
+    PFN_CreateSemaphore_PreCall CreateSemaphore_PreCall { noop::CreateSemaphore_PreCall };
+    PFN_DestroySemaphore_PreCall DestroySemaphore_PreCall { noop::DestroySemaphore_PreCall };
+    PFN_CreateEvent_PreCall CreateEvent_PreCall { noop::CreateEvent_PreCall };
+    PFN_DestroyEvent_PreCall DestroyEvent_PreCall { noop::DestroyEvent_PreCall };
+    PFN_GetEventStatus_PreCall GetEventStatus_PreCall { noop::GetEventStatus_PreCall };
+    PFN_SetEvent_PreCall SetEvent_PreCall { noop::SetEvent_PreCall };
+    PFN_ResetEvent_PreCall ResetEvent_PreCall { noop::ResetEvent_PreCall };
+    PFN_CreateQueryPool_PreCall CreateQueryPool_PreCall { noop::CreateQueryPool_PreCall };
+    PFN_DestroyQueryPool_PreCall DestroyQueryPool_PreCall { noop::DestroyQueryPool_PreCall };
+    PFN_GetQueryPoolResults_PreCall GetQueryPoolResults_PreCall { noop::GetQueryPoolResults_PreCall };
+    PFN_CreateBuffer_PreCall CreateBuffer_PreCall { noop::CreateBuffer_PreCall };
+    PFN_DestroyBuffer_PreCall DestroyBuffer_PreCall { noop::DestroyBuffer_PreCall };
+    PFN_CreateBufferView_PreCall CreateBufferView_PreCall { noop::CreateBufferView_PreCall };
+    PFN_DestroyBufferView_PreCall DestroyBufferView_PreCall { noop::DestroyBufferView_PreCall };
+    PFN_CreateImage_PreCall CreateImage_PreCall { noop::CreateImage_PreCall };
+    PFN_DestroyImage_PreCall DestroyImage_PreCall { noop::DestroyImage_PreCall };
+    PFN_GetImageSubresourceLayout_PreCall GetImageSubresourceLayout_PreCall { noop::GetImageSubresourceLayout_PreCall };
+    PFN_CreateImageView_PreCall CreateImageView_PreCall { noop::CreateImageView_PreCall };
+    PFN_DestroyImageView_PreCall DestroyImageView_PreCall { noop::DestroyImageView_PreCall };
+    PFN_CreateShaderModule_PreCall CreateShaderModule_PreCall { noop::CreateShaderModule_PreCall };
+    PFN_DestroyShaderModule_PreCall DestroyShaderModule_PreCall { noop::DestroyShaderModule_PreCall };
+    PFN_CreatePipelineCache_PreCall CreatePipelineCache_PreCall { noop::CreatePipelineCache_PreCall };
+    PFN_DestroyPipelineCache_PreCall DestroyPipelineCache_PreCall { noop::DestroyPipelineCache_PreCall };
+    PFN_GetPipelineCacheData_PreCall GetPipelineCacheData_PreCall { noop::GetPipelineCacheData_PreCall };
+    PFN_MergePipelineCaches_PreCall MergePipelineCaches_PreCall { noop::MergePipelineCaches_PreCall };
+    PFN_CreateGraphicsPipelines_PreCall CreateGraphicsPipelines_PreCall { noop::CreateGraphicsPipelines_PreCall };
+    PFN_CreateComputePipelines_PreCall CreateComputePipelines_PreCall { noop::CreateComputePipelines_PreCall };
+    PFN_DestroyPipeline_PreCall DestroyPipeline_PreCall { noop::DestroyPipeline_PreCall };
+    PFN_CreatePipelineLayout_PreCall CreatePipelineLayout_PreCall { noop::CreatePipelineLayout_PreCall };
+    PFN_DestroyPipelineLayout_PreCall DestroyPipelineLayout_PreCall { noop::DestroyPipelineLayout_PreCall };
+    PFN_CreateSampler_PreCall CreateSampler_PreCall { noop::CreateSampler_PreCall };
+    PFN_DestroySampler_PreCall DestroySampler_PreCall { noop::DestroySampler_PreCall };
+    PFN_CreateDescriptorSetLayout_PreCall CreateDescriptorSetLayout_PreCall { noop::CreateDescriptorSetLayout_PreCall };
+    PFN_DestroyDescriptorSetLayout_PreCall DestroyDescriptorSetLayout_PreCall { noop::DestroyDescriptorSetLayout_PreCall };
+    PFN_CreateDescriptorPool_PreCall CreateDescriptorPool_PreCall { noop::CreateDescriptorPool_PreCall };
+    PFN_DestroyDescriptorPool_PreCall DestroyDescriptorPool_PreCall { noop::DestroyDescriptorPool_PreCall };
+    PFN_ResetDescriptorPool_PreCall ResetDescriptorPool_PreCall { noop::ResetDescriptorPool_PreCall };
+    PFN_AllocateDescriptorSets_PreCall AllocateDescriptorSets_PreCall { noop::AllocateDescriptorSets_PreCall };
+    PFN_FreeDescriptorSets_PreCall FreeDescriptorSets_PreCall { noop::FreeDescriptorSets_PreCall };
+    PFN_UpdateDescriptorSets_PreCall UpdateDescriptorSets_PreCall { noop::UpdateDescriptorSets_PreCall };
+    PFN_CreateFramebuffer_PreCall CreateFramebuffer_PreCall { noop::CreateFramebuffer_PreCall };
+    PFN_DestroyFramebuffer_PreCall DestroyFramebuffer_PreCall { noop::DestroyFramebuffer_PreCall };
+    PFN_CreateRenderPass_PreCall CreateRenderPass_PreCall { noop::CreateRenderPass_PreCall };
+    PFN_DestroyRenderPass_PreCall DestroyRenderPass_PreCall { noop::DestroyRenderPass_PreCall };
+    PFN_GetRenderAreaGranularity_PreCall GetRenderAreaGranularity_PreCall { noop::GetRenderAreaGranularity_PreCall };
+    PFN_CreateCommandPool_PreCall CreateCommandPool_PreCall { noop::CreateCommandPool_PreCall };
+    PFN_DestroyCommandPool_PreCall DestroyCommandPool_PreCall { noop::DestroyCommandPool_PreCall };
+    PFN_ResetCommandPool_PreCall ResetCommandPool_PreCall { noop::ResetCommandPool_PreCall };
+    PFN_AllocateCommandBuffers_PreCall AllocateCommandBuffers_PreCall { noop::AllocateCommandBuffers_PreCall };
+    PFN_FreeCommandBuffers_PreCall FreeCommandBuffers_PreCall { noop::FreeCommandBuffers_PreCall };
+    PFN_BeginCommandBuffer_PreCall BeginCommandBuffer_PreCall { noop::BeginCommandBuffer_PreCall };
+    PFN_EndCommandBuffer_PreCall EndCommandBuffer_PreCall { noop::EndCommandBuffer_PreCall };
+    PFN_ResetCommandBuffer_PreCall ResetCommandBuffer_PreCall { noop::ResetCommandBuffer_PreCall };
+    PFN_CmdBindPipeline_PreCall CmdBindPipeline_PreCall { noop::CmdBindPipeline_PreCall };
+    PFN_CmdSetViewport_PreCall CmdSetViewport_PreCall { noop::CmdSetViewport_PreCall };
+    PFN_CmdSetScissor_PreCall CmdSetScissor_PreCall { noop::CmdSetScissor_PreCall };
+    PFN_CmdSetLineWidth_PreCall CmdSetLineWidth_PreCall { noop::CmdSetLineWidth_PreCall };
+    PFN_CmdSetDepthBias_PreCall CmdSetDepthBias_PreCall { noop::CmdSetDepthBias_PreCall };
+    PFN_CmdSetBlendConstants_PreCall CmdSetBlendConstants_PreCall { noop::CmdSetBlendConstants_PreCall };
+    PFN_CmdSetDepthBounds_PreCall CmdSetDepthBounds_PreCall { noop::CmdSetDepthBounds_PreCall };
+    PFN_CmdSetStencilCompareMask_PreCall CmdSetStencilCompareMask_PreCall { noop::CmdSetStencilCompareMask_PreCall };
+    PFN_CmdSetStencilWriteMask_PreCall CmdSetStencilWriteMask_PreCall { noop::CmdSetStencilWriteMask_PreCall };
+    PFN_CmdSetStencilReference_PreCall CmdSetStencilReference_PreCall { noop::CmdSetStencilReference_PreCall };
+    PFN_CmdBindDescriptorSets_PreCall CmdBindDescriptorSets_PreCall { noop::CmdBindDescriptorSets_PreCall };
+    PFN_CmdBindIndexBuffer_PreCall CmdBindIndexBuffer_PreCall { noop::CmdBindIndexBuffer_PreCall };
+    PFN_CmdBindVertexBuffers_PreCall CmdBindVertexBuffers_PreCall { noop::CmdBindVertexBuffers_PreCall };
+    PFN_CmdDraw_PreCall CmdDraw_PreCall { noop::CmdDraw_PreCall };
+    PFN_CmdDrawIndexed_PreCall CmdDrawIndexed_PreCall { noop::CmdDrawIndexed_PreCall };
+    PFN_CmdDrawIndirect_PreCall CmdDrawIndirect_PreCall { noop::CmdDrawIndirect_PreCall };
+    PFN_CmdDrawIndexedIndirect_PreCall CmdDrawIndexedIndirect_PreCall { noop::CmdDrawIndexedIndirect_PreCall };
+    PFN_CmdDispatch_PreCall CmdDispatch_PreCall { noop::CmdDispatch_PreCall };
+    PFN_CmdDispatchIndirect_PreCall CmdDispatchIndirect_PreCall { noop::CmdDispatchIndirect_PreCall };
+    PFN_CmdCopyBuffer_PreCall CmdCopyBuffer_PreCall { noop::CmdCopyBuffer_PreCall };
+    PFN_CmdCopyImage_PreCall CmdCopyImage_PreCall { noop::CmdCopyImage_PreCall };
+    PFN_CmdBlitImage_PreCall CmdBlitImage_PreCall { noop::CmdBlitImage_PreCall };
+    PFN_CmdCopyBufferToImage_PreCall CmdCopyBufferToImage_PreCall { noop::CmdCopyBufferToImage_PreCall };
+    PFN_CmdCopyImageToBuffer_PreCall CmdCopyImageToBuffer_PreCall { noop::CmdCopyImageToBuffer_PreCall };
+    PFN_CmdUpdateBuffer_PreCall CmdUpdateBuffer_PreCall { noop::CmdUpdateBuffer_PreCall };
+    PFN_CmdFillBuffer_PreCall CmdFillBuffer_PreCall { noop::CmdFillBuffer_PreCall };
+    PFN_CmdClearColorImage_PreCall CmdClearColorImage_PreCall { noop::CmdClearColorImage_PreCall };
+    PFN_CmdClearDepthStencilImage_PreCall CmdClearDepthStencilImage_PreCall { noop::CmdClearDepthStencilImage_PreCall };
+    PFN_CmdClearAttachments_PreCall CmdClearAttachments_PreCall { noop::CmdClearAttachments_PreCall };
+    PFN_CmdResolveImage_PreCall CmdResolveImage_PreCall { noop::CmdResolveImage_PreCall };
+    PFN_CmdSetEvent_PreCall CmdSetEvent_PreCall { noop::CmdSetEvent_PreCall };
+    PFN_CmdResetEvent_PreCall CmdResetEvent_PreCall { noop::CmdResetEvent_PreCall };
+    PFN_CmdWaitEvents_PreCall CmdWaitEvents_PreCall { noop::CmdWaitEvents_PreCall };
+    PFN_CmdPipelineBarrier_PreCall CmdPipelineBarrier_PreCall { noop::CmdPipelineBarrier_PreCall };
+    PFN_CmdBeginQuery_PreCall CmdBeginQuery_PreCall { noop::CmdBeginQuery_PreCall };
+    PFN_CmdEndQuery_PreCall CmdEndQuery_PreCall { noop::CmdEndQuery_PreCall };
+    PFN_CmdResetQueryPool_PreCall CmdResetQueryPool_PreCall { noop::CmdResetQueryPool_PreCall };
+    PFN_CmdWriteTimestamp_PreCall CmdWriteTimestamp_PreCall { noop::CmdWriteTimestamp_PreCall };
+    PFN_CmdCopyQueryPoolResults_PreCall CmdCopyQueryPoolResults_PreCall { noop::CmdCopyQueryPoolResults_PreCall };
+    PFN_CmdPushConstants_PreCall CmdPushConstants_PreCall { noop::CmdPushConstants_PreCall };
+    PFN_CmdBeginRenderPass_PreCall CmdBeginRenderPass_PreCall { noop::CmdBeginRenderPass_PreCall };
+    PFN_CmdNextSubpass_PreCall CmdNextSubpass_PreCall { noop::CmdNextSubpass_PreCall };
+    PFN_CmdEndRenderPass_PreCall CmdEndRenderPass_PreCall { noop::CmdEndRenderPass_PreCall };
+    PFN_CmdExecuteCommands_PreCall CmdExecuteCommands_PreCall { noop::CmdExecuteCommands_PreCall };
+    PFN_EnumerateInstanceVersion_PreCall EnumerateInstanceVersion_PreCall { noop::EnumerateInstanceVersion_PreCall };
+    PFN_BindBufferMemory2_PreCall BindBufferMemory2_PreCall { noop::BindBufferMemory2_PreCall };
+    PFN_BindImageMemory2_PreCall BindImageMemory2_PreCall { noop::BindImageMemory2_PreCall };
+    PFN_GetDeviceGroupPeerMemoryFeatures_PreCall GetDeviceGroupPeerMemoryFeatures_PreCall { noop::GetDeviceGroupPeerMemoryFeatures_PreCall };
+    PFN_CmdSetDeviceMask_PreCall CmdSetDeviceMask_PreCall { noop::CmdSetDeviceMask_PreCall };
+    PFN_CmdDispatchBase_PreCall CmdDispatchBase_PreCall { noop::CmdDispatchBase_PreCall };
+    PFN_EnumeratePhysicalDeviceGroups_PreCall EnumeratePhysicalDeviceGroups_PreCall { noop::EnumeratePhysicalDeviceGroups_PreCall };
+    PFN_GetImageMemoryRequirements2_PreCall GetImageMemoryRequirements2_PreCall { noop::GetImageMemoryRequirements2_PreCall };
+    PFN_GetBufferMemoryRequirements2_PreCall GetBufferMemoryRequirements2_PreCall { noop::GetBufferMemoryRequirements2_PreCall };
+    PFN_GetImageSparseMemoryRequirements2_PreCall GetImageSparseMemoryRequirements2_PreCall { noop::GetImageSparseMemoryRequirements2_PreCall };
+    PFN_GetPhysicalDeviceFeatures2_PreCall GetPhysicalDeviceFeatures2_PreCall { noop::GetPhysicalDeviceFeatures2_PreCall };
+    PFN_GetPhysicalDeviceProperties2_PreCall GetPhysicalDeviceProperties2_PreCall { noop::GetPhysicalDeviceProperties2_PreCall };
+    PFN_GetPhysicalDeviceFormatProperties2_PreCall GetPhysicalDeviceFormatProperties2_PreCall { noop::GetPhysicalDeviceFormatProperties2_PreCall };
+    PFN_GetPhysicalDeviceImageFormatProperties2_PreCall GetPhysicalDeviceImageFormatProperties2_PreCall { noop::GetPhysicalDeviceImageFormatProperties2_PreCall };
+    PFN_GetPhysicalDeviceQueueFamilyProperties2_PreCall GetPhysicalDeviceQueueFamilyProperties2_PreCall { noop::GetPhysicalDeviceQueueFamilyProperties2_PreCall };
+    PFN_GetPhysicalDeviceMemoryProperties2_PreCall GetPhysicalDeviceMemoryProperties2_PreCall { noop::GetPhysicalDeviceMemoryProperties2_PreCall };
+    PFN_GetPhysicalDeviceSparseImageFormatProperties2_PreCall GetPhysicalDeviceSparseImageFormatProperties2_PreCall { noop::GetPhysicalDeviceSparseImageFormatProperties2_PreCall };
+    PFN_TrimCommandPool_PreCall TrimCommandPool_PreCall { noop::TrimCommandPool_PreCall };
+    PFN_GetDeviceQueue2_PreCall GetDeviceQueue2_PreCall { noop::GetDeviceQueue2_PreCall };
+    PFN_CreateSamplerYcbcrConversion_PreCall CreateSamplerYcbcrConversion_PreCall { noop::CreateSamplerYcbcrConversion_PreCall };
+    PFN_DestroySamplerYcbcrConversion_PreCall DestroySamplerYcbcrConversion_PreCall { noop::DestroySamplerYcbcrConversion_PreCall };
+    PFN_CreateDescriptorUpdateTemplate_PreCall CreateDescriptorUpdateTemplate_PreCall { noop::CreateDescriptorUpdateTemplate_PreCall };
+    PFN_DestroyDescriptorUpdateTemplate_PreCall DestroyDescriptorUpdateTemplate_PreCall { noop::DestroyDescriptorUpdateTemplate_PreCall };
+    PFN_UpdateDescriptorSetWithTemplate_PreCall UpdateDescriptorSetWithTemplate_PreCall { noop::UpdateDescriptorSetWithTemplate_PreCall };
+    PFN_GetPhysicalDeviceExternalBufferProperties_PreCall GetPhysicalDeviceExternalBufferProperties_PreCall { noop::GetPhysicalDeviceExternalBufferProperties_PreCall };
+    PFN_GetPhysicalDeviceExternalFenceProperties_PreCall GetPhysicalDeviceExternalFenceProperties_PreCall { noop::GetPhysicalDeviceExternalFenceProperties_PreCall };
+    PFN_GetPhysicalDeviceExternalSemaphoreProperties_PreCall GetPhysicalDeviceExternalSemaphoreProperties_PreCall { noop::GetPhysicalDeviceExternalSemaphoreProperties_PreCall };
+    PFN_GetDescriptorSetLayoutSupport_PreCall GetDescriptorSetLayoutSupport_PreCall { noop::GetDescriptorSetLayoutSupport_PreCall };
+    PFN_CmdDrawIndirectCount_PreCall CmdDrawIndirectCount_PreCall { noop::CmdDrawIndirectCount_PreCall };
+    PFN_CmdDrawIndexedIndirectCount_PreCall CmdDrawIndexedIndirectCount_PreCall { noop::CmdDrawIndexedIndirectCount_PreCall };
+    PFN_CreateRenderPass2_PreCall CreateRenderPass2_PreCall { noop::CreateRenderPass2_PreCall };
+    PFN_CmdBeginRenderPass2_PreCall CmdBeginRenderPass2_PreCall { noop::CmdBeginRenderPass2_PreCall };
+    PFN_CmdNextSubpass2_PreCall CmdNextSubpass2_PreCall { noop::CmdNextSubpass2_PreCall };
+    PFN_CmdEndRenderPass2_PreCall CmdEndRenderPass2_PreCall { noop::CmdEndRenderPass2_PreCall };
+    PFN_ResetQueryPool_PreCall ResetQueryPool_PreCall { noop::ResetQueryPool_PreCall };
+    PFN_GetSemaphoreCounterValue_PreCall GetSemaphoreCounterValue_PreCall { noop::GetSemaphoreCounterValue_PreCall };
+    PFN_WaitSemaphores_PreCall WaitSemaphores_PreCall { noop::WaitSemaphores_PreCall };
+    PFN_SignalSemaphore_PreCall SignalSemaphore_PreCall { noop::SignalSemaphore_PreCall };
+    PFN_GetBufferDeviceAddress_PreCall GetBufferDeviceAddress_PreCall { noop::GetBufferDeviceAddress_PreCall };
+    PFN_GetBufferOpaqueCaptureAddress_PreCall GetBufferOpaqueCaptureAddress_PreCall { noop::GetBufferOpaqueCaptureAddress_PreCall };
+    PFN_GetDeviceMemoryOpaqueCaptureAddress_PreCall GetDeviceMemoryOpaqueCaptureAddress_PreCall { noop::GetDeviceMemoryOpaqueCaptureAddress_PreCall };
+    PFN_GetPhysicalDeviceToolProperties_PreCall GetPhysicalDeviceToolProperties_PreCall { noop::GetPhysicalDeviceToolProperties_PreCall };
+    PFN_CreatePrivateDataSlot_PreCall CreatePrivateDataSlot_PreCall { noop::CreatePrivateDataSlot_PreCall };
+    PFN_DestroyPrivateDataSlot_PreCall DestroyPrivateDataSlot_PreCall { noop::DestroyPrivateDataSlot_PreCall };
+    PFN_SetPrivateData_PreCall SetPrivateData_PreCall { noop::SetPrivateData_PreCall };
+    PFN_GetPrivateData_PreCall GetPrivateData_PreCall { noop::GetPrivateData_PreCall };
+    PFN_CmdSetEvent2_PreCall CmdSetEvent2_PreCall { noop::CmdSetEvent2_PreCall };
+    PFN_CmdResetEvent2_PreCall CmdResetEvent2_PreCall { noop::CmdResetEvent2_PreCall };
+    PFN_CmdWaitEvents2_PreCall CmdWaitEvents2_PreCall { noop::CmdWaitEvents2_PreCall };
+    PFN_CmdPipelineBarrier2_PreCall CmdPipelineBarrier2_PreCall { noop::CmdPipelineBarrier2_PreCall };
+    PFN_CmdWriteTimestamp2_PreCall CmdWriteTimestamp2_PreCall { noop::CmdWriteTimestamp2_PreCall };
+    PFN_QueueSubmit2_PreCall QueueSubmit2_PreCall { noop::QueueSubmit2_PreCall };
+    PFN_CmdCopyBuffer2_PreCall CmdCopyBuffer2_PreCall { noop::CmdCopyBuffer2_PreCall };
+    PFN_CmdCopyImage2_PreCall CmdCopyImage2_PreCall { noop::CmdCopyImage2_PreCall };
+    PFN_CmdCopyBufferToImage2_PreCall CmdCopyBufferToImage2_PreCall { noop::CmdCopyBufferToImage2_PreCall };
+    PFN_CmdCopyImageToBuffer2_PreCall CmdCopyImageToBuffer2_PreCall { noop::CmdCopyImageToBuffer2_PreCall };
+    PFN_CmdBlitImage2_PreCall CmdBlitImage2_PreCall { noop::CmdBlitImage2_PreCall };
+    PFN_CmdResolveImage2_PreCall CmdResolveImage2_PreCall { noop::CmdResolveImage2_PreCall };
+    PFN_CmdBeginRendering_PreCall CmdBeginRendering_PreCall { noop::CmdBeginRendering_PreCall };
+    PFN_CmdEndRendering_PreCall CmdEndRendering_PreCall { noop::CmdEndRendering_PreCall };
+    PFN_CmdSetCullMode_PreCall CmdSetCullMode_PreCall { noop::CmdSetCullMode_PreCall };
+    PFN_CmdSetFrontFace_PreCall CmdSetFrontFace_PreCall { noop::CmdSetFrontFace_PreCall };
+    PFN_CmdSetPrimitiveTopology_PreCall CmdSetPrimitiveTopology_PreCall { noop::CmdSetPrimitiveTopology_PreCall };
+    PFN_CmdSetViewportWithCount_PreCall CmdSetViewportWithCount_PreCall { noop::CmdSetViewportWithCount_PreCall };
+    PFN_CmdSetScissorWithCount_PreCall CmdSetScissorWithCount_PreCall { noop::CmdSetScissorWithCount_PreCall };
+    PFN_CmdBindVertexBuffers2_PreCall CmdBindVertexBuffers2_PreCall { noop::CmdBindVertexBuffers2_PreCall };
+    PFN_CmdSetDepthTestEnable_PreCall CmdSetDepthTestEnable_PreCall { noop::CmdSetDepthTestEnable_PreCall };
+    PFN_CmdSetDepthWriteEnable_PreCall CmdSetDepthWriteEnable_PreCall { noop::CmdSetDepthWriteEnable_PreCall };
+    PFN_CmdSetDepthCompareOp_PreCall CmdSetDepthCompareOp_PreCall { noop::CmdSetDepthCompareOp_PreCall };
+    PFN_CmdSetDepthBoundsTestEnable_PreCall CmdSetDepthBoundsTestEnable_PreCall { noop::CmdSetDepthBoundsTestEnable_PreCall };
+    PFN_CmdSetStencilTestEnable_PreCall CmdSetStencilTestEnable_PreCall { noop::CmdSetStencilTestEnable_PreCall };
+    PFN_CmdSetStencilOp_PreCall CmdSetStencilOp_PreCall { noop::CmdSetStencilOp_PreCall };
+    PFN_CmdSetRasterizerDiscardEnable_PreCall CmdSetRasterizerDiscardEnable_PreCall { noop::CmdSetRasterizerDiscardEnable_PreCall };
+    PFN_CmdSetDepthBiasEnable_PreCall CmdSetDepthBiasEnable_PreCall { noop::CmdSetDepthBiasEnable_PreCall };
+    PFN_CmdSetPrimitiveRestartEnable_PreCall CmdSetPrimitiveRestartEnable_PreCall { noop::CmdSetPrimitiveRestartEnable_PreCall };
+    PFN_GetDeviceBufferMemoryRequirements_PreCall GetDeviceBufferMemoryRequirements_PreCall { noop::GetDeviceBufferMemoryRequirements_PreCall };
+    PFN_GetDeviceImageMemoryRequirements_PreCall GetDeviceImageMemoryRequirements_PreCall { noop::GetDeviceImageMemoryRequirements_PreCall };
+    PFN_GetDeviceImageSparseMemoryRequirements_PreCall GetDeviceImageSparseMemoryRequirements_PreCall { noop::GetDeviceImageSparseMemoryRequirements_PreCall };
+    PFN_DestroySurfaceKHR_PreCall DestroySurfaceKHR_PreCall { noop::DestroySurfaceKHR_PreCall };
+    PFN_GetPhysicalDeviceSurfaceSupportKHR_PreCall GetPhysicalDeviceSurfaceSupportKHR_PreCall { noop::GetPhysicalDeviceSurfaceSupportKHR_PreCall };
+    PFN_GetPhysicalDeviceSurfaceCapabilitiesKHR_PreCall GetPhysicalDeviceSurfaceCapabilitiesKHR_PreCall { noop::GetPhysicalDeviceSurfaceCapabilitiesKHR_PreCall };
+    PFN_GetPhysicalDeviceSurfaceFormatsKHR_PreCall GetPhysicalDeviceSurfaceFormatsKHR_PreCall { noop::GetPhysicalDeviceSurfaceFormatsKHR_PreCall };
+    PFN_GetPhysicalDeviceSurfacePresentModesKHR_PreCall GetPhysicalDeviceSurfacePresentModesKHR_PreCall { noop::GetPhysicalDeviceSurfacePresentModesKHR_PreCall };
+    PFN_CreateSwapchainKHR_PreCall CreateSwapchainKHR_PreCall { noop::CreateSwapchainKHR_PreCall };
+    PFN_DestroySwapchainKHR_PreCall DestroySwapchainKHR_PreCall { noop::DestroySwapchainKHR_PreCall };
+    PFN_GetSwapchainImagesKHR_PreCall GetSwapchainImagesKHR_PreCall { noop::GetSwapchainImagesKHR_PreCall };
+    PFN_AcquireNextImageKHR_PreCall AcquireNextImageKHR_PreCall { noop::AcquireNextImageKHR_PreCall };
+    PFN_QueuePresentKHR_PreCall QueuePresentKHR_PreCall { noop::QueuePresentKHR_PreCall };
+    PFN_GetDeviceGroupPresentCapabilitiesKHR_PreCall GetDeviceGroupPresentCapabilitiesKHR_PreCall { noop::GetDeviceGroupPresentCapabilitiesKHR_PreCall };
+    PFN_GetDeviceGroupSurfacePresentModesKHR_PreCall GetDeviceGroupSurfacePresentModesKHR_PreCall { noop::GetDeviceGroupSurfacePresentModesKHR_PreCall };
+    PFN_GetPhysicalDevicePresentRectanglesKHR_PreCall GetPhysicalDevicePresentRectanglesKHR_PreCall { noop::GetPhysicalDevicePresentRectanglesKHR_PreCall };
+    PFN_AcquireNextImage2KHR_PreCall AcquireNextImage2KHR_PreCall { noop::AcquireNextImage2KHR_PreCall };
+    PFN_GetPhysicalDeviceDisplayPropertiesKHR_PreCall GetPhysicalDeviceDisplayPropertiesKHR_PreCall { noop::GetPhysicalDeviceDisplayPropertiesKHR_PreCall };
+    PFN_GetPhysicalDeviceDisplayPlanePropertiesKHR_PreCall GetPhysicalDeviceDisplayPlanePropertiesKHR_PreCall { noop::GetPhysicalDeviceDisplayPlanePropertiesKHR_PreCall };
+    PFN_GetDisplayPlaneSupportedDisplaysKHR_PreCall GetDisplayPlaneSupportedDisplaysKHR_PreCall { noop::GetDisplayPlaneSupportedDisplaysKHR_PreCall };
+    PFN_GetDisplayModePropertiesKHR_PreCall GetDisplayModePropertiesKHR_PreCall { noop::GetDisplayModePropertiesKHR_PreCall };
+    PFN_CreateDisplayModeKHR_PreCall CreateDisplayModeKHR_PreCall { noop::CreateDisplayModeKHR_PreCall };
+    PFN_GetDisplayPlaneCapabilitiesKHR_PreCall GetDisplayPlaneCapabilitiesKHR_PreCall { noop::GetDisplayPlaneCapabilitiesKHR_PreCall };
+    PFN_CreateDisplayPlaneSurfaceKHR_PreCall CreateDisplayPlaneSurfaceKHR_PreCall { noop::CreateDisplayPlaneSurfaceKHR_PreCall };
+    PFN_CreateSharedSwapchainsKHR_PreCall CreateSharedSwapchainsKHR_PreCall { noop::CreateSharedSwapchainsKHR_PreCall };
+    PFN_CreateXlibSurfaceKHR_PreCall CreateXlibSurfaceKHR_PreCall { noop::CreateXlibSurfaceKHR_PreCall };
+    PFN_GetPhysicalDeviceXlibPresentationSupportKHR_PreCall GetPhysicalDeviceXlibPresentationSupportKHR_PreCall { noop::GetPhysicalDeviceXlibPresentationSupportKHR_PreCall };
+    PFN_CreateXcbSurfaceKHR_PreCall CreateXcbSurfaceKHR_PreCall { noop::CreateXcbSurfaceKHR_PreCall };
+    PFN_GetPhysicalDeviceXcbPresentationSupportKHR_PreCall GetPhysicalDeviceXcbPresentationSupportKHR_PreCall { noop::GetPhysicalDeviceXcbPresentationSupportKHR_PreCall };
+    PFN_CreateWaylandSurfaceKHR_PreCall CreateWaylandSurfaceKHR_PreCall { noop::CreateWaylandSurfaceKHR_PreCall };
+    PFN_GetPhysicalDeviceWaylandPresentationSupportKHR_PreCall GetPhysicalDeviceWaylandPresentationSupportKHR_PreCall { noop::GetPhysicalDeviceWaylandPresentationSupportKHR_PreCall };
+    PFN_CreateAndroidSurfaceKHR_PreCall CreateAndroidSurfaceKHR_PreCall { noop::CreateAndroidSurfaceKHR_PreCall };
+    PFN_CreateWin32SurfaceKHR_PreCall CreateWin32SurfaceKHR_PreCall { noop::CreateWin32SurfaceKHR_PreCall };
+    PFN_GetPhysicalDeviceWin32PresentationSupportKHR_PreCall GetPhysicalDeviceWin32PresentationSupportKHR_PreCall { noop::GetPhysicalDeviceWin32PresentationSupportKHR_PreCall };
+    PFN_GetPhysicalDeviceVideoCapabilitiesKHR_PreCall GetPhysicalDeviceVideoCapabilitiesKHR_PreCall { noop::GetPhysicalDeviceVideoCapabilitiesKHR_PreCall };
+    PFN_GetPhysicalDeviceVideoFormatPropertiesKHR_PreCall GetPhysicalDeviceVideoFormatPropertiesKHR_PreCall { noop::GetPhysicalDeviceVideoFormatPropertiesKHR_PreCall };
+    PFN_CreateVideoSessionKHR_PreCall CreateVideoSessionKHR_PreCall { noop::CreateVideoSessionKHR_PreCall };
+    PFN_DestroyVideoSessionKHR_PreCall DestroyVideoSessionKHR_PreCall { noop::DestroyVideoSessionKHR_PreCall };
+    PFN_GetVideoSessionMemoryRequirementsKHR_PreCall GetVideoSessionMemoryRequirementsKHR_PreCall { noop::GetVideoSessionMemoryRequirementsKHR_PreCall };
+    PFN_BindVideoSessionMemoryKHR_PreCall BindVideoSessionMemoryKHR_PreCall { noop::BindVideoSessionMemoryKHR_PreCall };
+    PFN_CreateVideoSessionParametersKHR_PreCall CreateVideoSessionParametersKHR_PreCall { noop::CreateVideoSessionParametersKHR_PreCall };
+    PFN_UpdateVideoSessionParametersKHR_PreCall UpdateVideoSessionParametersKHR_PreCall { noop::UpdateVideoSessionParametersKHR_PreCall };
+    PFN_DestroyVideoSessionParametersKHR_PreCall DestroyVideoSessionParametersKHR_PreCall { noop::DestroyVideoSessionParametersKHR_PreCall };
+    PFN_CmdBeginVideoCodingKHR_PreCall CmdBeginVideoCodingKHR_PreCall { noop::CmdBeginVideoCodingKHR_PreCall };
+    PFN_CmdEndVideoCodingKHR_PreCall CmdEndVideoCodingKHR_PreCall { noop::CmdEndVideoCodingKHR_PreCall };
+    PFN_CmdControlVideoCodingKHR_PreCall CmdControlVideoCodingKHR_PreCall { noop::CmdControlVideoCodingKHR_PreCall };
+    PFN_CmdDecodeVideoKHR_PreCall CmdDecodeVideoKHR_PreCall { noop::CmdDecodeVideoKHR_PreCall };
+    PFN_CmdBeginRenderingKHR_PreCall CmdBeginRenderingKHR_PreCall { noop::CmdBeginRenderingKHR_PreCall };
+    PFN_CmdEndRenderingKHR_PreCall CmdEndRenderingKHR_PreCall { noop::CmdEndRenderingKHR_PreCall };
+    PFN_GetPhysicalDeviceFeatures2KHR_PreCall GetPhysicalDeviceFeatures2KHR_PreCall { noop::GetPhysicalDeviceFeatures2KHR_PreCall };
+    PFN_GetPhysicalDeviceProperties2KHR_PreCall GetPhysicalDeviceProperties2KHR_PreCall { noop::GetPhysicalDeviceProperties2KHR_PreCall };
+    PFN_GetPhysicalDeviceFormatProperties2KHR_PreCall GetPhysicalDeviceFormatProperties2KHR_PreCall { noop::GetPhysicalDeviceFormatProperties2KHR_PreCall };
+    PFN_GetPhysicalDeviceImageFormatProperties2KHR_PreCall GetPhysicalDeviceImageFormatProperties2KHR_PreCall { noop::GetPhysicalDeviceImageFormatProperties2KHR_PreCall };
+    PFN_GetPhysicalDeviceQueueFamilyProperties2KHR_PreCall GetPhysicalDeviceQueueFamilyProperties2KHR_PreCall { noop::GetPhysicalDeviceQueueFamilyProperties2KHR_PreCall };
+    PFN_GetPhysicalDeviceMemoryProperties2KHR_PreCall GetPhysicalDeviceMemoryProperties2KHR_PreCall { noop::GetPhysicalDeviceMemoryProperties2KHR_PreCall };
+    PFN_GetPhysicalDeviceSparseImageFormatProperties2KHR_PreCall GetPhysicalDeviceSparseImageFormatProperties2KHR_PreCall { noop::GetPhysicalDeviceSparseImageFormatProperties2KHR_PreCall };
+    PFN_GetDeviceGroupPeerMemoryFeaturesKHR_PreCall GetDeviceGroupPeerMemoryFeaturesKHR_PreCall { noop::GetDeviceGroupPeerMemoryFeaturesKHR_PreCall };
+    PFN_CmdSetDeviceMaskKHR_PreCall CmdSetDeviceMaskKHR_PreCall { noop::CmdSetDeviceMaskKHR_PreCall };
+    PFN_CmdDispatchBaseKHR_PreCall CmdDispatchBaseKHR_PreCall { noop::CmdDispatchBaseKHR_PreCall };
+    PFN_TrimCommandPoolKHR_PreCall TrimCommandPoolKHR_PreCall { noop::TrimCommandPoolKHR_PreCall };
+    PFN_EnumeratePhysicalDeviceGroupsKHR_PreCall EnumeratePhysicalDeviceGroupsKHR_PreCall { noop::EnumeratePhysicalDeviceGroupsKHR_PreCall };
+    PFN_GetPhysicalDeviceExternalBufferPropertiesKHR_PreCall GetPhysicalDeviceExternalBufferPropertiesKHR_PreCall { noop::GetPhysicalDeviceExternalBufferPropertiesKHR_PreCall };
+    PFN_GetMemoryWin32HandleKHR_PreCall GetMemoryWin32HandleKHR_PreCall { noop::GetMemoryWin32HandleKHR_PreCall };
+    PFN_GetMemoryWin32HandlePropertiesKHR_PreCall GetMemoryWin32HandlePropertiesKHR_PreCall { noop::GetMemoryWin32HandlePropertiesKHR_PreCall };
+    PFN_GetMemoryFdKHR_PreCall GetMemoryFdKHR_PreCall { noop::GetMemoryFdKHR_PreCall };
+    PFN_GetMemoryFdPropertiesKHR_PreCall GetMemoryFdPropertiesKHR_PreCall { noop::GetMemoryFdPropertiesKHR_PreCall };
+    PFN_GetPhysicalDeviceExternalSemaphorePropertiesKHR_PreCall GetPhysicalDeviceExternalSemaphorePropertiesKHR_PreCall { noop::GetPhysicalDeviceExternalSemaphorePropertiesKHR_PreCall };
+    PFN_ImportSemaphoreWin32HandleKHR_PreCall ImportSemaphoreWin32HandleKHR_PreCall { noop::ImportSemaphoreWin32HandleKHR_PreCall };
+    PFN_GetSemaphoreWin32HandleKHR_PreCall GetSemaphoreWin32HandleKHR_PreCall { noop::GetSemaphoreWin32HandleKHR_PreCall };
+    PFN_ImportSemaphoreFdKHR_PreCall ImportSemaphoreFdKHR_PreCall { noop::ImportSemaphoreFdKHR_PreCall };
+    PFN_GetSemaphoreFdKHR_PreCall GetSemaphoreFdKHR_PreCall { noop::GetSemaphoreFdKHR_PreCall };
+    PFN_CmdPushDescriptorSetKHR_PreCall CmdPushDescriptorSetKHR_PreCall { noop::CmdPushDescriptorSetKHR_PreCall };
+    PFN_CmdPushDescriptorSetWithTemplateKHR_PreCall CmdPushDescriptorSetWithTemplateKHR_PreCall { noop::CmdPushDescriptorSetWithTemplateKHR_PreCall };
+    PFN_CreateDescriptorUpdateTemplateKHR_PreCall CreateDescriptorUpdateTemplateKHR_PreCall { noop::CreateDescriptorUpdateTemplateKHR_PreCall };
+    PFN_DestroyDescriptorUpdateTemplateKHR_PreCall DestroyDescriptorUpdateTemplateKHR_PreCall { noop::DestroyDescriptorUpdateTemplateKHR_PreCall };
+    PFN_UpdateDescriptorSetWithTemplateKHR_PreCall UpdateDescriptorSetWithTemplateKHR_PreCall { noop::UpdateDescriptorSetWithTemplateKHR_PreCall };
+    PFN_CreateRenderPass2KHR_PreCall CreateRenderPass2KHR_PreCall { noop::CreateRenderPass2KHR_PreCall };
+    PFN_CmdBeginRenderPass2KHR_PreCall CmdBeginRenderPass2KHR_PreCall { noop::CmdBeginRenderPass2KHR_PreCall };
+    PFN_CmdNextSubpass2KHR_PreCall CmdNextSubpass2KHR_PreCall { noop::CmdNextSubpass2KHR_PreCall };
+    PFN_CmdEndRenderPass2KHR_PreCall CmdEndRenderPass2KHR_PreCall { noop::CmdEndRenderPass2KHR_PreCall };
+    PFN_GetSwapchainStatusKHR_PreCall GetSwapchainStatusKHR_PreCall { noop::GetSwapchainStatusKHR_PreCall };
+    PFN_GetPhysicalDeviceExternalFencePropertiesKHR_PreCall GetPhysicalDeviceExternalFencePropertiesKHR_PreCall { noop::GetPhysicalDeviceExternalFencePropertiesKHR_PreCall };
+    PFN_ImportFenceWin32HandleKHR_PreCall ImportFenceWin32HandleKHR_PreCall { noop::ImportFenceWin32HandleKHR_PreCall };
+    PFN_GetFenceWin32HandleKHR_PreCall GetFenceWin32HandleKHR_PreCall { noop::GetFenceWin32HandleKHR_PreCall };
+    PFN_ImportFenceFdKHR_PreCall ImportFenceFdKHR_PreCall { noop::ImportFenceFdKHR_PreCall };
+    PFN_GetFenceFdKHR_PreCall GetFenceFdKHR_PreCall { noop::GetFenceFdKHR_PreCall };
+    PFN_EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR_PreCall EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR_PreCall { noop::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR_PreCall };
+    PFN_GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR_PreCall GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR_PreCall { noop::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR_PreCall };
+    PFN_AcquireProfilingLockKHR_PreCall AcquireProfilingLockKHR_PreCall { noop::AcquireProfilingLockKHR_PreCall };
+    PFN_ReleaseProfilingLockKHR_PreCall ReleaseProfilingLockKHR_PreCall { noop::ReleaseProfilingLockKHR_PreCall };
+    PFN_GetPhysicalDeviceSurfaceCapabilities2KHR_PreCall GetPhysicalDeviceSurfaceCapabilities2KHR_PreCall { noop::GetPhysicalDeviceSurfaceCapabilities2KHR_PreCall };
+    PFN_GetPhysicalDeviceSurfaceFormats2KHR_PreCall GetPhysicalDeviceSurfaceFormats2KHR_PreCall { noop::GetPhysicalDeviceSurfaceFormats2KHR_PreCall };
+    PFN_GetPhysicalDeviceDisplayProperties2KHR_PreCall GetPhysicalDeviceDisplayProperties2KHR_PreCall { noop::GetPhysicalDeviceDisplayProperties2KHR_PreCall };
+    PFN_GetPhysicalDeviceDisplayPlaneProperties2KHR_PreCall GetPhysicalDeviceDisplayPlaneProperties2KHR_PreCall { noop::GetPhysicalDeviceDisplayPlaneProperties2KHR_PreCall };
+    PFN_GetDisplayModeProperties2KHR_PreCall GetDisplayModeProperties2KHR_PreCall { noop::GetDisplayModeProperties2KHR_PreCall };
+    PFN_GetDisplayPlaneCapabilities2KHR_PreCall GetDisplayPlaneCapabilities2KHR_PreCall { noop::GetDisplayPlaneCapabilities2KHR_PreCall };
+    PFN_GetImageMemoryRequirements2KHR_PreCall GetImageMemoryRequirements2KHR_PreCall { noop::GetImageMemoryRequirements2KHR_PreCall };
+    PFN_GetBufferMemoryRequirements2KHR_PreCall GetBufferMemoryRequirements2KHR_PreCall { noop::GetBufferMemoryRequirements2KHR_PreCall };
+    PFN_GetImageSparseMemoryRequirements2KHR_PreCall GetImageSparseMemoryRequirements2KHR_PreCall { noop::GetImageSparseMemoryRequirements2KHR_PreCall };
+    PFN_CreateSamplerYcbcrConversionKHR_PreCall CreateSamplerYcbcrConversionKHR_PreCall { noop::CreateSamplerYcbcrConversionKHR_PreCall };
+    PFN_DestroySamplerYcbcrConversionKHR_PreCall DestroySamplerYcbcrConversionKHR_PreCall { noop::DestroySamplerYcbcrConversionKHR_PreCall };
+    PFN_BindBufferMemory2KHR_PreCall BindBufferMemory2KHR_PreCall { noop::BindBufferMemory2KHR_PreCall };
+    PFN_BindImageMemory2KHR_PreCall BindImageMemory2KHR_PreCall { noop::BindImageMemory2KHR_PreCall };
+    PFN_GetDescriptorSetLayoutSupportKHR_PreCall GetDescriptorSetLayoutSupportKHR_PreCall { noop::GetDescriptorSetLayoutSupportKHR_PreCall };
+    PFN_CmdDrawIndirectCountKHR_PreCall CmdDrawIndirectCountKHR_PreCall { noop::CmdDrawIndirectCountKHR_PreCall };
+    PFN_CmdDrawIndexedIndirectCountKHR_PreCall CmdDrawIndexedIndirectCountKHR_PreCall { noop::CmdDrawIndexedIndirectCountKHR_PreCall };
+    PFN_GetSemaphoreCounterValueKHR_PreCall GetSemaphoreCounterValueKHR_PreCall { noop::GetSemaphoreCounterValueKHR_PreCall };
+    PFN_WaitSemaphoresKHR_PreCall WaitSemaphoresKHR_PreCall { noop::WaitSemaphoresKHR_PreCall };
+    PFN_SignalSemaphoreKHR_PreCall SignalSemaphoreKHR_PreCall { noop::SignalSemaphoreKHR_PreCall };
+    PFN_GetPhysicalDeviceFragmentShadingRatesKHR_PreCall GetPhysicalDeviceFragmentShadingRatesKHR_PreCall { noop::GetPhysicalDeviceFragmentShadingRatesKHR_PreCall };
+    PFN_CmdSetFragmentShadingRateKHR_PreCall CmdSetFragmentShadingRateKHR_PreCall { noop::CmdSetFragmentShadingRateKHR_PreCall };
+    PFN_WaitForPresentKHR_PreCall WaitForPresentKHR_PreCall { noop::WaitForPresentKHR_PreCall };
+    PFN_GetBufferDeviceAddressKHR_PreCall GetBufferDeviceAddressKHR_PreCall { noop::GetBufferDeviceAddressKHR_PreCall };
+    PFN_GetBufferOpaqueCaptureAddressKHR_PreCall GetBufferOpaqueCaptureAddressKHR_PreCall { noop::GetBufferOpaqueCaptureAddressKHR_PreCall };
+    PFN_GetDeviceMemoryOpaqueCaptureAddressKHR_PreCall GetDeviceMemoryOpaqueCaptureAddressKHR_PreCall { noop::GetDeviceMemoryOpaqueCaptureAddressKHR_PreCall };
+    PFN_CreateDeferredOperationKHR_PreCall CreateDeferredOperationKHR_PreCall { noop::CreateDeferredOperationKHR_PreCall };
+    PFN_DestroyDeferredOperationKHR_PreCall DestroyDeferredOperationKHR_PreCall { noop::DestroyDeferredOperationKHR_PreCall };
+    PFN_GetDeferredOperationMaxConcurrencyKHR_PreCall GetDeferredOperationMaxConcurrencyKHR_PreCall { noop::GetDeferredOperationMaxConcurrencyKHR_PreCall };
+    PFN_GetDeferredOperationResultKHR_PreCall GetDeferredOperationResultKHR_PreCall { noop::GetDeferredOperationResultKHR_PreCall };
+    PFN_DeferredOperationJoinKHR_PreCall DeferredOperationJoinKHR_PreCall { noop::DeferredOperationJoinKHR_PreCall };
+    PFN_GetPipelineExecutablePropertiesKHR_PreCall GetPipelineExecutablePropertiesKHR_PreCall { noop::GetPipelineExecutablePropertiesKHR_PreCall };
+    PFN_GetPipelineExecutableStatisticsKHR_PreCall GetPipelineExecutableStatisticsKHR_PreCall { noop::GetPipelineExecutableStatisticsKHR_PreCall };
+    PFN_GetPipelineExecutableInternalRepresentationsKHR_PreCall GetPipelineExecutableInternalRepresentationsKHR_PreCall { noop::GetPipelineExecutableInternalRepresentationsKHR_PreCall };
+    PFN_MapMemory2KHR_PreCall MapMemory2KHR_PreCall { noop::MapMemory2KHR_PreCall };
+    PFN_UnmapMemory2KHR_PreCall UnmapMemory2KHR_PreCall { noop::UnmapMemory2KHR_PreCall };
+    PFN_CmdEncodeVideoKHR_PreCall CmdEncodeVideoKHR_PreCall { noop::CmdEncodeVideoKHR_PreCall };
+    PFN_CmdSetEvent2KHR_PreCall CmdSetEvent2KHR_PreCall { noop::CmdSetEvent2KHR_PreCall };
+    PFN_CmdResetEvent2KHR_PreCall CmdResetEvent2KHR_PreCall { noop::CmdResetEvent2KHR_PreCall };
+    PFN_CmdWaitEvents2KHR_PreCall CmdWaitEvents2KHR_PreCall { noop::CmdWaitEvents2KHR_PreCall };
+    PFN_CmdPipelineBarrier2KHR_PreCall CmdPipelineBarrier2KHR_PreCall { noop::CmdPipelineBarrier2KHR_PreCall };
+    PFN_CmdWriteTimestamp2KHR_PreCall CmdWriteTimestamp2KHR_PreCall { noop::CmdWriteTimestamp2KHR_PreCall };
+    PFN_QueueSubmit2KHR_PreCall QueueSubmit2KHR_PreCall { noop::QueueSubmit2KHR_PreCall };
+    PFN_CmdWriteBufferMarker2AMD_PreCall CmdWriteBufferMarker2AMD_PreCall { noop::CmdWriteBufferMarker2AMD_PreCall };
+    PFN_GetQueueCheckpointData2NV_PreCall GetQueueCheckpointData2NV_PreCall { noop::GetQueueCheckpointData2NV_PreCall };
+    PFN_CmdCopyBuffer2KHR_PreCall CmdCopyBuffer2KHR_PreCall { noop::CmdCopyBuffer2KHR_PreCall };
+    PFN_CmdCopyImage2KHR_PreCall CmdCopyImage2KHR_PreCall { noop::CmdCopyImage2KHR_PreCall };
+    PFN_CmdCopyBufferToImage2KHR_PreCall CmdCopyBufferToImage2KHR_PreCall { noop::CmdCopyBufferToImage2KHR_PreCall };
+    PFN_CmdCopyImageToBuffer2KHR_PreCall CmdCopyImageToBuffer2KHR_PreCall { noop::CmdCopyImageToBuffer2KHR_PreCall };
+    PFN_CmdBlitImage2KHR_PreCall CmdBlitImage2KHR_PreCall { noop::CmdBlitImage2KHR_PreCall };
+    PFN_CmdResolveImage2KHR_PreCall CmdResolveImage2KHR_PreCall { noop::CmdResolveImage2KHR_PreCall };
+    PFN_CmdTraceRaysIndirect2KHR_PreCall CmdTraceRaysIndirect2KHR_PreCall { noop::CmdTraceRaysIndirect2KHR_PreCall };
+    PFN_GetDeviceBufferMemoryRequirementsKHR_PreCall GetDeviceBufferMemoryRequirementsKHR_PreCall { noop::GetDeviceBufferMemoryRequirementsKHR_PreCall };
+    PFN_GetDeviceImageMemoryRequirementsKHR_PreCall GetDeviceImageMemoryRequirementsKHR_PreCall { noop::GetDeviceImageMemoryRequirementsKHR_PreCall };
+    PFN_GetDeviceImageSparseMemoryRequirementsKHR_PreCall GetDeviceImageSparseMemoryRequirementsKHR_PreCall { noop::GetDeviceImageSparseMemoryRequirementsKHR_PreCall };
+    PFN_CreateDebugReportCallbackEXT_PreCall CreateDebugReportCallbackEXT_PreCall { noop::CreateDebugReportCallbackEXT_PreCall };
+    PFN_DestroyDebugReportCallbackEXT_PreCall DestroyDebugReportCallbackEXT_PreCall { noop::DestroyDebugReportCallbackEXT_PreCall };
+    PFN_DebugReportMessageEXT_PreCall DebugReportMessageEXT_PreCall { noop::DebugReportMessageEXT_PreCall };
+    PFN_DebugMarkerSetObjectTagEXT_PreCall DebugMarkerSetObjectTagEXT_PreCall { noop::DebugMarkerSetObjectTagEXT_PreCall };
+    PFN_DebugMarkerSetObjectNameEXT_PreCall DebugMarkerSetObjectNameEXT_PreCall { noop::DebugMarkerSetObjectNameEXT_PreCall };
+    PFN_CmdDebugMarkerBeginEXT_PreCall CmdDebugMarkerBeginEXT_PreCall { noop::CmdDebugMarkerBeginEXT_PreCall };
+    PFN_CmdDebugMarkerEndEXT_PreCall CmdDebugMarkerEndEXT_PreCall { noop::CmdDebugMarkerEndEXT_PreCall };
+    PFN_CmdDebugMarkerInsertEXT_PreCall CmdDebugMarkerInsertEXT_PreCall { noop::CmdDebugMarkerInsertEXT_PreCall };
+    PFN_CmdBindTransformFeedbackBuffersEXT_PreCall CmdBindTransformFeedbackBuffersEXT_PreCall { noop::CmdBindTransformFeedbackBuffersEXT_PreCall };
+    PFN_CmdBeginTransformFeedbackEXT_PreCall CmdBeginTransformFeedbackEXT_PreCall { noop::CmdBeginTransformFeedbackEXT_PreCall };
+    PFN_CmdEndTransformFeedbackEXT_PreCall CmdEndTransformFeedbackEXT_PreCall { noop::CmdEndTransformFeedbackEXT_PreCall };
+    PFN_CmdBeginQueryIndexedEXT_PreCall CmdBeginQueryIndexedEXT_PreCall { noop::CmdBeginQueryIndexedEXT_PreCall };
+    PFN_CmdEndQueryIndexedEXT_PreCall CmdEndQueryIndexedEXT_PreCall { noop::CmdEndQueryIndexedEXT_PreCall };
+    PFN_CmdDrawIndirectByteCountEXT_PreCall CmdDrawIndirectByteCountEXT_PreCall { noop::CmdDrawIndirectByteCountEXT_PreCall };
+    PFN_GetImageViewHandleNVX_PreCall GetImageViewHandleNVX_PreCall { noop::GetImageViewHandleNVX_PreCall };
+    PFN_GetImageViewAddressNVX_PreCall GetImageViewAddressNVX_PreCall { noop::GetImageViewAddressNVX_PreCall };
+    PFN_CmdDrawIndirectCountAMD_PreCall CmdDrawIndirectCountAMD_PreCall { noop::CmdDrawIndirectCountAMD_PreCall };
+    PFN_CmdDrawIndexedIndirectCountAMD_PreCall CmdDrawIndexedIndirectCountAMD_PreCall { noop::CmdDrawIndexedIndirectCountAMD_PreCall };
+    PFN_GetShaderInfoAMD_PreCall GetShaderInfoAMD_PreCall { noop::GetShaderInfoAMD_PreCall };
+    PFN_CreateStreamDescriptorSurfaceGGP_PreCall CreateStreamDescriptorSurfaceGGP_PreCall { noop::CreateStreamDescriptorSurfaceGGP_PreCall };
+    PFN_GetPhysicalDeviceExternalImageFormatPropertiesNV_PreCall GetPhysicalDeviceExternalImageFormatPropertiesNV_PreCall { noop::GetPhysicalDeviceExternalImageFormatPropertiesNV_PreCall };
+    PFN_GetMemoryWin32HandleNV_PreCall GetMemoryWin32HandleNV_PreCall { noop::GetMemoryWin32HandleNV_PreCall };
+    PFN_CreateViSurfaceNN_PreCall CreateViSurfaceNN_PreCall { noop::CreateViSurfaceNN_PreCall };
+    PFN_CmdBeginConditionalRenderingEXT_PreCall CmdBeginConditionalRenderingEXT_PreCall { noop::CmdBeginConditionalRenderingEXT_PreCall };
+    PFN_CmdEndConditionalRenderingEXT_PreCall CmdEndConditionalRenderingEXT_PreCall { noop::CmdEndConditionalRenderingEXT_PreCall };
+    PFN_CmdSetViewportWScalingNV_PreCall CmdSetViewportWScalingNV_PreCall { noop::CmdSetViewportWScalingNV_PreCall };
+    PFN_ReleaseDisplayEXT_PreCall ReleaseDisplayEXT_PreCall { noop::ReleaseDisplayEXT_PreCall };
+    PFN_AcquireXlibDisplayEXT_PreCall AcquireXlibDisplayEXT_PreCall { noop::AcquireXlibDisplayEXT_PreCall };
+    PFN_GetRandROutputDisplayEXT_PreCall GetRandROutputDisplayEXT_PreCall { noop::GetRandROutputDisplayEXT_PreCall };
+    PFN_GetPhysicalDeviceSurfaceCapabilities2EXT_PreCall GetPhysicalDeviceSurfaceCapabilities2EXT_PreCall { noop::GetPhysicalDeviceSurfaceCapabilities2EXT_PreCall };
+    PFN_DisplayPowerControlEXT_PreCall DisplayPowerControlEXT_PreCall { noop::DisplayPowerControlEXT_PreCall };
+    PFN_RegisterDeviceEventEXT_PreCall RegisterDeviceEventEXT_PreCall { noop::RegisterDeviceEventEXT_PreCall };
+    PFN_RegisterDisplayEventEXT_PreCall RegisterDisplayEventEXT_PreCall { noop::RegisterDisplayEventEXT_PreCall };
+    PFN_GetSwapchainCounterEXT_PreCall GetSwapchainCounterEXT_PreCall { noop::GetSwapchainCounterEXT_PreCall };
+    PFN_GetRefreshCycleDurationGOOGLE_PreCall GetRefreshCycleDurationGOOGLE_PreCall { noop::GetRefreshCycleDurationGOOGLE_PreCall };
+    PFN_GetPastPresentationTimingGOOGLE_PreCall GetPastPresentationTimingGOOGLE_PreCall { noop::GetPastPresentationTimingGOOGLE_PreCall };
+    PFN_CmdSetDiscardRectangleEXT_PreCall CmdSetDiscardRectangleEXT_PreCall { noop::CmdSetDiscardRectangleEXT_PreCall };
+    PFN_CmdSetDiscardRectangleEnableEXT_PreCall CmdSetDiscardRectangleEnableEXT_PreCall { noop::CmdSetDiscardRectangleEnableEXT_PreCall };
+    PFN_CmdSetDiscardRectangleModeEXT_PreCall CmdSetDiscardRectangleModeEXT_PreCall { noop::CmdSetDiscardRectangleModeEXT_PreCall };
+    PFN_SetHdrMetadataEXT_PreCall SetHdrMetadataEXT_PreCall { noop::SetHdrMetadataEXT_PreCall };
+    PFN_CreateIOSSurfaceMVK_PreCall CreateIOSSurfaceMVK_PreCall { noop::CreateIOSSurfaceMVK_PreCall };
+    PFN_CreateMacOSSurfaceMVK_PreCall CreateMacOSSurfaceMVK_PreCall { noop::CreateMacOSSurfaceMVK_PreCall };
+    PFN_SetDebugUtilsObjectNameEXT_PreCall SetDebugUtilsObjectNameEXT_PreCall { noop::SetDebugUtilsObjectNameEXT_PreCall };
+    PFN_SetDebugUtilsObjectTagEXT_PreCall SetDebugUtilsObjectTagEXT_PreCall { noop::SetDebugUtilsObjectTagEXT_PreCall };
+    PFN_QueueBeginDebugUtilsLabelEXT_PreCall QueueBeginDebugUtilsLabelEXT_PreCall { noop::QueueBeginDebugUtilsLabelEXT_PreCall };
+    PFN_QueueEndDebugUtilsLabelEXT_PreCall QueueEndDebugUtilsLabelEXT_PreCall { noop::QueueEndDebugUtilsLabelEXT_PreCall };
+    PFN_QueueInsertDebugUtilsLabelEXT_PreCall QueueInsertDebugUtilsLabelEXT_PreCall { noop::QueueInsertDebugUtilsLabelEXT_PreCall };
+    PFN_CmdBeginDebugUtilsLabelEXT_PreCall CmdBeginDebugUtilsLabelEXT_PreCall { noop::CmdBeginDebugUtilsLabelEXT_PreCall };
+    PFN_CmdEndDebugUtilsLabelEXT_PreCall CmdEndDebugUtilsLabelEXT_PreCall { noop::CmdEndDebugUtilsLabelEXT_PreCall };
+    PFN_CmdInsertDebugUtilsLabelEXT_PreCall CmdInsertDebugUtilsLabelEXT_PreCall { noop::CmdInsertDebugUtilsLabelEXT_PreCall };
+    PFN_CreateDebugUtilsMessengerEXT_PreCall CreateDebugUtilsMessengerEXT_PreCall { noop::CreateDebugUtilsMessengerEXT_PreCall };
+    PFN_DestroyDebugUtilsMessengerEXT_PreCall DestroyDebugUtilsMessengerEXT_PreCall { noop::DestroyDebugUtilsMessengerEXT_PreCall };
+    PFN_SubmitDebugUtilsMessageEXT_PreCall SubmitDebugUtilsMessageEXT_PreCall { noop::SubmitDebugUtilsMessageEXT_PreCall };
+    PFN_GetAndroidHardwareBufferPropertiesANDROID_PreCall GetAndroidHardwareBufferPropertiesANDROID_PreCall { noop::GetAndroidHardwareBufferPropertiesANDROID_PreCall };
+    PFN_GetMemoryAndroidHardwareBufferANDROID_PreCall GetMemoryAndroidHardwareBufferANDROID_PreCall { noop::GetMemoryAndroidHardwareBufferANDROID_PreCall };
+    PFN_CmdSetSampleLocationsEXT_PreCall CmdSetSampleLocationsEXT_PreCall { noop::CmdSetSampleLocationsEXT_PreCall };
+    PFN_GetPhysicalDeviceMultisamplePropertiesEXT_PreCall GetPhysicalDeviceMultisamplePropertiesEXT_PreCall { noop::GetPhysicalDeviceMultisamplePropertiesEXT_PreCall };
+    PFN_GetImageDrmFormatModifierPropertiesEXT_PreCall GetImageDrmFormatModifierPropertiesEXT_PreCall { noop::GetImageDrmFormatModifierPropertiesEXT_PreCall };
+    PFN_CreateValidationCacheEXT_PreCall CreateValidationCacheEXT_PreCall { noop::CreateValidationCacheEXT_PreCall };
+    PFN_DestroyValidationCacheEXT_PreCall DestroyValidationCacheEXT_PreCall { noop::DestroyValidationCacheEXT_PreCall };
+    PFN_MergeValidationCachesEXT_PreCall MergeValidationCachesEXT_PreCall { noop::MergeValidationCachesEXT_PreCall };
+    PFN_GetValidationCacheDataEXT_PreCall GetValidationCacheDataEXT_PreCall { noop::GetValidationCacheDataEXT_PreCall };
+    PFN_CmdBindShadingRateImageNV_PreCall CmdBindShadingRateImageNV_PreCall { noop::CmdBindShadingRateImageNV_PreCall };
+    PFN_CmdSetViewportShadingRatePaletteNV_PreCall CmdSetViewportShadingRatePaletteNV_PreCall { noop::CmdSetViewportShadingRatePaletteNV_PreCall };
+    PFN_CmdSetCoarseSampleOrderNV_PreCall CmdSetCoarseSampleOrderNV_PreCall { noop::CmdSetCoarseSampleOrderNV_PreCall };
+    PFN_CreateAccelerationStructureNV_PreCall CreateAccelerationStructureNV_PreCall { noop::CreateAccelerationStructureNV_PreCall };
+    PFN_DestroyAccelerationStructureNV_PreCall DestroyAccelerationStructureNV_PreCall { noop::DestroyAccelerationStructureNV_PreCall };
+    PFN_GetAccelerationStructureMemoryRequirementsNV_PreCall GetAccelerationStructureMemoryRequirementsNV_PreCall { noop::GetAccelerationStructureMemoryRequirementsNV_PreCall };
+    PFN_BindAccelerationStructureMemoryNV_PreCall BindAccelerationStructureMemoryNV_PreCall { noop::BindAccelerationStructureMemoryNV_PreCall };
+    PFN_CmdBuildAccelerationStructureNV_PreCall CmdBuildAccelerationStructureNV_PreCall { noop::CmdBuildAccelerationStructureNV_PreCall };
+    PFN_CmdCopyAccelerationStructureNV_PreCall CmdCopyAccelerationStructureNV_PreCall { noop::CmdCopyAccelerationStructureNV_PreCall };
+    PFN_CmdTraceRaysNV_PreCall CmdTraceRaysNV_PreCall { noop::CmdTraceRaysNV_PreCall };
+    PFN_CreateRayTracingPipelinesNV_PreCall CreateRayTracingPipelinesNV_PreCall { noop::CreateRayTracingPipelinesNV_PreCall };
+    PFN_GetRayTracingShaderGroupHandlesKHR_PreCall GetRayTracingShaderGroupHandlesKHR_PreCall { noop::GetRayTracingShaderGroupHandlesKHR_PreCall };
+    PFN_GetRayTracingShaderGroupHandlesNV_PreCall GetRayTracingShaderGroupHandlesNV_PreCall { noop::GetRayTracingShaderGroupHandlesNV_PreCall };
+    PFN_GetAccelerationStructureHandleNV_PreCall GetAccelerationStructureHandleNV_PreCall { noop::GetAccelerationStructureHandleNV_PreCall };
+    PFN_CmdWriteAccelerationStructuresPropertiesNV_PreCall CmdWriteAccelerationStructuresPropertiesNV_PreCall { noop::CmdWriteAccelerationStructuresPropertiesNV_PreCall };
+    PFN_CompileDeferredNV_PreCall CompileDeferredNV_PreCall { noop::CompileDeferredNV_PreCall };
+    PFN_GetMemoryHostPointerPropertiesEXT_PreCall GetMemoryHostPointerPropertiesEXT_PreCall { noop::GetMemoryHostPointerPropertiesEXT_PreCall };
+    PFN_CmdWriteBufferMarkerAMD_PreCall CmdWriteBufferMarkerAMD_PreCall { noop::CmdWriteBufferMarkerAMD_PreCall };
+    PFN_GetPhysicalDeviceCalibrateableTimeDomainsEXT_PreCall GetPhysicalDeviceCalibrateableTimeDomainsEXT_PreCall { noop::GetPhysicalDeviceCalibrateableTimeDomainsEXT_PreCall };
+    PFN_GetCalibratedTimestampsEXT_PreCall GetCalibratedTimestampsEXT_PreCall { noop::GetCalibratedTimestampsEXT_PreCall };
+    PFN_CmdDrawMeshTasksNV_PreCall CmdDrawMeshTasksNV_PreCall { noop::CmdDrawMeshTasksNV_PreCall };
+    PFN_CmdDrawMeshTasksIndirectNV_PreCall CmdDrawMeshTasksIndirectNV_PreCall { noop::CmdDrawMeshTasksIndirectNV_PreCall };
+    PFN_CmdDrawMeshTasksIndirectCountNV_PreCall CmdDrawMeshTasksIndirectCountNV_PreCall { noop::CmdDrawMeshTasksIndirectCountNV_PreCall };
+    PFN_CmdSetExclusiveScissorEnableNV_PreCall CmdSetExclusiveScissorEnableNV_PreCall { noop::CmdSetExclusiveScissorEnableNV_PreCall };
+    PFN_CmdSetExclusiveScissorNV_PreCall CmdSetExclusiveScissorNV_PreCall { noop::CmdSetExclusiveScissorNV_PreCall };
+    PFN_CmdSetCheckpointNV_PreCall CmdSetCheckpointNV_PreCall { noop::CmdSetCheckpointNV_PreCall };
+    PFN_GetQueueCheckpointDataNV_PreCall GetQueueCheckpointDataNV_PreCall { noop::GetQueueCheckpointDataNV_PreCall };
+    PFN_InitializePerformanceApiINTEL_PreCall InitializePerformanceApiINTEL_PreCall { noop::InitializePerformanceApiINTEL_PreCall };
+    PFN_UninitializePerformanceApiINTEL_PreCall UninitializePerformanceApiINTEL_PreCall { noop::UninitializePerformanceApiINTEL_PreCall };
+    PFN_CmdSetPerformanceMarkerINTEL_PreCall CmdSetPerformanceMarkerINTEL_PreCall { noop::CmdSetPerformanceMarkerINTEL_PreCall };
+    PFN_CmdSetPerformanceStreamMarkerINTEL_PreCall CmdSetPerformanceStreamMarkerINTEL_PreCall { noop::CmdSetPerformanceStreamMarkerINTEL_PreCall };
+    PFN_CmdSetPerformanceOverrideINTEL_PreCall CmdSetPerformanceOverrideINTEL_PreCall { noop::CmdSetPerformanceOverrideINTEL_PreCall };
+    PFN_AcquirePerformanceConfigurationINTEL_PreCall AcquirePerformanceConfigurationINTEL_PreCall { noop::AcquirePerformanceConfigurationINTEL_PreCall };
+    PFN_ReleasePerformanceConfigurationINTEL_PreCall ReleasePerformanceConfigurationINTEL_PreCall { noop::ReleasePerformanceConfigurationINTEL_PreCall };
+    PFN_QueueSetPerformanceConfigurationINTEL_PreCall QueueSetPerformanceConfigurationINTEL_PreCall { noop::QueueSetPerformanceConfigurationINTEL_PreCall };
+    PFN_GetPerformanceParameterINTEL_PreCall GetPerformanceParameterINTEL_PreCall { noop::GetPerformanceParameterINTEL_PreCall };
+    PFN_SetLocalDimmingAMD_PreCall SetLocalDimmingAMD_PreCall { noop::SetLocalDimmingAMD_PreCall };
+    PFN_CreateImagePipeSurfaceFUCHSIA_PreCall CreateImagePipeSurfaceFUCHSIA_PreCall { noop::CreateImagePipeSurfaceFUCHSIA_PreCall };
+    PFN_CreateMetalSurfaceEXT_PreCall CreateMetalSurfaceEXT_PreCall { noop::CreateMetalSurfaceEXT_PreCall };
+    PFN_GetBufferDeviceAddressEXT_PreCall GetBufferDeviceAddressEXT_PreCall { noop::GetBufferDeviceAddressEXT_PreCall };
+    PFN_GetPhysicalDeviceToolPropertiesEXT_PreCall GetPhysicalDeviceToolPropertiesEXT_PreCall { noop::GetPhysicalDeviceToolPropertiesEXT_PreCall };
+    PFN_GetPhysicalDeviceCooperativeMatrixPropertiesNV_PreCall GetPhysicalDeviceCooperativeMatrixPropertiesNV_PreCall { noop::GetPhysicalDeviceCooperativeMatrixPropertiesNV_PreCall };
+    PFN_GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV_PreCall GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV_PreCall { noop::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV_PreCall };
+    PFN_GetPhysicalDeviceSurfacePresentModes2EXT_PreCall GetPhysicalDeviceSurfacePresentModes2EXT_PreCall { noop::GetPhysicalDeviceSurfacePresentModes2EXT_PreCall };
+    PFN_AcquireFullScreenExclusiveModeEXT_PreCall AcquireFullScreenExclusiveModeEXT_PreCall { noop::AcquireFullScreenExclusiveModeEXT_PreCall };
+    PFN_ReleaseFullScreenExclusiveModeEXT_PreCall ReleaseFullScreenExclusiveModeEXT_PreCall { noop::ReleaseFullScreenExclusiveModeEXT_PreCall };
+    PFN_GetDeviceGroupSurfacePresentModes2EXT_PreCall GetDeviceGroupSurfacePresentModes2EXT_PreCall { noop::GetDeviceGroupSurfacePresentModes2EXT_PreCall };
+    PFN_CreateHeadlessSurfaceEXT_PreCall CreateHeadlessSurfaceEXT_PreCall { noop::CreateHeadlessSurfaceEXT_PreCall };
+    PFN_CmdSetLineStippleEXT_PreCall CmdSetLineStippleEXT_PreCall { noop::CmdSetLineStippleEXT_PreCall };
+    PFN_ResetQueryPoolEXT_PreCall ResetQueryPoolEXT_PreCall { noop::ResetQueryPoolEXT_PreCall };
+    PFN_CmdSetCullModeEXT_PreCall CmdSetCullModeEXT_PreCall { noop::CmdSetCullModeEXT_PreCall };
+    PFN_CmdSetFrontFaceEXT_PreCall CmdSetFrontFaceEXT_PreCall { noop::CmdSetFrontFaceEXT_PreCall };
+    PFN_CmdSetPrimitiveTopologyEXT_PreCall CmdSetPrimitiveTopologyEXT_PreCall { noop::CmdSetPrimitiveTopologyEXT_PreCall };
+    PFN_CmdSetViewportWithCountEXT_PreCall CmdSetViewportWithCountEXT_PreCall { noop::CmdSetViewportWithCountEXT_PreCall };
+    PFN_CmdSetScissorWithCountEXT_PreCall CmdSetScissorWithCountEXT_PreCall { noop::CmdSetScissorWithCountEXT_PreCall };
+    PFN_CmdBindVertexBuffers2EXT_PreCall CmdBindVertexBuffers2EXT_PreCall { noop::CmdBindVertexBuffers2EXT_PreCall };
+    PFN_CmdSetDepthTestEnableEXT_PreCall CmdSetDepthTestEnableEXT_PreCall { noop::CmdSetDepthTestEnableEXT_PreCall };
+    PFN_CmdSetDepthWriteEnableEXT_PreCall CmdSetDepthWriteEnableEXT_PreCall { noop::CmdSetDepthWriteEnableEXT_PreCall };
+    PFN_CmdSetDepthCompareOpEXT_PreCall CmdSetDepthCompareOpEXT_PreCall { noop::CmdSetDepthCompareOpEXT_PreCall };
+    PFN_CmdSetDepthBoundsTestEnableEXT_PreCall CmdSetDepthBoundsTestEnableEXT_PreCall { noop::CmdSetDepthBoundsTestEnableEXT_PreCall };
+    PFN_CmdSetStencilTestEnableEXT_PreCall CmdSetStencilTestEnableEXT_PreCall { noop::CmdSetStencilTestEnableEXT_PreCall };
+    PFN_CmdSetStencilOpEXT_PreCall CmdSetStencilOpEXT_PreCall { noop::CmdSetStencilOpEXT_PreCall };
+    PFN_ReleaseSwapchainImagesEXT_PreCall ReleaseSwapchainImagesEXT_PreCall { noop::ReleaseSwapchainImagesEXT_PreCall };
+    PFN_GetGeneratedCommandsMemoryRequirementsNV_PreCall GetGeneratedCommandsMemoryRequirementsNV_PreCall { noop::GetGeneratedCommandsMemoryRequirementsNV_PreCall };
+    PFN_CmdPreprocessGeneratedCommandsNV_PreCall CmdPreprocessGeneratedCommandsNV_PreCall { noop::CmdPreprocessGeneratedCommandsNV_PreCall };
+    PFN_CmdExecuteGeneratedCommandsNV_PreCall CmdExecuteGeneratedCommandsNV_PreCall { noop::CmdExecuteGeneratedCommandsNV_PreCall };
+    PFN_CmdBindPipelineShaderGroupNV_PreCall CmdBindPipelineShaderGroupNV_PreCall { noop::CmdBindPipelineShaderGroupNV_PreCall };
+    PFN_CreateIndirectCommandsLayoutNV_PreCall CreateIndirectCommandsLayoutNV_PreCall { noop::CreateIndirectCommandsLayoutNV_PreCall };
+    PFN_DestroyIndirectCommandsLayoutNV_PreCall DestroyIndirectCommandsLayoutNV_PreCall { noop::DestroyIndirectCommandsLayoutNV_PreCall };
+    PFN_AcquireDrmDisplayEXT_PreCall AcquireDrmDisplayEXT_PreCall { noop::AcquireDrmDisplayEXT_PreCall };
+    PFN_GetDrmDisplayEXT_PreCall GetDrmDisplayEXT_PreCall { noop::GetDrmDisplayEXT_PreCall };
+    PFN_CreatePrivateDataSlotEXT_PreCall CreatePrivateDataSlotEXT_PreCall { noop::CreatePrivateDataSlotEXT_PreCall };
+    PFN_DestroyPrivateDataSlotEXT_PreCall DestroyPrivateDataSlotEXT_PreCall { noop::DestroyPrivateDataSlotEXT_PreCall };
+    PFN_SetPrivateDataEXT_PreCall SetPrivateDataEXT_PreCall { noop::SetPrivateDataEXT_PreCall };
+    PFN_GetPrivateDataEXT_PreCall GetPrivateDataEXT_PreCall { noop::GetPrivateDataEXT_PreCall };
+    PFN_CmdSetFragmentShadingRateEnumNV_PreCall CmdSetFragmentShadingRateEnumNV_PreCall { noop::CmdSetFragmentShadingRateEnumNV_PreCall };
+    PFN_GetImageSubresourceLayout2EXT_PreCall GetImageSubresourceLayout2EXT_PreCall { noop::GetImageSubresourceLayout2EXT_PreCall };
+    PFN_GetDeviceFaultInfoEXT_PreCall GetDeviceFaultInfoEXT_PreCall { noop::GetDeviceFaultInfoEXT_PreCall };
+    PFN_AcquireWinrtDisplayNV_PreCall AcquireWinrtDisplayNV_PreCall { noop::AcquireWinrtDisplayNV_PreCall };
+    PFN_GetWinrtDisplayNV_PreCall GetWinrtDisplayNV_PreCall { noop::GetWinrtDisplayNV_PreCall };
+    PFN_CreateDirectFBSurfaceEXT_PreCall CreateDirectFBSurfaceEXT_PreCall { noop::CreateDirectFBSurfaceEXT_PreCall };
+    PFN_GetPhysicalDeviceDirectFBPresentationSupportEXT_PreCall GetPhysicalDeviceDirectFBPresentationSupportEXT_PreCall { noop::GetPhysicalDeviceDirectFBPresentationSupportEXT_PreCall };
+    PFN_CmdSetVertexInputEXT_PreCall CmdSetVertexInputEXT_PreCall { noop::CmdSetVertexInputEXT_PreCall };
+    PFN_GetMemoryZirconHandleFUCHSIA_PreCall GetMemoryZirconHandleFUCHSIA_PreCall { noop::GetMemoryZirconHandleFUCHSIA_PreCall };
+    PFN_GetMemoryZirconHandlePropertiesFUCHSIA_PreCall GetMemoryZirconHandlePropertiesFUCHSIA_PreCall { noop::GetMemoryZirconHandlePropertiesFUCHSIA_PreCall };
+    PFN_ImportSemaphoreZirconHandleFUCHSIA_PreCall ImportSemaphoreZirconHandleFUCHSIA_PreCall { noop::ImportSemaphoreZirconHandleFUCHSIA_PreCall };
+    PFN_GetSemaphoreZirconHandleFUCHSIA_PreCall GetSemaphoreZirconHandleFUCHSIA_PreCall { noop::GetSemaphoreZirconHandleFUCHSIA_PreCall };
+    PFN_CmdBindInvocationMaskHUAWEI_PreCall CmdBindInvocationMaskHUAWEI_PreCall { noop::CmdBindInvocationMaskHUAWEI_PreCall };
+    PFN_GetMemoryRemoteAddressNV_PreCall GetMemoryRemoteAddressNV_PreCall { noop::GetMemoryRemoteAddressNV_PreCall };
+    PFN_CmdSetPatchControlPointsEXT_PreCall CmdSetPatchControlPointsEXT_PreCall { noop::CmdSetPatchControlPointsEXT_PreCall };
+    PFN_CmdSetRasterizerDiscardEnableEXT_PreCall CmdSetRasterizerDiscardEnableEXT_PreCall { noop::CmdSetRasterizerDiscardEnableEXT_PreCall };
+    PFN_CmdSetDepthBiasEnableEXT_PreCall CmdSetDepthBiasEnableEXT_PreCall { noop::CmdSetDepthBiasEnableEXT_PreCall };
+    PFN_CmdSetLogicOpEXT_PreCall CmdSetLogicOpEXT_PreCall { noop::CmdSetLogicOpEXT_PreCall };
+    PFN_CmdSetPrimitiveRestartEnableEXT_PreCall CmdSetPrimitiveRestartEnableEXT_PreCall { noop::CmdSetPrimitiveRestartEnableEXT_PreCall };
+    PFN_CreateScreenSurfaceQNX_PreCall CreateScreenSurfaceQNX_PreCall { noop::CreateScreenSurfaceQNX_PreCall };
+    PFN_GetPhysicalDeviceScreenPresentationSupportQNX_PreCall GetPhysicalDeviceScreenPresentationSupportQNX_PreCall { noop::GetPhysicalDeviceScreenPresentationSupportQNX_PreCall };
+    PFN_CmdSetColorWriteEnableEXT_PreCall CmdSetColorWriteEnableEXT_PreCall { noop::CmdSetColorWriteEnableEXT_PreCall };
+    PFN_CmdDrawMultiEXT_PreCall CmdDrawMultiEXT_PreCall { noop::CmdDrawMultiEXT_PreCall };
+    PFN_CmdDrawMultiIndexedEXT_PreCall CmdDrawMultiIndexedEXT_PreCall { noop::CmdDrawMultiIndexedEXT_PreCall };
+    PFN_CreateMicromapEXT_PreCall CreateMicromapEXT_PreCall { noop::CreateMicromapEXT_PreCall };
+    PFN_DestroyMicromapEXT_PreCall DestroyMicromapEXT_PreCall { noop::DestroyMicromapEXT_PreCall };
+    PFN_CmdBuildMicromapsEXT_PreCall CmdBuildMicromapsEXT_PreCall { noop::CmdBuildMicromapsEXT_PreCall };
+    PFN_BuildMicromapsEXT_PreCall BuildMicromapsEXT_PreCall { noop::BuildMicromapsEXT_PreCall };
+    PFN_CopyMicromapEXT_PreCall CopyMicromapEXT_PreCall { noop::CopyMicromapEXT_PreCall };
+    PFN_CopyMicromapToMemoryEXT_PreCall CopyMicromapToMemoryEXT_PreCall { noop::CopyMicromapToMemoryEXT_PreCall };
+    PFN_CopyMemoryToMicromapEXT_PreCall CopyMemoryToMicromapEXT_PreCall { noop::CopyMemoryToMicromapEXT_PreCall };
+    PFN_WriteMicromapsPropertiesEXT_PreCall WriteMicromapsPropertiesEXT_PreCall { noop::WriteMicromapsPropertiesEXT_PreCall };
+    PFN_CmdCopyMicromapEXT_PreCall CmdCopyMicromapEXT_PreCall { noop::CmdCopyMicromapEXT_PreCall };
+    PFN_CmdCopyMicromapToMemoryEXT_PreCall CmdCopyMicromapToMemoryEXT_PreCall { noop::CmdCopyMicromapToMemoryEXT_PreCall };
+    PFN_CmdCopyMemoryToMicromapEXT_PreCall CmdCopyMemoryToMicromapEXT_PreCall { noop::CmdCopyMemoryToMicromapEXT_PreCall };
+    PFN_CmdWriteMicromapsPropertiesEXT_PreCall CmdWriteMicromapsPropertiesEXT_PreCall { noop::CmdWriteMicromapsPropertiesEXT_PreCall };
+    PFN_GetDeviceMicromapCompatibilityEXT_PreCall GetDeviceMicromapCompatibilityEXT_PreCall { noop::GetDeviceMicromapCompatibilityEXT_PreCall };
+    PFN_GetMicromapBuildSizesEXT_PreCall GetMicromapBuildSizesEXT_PreCall { noop::GetMicromapBuildSizesEXT_PreCall };
+    PFN_CmdDrawClusterHUAWEI_PreCall CmdDrawClusterHUAWEI_PreCall { noop::CmdDrawClusterHUAWEI_PreCall };
+    PFN_CmdDrawClusterIndirectHUAWEI_PreCall CmdDrawClusterIndirectHUAWEI_PreCall { noop::CmdDrawClusterIndirectHUAWEI_PreCall };
+    PFN_SetDeviceMemoryPriorityEXT_PreCall SetDeviceMemoryPriorityEXT_PreCall { noop::SetDeviceMemoryPriorityEXT_PreCall };
+    PFN_GetDescriptorSetLayoutHostMappingInfoVALVE_PreCall GetDescriptorSetLayoutHostMappingInfoVALVE_PreCall { noop::GetDescriptorSetLayoutHostMappingInfoVALVE_PreCall };
+    PFN_GetDescriptorSetHostMappingVALVE_PreCall GetDescriptorSetHostMappingVALVE_PreCall { noop::GetDescriptorSetHostMappingVALVE_PreCall };
+    PFN_CmdSetTessellationDomainOriginEXT_PreCall CmdSetTessellationDomainOriginEXT_PreCall { noop::CmdSetTessellationDomainOriginEXT_PreCall };
+    PFN_CmdSetDepthClampEnableEXT_PreCall CmdSetDepthClampEnableEXT_PreCall { noop::CmdSetDepthClampEnableEXT_PreCall };
+    PFN_CmdSetPolygonModeEXT_PreCall CmdSetPolygonModeEXT_PreCall { noop::CmdSetPolygonModeEXT_PreCall };
+    PFN_CmdSetRasterizationSamplesEXT_PreCall CmdSetRasterizationSamplesEXT_PreCall { noop::CmdSetRasterizationSamplesEXT_PreCall };
+    PFN_CmdSetSampleMaskEXT_PreCall CmdSetSampleMaskEXT_PreCall { noop::CmdSetSampleMaskEXT_PreCall };
+    PFN_CmdSetAlphaToCoverageEnableEXT_PreCall CmdSetAlphaToCoverageEnableEXT_PreCall { noop::CmdSetAlphaToCoverageEnableEXT_PreCall };
+    PFN_CmdSetAlphaToOneEnableEXT_PreCall CmdSetAlphaToOneEnableEXT_PreCall { noop::CmdSetAlphaToOneEnableEXT_PreCall };
+    PFN_CmdSetLogicOpEnableEXT_PreCall CmdSetLogicOpEnableEXT_PreCall { noop::CmdSetLogicOpEnableEXT_PreCall };
+    PFN_CmdSetColorBlendEnableEXT_PreCall CmdSetColorBlendEnableEXT_PreCall { noop::CmdSetColorBlendEnableEXT_PreCall };
+    PFN_CmdSetColorBlendEquationEXT_PreCall CmdSetColorBlendEquationEXT_PreCall { noop::CmdSetColorBlendEquationEXT_PreCall };
+    PFN_CmdSetColorWriteMaskEXT_PreCall CmdSetColorWriteMaskEXT_PreCall { noop::CmdSetColorWriteMaskEXT_PreCall };
+    PFN_CmdSetRasterizationStreamEXT_PreCall CmdSetRasterizationStreamEXT_PreCall { noop::CmdSetRasterizationStreamEXT_PreCall };
+    PFN_CmdSetConservativeRasterizationModeEXT_PreCall CmdSetConservativeRasterizationModeEXT_PreCall { noop::CmdSetConservativeRasterizationModeEXT_PreCall };
+    PFN_CmdSetExtraPrimitiveOverestimationSizeEXT_PreCall CmdSetExtraPrimitiveOverestimationSizeEXT_PreCall { noop::CmdSetExtraPrimitiveOverestimationSizeEXT_PreCall };
+    PFN_CmdSetDepthClipEnableEXT_PreCall CmdSetDepthClipEnableEXT_PreCall { noop::CmdSetDepthClipEnableEXT_PreCall };
+    PFN_CmdSetSampleLocationsEnableEXT_PreCall CmdSetSampleLocationsEnableEXT_PreCall { noop::CmdSetSampleLocationsEnableEXT_PreCall };
+    PFN_CmdSetColorBlendAdvancedEXT_PreCall CmdSetColorBlendAdvancedEXT_PreCall { noop::CmdSetColorBlendAdvancedEXT_PreCall };
+    PFN_CmdSetProvokingVertexModeEXT_PreCall CmdSetProvokingVertexModeEXT_PreCall { noop::CmdSetProvokingVertexModeEXT_PreCall };
+    PFN_CmdSetLineRasterizationModeEXT_PreCall CmdSetLineRasterizationModeEXT_PreCall { noop::CmdSetLineRasterizationModeEXT_PreCall };
+    PFN_CmdSetLineStippleEnableEXT_PreCall CmdSetLineStippleEnableEXT_PreCall { noop::CmdSetLineStippleEnableEXT_PreCall };
+    PFN_CmdSetDepthClipNegativeOneToOneEXT_PreCall CmdSetDepthClipNegativeOneToOneEXT_PreCall { noop::CmdSetDepthClipNegativeOneToOneEXT_PreCall };
+    PFN_CmdSetViewportWScalingEnableNV_PreCall CmdSetViewportWScalingEnableNV_PreCall { noop::CmdSetViewportWScalingEnableNV_PreCall };
+    PFN_CmdSetViewportSwizzleNV_PreCall CmdSetViewportSwizzleNV_PreCall { noop::CmdSetViewportSwizzleNV_PreCall };
+    PFN_CmdSetCoverageToColorEnableNV_PreCall CmdSetCoverageToColorEnableNV_PreCall { noop::CmdSetCoverageToColorEnableNV_PreCall };
+    PFN_CmdSetCoverageToColorLocationNV_PreCall CmdSetCoverageToColorLocationNV_PreCall { noop::CmdSetCoverageToColorLocationNV_PreCall };
+    PFN_CmdSetCoverageModulationModeNV_PreCall CmdSetCoverageModulationModeNV_PreCall { noop::CmdSetCoverageModulationModeNV_PreCall };
+    PFN_CmdSetCoverageModulationTableEnableNV_PreCall CmdSetCoverageModulationTableEnableNV_PreCall { noop::CmdSetCoverageModulationTableEnableNV_PreCall };
+    PFN_CmdSetCoverageModulationTableNV_PreCall CmdSetCoverageModulationTableNV_PreCall { noop::CmdSetCoverageModulationTableNV_PreCall };
+    PFN_CmdSetShadingRateImageEnableNV_PreCall CmdSetShadingRateImageEnableNV_PreCall { noop::CmdSetShadingRateImageEnableNV_PreCall };
+    PFN_CmdSetRepresentativeFragmentTestEnableNV_PreCall CmdSetRepresentativeFragmentTestEnableNV_PreCall { noop::CmdSetRepresentativeFragmentTestEnableNV_PreCall };
+    PFN_CmdSetCoverageReductionModeNV_PreCall CmdSetCoverageReductionModeNV_PreCall { noop::CmdSetCoverageReductionModeNV_PreCall };
+    PFN_GetShaderModuleIdentifierEXT_PreCall GetShaderModuleIdentifierEXT_PreCall { noop::GetShaderModuleIdentifierEXT_PreCall };
+    PFN_GetShaderModuleCreateInfoIdentifierEXT_PreCall GetShaderModuleCreateInfoIdentifierEXT_PreCall { noop::GetShaderModuleCreateInfoIdentifierEXT_PreCall };
+    PFN_GetPhysicalDeviceOpticalFlowImageFormatsNV_PreCall GetPhysicalDeviceOpticalFlowImageFormatsNV_PreCall { noop::GetPhysicalDeviceOpticalFlowImageFormatsNV_PreCall };
+    PFN_CreateOpticalFlowSessionNV_PreCall CreateOpticalFlowSessionNV_PreCall { noop::CreateOpticalFlowSessionNV_PreCall };
+    PFN_DestroyOpticalFlowSessionNV_PreCall DestroyOpticalFlowSessionNV_PreCall { noop::DestroyOpticalFlowSessionNV_PreCall };
+    PFN_BindOpticalFlowSessionImageNV_PreCall BindOpticalFlowSessionImageNV_PreCall { noop::BindOpticalFlowSessionImageNV_PreCall };
+    PFN_CmdOpticalFlowExecuteNV_PreCall CmdOpticalFlowExecuteNV_PreCall { noop::CmdOpticalFlowExecuteNV_PreCall };
+    PFN_CreateShadersEXT_PreCall CreateShadersEXT_PreCall { noop::CreateShadersEXT_PreCall };
+    PFN_DestroyShaderEXT_PreCall DestroyShaderEXT_PreCall { noop::DestroyShaderEXT_PreCall };
+    PFN_GetShaderBinaryDataEXT_PreCall GetShaderBinaryDataEXT_PreCall { noop::GetShaderBinaryDataEXT_PreCall };
+    PFN_CmdBindShadersEXT_PreCall CmdBindShadersEXT_PreCall { noop::CmdBindShadersEXT_PreCall };
+    PFN_GetFramebufferTilePropertiesQCOM_PreCall GetFramebufferTilePropertiesQCOM_PreCall { noop::GetFramebufferTilePropertiesQCOM_PreCall };
+    PFN_GetDynamicRenderingTilePropertiesQCOM_PreCall GetDynamicRenderingTilePropertiesQCOM_PreCall { noop::GetDynamicRenderingTilePropertiesQCOM_PreCall };
+    PFN_CreateAccelerationStructureKHR_PreCall CreateAccelerationStructureKHR_PreCall { noop::CreateAccelerationStructureKHR_PreCall };
+    PFN_DestroyAccelerationStructureKHR_PreCall DestroyAccelerationStructureKHR_PreCall { noop::DestroyAccelerationStructureKHR_PreCall };
+    PFN_CmdBuildAccelerationStructuresKHR_PreCall CmdBuildAccelerationStructuresKHR_PreCall { noop::CmdBuildAccelerationStructuresKHR_PreCall };
+    PFN_CmdBuildAccelerationStructuresIndirectKHR_PreCall CmdBuildAccelerationStructuresIndirectKHR_PreCall { noop::CmdBuildAccelerationStructuresIndirectKHR_PreCall };
+    PFN_BuildAccelerationStructuresKHR_PreCall BuildAccelerationStructuresKHR_PreCall { noop::BuildAccelerationStructuresKHR_PreCall };
+    PFN_CopyAccelerationStructureKHR_PreCall CopyAccelerationStructureKHR_PreCall { noop::CopyAccelerationStructureKHR_PreCall };
+    PFN_CopyAccelerationStructureToMemoryKHR_PreCall CopyAccelerationStructureToMemoryKHR_PreCall { noop::CopyAccelerationStructureToMemoryKHR_PreCall };
+    PFN_CopyMemoryToAccelerationStructureKHR_PreCall CopyMemoryToAccelerationStructureKHR_PreCall { noop::CopyMemoryToAccelerationStructureKHR_PreCall };
+    PFN_WriteAccelerationStructuresPropertiesKHR_PreCall WriteAccelerationStructuresPropertiesKHR_PreCall { noop::WriteAccelerationStructuresPropertiesKHR_PreCall };
+    PFN_CmdCopyAccelerationStructureKHR_PreCall CmdCopyAccelerationStructureKHR_PreCall { noop::CmdCopyAccelerationStructureKHR_PreCall };
+    PFN_CmdCopyAccelerationStructureToMemoryKHR_PreCall CmdCopyAccelerationStructureToMemoryKHR_PreCall { noop::CmdCopyAccelerationStructureToMemoryKHR_PreCall };
+    PFN_CmdCopyMemoryToAccelerationStructureKHR_PreCall CmdCopyMemoryToAccelerationStructureKHR_PreCall { noop::CmdCopyMemoryToAccelerationStructureKHR_PreCall };
+    PFN_GetAccelerationStructureDeviceAddressKHR_PreCall GetAccelerationStructureDeviceAddressKHR_PreCall { noop::GetAccelerationStructureDeviceAddressKHR_PreCall };
+    PFN_CmdWriteAccelerationStructuresPropertiesKHR_PreCall CmdWriteAccelerationStructuresPropertiesKHR_PreCall { noop::CmdWriteAccelerationStructuresPropertiesKHR_PreCall };
+    PFN_GetDeviceAccelerationStructureCompatibilityKHR_PreCall GetDeviceAccelerationStructureCompatibilityKHR_PreCall { noop::GetDeviceAccelerationStructureCompatibilityKHR_PreCall };
+    PFN_GetAccelerationStructureBuildSizesKHR_PreCall GetAccelerationStructureBuildSizesKHR_PreCall { noop::GetAccelerationStructureBuildSizesKHR_PreCall };
+    PFN_CmdTraceRaysKHR_PreCall CmdTraceRaysKHR_PreCall { noop::CmdTraceRaysKHR_PreCall };
+    PFN_CreateRayTracingPipelinesKHR_PreCall CreateRayTracingPipelinesKHR_PreCall { noop::CreateRayTracingPipelinesKHR_PreCall };
+    PFN_GetRayTracingCaptureReplayShaderGroupHandlesKHR_PreCall GetRayTracingCaptureReplayShaderGroupHandlesKHR_PreCall { noop::GetRayTracingCaptureReplayShaderGroupHandlesKHR_PreCall };
+    PFN_CmdTraceRaysIndirectKHR_PreCall CmdTraceRaysIndirectKHR_PreCall { noop::CmdTraceRaysIndirectKHR_PreCall };
+    PFN_GetRayTracingShaderGroupStackSizeKHR_PreCall GetRayTracingShaderGroupStackSizeKHR_PreCall { noop::GetRayTracingShaderGroupStackSizeKHR_PreCall };
+    PFN_CmdSetRayTracingPipelineStackSizeKHR_PreCall CmdSetRayTracingPipelineStackSizeKHR_PreCall { noop::CmdSetRayTracingPipelineStackSizeKHR_PreCall };
+    PFN_CmdDrawMeshTasksEXT_PreCall CmdDrawMeshTasksEXT_PreCall { noop::CmdDrawMeshTasksEXT_PreCall };
+    PFN_CmdDrawMeshTasksIndirectEXT_PreCall CmdDrawMeshTasksIndirectEXT_PreCall { noop::CmdDrawMeshTasksIndirectEXT_PreCall };
+    PFN_CmdDrawMeshTasksIndirectCountEXT_PreCall CmdDrawMeshTasksIndirectCountEXT_PreCall { noop::CmdDrawMeshTasksIndirectCountEXT_PreCall };
 };
-// clang-format on
 
 template <typename FuncP>
 static void LoadPreFunction(util::platform::GetProcAddress_t gpa, util::platform::LibraryHandle handle, const char* name, FuncP* funcp)
@@ -1909,7 +1883,6 @@ static void LoadPreFunction(util::platform::GetProcAddress_t gpa, util::platform
     }
 }
 
-// clang-format off
 static void LoadPreFunctionTable(util::platform::GetProcAddress_t gpa, util::platform::LibraryHandle handle, plugin_func_table_pre *table)
 {
     assert(gpa);
@@ -1925,8 +1898,14 @@ static void LoadPreFunctionTable(util::platform::GetProcAddress_t gpa, util::pla
     LoadPreFunction(gpa, handle, "GetPhysicalDeviceProperties_PreCall", &table->GetPhysicalDeviceProperties_PreCall);
     LoadPreFunction(gpa, handle, "GetPhysicalDeviceQueueFamilyProperties_PreCall", &table->GetPhysicalDeviceQueueFamilyProperties_PreCall);
     LoadPreFunction(gpa, handle, "GetPhysicalDeviceMemoryProperties_PreCall", &table->GetPhysicalDeviceMemoryProperties_PreCall);
+    LoadPreFunction(gpa, handle, "GetInstanceProcAddr_PreCall", &table->GetInstanceProcAddr_PreCall);
+    LoadPreFunction(gpa, handle, "GetDeviceProcAddr_PreCall", &table->GetDeviceProcAddr_PreCall);
     LoadPreFunction(gpa, handle, "CreateDevice_PreCall", &table->CreateDevice_PreCall);
     LoadPreFunction(gpa, handle, "DestroyDevice_PreCall", &table->DestroyDevice_PreCall);
+    LoadPreFunction(gpa, handle, "EnumerateInstanceExtensionProperties_PreCall", &table->EnumerateInstanceExtensionProperties_PreCall);
+    LoadPreFunction(gpa, handle, "EnumerateDeviceExtensionProperties_PreCall", &table->EnumerateDeviceExtensionProperties_PreCall);
+    LoadPreFunction(gpa, handle, "EnumerateInstanceLayerProperties_PreCall", &table->EnumerateInstanceLayerProperties_PreCall);
+    LoadPreFunction(gpa, handle, "EnumerateDeviceLayerProperties_PreCall", &table->EnumerateDeviceLayerProperties_PreCall);
     LoadPreFunction(gpa, handle, "GetDeviceQueue_PreCall", &table->GetDeviceQueue_PreCall);
     LoadPreFunction(gpa, handle, "QueueSubmit_PreCall", &table->QueueSubmit_PreCall);
     LoadPreFunction(gpa, handle, "QueueWaitIdle_PreCall", &table->QueueWaitIdle_PreCall);
@@ -2047,6 +2026,7 @@ static void LoadPreFunctionTable(util::platform::GetProcAddress_t gpa, util::pla
     LoadPreFunction(gpa, handle, "CmdNextSubpass_PreCall", &table->CmdNextSubpass_PreCall);
     LoadPreFunction(gpa, handle, "CmdEndRenderPass_PreCall", &table->CmdEndRenderPass_PreCall);
     LoadPreFunction(gpa, handle, "CmdExecuteCommands_PreCall", &table->CmdExecuteCommands_PreCall);
+    LoadPreFunction(gpa, handle, "EnumerateInstanceVersion_PreCall", &table->EnumerateInstanceVersion_PreCall);
     LoadPreFunction(gpa, handle, "BindBufferMemory2_PreCall", &table->BindBufferMemory2_PreCall);
     LoadPreFunction(gpa, handle, "BindImageMemory2_PreCall", &table->BindImageMemory2_PreCall);
     LoadPreFunction(gpa, handle, "GetDeviceGroupPeerMemoryFeatures_PreCall", &table->GetDeviceGroupPeerMemoryFeatures_PreCall);
@@ -2069,6 +2049,7 @@ static void LoadPreFunctionTable(util::platform::GetProcAddress_t gpa, util::pla
     LoadPreFunction(gpa, handle, "DestroySamplerYcbcrConversion_PreCall", &table->DestroySamplerYcbcrConversion_PreCall);
     LoadPreFunction(gpa, handle, "CreateDescriptorUpdateTemplate_PreCall", &table->CreateDescriptorUpdateTemplate_PreCall);
     LoadPreFunction(gpa, handle, "DestroyDescriptorUpdateTemplate_PreCall", &table->DestroyDescriptorUpdateTemplate_PreCall);
+    LoadPreFunction(gpa, handle, "UpdateDescriptorSetWithTemplate_PreCall", &table->UpdateDescriptorSetWithTemplate_PreCall);
     LoadPreFunction(gpa, handle, "GetPhysicalDeviceExternalBufferProperties_PreCall", &table->GetPhysicalDeviceExternalBufferProperties_PreCall);
     LoadPreFunction(gpa, handle, "GetPhysicalDeviceExternalFenceProperties_PreCall", &table->GetPhysicalDeviceExternalFenceProperties_PreCall);
     LoadPreFunction(gpa, handle, "GetPhysicalDeviceExternalSemaphoreProperties_PreCall", &table->GetPhysicalDeviceExternalSemaphoreProperties_PreCall);
@@ -2192,8 +2173,10 @@ static void LoadPreFunctionTable(util::platform::GetProcAddress_t gpa, util::pla
     LoadPreFunction(gpa, handle, "ImportSemaphoreFdKHR_PreCall", &table->ImportSemaphoreFdKHR_PreCall);
     LoadPreFunction(gpa, handle, "GetSemaphoreFdKHR_PreCall", &table->GetSemaphoreFdKHR_PreCall);
     LoadPreFunction(gpa, handle, "CmdPushDescriptorSetKHR_PreCall", &table->CmdPushDescriptorSetKHR_PreCall);
+    LoadPreFunction(gpa, handle, "CmdPushDescriptorSetWithTemplateKHR_PreCall", &table->CmdPushDescriptorSetWithTemplateKHR_PreCall);
     LoadPreFunction(gpa, handle, "CreateDescriptorUpdateTemplateKHR_PreCall", &table->CreateDescriptorUpdateTemplateKHR_PreCall);
     LoadPreFunction(gpa, handle, "DestroyDescriptorUpdateTemplateKHR_PreCall", &table->DestroyDescriptorUpdateTemplateKHR_PreCall);
+    LoadPreFunction(gpa, handle, "UpdateDescriptorSetWithTemplateKHR_PreCall", &table->UpdateDescriptorSetWithTemplateKHR_PreCall);
     LoadPreFunction(gpa, handle, "CreateRenderPass2KHR_PreCall", &table->CreateRenderPass2KHR_PreCall);
     LoadPreFunction(gpa, handle, "CmdBeginRenderPass2KHR_PreCall", &table->CmdBeginRenderPass2KHR_PreCall);
     LoadPreFunction(gpa, handle, "CmdNextSubpass2KHR_PreCall", &table->CmdNextSubpass2KHR_PreCall);
@@ -2241,6 +2224,8 @@ static void LoadPreFunctionTable(util::platform::GetProcAddress_t gpa, util::pla
     LoadPreFunction(gpa, handle, "GetPipelineExecutablePropertiesKHR_PreCall", &table->GetPipelineExecutablePropertiesKHR_PreCall);
     LoadPreFunction(gpa, handle, "GetPipelineExecutableStatisticsKHR_PreCall", &table->GetPipelineExecutableStatisticsKHR_PreCall);
     LoadPreFunction(gpa, handle, "GetPipelineExecutableInternalRepresentationsKHR_PreCall", &table->GetPipelineExecutableInternalRepresentationsKHR_PreCall);
+    LoadPreFunction(gpa, handle, "MapMemory2KHR_PreCall", &table->MapMemory2KHR_PreCall);
+    LoadPreFunction(gpa, handle, "UnmapMemory2KHR_PreCall", &table->UnmapMemory2KHR_PreCall);
     LoadPreFunction(gpa, handle, "CmdEncodeVideoKHR_PreCall", &table->CmdEncodeVideoKHR_PreCall);
     LoadPreFunction(gpa, handle, "CmdSetEvent2KHR_PreCall", &table->CmdSetEvent2KHR_PreCall);
     LoadPreFunction(gpa, handle, "CmdResetEvent2KHR_PreCall", &table->CmdResetEvent2KHR_PreCall);
@@ -2478,12 +2463,18 @@ static void LoadPreFunctionTable(util::platform::GetProcAddress_t gpa, util::pla
     LoadPreFunction(gpa, handle, "DestroyOpticalFlowSessionNV_PreCall", &table->DestroyOpticalFlowSessionNV_PreCall);
     LoadPreFunction(gpa, handle, "BindOpticalFlowSessionImageNV_PreCall", &table->BindOpticalFlowSessionImageNV_PreCall);
     LoadPreFunction(gpa, handle, "CmdOpticalFlowExecuteNV_PreCall", &table->CmdOpticalFlowExecuteNV_PreCall);
+    LoadPreFunction(gpa, handle, "CreateShadersEXT_PreCall", &table->CreateShadersEXT_PreCall);
+    LoadPreFunction(gpa, handle, "DestroyShaderEXT_PreCall", &table->DestroyShaderEXT_PreCall);
+    LoadPreFunction(gpa, handle, "GetShaderBinaryDataEXT_PreCall", &table->GetShaderBinaryDataEXT_PreCall);
+    LoadPreFunction(gpa, handle, "CmdBindShadersEXT_PreCall", &table->CmdBindShadersEXT_PreCall);
     LoadPreFunction(gpa, handle, "GetFramebufferTilePropertiesQCOM_PreCall", &table->GetFramebufferTilePropertiesQCOM_PreCall);
     LoadPreFunction(gpa, handle, "GetDynamicRenderingTilePropertiesQCOM_PreCall", &table->GetDynamicRenderingTilePropertiesQCOM_PreCall);
     LoadPreFunction(gpa, handle, "CreateAccelerationStructureKHR_PreCall", &table->CreateAccelerationStructureKHR_PreCall);
     LoadPreFunction(gpa, handle, "DestroyAccelerationStructureKHR_PreCall", &table->DestroyAccelerationStructureKHR_PreCall);
     LoadPreFunction(gpa, handle, "CmdBuildAccelerationStructuresKHR_PreCall", &table->CmdBuildAccelerationStructuresKHR_PreCall);
     LoadPreFunction(gpa, handle, "CmdBuildAccelerationStructuresIndirectKHR_PreCall", &table->CmdBuildAccelerationStructuresIndirectKHR_PreCall);
+    LoadPreFunction(gpa, handle, "BuildAccelerationStructuresKHR_PreCall", &table->BuildAccelerationStructuresKHR_PreCall);
+    LoadPreFunction(gpa, handle, "CopyAccelerationStructureKHR_PreCall", &table->CopyAccelerationStructureKHR_PreCall);
     LoadPreFunction(gpa, handle, "CopyAccelerationStructureToMemoryKHR_PreCall", &table->CopyAccelerationStructureToMemoryKHR_PreCall);
     LoadPreFunction(gpa, handle, "CopyMemoryToAccelerationStructureKHR_PreCall", &table->CopyMemoryToAccelerationStructureKHR_PreCall);
     LoadPreFunction(gpa, handle, "WriteAccelerationStructuresPropertiesKHR_PreCall", &table->WriteAccelerationStructuresPropertiesKHR_PreCall);
@@ -2503,33 +2494,8 @@ static void LoadPreFunctionTable(util::platform::GetProcAddress_t gpa, util::pla
     LoadPreFunction(gpa, handle, "CmdDrawMeshTasksEXT_PreCall", &table->CmdDrawMeshTasksEXT_PreCall);
     LoadPreFunction(gpa, handle, "CmdDrawMeshTasksIndirectEXT_PreCall", &table->CmdDrawMeshTasksIndirectEXT_PreCall);
     LoadPreFunction(gpa, handle, "CmdDrawMeshTasksIndirectCountEXT_PreCall", &table->CmdDrawMeshTasksIndirectCountEXT_PreCall);
-    LoadPreFunction(gpa, handle, "GetInstanceProcAddr_PreCall", &table->GetInstanceProcAddr_PreCall);
-    LoadPreFunction(gpa, handle, "GetDeviceProcAddr_PreCall", &table->GetDeviceProcAddr_PreCall);
-    LoadPreFunction(gpa, handle, "EnumerateInstanceExtensionProperties_PreCall", &table->EnumerateInstanceExtensionProperties_PreCall);
-    LoadPreFunction(gpa, handle, "EnumerateDeviceExtensionProperties_PreCall", &table->EnumerateDeviceExtensionProperties_PreCall);
-    LoadPreFunction(gpa, handle, "EnumerateInstanceLayerProperties_PreCall", &table->EnumerateInstanceLayerProperties_PreCall);
-    LoadPreFunction(gpa, handle, "EnumerateDeviceLayerProperties_PreCall", &table->EnumerateDeviceLayerProperties_PreCall);
-    LoadPreFunction(gpa, handle, "EnumerateInstanceVersion_PreCall", &table->EnumerateInstanceVersion_PreCall);
-    LoadPreFunction(gpa, handle, "UpdateDescriptorSetWithTemplate_PreCall", &table->UpdateDescriptorSetWithTemplate_PreCall);
-    LoadPreFunction(gpa, handle, "CmdPushDescriptorSetWithTemplateKHR_PreCall", &table->CmdPushDescriptorSetWithTemplateKHR_PreCall);
-    LoadPreFunction(gpa, handle, "UpdateDescriptorSetWithTemplateKHR_PreCall", &table->UpdateDescriptorSetWithTemplateKHR_PreCall);
-    LoadPreFunction(gpa, handle, "BuildAccelerationStructuresKHR_PreCall", &table->BuildAccelerationStructuresKHR_PreCall);
-    LoadPreFunction(gpa, handle, "CopyAccelerationStructureKHR_PreCall", &table->CopyAccelerationStructureKHR_PreCall);
-    LoadPreFunction(gpa, handle, "CreateMirSurfaceKHR_PreCall", &table->CreateMirSurfaceKHR_PreCall);
-    LoadPreFunction(gpa, handle, "GetPhysicalDeviceMirPresentationSupportKHR_PreCall", &table->GetPhysicalDeviceMirPresentationSupportKHR_PreCall);
-    LoadPreFunction(gpa, handle, "CmdProcessCommandsNVX_PreCall", &table->CmdProcessCommandsNVX_PreCall);
-    LoadPreFunction(gpa, handle, "CmdReserveSpaceForCommandsNVX_PreCall", &table->CmdReserveSpaceForCommandsNVX_PreCall);
-    LoadPreFunction(gpa, handle, "CreateIndirectCommandsLayoutNVX_PreCall", &table->CreateIndirectCommandsLayoutNVX_PreCall);
-    LoadPreFunction(gpa, handle, "DestroyIndirectCommandsLayoutNVX_PreCall", &table->DestroyIndirectCommandsLayoutNVX_PreCall);
-    LoadPreFunction(gpa, handle, "CreateObjectTableNVX_PreCall", &table->CreateObjectTableNVX_PreCall);
-    LoadPreFunction(gpa, handle, "DestroyObjectTableNVX_PreCall", &table->DestroyObjectTableNVX_PreCall);
-    LoadPreFunction(gpa, handle, "RegisterObjectsNVX_PreCall", &table->RegisterObjectsNVX_PreCall);
-    LoadPreFunction(gpa, handle, "UnregisterObjectsNVX_PreCall", &table->UnregisterObjectsNVX_PreCall);
-    LoadPreFunction(gpa, handle, "GetPhysicalDeviceGeneratedCommandsPropertiesNVX_PreCall", &table->GetPhysicalDeviceGeneratedCommandsPropertiesNVX_PreCall);
-    LoadPreFunction(gpa, handle, "GetAccelerationStructureMemoryRequirementsKHR_PreCall", &table->GetAccelerationStructureMemoryRequirementsKHR_PreCall);
-    LoadPreFunction(gpa, handle, "BindAccelerationStructureMemoryKHR_PreCall", &table->BindAccelerationStructureMemoryKHR_PreCall);
-    LoadPreFunction(gpa, handle, "GetPipelinePropertiesEXT_PreCall", &table->GetPipelinePropertiesEXT_PreCall);
 }
+
 // clang-format on
 
 GFXRECON_END_NAMESPACE(capture)
@@ -2537,3 +2503,4 @@ GFXRECON_END_NAMESPACE(plugins)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_PLUGINS_CAPTURE_FUNC_TABLE_PRE_H
+

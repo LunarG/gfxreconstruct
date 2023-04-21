@@ -74,6 +74,14 @@ from vulkan_command_buffer_util_body_generator import VulkanCommandBufferUtilBod
 from vulkan_command_buffer_util_header_generator import VulkanCommandBufferUtilHeaderGenerator, VulkanCommandBufferUtilHeaderGeneratorOptions
 from vulkan_dispatch_table_generator import VulkanDispatchTableGenerator, VulkanDispatchTableGeneratorOptions
 from layer_func_table_generator import LayerFuncTableGenerator, LayerFuncTableGeneratorOptions
+from vulkan_api_call_encoders_pre_call_generator import VulkanApiCallEncodersPreCallGenerator, VulkanApiCallEncodersPreCallGeneratorOptions
+from vulkan_api_call_encoders_post_call_generator import VulkanApiCallEncodersPostCallGenerator, VulkanApiCallEncodersPostCallGeneratorOptions
+
+# Capture plugins
+from vulkan_capture_plugins_entrypoints_pre_generator import VulkanCapturePluginsEntryPointsPreGenerator, VulkanCapturePluginsEntryPointsPreGeneratorOptions
+from vulkan_capture_plugins_entrypoints_post_generator import VulkanCapturePluginsEntryPointsPostGenerator, VulkanCapturePluginsEntryPointsPostGeneratorOptions
+from vulkan_capture_plugins_func_table_pre_generator import VulkanCapturePluginsFuncTablePreGenerator, VulkanCapturePluginsFuncTablePreGeneratorOptions
+from vulkan_capture_plugins_func_table_post_generator import VulkanCapturePluginsFuncTablePostGenerator, VulkanCapturePluginsFuncTablePostGeneratorOptions
 
 # Struct Encoders
 from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator, VulkanStructEncodersBodyGeneratorOptions
@@ -426,6 +434,86 @@ def make_gen_opts(args):
             directory=directory,
             blacklists=blacklists,
             capture_overrides=capture_overrides,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_api_call_encoders_pre_call_commands.h'] = [
+        VulkanApiCallEncodersPreCallGenerator,
+        VulkanApiCallEncodersPreCallGeneratorOptions(
+            filename='generated_vulkan_api_call_encoders_pre_call_commands.h',
+            directory=directory,
+            blacklists=blacklists,
+            capture_overrides=capture_overrides,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['../../plugins/includes/capture/plugins_entrypoints_pre.h'] = [
+        VulkanCapturePluginsEntryPointsPreGenerator,
+        VulkanCapturePluginsEntryPointsPreGeneratorOptions(
+            filename='../../plugins/includes/capture/plugins_entrypoints_pre.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['../../plugins/includes/capture/plugins_func_table_pre.h'] = [
+        VulkanCapturePluginsFuncTablePreGenerator,
+        VulkanCapturePluginsFuncTablePreGeneratorOptions(
+            filename='../../plugins/includes/capture/plugins_func_table_pre.h',
+            directory=directory,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_api_call_encoders_post_call_commands.h'] = [
+        VulkanApiCallEncodersPostCallGenerator,
+        VulkanApiCallEncodersPostCallGeneratorOptions(
+            filename='generated_vulkan_api_call_encoders_post_call_commands.h',
+            directory=directory,
+            blacklists=blacklists,
+            capture_overrides=capture_overrides,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['../../plugins/includes/capture/plugins_func_table_post.h'] = [
+        VulkanCapturePluginsFuncTablePostGenerator,
+        VulkanCapturePluginsFuncTablePostGeneratorOptions(
+            filename='../../plugins/includes/capture/plugins_func_table_post.h',
+            directory=directory,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['../../plugins/includes/capture/plugins_entrypoints_post.h'] = [
+        VulkanCapturePluginsEntryPointsPostGenerator,
+        VulkanCapturePluginsEntryPointsPostGeneratorOptions(
+            filename='../../plugins/includes/capture/plugins_entrypoints_post.h',
+            directory=directory,
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,

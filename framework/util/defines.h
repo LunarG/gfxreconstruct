@@ -60,16 +60,4 @@
         }                 \
     }
 
-template<typename P, typename U>
-static constexpr U GFXRECON_PTR_TO_UINT(P ptr)
-{
-    return (U)((uintptr_t)(ptr));
-}
-
-template<typename P, typename U>
-static constexpr P GFXRECON_UINT_TO_PTR(U val)
-{
-    return (P)((uintptr_t)(val));
-}
-
 #endif // GFXRECON_UTIL_DEFINES_H

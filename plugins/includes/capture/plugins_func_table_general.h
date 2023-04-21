@@ -58,8 +58,9 @@ static void LoadBaseFunction(util::platform::GetProcAddress_t gpa,
     }
 }
 
-// clang-format off
-static void LoadBaseFunctionTable(util::platform::GetProcAddress_t gpa, util::platform::LibraryHandle handle, plugin_func_table_general *table)
+static void LoadBaseFunctionTable(util::platform::GetProcAddress_t gpa,
+                                  util::platform::LibraryHandle    handle,
+                                  plugin_func_table_general*       table)
 {
     assert(gpa);
     assert(handle);

@@ -1025,7 +1025,7 @@ void CaptureManager::LoadPlugins(const std::unordered_set<std::string>& plugin_p
             plugins::capture::LoadBaseFunctionTable(
                 util::platform::GetProcAddress, plugin.handle, &plugin.func_table_general);
 
-            GFXRECON_WRITE_CONSOLE("Loaded plugin: %s", plugin_path.c_str())
+            GFXRECON_LOG_INFO("Loaded plugin: %s", plugin_path.c_str())
 
             loaded_plugins_.push_back(std::move(plugin));
         }

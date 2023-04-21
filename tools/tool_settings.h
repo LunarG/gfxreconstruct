@@ -103,7 +103,6 @@ const char kFormatArgument[]                     = "--format";
 const char kIncludeBinariesOption[]              = "--include-binaries";
 const char kExpandFlagsOption[]                  = "--expand-flags";
 const char kFilePerFrameOption[]                 = "--file-per-frame";
-const char kReplayPluginPaths[]                  = "--replay-plugin-paths";
 #if defined(WIN32)
 const char kApiFamilyOption[]       = "--api";
 const char kDxTwoPassReplay[]       = "--dx12-two-pass-replay";
@@ -741,29 +740,6 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     IsForceWindowed(options, arg_parser);
 }
 
-static void ParsePluginPaths(const std::string& value_string, std::unordered_set<std::string>& plugin_paths)
-{
-    if (!value_string.empty())
-    {
-        std::string value_copy = value_string;
-
-        size_t pos = 0;
-        while ((pos = value_copy.find(";")) != std::string::npos)
-        {
-            std::string path = value_copy.substr(0, pos);
-            printf("plugin: %s\n", path.c_str());
-            value_copy.erase(0, pos + 1);
-            plugin_paths.insert(std::move(path));
-        }
-
-        if (value_copy.size())
-        {
-            printf("plugin: %s\n", value_copy.c_str());
-            plugin_paths.insert(std::move(value_copy));
-        }
-    }
-}
-
 static gfxrecon::decode::VulkanReplayOptions
 GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
                        const std::string&                              filename,
@@ -828,12 +804,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (!surface_index.empty())
     {
         replay_options.surface_index = std::stoi(surface_index);
-    }
-
-    std::string plugin_paths = arg_parser.GetArgumentValue(kReplayPluginPaths);
-    if (!plugin_paths.empty())
-    {
-        ParsePluginPaths(plugin_paths, replay_options.plugin_paths);
     }
 
     return replay_options;

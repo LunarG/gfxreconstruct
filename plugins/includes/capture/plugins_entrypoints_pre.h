@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2023 Valve Corporation
-** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -26,19 +26,26 @@
 **
 */
 
-#ifndef GFXR_PLUGINS_CAPTURE_ENTRYPOINTS_PRE_H
-#define GFXR_PLUGINS_CAPTURE_ENTRYPOINTS_PRE_H
+#ifndef GFXRECON_PLUGINS_CAPTURE_ENTRYPOINTS_PRE_H
+#define GFXRECON_PLUGINS_CAPTURE_ENTRYPOINTS_PRE_H
 
 #include "format/platform_types.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
+#include "vk_video/vulkan_video_codec_h264std.h"
+#include "vk_video/vulkan_video_codec_h264std_decode.h"
+#include "vk_video/vulkan_video_codec_h264std_encode.h"
+#include "vk_video/vulkan_video_codec_h265std.h"
+#include "vk_video/vulkan_video_codec_h265std_decode.h"
+#include "vk_video/vulkan_video_codec_h265std_encode.h"
+#include "vk_video/vulkan_video_codecs_common.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(plugins)
 GFXRECON_BEGIN_NAMESPACE(capture)
 
-// clang-format on
+// clang-format off
 extern "C" {
 VKAPI_ATTR void VKAPI_CALL CreateInstance_PreCall(uint64_t block_index, const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance);
 VKAPI_ATTR void VKAPI_CALL DestroyInstance_PreCall(uint64_t block_index, VkInstance instance, const VkAllocationCallbacks* pAllocator);
@@ -49,8 +56,14 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceImageFormatProperties_PreCall(uint64
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties* pProperties);
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties* pQueueFamilyProperties);
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, VkPhysicalDeviceMemoryProperties* pMemoryProperties);
+VKAPI_ATTR void VKAPI_CALL GetInstanceProcAddr_PreCall(uint64_t block_index, VkInstance instance, const char* pName);
+VKAPI_ATTR void VKAPI_CALL GetDeviceProcAddr_PreCall(uint64_t block_index, VkDevice device, const char* pName);
 VKAPI_ATTR void VKAPI_CALL CreateDevice_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice);
 VKAPI_ATTR void VKAPI_CALL DestroyDevice_PreCall(uint64_t block_index, VkDevice device, const VkAllocationCallbacks* pAllocator);
+VKAPI_ATTR void VKAPI_CALL EnumerateInstanceExtensionProperties_PreCall(uint64_t block_index, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
+VKAPI_ATTR void VKAPI_CALL EnumerateDeviceExtensionProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
+VKAPI_ATTR void VKAPI_CALL EnumerateInstanceLayerProperties_PreCall(uint64_t block_index, uint32_t* pPropertyCount, VkLayerProperties* pProperties);
+VKAPI_ATTR void VKAPI_CALL EnumerateDeviceLayerProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties);
 VKAPI_ATTR void VKAPI_CALL GetDeviceQueue_PreCall(uint64_t block_index, VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue);
 VKAPI_ATTR void VKAPI_CALL QueueSubmit_PreCall(uint64_t block_index, VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence);
 VKAPI_ATTR void VKAPI_CALL QueueWaitIdle_PreCall(uint64_t block_index, VkQueue queue);
@@ -171,6 +184,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass_PreCall(uint64_t block_index, VkCo
 VKAPI_ATTR void VKAPI_CALL CmdNextSubpass_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkSubpassContents contents);
 VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer);
 VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers);
+VKAPI_ATTR void VKAPI_CALL EnumerateInstanceVersion_PreCall(uint64_t block_index, uint32_t* pApiVersion);
 VKAPI_ATTR void VKAPI_CALL BindBufferMemory2_PreCall(uint64_t block_index, VkDevice device, uint32_t bindInfoCount, const VkBindBufferMemoryInfo* pBindInfos);
 VKAPI_ATTR void VKAPI_CALL BindImageMemory2_PreCall(uint64_t block_index, VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
 VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures_PreCall(uint64_t block_index, VkDevice device, uint32_t heapIndex, uint32_t localDeviceIndex, uint32_t remoteDeviceIndex, VkPeerMemoryFeatureFlags* pPeerMemoryFeatures);
@@ -193,6 +207,7 @@ VKAPI_ATTR void VKAPI_CALL CreateSamplerYcbcrConversion_PreCall(uint64_t block_i
 VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion_PreCall(uint64_t block_index, VkDevice device, VkSamplerYcbcrConversion ycbcrConversion, const VkAllocationCallbacks* pAllocator);
 VKAPI_ATTR void VKAPI_CALL CreateDescriptorUpdateTemplate_PreCall(uint64_t block_index, VkDevice device, const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate_PreCall(uint64_t block_index, VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator);
+VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate_PreCall(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData);
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalBufferInfo* pExternalBufferInfo, VkExternalBufferProperties* pExternalBufferProperties);
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalFenceInfo* pExternalFenceInfo, VkExternalFenceProperties* pExternalFenceProperties);
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalSemaphoreInfo* pExternalSemaphoreInfo, VkExternalSemaphoreProperties* pExternalSemaphoreProperties);
@@ -316,8 +331,10 @@ VKAPI_ATTR void VKAPI_CALL GetSemaphoreWin32HandleKHR_PreCall(uint64_t block_ind
 VKAPI_ATTR void VKAPI_CALL ImportSemaphoreFdKHR_PreCall(uint64_t block_index, VkDevice device, const VkImportSemaphoreFdInfoKHR* pImportSemaphoreFdInfo);
 VKAPI_ATTR void VKAPI_CALL GetSemaphoreFdKHR_PreCall(uint64_t block_index, VkDevice device, const VkSemaphoreGetFdInfoKHR* pGetFdInfo, int* pFd);
 VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t set, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites);
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkDescriptorUpdateTemplate descriptorUpdateTemplate, VkPipelineLayout layout, uint32_t set, const void* pData);
 VKAPI_ATTR void VKAPI_CALL CreateDescriptorUpdateTemplateKHR_PreCall(uint64_t block_index, VkDevice device, const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR_PreCall(uint64_t block_index, VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator);
+VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR_PreCall(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData);
 VKAPI_ATTR void VKAPI_CALL CreateRenderPass2KHR_PreCall(uint64_t block_index, VkDevice device, const VkRenderPassCreateInfo2* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass);
 VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo* pRenderPassBegin, const VkSubpassBeginInfo* pSubpassBeginInfo);
 VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, const VkSubpassBeginInfo* pSubpassBeginInfo, const VkSubpassEndInfo* pSubpassEndInfo);
@@ -365,6 +382,8 @@ VKAPI_ATTR void VKAPI_CALL DeferredOperationJoinKHR_PreCall(uint64_t block_index
 VKAPI_ATTR void VKAPI_CALL GetPipelineExecutablePropertiesKHR_PreCall(uint64_t block_index, VkDevice device, const VkPipelineInfoKHR* pPipelineInfo, uint32_t* pExecutableCount, VkPipelineExecutablePropertiesKHR* pProperties);
 VKAPI_ATTR void VKAPI_CALL GetPipelineExecutableStatisticsKHR_PreCall(uint64_t block_index, VkDevice device, const VkPipelineExecutableInfoKHR* pExecutableInfo, uint32_t* pStatisticCount, VkPipelineExecutableStatisticKHR* pStatistics);
 VKAPI_ATTR void VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR_PreCall(uint64_t block_index, VkDevice device, const VkPipelineExecutableInfoKHR* pExecutableInfo, uint32_t* pInternalRepresentationCount, VkPipelineExecutableInternalRepresentationKHR* pInternalRepresentations);
+VKAPI_ATTR void VKAPI_CALL MapMemory2KHR_PreCall(uint64_t block_index, VkDevice device, const VkMemoryMapInfoKHR* pMemoryMapInfo, void** ppData);
+VKAPI_ATTR void VKAPI_CALL UnmapMemory2KHR_PreCall(uint64_t block_index, VkDevice device, const VkMemoryUnmapInfoKHR* pMemoryUnmapInfo);
 VKAPI_ATTR void VKAPI_CALL CmdEncodeVideoKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, const VkVideoEncodeInfoKHR* pEncodeInfo);
 VKAPI_ATTR void VKAPI_CALL CmdSetEvent2KHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkEvent event, const VkDependencyInfo* pDependencyInfo);
 VKAPI_ATTR void VKAPI_CALL CmdResetEvent2KHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkEvent event, VkPipelineStageFlags2 stageMask);
@@ -602,12 +621,18 @@ VKAPI_ATTR void VKAPI_CALL CreateOpticalFlowSessionNV_PreCall(uint64_t block_ind
 VKAPI_ATTR void VKAPI_CALL DestroyOpticalFlowSessionNV_PreCall(uint64_t block_index, VkDevice device, VkOpticalFlowSessionNV session, const VkAllocationCallbacks* pAllocator);
 VKAPI_ATTR void VKAPI_CALL BindOpticalFlowSessionImageNV_PreCall(uint64_t block_index, VkDevice device, VkOpticalFlowSessionNV session, VkOpticalFlowSessionBindingPointNV bindingPoint, VkImageView view, VkImageLayout layout);
 VKAPI_ATTR void VKAPI_CALL CmdOpticalFlowExecuteNV_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkOpticalFlowSessionNV session, const VkOpticalFlowExecuteInfoNV* pExecuteInfo);
+VKAPI_ATTR void VKAPI_CALL CreateShadersEXT_PreCall(uint64_t block_index, VkDevice device, uint32_t createInfoCount, const VkShaderCreateInfoEXT* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkShaderEXT* pShaders);
+VKAPI_ATTR void VKAPI_CALL DestroyShaderEXT_PreCall(uint64_t block_index, VkDevice device, VkShaderEXT shader, const VkAllocationCallbacks* pAllocator);
+VKAPI_ATTR void VKAPI_CALL GetShaderBinaryDataEXT_PreCall(uint64_t block_index, VkDevice device, VkShaderEXT shader, size_t* pDataSize, void* pData);
+VKAPI_ATTR void VKAPI_CALL CmdBindShadersEXT_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t stageCount, const VkShaderStageFlagBits* pStages, const VkShaderEXT* pShaders);
 VKAPI_ATTR void VKAPI_CALL GetFramebufferTilePropertiesQCOM_PreCall(uint64_t block_index, VkDevice device, VkFramebuffer framebuffer, uint32_t* pPropertiesCount, VkTilePropertiesQCOM* pProperties);
 VKAPI_ATTR void VKAPI_CALL GetDynamicRenderingTilePropertiesQCOM_PreCall(uint64_t block_index, VkDevice device, const VkRenderingInfo* pRenderingInfo, VkTilePropertiesQCOM* pProperties);
 VKAPI_ATTR void VKAPI_CALL CreateAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, const VkAccelerationStructureCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkAccelerationStructureKHR* pAccelerationStructure);
 VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, VkAccelerationStructureKHR accelerationStructure, const VkAllocationCallbacks* pAllocator);
 VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
 VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkDeviceAddress* pIndirectDeviceAddresses, const uint32_t* pIndirectStrides, const uint32_t* const* ppMaxPrimitiveCounts);
+VKAPI_ATTR void VKAPI_CALL BuildAccelerationStructuresKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
+VKAPI_ATTR void VKAPI_CALL CopyAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureInfoKHR* pInfo);
 VKAPI_ATTR void VKAPI_CALL CopyAccelerationStructureToMemoryKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo);
 VKAPI_ATTR void VKAPI_CALL CopyMemoryToAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo);
 VKAPI_ATTR void VKAPI_CALL WriteAccelerationStructuresPropertiesKHR_PreCall(uint64_t block_index, VkDevice device, uint32_t accelerationStructureCount, const VkAccelerationStructureKHR* pAccelerationStructures, VkQueryType queryType, size_t dataSize, void* pData, size_t stride);
@@ -627,34 +652,9 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRayTracingPipelineStackSizeKHR_PreCall(uint64_t
 VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksEXT_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectEXT_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
 VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountEXT_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride);
-VKAPI_ATTR void VKAPI_CALL GetInstanceProcAddr_PreCall(uint64_t block_index, VkInstance instance, const char* pName);
-VKAPI_ATTR void VKAPI_CALL GetDeviceProcAddr_PreCall(uint64_t block_index, VkDevice device, const char* pName);
-VKAPI_ATTR void VKAPI_CALL EnumerateInstanceExtensionProperties_PreCall(uint64_t block_index, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
-VKAPI_ATTR void VKAPI_CALL EnumerateDeviceExtensionProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
-VKAPI_ATTR void VKAPI_CALL EnumerateInstanceLayerProperties_PreCall(uint64_t block_index, uint32_t* pPropertyCount, VkLayerProperties* pProperties);
-VKAPI_ATTR void VKAPI_CALL EnumerateDeviceLayerProperties_PreCall(uint64_t block_index, VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties);
-VKAPI_ATTR void VKAPI_CALL EnumerateInstanceVersion_PreCall(uint64_t block_index, uint32_t* pApiVersion);
-VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate_PreCall(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData);
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR_PreCall(uint64_t block_index, VkCommandBuffer commandBuffer, VkDescriptorUpdateTemplate descriptorUpdateTemplate, VkPipelineLayout layout, uint32_t set, const void* pData);
-VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR_PreCall(uint64_t block_index, VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData);
-VKAPI_ATTR void VKAPI_CALL BuildAccelerationStructuresKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
-VKAPI_ATTR void VKAPI_CALL CopyAccelerationStructureKHR_PreCall(uint64_t block_index, VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureInfoKHR* pInfo);
-VKAPI_ATTR void VKAPI_CALL CreateMirSurfaceKHR_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMirPresentationSupportKHR_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL CmdProcessCommandsNVX_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL CmdReserveSpaceForCommandsNVX_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL CreateIndirectCommandsLayoutNVX_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNVX_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL CreateObjectTableNVX_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL DestroyObjectTableNVX_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL RegisterObjectsNVX_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL UnregisterObjectsNVX_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceGeneratedCommandsPropertiesNVX_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsKHR_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL BindAccelerationStructureMemoryKHR_PreCall(uint64_t block_index);
-VKAPI_ATTR void VKAPI_CALL GetPipelinePropertiesEXT_PreCall(uint64_t block_index);
-}
-// clang-format off
+
+} // extern "C"
+// clang-format on
 
 GFXRECON_END_NAMESPACE(capture)
 GFXRECON_END_NAMESPACE(plugins)

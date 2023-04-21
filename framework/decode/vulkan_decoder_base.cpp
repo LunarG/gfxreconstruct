@@ -495,13 +495,5 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
     }
 }
 
-void VulkanDecoderBase::AddHandleIdMappings(const std::vector<format::CaptureIDHandleMapping::handle_id_pair>& pairs)
-{
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_AddHandleIdMappings(pairs);
-    }
-}
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

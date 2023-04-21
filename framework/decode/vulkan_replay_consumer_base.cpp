@@ -183,8 +183,6 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     {
         GFXRECON_LOG_WARNING("This debugging feature has not been implemented for Vulkan.");
     }
-
-    LoadPlugins(options.plugin_paths);
 }
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
@@ -6754,58 +6752,6 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(cons
 
     GetDeviceTable(in_device)->UpdateDescriptorSetWithTemplateKHR(
         in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData->GetPointer());
-}
-
-void VulkanReplayConsumerBase::Process_AddHandleIdMappings(
-    const std::vector<format::CaptureIDHandleMapping::handle_id_pair>& pairs)
-{
-    // InsertHandleIdPair() might be expensive. Don't dive in unless plugins are loaded
-    if (loaded_plugins_.size())
-    {
-        for (const auto& pair : pairs)
-        {
-            void* handle = object_info_table_.InsertHandleIdPair(pair.id, pair.capture_handle);
-            if (handle)
-            {
-                const plugins::replay::StateInformation info{
-                    plugins::replay::kObjectInfo,
-                    { GFXRECON_PTR_TO_UINT<void*, uint64_t>(handle), pair.capture_handle, pair.id }
-                };
-
-                for (auto& plugin : loaded_plugins_)
-                {
-                    plugin.func_table_general.AddStateInformation(&info);
-                }
-            }
-        }
-    }
-}
-
-void VulkanReplayConsumerBase::LoadPlugins(const std::unordered_set<std::string>& plugin_paths)
-{
-    for (const auto& plugin_path : plugin_paths)
-    {
-        loaded_plugin plugin;
-        plugin.handle = util::platform::OpenLibrary(plugin_path.c_str());
-
-        if (plugin.handle)
-        {
-            plugins::replay::LoadPreFunctionTable(
-                util::platform::GetProcAddress, plugin.handle, &plugin.func_table_pre);
-            plugins::replay::LoadPostFunctionTable(
-                util::platform::GetProcAddress, plugin.handle, &plugin.func_table_post);
-            plugins::replay::LoadBaseFunctionTable(
-                util::platform::GetProcAddress, plugin.handle, &plugin.func_table_general);
-
-            GFXRECON_WRITE_CONSOLE("Loaded plugin: %s", plugin_path.c_str())
-
-            loaded_plugins_.push_back(std::move(plugin));
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Failed loading plugin: %s", plugin_path.c_str());
-        }
-    }
 }
 
 GFXRECON_END_NAMESPACE(decode)
