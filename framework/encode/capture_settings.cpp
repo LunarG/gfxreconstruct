@@ -25,6 +25,7 @@
 #include "encode/capture_settings.h"
 
 #include "util/file_path.h"
+#include "util/strings.h"
 #include "util/options.h"
 #include "util/platform.h"
 #include "util/settings_loader.h"
@@ -685,8 +686,7 @@ void CaptureSettings::ParseTrimRangeString(const std::string&                   
                 continue;
             }
 
-            // Remove whitespace.
-            range.erase(std::remove_if(range.begin(), range.end(), ::isspace), range.end());
+            util::strings::RemoveWhitespace(range);
 
             // Split string on '-' delimiter.
             bool                     invalid = false;
@@ -818,8 +818,7 @@ std::string CaptureSettings::ParseTrimKeyString(const std::string& value_string)
     if (!value_string.empty())
     {
         trim_key = value_string;
-        // Remove whitespace.
-        trim_key.erase(std::remove_if(trim_key.begin(), trim_key.end(), ::isspace), trim_key.end());
+        gfxrecon::util::strings::RemoveWhitespace(trim_key);
     }
     else
     {

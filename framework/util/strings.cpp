@@ -73,6 +73,12 @@ std::vector<std::string> SplitString(const std::string_view compound, const char
     return values;
 }
 
+void RemoveWhitespace(std::string& str)
+{
+    const auto new_end{ std::remove_if(str.begin(), str.end(), [](const unsigned char c) { return std::isspace(c); }) };
+    str.erase(new_end, str.end());
+}
+
 GFXRECON_END_NAMESPACE(strings)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

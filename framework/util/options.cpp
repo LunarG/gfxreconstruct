@@ -23,6 +23,7 @@
 */
 
 #include "options.h"
+#include "util/strings.h"
 #include "util/platform.h"
 #include "util/logging.h"
 
@@ -47,8 +48,7 @@ std::vector<FrameRange> GetFrameRanges(const std::string& args)
             continue;
         }
 
-        // Remove whitespace.
-        range.erase(std::remove_if(range.begin(), range.end(), ::isspace), range.end());
+        strings::RemoveWhitespace(range);
 
         // Split string on '-' delimiter.
         bool                     invalid = false;

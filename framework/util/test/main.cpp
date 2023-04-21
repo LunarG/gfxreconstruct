@@ -154,6 +154,46 @@ TEST_CASE("SplitString", "[strings]")
     gfxrecon::util::Log::Release();
 }
 
+TEST_CASE("RemoveWhitespace", "[strings]")
+{
+    using std::string;
+    auto s = [](auto x) { return string{ x }; };
+
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+
+    string s1{ "1 2 3 4 5 6 7 8 9 10" };
+    gfxrecon::util::strings::RemoveWhitespace(s1);
+    REQUIRE(s1 == "12345678910");
+
+    string s2{ "    left" };
+    gfxrecon::util::strings::RemoveWhitespace(s2);
+    REQUIRE(s2 == "left");
+
+    {
+        string s{ "right      " };
+        gfxrecon::util::strings::RemoveWhitespace(s);
+        REQUIRE(s == "right");
+    }
+    {
+        string s{ " \t\n\n\n\t   £$%Keep_Me+*&  \r\f\t\f\t \f\r\t\n\n\n\n " };
+        gfxrecon::util::strings::RemoveWhitespace(s);
+        REQUIRE(s == "£$%Keep_Me+*&");
+        // Check that repeated applications don't change an already-shrunk string:
+        for (int i = 0; i < 100; ++i)
+        {
+            gfxrecon::util::strings::RemoveWhitespace(s);
+            REQUIRE(s == "£$%Keep_Me+*&");
+        }
+    }
+    {
+        string s{ " \t\n\n\n\t   £$%\t\tK  e\n\n\n\n\re \f\rp_\nM\t e+*&  \r\f\t\f\t \f\r\t\n\n\n\n " };
+        gfxrecon::util::strings::RemoveWhitespace(s);
+        REQUIRE(s == "£$%Keep_Me+*&");
+    }
+
+    gfxrecon::util::Log::Release();
+}
+
 TEST_CASE("UtcString", "[datetime]")
 {
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);

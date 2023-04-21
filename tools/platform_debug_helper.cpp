@@ -47,7 +47,7 @@ DWORD DisableDebugPopup(void)
         bool not_all_spaces = false;
         for (const char* c = contents; *c; c++)
         {
-            if (!isspace(*c))
+            if (!isspace(static_cast<unsigned char>(*c)))
             {
                 not_all_spaces = true;
                 break;
