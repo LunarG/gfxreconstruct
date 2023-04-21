@@ -133,9 +133,9 @@ if(MSVC)
 
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
     set (PRECOMPILED_ARCH "64")
-    if(NOT CMAKE_CL_64)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
         set (PRECOMPILED_ARCH "32")
-    endif(NOT CMAKE_CL_64)
+    endif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 
     if(GFXR_ARM_WINDOWS_BUILD)
         set (PRECOMPILED_ARCH "64-arm")
