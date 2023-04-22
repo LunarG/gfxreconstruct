@@ -9,8 +9,9 @@ set(VULKAN_VERSION_PATCH "")
 find_file (VULKAN_HEADER
             vulkan_core.h
             HINTS
-                external/Vulkan-Headers/include/vulkan
-                ../external/Vulkan-Headers/include/vulkan)
+                external/Vulkan-Headers/include
+                ../external/Vulkan-Headers/include
+            PATH_SUFFIXES vulkan)
 
 MESSAGE(STATUS "Vulkan Header = ${VULKAN_HEADER}")
 
@@ -20,8 +21,9 @@ else()
     find_file(VULKAN_HEADER
                 vulkan.h
                 HINTS
-                    external/Vulkan-Headers/include/vulkan
-                    ../external/Vulkan-Headers/include/vulkan)
+                    external/Vulkan-Headers/include
+                    ../external/Vulkan-Headers/include
+                PATH_SUFFIXES vulkan)
     set(VulkanHeaders_main_header ${VULKAN_HEADER})
 endif()
 
