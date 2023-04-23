@@ -43,6 +43,7 @@ class FpsInfo
             bool                   flush_measurement_range        = false,
             bool                   flush_inside_measurement_range = false,
             uint32_t               looping_end_after_count        = 1,
+            uint64_t               looping_end_after_duration     = 0,
             const std::string_view measurement_file_name          = "");
 
     void LogToConsole();
@@ -86,6 +87,7 @@ class FpsInfo
     bool flush_inside_measurement_range_;
 
     uint32_t looping_end_after_count_;
+    uint64_t looping_end_after_duration_;
 
     bool started_measurement_;
     bool ended_measurement_;

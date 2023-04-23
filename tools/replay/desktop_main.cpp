@@ -182,13 +182,18 @@ int main(int argc, const char** argv)
                 GetMeasurementFilename(arg_parser, measurement_file_name);
             }
 
+            uint32_t loop_count    = 0;
+            uint64_t loop_duration = 0;
+            GetLoopingEndOptions(arg_parser, loop_count, loop_duration);
+
             gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
                                                  static_cast<uint64_t>(end_frame),
                                                  has_mfr,
                                                  quit_after_measurement_frame_range,
                                                  flush_measurement_frame_range,
                                                  flush_inside_measurement_range,
-                                                 GetLoopingEndAfterCount(arg_parser),
+                                                 loop_count,
+                                                 loop_duration,
                                                  measurement_file_name);
 
             // Warn if the capture layer is active.

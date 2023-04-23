@@ -46,15 +46,16 @@ FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
                  bool                   flush_measurement_range,
                  bool                   flush_inside_measurement_range,
                  uint32_t               looping_end_after_count,
+                 uint64_t               looping_end_after_duration,
                  const std::string_view measurement_file_name) :
     measurement_start_frame_(measurement_start_frame),
     measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
     quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
     flush_inside_measurement_range_(flush_inside_measurement_range), has_measurement_range_(has_measurement_range),
-    looping_end_after_count_(looping_end_after_count), started_measurement_(false), ended_measurement_(false),
-    loop_start_time_(0), loop_end_time_(0), total_loop_time_(0), load_start_time_(0), load_end_time_(0),
-    total_load_time_(0), replay_start_time_(0), replay_end_time_(0), total_replay_time_(0), frame_start_time_(0),
-    frame_durations_(), measurement_file_name_(measurement_file_name)
+    looping_end_after_count_(looping_end_after_count), looping_end_after_duration_(looping_end_after_duration),
+    started_measurement_(false), ended_measurement_(false), loop_start_time_(0), loop_end_time_(0), total_loop_time_(0),
+    load_start_time_(0), load_end_time_(0), total_load_time_(0), replay_start_time_(0), replay_end_time_(0),
+    total_replay_time_(0), frame_start_time_(0), frame_durations_(), measurement_file_name_(measurement_file_name)
 {
     if (has_measurement_range_)
     {
@@ -217,12 +218,33 @@ bool FpsInfo::ShouldLoop(uint32_t loop_number)
 {
     bool should_loop = true;
 
+    bool looping_count_satisfied    = false;
+    bool looping_duration_satisfied = false;
+
     if (looping_end_after_count_ > 0)
     {
         if (loop_number >= looping_end_after_count_)
         {
-            should_loop = false;
+            looping_count_satisfied = true;
+            GFXRECON_LOG_DEBUG("Ending condition satisfied: loop count (%" PRIu32 ")", looping_end_after_count_);
         }
+    }
+
+    if (looping_end_after_duration_ > 0)
+    {
+        double current_duration = util::datetime::ConvertTimestampToSeconds(total_loop_time_);
+
+        if (current_duration >= looping_end_after_duration_)
+        {
+            looping_duration_satisfied = true;
+            GFXRECON_LOG_DEBUG("Ending condition satisfied: looping duration (%" PRIu64 ")",
+                               looping_end_after_duration_);
+        }
+    }
+
+    if (looping_count_satisfied || looping_duration_satisfied)
+    {
+        should_loop = false;
     }
 
     return should_loop;
