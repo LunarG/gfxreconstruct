@@ -44,7 +44,16 @@ class ScreenshotHandler;
 class VulkanSwapchain
 {
   public:
+    typedef std::unordered_set<Window*> VulkanWindowList;
+
+  public:
     virtual ~VulkanSwapchain() {}
+
+    VulkanWindowList GetInactiveWindows() const { return inactive_windows_; }
+
+    void SetInactiveWindows(VulkanWindowList const& windows) { inactive_windows_ = windows; }
+
+    virtual void DestroyWindows(VulkanWindowList& windows);
 
     virtual void Clean();
 
@@ -152,15 +161,15 @@ class VulkanSwapchain
                                                       SwapchainImageTracker&       swapchain_image_tracker) = 0;
 
   protected:
-    typedef std::unordered_set<Window*> ActiveWindows;
-
     const encode::InstanceTable* instance_table_{ nullptr };
     const encode::DeviceTable*   device_table_{ nullptr };
 
     application::Application* application_{ nullptr };
-    ActiveWindows             active_windows_;
+    VulkanWindowList          active_windows_;
+    VulkanWindowList          inactive_windows_;
     int32_t                   create_surface_count_{ 0 };
     int32_t                   options_surface_index_{ 0 };
+    int32_t                   options_preserve_windows_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

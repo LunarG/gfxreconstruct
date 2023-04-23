@@ -70,6 +70,10 @@ class Application final
 
     void SetPauseFrame(uint32_t pause_frame) { pause_frame_ = pause_frame; }
 
+    bool GetWasFinalLoop() const { return was_final_loop_; }
+
+    void SetWasFinalLoop(bool was_final_loop) { was_final_loop_ = was_final_loop; }
+
     bool PlaySingleFrame();
 
     void ProcessStateEndMarker(uint64_t file_processor_frame);
@@ -93,6 +97,7 @@ class Application final
     bool                                                         running_;           ///< Indicates that the application is actively processing system events for playback.
     bool                                                         paused_;            ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
     uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.
+    bool                                                         was_final_loop_;    ///< Indicates that the most recent replay loop is supposed to be the final one.
     std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
     std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
     graphics::FpsInfo*                                           fps_info_;          ///< A optional FPS info object that logs the FPS across a configured framerange.

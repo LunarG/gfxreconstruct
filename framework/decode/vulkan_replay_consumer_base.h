@@ -72,6 +72,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     virtual ~VulkanReplayConsumerBase() override;
 
+    VulkanSwapchain::VulkanWindowList GetInactiveWindows() { return swapchain_->GetInactiveWindows(); }
+
+    void SetInactiveWindows(VulkanSwapchain::VulkanWindowList& windows) { swapchain_->SetInactiveWindows(windows); }
+
     virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) override
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);

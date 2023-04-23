@@ -30,6 +30,18 @@ const int32_t  kDefaultWindowPositionY = 0;
 const uint32_t kDefaultWindowWidth     = 320;
 const uint32_t kDefaultWindowHeight    = 240;
 
+void VulkanSwapchain::DestroyWindows(VulkanWindowList& windows)
+{
+    for (auto window : windows)
+    {
+        auto wsi_context = application_ ? application_->GetWsiContext(window->GetWsiExtension()) : nullptr;
+        assert(wsi_context);
+        auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+        assert(window_factory);
+        window_factory->Destroy(window);
+    }
+}
+
 void VulkanSwapchain::Clean()
 {
     if (options_surface_index_ >= create_surface_count_)
@@ -41,12 +53,14 @@ void VulkanSwapchain::Clean()
     }
 
     // Destroy any windows that were created for Vulkan surfaces.
-    for (auto window : active_windows_)
+    if (application_ != nullptr)
     {
-        auto wsi_context    = application_ ? application_->GetWsiContext(window->GetWsiExtension()) : nullptr;
-        auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-        GFXRECON_ASSERT(window_factory);
-        window_factory->Destroy(window);
+        DestroyWindows(active_windows_);
+
+        if (application_->GetWasFinalLoop())
+        {
+            DestroyWindows(inactive_windows_);
+        }
     }
 }
 
@@ -61,9 +75,10 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
 {
     assert(instance_info != nullptr);
 
-    instance_table_        = instance_table;
-    application_           = application;
-    options_surface_index_ = replay_options.surface_index;
+    instance_table_           = instance_table;
+    application_              = application;
+    options_surface_index_    = replay_options.surface_index;
+    options_preserve_windows_ = replay_options.preserve_windows;
 
     VkInstance    instance       = instance_info->handle;
     VkSurfaceKHR* replay_surface = nullptr;
@@ -84,11 +99,31 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
         assert(wsi_context);
         auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
         assert(window_factory);
-        auto window =
-            window_factory
-                ? window_factory->Create(
-                      kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight)
-                : nullptr;
+
+        Window* window = nullptr;
+
+        if (options_preserve_windows_ && !inactive_windows_.empty())
+        {
+            // Try to find an inactive window that matches the desired wsi extension.
+            for (auto inactive_window : inactive_windows_)
+            {
+                if (inactive_window->GetWsiExtension() == wsi_extension)
+                {
+                    window = inactive_window;
+                    inactive_windows_.erase(window);
+                    break;
+                }
+            }
+        }
+
+        if (window == nullptr)
+        {
+            window =
+                window_factory
+                    ? window_factory->Create(
+                          kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight)
+                    : nullptr;
+        }
 
         if (window == nullptr)
         {
@@ -111,7 +146,14 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
         }
         else
         {
-            window_factory->Destroy(window);
+            if (options_preserve_windows_)
+            {
+                inactive_windows_.insert(window);
+            }
+            else
+            {
+                window_factory->Destroy(window);
+            }
         }
     }
     else
@@ -152,11 +194,19 @@ void VulkanSwapchain::DestroySurface(PFN_vkDestroySurfaceKHR      func,
     {
         window->DestroySurface(instance_table_, instance, surface);
         active_windows_.erase(window);
-        auto wsi_context    = application_ ? application_->GetWsiContext(window->GetWsiExtension()) : nullptr;
-        auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-        if (window_factory)
+
+        if (options_preserve_windows_)
         {
-            window_factory->Destroy(window);
+            inactive_windows_.insert(window);
+        }
+        else
+        {
+            auto wsi_context    = application_ ? application_->GetWsiContext(window->GetWsiExtension()) : nullptr;
+            auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+            if (window_factory)
+            {
+                window_factory->Destroy(window);
+            }
         }
     }
     else

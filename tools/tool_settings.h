@@ -110,6 +110,7 @@ const char kSwapchainOption[]                    = "--swapchain";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
 const char kLoopingEndAfterCountArgument[]    = "--looping-end-after-count";
+const char kPreserveWindowsOption[]           = "--preserve-windows";
 const char kColorspaceFallback[]              = "--use-colorspace-fallback";
 const char kOffscreenSwapchainFrameBoundary[] = "--offscreen-swapchain-frame-boundary";
 const char kFormatArgument[]                  = "--format";
@@ -861,6 +862,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     }
 
     IsForceWindowed(options, arg_parser);
+
+    if (arg_parser.IsOptionSet(kPreserveWindowsOption))
+    {
+        options.preserve_windows = true;
+    }
 }
 
 static gfxrecon::decode::VulkanReplayOptions

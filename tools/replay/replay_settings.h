@@ -32,7 +32,7 @@ const char kOptions[] =
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-range,--fmr|--flush-"
     "measurement-range,--flush-inside-measurement-range,--use-captured-swapchain-indices,--dcp,--"
     "discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,"
-    "--offscreen-swapchain-frame-boundary";
+    "--offscreen-swapchain-frame-boundary,--preserve-windows";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -72,6 +72,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--flush-measurement-range]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--looping-end-after-count <N>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--preserve-windows]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
@@ -145,6 +146,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --looping-end-after-count <N>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify how many times the replay should be run. By default, it");
     GFXRECON_WRITE_CONSOLE("          \t\twill be run once. A value of 0 will loop the replay indefinitely.");
+    GFXRECON_WRITE_CONSOLE("  --preserve-windows");
+    GFXRECON_WRITE_CONSOLE("          \t\tEnables windows to be kept open between loops. The default is to");
+    GFXRECON_WRITE_CONSOLE("          \t\tcreate/destroy windows with each surface/swapchain.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("Windows-only:")

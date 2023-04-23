@@ -53,9 +53,16 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ReplayConsumerBase : public Dx12Consumer
 {
   public:
+    typedef std::unordered_set<Window*> DxWindowList;
+
+  public:
     Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application, const DxReplayOptions& options);
 
     virtual ~Dx12ReplayConsumerBase() override;
+
+    DxWindowList GetInactiveWindows() const { return inactive_windows_; }
+
+    void SetInactiveWindows(DxWindowList& windows) { inactive_windows_ = windows; }
 
     virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record)
     {
@@ -818,7 +825,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void DestroyActiveObjects();
 
-    void DestroyActiveWindows();
+    void DestroyWindows(DxWindowList& windows);
 
     void DestroyActiveEvents();
 
@@ -875,7 +882,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     Dx12ObjectInfoTable                                   object_info_table_;
     std::shared_ptr<application::Application>             application_;
     DxReplayOptions                                       options_;
-    std::unordered_set<Window*>                           active_windows_;
+    DxWindowList                                          active_windows_;
+    DxWindowList                                          inactive_windows_;
     std::unordered_map<uint64_t, HWND>                    window_handles_;
     std::unordered_map<uint64_t, MappedMemoryEntry>       mapped_memory_;
     std::unordered_map<uint64_t, void*>                   heap_allocations_;

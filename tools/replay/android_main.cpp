@@ -115,6 +115,7 @@ void android_main(struct android_app* app)
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
                     GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+
                 gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        decoder;
                 uint32_t                               start_frame, end_frame;
@@ -140,6 +141,7 @@ void android_main(struct android_app* app)
                 decoder.AddConsumer(&replay_consumer);
                 file_processor.AddDecoder(&decoder);
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
+                application->SetWasFinalLoop(true);
 
                 // Warn if the capture layer is active.
                 CheckActiveLayers(kLayerProperty);
