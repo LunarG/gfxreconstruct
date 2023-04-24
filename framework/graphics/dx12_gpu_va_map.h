@@ -33,6 +33,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+typedef bool (*IsResourceForRaytracingAccelerationStructureFunctionPtr)(format::HandleId id);
+
 class Dx12GpuVaMap
 {
   public:
@@ -40,10 +42,11 @@ class Dx12GpuVaMap
 
     void Remove(format::HandleId resource_id, uint64_t old_start_address);
 
-    uint64_t Map(uint64_t          old_address,
-                 format::HandleId* resource_id             = nullptr,
-                 bool*             found                   = nullptr,
-                 uint64_t          minimum_old_end_address = 0) const;
+    uint64_t Map(uint64_t                                                old_address,
+                 format::HandleId*                                       resource_id             = nullptr,
+                 bool*                                                   found                   = nullptr,
+                 uint64_t                                                minimum_old_end_address = 0,
+                 IsResourceForRaytracingAccelerationStructureFunctionPtr func                    = nullptr) const;
 
   private:
     struct GpuVaInfo
@@ -56,11 +59,12 @@ class Dx12GpuVaMap
     typedef std::map<uint64_t, AliasedResourceVaInfo, std::greater<uint64_t>> GpuVaMap;
 
   private:
-    bool FindMatch(const AliasedResourceVaInfo& resource_info,
-                   uint64_t                     old_start_address,
-                   uint64_t&                    address,
-                   format::HandleId*            resource_id,
-                   uint64_t                     minimum_old_end_address) const;
+    bool FindMatch(const AliasedResourceVaInfo&                            resource_info,
+                   uint64_t                                                old_start_address,
+                   uint64_t&                                               address,
+                   format::HandleId*                                       resource_id,
+                   uint64_t                                                minimum_old_end_address,
+                   IsResourceForRaytracingAccelerationStructureFunctionPtr func = nullptr) const;
 
   private:
     GpuVaMap gpu_va_map_;

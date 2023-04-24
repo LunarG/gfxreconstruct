@@ -216,6 +216,8 @@ class Dx12StateTracker
                                   LPCWSTR                              export_name,
                                   const util::MemoryOutputStream*      parameter_buffer);
 
+    bool IsResourceForRaytracingAccelerationStructure(format::HandleId id);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)
@@ -238,6 +240,11 @@ class Dx12StateTracker
 
     ID3D12Resource_Wrapper* GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va, uint64_t minimum_end_address);
 
+    ID3D12Resource_Wrapper* GetAccelerationStructureResourceWrapperForGpuVa(
+        D3D12_GPU_VIRTUAL_ADDRESS                                         gpu_va,
+        uint64_t                                                          minimum_end_address,
+        graphics::IsResourceForRaytracingAccelerationStructureFunctionPtr func = nullptr);
+
     uint64_t CommitAccelerationStructureBuildInfo(DxAccelerationStructureBuildInfo& accel_struct_build);
 
     uint64_t CommitAccelerationStructureCopyInfo(DxAccelerationStructureCopyInfo&      accel_struct_copy,
@@ -251,6 +258,7 @@ class Dx12StateTracker
     std::atomic_uint64_t accel_struct_id_;
 };
 
+bool IsResourceUsedForRaytracingAccelerationStructure(format::HandleId id);
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

@@ -364,6 +364,13 @@ void D3D12CaptureManager::InitializeID3D12DeviceInfo(IUnknown* adapter, void** d
     }
 }
 
+bool D3D12CaptureManager::IsResourceForRaytracingAccelerationStructure(format::HandleId id)
+{
+    assert(state_tracker_ != nullptr);
+    bool result = state_tracker_->IsResourceForRaytracingAccelerationStructure(id);
+    return result;
+}
+
 void D3D12CaptureManager::CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id)
 {
     // Report that write watch was ignored because the application enabled it.

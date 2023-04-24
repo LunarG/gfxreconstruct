@@ -1298,7 +1298,7 @@ bool Dx12StateWriter::CheckGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address)
     if (address != 0)
     {
         bool found = false;
-        gpu_va_map_.Map(address, nullptr, &found);
+        gpu_va_map_.Map(address, nullptr, &found, 0);
         return found;
     }
     return true;

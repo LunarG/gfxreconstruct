@@ -26,6 +26,7 @@
 
 #include "format/format.h"
 #include "generated/generated_dx12_wrappers.h"
+#include "graphics/dx12_gpu_va_map.h"
 #include "util/defines.h"
 
 #include <functional>
@@ -52,6 +53,17 @@ class Dx12StateTableBase
         bool             found  = false;
         format::HandleId result = format::kNullHandleId;
         gpu_va_map_.Map(address, &result, &found, minimum_end_address);
+        return result;
+    }
+
+    format::HandleId GetAccelerationStructureResourceForGpuVa(
+        D3D12_GPU_VIRTUAL_ADDRESS                                         address,
+        uint64_t                                                          minimum_end_address,
+        graphics::IsResourceForRaytracingAccelerationStructureFunctionPtr func = nullptr)
+    {
+        bool             found  = false;
+        format::HandleId result = format::kNullHandleId;
+        gpu_va_map_.Map(address, &result, &found, minimum_end_address, func);
         return result;
     }
 

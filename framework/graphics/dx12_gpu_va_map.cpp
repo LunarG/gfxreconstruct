@@ -62,8 +62,11 @@ void Dx12GpuVaMap::Remove(format::HandleId resource_id, uint64_t old_start_addre
     }
 }
 
-uint64_t
-Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, uint64_t minimum_old_end_address) const
+uint64_t Dx12GpuVaMap::Map(uint64_t                                                address,
+                           format::HandleId*                                       resource_id,
+                           bool*                                                   found,
+                           uint64_t                                                minimum_old_end_address,
+                           IsResourceForRaytracingAccelerationStructureFunctionPtr func) const
 {
     bool local_found = false;
 
@@ -73,7 +76,8 @@ Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, 
         if (va_entry != gpu_va_map_.end())
         {
             // Check for a match in the aliased resource list.
-            local_found = FindMatch(va_entry->second, va_entry->first, address, resource_id, minimum_old_end_address);
+            local_found =
+                FindMatch(va_entry->second, va_entry->first, address, resource_id, minimum_old_end_address, func);
 
             // The addresses did not fall within the address range of the resource(s) at the start address returned
             // by the lower_bound search.  These resources may be aliased with a larger resource that contains them.
@@ -90,7 +94,7 @@ Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, 
             while (!local_found && ++va_entry != gpu_va_map_.end())
             {
                 local_found =
-                    FindMatch(va_entry->second, va_entry->first, address, resource_id, minimum_old_end_address);
+                    FindMatch(va_entry->second, va_entry->first, address, resource_id, minimum_old_end_address, func);
             }
         }
 
@@ -108,12 +112,19 @@ Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, 
     return address;
 }
 
-bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo& resource_info,
-                             uint64_t                     old_start_address,
-                             uint64_t&                    address,
-                             format::HandleId*            resource_id,
-                             uint64_t                     minimum_old_end_address) const
+// If func is valid, the function first return matched resource which is used for RaytracingAccelerationStructure,
+// if no such resource, it will return first resource which match old_start_address and minimum_old_end_address.
+// Note: resource might be used for RaytracingAccelerationStructure without the flag
+// D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE if it's lower than DirectX 12 Agility SDK 1.7.
+bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo&                            resource_info,
+                             uint64_t                                                old_start_address,
+                             uint64_t&                                               address,
+                             format::HandleId*                                       resource_id,
+                             uint64_t                                                minimum_old_end_address,
+                             IsResourceForRaytracingAccelerationStructureFunctionPtr func) const
 {
+    format::HandleId first_resource_id = format::kNullHandleId;
+
     // Check for a match in the aliased resource list.
     for (const auto& resource_entry : resource_info)
     {
@@ -122,12 +133,36 @@ bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo& resource_info,
         if (address < info.old_end_address && minimum_old_end_address <= info.old_end_address)
         {
             address = info.new_start_address + (address - old_start_address);
-            if (resource_id != nullptr)
+            if (first_resource_id == format::kNullHandleId)
             {
-                *resource_id = resource_entry.first;
+                first_resource_id = resource_entry.first;
             }
-            return true;
+
+            // if func is valid, the caller need first return resource for RaytracingAccelerationStructure so we
+            // continue to check if the resource flag match D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE
+            if (func != nullptr)
+            {
+                if ((*func)(resource_entry.first))
+                {
+                    first_resource_id = resource_entry.first;
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
         }
+    }
+
+    if (first_resource_id != format::kNullHandleId)
+    {
+        if (resource_id != nullptr)
+        {
+            *resource_id = first_resource_id;
+        }
+
+        return true;
     }
 
     return false;
