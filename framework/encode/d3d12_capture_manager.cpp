@@ -1887,9 +1887,22 @@ void D3D12CaptureManager::PostProcess_D3D12CreateDevice(
                 format::DxgiAdapterDesc* active_adapter = graphics::dx12::MarkActiveAdapter(device, adapters_);
 
                 // Write adapter desc to file if it was marked active, and has not already been seen
+                auto adapter_id = GetDx12WrappedId<IUnknown>(pAdapter);
                 if (active_adapter != nullptr)
                 {
+                    graphics::dx12::InjectAdapterCaptureId(active_adapter->extra_info, adapter_id);
                     WriteDxgiAdapterInfoCommand(*active_adapter);
+                }
+                else
+                {
+                    // we have to write adapter if it is already marked active and as a result active_adapter is null
+                    // this is essential for marking active adapter for system with multiple GPUs
+                    auto parent_adapter = graphics::dx12::GetAdapterDescByLUID(device->GetAdapterLuid(), adapters_);
+                    if (parent_adapter != nullptr)
+                    {
+                        graphics::dx12::InjectAdapterCaptureId(parent_adapter->extra_info, adapter_id);
+                        WriteDxgiAdapterInfoCommand(*parent_adapter);
+                    }
                 }
             }
         }
