@@ -47,7 +47,7 @@ std::unique_ptr<DX12ImageRenderer> DX12ImageRenderer::Create(const DX12ImageRend
     return std::move(out);
 }
 
-void DX12ImageRenderer::ConvertR8G8B8A8ToB8G8R8(std::vector<char>& data, UINT width, UINT height, UINT pitch)
+void DX12ImageRenderer::ConvertR8G8B8A8ToB8G8R8A8(std::vector<char>& data, UINT width, UINT height, UINT pitch)
 {
     uint32_t* pixel;
     uint32_t  r16, g16, b16, a16, b8g8r8a8;
@@ -68,7 +68,7 @@ void DX12ImageRenderer::ConvertR8G8B8A8ToB8G8R8(std::vector<char>& data, UINT wi
     }
 }
 
-void DX12ImageRenderer::ConvertR10G10B10A2ToB8G8R8(std::vector<char>& data, UINT width, UINT height, UINT pitch)
+void DX12ImageRenderer::ConvertR10G10B10A2ToB8G8R8A8(std::vector<char>& data, UINT width, UINT height, UINT pitch)
 {
     uint32_t* pixel;
     uint32_t  r16, g16, b16, a16, b8g8r8a8;
@@ -276,7 +276,8 @@ void DX12ImageRenderer::WaitCmdListFinish()
 }
 
 HRESULT
-DX12ImageRenderer::RetrieveImageData(CpuImage* img_out, UINT width, UINT height, UINT pitch, DXGI_FORMAT format)
+DX12ImageRenderer::RetrieveImageData(
+    CpuImage* img_out, UINT width, UINT height, UINT pitch, DXGI_FORMAT format, bool desire_bgr)
 {
     void*       uav_data   = nullptr;
     D3D12_RANGE read_range = { 0, 0 };
@@ -293,21 +294,21 @@ DX12ImageRenderer::RetrieveImageData(CpuImage* img_out, UINT width, UINT height,
         img_out->data.resize(total_bytes);
         memcpy(&img_out->data[0], uav_data, total_bytes);
 
-        if (B8G8R8.find(format) != B8G8R8.end())
+        bool is_bgr8 = B8G8R8.find(format) != B8G8R8.end();
+        bool is_rgb8 = R8G8B8A8.find(format) != R8G8B8A8.end();
+        if ((desire_bgr && is_rgb8) || (!desire_bgr && is_bgr8))
         {
-            staging_->Unmap(0, nullptr);
+            ConvertR8G8B8A8ToB8G8R8A8(img_out->data, width, height, pitch);
         }
         else if (R10G10B10A2.find(format) != R10G10B10A2.end())
         {
-            ConvertR10G10B10A2ToB8G8R8(img_out->data, width, height, pitch);
-            staging_->Unmap(0, nullptr);
+            ConvertR10G10B10A2ToB8G8R8A8(img_out->data, width, height, pitch);
+            if (!desire_bgr)
+            {
+                ConvertR8G8B8A8ToB8G8R8A8(img_out->data, width, height, pitch);
+            }
         }
-        else if (R8G8B8A8.find(format) != R8G8B8A8.end())
-        {
-            ConvertR8G8B8A8ToB8G8R8(img_out->data, width, height, pitch);
-            staging_->Unmap(0, nullptr);
-        }
-        else
+        else if (!is_bgr8)
         {
             auto entry = std::find(issued_warning_list_.begin(), issued_warning_list_.end(), format);
             if (entry == issued_warning_list_.end())
@@ -315,9 +316,8 @@ DX12ImageRenderer::RetrieveImageData(CpuImage* img_out, UINT width, UINT height,
                 issued_warning_list_.insert(entry, format);
                 GFXRECON_LOG_ERROR("DX12ImageRenderer does not support %d DXGI_FORMAT", format);
             }
-            
-            staging_->Unmap(0, nullptr);
         }
+        staging_->Unmap(0, nullptr);
     }
     return result;
 }

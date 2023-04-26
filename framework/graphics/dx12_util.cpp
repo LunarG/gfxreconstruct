@@ -81,22 +81,47 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
 
                     graphics::CpuImage captured_image = {};
 
+                    // PNG images require us to flip the R and B components.  So flip
+                    // the format to the closest format that can be used, and don't let the
+                    // retrieve function flip it back.
+                    bool        desire_bgr     = true;
+                    DXGI_FORMAT capture_format = fb_desc.Format;
+                    if (screenshot_format == gfxrecon::util::ScreenshotFormat::kPng)
+                    {
+                        desire_bgr = false;
+                        switch (capture_format)
+                        {
+                            case DXGI_FORMAT_B8G8R8A8_UNORM:
+                            case DXGI_FORMAT_B8G8R8X8_UNORM:
+                                capture_format = DXGI_FORMAT_R8G8B8A8_UNORM;
+                                break;
+                            case DXGI_FORMAT_B8G8R8A8_TYPELESS:
+                            case DXGI_FORMAT_B8G8R8X8_TYPELESS:
+                                capture_format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
+                                break;
+                            case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+                            case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
+                                capture_format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+                                break;
+                        }
+                    }
+
                     HRESULT capture_result = image_renderer->CaptureImage(frame_buffer_resource.Get(),
                                                                           D3D12_RESOURCE_STATE_PRESENT,
                                                                           static_cast<unsigned int>(fb_desc.Width),
                                                                           fb_desc.Height,
                                                                           static_cast<unsigned int>(pitch),
-                                                                          fb_desc.Format);
+                                                                          capture_format);
 
                     if (capture_result == S_OK)
                     {
                         auto buffer_byte_size = pitch * fb_desc.Height;
-                        auto desc             = frame_buffer_resource->GetDesc();
                         capture_result        = image_renderer->RetrieveImageData(&captured_image,
                                                                            static_cast<unsigned int>(fb_desc.Width),
                                                                            fb_desc.Height,
                                                                            static_cast<unsigned int>(pitch),
-                                                                           desc.Format);
+                                                                           capture_format,
+                                                                           desire_bgr);
 
                         if (capture_result == S_OK)
                         {
