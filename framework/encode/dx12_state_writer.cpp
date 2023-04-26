@@ -630,7 +630,7 @@ void Dx12StateWriter::WriteResourceCreationState(
         uint8_t* result_ptr        = nullptr;
         auto     resource_info     = map_info.resource_wrapper->GetObjectInfo();
         bool     unknown_layout_mapping =
-            graphics::dx12::IsTextureWithUnknownLayout(resource_info->dimension, resource_info->layout);
+            graphics::dx12::IsTextureWithUnknownLayout(resource_info->desc.Dimension, resource_info->desc.Layout);
 
         graphics::dx12::MapSubresource(
             mappable_resource, map_info.subresource, &graphics::dx12::kZeroRange, result_ptr, unknown_layout_mapping);
@@ -769,7 +769,8 @@ void Dx12StateWriter::WriteResourceSnapshots(
                 const double max_cpu_mem_usage = 7.0 / 8.0;
 
                 const bool is_uma = device_wrapper->GetObjectInfo()->is_uma;
-                if (!graphics::dx12::IsMemoryAvailable(size_in_bytes, device_info.get()->adapter3, max_cpu_mem_usage, is_uma))
+                if (!graphics::dx12::IsMemoryAvailable(
+                        size_in_bytes, device_info.get()->adapter3, max_cpu_mem_usage, is_uma))
                 {
                     // If neither system memory or GPU memory are able to accommodate next resource,
                     // execute the existing Copy() calls and release temp buffer to free memory
@@ -801,7 +802,7 @@ void Dx12StateWriter::WriteResourceSnapshots(
                            format::ApiCall_ID3D12Device4_CreateReservedResource1)));
 
                 bool target_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(
-                    resource_info.get()->dimension, resource_info.get()->layout);
+                    resource_info.get()->desc.Dimension, resource_info.get()->desc.Layout);
 
                 if ((is_cpu_accessible == false) || (is_cpu_accessible && target_texture_with_unknown_layout))
                 {

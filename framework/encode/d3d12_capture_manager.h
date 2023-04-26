@@ -661,17 +661,16 @@ class D3D12CaptureManager : public CaptureManager
 
     void ResizeSwapChainImages(IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT buffer_count);
 
-    void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    device_wrapper,
-                                      ID3D12Resource_Wrapper*  resource_wrapper,
-                                      D3D12_RESOURCE_DIMENSION dimension,
-                                      D3D12_TEXTURE_LAYOUT     layout,
-                                      UINT64                   width,
-                                      UINT64                   size,
-                                      D3D12_HEAP_TYPE          heap_type,
-                                      D3D12_CPU_PAGE_PROPERTY  page_property,
-                                      D3D12_MEMORY_POOL        memory_pool,
-                                      D3D12_RESOURCE_STATES    initial_state,
-                                      bool                     has_write_watch);
+    template <class T>
+    void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*   device_wrapper,
+                                      ID3D12Resource_Wrapper* resource_wrapper,
+                                      T                       desc,
+                                      UINT64                  size,
+                                      D3D12_HEAP_TYPE         heap_type,
+                                      D3D12_CPU_PAGE_PROPERTY page_property,
+                                      D3D12_MEMORY_POOL       memory_pool,
+                                      D3D12_RESOURCE_STATES   initial_state,
+                                      bool                    has_write_watch);
 
     void InitializeSwapChainBufferResourceInfo(ID3D12Resource_Wrapper* resource_wrapper,
                                                D3D12_RESOURCE_STATES   initial_state);

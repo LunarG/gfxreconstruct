@@ -48,18 +48,10 @@ class Dx12StateTableBase
     }
 
     // Returns the handle ID for the resource that contains the GPU VA address or kNullHandleId if no match is found.
-    format::HandleId GetResourceForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address, uint64_t minimum_end_address)
-    {
-        bool             found  = false;
-        format::HandleId result = format::kNullHandleId;
-        gpu_va_map_.Map(address, &result, &found, minimum_end_address);
-        return result;
-    }
-
-    format::HandleId GetAccelerationStructureResourceForGpuVa(
-        D3D12_GPU_VIRTUAL_ADDRESS                                         address,
-        uint64_t                                                          minimum_end_address,
-        graphics::IsResourceForRaytracingAccelerationStructureFunctionPtr func = nullptr)
+    format::HandleId
+    GetResourceForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS                                         address,
+                        uint64_t                                                          minimum_end_address,
+                        graphics::IsResourceForRaytracingAccelerationStructureFunctionPtr func = nullptr)
     {
         bool             found  = false;
         format::HandleId result = format::kNullHandleId;

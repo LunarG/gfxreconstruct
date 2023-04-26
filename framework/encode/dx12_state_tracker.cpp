@@ -561,10 +561,10 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
     device5->GetRaytracingAccelerationStructurePrebuildInfo(&desc->Inputs, &prebuild_info);
     {
         std::unique_lock<std::mutex> lock(state_table_mutex_);
-        resource_wrapper = GetAccelerationStructureResourceWrapperForGpuVa(
-            desc->DestAccelerationStructureData,
-            desc->DestAccelerationStructureData + prebuild_info.ResultDataMaxSizeInBytes,
-            IsResourceUsedForRaytracingAccelerationStructure);
+        resource_wrapper =
+            GetResourceWrapperForGpuVa(desc->DestAccelerationStructureData,
+                                       desc->DestAccelerationStructureData + prebuild_info.ResultDataMaxSizeInBytes,
+                                       IsResourceUsedForRaytracingAccelerationStructure);
     }
 
     if (resource_wrapper)
@@ -658,10 +658,10 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                 ID3D12Resource_Wrapper* src_resource_wrapper = nullptr;
                 {
                     std::unique_lock<std::mutex> lock(state_table_mutex_);
-                    src_resource_wrapper = GetAccelerationStructureResourceWrapperForGpuVa(
-                        *curr_entry_iter->desc_gpu_va,
-                        *curr_entry_iter->desc_gpu_va + curr_entry_iter->size,
-                        IsResourceUsedForRaytracingAccelerationStructure);
+                    src_resource_wrapper =
+                        GetResourceWrapperForGpuVa(*curr_entry_iter->desc_gpu_va,
+                                                   *curr_entry_iter->desc_gpu_va + curr_entry_iter->size,
+                                                   IsResourceUsedForRaytracingAccelerationStructure);
                 }
 
                 if (src_resource_wrapper == nullptr)
@@ -786,8 +786,10 @@ void Dx12StateTracker::TrackCopyRaytracingAccelerationStructure(
         std::unique_lock<std::mutex> lock(state_table_mutex_);
         // TODO: find and use the data size of acceleration structure to replace 0
         //       for function GetResourceWrapperForGpuVa.
-        dest_resource_wrapper   = GetResourceWrapperForGpuVa(dest_acceleration_structure_data, 0);
-        source_resource_wrapper = GetResourceWrapperForGpuVa(source_acceleration_structure_data, 0);
+        dest_resource_wrapper = GetResourceWrapperForGpuVa(
+            dest_acceleration_structure_data, 0, IsResourceUsedForRaytracingAccelerationStructure);
+        source_resource_wrapper = GetResourceWrapperForGpuVa(
+            source_acceleration_structure_data, 0, IsResourceUsedForRaytracingAccelerationStructure);
     }
 
     if (dest_resource_wrapper && source_resource_wrapper)
@@ -907,9 +909,9 @@ bool Dx12StateTracker::IsResourceForRaytracingAccelerationStructure(format::Hand
 
         if (resource_wrapper != nullptr)
         {
-            auto desc = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>()->GetDesc();
+            auto object_info = resource_wrapper->GetObjectInfo();
 
-            if ((desc.Flags & D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE) != 0)
+            if ((object_info->desc.Flags & D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE) != 0)
             {
                 result = true;
             }
@@ -919,31 +921,19 @@ bool Dx12StateTracker::IsResourceForRaytracingAccelerationStructure(format::Hand
     return result;
 }
 
-ID3D12Resource_Wrapper* Dx12StateTracker::GetAccelerationStructureResourceWrapperForGpuVa(
-    D3D12_GPU_VIRTUAL_ADDRESS                                         gpu_va,
-    uint64_t                                                          minimum_end_address,
-    graphics::IsResourceForRaytracingAccelerationStructureFunctionPtr func)
-{
-    ID3D12Resource_Wrapper* result = nullptr;
-    auto resource_id = state_table_.GetAccelerationStructureResourceForGpuVa(gpu_va, minimum_end_address, func);
-
-    if (resource_id != format::kNullHandleId)
-    {
-        result = state_table_.GetID3D12Resource_Wrapper(resource_id);
-    }
-
-    return result;
-}
-
-ID3D12Resource_Wrapper* Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va,
-                                                                     uint64_t                  minimum_end_address)
+ID3D12Resource_Wrapper*
+Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va,
+                                             uint64_t                  minimum_end_address,
+                                             graphics::IsResourceForRaytracingAccelerationStructureFunctionPtr func)
 {
     ID3D12Resource_Wrapper* result      = nullptr;
-    auto                    resource_id = state_table_.GetResourceForGpuVa(gpu_va, minimum_end_address);
+    auto                    resource_id = state_table_.GetResourceForGpuVa(gpu_va, minimum_end_address, func);
+
     if (resource_id != format::kNullHandleId)
     {
         result = state_table_.GetID3D12Resource_Wrapper(resource_id);
     }
+
     return result;
 }
 
