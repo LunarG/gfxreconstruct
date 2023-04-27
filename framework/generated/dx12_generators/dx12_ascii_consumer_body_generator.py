@@ -118,7 +118,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
                 WriteApiCallToFile(
                     writeApiCallToFileInfo, tab_count, tab_size,
-                    [&](std::stringstream& str_strm)
+                    [&](std::ostringstream& str_strm)
                     {{
             '''.format(
                 '"' + class_name + '"' if class_name else 'nullptr',

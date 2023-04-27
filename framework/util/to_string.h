@@ -191,8 +191,8 @@ template <typename ToStringFunctionType>
 inline std::string
 ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
 {
-    std::stringstream strStrm;
-    const auto        nl = GetNewlineString(toStringFlags);
+    std::ostringstream strStrm;
+    const auto         nl = GetNewlineString(toStringFlags);
     strStrm << '{';
     strStrm << nl;
     ++tabCount;
@@ -204,13 +204,13 @@ ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize
     return strStrm.str();
 }
 
-inline void FieldToString(std::stringstream& strStrm,
-                          bool               firstField,
-                          const char*        fieldName,
-                          ToStringFlags      toStringFlags,
-                          uint32_t           tabCount,
-                          uint32_t           tabSize,
-                          const std::string& fieldString)
+inline void FieldToString(std::ostringstream& strStrm,
+                          bool                firstField,
+                          const char*         fieldName,
+                          ToStringFlags       toStringFlags,
+                          uint32_t            tabCount,
+                          uint32_t            tabSize,
+                          const std::string&  fieldString)
 {
     if (!firstField)
     {

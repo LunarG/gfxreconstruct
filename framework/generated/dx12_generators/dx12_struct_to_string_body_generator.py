@@ -73,7 +73,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                     template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
                     {{
                         return ObjectToString(toStringFlags, tabCount, tabSize,
-                            [&](std::stringstream& strStrm)
+                            [&](std::ostringstream& strStrm)
                             {{
                     '''.format(k))
                 body += '\n'

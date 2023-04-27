@@ -33,7 +33,7 @@ template <>
 std::string ToString<SECURITY_ATTRIBUTES>(const SECURITY_ATTRIBUTES& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "nLength", toStringFlags, tabCount, tabSize, ToString(obj.nLength, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "lpSecurityDescriptor", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.lpSecurityDescriptor)));
