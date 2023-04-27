@@ -86,7 +86,7 @@ inline std::string ToString(uint32_t      apiFlags,
 template <typename HandleIdType>
 inline std::string HandleIdToString(HandleIdType handleId)
 {
-    std::stringstream strStrm;
+    std::ostringstream strStrm;
     if (handleId)
     {
         strStrm << "\"0x" << reinterpret_cast<const void*>(handleId) << "\"";
@@ -159,7 +159,7 @@ inline std::string BitmaskToString(FlagsType flags)
 template <typename PtrType>
 inline std::string PtrToString(PtrType* ptr)
 {
-    std::stringstream strStrm;
+    std::ostringstream strStrm;
     strStrm << "0x" << std::hex << reinterpret_cast<uintptr_t>(ptr);
     return strStrm.str();
 }
@@ -167,7 +167,7 @@ inline std::string PtrToString(PtrType* ptr)
 template <typename PtrType>
 inline std::string PtrToString(PtrType ptr)
 {
-    std::stringstream strStrm;
+    std::ostringstream strStrm;
     strStrm << "0x" << std::hex << ptr;
     return strStrm.str();
 }
@@ -236,7 +236,7 @@ inline std::string ArrayToString(size_t                    count,
         return "null";
     }
 
-    std::stringstream strStrm;
+    std::ostringstream strStrm;
     strStrm << '[';
     strStrm << GetNewlineString(toStringFlags);
     for (uint32_t i = 0; i < count; ++i)
