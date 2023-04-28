@@ -226,7 +226,7 @@ endif() # WIN32
 find_package(LZ4)
 find_package(ZSTD)
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
     option(BUILD_WSI_DISPLAY_SUPPORT "Build direct-to-display swapchain support" ON)
@@ -238,7 +238,7 @@ if(UNIX)
     if(BUILD_WSI_WAYLAND_SUPPORT)
         find_package(WAYLAND)
     endif()
-endif(UNIX)
+endif(UNIX AND NOT APPLE)
 
 # CMake provided find modules
 if(BUILD_STATIC)
@@ -246,12 +246,12 @@ if(BUILD_STATIC)
 else()
     find_package(ZLIB)
 endif()
-if(UNIX)
+if(UNIX AND NOT APPLE)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     if(BUILD_WSI_XLIB_SUPPORT)
         find_package(X11)
     endif()
-endif(UNIX)
+endif(UNIX AND NOT APPLE)
 
 add_library(windows_specific INTERFACE)
 
