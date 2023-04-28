@@ -375,10 +375,10 @@ void D3D12CaptureManager::InitializeID3D12DeviceInfo(IUnknown* adapter, void** d
     }
 }
 
-bool D3D12CaptureManager::IsResourceForRaytracingAccelerationStructure(format::HandleId id)
+bool D3D12CaptureManager::IsAccelerationStructureResouce(format::HandleId id)
 {
     assert(state_tracker_ != nullptr);
-    bool result = state_tracker_->IsResourceForRaytracingAccelerationStructure(id);
+    bool result = state_tracker_->IsAccelerationStructureResouce(id);
     return result;
 }
 

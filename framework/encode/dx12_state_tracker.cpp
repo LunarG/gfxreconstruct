@@ -564,7 +564,7 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
         resource_wrapper =
             GetResourceWrapperForGpuVa(desc->DestAccelerationStructureData,
                                        desc->DestAccelerationStructureData + prebuild_info.ResultDataMaxSizeInBytes,
-                                       IsResourceUsedForRaytracingAccelerationStructure);
+                                       IsResourceUsedForAccelerationStructure);
     }
 
     if (resource_wrapper)
@@ -661,7 +661,7 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                     src_resource_wrapper =
                         GetResourceWrapperForGpuVa(*curr_entry_iter->desc_gpu_va,
                                                    *curr_entry_iter->desc_gpu_va + curr_entry_iter->size,
-                                                   IsResourceUsedForRaytracingAccelerationStructure);
+                                                   IsResourceUsedForAccelerationStructure);
                 }
 
                 if (src_resource_wrapper == nullptr)
@@ -786,10 +786,10 @@ void Dx12StateTracker::TrackCopyRaytracingAccelerationStructure(
         std::unique_lock<std::mutex> lock(state_table_mutex_);
         // TODO: find and use the data size of acceleration structure to replace 0
         //       for function GetResourceWrapperForGpuVa.
-        dest_resource_wrapper = GetResourceWrapperForGpuVa(
-            dest_acceleration_structure_data, 0, IsResourceUsedForRaytracingAccelerationStructure);
-        source_resource_wrapper = GetResourceWrapperForGpuVa(
-            source_acceleration_structure_data, 0, IsResourceUsedForRaytracingAccelerationStructure);
+        dest_resource_wrapper =
+            GetResourceWrapperForGpuVa(dest_acceleration_structure_data, 0, IsResourceUsedForAccelerationStructure);
+        source_resource_wrapper =
+            GetResourceWrapperForGpuVa(source_acceleration_structure_data, 0, IsResourceUsedForAccelerationStructure);
     }
 
     if (dest_resource_wrapper && source_resource_wrapper)
@@ -898,7 +898,7 @@ void Dx12StateTracker::TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrap
         std::make_shared<util::MemoryOutputStream>(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
 }
 
-bool Dx12StateTracker::IsResourceForRaytracingAccelerationStructure(format::HandleId id)
+bool Dx12StateTracker::IsAccelerationStructureResouce(format::HandleId id)
 {
     ID3D12Resource_Wrapper* resource_wrapper = nullptr;
     bool                    result           = false;
@@ -1012,9 +1012,9 @@ Dx12StateTracker::CommitAccelerationStructureCopyInfo(DxAccelerationStructureCop
 // D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE. Such handling is for
 // keeping headfile organized without having to add too much change to headfile
 // structure.
-bool IsResourceUsedForRaytracingAccelerationStructure(format::HandleId id)
+bool IsResourceUsedForAccelerationStructure(format::HandleId id)
 {
-    return D3D12CaptureManager::Get()->IsResourceForRaytracingAccelerationStructure(id);
+    return D3D12CaptureManager::Get()->IsAccelerationStructureResouce(id);
 }
 
 GFXRECON_END_NAMESPACE(encode)

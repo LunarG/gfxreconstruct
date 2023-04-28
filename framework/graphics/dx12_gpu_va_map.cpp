@@ -133,39 +133,33 @@ bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo&                       
         if (address < info.old_end_address && minimum_old_end_address <= info.old_end_address)
         {
             address = info.new_start_address + (address - old_start_address);
-            if (first_resource_id == format::kNullHandleId)
-            {
-                first_resource_id = resource_entry.first;
-            }
 
             // if func is valid, the caller need first return resource for RaytracingAccelerationStructure so we
             // continue to check if the resource flag match D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE
-            if (func != nullptr)
+            if (func == nullptr || (func != nullptr && (*func)(resource_entry.first) == true))
             {
-                if ((*func)(resource_entry.first))
+                if (resource_id != nullptr)
                 {
-                    first_resource_id = resource_entry.first;
-                    break;
+                    *resource_id = resource_entry.first;
                 }
+                return true;
             }
             else
             {
-                break;
+                if (first_resource_id == format::kNullHandleId)
+                {
+                    first_resource_id = resource_entry.first;
+                }
             }
         }
     }
 
-    if (first_resource_id != format::kNullHandleId)
+    if (resource_id != nullptr)
     {
-        if (resource_id != nullptr)
-        {
-            *resource_id = first_resource_id;
-        }
-
-        return true;
+        *resource_id = first_resource_id;
     }
 
-    return false;
+    return (first_resource_id != format::kNullHandleId);
 }
 
 GFXRECON_END_NAMESPACE(graphics)

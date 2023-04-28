@@ -216,7 +216,7 @@ class Dx12StateTracker
                                   LPCWSTR                              export_name,
                                   const util::MemoryOutputStream*      parameter_buffer);
 
-    bool IsResourceForRaytracingAccelerationStructure(format::HandleId id);
+    bool IsAccelerationStructureResouce(format::HandleId id);
 
   private:
     template <typename Wrapper>
@@ -256,7 +256,7 @@ class Dx12StateTracker
     std::atomic_uint64_t accel_struct_id_;
 };
 
-bool IsResourceUsedForRaytracingAccelerationStructure(format::HandleId id);
+bool IsResourceUsedForAccelerationStructure(format::HandleId id);
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
