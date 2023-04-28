@@ -445,3 +445,9 @@ gfxreconstruct/android/tools/replay/src/main/jniLibs/
 3. Rebuild and deploy `gfxrecon-replay`
 
 The [Android Vulkan Validation Guide](https://developer.android.com/ndk/guides/graphics/validation-layer) has further instructions for advanced validation layer usage on Android
+
+
+#### Android Detailed Examples
+
+For more information and detailed examples on building and using GFXReconstruct
+on Android can be found in the [HOWTO_android.md](./HOWTO_android.md) document.
