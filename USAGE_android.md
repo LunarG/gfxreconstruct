@@ -40,6 +40,8 @@ to one of these other documents:
     5. [Key Controls](#key-controls)
     6. [Limitations of Replay On Android](#limitations-of-replay-on-android)
     7. [Troubleshooting Replay of Applications](#troubleshooting-replay-of-applications)
+4. [Android Detailed Examples](#android-detailed-examples)
+
 
 ## Behavior on Android
 
@@ -911,3 +913,9 @@ setup.
 If the user wants to bypass the feature and use the captured indices to present
 directly on the swapchain of the replay implementation, they should add the
 `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.
+
+
+## Android Detailed Examples
+
+For more information and detailed examples on using GFXReconstruct on Android
+can be found in the [HOWTO_android.md](./HOWTO_android.md) document.
