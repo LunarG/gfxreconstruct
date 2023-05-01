@@ -630,7 +630,7 @@ void Dx12StateWriter::WriteResourceCreationState(
         uint8_t* result_ptr        = nullptr;
         auto     resource_info     = map_info.resource_wrapper->GetObjectInfo();
         bool     unknown_layout_mapping =
-            graphics::dx12::IsTextureWithUnknownLayout(resource_info->desc.Dimension, resource_info->desc.Layout);
+            graphics::dx12::IsTextureWithUnknownLayout(resource_info->dimension, resource_info->layout);
 
         graphics::dx12::MapSubresource(
             mappable_resource, map_info.subresource, &graphics::dx12::kZeroRange, result_ptr, unknown_layout_mapping);
@@ -802,7 +802,7 @@ void Dx12StateWriter::WriteResourceSnapshots(
                            format::ApiCall_ID3D12Device4_CreateReservedResource1)));
 
                 bool target_texture_with_unknown_layout = graphics::dx12::IsTextureWithUnknownLayout(
-                    resource_info.get()->desc.Dimension, resource_info.get()->desc.Layout);
+                    resource_info.get()->dimension, resource_info.get()->layout);
 
                 if ((is_cpu_accessible == false) || (is_cpu_accessible && target_texture_with_unknown_layout))
                 {

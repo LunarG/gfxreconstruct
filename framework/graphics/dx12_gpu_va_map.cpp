@@ -112,10 +112,8 @@ uint64_t Dx12GpuVaMap::Map(uint64_t                                             
     return address;
 }
 
-// If func is valid, the function first return matched resource which is used for RaytracingAccelerationStructure,
-// if no such resource, it will return first resource which match old_start_address and minimum_old_end_address.
-// Note: resource might be used for RaytracingAccelerationStructure without the flag
-// D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE if it's lower than DirectX 12 Agility SDK 1.7.
+// If func is valid, the function return matched resource which is used for RaytracingAccelerationStructure,
+// if func is nullptr, it return first resource which match old_start_address and minimum_old_end_address.
 bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo&                            resource_info,
                              uint64_t                                                old_start_address,
                              uint64_t&                                               address,
@@ -123,8 +121,6 @@ bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo&                       
                              uint64_t                                                minimum_old_end_address,
                              IsResourceForRaytracingAccelerationStructureFunctionPtr func) const
 {
-    format::HandleId first_resource_id = format::kNullHandleId;
-
     // Check for a match in the aliased resource list.
     for (const auto& resource_entry : resource_info)
     {
@@ -134,32 +130,20 @@ bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo&                       
         {
             address = info.new_start_address + (address - old_start_address);
 
-            // if func is valid, the caller need first return resource for RaytracingAccelerationStructure so we
-            // continue to check if the resource flag match D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE
+            // if type checking func is valid, then call it to looking for expected type of resource
             if (func == nullptr || (func != nullptr && (*func)(resource_entry.first) == true))
             {
                 if (resource_id != nullptr)
                 {
                     *resource_id = resource_entry.first;
                 }
+
                 return true;
-            }
-            else
-            {
-                if (first_resource_id == format::kNullHandleId)
-                {
-                    first_resource_id = resource_entry.first;
-                }
             }
         }
     }
 
-    if (resource_id != nullptr)
-    {
-        *resource_id = first_resource_id;
-    }
-
-    return (first_resource_id != format::kNullHandleId);
+    return false;
 }
 
 GFXRECON_END_NAMESPACE(graphics)

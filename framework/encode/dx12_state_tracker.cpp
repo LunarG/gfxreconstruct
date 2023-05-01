@@ -911,7 +911,7 @@ bool Dx12StateTracker::IsAccelerationStructureResouce(format::HandleId id)
         {
             auto object_info = resource_wrapper->GetObjectInfo();
 
-            if ((object_info->desc.Flags & D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE) != 0)
+            if ((object_info->initial_state & D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE) != 0)
             {
                 result = true;
             }
