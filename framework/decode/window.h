@@ -47,7 +47,8 @@ class Window
         kWaylandDisplay,
         kWaylandSurface,
         kWin32HInstance,
-        kWin32HWnd
+        kWin32HWnd,
+        kMetalLayer,
     };
 
   public:

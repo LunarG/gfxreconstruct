@@ -7014,16 +7014,15 @@ void VulkanReplayConsumer::Process_vkCreateMetalSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectInfoTable::GetInstanceInfo);
-    const VkMetalSurfaceCreateInfoEXT* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_instance = GetObjectInfoTable().GetInstanceInfo(instance);
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
-    VkSurfaceKHR* out_pSurface = pSurface->GetHandlePointer();
+    SurfaceKHRInfo handle_info;
+    pSurface->SetConsumerData(0, &handle_info);
 
-    VkResult replay_result = GetInstanceTable(in_instance)->CreateMetalSurfaceEXT(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+    VkResult replay_result = OverrideCreateMetalSurfaceEXT(GetInstanceTable(in_instance->handle)->CreateMetalSurfaceEXT, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
     CheckResult("vkCreateMetalSurfaceEXT", returnValue, replay_result, call_info);
 
-    AddHandle<SurfaceKHRInfo>(instance, pSurface->GetPointer(), out_pSurface, &VulkanObjectInfoTable::AddSurfaceKHRInfo);
+    AddHandle<SurfaceKHRInfo>(instance, pSurface->GetPointer(), pSurface->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::AddSurfaceKHRInfo);
 }
 
 void VulkanReplayConsumer::Process_vkGetBufferDeviceAddressEXT(

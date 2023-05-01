@@ -275,10 +275,16 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
+add_library(macos_specific INTERFACE)
+target_compile_definitions(macos_specific INTERFACE
+    VK_USE_PLATFORM_METAL_EXT
+    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
+
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE
     $<$<BOOL:${WIN32}>:windows_specific>
-    $<$<NOT:$<BOOL:${WIN32}>>:linux_specific>)
+    $<$<BOOL:${APPLE}>:macos_specific>
+    $<$<NOT:$<OR:$<BOOL:${WIN32}>,$<BOOL:${APPLE}>>>:linux_specific>)
 
 if(BUILD_WERROR)
     if(MSVC)

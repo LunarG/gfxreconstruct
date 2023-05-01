@@ -40,6 +40,9 @@
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include "application/android_context.h"
 #endif
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+#include "application/metal_context.h"
+#endif
 #if defined(VK_USE_PLATFORM_DISPLAY_KHR)
 #include "application/display_context.h"
 #endif
@@ -268,6 +271,13 @@ void Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* 
         {
             wsi_contexts_[VK_KHR_ANDROID_SURFACE_EXTENSION_NAME] =
                 std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
+        }
+        else
+#endif
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+            if (!util::platform::StringCompare(pSurfaceExtensionName, VK_EXT_METAL_SURFACE_EXTENSION_NAME))
+        {
+            wsi_contexts_[VK_EXT_METAL_SURFACE_EXTENSION_NAME] = std::make_unique<MetalContext>(this);
         }
         else
 #endif
