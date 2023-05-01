@@ -294,6 +294,33 @@ From the top of the source pulled down from the repo by using the
 ./android/scripts/gfxrecon.py install-apk android/tools/replay/build/outputs/apk/debug/replay-debug.apk
 ```
 
+#### Additional Permissions
+
+A recent change to enable the replay tool on Android 12 and greater has resulted
+in the need of enabling additional permissions on some versions of Android.
+This was the result of updating the replay's Android Manifest file to add the
+`MANAGE_EXTERNAL_STORAGE` permission flag.
+
+##### Android 10
+
+For replay devices running Android 10, the replay tool now requires the enabling
+of legacy storage access:
+
+```bash
+adb shell appops set com.lunarg.gfxreconstruct.replay android:legacy_storage allow
+```
+
+##### Android 11 and Newer
+
+For replay devices running Android 11 and newer, the replay tool requires that
+the Android permission for `MANAGE_EXTERNAL_STORAGE` be granted either through
+the following `adb` command or by clicking on the permission dialog when it
+opens up:
+
+```bash
+adb shell appops set com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STORAGE allow
+```
+
 ### 9. Run the replay
 
 Try running the replay using the `gfxrecon.py` script:
@@ -514,3 +541,7 @@ Try running the replay using the `gfxrecon.py` script:
 ```bash
 ./android/scripts/gfxrecon.py replay /storage/emulated/0/Download/sacredpath_capture_frames_100_through_200_20221215T174939.gfxr
 ```
+
+**NOTE:** Please refer to [Additional Permissions](#additional-permissions)
+above for additional permissions that may need to be enabled to run the
+replay application on certain versions of Android.
