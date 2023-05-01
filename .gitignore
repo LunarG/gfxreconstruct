@@ -7,3 +7,5 @@ __pycache__/
 .vscode/
 *.db
 *.pyc
+._*
+.DS_Store
