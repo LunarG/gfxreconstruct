@@ -39,8 +39,15 @@ def is_windows():
     '''
     return 'windows' == platform.system().lower()
 
+def is_mac():
+    '''
+    Check if the system is macOS
+    '''
+    return 'darwin' == platform.system().lower()
 
 ARCHITECTURES = ['x64', 'x86', 'arm', 'arm64']
+if is_mac():
+    ARCHITECTURES = ['universal', 'x64', 'arm64']
 DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(
     os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
@@ -123,6 +130,10 @@ def parse_args():
         '--lint', dest='lint',
         action='store_true', default=False,
         help='Run static analysis lint tests on code')
+    arg_parser.add_argument(
+        '--cmake-extra', dest='cmake_extra',
+        action='append', default=[],
+        help='Extra variables to set on the cmake invocation')
     return arg_parser.parse_args()
 
 
@@ -220,6 +231,7 @@ def cmake_generate_options(args):
         generate_options.append(
             '-DBUILD_LAUNCHER_AND_INTERCEPTOR={}'.format(
                 'OFF' if not args.build_launcher else 'ON'))
+        generate_options.extend('-D' + arg for arg in args.cmake_extra)
     
     return generate_options
 
@@ -240,6 +252,17 @@ def cmake_generate_build_files(args):
             cmake_generate_args.extend(['-A', 'Win32'])
         elif 'arm64' == args.architecture:
             cmake_generate_args.extend(['-A', 'ARM64'])
+    elif 'darwin' == system:
+        if 'debug' == args.configuration:
+            cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
+        else:
+            cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
+        if 'universal' == args.architecture:
+            cmake_generate_args.append('-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64')
+        elif 'x64' == args.architecture:
+            cmake_generate_args.append('-DCMAKE_OSX_ARCHITECTURES=x86_64')
+        elif 'arm64' == args.architecture:
+            cmake_generate_args.append('-DCMAKE_OSX_ARCHITECTURES=arm64')
     else:
         if 'debug' == args.configuration:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
