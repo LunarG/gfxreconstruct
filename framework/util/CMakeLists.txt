@@ -132,6 +132,11 @@ if (UNIX AND NOT APPLE)
     endif()
 endif()
 
+if (APPLE)
+    find_library(COREGRAPHICS_LIBRARY CoreGraphics)
+    target_link_libraries(gfxrecon_util ${COREGRAPHICS_LIBRARY})
+endif()
+
 if (XCB_LIBRARY)
     target_compile_definitions(gfxrecon_util PUBLIC "XCB_LIBRARY=\"${XCB_LIBRARY}\"")
 endif()

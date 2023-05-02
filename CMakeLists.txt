@@ -218,6 +218,10 @@ else(MSVC)
     endif()
 endif(MSVC)
 
+if(APPLE)
+    add_link_options(-Wl,-dead_strip -Wl,-dead_strip_dylibs)
+endif()
+
 # GFXReconstruct provided find modules
 if(WIN32)
 find_package(Detours)
