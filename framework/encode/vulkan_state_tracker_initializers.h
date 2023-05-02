@@ -132,15 +132,18 @@ inline void InitializeState<VkDevice, PipelineLayoutWrapper, VkPipelineLayoutCre
 
     for (uint32_t i = 0; i < create_info->setLayoutCount; ++i)
     {
-        assert(create_info->pSetLayouts[i] != VK_NULL_HANDLE);
+        // assert(create_info->pSetLayouts[i] != VK_NULL_HANDLE);
 
-        auto                 layout_wrapper = GetWrapper<DescriptorSetLayoutWrapper>(create_info->pSetLayouts[i]);
-        CreateDependencyInfo info;
-        info.handle_id         = layout_wrapper->handle_id;
-        info.create_call_id    = layout_wrapper->create_call_id;
-        info.create_parameters = layout_wrapper->create_parameters;
+        if (create_info->pSetLayouts[i] != VK_NULL_HANDLE)
+        {
+            auto                 layout_wrapper = GetWrapper<DescriptorSetLayoutWrapper>(create_info->pSetLayouts[i]);
+            CreateDependencyInfo info;
+            info.handle_id         = layout_wrapper->handle_id;
+            info.create_call_id    = layout_wrapper->create_call_id;
+            info.create_parameters = layout_wrapper->create_parameters;
 
-        layout_dependencies->layouts.emplace_back(std::move(info));
+            layout_dependencies->layouts.emplace_back(std::move(info));
+        }
     }
 
     wrapper->layout_dependencies = layout_dependencies;
@@ -353,7 +356,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     CreateParameters                    create_parameters)
 {
     assert(wrapper != nullptr);
-    assert((create_info != nullptr) && (create_info->pStages != nullptr));
+    assert((create_info != nullptr) /* && (create_info->pStages != nullptr)*/);
     assert(create_parameters != nullptr);
 
     GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
@@ -366,15 +369,18 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
-        auto shader_wrapper = GetWrapper<ShaderModuleWrapper>(create_info->pStages[i].module);
-        assert(shader_wrapper != nullptr);
+        if (create_info->pStages[i].module != VK_NULL_HANDLE)
+        {
+            auto shader_wrapper = GetWrapper<ShaderModuleWrapper>(create_info->pStages[i].module);
+            assert(shader_wrapper != nullptr);
 
-        CreateDependencyInfo info;
-        info.handle_id         = shader_wrapper->handle_id;
-        info.create_call_id    = shader_wrapper->create_call_id;
-        info.create_parameters = shader_wrapper->create_parameters;
+            CreateDependencyInfo info;
+            info.handle_id         = shader_wrapper->handle_id;
+            info.create_call_id    = shader_wrapper->create_call_id;
+            info.create_parameters = shader_wrapper->create_parameters;
 
-        wrapper->shader_module_dependencies.emplace_back(std::move(info));
+            wrapper->shader_module_dependencies.emplace_back(std::move(info));
+        }
     }
 
     auto render_pass_wrapper = GetWrapper<RenderPassWrapper>(create_info->renderPass);
@@ -385,13 +391,16 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
         wrapper->render_pass_dependency.create_parameters = render_pass_wrapper->create_parameters;
     }
 
-    auto layout_wrapper = GetWrapper<PipelineLayoutWrapper>(create_info->layout);
-    assert(layout_wrapper != nullptr);
+    if (create_info->layout != VK_NULL_HANDLE)
+    {
+        auto layout_wrapper = GetWrapper<PipelineLayoutWrapper>(create_info->layout);
+        assert(layout_wrapper != nullptr);
 
-    wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
-    wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
-    wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
-    wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+        wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+        wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+        wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+        wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+    }
 }
 
 template <>

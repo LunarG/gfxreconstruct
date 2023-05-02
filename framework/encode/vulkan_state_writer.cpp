@@ -666,38 +666,41 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
             }
         }
 
-        auto layout_wrapper = state_table.GetPipelineLayoutWrapper(wrapper->layout_dependency.handle_id);
-        if (layout_wrapper == nullptr)
+        if (wrapper->layout_dependency.handle_id != format::kNullHandleId)
         {
-            // The object no longer exists, so a temporary object must be created.
-            auto        create_parameters = wrapper->layout_dependency.create_parameters.get();
-            const auto& inserted =
-                temp_layouts.insert(std::make_pair(wrapper->layout_dependency.handle_id, create_parameters));
-
-            // Create a temporary object on first encounter.
-            if (inserted.second)
+            auto layout_wrapper = state_table.GetPipelineLayoutWrapper(wrapper->layout_dependency.handle_id);
+            if (layout_wrapper == nullptr)
             {
-                // Check descriptor set layout dependencies.
-                auto deps = wrapper->layout_dependencies;
-                for (const auto& entry : deps->layouts)
-                {
-                    auto ds_layout_wrapper = state_table.GetDescriptorSetLayoutWrapper(entry.handle_id);
-                    if (ds_layout_wrapper == nullptr)
-                    {
-                        // The object no longer exists, so a temporary object must be created.
-                        auto        dep_create_parameters = entry.create_parameters.get();
-                        const auto& dep_inserted =
-                            temp_ds_layouts.insert(std::make_pair(entry.handle_id, dep_create_parameters));
+                // The object no longer exists, so a temporary object must be created.
+                auto        create_parameters = wrapper->layout_dependency.create_parameters.get();
+                const auto& inserted =
+                    temp_layouts.insert(std::make_pair(wrapper->layout_dependency.handle_id, create_parameters));
 
-                        // Create a temporary object on first encounter.
-                        if (dep_inserted.second)
+                // Create a temporary object on first encounter.
+                if (inserted.second)
+                {
+                    // Check descriptor set layout dependencies.
+                    auto deps = wrapper->layout_dependencies;
+                    for (const auto& entry : deps->layouts)
+                    {
+                        auto ds_layout_wrapper = state_table.GetDescriptorSetLayoutWrapper(entry.handle_id);
+                        if (ds_layout_wrapper == nullptr)
                         {
-                            WriteFunctionCall(entry.create_call_id, dep_create_parameters);
+                            // The object no longer exists, so a temporary object must be created.
+                            auto        dep_create_parameters = entry.create_parameters.get();
+                            const auto& dep_inserted =
+                                temp_ds_layouts.insert(std::make_pair(entry.handle_id, dep_create_parameters));
+
+                            // Create a temporary object on first encounter.
+                            if (dep_inserted.second)
+                            {
+                                WriteFunctionCall(entry.create_call_id, dep_create_parameters);
+                            }
                         }
                     }
-                }
 
-                WriteFunctionCall(wrapper->layout_dependency.create_call_id, create_parameters);
+                    WriteFunctionCall(wrapper->layout_dependency.create_call_id, create_parameters);
+                }
             }
         }
     });
