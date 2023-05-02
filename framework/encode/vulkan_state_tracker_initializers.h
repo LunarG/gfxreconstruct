@@ -132,8 +132,6 @@ inline void InitializeState<VkDevice, PipelineLayoutWrapper, VkPipelineLayoutCre
 
     for (uint32_t i = 0; i < create_info->setLayoutCount; ++i)
     {
-        // assert(create_info->pSetLayouts[i] != VK_NULL_HANDLE);
-
         if (create_info->pSetLayouts[i] != VK_NULL_HANDLE)
         {
             auto                 layout_wrapper = GetWrapper<DescriptorSetLayoutWrapper>(create_info->pSetLayouts[i]);
@@ -356,7 +354,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     CreateParameters                    create_parameters)
 {
     assert(wrapper != nullptr);
-    assert((create_info != nullptr) /* && (create_info->pStages != nullptr)*/);
+    assert((create_info != nullptr);
     assert(create_parameters != nullptr);
 
     GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
