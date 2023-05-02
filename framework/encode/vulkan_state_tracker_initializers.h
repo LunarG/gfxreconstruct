@@ -354,7 +354,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     CreateParameters                    create_parameters)
 {
     assert(wrapper != nullptr);
-    assert((create_info != nullptr);
+    assert(create_info != nullptr);
     assert(create_parameters != nullptr);
 
     GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
