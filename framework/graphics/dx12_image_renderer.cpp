@@ -277,7 +277,7 @@ void DX12ImageRenderer::WaitCmdListFinish()
 
 HRESULT
 DX12ImageRenderer::RetrieveImageData(
-    CpuImage* img_out, UINT width, UINT height, UINT pitch, DXGI_FORMAT format, bool desire_bgr)
+    CpuImage* img_out, UINT width, UINT height, UINT pitch, DXGI_FORMAT format, bool convert_to_bgra)
 {
     void*       uav_data   = nullptr;
     D3D12_RANGE read_range = { 0, 0 };
@@ -296,19 +296,23 @@ DX12ImageRenderer::RetrieveImageData(
 
         bool is_bgr8 = B8G8R8.find(format) != B8G8R8.end();
         bool is_rgb8 = R8G8B8A8.find(format) != R8G8B8A8.end();
-        if ((desire_bgr && is_rgb8) || (!desire_bgr && is_bgr8))
+        bool is_r10g10b10a2 = R10G10B10A2.find(format) != R10G10B10A2.end();
+
+        bool swap_red_blue = (convert_to_bgra && is_rgb8) || (!convert_to_bgra && is_bgr8);
+
+        if (swap_red_blue)
         {
             ConvertR8G8B8A8ToB8G8R8A8(img_out->data, width, height, pitch);
         }
-        else if (R10G10B10A2.find(format) != R10G10B10A2.end())
+        else if (is_r10g10b10a2)
         {
             ConvertR10G10B10A2ToB8G8R8A8(img_out->data, width, height, pitch);
-            if (!desire_bgr)
+            if (!convert_to_bgra)
             {
                 ConvertR8G8B8A8ToB8G8R8A8(img_out->data, width, height, pitch);
             }
         }
-        else if (!is_bgr8)
+        else if (!(is_bgr8 || is_rgb8 || is_r10g10b10a2))
         {
             auto entry = std::find(issued_warning_list_.begin(), issued_warning_list_.end(), format);
             if (entry == issued_warning_list_.end())

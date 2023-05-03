@@ -98,7 +98,7 @@ class DX12ImageRenderer
     static void ConvertR10G10B10A2ToB8G8R8A8(std::vector<char>& data, UINT width, UINT height, UINT pitch);
 
     HRESULT
-    RetrieveImageData(CpuImage* img_out, UINT width, UINT height, UINT pitch, DXGI_FORMAT format, bool desire_bgr);
+    RetrieveImageData(CpuImage* img_out, UINT width, UINT height, UINT pitch, DXGI_FORMAT format, bool convert_to_bgra);
 
     //-----------------------------------------------------------------------------
     /// Destructor.

@@ -380,6 +380,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     // Screenshot environment variables
     LoadSingleOptionEnvVar(options, kScreenshotDirEnvVar, kOptionKeyScreenshotDir);
+    LoadSingleOptionEnvVar(options, kScreenshotFormatEnvVar, kOptionKeyScreenshotFormat);
     LoadSingleOptionEnvVar(options, kScreenshotFramesEnvVar, kOptionKeyScreenshotFrames);
 
     // DirectX environment variables
