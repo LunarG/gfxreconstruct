@@ -922,9 +922,9 @@ bool Dx12StateTracker::IsAccelerationStructureResouce(format::HandleId id)
 }
 
 ID3D12Resource_Wrapper*
-Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va,
-                                             uint64_t                  minimum_end_address,
-                                             graphics::IsResourceForRaytracingAccelerationStructureFunctionPtr func)
+Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS                            gpu_va,
+                                             uint64_t                                             minimum_end_address,
+                                             graphics::IsAccelerationStructureResourceFunctionPtr func)
 {
     ID3D12Resource_Wrapper* result      = nullptr;
     auto                    resource_id = state_table_.GetResourceForGpuVa(gpu_va, minimum_end_address, func);

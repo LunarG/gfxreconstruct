@@ -62,11 +62,11 @@ void Dx12GpuVaMap::Remove(format::HandleId resource_id, uint64_t old_start_addre
     }
 }
 
-uint64_t Dx12GpuVaMap::Map(uint64_t                                                address,
-                           format::HandleId*                                       resource_id,
-                           bool*                                                   found,
-                           uint64_t                                                minimum_old_end_address,
-                           IsResourceForRaytracingAccelerationStructureFunctionPtr func) const
+uint64_t Dx12GpuVaMap::Map(uint64_t                                   address,
+                           format::HandleId*                          resource_id,
+                           bool*                                      found,
+                           uint64_t                                   minimum_old_end_address,
+                           IsAccelerationStructureResourceFunctionPtr func) const
 {
     bool local_found = false;
 
@@ -114,12 +114,12 @@ uint64_t Dx12GpuVaMap::Map(uint64_t                                             
 
 // If func is valid, the function return matched resource which is used for RaytracingAccelerationStructure,
 // if func is nullptr, it return first resource which match old_start_address and minimum_old_end_address.
-bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo&                            resource_info,
-                             uint64_t                                                old_start_address,
-                             uint64_t&                                               address,
-                             format::HandleId*                                       resource_id,
-                             uint64_t                                                minimum_old_end_address,
-                             IsResourceForRaytracingAccelerationStructureFunctionPtr func) const
+bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo&               resource_info,
+                             uint64_t                                   old_start_address,
+                             uint64_t&                                  address,
+                             format::HandleId*                          resource_id,
+                             uint64_t                                   minimum_old_end_address,
+                             IsAccelerationStructureResourceFunctionPtr func) const
 {
     // Check for a match in the aliased resource list.
     for (const auto& resource_entry : resource_info)
