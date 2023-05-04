@@ -22,41 +22,52 @@
 */
 
 #include "base_layer.h"
-#include "generated/generated_vulkan_dispatch_table.h"
+#include "child_layer.h"
 #include "util/platform.h"
 
 #include "vulkan/vk_layer.h"
 
 #include <cstring>
-#include <mutex>
-#include <unordered_map>
 #include <vector>
-
-#if defined(__ANDROID__)
-#include <android/log.h>
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-#define GFXRECON_BASE_LAYER_NAME "VK_LAYER_LUNARG_gfxreconstruct_base_layer"
-#define GFXRECON_BASE_LAYER_VERSION_MAJOR 1
-#define GFXRECON_BASE_LAYER_VERSION_MINOR 0
-#define GFXRECON_BASE_LAYER_VERSION_PATCH 0
-#define GFXRECON_BASE_LAYER_DESCRIPTION "GFXReconstruct Sample Layer"
-#define GFXRECON_BASE_LAYER_VERSION_DESIGNATION "-dev"
+// The following macros must be defined by each implemented layer *before* including this file
+
+#ifndef GFXRECON_LAYER_NAME
+#error "GFXRECON_LAYER_NAME must be define"
+#endif
+
+#ifndef GFXRECON_LAYER_VERSION_MAJOR
+#error "GFXRECON_LAYER_VERSION_MAJOR must be define"
+#endif
+
+#ifndef GFXRECON_LAYER_VERSION_MINOR
+#error "GFXRECON_LAYER_VERSION_MINOR must be define"
+#endif
+
+#ifndef GFXRECON_LAYER_VERSION_PATCH
+#error "GFXRECON_LAYER_VERSION_PATCH must be define"
+#endif
+
+#ifndef GFXRECON_LAYER_DESCRIPTION
+#error "GFXRECON_LAYER_DESCRIPTION must be define"
+#endif
+
+#ifndef GFXRECON_LAYER_VERSION_DESIGNATION
+#error "GFXRECON_LAYER_VERSION_DESIGNATION must be define"
+#endif
 
 #define GFXRECON_VERSION_STR_EXPAND(x) #x
 #define GFXRECON_VERSION_STR(x) GFXRECON_VERSION_STR_EXPAND(x)
 
 const VkLayerProperties kLayerProps = {
-    GFXRECON_BASE_LAYER_NAME,
+    GFXRECON_LAYER_NAME,
     VK_HEADER_VERSION_COMPLETE,
-    VK_MAKE_VERSION(
-        GFXRECON_BASE_LAYER_VERSION_MAJOR, GFXRECON_BASE_LAYER_VERSION_MINOR, GFXRECON_BASE_LAYER_VERSION_PATCH),
-    GFXRECON_BASE_LAYER_DESCRIPTION
-    " Version " GFXRECON_VERSION_STR(GFXRECON_BASE_LAYER_VERSION_MAJOR) "." GFXRECON_VERSION_STR(
-        GFXRECON_BASE_LAYER_VERSION_MINOR) "." GFXRECON_VERSION_STR(GFXRECON_BASE_LAYER_VERSION_PATCH)
-        GFXRECON_BASE_LAYER_VERSION_DESIGNATION
+    VK_MAKE_VERSION(GFXRECON_LAYER_VERSION_MAJOR, GFXRECON_LAYER_VERSION_MINOR, GFXRECON_LAYER_VERSION_PATCH),
+    GFXRECON_LAYER_DESCRIPTION " Version " GFXRECON_VERSION_STR(GFXRECON_LAYER_VERSION_MAJOR) "." GFXRECON_VERSION_STR(
+        GFXRECON_LAYER_VERSION_MINOR) "." GFXRECON_VERSION_STR(GFXRECON_LAYER_VERSION_PATCH)
+        GFXRECON_LAYER_VERSION_DESIGNATION
 };
 
 const std::vector<VkExtensionProperties> kDeviceExtensionProps = { VkExtensionProperties{ "VK_EXT_tooling_info", 1 } };
@@ -89,52 +100,6 @@ static const VkLayerDeviceCreateInfo* get_device_chain_info(const VkDeviceCreate
     return chain_info;
 }
 
-struct instance_dispatch_table
-{
-    VkInstance            instance;
-    encode::InstanceTable dispatch_table;
-};
-
-struct device_dispatch_table
-{
-    VkDevice            device;
-    encode::DeviceTable dispatch_table;
-};
-
-static std::mutex                                               global_lock;
-static std::unordered_map<const void*, instance_dispatch_table> instance_handles;
-static std::unordered_map<const void*, device_dispatch_table>   device_handles;
-
-static encode::InstanceTable* add_instance_handle(VkInstance instance)
-{
-    // Store the instance for use with vkCreateDevice.
-    std::lock_guard<std::mutex> lock(global_lock);
-    instance_handles[encode::GetDispatchKey(instance)] = { instance, encode::InstanceTable() };
-    return &instance_handles[encode::GetDispatchKey(instance)].dispatch_table;
-}
-
-static instance_dispatch_table* get_instance_handle(const void* handle)
-{
-    std::lock_guard<std::mutex> lock(global_lock);
-    auto                        entry = instance_handles.find(encode::GetDispatchKey(handle));
-    return (entry != instance_handles.end()) ? &entry->second : nullptr;
-}
-
-static encode::DeviceTable* add_device_handle(VkDevice device)
-{
-    // Store the instance for use with vkCreateDevice.
-    std::lock_guard<std::mutex> lock(global_lock);
-    device_handles[encode::GetDispatchKey(device)] = { device, encode::DeviceTable() };
-    return &device_handles[encode::GetDispatchKey(device)].dispatch_table;
-}
-
-static device_dispatch_table* get_device_handle(const void* handle)
-{
-    std::lock_guard<std::mutex> lock(global_lock);
-    auto                        entry = device_handles.find(encode::GetDispatchKey(handle));
-    return (entry != device_handles.end()) ? &entry->second : nullptr;
-}
-
 static std::mutex                                                    gpdpa_lock;
 static std::unordered_map<VkInstance, PFN_GetPhysicalDeviceProcAddr> next_gpdpa;
 
@@ -161,8 +126,6 @@ VKAPI_ATTR VkResult VKAPI_CALL base_layer_CreateInstance(const VkInstanceCreateI
                                                          const VkAllocationCallbacks* pAllocator,
                                                          VkInstance*                  pInstance)
 {
-    __android_log_print(ANDROID_LOG_INFO, "[" GFXRECON_BASE_LAYER_NAME "]", "%s()", __func__);
-
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
     VkLayerInstanceCreateInfo* chain_info =
@@ -180,20 +143,27 @@ VKAPI_ATTR VkResult VKAPI_CALL base_layer_CreateInstance(const VkInstanceCreateI
             if (fpCreateInstance)
             {
                 // Advance the link info for the next element on the chain
-                auto pLayerInfo          = chain_info->u.pLayerInfo;
                 chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
                 result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
 
-                if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
+                if ((result == VK_SUCCESS) && pInstance && (*pInstance != VK_NULL_HANDLE))
                 {
                     encode::InstanceTable* instance_table = add_instance_handle(*pInstance);
-
                     encode::LoadInstanceTable(fpGetInstanceProcAddr, *pInstance, instance_table);
 
-                    auto fpNextGetPhysicalDeviceProcAddr = reinterpret_cast<PFN_GetPhysicalDeviceProcAddr>(
-                        fpGetInstanceProcAddr(*pInstance, "vk_layerGetPhysicalDeviceProcAddr"));
-                    set_instance_next_gpdpa(*pInstance, fpNextGetPhysicalDeviceProcAddr);
+                    result = layer_CreateInstance(pCreateInfo, pAllocator, pInstance);
+
+                    if (result == VK_SUCCESS)
+                    {
+                        auto fpNextGetPhysicalDeviceProcAddr = reinterpret_cast<PFN_GetPhysicalDeviceProcAddr>(
+                            fpGetInstanceProcAddr(*pInstance, "vk_layerGetPhysicalDeviceProcAddr"));
+                        set_instance_next_gpdpa(*pInstance, fpNextGetPhysicalDeviceProcAddr);
+                    }
+                    else
+                    {
+                        remove_instance_handle(*pInstance);
+                    };
                 }
             }
         }
@@ -207,8 +177,6 @@ VKAPI_ATTR VkResult VKAPI_CALL base_layer_CreateDevice(VkPhysicalDevice         
                                                        const VkAllocationCallbacks* pAllocator,
                                                        VkDevice*                    pDevice)
 {
-    __android_log_print(ANDROID_LOG_INFO, "[" GFXRECON_BASE_LAYER_NAME "]", "%s()", __func__);
-
     VkResult                 result = VK_ERROR_INITIALIZATION_FAILED;
     VkLayerDeviceCreateInfo* chain_info =
         const_cast<VkLayerDeviceCreateInfo*>(get_device_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
@@ -232,10 +200,17 @@ VKAPI_ATTR VkResult VKAPI_CALL base_layer_CreateDevice(VkPhysicalDevice         
 
                 result = fpCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
 
-                if ((result == VK_SUCCESS) && pDevice && (*pDevice != nullptr))
+                if ((result == VK_SUCCESS) && pDevice && (*pDevice != VK_NULL_HANDLE))
                 {
                     encode::DeviceTable* device_table = add_device_handle(*pDevice);
                     encode::LoadDeviceTable(fpGetDeviceProcAddr, *pDevice, device_table);
+
+                    result = layer_CreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
+
+                    if (result != VK_SUCCESS)
+                    {
+                        remove_device_handle(*pDevice);
+                    }
                 }
             }
         }
@@ -244,10 +219,8 @@ VKAPI_ATTR VkResult VKAPI_CALL base_layer_CreateDevice(VkPhysicalDevice         
     return result;
 }
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName)
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL base_layer_GetInstanceProcAddr(VkInstance instance, const char* pName)
 {
-    __android_log_print(ANDROID_LOG_INFO, "[" GFXRECON_BASE_LAYER_NAME "]", "%s()", __func__);
-
     PFN_vkVoidFunction result = nullptr;
 
     if (!strcmp(pName, "vkCreateInstance"))
@@ -272,10 +245,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     return result;
 }
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char* pName)
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL base_layer_GetDeviceProcAddr(VkDevice device, const char* pName)
 {
-    __android_log_print(ANDROID_LOG_INFO, "[" GFXRECON_BASE_LAYER_NAME "]", "%s()", __func__);
-
     PFN_vkVoidFunction result = nullptr;
 
     if (device != VK_NULL_HANDLE)
@@ -290,10 +261,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
     return result;
 }
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char* pName)
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL base_layer_GetPhysicalDeviceProcAddr(VkInstance instance, const char* pName)
 {
-    __android_log_print(ANDROID_LOG_INFO, "[" GFXRECON_BASE_LAYER_NAME "]", "%s()", __func__);
-
     PFN_vkVoidFunction result = nullptr;
 
     if (instance != VK_NULL_HANDLE)
@@ -313,8 +282,6 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
                                                                   uint32_t*              pPropertyCount,
                                                                   VkExtensionProperties* pProperties)
 {
-    __android_log_print(ANDROID_LOG_INFO, "[" GFXRECON_BASE_LAYER_NAME "]", "%s()", __func__);
-
     VkResult result = VK_SUCCESS;
 
     if ((pLayerName != nullptr) && (std::strcmp(pLayerName, kLayerProps.layerName) == 0))
@@ -393,8 +360,6 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char* 
                                                                     uint32_t*              pPropertyCount,
                                                                     VkExtensionProperties* pProperties)
 {
-    __android_log_print(ANDROID_LOG_INFO, "[" GFXRECON_BASE_LAYER_NAME "]", "%s()", __func__);
-
     VkResult result = VK_SUCCESS;
 
     if (pLayerName && (std::strcmp(pLayerName, kLayerProps.layerName) == 0))
@@ -415,8 +380,6 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char* 
 VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
                                                                 VkLayerProperties* pProperties)
 {
-    __android_log_print(ANDROID_LOG_INFO, "[" GFXRECON_BASE_LAYER_NAME "]", "%s()", __func__);
-
     VkResult result = VK_SUCCESS;
 
     if (pProperties == nullptr)
@@ -446,8 +409,6 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice  
                                                               uint32_t*          pPropertyCount,
                                                               VkLayerProperties* pProperties)
 {
-    __android_log_print(ANDROID_LOG_INFO, "[" GFXRECON_BASE_LAYER_NAME "]", "%s()", __func__);
-
     return EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
 }
 
@@ -455,36 +416,6 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 extern "C"
 {
-    VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct)
-    {
-        assert(pVersionStruct != NULL);
-        assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
-
-        if (pVersionStruct->loaderLayerInterfaceVersion >= 2)
-        {
-            pVersionStruct->pfnGetInstanceProcAddr       = gfxrecon::GetInstanceProcAddr;
-            pVersionStruct->pfnGetDeviceProcAddr         = gfxrecon::GetDeviceProcAddr;
-            pVersionStruct->pfnGetPhysicalDeviceProcAddr = gfxrecon::GetPhysicalDeviceProcAddr;
-        }
-
-        if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION)
-        {
-            pVersionStruct->loaderLayerInterfaceVersion = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
-        }
-
-        return VK_SUCCESS;
-    }
-
-    VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
-    {
-        return gfxrecon::GetInstanceProcAddr(instance, pName);
-    }
-
-    VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
-    {
-        return gfxrecon::GetDeviceProcAddr(device, pName);
-    }
-
     VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
                                                                         const char*            pLayerName,
                                                                         uint32_t*              pPropertyCount,
@@ -514,4 +445,38 @@ extern "C"
         assert(physicalDevice == VK_NULL_HANDLE);
         return gfxrecon::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
     }
+
+    VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct)
+    {
+        assert(pVersionStruct != NULL);
+        assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
+
+        // Fill in the function pointers if our version is at least capable of having the structure contain them.
+        if (pVersionStruct->loaderLayerInterfaceVersion >= 2)
+        {
+            pVersionStruct->pfnGetInstanceProcAddr       = gfxrecon::layer_GetInstanceProcAddr;
+            pVersionStruct->pfnGetDeviceProcAddr         = gfxrecon::layer_GetDeviceProcAddr;
+            pVersionStruct->pfnGetPhysicalDeviceProcAddr = gfxrecon::base_layer_GetPhysicalDeviceProcAddr;
+        }
+
+        if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION)
+        {
+            pVersionStruct->loaderLayerInterfaceVersion = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+        }
+
+        return VK_SUCCESS;
+    }
+
+    // The following two functions are not directly invoked by the desktop loader, which instead uses the function
+    // pointers returned by the negotiate function.
+    VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
+    {
+        return gfxrecon::layer_GetInstanceProcAddr(instance, pName);
+    }
+
+    VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
+    {
+        return gfxrecon::layer_GetDeviceProcAddr(device, pName);
+    }
+
 } // extern "C"

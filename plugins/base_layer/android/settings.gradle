@@ -1,2 +1,0 @@
-include ':base_layer'
-project(':base_layer').projectDir = file('base_layer')
