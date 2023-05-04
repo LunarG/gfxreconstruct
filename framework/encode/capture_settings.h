@@ -80,6 +80,7 @@ class CaptureSettings
         MemoryTrackingMode            memory_tracking_mode{ kPageGuard };
         std::string                   screenshot_dir;
         std::vector<util::FrameRange> screenshot_ranges;
+        util::ScreenshotFormat        screenshot_format;
         std::vector<TrimRange>        trim_ranges;
         std::string                   trim_key;
         uint32_t                      trim_key_frames{ 0 };
@@ -164,6 +165,9 @@ class CaptureSettings
     static std::string ParseTrimKeyString(const std::string& value_string);
 
     static uint32_t ParseTrimKeyFramesString(const std::string& value_string);
+
+    static util::ScreenshotFormat ParseScreenshotFormatString(const std::string&     value_string,
+                                                              util::ScreenshotFormat default_value);
 
   private:
     TraceSettings       trace_settings_;

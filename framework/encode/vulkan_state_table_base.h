@@ -32,6 +32,7 @@
 #include <cassert>
 #include <functional>
 #include <map>
+#include <shared_mutex>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -77,8 +78,8 @@ class VulkanStateTableBase
                      Wrapper*                                                    wrapper,
                      std::unordered_map<typename Wrapper::HandleType, Wrapper*>& map)
     {
-        const std::lock_guard<std::mutex> lock(mutex_);
-        const auto&                       inserted = map.insert(std::make_pair(handle, wrapper));
+        const std::unique_lock<std::shared_mutex> lock(mutex_);
+        const auto&                               inserted = map.insert(std::make_pair(handle, wrapper));
         return inserted.second;
     }
 
@@ -86,16 +87,16 @@ class VulkanStateTableBase
     bool RemoveEntry(const typename Wrapper::HandleType                          handle,
                      std::unordered_map<typename Wrapper::HandleType, Wrapper*>& map)
     {
-        const std::lock_guard<std::mutex> lock(mutex_);
+        const std::unique_lock<std::shared_mutex> lock(mutex_);
         return (map.erase(handle) != 0);
     }
 
     template <typename Wrapper>
-    Wrapper* GetWrapper(typename Wrapper::HandleType                                handle,
-                        std::unordered_map<typename Wrapper::HandleType, Wrapper*>& map)
+    Wrapper* GetWrapper(typename Wrapper::HandleType                                      handle,
+                        const std::unordered_map<typename Wrapper::HandleType, Wrapper*>& map)
     {
-        const std::lock_guard<std::mutex> lock(mutex_);
-        auto                              entry = map.find(handle);
+        const std::shared_lock<std::shared_mutex> lock(mutex_);
+        auto                                      entry = map.find(handle);
         return (entry != map.end()) ? entry->second : nullptr;
     }
 
@@ -103,12 +104,13 @@ class VulkanStateTableBase
     const Wrapper* GetWrapper(typename Wrapper::HandleType                                      handle,
                               const std::unordered_map<typename Wrapper::HandleType, Wrapper*>& map) const
     {
-        const std::lock_guard<std::mutex> lock(mutex_);
-        auto                              entry = map.find(handle);
+        const std::shared_lock<std::shared_mutex> lock(mutex_);
+        auto                                      entry = map.find(handle);
         return (entry != map.end()) ? entry->second : nullptr;
     }
 
-    mutable std::mutex mutex_;
+  private:
+    mutable std::shared_mutex mutex_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -82,11 +82,16 @@ class Dx12StatsConsumer : public Dx12Consumer
     {
         bool insert = true;
 
-        for (const auto& adapter : adapters)
+        for (auto& adapter : adapters)
         {
             if ((adapter.LuidHighPart == new_adapter.LuidHighPart) && (adapter.LuidLowPart == new_adapter.LuidLowPart))
             {
                 insert = false;
+                if (!graphics::dx12::ExtractAdapterType(adapter.extra_info))
+                {
+                    format::AdapterType type = graphics::dx12::ExtractAdapterType(new_adapter.extra_info);
+                    graphics::dx12::InjectAdapterType(adapter.extra_info, type);
+                }
                 break;
             }
         }
@@ -113,8 +118,22 @@ class Dx12StatsConsumer : public Dx12Consumer
         new_adapter.SharedSystemMemory    = adapter_info_header.adapter_desc.SharedSystemMemory;
         new_adapter.LuidLowPart           = adapter_info_header.adapter_desc.LuidLowPart;
         new_adapter.LuidHighPart          = adapter_info_header.adapter_desc.LuidHighPart;
-        new_adapter.type                  = adapter_info_header.adapter_desc.type;
+        new_adapter.extra_info            = adapter_info_header.adapter_desc.extra_info;
         InsertAdapter(new_adapter, gfxr_cmd_adapters_);
+        format::HandleId object_id = graphics::dx12::ExtractAdapterCaptureId(new_adapter.extra_info);
+
+        const int64_t luid = (new_adapter.LuidHighPart << 31) | new_adapter.LuidLowPart;
+        adapter_submission_mapping_.adapter_to_luid_map[object_id] = luid;
+    }
+
+    virtual void Process_IDXGIAdapter4_GetDesc3(const ApiCallInfo&                                call_info,
+                                                format::HandleId                                  object_id,
+                                                HRESULT                                           return_value,
+                                                StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
+    {
+        format::DxgiAdapterDesc new_adapter = {};
+        CopyAdapterDesc(new_adapter, pDesc);
+        InsertAdapter(new_adapter, app_get_desc_adapters);
     }
 
     virtual void
@@ -123,7 +142,6 @@ class Dx12StatsConsumer : public Dx12Consumer
                                    HRESULT                                                             return_value,
                                    gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
     {
-
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
         InsertAdapter(new_adapter, app_get_desc_adapters);
@@ -135,7 +153,6 @@ class Dx12StatsConsumer : public Dx12Consumer
                                    HRESULT                                                             return_value,
                                    gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
     {
-
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
         InsertAdapter(new_adapter, app_get_desc_adapters);
@@ -146,7 +163,6 @@ class Dx12StatsConsumer : public Dx12Consumer
                                               HRESULT                              return_value,
                                               gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
     {
-
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
         InsertAdapter(new_adapter, app_get_desc_adapters);
@@ -275,6 +291,108 @@ class Dx12StatsConsumer : public Dx12Consumer
         dummy_trim_frame_count_ = current_buffer_index;
     }
 
+    virtual void Process_D3D12CreateDevice(const ApiCallInfo&           call_info,
+                                           HRESULT                      return_value,
+                                           format::HandleId             pAdapter,
+                                           D3D_FEATURE_LEVEL            MinimumFeatureLevel,
+                                           Decoded_GUID                 riid,
+                                           HandlePointerDecoder<void*>* ppDevice)
+    {
+        GFXRECON_ASSERT(ppDevice != nullptr);
+
+        if (ppDevice != nullptr && ppDevice->GetPointer() != nullptr)
+        {
+            format::HandleId device_id                                   = *(ppDevice->GetPointer());
+            adapter_submission_mapping_.device_to_adapter_map[device_id] = pAdapter;
+        }
+    }
+
+    virtual void Process_ID3D12Device_CreateCommandQueue(const ApiCallInfo& call_info,
+                                                         format::HandleId   object_id,
+                                                         HRESULT            return_value,
+                                                         StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* pDesc,
+                                                         Decoded_GUID                                            riid,
+                                                         HandlePointerDecoder<void*>* ppCommandQueue)
+    {
+        GFXRECON_ASSERT(ppCommandQueue != nullptr);
+
+        if (ppCommandQueue != nullptr && ppCommandQueue->GetPointer() != nullptr)
+        {
+            format::HandleId command_queue_id                                 = *ppCommandQueue->GetPointer();
+            adapter_submission_mapping_.queue_to_device_map[command_queue_id] = object_id;
+        }
+    }
+
+    virtual void
+    Process_ID3D12CommandQueue_ExecuteCommandLists(const ApiCallInfo&                        call_info,
+                                                   format::HandleId                          object_id,
+                                                   UINT                                      NumCommandLists,
+                                                   HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
+    {
+        GFXRECON_ASSERT(object_id != format::kNullHandleId)
+        adapter_submission_mapping_.adapter_submit_counts[object_id]++;
+    }
+
+    // validation of workload LUID exists in adapters luid
+    bool ValidateAdapterWorkload(int64_t workload_luid, const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters)
+    {
+        bool valid_adapter = false;
+        for (const auto& adapter : adapters)
+        {
+            const int64_t adapter_luid = (adapter.LuidHighPart << 31) | adapter.LuidLowPart;
+            if (workload_luid == adapter_luid)
+            {
+                valid_adapter = true;
+                break;
+            }
+        }
+        return valid_adapter;
+    }
+
+    void CalcAdapterWorkload(std::unordered_map<int64_t, std::string>&            adapter_workload,
+                             const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters)
+    {
+        uint64_t total_adapter_submits = 0;
+
+        // calculate total amount of ExecuteCommandLists calls
+        for (const auto& curr_adapter_id : adapter_submission_mapping_.adapter_submit_counts)
+        {
+            total_adapter_submits += curr_adapter_id.second;
+        }
+        std::unordered_map<int64_t, uint64_t> adapter_count_map;
+
+        // calculate total calls per LUIDs. We can have several queue IDs per adapter LUID
+        for (const auto& queue_map : adapter_submission_mapping_.queue_to_device_map)
+        {
+            format::HandleId adapter_id         = adapter_submission_mapping_.device_to_adapter_map[queue_map.second];
+            int64_t          adapter_luid       = adapter_submission_mapping_.adapter_to_luid_map[adapter_id];
+            uint64_t         queue_submit_count = adapter_submission_mapping_.adapter_submit_counts[queue_map.first];
+            if (adapter_count_map[adapter_luid])
+            {
+                adapter_count_map[adapter_luid] += queue_submit_count;
+            }
+            else
+            {
+                adapter_count_map[adapter_luid] = queue_submit_count;
+            }
+        }
+
+        // calculate workload of adapter and convert it to string
+        for (const auto& workload : adapter_count_map)
+        {
+            std::string workload_value = std::to_string(100.0 * workload.second / total_adapter_submits);
+            auto        dot_pos        = workload_value.find('.');
+            if (dot_pos != std::string::npos)
+            {
+                workload_value.erase(dot_pos + 2);
+            }
+            if (ValidateAdapterWorkload(workload.first, adapters))
+            {
+                adapter_workload[workload.first] = workload_value;
+            }
+        }
+    }
+
   private:
     // Holds adapter descs that were obtained from the app calling GetDesc()
     // This list is only here to support older captures which do contain kDxgiAdapterInfoCommand
@@ -291,6 +409,8 @@ class Dx12StatsConsumer : public Dx12Consumer
     UINT             dummy_trim_frame_count_;
 
     format::Dx12RuntimeInfo runtime_info_;
+
+    graphics::dx12::AdapterSubmissionMapping adapter_submission_mapping_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

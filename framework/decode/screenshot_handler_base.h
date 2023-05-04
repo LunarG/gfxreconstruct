@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_SCREENSHOT_HANDLER_BASE_H
 
 #include "util/defines.h"
+#include "util/options.h"
 
 #include "decode/replay_options.h"
 
@@ -37,9 +38,10 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class ScreenshotHandlerBase
 {
   public:
-    ScreenshotHandlerBase(ScreenshotFormat screenshot_format, const std::vector<ScreenshotRange>& screenshot_ranges);
+    ScreenshotHandlerBase(util::ScreenshotFormat              screenshot_format,
+                          const std::vector<ScreenshotRange>& screenshot_ranges);
 
-    ScreenshotHandlerBase(ScreenshotFormat screenshot_format, std::vector<ScreenshotRange>&& screenshot_ranges);
+    ScreenshotHandlerBase(util::ScreenshotFormat screenshot_format, std::vector<ScreenshotRange>&& screenshot_ranges);
 
     uint32_t GetCurrentFrame() const { return current_frame_number_; }
 
@@ -49,7 +51,7 @@ class ScreenshotHandlerBase
 
   protected:
     uint32_t                     current_frame_number_;
-    ScreenshotFormat             screenshot_format_;
+    util::ScreenshotFormat       screenshot_format_;
     std::vector<ScreenshotRange> screenshot_ranges_;
     size_t                       current_range_index_;
 };

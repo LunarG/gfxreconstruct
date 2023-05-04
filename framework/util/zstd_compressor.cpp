@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifdef ENABLE_ZSTD_COMPRESSION
+#ifdef GFXRECON_ENABLE_ZSTD_COMPRESSION
 
 #include "util/zstd_compressor.h"
 
@@ -103,4 +103,4 @@ size_t ZstdCompressor::Decompress(const size_t                compressed_size,
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // ENABLE_ZSTD_COMPRESSION
+#endif // GFXRECON_ENABLE_ZSTD_COMPRESSION

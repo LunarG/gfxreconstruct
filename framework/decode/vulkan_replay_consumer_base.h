@@ -1076,7 +1076,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::shared_ptr<application::Application>                        application_;
     VulkanObjectInfoTable                                            object_info_table_;
     ActiveWindows                                                    active_windows_;
-    VulkanReplayOptions                                              options_;
+    const VulkanReplayOptions                                        options_;
     bool                                                             loading_trim_state_;
     bool                                                             have_imported_semaphores_;
     SwapchainImageTracker                                            swapchain_image_tracker_;

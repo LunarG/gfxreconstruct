@@ -162,20 +162,25 @@ if (TARGET Detours::Detours)
 endif()
 
 if (TARGET LZ4::LZ4)
-    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_LZ4_COMPRESSION)
+    target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_ENABLE_LZ4_COMPRESSION)
     target_link_libraries(gfxrecon_util LZ4::LZ4)
 endif()
 
 if (TARGET ZLIB::ZLIB)
     target_compile_definitions(gfxrecon_util
                                PUBLIC
-                                   ENABLE_ZLIB_COMPRESSION
+                                   GFXRECON_ENABLE_ZLIB_COMPRESSION
+                                   GFXRECON_ENABLE_PNG_SCREENSHOT
                                    $<$<BOOL:${WIN32}>:ZLIB_WINAPI>)
     target_link_libraries(gfxrecon_util ZLIB::ZLIB)
+
+    target_include_directories(gfxrecon_util
+                               PUBLIC
+                                   ${CMAKE_SOURCE_DIR}/external/stb)
 endif()
 
 if (TARGET ZSTD::ZSTD)
-    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_ZSTD_COMPRESSION)
+    target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_ENABLE_ZSTD_COMPRESSION)
     target_link_libraries(gfxrecon_util ZSTD::ZSTD)
 endif()
 

@@ -717,7 +717,8 @@ void Dx12ReplayConsumerBase::PrePresent(DxObjectInfo* swapchain_object_info)
                                                swapchain_extra_info->command_queue,
                                                swapchain,
                                                screenshot_handler_->GetCurrentFrame(),
-                                               screenshot_file_prefix_);
+                                               screenshot_file_prefix_,
+                                               screenshot_format_);
             }
             else
             {
@@ -2808,11 +2809,12 @@ void Dx12ReplayConsumerBase::ReadDebugMessages()
 void Dx12ReplayConsumerBase::InitializeScreenshotHandler()
 {
     screenshot_file_prefix_ = options_.screenshot_file_prefix;
-
     if (screenshot_file_prefix_.empty())
     {
         screenshot_file_prefix_ = kDefaultScreenshotFilePrefix;
     }
+
+    screenshot_format_ = options_.screenshot_format;
 
     if (!options_.screenshot_dir.empty())
     {

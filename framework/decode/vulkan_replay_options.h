@@ -51,7 +51,7 @@ struct VulkanReplayOptions : public ReplayOptions
     int32_t                      override_gpu_group_index{ -1 };
     int32_t                      surface_index{ -1 };
     CreateResourceAllocator      create_resource_allocator;
-    ScreenshotFormat             screenshot_format{ ScreenshotFormat::kBmp };
+    util::ScreenshotFormat       screenshot_format{ util::ScreenshotFormat::kBmp };
     std::vector<ScreenshotRange> screenshot_ranges;
     std::string                  screenshot_dir;
     std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };

@@ -106,6 +106,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable formats are:");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tBitmap file format.  This is the default format.",
                            kScreenshotFormatBmp);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tPortable Network Graphics file format.", kScreenshotFormatPng);
     GFXRECON_WRITE_CONSOLE("  --screenshot-dir <dir>");
     GFXRECON_WRITE_CONSOLE("          \t\tDirectory to write screenshots.  Default is the current");
     GFXRECON_WRITE_CONSOLE("          \t\tworking directory.");

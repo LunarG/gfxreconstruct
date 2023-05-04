@@ -36,7 +36,8 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                     ID3D12CommandQueue*                           queue,
                     IDXGISwapChain*                               swapchain,
                     uint32_t                                      frame_num,
-                    const std::string&                            filename_prefix)
+                    const std::string&                            filename_prefix,
+                    gfxrecon::util::ScreenshotFormat              screenshot_format)
 {
     if (queue != nullptr && swapchain != nullptr)
     {
@@ -89,13 +90,14 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
 
                     if (capture_result == S_OK)
                     {
+                        bool convert_to_bgra  = (screenshot_format == gfxrecon::util::ScreenshotFormat::kBmp);
                         auto buffer_byte_size = pitch * fb_desc.Height;
-                        auto desc             = frame_buffer_resource->GetDesc();
                         capture_result        = image_renderer->RetrieveImageData(&captured_image,
                                                                            static_cast<unsigned int>(fb_desc.Width),
                                                                            fb_desc.Height,
                                                                            static_cast<unsigned int>(pitch),
-                                                                           desc.Format);
+                                                                           fb_desc.Format,
+                                                                           convert_to_bgra);
 
                         if (capture_result == S_OK)
                         {
@@ -104,14 +106,40 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
 
                             filename += "_frame_";
                             filename += std::to_string(frame_num);
-                            filename += ".bmp";
 
-                            util::imagewriter::WriteBmpImage(filename,
-                                                             static_cast<unsigned int>(fb_desc.Width),
-                                                             static_cast<unsigned int>(fb_desc.Height),
-                                                             datasize,
-                                                             std::data(captured_image.data),
-                                                             static_cast<unsigned int>(pitch));
+                            switch (screenshot_format)
+                            {
+                                default:
+                                    GFXRECON_LOG_ERROR(
+                                        "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
+                                    // Intentional fall-through
+                                case gfxrecon::util::ScreenshotFormat::kBmp:
+                                    if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
+                                                                          static_cast<unsigned int>(fb_desc.Width),
+                                                                          static_cast<unsigned int>(fb_desc.Height),
+                                                                          datasize,
+                                                                          std::data(captured_image.data),
+                                                                          static_cast<unsigned int>(pitch)))
+                                    {
+                                        GFXRECON_LOG_ERROR(
+                                            "Screenshot could not be created: failed to write BMP file %s",
+                                            filename.c_str());
+                                    }
+                                    break;
+                                case gfxrecon::util::ScreenshotFormat::kPng:
+                                    if (!util::imagewriter::WritePngImage(filename + ".png",
+                                                                          static_cast<unsigned int>(fb_desc.Width),
+                                                                          static_cast<unsigned int>(fb_desc.Height),
+                                                                          datasize,
+                                                                          std::data(captured_image.data),
+                                                                          static_cast<unsigned int>(pitch)))
+                                    {
+                                        GFXRECON_LOG_ERROR(
+                                            "Screenshot could not be created: failed to write PNG file %s",
+                                            filename.c_str());
+                                    }
+                                    break;
+                            }
                         }
                     }
                 }
@@ -654,7 +682,7 @@ void TrackAdapterDesc(IDXGIAdapter*                     adapter,
         internal_desc.SharedSystemMemory    = dxgi_desc.SharedSystemMemory;
         internal_desc.LuidLowPart           = dxgi_desc.AdapterLuid.LowPart;
         internal_desc.LuidHighPart          = dxgi_desc.AdapterLuid.HighPart;
-        internal_desc.type                  = type;
+        InjectAdapterType(internal_desc.extra_info, type);
 
         ActiveAdapterInfo adapter_info = {};
         adapter_info.internal_desc     = internal_desc;
@@ -780,8 +808,9 @@ format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12:
 bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc)
 {
     bool software_desc = false;
+    auto adapter_type  = ExtractAdapterType(adapter_desc.extra_info);
 
-    if ((adapter_desc.type & format::AdapterType::kSoftwareAdapter) ||
+    if ((adapter_type & format::AdapterType::kSoftwareAdapter) ||
         (adapter_desc.DeviceId == 0x8c) && (adapter_desc.VendorId == 0x1414))
     {
         software_desc = true;
@@ -914,6 +943,21 @@ bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
     return success;
 }
 
+format::DxgiAdapterDesc* GetAdapterDescByLUID(LUID parent_adapter_luid, graphics::dx12::ActiveAdapterMap& adapters)
+{
+    const int64_t            packed_luid         = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+    format::DxgiAdapterDesc* parent_adapter_desc = nullptr;
+    for (auto& adapter : adapters)
+    {
+        if (adapter.first == packed_luid)
+        {
+            parent_adapter_desc = &adapter.second.internal_desc;
+            break;
+        }
+    }
+    return parent_adapter_desc;
+}
+
 bool IsUma(ID3D12Device* device)
 {
     GFXRECON_ASSERT(nullptr != device && "Null device pointer is expected to have been checked by callers.");
@@ -927,7 +971,8 @@ bool IsUma(ID3D12Device* device)
     }
     else
     {
-        GFXRECON_LOG_ERROR("CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE,...) failed with result: %ld. The GPU will be assumed to be non-UMA.",
+        GFXRECON_LOG_ERROR("CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE,...) failed with result: %ld. The GPU will "
+                           "be assumed to be non-UMA.",
                            static_cast<long>(result));
     }
     return isUma;
@@ -940,7 +985,7 @@ uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, const bool is_uma)
     if (adapter != nullptr)
     {
         DXGI_QUERY_VIDEO_MEMORY_INFO video_memory_info = {};
-        DXGI_MEMORY_SEGMENT_GROUP memory_segment       = DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL;
+        DXGI_MEMORY_SEGMENT_GROUP    memory_segment    = DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL;
         if (is_uma)
         {
             memory_segment = DXGI_MEMORY_SEGMENT_GROUP_LOCAL;

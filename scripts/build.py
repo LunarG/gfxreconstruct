@@ -118,6 +118,9 @@ def parse_args():
         '--skip-d3d12-support', dest='skip_d3d12_support',
         action='store_true', default=False,help='Skip Direct3D 12 build')
     arg_parser.add_argument(
+        '--build-launcher', dest='build_launcher',
+        action='store_true', default=False,help='Build Launcher')
+    arg_parser.add_argument(
         '--lint', dest='lint',
         action='store_true', default=False,
         help='Run static analysis lint tests on code')
@@ -215,6 +218,9 @@ def cmake_generate_options(args):
         generate_options.append(
             '-DD3D12_SUPPORT={}'.format(
                 'ON' if not args.skip_d3d12_support else 'OFF'))
+        generate_options.append(
+            '-DBUILD_LAUNCHER_AND_INTERCEPTOR={}'.format(
+                'OFF' if not args.build_launcher else 'ON'))
     
     return generate_options
 

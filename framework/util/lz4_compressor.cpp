@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifdef ENABLE_LZ4_COMPRESSION
+#ifdef GFXRECON_ENABLE_LZ4_COMPRESSION
 
 #include "util/lz4_compressor.h"
 
@@ -98,4 +98,4 @@ size_t Lz4Compressor::Decompress(const size_t                compressed_size,
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // ENABLE_LZ4_COMPRESSION
+#endif // GFXRECON_ENABLE_LZ4_COMPRESSION
