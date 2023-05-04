@@ -239,9 +239,9 @@ class Dx12StateTracker
                                const util::MemoryOutputStream* parameter_buffer);
 
     ID3D12Resource_Wrapper*
-    GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS                            gpu_va,
-                               uint64_t                                             minimum_end_address,
-                               graphics::IsAccelerationStructureResourceFunctionPtr func = nullptr);
+    GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS          gpu_va,
+                               uint64_t                           minimum_end_address,
+                               graphics::ResourceMatchFunctionPtr resource_match_func = nullptr);
 
     uint64_t CommitAccelerationStructureBuildInfo(DxAccelerationStructureBuildInfo& accel_struct_build);
 
@@ -256,7 +256,6 @@ class Dx12StateTracker
     std::atomic_uint64_t accel_struct_id_;
 };
 
-bool IsResourceUsedForAccelerationStructure(format::HandleId id);
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

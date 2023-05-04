@@ -29,6 +29,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+// The function is used as function pointer parameter for GPUVA map functions
+// in dx12_gpu_va_map.cpp for searching resource which has flag
+// D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE. Such handling is for
+// keeping headfile organized without having to add too much change to headfile
+// structure.
+bool IsResourceUsedForAccelerationStructure(format::HandleId id)
+{
+    return D3D12CaptureManager::Get()->IsAccelerationStructureResouce(id);
+}
+
 #define GFXRECON_ACCEL_STRUCT_TRIM_BARRIER 0
 
 Dx12StateTracker::Dx12StateTracker() : accel_struct_id_(1) {}
@@ -921,10 +931,9 @@ bool Dx12StateTracker::IsAccelerationStructureResouce(format::HandleId id)
     return result;
 }
 
-ID3D12Resource_Wrapper*
-Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS                            gpu_va,
-                                             uint64_t                                             minimum_end_address,
-                                             graphics::IsAccelerationStructureResourceFunctionPtr func)
+ID3D12Resource_Wrapper* Dx12StateTracker::GetResourceWrapperForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS gpu_va,
+                                                                     uint64_t                  minimum_end_address,
+                                                                     graphics::ResourceMatchFunctionPtr func)
 {
     ID3D12Resource_Wrapper* result      = nullptr;
     auto                    resource_id = state_table_.GetResourceForGpuVa(gpu_va, minimum_end_address, func);
@@ -1005,16 +1014,6 @@ Dx12StateTracker::CommitAccelerationStructureCopyInfo(DxAccelerationStructureCop
     inputs_data_resource = dest_build_info.input_data_resource;
 
     return CommitAccelerationStructureBuildInfo(dest_build_info);
-}
-
-// The function is used as function pointer parameter for GPUVA map functions
-// in dx12_gpu_va_map.cpp for searching resource which has flag
-// D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE. Such handling is for
-// keeping headfile organized without having to add too much change to headfile
-// structure.
-bool IsResourceUsedForAccelerationStructure(format::HandleId id)
-{
-    return D3D12CaptureManager::Get()->IsAccelerationStructureResouce(id);
 }
 
 GFXRECON_END_NAMESPACE(encode)
