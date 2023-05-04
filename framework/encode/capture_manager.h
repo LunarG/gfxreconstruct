@@ -72,6 +72,7 @@ class CaptureManager
     {
         if (capture_mode_ != kModeDisabled)
         {
+            ++block_index_;
             return InitApiCallCapture(call_id);
         }
 
@@ -82,6 +83,7 @@ class CaptureManager
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
+            ++block_index_;
             return InitApiCallCapture(call_id);
         }
 
@@ -144,6 +146,8 @@ class CaptureManager
 
     bool GetIUnknownWrappingSetting() const { return iunknown_wrapping_; }
     auto GetForceCommandSerialization() const { return force_command_serialization_; }
+
+    uint64_t GetBlockIndex() const { return block_index_; }
 
   protected:
     enum CaptureModeFlags : uint32_t
@@ -260,6 +264,7 @@ class CaptureManager
     std::string                       screenshot_prefix_;
     util::ScreenshotFormat            screenshot_format_;
     uint32_t                          global_frame_count_;
+    uint64_t                          block_index_;
 
     void WriteToFile(const void* data, size_t size);
 

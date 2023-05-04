@@ -50,7 +50,7 @@ class VulkanStateWriter
     ~VulkanStateWriter();
 
     // Returns number of bytes written to the output_stream.
-    void WriteState(const VulkanStateTable& state_table, uint64_t frame_number);
+    uint64_t WriteState(const VulkanStateTable& state_table, uint64_t frame_number);
 
   private:
     // Data structures for processing resource memory snapshots.
@@ -384,6 +384,7 @@ class VulkanStateWriter
     format::ThreadId         thread_id_;
     util::MemoryOutputStream parameter_stream_;
     ParameterEncoder         encoder_;
+    uint64_t                 blocks_written_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
