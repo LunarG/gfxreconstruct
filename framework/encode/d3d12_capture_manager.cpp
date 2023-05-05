@@ -364,10 +364,9 @@ void D3D12CaptureManager::InitializeID3D12DeviceInfo(IUnknown* adapter, void** d
     }
 }
 
-bool D3D12CaptureManager::IsAccelerationStructureResouce(format::HandleId id)
+bool D3D12CaptureManager::IsAccelerationStructureResource(format::HandleId id)
 {
-    GFXRECON_ASSERT(state_tracker_ != nullptr);
-    return state_tracker_->IsAccelerationStructureResouce(id);
+    return state_tracker_->IsAccelerationStructureResource(id);
 }
 
 void D3D12CaptureManager::CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id)

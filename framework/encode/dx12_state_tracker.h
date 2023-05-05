@@ -216,7 +216,7 @@ class Dx12StateTracker
                                   LPCWSTR                              export_name,
                                   const util::MemoryOutputStream*      parameter_buffer);
 
-    bool IsAccelerationStructureResouce(format::HandleId id);
+    bool IsAccelerationStructureResource(format::HandleId id);
 
   private:
     template <typename Wrapper>

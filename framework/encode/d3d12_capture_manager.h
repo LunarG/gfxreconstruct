@@ -639,7 +639,7 @@ class D3D12CaptureManager : public CaptureManager
 
     void WriteDxgiAdapterInfo();
 
-    bool IsAccelerationStructureResouce(format::HandleId id);
+    bool IsAccelerationStructureResource(format::HandleId id);
 
   protected:
     D3D12CaptureManager();

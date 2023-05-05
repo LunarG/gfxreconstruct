@@ -36,7 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 // structure.
 bool IsResourceUsedForAccelerationStructure(format::HandleId id)
 {
-    return D3D12CaptureManager::Get()->IsAccelerationStructureResouce(id);
+    return D3D12CaptureManager::Get()->IsAccelerationStructureResource(id);
 }
 
 #define GFXRECON_ACCEL_STRUCT_TRIM_BARRIER 0
@@ -668,10 +668,8 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                 ID3D12Resource_Wrapper* src_resource_wrapper = nullptr;
                 {
                     std::unique_lock<std::mutex> lock(state_table_mutex_);
-                    src_resource_wrapper =
-                        GetResourceWrapperForGpuVa(*curr_entry_iter->desc_gpu_va,
-                                                   *curr_entry_iter->desc_gpu_va + curr_entry_iter->size,
-                                                   IsResourceUsedForAccelerationStructure);
+                    src_resource_wrapper = GetResourceWrapperForGpuVa(
+                        *curr_entry_iter->desc_gpu_va, *curr_entry_iter->desc_gpu_va + curr_entry_iter->size);
                 }
 
                 if (src_resource_wrapper == nullptr)
@@ -908,7 +906,7 @@ void Dx12StateTracker::TrackGetShaderIdentifier(ID3D12StateObjectProperties_Wrap
         std::make_shared<util::MemoryOutputStream>(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
 }
 
-bool Dx12StateTracker::IsAccelerationStructureResouce(format::HandleId id)
+bool Dx12StateTracker::IsAccelerationStructureResource(format::HandleId id)
 {
     ID3D12Resource_Wrapper* resource_wrapper = nullptr;
     bool                    result           = false;
