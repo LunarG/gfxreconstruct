@@ -4926,6 +4926,15 @@ typedef Decoded_VkDeviceBufferMemoryRequirements Decoded_VkDeviceBufferMemoryReq
 
 typedef Decoded_VkDeviceImageMemoryRequirements Decoded_VkDeviceImageMemoryRequirementsKHR;
 
+struct Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR;
+
+    VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
 {
     using struct_type = VkDebugReportCallbackCreateInfoEXT;
@@ -8770,6 +8779,15 @@ struct Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM
 
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkRect2D>* pPerViewRenderAreas{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT;
+
+    VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
 };
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR

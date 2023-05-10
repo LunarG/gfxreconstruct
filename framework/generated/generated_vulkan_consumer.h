@@ -3939,6 +3939,11 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) {}
 
+    virtual void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkImageAspectFlags                          aspectMask) {}
+
     virtual void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,

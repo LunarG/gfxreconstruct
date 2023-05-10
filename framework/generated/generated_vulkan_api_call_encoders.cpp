@@ -21814,6 +21814,37 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDynamicRenderingTilePropertiesQCOM(
     return result;
 }
 
+VKAPI_ATTR void VKAPI_CALL CmdSetAttachmentFeedbackLoopEnableEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkImageAspectFlags                          aspectMask)
+{
+    auto force_command_serialization = VulkanCaptureManager::Get()->GetForceCommandSerialization();
+    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, aspectMask);
+
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue<CommandBufferWrapper>(commandBuffer);
+        encoder->EncodeFlagsValue(aspectMask);
+        VulkanCaptureManager::Get()->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    GetDeviceTable(commandBuffer)->CmdSetAttachmentFeedbackLoopEnableEXT(commandBuffer, aspectMask);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, aspectMask);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(
     VkDevice                                    device,
     const VkAccelerationStructureCreateInfoKHR* pCreateInfo,

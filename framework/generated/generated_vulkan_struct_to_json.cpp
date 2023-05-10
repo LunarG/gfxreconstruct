@@ -7256,6 +7256,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTraceRaysIndirec
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["rayTracingPositionFetch"] = static_cast<bool>(decoded_value.rayTracingPositionFetch);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugReportCallbackCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11130,6 +11142,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultVendo
         FieldToJson(jdata["applicationNameOffset"], decoded_value.applicationNameOffset, options);
         FieldToJson(jdata["applicationVersion"], decoded_value.applicationVersion, options);
         FieldToJson(jdata["engineNameOffset"], decoded_value.engineNameOffset, options);
+        FieldToJson(jdata["engineVersion"], decoded_value.engineVersion, options);
+        FieldToJson(jdata["apiVersion"], decoded_value.apiVersion, options);
     }
 }
 
@@ -12704,6 +12718,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiviewPerView
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["perViewRenderAreaCount"], decoded_value.perViewRenderAreaCount, options);
         FieldToJson(jdata["pPerViewRenderAreas"], meta_struct.pPerViewRenderAreas, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["attachmentFeedbackLoopDynamicState"] = static_cast<bool>(decoded_value.attachmentFeedbackLoopDynamicState);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -14350,6 +14376,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR*>(data->GetMetaStructPointer());
                FieldToJson(jdata, pnext, options);
                break;
             }
@@ -16226,6 +16259,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT*>(data->GetMetaStructPointer());
                FieldToJson(jdata, pnext, options);
                break;
             }

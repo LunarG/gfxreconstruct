@@ -774,6 +774,10 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkDebugReportCallbackCreateInfoEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -1844,6 +1848,10 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  P
                 break;
             case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:

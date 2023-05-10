@@ -641,6 +641,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetShaderBinaryDataEXT(VkDevice, VkShaderE
 static VKAPI_ATTR void VKAPI_CALL CmdBindShadersEXT(VkCommandBuffer, uint32_t, const VkShaderStageFlagBits*, const VkShaderEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindShadersEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL GetFramebufferTilePropertiesQCOM(VkDevice, VkFramebuffer, uint32_t*, VkTilePropertiesQCOM*) { GFXRECON_LOG_WARNING("Unsupported function vkGetFramebufferTilePropertiesQCOM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetDynamicRenderingTilePropertiesQCOM(VkDevice, const VkRenderingInfo*, VkTilePropertiesQCOM*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDynamicRenderingTilePropertiesQCOM was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdSetAttachmentFeedbackLoopEnableEXT(VkCommandBuffer, VkImageAspectFlags) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetAttachmentFeedbackLoopEnableEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructuresKHR was called, resulting in no-op behavior."); }
@@ -1256,6 +1257,7 @@ struct DeviceTable
     PFN_vkCmdBindShadersEXT CmdBindShadersEXT{ noop::CmdBindShadersEXT };
     PFN_vkGetFramebufferTilePropertiesQCOM GetFramebufferTilePropertiesQCOM{ noop::GetFramebufferTilePropertiesQCOM };
     PFN_vkGetDynamicRenderingTilePropertiesQCOM GetDynamicRenderingTilePropertiesQCOM{ noop::GetDynamicRenderingTilePropertiesQCOM };
+    PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT CmdSetAttachmentFeedbackLoopEnableEXT{ noop::CmdSetAttachmentFeedbackLoopEnableEXT };
     PFN_vkCreateAccelerationStructureKHR CreateAccelerationStructureKHR{ noop::CreateAccelerationStructureKHR };
     PFN_vkDestroyAccelerationStructureKHR DestroyAccelerationStructureKHR{ noop::DestroyAccelerationStructureKHR };
     PFN_vkCmdBuildAccelerationStructuresKHR CmdBuildAccelerationStructuresKHR{ noop::CmdBuildAccelerationStructuresKHR };
@@ -1878,6 +1880,7 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdBindShadersEXT", &table->CmdBindShadersEXT);
     LoadFunction(gpa, device, "vkGetFramebufferTilePropertiesQCOM", &table->GetFramebufferTilePropertiesQCOM);
     LoadFunction(gpa, device, "vkGetDynamicRenderingTilePropertiesQCOM", &table->GetDynamicRenderingTilePropertiesQCOM);
+    LoadFunction(gpa, device, "vkCmdSetAttachmentFeedbackLoopEnableEXT", &table->CmdSetAttachmentFeedbackLoopEnableEXT);
     LoadFunction(gpa, device, "vkCreateAccelerationStructureKHR", &table->CreateAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkDestroyAccelerationStructureKHR", &table->DestroyAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkCmdBuildAccelerationStructuresKHR", &table->CmdBuildAccelerationStructuresKHR);
