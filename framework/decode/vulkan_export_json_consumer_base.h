@@ -218,6 +218,9 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
 
     nlohmann::ordered_json& WriteApiCallStart(const ApiCallInfo& call_info, const std::string& command_name);
 
+    /// A utility wrapper so that manual output functions can provide a lambda which only needs to output
+    /// the fields unique to their call and this tops and tails with the standard boilerplate, defining it
+    /// once here. Generated functions avoid the indirection through this.
     template <typename ToJsonFunctionType>
     inline void
     WriteApiCallToFile(const ApiCallInfo& call_info, const std::string& command_name, ToJsonFunctionType toJsonFunction)
