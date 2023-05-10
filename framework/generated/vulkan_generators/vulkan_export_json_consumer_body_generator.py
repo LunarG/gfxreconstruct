@@ -183,9 +183,9 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
         body = ''
 
         if name in self.queueSubmit:
-            body += '    FieldToJson(jdata["submit_index"], ++submit_index_, json_options_);\n'
+            body += '    FieldToJson(jdata[NameSubmitIndex()], ++submit_index_, json_options_);\n'
         elif self.is_command_buffer_cmd(name):
-            body += '    FieldToJson(jdata["rec_command_index"], GetCommandBufferRecordIndex(commandBuffer), json_options_);\n'
+            body += '    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options_);\n'
 
         # Handle function return value
         if return_type in self.formatAsHex:

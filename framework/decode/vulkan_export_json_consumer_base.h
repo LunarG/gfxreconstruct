@@ -206,6 +206,15 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
     constexpr const char* NameReturn() const { return "return"; }
     constexpr const char* NameArgs() const { return "args"; }
     constexpr const char* NameThreadId() const { return "thread"; }
+    /// A field not present in binary format which identifies the index of each
+    /// command within its command buffer.
+    /// @todo Make this field optional.
+    constexpr const char* NameCommandIndex() const { return "cmd_index"; }
+    /// A field not present in binary format which identifies the index of each
+    /// submit in the global order of all submits to all queues as recorded in
+    /// the binary trace file.
+    /// @todo Make this field optional.
+    constexpr const char* NameSubmitIndex() const { return "sub_index"; }
 
     nlohmann::ordered_json& WriteApiCallStart(const ApiCallInfo& call_info, const std::string& command_name);
 
