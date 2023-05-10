@@ -627,6 +627,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdBindShadersEXT",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::CmdBindShadersEXT) },
     { "vkGetFramebufferTilePropertiesQCOM",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::GetFramebufferTilePropertiesQCOM) },
     { "vkGetDynamicRenderingTilePropertiesQCOM",                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::GetDynamicRenderingTilePropertiesQCOM) },
+    { "vkCmdSetAttachmentFeedbackLoopEnableEXT",                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetAttachmentFeedbackLoopEnableEXT) },
     { "vkCreateAccelerationStructureKHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CreateAccelerationStructureKHR) },
     { "vkDestroyAccelerationStructureKHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::DestroyAccelerationStructureKHR) },
     { "vkCmdBuildAccelerationStructuresKHR",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::CmdBuildAccelerationStructuresKHR) },
