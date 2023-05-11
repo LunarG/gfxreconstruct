@@ -589,6 +589,11 @@ inline int32_t StringCompare(const wchar_t* string_1, const wchar_t* string_2, s
     return wcsncmp(string_1, string_2, compare_size);
 }
 
+inline bool StringContains(const char* text, const char* substring)
+{
+    return strstr(text, substring) != nullptr;
+}
+
 inline int32_t FilePuts(const char* char_string, FILE* stream)
 {
     return fputs(char_string, stream);
