@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2023 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -31,6 +31,7 @@
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
@@ -2382,6 +2383,21 @@ void VulkanCaptureManager::PostProcess_vkSetLocalDimmingAMD(VkDevice       devic
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkCmdDebugMarkerInsertEXT(VkCommandBuffer                   commandBuffer,
+                                                                 const VkDebugMarkerMarkerInfoEXT* pMarkerInfo)
+{
+    if (pMarkerInfo != nullptr)
+    {
+        // Look for the debug marker that identifies this command buffer as a VR frame boundary.
+        if (util::platform::StringContains(pMarkerInfo->pMarkerName, graphics::kVulkanVrFrameDelimiterString))
+        {
+            auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(commandBuffer);
+            GFXRECON_ASSERT(cmd_buffer_wrapper != nullptr);
+            cmd_buffer_wrapper->is_frame_boundary = true;
+        }
+    }
+}
+
 #if defined(__ANDROID__)
 void VulkanCaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
                                                                            VkPresentModeKHR* pPresentModes)
@@ -2403,6 +2419,18 @@ bool VulkanCaptureManager::CheckBindAlignment(VkDeviceSize memoryOffset)
     }
 
     return true;
+}
+
+bool VulkanCaptureManager::CheckCommandBufferWrapperForFrameBoundary(const CommandBufferWrapper* command_buffer_wrapper)
+{
+    GFXRECON_ASSERT(command_buffer_wrapper != nullptr);
+    if (command_buffer_wrapper->is_frame_boundary)
+    {
+        // Do common capture manager end of frame processing.
+        EndFrame();
+        return true;
+    }
+    return false;
 }
 
 void VulkanCaptureManager::PreProcess_vkBindBufferMemory(VkDevice       device,
