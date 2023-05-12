@@ -675,6 +675,41 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
     pCreateInfo_unwrapped->enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
     pCreateInfo_unwrapped->ppEnabledExtensionNames = modified_extensions.data();
 
+    VkDeviceQueueCreateInfo modified_queue_ci = {};
+
+    if (GetQueueZeroOnly())
+    {
+        // GetPhysicalDeviceQueueFamilyProperties force to return only FamilyIndex: 0 and queueCount: 1, so it shouldn't
+        // need to modifiy. If modified happens, it means the application doesn't follow
+        // GetPhysicalDeviceQueueFamilyProperties to set DeviceQueueCreateInfo. This modified could break the
+        // application setting. It might cause error.
+        GFXRECON_ASSERT(pCreateInfo_unwrapped->pQueueCreateInfos != nullptr);
+
+        if (pCreateInfo_unwrapped->queueCreateInfoCount > 1)
+        {
+            GFXRECON_LOG_WARNING("Because QUEUE_ZERO_ONLY is enabled, force queueCreateInfoCount to 1 on CreateDevice. "
+                                 "It might cause error.");
+            pCreateInfo_unwrapped->queueCreateInfoCount = 1;
+        }
+
+        modified_queue_ci = pCreateInfo_unwrapped->pQueueCreateInfos[0];
+
+        if (modified_queue_ci.queueFamilyIndex > 0)
+        {
+            GFXRECON_LOG_WARNING("Because QUEUE_ZERO_ONLY is enabled, force queueFamilyIndex to 0 on CreateDevice. It "
+                                 "might cause error.");
+            modified_queue_ci.queueFamilyIndex = 0;
+        }
+
+        if (modified_queue_ci.queueCount > 1)
+        {
+            GFXRECON_LOG_WARNING(
+                "Because QUEUE_ZERO_ONLY is enabled, force queueCount to 1 on CreateDevice. It might cause error.");
+            modified_queue_ci.queueCount = 1;
+        }
+        pCreateInfo_unwrapped->pQueueCreateInfos = &modified_queue_ci;
+    }
+
     VkResult result = layer_table_.CreateDevice(physicalDevice, pCreateInfo_unwrapped, pAllocator, pDevice);
 
     if (result == VK_SUCCESS)
@@ -713,11 +748,11 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                                                     const VkAllocationCallbacks* pAllocator,
                                                     VkBuffer*                    pBuffer)
 {
-    VkResult                  result                = VK_SUCCESS;
-    auto                      device_wrapper        = GetWrapper<DeviceWrapper>(device);
-    VkDevice                  device_unwrapped      = device_wrapper->handle;
-    auto                      device_table          = GetDeviceTable(device);
-    auto                      handle_unwrap_memory  = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    VkResult result               = VK_SUCCESS;
+    auto     device_wrapper       = GetWrapper<DeviceWrapper>(device);
+    VkDevice device_unwrapped     = device_wrapper->handle;
+    auto     device_table         = GetDeviceTable(device);
+    auto     handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
 
     VkBufferCreateInfo modified_create_info = (*pCreateInfo);
 
@@ -1233,6 +1268,66 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
     }
 
     return result;
+}
+
+void VulkanCaptureManager::OverrideGetPhysicalDeviceQueueFamilyProperties(
+    VkPhysicalDevice         physicalDevice,
+    uint32_t*                pQueueFamilyPropertyCount,
+    VkQueueFamilyProperties* pQueueFamilyProperties)
+{
+    GFXRECON_ASSERT(pQueueFamilyPropertyCount != nullptr);
+
+    GetInstanceTable(physicalDevice)
+        ->GetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+
+    if (GetQueueZeroOnly())
+    {
+        *pQueueFamilyPropertyCount = 1;
+        if (pQueueFamilyProperties != nullptr)
+        {
+            pQueueFamilyProperties[0].queueCount = 1;
+        }
+    }
+}
+
+void VulkanCaptureManager::OverrideGetPhysicalDeviceQueueFamilyProperties2(
+    VkPhysicalDevice          physicalDevice,
+    uint32_t*                 pQueueFamilyPropertyCount,
+    VkQueueFamilyProperties2* pQueueFamilyProperties)
+{
+    GFXRECON_ASSERT(pQueueFamilyPropertyCount != nullptr);
+
+    GetInstanceTable(physicalDevice)
+        ->GetPhysicalDeviceQueueFamilyProperties2(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+
+    if (GetQueueZeroOnly())
+    {
+        *pQueueFamilyPropertyCount = 1;
+        if (pQueueFamilyProperties != nullptr)
+        {
+            pQueueFamilyProperties[0].queueFamilyProperties.queueCount = 1;
+        }
+    }
+}
+
+void VulkanCaptureManager::OverrideGetPhysicalDeviceQueueFamilyProperties2KHR(
+    VkPhysicalDevice          physicalDevice,
+    uint32_t*                 pQueueFamilyPropertyCount,
+    VkQueueFamilyProperties2* pQueueFamilyProperties)
+{
+    GFXRECON_ASSERT(pQueueFamilyPropertyCount != nullptr);
+
+    GetInstanceTable(physicalDevice)
+        ->GetPhysicalDeviceQueueFamilyProperties2KHR(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+
+    if (GetQueueZeroOnly())
+    {
+        *pQueueFamilyPropertyCount = 1;
+        if (pQueueFamilyProperties != nullptr)
+        {
+            pQueueFamilyProperties[0].queueFamilyProperties.queueCount = 1;
+        }
+    }
 }
 
 void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          result,
