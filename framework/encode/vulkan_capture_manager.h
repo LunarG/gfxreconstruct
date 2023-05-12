@@ -291,6 +291,18 @@ class VulkanCaptureManager : public CaptureManager
                                                   const VkAllocationCallbacks*             pAllocator,
                                                   VkPipeline*                              pPipelines);
 
+    void OverrideGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice         physicalDevice,
+                                                        uint32_t*                pQueueFamilyPropertyCount,
+                                                        VkQueueFamilyProperties* pQueueFamilyProperties);
+
+    void OverrideGetPhysicalDeviceQueueFamilyProperties2(VkPhysicalDevice          physicalDevice,
+                                                         uint32_t*                 pQueueFamilyPropertyCount,
+                                                         VkQueueFamilyProperties2* pQueueFamilyProperties);
+
+    void OverrideGetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysicalDevice          physicalDevice,
+                                                            uint32_t*                 pQueueFamilyPropertyCount,
+                                                            VkQueueFamilyProperties2* pQueueFamilyProperties);
+
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,
