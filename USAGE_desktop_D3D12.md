@@ -224,6 +224,11 @@ Optional arguments:
   --validate            Enables the Khronos Vulkan validation layer when replaying a
                         Vulkan capture or the Direct3D debug layer when replaying a
                         Direct3D 12 capture.
+  --gpu <index>         Use the specified device for replay, where index
+                        is the zero-based index to the array of physical devices
+                        returned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.
+                        Replay may fail if the specified device is not compatible with the
+                        original capture devices.
 
 Windows-only:
   --api <api>           Use the specified API for replay
@@ -253,11 +258,6 @@ Vulkan-only:
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.
   --remove-unsupported  Remove unsupported extensions and features from instance
                         and device creation parameters.
-  --gpu <index>         Use the specified device for replay, where index
-                        is the zero-based index to the array of physical devices
-                        returned by vkEnumeratePhysicalDevices.  Replay may fail
-                        if the specified device is not compatible with the
-                        original capture devices.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:
