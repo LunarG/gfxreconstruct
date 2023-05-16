@@ -696,7 +696,15 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
 
         size_t offset    = 0;
         auto   cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-        auto   gpu_start = descriptor_heap->GetGPUDescriptorHandleForHeapStart();
+        auto   gpu_start = cpu_start;
+
+        // D3D12 validation layer states GetGPUDescriptorHandleForHeapStart() should only be used for heaps
+        // with D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE flag set.
+        // If the flag is not set, then we should call GetCPUDescriptorHandleForHeapStart()
+        if (desc->Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
+        {
+            gpu_start.ptr = descriptor_heap->GetGPUDescriptorHandleForHeapStart().ptr;
+        }
 
         for (uint32_t i = 0; i < num_descriptors; ++i)
         {
