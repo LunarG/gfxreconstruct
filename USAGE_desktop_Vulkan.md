@@ -536,6 +536,16 @@ Optional arguments:
               Swap the swapchain color space if unsupported by replay device.
               Check if color space is not supported by replay device and
               fallback to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR.
+  --sgfs <status>
+              Specify behaviour to skip calls to vkWaitForFences and vkGetFenceStatus:
+                status=0 : Don't skip
+                status=1 : Skip unsuccessful calls
+                status=2 : Allways skip
+              If no skip frame range is specified (--sgfr), the status applies to all
+              frames.
+  --sgfr <frame-ranges>
+              Frame ranges where --sgfs applies. The format is:
+                <frame-start-1>-<frame-end-1>[,<frame-start-1>-<frame-end-1>]*
 ```
 
 ### Key Controls
@@ -556,6 +566,17 @@ Virtual Swapchain insulates higher layers in the Vulkan stack from these problem
 ### Debug mode VMA errors
 
 gfxrec-replay with the -m rebind option uses the Vulkan Memory Allocator library for memory allocations. If gfxrecon-replay is compiled debuggable, VMA_ASSERT errors in VMA can be trapped for debugging by setting GFXRECON_LOG_BREAK_ON_ERROR to true.
+
+### Fence skipping
+
+There can be situations where one wants to alter Vulkan fences behavior without being able to modifying the application. For example, for GPU performance measurements, we might want to "pack frames" when replaying by removing fences that we know unnecessary. For these situations, the options `--skip-get-fence-status`(`--sgfs`) and `--skip-get-fence-ranges`(`--sgfr`) have been created.
+
+There are three possible status that can be set using `--sgfs`:
+- `0` - Don't skip: The default status, nothing particular happens.
+- `1` - Skip unsuccessful: `vkWaitForFences`/`vkGetFenceStatus` is called only if the result at capture time was `VK_SUCCESS`. Else, the result obtained at capture time is directly returned.
+- `2` - Skip all: `vkWaitForFences`/`vkGetFenceStatus` is never called and `VK_SUCCESS` is returned directly instead.
+
+The `--sgfr` option specify at which frames these conditions apply. If `--sgfr` is not specified, they apply to all frames.
 
 ## Other Capture File Processing Tools
 

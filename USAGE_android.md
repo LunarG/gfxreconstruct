@@ -863,6 +863,13 @@ optional arguments:
                         Swap the swapchain color space if unsupported by replay device.
                         Check if color space is not supported by replay device and swap
                         to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR. (forwarded to replay tool).
+  --sgfs STATUS, --skip-get-fence-status STATUS
+                        Specify behaviour to skip calls to vkWaitForFences and
+                        vkGetFenceStatus. Default is 0 - No skip
+                        (forwarded to replay tool)
+  --sgfr FRAME-RANGES, --skip-get-fence-ranges FRAME-RANGES
+                        Frame ranges where --sgfs applies. Default is all frames
+                        (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay
