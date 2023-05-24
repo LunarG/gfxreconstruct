@@ -2877,6 +2877,44 @@ void Dx12ReplayConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::H
     }
 }
 
+IDXGIAdapter* Dx12ReplayConsumerBase::GetAdapter()
+{
+    IDXGIAdapter* adapter_found = render_adapter_;
+
+    if (options_.override_gpu_index >= 0)
+    {
+        for (const auto& adapter : adapters_)
+        {
+            if (adapter.second.adapter == adapter_found)
+            {
+                if (graphics::dx12::IsSoftwareAdapter(adapter.second.internal_desc) == true)
+                {
+                    GFXRECON_LOG_WARNING("The selected adapter is a software adapter. The replay may fail.")
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        // User did not request a specific adapter, so try to find a HW one
+        for (const auto& adapter : adapters_)
+        {
+            if (graphics::dx12::IsSoftwareAdapter(adapter.second.internal_desc) == false)
+            {
+                adapter_found = adapter.second.adapter;
+                break;
+            }
+        }
+        if (adapter_found == nullptr)
+        {
+            GFXRECON_LOG_WARNING("Could not find suitable HW adapter. The replay may fail.")
+        }
+    }
+
+    return adapter_found;
+}
+
 void Dx12ReplayConsumerBase::RaiseFatalError(const char* message) const
 {
     // TODO: Should there be a default action if no error handler has been provided?

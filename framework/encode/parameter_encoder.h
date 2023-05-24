@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -62,6 +63,7 @@ class ParameterEncoder
     void EncodeInt64Value(int64_t value)                                                                              { EncodeValue(value); }
     void EncodeUInt64Value(uint64_t value)                                                                            { EncodeValue(value); }
     void EncodeFloatValue(float value)                                                                                { EncodeValue(value); }
+    void EncodeDoubleValue(double value)                                                                              { EncodeValue(value); }
     void EncodeVkBool32Value(VkBool32 value)                                                                          { EncodeValue(value); }
     void EncodeVkSampleMaskValue(VkSampleMask value)                                                                  { EncodeValue(static_cast<format::SampleMaskEncodeType>(value)); }
     void EncodeVkDeviceSizeValue(VkDeviceSize value)                                                                  { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }

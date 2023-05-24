@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -24,6 +24,7 @@
 #ifndef GFXRECON_ENCODE_DX12_STATE_TRACKER_H
 #define GFXRECON_ENCODE_DX12_STATE_TRACKER_H
 
+#include "encode/custom_ags_state_table.h"
 #include "encode/dx12_state_tracker_initializers.h"
 #include "encode/dx12_state_writer.h"
 #include "generated/generated_dx12_state_table.h"
@@ -218,6 +219,11 @@ class Dx12StateTracker
 
     bool IsAccelerationStructureResource(format::HandleId id);
 
+#ifdef GFXRECON_AGS_SUPPORT
+    void
+    TrackAgsCalls(void* object_ptr, format::ApiCallId call_id, const util::MemoryOutputStream* create_parameter_buffer);
+#endif // GFXRECON_AGS_SUPPORT
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)
@@ -251,9 +257,29 @@ class Dx12StateTracker
     // Track root signatures associated with state object.
     void TrackRootSignatureWithStateObject(const D3D12_STATE_OBJECT_DESC* desc, void** state_object_void_ptr);
 
+#ifdef GFXRECON_AGS_SUPPORT
+    void AddAgsInitializeEntry(AGSContext*                     context,
+                               format::ApiCallId               call_id,
+                               const util::MemoryOutputStream* call_parameter_buffer);
+
+    void TrackAgsDeInitialize(AGSContext* context);
+
+    void AddAgsDriverExtensionsDX12CreateDeviceEntry(ID3D12Device*                   device,
+                                                     format::ApiCallId               call_id,
+                                                     const util::MemoryOutputStream* call_parameter_buffer);
+
+    void TrackAgsDestroyDevice(ID3D12Device* device);
+#endif // GFXRECON_AGS_SUPPORT
+
     std::mutex           state_table_mutex_;
     Dx12StateTable       state_table_;
     std::atomic_uint64_t accel_struct_id_;
+
+#ifdef GFXRECON_AGS_SUPPORT
+    // TODO: to merge the ags table into Dx12 table above. With a change to the code generator.
+    std::mutex    ags_state_table_mutex_;
+    AgsStateTable ags_state_table_;
+#endif // GFXRECON_AGS_SUPPORT
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2022 LunarG, Inc.
-# Copyright (c) 2019-2022 Advanced Micro Devices, Inc.
+# Copyright (c) 2019-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -69,6 +69,13 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_writer.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_state_writer.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dxgi_dispatch_table.h>
+                    $<$<BOOL:${GFXRECON_AGS_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/ags_dispatch_table.h>
+                    $<$<BOOL:${GFXRECON_AGS_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_ags_wrappers.h>
+                    $<$<BOOL:${GFXRECON_AGS_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_ags_wrappers.cpp>
+                    $<$<BOOL:${GFXRECON_AGS_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_ags_api_call_encoders.h>
+                    $<$<BOOL:${GFXRECON_AGS_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_ags_api_call_encoders.cpp>
+                    $<$<BOOL:${GFXRECON_AGS_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_ags_state_table.h>
+                    $<$<BOOL:${GFXRECON_AGS_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/custom_ags_state_table.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/iunknown_wrapper.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/iunknown_wrapper.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/handle_unwrap_memory.h

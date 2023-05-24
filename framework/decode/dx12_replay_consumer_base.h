@@ -124,7 +124,28 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                            UINT                                     src_row_pitch,
                                                            UINT src_depth_pitch) override;
 
-  protected:
+    template <typename T>
+    T* MapObject(const format::HandleId id)
+    {
+        return object_mapping::MapObject<T>(id, object_info_table_);
+    }
+
+    template <typename T>
+    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfo&& initial_info, format::ApiCallId call_id)
+    {
+        object_mapping::AddObject<T>(p_id, pp_object, std::move(initial_info), &object_info_table_);
+
+        if (options_.override_object_names)
+        {
+            SetObjectName(p_id, pp_object, call_id);
+        }
+    }
+
+    void RemoveObject(DxObjectInfo* info);
+
+    IDXGIAdapter* GetAdapter();
+
+  protected:    
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
 
     void MapGpuDescriptorHandle(uint8_t* dst_handle_ptr, const uint8_t* src_handle_ptr);
@@ -136,12 +157,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void MapGpuVirtualAddress(uint8_t* dst_address_ptr, const uint8_t* src_address_ptr);
 
     void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS* addresses, size_t addresses_len);
-
-    template <typename T>
-    T* MapObject(const format::HandleId id)
-    {
-        return object_mapping::MapObject<T>(id, object_info_table_);
-    }
 
     template <typename T>
     T** MapObjects(HandlePointerDecoder<T*>* handles_pointer, size_t handles_len)
@@ -196,19 +211,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
             SetObjectName(p_id, pp_object, call_id);
         }
     }
-
-    template <typename T>
-    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfo&& initial_info, format::ApiCallId call_id)
-    {
-        object_mapping::AddObject<T>(p_id, pp_object, std::move(initial_info), &object_info_table_);
-
-        if (options_.override_object_names)
-        {
-            SetObjectName(p_id, pp_object, call_id);
-        }
-    }
-
-    void RemoveObject(DxObjectInfo* info);
 
     void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result);
 

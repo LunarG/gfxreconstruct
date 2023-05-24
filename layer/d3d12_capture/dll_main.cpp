@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -23,6 +24,9 @@
 // This needs to be included before d3d12.h so that IIDs are defined and not just declared.
 #include <initguid.h>
 
+#ifdef GFXRECON_AGS_SUPPORT
+#include "encode/custom_ags_wrappers.h"
+#endif // GFXRECON_AGS_SUPPORT
 #include "encode/d3d12_capture_manager.h"
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dxgi_dispatch_table.h"
@@ -79,6 +83,42 @@ EXTERN_C bool InitializeD3D12Capture(gfxrecon::encode::D3D12DispatchTable* table
     return false;
 }
 
+#ifdef GFXRECON_AGS_SUPPORT
+EXTERN_C bool InitializeAgsCapture(gfxrecon::encode::AgsDispatchTable* table)
+{
+
+    if ((table != nullptr) && gfxrecon::encode::D3D12CaptureManager::CreateInstance())
+    {
+        // Store the real Ags functions with the capture manager.  The wrapper functions will retrieve the real
+        // functions from the capture manager.
+        auto manager = gfxrecon::encode::D3D12CaptureManager::Get();
+        manager->InitAgsDispatchTable(*table);
+
+        // Update the dispatch table with the wrapper functions.
+        table->agsInitialize                         = gfxrecon::encode::agsInitialize;
+        table->agsDeInitialize                       = gfxrecon::encode::agsDeInitialize;
+        table->agsDriverExtensionsDX12_CreateDevice  = gfxrecon::encode::agsDriverExtensionsDX12_CreateDevice;
+        table->agsDriverExtensionsDX12_DestroyDevice = gfxrecon::encode::agsDriverExtensionsDX12_DestroyDevice;
+        table->agsCheckDriverVersion                 = gfxrecon::encode::agsCheckDriverVersion;
+        table->agsGetVersionNumber                   = gfxrecon::encode::agsGetVersionNumber;
+        table->agsSetDisplayMode                     = gfxrecon::encode::agsSetDisplayMode;
+        table->agsDriverExtensionsDX12_PushMarker    = gfxrecon::encode::agsDriverExtensionsDX12_PushMarker;
+        table->agsDriverExtensionsDX12_PopMarker     = gfxrecon::encode::agsDriverExtensionsDX12_PopMarker;
+        table->agsDriverExtensionsDX12_SetMarker     = gfxrecon::encode::agsDriverExtensionsDX12_SetMarker;
+
+        return true;
+    }
+
+
+    return false;
+}
+#else
+EXTERN_C bool InitializeAgsCapture()
+{
+    return false;
+}
+#endif // GFXRECON_AGS_SUPPORT
+
 EXTERN_C void WINAPI ReleaseDxgiCapture(gfxrecon::encode::DxgiDispatchTable*)
 {
     gfxrecon::encode::D3D12CaptureManager::DestroyInstance();
@@ -88,6 +128,14 @@ EXTERN_C void WINAPI ReleaseD3D12Capture(gfxrecon::encode::D3D12DispatchTable*)
 {
     gfxrecon::encode::D3D12CaptureManager::DestroyInstance();
 }
+
+EXTERN_C void WINAPI ReleaseAgsCapture(gfxrecon::encode::AgsDispatchTable*)
+{
+#ifdef GFXRECON_AGS_SUPPORT
+    gfxrecon::encode::D3D12CaptureManager::DestroyInstance();
+#endif // GFXRECON_AGS_SUPPORT
+}
+
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {

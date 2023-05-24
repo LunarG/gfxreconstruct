@@ -82,6 +82,43 @@ void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, v
     EndApiCallCapture();
 }
 
+#ifdef GFXRECON_AGS_SUPPORT
+void D3D12CaptureManager::EndAgsApiCallCapture(HRESULT result, void* object_ptr)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        if (SUCCEEDED(result))
+        {
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            GFXRECON_ASSERT(thread_data != nullptr);
+
+            state_tracker_->TrackAgsCalls(object_ptr, thread_data->call_id_, thread_data->parameter_buffer_.get());
+        }
+    }
+
+    EndApiCallCapture();
+}
+
+void D3D12CaptureManager::EndAgsApiCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        assert(state_tracker_ != nullptr);
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        state_tracker_->TrackCommand(list_wrapper, thread_data->call_id_, thread_data->parameter_buffer_.get());
+    }
+    else
+    {
+        EndApiCallCapture();
+    }
+}
+#endif // GFXRECON_AGS_SUPPORT
+
 void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
                                                                ID3D12Device_Wrapper*       create_object_wrapper)
 {

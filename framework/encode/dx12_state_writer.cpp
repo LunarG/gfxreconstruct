@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -44,7 +45,13 @@ Dx12StateWriter::Dx12StateWriter(util::FileOutputStream* output_stream,
 
 Dx12StateWriter::~Dx12StateWriter() {}
 
+#ifdef GFXRECON_AGS_SUPPORT
+void Dx12StateWriter::WriteState(const Dx12StateTable& state_table,
+                                 const AgsStateTable&  ags_state_table,
+                                 uint64_t              frame_number)
+#else
 void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t frame_number)
+#endif // GFXRECON_AGS_SUPPORT
 {
 #if GFXRECON_DEBUG_WRITTEN_OBJECTS
     written_objects_.clear();
@@ -79,6 +86,12 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<IDXGIOutput_Wrapper>(state_table);
     StandardCreateWrite<IDXGIOutputDuplication_Wrapper>(state_table);
     StandardCreateWrite<IDXGIResource_Wrapper>(state_table);
+
+#ifdef GFXRECON_AGS_SUPPORT
+    // AGS calls
+    WriteAgsInitialize(ags_state_table);
+    WriteAgsDriverExtensionsDX12CreateDevice(ags_state_table);
+#endif // GFXRECON_AGS_SUPPORT
 
     // Device
     StandardCreateWrite<ID3D12Device_Wrapper>(state_table);
@@ -1182,6 +1195,21 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
             // Always write the close command.
             write_current_command = true;
         }
+#ifdef GFXRECON_AGS_SUPPORT
+        else if (format::GetApiCallFamily(*call_id) == format::ApiFamilyId::ApiFamily_AGS)
+        {
+            if (write_current_command)
+            {
+                // Ags function call, targeting command list.
+                parameter_stream_.Write(parameter_data, (*parameter_size));
+                WriteFunctionCall((*call_id), &parameter_stream_);
+                parameter_stream_.Reset();
+
+                // The output below, in this case, should be skipped.
+                write_current_command = false;
+            }
+        }
+#endif // GFXRECON_AGS_SUPPORT
 
         if (write_current_command)
         {
@@ -1734,6 +1762,28 @@ void Dx12StateWriter::WriteStateObjectPropertiesState(const Dx12StateTable& stat
         WriteAddRefAndReleaseCommands(wrapper);
     });
 }
+
+#ifdef GFXRECON_AGS_SUPPORT
+void Dx12StateWriter::WriteAgsInitialize(const AgsStateTable& ags_state_table)
+{
+    util::MemoryOutputStream* create_data = ags_state_table.GetAgsContextCreateData();
+
+    if (create_data != nullptr)
+    {
+        WriteFunctionCall(format::ApiCallId::ApiCall_Ags_agsInitialize_6_0_1, create_data);
+    }
+}
+
+void Dx12StateWriter::WriteAgsDriverExtensionsDX12CreateDevice(const AgsStateTable& ags_state_table)
+{
+    util::MemoryOutputStream* create_data = ags_state_table.GetAgsDeviceCreateData();
+
+    if (create_data != nullptr)
+    {
+        WriteFunctionCall(format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1, create_data);
+    }
+}
+#endif // GFXRECON_AGS_SUPPORT
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

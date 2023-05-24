@@ -151,8 +151,7 @@ if (WAYLAND_LIBRARY)
     target_compile_definitions(gfxrecon_util PUBLIC "WAYLAND_LIBRARY=\"${WAYLAND_LIBRARY}\"")
 endif()
 
-if (TARGET AGS::AGS)
-    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_AGS)
+if(${GFXRECON_AGS_SUPPORT})
     target_link_libraries(gfxrecon_util AGS::AGS)
 endif()
 

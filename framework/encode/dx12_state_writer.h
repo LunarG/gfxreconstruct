@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -23,6 +24,9 @@
 #ifndef GFXRECON_ENCODE_DX12_STATE_WRITER_H
 #define GFXRECON_ENCODE_DX12_STATE_WRITER_H
 
+#ifdef GFXRECON_AGS_SUPPORT
+#include "encode/custom_ags_state_table.h"
+#endif // GFXRECON_AGS_SUPPORT
 #include "encode/parameter_encoder.h"
 #include "format/format.h"
 #include "graphics/dx12_gpu_va_map.h"
@@ -49,8 +53,13 @@ class Dx12StateWriter
     Dx12StateWriter(util::FileOutputStream* output_stream, util::Compressor* compressor, format::ThreadId thread_id);
 
     ~Dx12StateWriter();
-
+    
+#ifdef GFXRECON_AGS_SUPPORT
+    void WriteState(const Dx12StateTable& state_table, const AgsStateTable& ags_state_table, uint64_t frame_number);
+#else
     void WriteState(const Dx12StateTable& state_table, uint64_t frame_number);
+#endif // GFXRECON_AGS_SUPPORT
+
 
   private:
     struct ResourceSnapshotInfo
@@ -181,6 +190,12 @@ class Dx12StateWriter
     void WriteStateObjectAndDependency(const format::HandleId                state_object_id,
                                        const ID3D12StateObjectInfo*          state_object_info,
                                        std::unordered_set<format::HandleId>& written_objs);
+
+#ifdef GFXRECON_AGS_SUPPORT
+    void WriteAgsInitialize(const AgsStateTable& ags_state_table);
+
+    void WriteAgsDriverExtensionsDX12CreateDevice(const AgsStateTable& ags_state_table);
+#endif // GFXRECON_AGS_SUPPORT
 
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;
