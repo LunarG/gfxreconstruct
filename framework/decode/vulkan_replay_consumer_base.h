@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2022 LunarG, Inc.
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -920,6 +920,22 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const struct AHardwareBuffer*                                           hardware_buffer,
         StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties);
 
+    void ClearCommandBufferInfo(CommandBufferInfo* command_buffer_info);
+
+    VkResult OverrideBeginCommandBuffer(PFN_vkBeginCommandBuffer                                func,
+                                        VkResult                                                original_result,
+                                        CommandBufferInfo*                                      command_buffer_info,
+                                        StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* begin_info_decoder);
+
+    VkResult OverrideResetCommandBuffer(PFN_vkResetCommandBuffer  func,
+                                        VkResult                  original_result,
+                                        CommandBufferInfo*        command_buffer_info,
+                                        VkCommandBufferResetFlags flags);
+
+    void OverrideCmdDebugMarkerInsertEXT(PFN_vkCmdDebugMarkerInsertEXT                             func,
+                                         CommandBufferInfo*                                        command_buffer_info,
+                                         StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* marker_info_decoder);
+
   private:
     void RaiseFatalError(const char* message) const;
 
@@ -1035,6 +1051,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void InitializeScreenshotHandler();
 
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
+
+    bool CheckCommandBufferInfoForFrameBoundary(const CommandBufferInfo* command_buffer_info);
 
   private:
     typedef std::unordered_set<Window*> ActiveWindows;

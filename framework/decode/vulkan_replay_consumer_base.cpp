@@ -2156,6 +2156,24 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
     }
 }
 
+bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const CommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    if (command_buffer_info->is_frame_boundary)
+    {
+        if (screenshot_handler_->IsScreenshotFrame())
+        {
+            GFXRECON_LOG_ERROR("Unable to take screenshot requested for frame %" PRIu32
+                               ". The frame ends with vkQueueSubmit* and screenshot requires frames to end with "
+                               "vkQueuePresent.",
+                               screenshot_handler_->GetCurrentFrame());
+        }
+        screenshot_handler_->EndFrame();
+        return true;
+    }
+    return false;
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                                                  const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
@@ -3194,6 +3212,28 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
         GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
     }
 
+    // Check whether any of the submitted command lists buffers are frame boundaries.
+    if (screenshot_handler_ != nullptr)
+    {
+        bool is_frame_boundary = false;
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            if (submit_info_data != nullptr)
+            {
+                size_t     command_buffer_count = submit_info_data[i].pCommandBuffers.GetLength();
+                const auto command_buffer_ids   = submit_info_data[i].pCommandBuffers.GetPointer();
+                for (uint32_t j = 0; j < command_buffer_count; ++j)
+                {
+                    auto command_buffer_info = GetObjectInfoTable().GetCommandBufferInfo(command_buffer_ids[j]);
+                    if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     return result;
 }
 
@@ -3327,6 +3367,29 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
     {
         GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+    }
+
+    // Check whether any of the submitted command buffers are frame boundaries.
+    if (screenshot_handler_ != nullptr)
+    {
+        bool is_frame_boundary = false;
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            if (submit_info_data != nullptr)
+            {
+                size_t     command_buffer_count = submit_info_data[i].pCommandBufferInfos->GetLength();
+                const auto command_buffer_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+                for (uint32_t j = 0; j < command_buffer_count; ++j)
+                {
+                    auto command_buffer_info =
+                        GetObjectInfoTable().GetCommandBufferInfo(command_buffer_infos[j].commandBuffer);
+                    if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     return result;
@@ -6282,6 +6345,50 @@ VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesAND
         return func(device, hardware_buffer, output_properties);
     }
 }
+
+void VulkanReplayConsumerBase::ClearCommandBufferInfo(CommandBufferInfo* command_buffer_info)
+{
+    command_buffer_info->is_frame_boundary = false;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
+    PFN_vkBeginCommandBuffer                                func,
+    VkResult                                                original_result,
+    CommandBufferInfo*                                      command_buffer_info,
+    StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* begin_info_decoder)
+{
+    ClearCommandBufferInfo(command_buffer_info);
+
+    VkCommandBuffer                 command_buffer = command_buffer_info->handle;
+    const VkCommandBufferBeginInfo* begin_info     = begin_info_decoder->GetPointer();
+    return func(command_buffer, begin_info);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideResetCommandBuffer(PFN_vkResetCommandBuffer  func,
+                                                              VkResult                  original_result,
+                                                              CommandBufferInfo*        command_buffer_info,
+                                                              VkCommandBufferResetFlags flags)
+{
+    ClearCommandBufferInfo(command_buffer_info);
+
+    VkCommandBuffer command_buffer = command_buffer_info->handle;
+    return func(command_buffer, flags);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdDebugMarkerInsertEXT(
+    PFN_vkCmdDebugMarkerInsertEXT                             func,
+    CommandBufferInfo*                                        command_buffer_info,
+    StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* marker_info_decoder)
+{
+    const VkDebugMarkerMarkerInfoEXT* marker_info = marker_info_decoder->GetPointer();
+    func(command_buffer_info->handle, marker_info);
+
+    // Look for the debug marker that identifies this command buffer as a VR frame boundary.
+    if (util::platform::StringContains(marker_info->pMarkerName, graphics::kVulkanVrFrameDelimiterString))
+    {
+        command_buffer_info->is_frame_boundary = true;
+    }
+};
 
 // We want to allow skipping the query for tool properties because the capture layer actually adds this extension
 // and the application may end up using the query.  However, this extension may not be present for replay, so
