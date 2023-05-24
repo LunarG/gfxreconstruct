@@ -131,12 +131,6 @@ int main(int argc, const char** argv)
         }
         else
         {
-
-            // Select WSI context based on CLI
-            std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
-            auto        application =
-                std::make_shared<gfxrecon::application::Application>(kApplicationName, wsi_extension, &file_processor);
-
             gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
             gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
                 GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
@@ -147,7 +141,14 @@ int main(int argc, const char** argv)
             gfxrecon::decode::DxReplayOptions            dx_replay_options =
                 GetDxReplayOptions(arg_parser, filename, &dx_tracked_object_info_table);
             gfxrecon::decode::Dx12ReplayConsumer::DxWindowList dx_windows;
+#endif
 
+            // Select WSI context based on CLI
+            std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
+            auto        application   = std::make_shared<gfxrecon::application::Application>(
+                kApplicationName, wsi_extension, &file_processor, vulkan_replay_options.enable_vulkan);
+
+#if defined(D3D12_SUPPORT)
             if (dx_replay_options.enable_d3d12)
             {
                 application->InitializeDx12WsiContext();

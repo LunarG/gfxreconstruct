@@ -24,6 +24,9 @@
 #include "application/application.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "graphics/vulkan_util.h"
+
+#include "vulkan/vulkan.h"
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 #include "application/win32_context.h"
@@ -57,23 +60,98 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
 Application::Application(const std::string& name, decode::FileProcessor* file_processor) :
-    Application(name, std::string(), file_processor)
+    Application(name, std::string(), file_processor, true)
 {}
 
 Application::Application(const std::string&     name,
                          const std::string&     cli_wsi_extension,
-                         decode::FileProcessor* file_processor) :
+                         decode::FileProcessor* file_processor,
+                         bool                   enable_vulkan) :
     name_(name),
     file_processor_(file_processor), cli_wsi_extension_(cli_wsi_extension), running_(false), paused_(false),
-    pause_frame_(0), was_final_loop_(false), fps_info_(nullptr)
+    pause_frame_(0), was_final_loop_(false), fps_info_(nullptr), vulkan_enabled_(enable_vulkan),
+    vk_loader_handle_(nullptr), vk_create_instance_proc_(nullptr), vk_destroy_instance_proc_(nullptr),
+    vk_ghost_instance_(nullptr)
 {
+
+    // Create a ghost Vulkan instance in order to keep the Vulkan library loaded. Due to a problematic
+    // interaction between the NVIDIA driver and Xlib's display system, this workaround is necessary
+    // to allow the preservation of windows across loops.
+    // https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/issues/1894
+    //
+    // We place it here instead of making it Xlib-specific to maintain similar performance across platforms.
+    if (vulkan_enabled_)
+    {
+        PFN_vkGetInstanceProcAddr vk_get_instance_proc_addr = nullptr;
+
+        vk_loader_handle_ = graphics::InitializeLoader();
+
+        if (vk_loader_handle_ != nullptr)
+        {
+            vk_get_instance_proc_addr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+                util::platform::GetProcAddress(vk_loader_handle_, "vkGetInstanceProcAddr"));
+        }
+
+        if (vk_get_instance_proc_addr != nullptr)
+        {
+            vk_create_instance_proc_ =
+                reinterpret_cast<PFN_vkCreateInstance>(vk_get_instance_proc_addr(nullptr, "vkCreateInstance"));
+        }
+
+        if (vk_create_instance_proc_ == nullptr)
+        {
+            GFXRECON_LOG_ERROR(
+                "Failed to load Vulkan runtime library; please ensure that the path to the Vulkan loader "
+                "(e.g. %s) has been added to the appropriate system path",
+                graphics::kLoaderLibNames[0].c_str());
+        }
+
+        VkInstanceCreateInfo instance_create_info = {
+            VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, // sType
+            nullptr,                                // pNext
+            0,                                      // flags
+            nullptr,                                // pApplicationInfo
+            0,                                      // enabledLayerCount
+            nullptr,                                // ppEnabledLayerNames
+            0,                                      // enabledExtensionCount
+            nullptr                                 // ppEnabledExtensionNames
+        };
+
+        VkResult result = vk_create_instance_proc_(&instance_create_info, nullptr, &vk_ghost_instance_);
+
+        if (vk_ghost_instance_ != VK_NULL_HANDLE && result == VK_SUCCESS)
+        {
+            vk_destroy_instance_proc_ = reinterpret_cast<PFN_vkDestroyInstance>(
+                vk_get_instance_proc_addr(vk_ghost_instance_, "vkDestroyInstance"));
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to create ghost Vulkan instance.");
+        }
+    }
+
     if (!cli_wsi_extension_.empty())
     {
         InitializeWsiContext(cli_wsi_extension_.c_str());
     }
 }
 
-Application ::~Application() {}
+Application ::~Application()
+{
+    if (vulkan_enabled_)
+    {
+        if (vk_ghost_instance_ != VK_NULL_HANDLE && vk_destroy_instance_proc_ != nullptr)
+        {
+            vk_destroy_instance_proc_(vk_ghost_instance_, nullptr);
+        }
+
+        if (vk_loader_handle_ != nullptr)
+        {
+            graphics::ReleaseLoader(vk_loader_handle_);
+            vk_loader_handle_ = nullptr;
+        }
+    }
+}
 
 const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool auto_select) const
 {
