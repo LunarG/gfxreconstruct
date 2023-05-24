@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
-** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -118,6 +118,14 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define ACCEL_STRUCT_PADDING_UPPER                           "ACCEL_STRUCT_PADDING"
 #define FORCE_COMMAND_SERIALIZATION_LOWER                    "force_command_serialization"
 #define FORCE_COMMAND_SERIALIZATION_UPPER                    "FORCE_COMMAND_SERIALIZATION"
+#define RV_ANNOTATION_EXPERIMENTAL_LOWER                     "rv_annotation_experimental"
+#define RV_ANNOTATION_EXPERIMENTAL_UPPER                     "RV_ANNOTATION_EXPERIMENTAL"
+#define RV_ANNOTATION_RAND_LOWER                             "rv_annotation_rand"
+#define RV_ANNOTATION_RAND_UPPER                             "RV_ANNOTATION_RAND"
+#define RV_ANNOTATION_GPUVA_LOWER                            "rv_annotation_gpuva"
+#define RV_ANNOTATION_GPUVA_UPPER                            "RV_ANNOTATION_GPUVA"
+#define RV_ANNOTATION_DESCRIPTOR_LOWER                       "rv_annotation_descriptor"
+#define RV_ANNOTATION_DESCRIPTOR_UPPER                       "RV_ANNOTATION_DESCRIPTOR"
 
 #if defined(__ANDROID__)
 // Android Properties
@@ -163,6 +171,10 @@ const char kCaptureAndroidTriggerEnvVar[]                    = GFXRECON_ENV_VAR_
 const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_LOWER;
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_LOWER;
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_LOWER;
+const char kAnnotationExperimentalEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_EXPERIMENTAL_LOWER;
+const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_RAND_LOWER;
+const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_LOWER;
+const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_LOWER;
 
 
 #else
@@ -208,6 +220,10 @@ const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_
 const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_UPPER;
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_UPPER;
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_UPPER;
+const char kAnnotationExperimentalEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_EXPERIMENTAL_UPPER;
+const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_RAND_UPPER;
+const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_UPPER;
+const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -250,6 +266,10 @@ const std::string kDebugDeviceLost                                   = std::stri
 const std::string kOptionDisableDxr                                  = std::string(kSettingsFilter) + std::string(DISABLE_DXR_LOWER);
 const std::string kOptionAccelStructPadding                          = std::string(kSettingsFilter) + std::string(ACCEL_STRUCT_PADDING_LOWER);
 const std::string kOptionForceCommandSerialization                   = std::string(kSettingsFilter) + std::string(FORCE_COMMAND_SERIALIZATION_LOWER);
+const std::string kOptionKeyAnnotationExperimental                   = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_EXPERIMENTAL_LOWER);
+const std::string kOptionKeyAnnotationRand                           = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_RAND_LOWER);
+const std::string kOptionKeyAnnotationGPUVA                          = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_GPUVA_LOWER);
+const std::string kOptionKeyAnnotationDescriptor                     = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_DESCRIPTOR_LOWER);
 
 #if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -391,6 +411,12 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kCaptureIUnknownWrappingEnvVar, kOptionKeyCaptureIUnknownWrapping);
 
     LoadSingleOptionEnvVar(options, kForceCommandSerializationEnvVar, kOptionForceCommandSerialization);
+
+    // Annotated GPUVA mask
+    LoadSingleOptionEnvVar(options, kAnnotationExperimentalEnvVar, kOptionKeyAnnotationExperimental);
+    LoadSingleOptionEnvVar(options, kAnnotationRandEnvVar, kOptionKeyAnnotationRand);
+    LoadSingleOptionEnvVar(options, kAnnotationGPUVAEnvVar, kOptionKeyAnnotationGPUVA);
+    LoadSingleOptionEnvVar(options, kAnnotationDescriptorEnvVar, kOptionKeyAnnotationDescriptor);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -508,6 +534,18 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
 
     settings->trace_settings_.force_command_serialization = ParseBoolString(
         FindOption(options, kOptionForceCommandSerialization), settings->trace_settings_.force_command_serialization);
+
+    settings->trace_settings_.rv_anotation_info.rv_annotation =
+        ParseBoolString(FindOption(options, kOptionKeyAnnotationExperimental),
+                        settings->trace_settings_.rv_anotation_info.rv_annotation);
+    settings->trace_settings_.rv_anotation_info.annotation_mask_rand =
+        ParseBoolString(FindOption(options, kOptionKeyAnnotationRand),
+                        settings->trace_settings_.rv_anotation_info.annotation_mask_rand);
+    settings->trace_settings_.rv_anotation_info.gpuva_mask = ParseUnsignedInteger16String(
+        FindOption(options, kOptionKeyAnnotationGPUVA), settings->trace_settings_.rv_anotation_info.gpuva_mask);
+    settings->trace_settings_.rv_anotation_info.descriptor_mask =
+        ParseUnsignedInteger16String(FindOption(options, kOptionKeyAnnotationDescriptor),
+                                     settings->trace_settings_.rv_anotation_info.descriptor_mask);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
@@ -559,6 +597,39 @@ std::string CaptureSettings::FindOption(OptionsMap* options, const std::string& 
 bool CaptureSettings::ParseBoolString(const std::string& value_string, bool default_value)
 {
     return gfxrecon::util::ParseBoolString(value_string, default_value);
+}
+
+uint16_t CaptureSettings::ParseUnsignedInteger16String(const std::string& value_string, uint16_t default_value)
+{
+    std::string::const_iterator it = value_string.begin();
+    if (((value_string.compare(0, 2, "0x") == 0) || (value_string.compare(0, 2, "0X") == 0)))
+    {
+        it += 2;
+    }
+    while (it != value_string.end() && std::isxdigit(*it))
+    {
+        ++it;
+    }
+    const bool is_hex_integer = !value_string.empty() && it == value_string.end();
+
+    if (!is_hex_integer && !value_string.empty())
+    {
+        GFXRECON_LOG_WARNING("Settings Loader: Ignoring unrecognized Unsigned Integer16 option value \"%s\"",
+                             value_string.c_str());
+    }
+    // Must be hex format
+    uint32_t value = 0;
+    if (is_hex_integer == true)
+    {
+        value = strtoul(value_string.c_str(), nullptr, 16);
+
+        if (value > (~static_cast<uint32_t>(0x0) >> (32 - RvAnnotationUtil::kMaskSizeOfBits)))
+        {
+            GFXRECON_LOG_WARNING("Settings Loader: Ignoring oversized option value \"%s\"", value_string.c_str());
+        }
+    }
+    // Return low 16bits
+    return is_hex_integer ? static_cast<uint16_t>(value) : default_value;
 }
 
 int CaptureSettings::ParseIntegerString(const std::string& value_string, int default_value)

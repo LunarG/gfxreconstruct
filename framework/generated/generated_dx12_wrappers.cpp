@@ -35,6 +35,7 @@
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dx12_object_wrapper_util.h"
 #include "encode/dxgi_dispatch_table.h"
+#include "encode/dx12_rv_annotation_util.h"
 #include "generated/generated_dx12_api_call_encoders.h"
 #include "generated/generated_dx12_struct_unwrappers.h"
 #include "generated/generated_dx12_wrapper_creators.h"
@@ -10791,6 +10792,8 @@ D3D12_GPU_VIRTUAL_ADDRESS STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetGPUVirtua
             manager,
             this,
             result);
+
+        RvAnnotationUtil::AddRvAnnotation(&result);
     }
     else
     {
@@ -11532,6 +11535,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
             manager,
             this,
             result);
+
+        RvAnnotationUtil::AddRvAnnotation(&result);
     }
     else
     {
@@ -12896,6 +12901,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
+        RvAnnotationUtil::RemoveRvAnnotation(BaseDescriptor);
+
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable>::Dispatch(
             manager,
             this,
@@ -12947,6 +12954,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
+
+        RvAnnotationUtil::RemoveRvAnnotation(BaseDescriptor);
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable>::Dispatch(
             manager,
@@ -13244,6 +13253,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootConstant
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
+        RvAnnotationUtil::RemoveRvAnnotation(BufferLocation);
+
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView>::Dispatch(
             manager,
             this,
@@ -13295,6 +13306,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootConstan
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
+
+        RvAnnotationUtil::RemoveRvAnnotation(BufferLocation);
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView>::Dispatch(
             manager,
@@ -13348,6 +13361,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootShaderRe
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
+        RvAnnotationUtil::RemoveRvAnnotation(BufferLocation);
+
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView>::Dispatch(
             manager,
             this,
@@ -13399,6 +13414,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootShaderR
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
+
+        RvAnnotationUtil::RemoveRvAnnotation(BufferLocation);
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView>::Dispatch(
             manager,
@@ -13452,6 +13469,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootUnordere
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
+        RvAnnotationUtil::RemoveRvAnnotation(BufferLocation);
+
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView>::Dispatch(
             manager,
             this,
@@ -13504,6 +13523,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
+        RvAnnotationUtil::RemoveRvAnnotation(BufferLocation);
+
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView>::Dispatch(
             manager,
             this,
@@ -13555,6 +13576,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetIndexBuffer(
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
+        std::unique_ptr<D3D12_INDEX_BUFFER_VIEW> pView_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pView != nullptr))
+        {
+            pView_unannotated = RvAnnotationUtil::RemoveStructRvAnnotations(pView);
+            pView = pView_unannotated.get();
+        }
+
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer>::Dispatch(
             manager,
             this,
@@ -13601,6 +13629,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
         else
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW[]> pViews_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (NumViews != 0) && (pViews != nullptr))
+        {
+            pViews_unannotated = RvAnnotationUtil::RemoveStructArrayRvAnnotations(pViews, NumViews);
+            pViews = pViews_unannotated.get();
         }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers>::Dispatch(
@@ -13659,6 +13694,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
         else
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        std::unique_ptr<D3D12_STREAM_OUTPUT_BUFFER_VIEW[]> pViews_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (NumViews != 0) && (pViews != nullptr))
+        {
+            pViews_unannotated = RvAnnotationUtil::RemoveStructArrayRvAnnotations(pViews, NumViews);
+            pViews = pViews_unannotated.get();
         }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SOSetTargets>::Dispatch(
@@ -13932,6 +13974,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
+        RvAnnotationUtil::RemoveRvAnnotation(ViewGPUHandleInCurrentHeap);
+
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint>::Dispatch(
             manager,
             this,
@@ -14009,6 +14053,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
+
+        RvAnnotationUtil::RemoveRvAnnotation(ViewGPUHandleInCurrentHeap);
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat>::Dispatch(
             manager,
@@ -15043,6 +15089,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
         else
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        std::unique_ptr<D3D12_WRITEBUFFERIMMEDIATE_PARAMETER[]> pParams_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (Count != 0) && (pParams != nullptr))
+        {
+            pParams_unannotated = RvAnnotationUtil::RemoveStructArrayRvAnnotations(pParams, Count);
+            pParams = pParams_unannotated.get();
         }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate>::Dispatch(
@@ -16480,6 +16533,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateConstantBufferView(
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
+        std::unique_ptr<D3D12_CONSTANT_BUFFER_VIEW_DESC> pDesc_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_unannotated = RvAnnotationUtil::RemoveStructRvAnnotations(pDesc);
+            pDesc = pDesc_unannotated.get();
+        }
+
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConstantBufferView>::Dispatch(
             manager,
             this,
@@ -16533,6 +16593,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
         else
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        std::unique_ptr<D3D12_SHADER_RESOURCE_VIEW_DESC> pDesc_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_unannotated = RvAnnotationUtil::RemoveStructRvAnnotations(pDesc);
+            pDesc = pDesc_unannotated.get();
         }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>::Dispatch(
@@ -20359,6 +20426,8 @@ void* STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderIdentifier
             this,
             result,
             pExportName);
+
+        RvAnnotationUtil::AddRvAnnotation(&result);
     }
     else
     {
@@ -20939,6 +21008,14 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::GetRaytracingAccelerationStructure
         else
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        std::unique_ptr<D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS> pDesc_unannotated = nullptr;
+        std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]> pDesc_dependency = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_unannotated = RvAnnotationUtil::RemoveStructRvAnnotations(pDesc, pDesc_dependency);
+            pDesc = pDesc_unannotated.get();
         }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo>::Dispatch(
@@ -22892,6 +22969,21 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
+        std::unique_ptr<D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC> pDesc_unannotated = nullptr;
+        std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]> pDesc_dependency = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_unannotated = RvAnnotationUtil::RemoveStructRvAnnotations(pDesc, pDesc_dependency);
+            pDesc = pDesc_unannotated.get();
+        }
+
+        std::unique_ptr<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC[]> pPostbuildInfoDescs_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (NumPostbuildInfoDescs != 0) && (pPostbuildInfoDescs != nullptr))
+        {
+            pPostbuildInfoDescs_unannotated = RvAnnotationUtil::RemoveStructArrayRvAnnotations(pPostbuildInfoDescs, NumPostbuildInfoDescs);
+            pPostbuildInfoDescs = pPostbuildInfoDescs_unannotated.get();
+        }
+
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure>::Dispatch(
             manager,
             this,
@@ -22948,6 +23040,20 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
         else
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        std::unique_ptr<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC> pDesc_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_unannotated = RvAnnotationUtil::RemoveStructRvAnnotations(pDesc);
+            pDesc = pDesc_unannotated.get();
+        }
+
+        std::unique_ptr<D3D12_GPU_VIRTUAL_ADDRESS[]> pSourceAccelerationStructureData_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (NumSourceAccelerationStructures != 0) && (pSourceAccelerationStructureData != nullptr))
+        {
+            pSourceAccelerationStructureData_unannotated = RvAnnotationUtil::RemoveStructArrayRvAnnotations(pSourceAccelerationStructureData, NumSourceAccelerationStructures);
+            pSourceAccelerationStructureData = pSourceAccelerationStructureData_unannotated.get();
         }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo>::Dispatch(
@@ -23007,6 +23113,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
+
+        RvAnnotationUtil::RemoveRvAnnotation(DestAccelerationStructureData);
+
+        RvAnnotationUtil::RemoveRvAnnotation(SourceAccelerationStructureData);
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure>::Dispatch(
             manager,
@@ -23108,6 +23218,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
         else
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        std::unique_ptr<D3D12_DISPATCH_RAYS_DESC> pDesc_unannotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_unannotated = RvAnnotationUtil::RemoveStructRvAnnotations(pDesc);
+            pDesc = pDesc_unannotated.get();
         }
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_DispatchRays>::Dispatch(

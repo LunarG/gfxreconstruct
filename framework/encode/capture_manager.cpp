@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2022 LunarG, Inc.
-** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -249,6 +249,24 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     accel_struct_padding_        = trace_settings.accel_struct_padding;
     iunknown_wrapping_           = trace_settings.iunknown_wrapping;
     force_command_serialization_ = trace_settings.force_command_serialization;
+    rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
+    rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
+
+    rv_annotation_info_.rv_annotation = trace_settings.rv_anotation_info.rv_annotation;
+    if (rv_annotation_info_.rv_annotation == true)
+    {
+        force_file_flush_            = true;
+        force_command_serialization_ = true;
+        if (trace_settings.rv_anotation_info.annotation_mask_rand == true)
+        {
+            rv_annotation_info_.gpuva_mask      = static_cast<uint16_t>(std::rand() % 0xffff);
+            rv_annotation_info_.descriptor_mask = ~rv_annotation_info_.gpuva_mask;
+        }
+        GFXRECON_LOG_INFO(
+            "Resource value annotation capture enabled, GPU virtual address mask = %04x Descriptor handle mask = %04x",
+            rv_annotation_info_.gpuva_mask,
+            rv_annotation_info_.descriptor_mask);
+    }
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {
