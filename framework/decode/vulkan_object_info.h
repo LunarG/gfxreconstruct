@@ -186,7 +186,6 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanPoolObjectInfo<VkCommandBuffer>             CommandBufferInfo;
 typedef VulkanObjectInfo<VkEvent>                         EventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
 typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
@@ -456,6 +455,11 @@ struct VideoSessionKHRInfo : VulkanObjectInfo<VkVideoSessionKHR>
 struct ShaderEXTInfo : VulkanObjectInfo<VkShaderEXT>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct CommandBufferInfo : VulkanPoolObjectInfo<VkCommandBuffer>
+{
+    bool is_frame_boundary{ false };
 };
 
 //

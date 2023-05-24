@@ -87,6 +87,9 @@
     "vkGetAndroidHardwareBufferPropertiesANDROID": "OverrideGetAndroidHardwareBufferPropertiesANDROID",
     "vkDeferredOperationJoinKHR": "OverrideDeferredOperationJoinKHR",
     "vkGetPhysicalDeviceToolProperties": "OverrideGetPhysicalDeviceToolProperties",
-    "vkGetPhysicalDeviceToolPropertiesEXT": "OverrideGetPhysicalDeviceToolProperties"
+    "vkGetPhysicalDeviceToolPropertiesEXT": "OverrideGetPhysicalDeviceToolProperties",
+    "vkBeginCommandBuffer": "OverrideBeginCommandBuffer",
+    "vkResetCommandBuffer": "OverrideResetCommandBuffer",
+    "vkCmdDebugMarkerInsertEXT": "OverrideCmdDebugMarkerInsertEXT"
   }
 }
