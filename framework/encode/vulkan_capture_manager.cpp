@@ -1541,6 +1541,37 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceQueueFamilyProperties2KHR(
     }
 }
 
+VkResult VulkanCaptureManager::OverrideWaitForFences(
+    VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout)
+{
+    if (timeout == UINT64_MAX)
+    {
+        // If the caller signals that it explicitly intends to wait until success, then it is less likely to handle a
+        // timeout return value here.
+        return GetDeviceTable(device)->WaitForFences(device, fenceCount, pFences, waitAll, timeout);
+    }
+
+    bool delay = false;
+    for (uint32_t i = 0; i < fenceCount; ++i)
+    {
+        FenceWrapper* wrapper = GetWrapper<FenceWrapper>(pFences[i]);
+        assert(wrapper != nullptr);
+        if (wrapper->query_delay != 0)
+        {
+            // Make sure we decrement every fence, if multiple.
+            delay = true;
+            --wrapper->query_delay;
+        }
+    }
+
+    if (delay)
+    {
+        return VK_TIMEOUT;
+    }
+
+    return GetDeviceTable(device)->WaitForFences(device, fenceCount, pFences, waitAll, timeout);
+}
+
 void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          result,
                                                            VkInstance        instance,
                                                            uint32_t          count,
@@ -2366,8 +2397,8 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     GFXRECON_UNREFERENCED_PARAMETER(queue);
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
     GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
-    GFXRECON_UNREFERENCED_PARAMETER(fence);
 
+    ProcessFenceSubmit(fence);
     QueueSubmitWriteFillMemoryCmd();
 
     PreQueueSubmit();
@@ -2393,8 +2424,8 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
     GFXRECON_UNREFERENCED_PARAMETER(queue);
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
     GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
-    GFXRECON_UNREFERENCED_PARAMETER(fence);
 
+    ProcessFenceSubmit(fence);
     QueueSubmitWriteFillMemoryCmd();
 
     PreQueueSubmit();
@@ -2417,6 +2448,16 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
 
             state_tracker_->TrackTlasToBlasDependencies(command_buffs.size(), command_buffs.data());
         }
+    }
+}
+
+void VulkanCaptureManager::ProcessFenceSubmit(VkFence fence)
+{
+    if (fence != VK_NULL_HANDLE)
+    {
+        FenceWrapper* wrapper = GetWrapper<FenceWrapper>(fence);
+        assert(wrapper != nullptr);
+        wrapper->query_delay = GetFenceQueryDelay();
     }
 }
 

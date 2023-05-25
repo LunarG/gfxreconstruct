@@ -263,6 +263,7 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     force_command_serialization_     = trace_settings.force_command_serialization;
     queue_zero_only_                 = trace_settings.queue_zero_only;
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
+    fence_query_delay_               = trace_settings.fence_query_delay;
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
