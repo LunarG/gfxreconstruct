@@ -1588,6 +1588,79 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceQueueFamilyProperties2KHR(
     }
 }
 
+VkResult VulkanCaptureManager::OverrideWaitForFences(
+    VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout)
+{
+    // If the timeout is 0, then we suppose this "wait for fence" is in fact a "get fence status" and should be delayed
+    // accordingly.
+    if (timeout <= common_manager_->GetFenceQueryDelayTimeoutThreshold())
+    {
+        bool delay = false;
+
+        for (uint32_t i = 0; i < fenceCount; ++i)
+        {
+            vulkan_wrappers::FenceWrapper* wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(pFences[i]);
+            GFXRECON_ASSERT(wrapper != nullptr);
+            if (wrapper->query_delay != 0)
+            {
+                delay = true;
+                if (common_manager_->GetFenceQueryDelayUnit() == CaptureSettings::FenceQueryDelayUnit::kCalls)
+                {
+                    // Go through all fences because we need to decrement counters for each fence !
+                    --wrapper->query_delay;
+                }
+                else
+                {
+                    // We can stop the loop here because there's no counter to decrement
+                    break;
+                }
+            }
+        }
+
+        if (delay)
+        {
+            return VK_TIMEOUT;
+        }
+    }
+    // If timeout is not 0, we suppose this wait for fence is a "wait until signaled" and we reset all the delays to 0
+    // to avoid non-coherent behavior
+    else
+    {
+        for (uint32_t i = 0; i < fenceCount; ++i)
+        {
+            vulkan_wrappers::FenceWrapper* wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(pFences[i]);
+            GFXRECON_ASSERT(wrapper != nullptr);
+            wrapper->query_delay = 0;
+        }
+    }
+
+    return vulkan_wrappers::GetDeviceTable(device)->WaitForFences(device, fenceCount, pFences, waitAll, timeout);
+}
+
+VkResult VulkanCaptureManager::OverrideGetFenceStatus(VkDevice device, VkFence fence)
+{
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetFenceStatus(device, fence);
+
+    if (result == VK_SUCCESS)
+    {
+        vulkan_wrappers::FenceWrapper* wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(fence);
+        assert(wrapper != nullptr);
+        if (wrapper->query_delay != 0)
+        {
+            if (common_manager_->GetFenceQueryDelayUnit() == CaptureSettings::FenceQueryDelayUnit::kCalls)
+            {
+                --wrapper->query_delay;
+            }
+
+            result = VK_NOT_READY;
+        }
+    }
+
+    return result;
+}
+
 void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          result,
                                                            VkInstance        instance,
                                                            uint32_t          count,
@@ -2301,7 +2374,6 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(std::shared_lock<CommonCaptu
     GFXRECON_UNREFERENCED_PARAMETER(queue);
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
     GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
-    GFXRECON_UNREFERENCED_PARAMETER(fence);
 
     // This must be done before QueueSubmitWriteFillMemoryCmd is called
     // and tracked mapped memory regions are resetted
@@ -2310,6 +2382,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(std::shared_lock<CommonCaptu
         state_tracker_->TrackSubmission(submitCount, pSubmits);
     }
 
+    ProcessFenceSubmit(fence);
     QueueSubmitWriteFillMemoryCmd();
 
     PreQueueSubmit(current_lock);
@@ -2337,7 +2410,6 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
     GFXRECON_UNREFERENCED_PARAMETER(queue);
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
     GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
-    GFXRECON_UNREFERENCED_PARAMETER(fence);
 
     // This must be done before QueueSubmitWriteFillMemoryCmd is called
     // and tracked mapped memory regions are resetted
@@ -2346,6 +2418,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
         state_tracker_->TrackSubmission(submitCount, pSubmits);
     }
 
+    ProcessFenceSubmit(fence);
     QueueSubmitWriteFillMemoryCmd();
 
     PreQueueSubmit(current_lock);
@@ -2368,6 +2441,16 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
 
             state_tracker_->TrackTlasToBlasDependencies(command_buffs.size(), command_buffs.data());
         }
+    }
+}
+
+void VulkanCaptureManager::ProcessFenceSubmit(VkFence fence)
+{
+    if (fence != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::FenceWrapper* wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(fence);
+        assert(wrapper != nullptr);
+        wrapper->query_delay = common_manager_->GetFenceQueryDelay();
     }
 }
 
@@ -3466,6 +3549,21 @@ void VulkanCaptureManager::PostProcess_vkSetDebugUtilsObjectTagEXT(VkResult     
             state_tracker_->TrackSetDebugUtilsObjectTagEXT(device, pTagInfo, thread_data->parameter_buffer_.get());
         }
     }
+}
+
+void VulkanCaptureManager::EndFrame(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
+{
+    if (common_manager_->GetFenceQueryDelayUnit() == CaptureSettings::FenceQueryDelayUnit::kFrames)
+    {
+        vulkan_wrappers::VisitWrappers<vulkan_wrappers::FenceWrapper>([&](vulkan_wrappers::FenceWrapper* wrapper) {
+            if (wrapper->query_delay != 0)
+            {
+                --wrapper->query_delay;
+            }
+        });
+    }
+
+    ApiCaptureManager::EndFrame(current_lock);
 }
 
 GFXRECON_END_NAMESPACE(encode)

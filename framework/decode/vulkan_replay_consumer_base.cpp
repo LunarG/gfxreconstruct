@@ -3338,23 +3338,6 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences    
     const VkFence*       modified_fences      = nullptr;
     std::vector<VkFence> valid_fences;
 
-    // Check if the call is in a frame range for being skipped (see --skip-get-fence-ranges, --skip-get-fence-status)
-    bool           in_skip_range = options_.skip_get_fence_ranges.empty();
-    const uint32_t current_frame = application_->GetCurrentFrameNumber() + 1;
-    for (const util::UintRange& range : options_.skip_get_fence_ranges)
-    {
-        if (current_frame >= range.first && current_frame <= range.last)
-        {
-            in_skip_range = true;
-            break;
-        }
-    }
-
-    if (in_skip_range && options_.skip_get_fence_status == SkipGetFenceStatus::SkipAll)
-    {
-        return result;
-    }
-
     // Check for fences that need to be removed.
     if (shadow_fences_.empty())
     {
@@ -3386,23 +3369,42 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences    
         modified_fences      = valid_fences.data();
     }
 
-    if (original_result == VK_SUCCESS)
+    // If the timeout is 0, then we suppose this "wait for fence" is in fact a "get fence status" and should be skipped
+    // accordingly.
+    bool in_skip_range = false;
+    if (timeout == 0)
     {
-        // Ensure that wait for fences waits until the fences have been signaled (or error occurs) by changing the
-        // timeout to UINT64_MAX.
-        if (modified_fence_count > 0)
+        // Check if the call is in a frame range for being skipped (see --skip-get-fence-ranges,
+        // --skip-get-fence-status)
+        in_skip_range                = options_.skip_get_fence_ranges.empty();
+        const uint32_t current_frame = application_->GetCurrentFrameNumber() + 1;
+        for (const util::UintRange& range : options_.skip_get_fence_ranges)
         {
-            result = func(device, modified_fence_count, modified_fences, waitAll, std::numeric_limits<uint64_t>::max());
+            if (current_frame >= range.first && current_frame <= range.last)
+            {
+                in_skip_range = true;
+                break;
+            }
         }
     }
-    else
-    {
-        if (in_skip_range && options_.skip_get_fence_status == SkipGetFenceStatus::SkipUnsuccessful)
-        {
-            return result;
-        }
 
-        if (original_result == VK_TIMEOUT)
+    if (in_skip_range && options_.skip_get_fence_status == SkipGetFenceStatus::SkipAll)
+    {
+        // Nothing.
+    }
+    else if (modified_fence_count > 0)
+    {
+        if (original_result == VK_SUCCESS)
+        {
+            // Ensure that wait for fences waits until the fences have been signaled (or error occurs) by changing the
+            // timeout to UINT64_MAX.
+            result = func(device, modified_fence_count, modified_fences, waitAll, std::numeric_limits<uint64_t>::max());
+        }
+        else if (in_skip_range && options_.skip_get_fence_status == SkipGetFenceStatus::SkipUnsuccessful)
+        {
+            // Nothing.
+        }
+        else if (original_result == VK_TIMEOUT)
         {
             // Try to get a timeout result with a 0 timeout.
             result = func(device, modified_fence_count, modified_fences, waitAll, 0);
@@ -3427,6 +3429,11 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus  
     VkDevice device = device_info->handle;
     VkFence  fence  = fence_info->handle;
 
+    if (shadow_fences_.find(fence) != shadow_fences_.end())
+    {
+        return result;
+    }
+
     // Check if the call is in a frame range for being skipped (see --skip-get-fence-ranges, --skip-get-fence-status)
     bool           in_skip_range = options_.skip_get_fence_ranges.empty();
     const uint32_t current_frame = application_->GetCurrentFrameNumber() + 1;
@@ -3446,17 +3453,17 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus  
         return result;
     }
 
-    if (shadow_fences_.find(fence) != shadow_fences_.end())
-    {
-        return result;
-    }
+    result = func(device, fence);
 
-    // If you find this loop to be infinite consider adding a limit in the same way
-    // it is done for GetEventStatus and GetQueryPoolResults.
-    do
+    // We don't want the replay to continue if fence was ready at capture time but is not at replay time because future
+    // calls might use the resources depending on that fence...
+    if (original_result == VK_SUCCESS && result == VK_NOT_READY)
     {
-        result = func(device, fence);
-    } while ((original_result == VK_SUCCESS) && (result == VK_NOT_READY));
+        const encode::VulkanDeviceTable* device_table = GetDeviceTable(device);
+        GFXRECON_ASSERT(device_table != nullptr);
+
+        result = device_table->WaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
+    }
 
     return result;
 }

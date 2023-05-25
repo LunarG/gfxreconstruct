@@ -143,6 +143,12 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define RV_ANNOTATION_DESCRIPTOR_UPPER                       "RV_ANNOTATION_DESCRIPTOR"
 #define FORCE_FIFO_PRESENT_MODE_LOWER                        "force_fifo_present_mode"
 #define FORCE_FIFO_PRESENT_MODE_UPPER                        "FORCE_FIFO_PRESENT_MODE"
+#define FENCE_QUERY_DELAY_LOWER                              "fence_query_delay"
+#define FENCE_QUERY_DELAY_UPPER                              "FENCE_QUERY_DELAY"
+#define FENCE_QUERY_DELAY_UNIT_LOWER                         "fence_query_delay_unit"
+#define FENCE_QUERY_DELAY_UNIT_UPPER                         "FENCE_QUERY_DELAY_UNIT"
+#define FENCE_QUERY_DELAY_TIMEOUT_THRESHOLD_LOWER            "fence_query_delay_timeout_threshold"
+#define FENCE_QUERY_DELAY_TIMEOUT_THRESHOLD_UPPER            "FENCE_QUERY_DELAY_TIMEOUT_THRESHOLD"
 
 #if defined(__ANDROID__)
 // Android Properties
@@ -200,6 +206,9 @@ const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_LOWER;
 const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_LOWER;
 const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX FORCE_FIFO_PRESENT_MODE_LOWER;
+const char kFenceQueryDelayEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX FENCE_QUERY_DELAY_LOWER;
+const char kFenceQueryDelayUnitEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX FENCE_QUERY_DELAY_UNIT_LOWER;
+const char kFenceQueryDelayTimeoutThresholdEnvVar[]          = GFXRECON_ENV_VAR_PREFIX FENCE_QUERY_DELAY_TIMEOUT_THRESHOLD_LOWER;
 
 #else
 // Desktop environment settings
@@ -255,6 +264,9 @@ const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_UPPER;
 const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_UPPER;
 const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX FORCE_FIFO_PRESENT_MODE_UPPER;
+const char kFenceQueryDelayEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX FENCE_QUERY_DELAY_UPPER;
+const char kFenceQueryDelayUnitEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX FENCE_QUERY_DELAY_UNIT_UPPER;
+const char kFenceQueryDelayTimeoutThresholdEnvVar[]          = GFXRECON_ENV_VAR_PREFIX FENCE_QUERY_DELAY_TIMEOUT_THRESHOLD_UPPER;
 
 #endif
 
@@ -309,6 +321,9 @@ const std::string kOptionKeyAnnotationRand                           = std::stri
 const std::string kOptionKeyAnnotationGPUVA                          = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_GPUVA_LOWER);
 const std::string kOptionKeyAnnotationDescriptor                     = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_DESCRIPTOR_LOWER);
 const std::string kOptionForceFifoPresentModeEnvVar                  = std::string(kSettingsFilter) + std::string(FORCE_FIFO_PRESENT_MODE_LOWER);
+const std::string kOptionFenceQueryDelay                             = std::string(kSettingsFilter) + std::string(FENCE_QUERY_DELAY_LOWER);
+const std::string kOptionFenceQueryDelayUnit                         = std::string(kSettingsFilter) + std::string(FENCE_QUERY_DELAY_UNIT_LOWER);
+const std::string kOptionFenceQueryDelayTimeoutThreshold             = std::string(kSettingsFilter) + std::string(FENCE_QUERY_DELAY_TIMEOUT_THRESHOLD_LOWER);
 
 #if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -478,6 +493,9 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kAnnotationGPUVAEnvVar, kOptionKeyAnnotationGPUVA);
     LoadSingleOptionEnvVar(options, kAnnotationDescriptorEnvVar, kOptionKeyAnnotationDescriptor);
     LoadSingleOptionEnvVar(options, kForceFifoPresentModeEnvVar, kOptionForceFifoPresentModeEnvVar);
+    LoadSingleOptionEnvVar(options, kFenceQueryDelayEnvVar, kOptionFenceQueryDelay);
+    LoadSingleOptionEnvVar(options, kFenceQueryDelayUnitEnvVar, kOptionFenceQueryDelayUnit);
+    LoadSingleOptionEnvVar(options, kFenceQueryDelayTimeoutThresholdEnvVar, kOptionFenceQueryDelayTimeoutThreshold);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -682,6 +700,13 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
                                      settings->trace_settings_.rv_anotation_info.descriptor_mask);
     settings->trace_settings_.force_fifo_present_mode = ParseBoolString(
         FindOption(options, kOptionForceFifoPresentModeEnvVar), settings->trace_settings_.force_fifo_present_mode);
+    settings->trace_settings_.fence_query_delay =
+        ParseIntegerString(FindOption(options, kOptionFenceQueryDelay), settings->trace_settings_.fence_query_delay);
+    settings->trace_settings_.fence_query_delay_unit = ParseFenceQueryDelayUnit(
+        FindOption(options, kOptionFenceQueryDelayUnit), settings->trace_settings_.fence_query_delay_unit);
+    settings->trace_settings_.fence_query_delay_timeout_threshold =
+        ParseIntegerString(FindOption(options, kOptionFenceQueryDelayTimeoutThreshold),
+                           settings->trace_settings_.fence_query_delay_timeout_threshold);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
@@ -982,5 +1007,30 @@ util::ScreenshotFormat CaptureSettings::ParseScreenshotFormatString(const std::s
 
     return result;
 }
+
+CaptureSettings::FenceQueryDelayUnit CaptureSettings::ParseFenceQueryDelayUnit(const std::string&  value_string,
+                                                                               FenceQueryDelayUnit default_value)
+{
+    if (value_string == "calls")
+    {
+        return FenceQueryDelayUnit::kCalls;
+    }
+    else if (value_string == "frames")
+    {
+        return FenceQueryDelayUnit::kFrames;
+    }
+    else
+    {
+        if (!value_string.empty())
+        {
+            GFXRECON_LOG_WARNING(
+                "Unrecognized fence query delay unit '%s'. The replay will continue with the default value.",
+                value_string.c_str());
+        }
+
+        return default_value;
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -103,7 +103,7 @@ class ApiCaptureManager
 
     void WriteFrameMarker(format::MarkerType marker_type) { common_manager_->WriteFrameMarker(marker_type); }
 
-    void EndFrame(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
+    virtual void EndFrame(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
     {
         common_manager_->EndFrame(api_family_, current_lock);
     }

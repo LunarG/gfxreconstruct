@@ -586,6 +586,55 @@ class VulkanStateHandleTable : VulkanStateTableBase
          return RemoveEntry(wrapper->handle, videoSessionParametersKHR_map_);
     }
 
+    void VisitWrappers(std::function<void(vulkan_wrappers::AccelerationStructureKHRWrapper*)> visitor) const { for (auto entry : accelerationStructureKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::AccelerationStructureNVWrapper*)> visitor) const { for (auto entry : accelerationStructureNV_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::BufferWrapper*)> visitor) const { for (auto entry : buffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::BufferViewWrapper*)> visitor) const { for (auto entry : bufferView_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::CommandBufferWrapper*)> visitor) const { for (auto entry : commandBuffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::CommandPoolWrapper*)> visitor) const { for (auto entry : commandPool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DebugReportCallbackEXTWrapper*)> visitor) const { for (auto entry : debugReportCallbackEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DebugUtilsMessengerEXTWrapper*)> visitor) const { for (auto entry : debugUtilsMessengerEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DeferredOperationKHRWrapper*)> visitor) const { for (auto entry : deferredOperationKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DescriptorPoolWrapper*)> visitor) const { for (auto entry : descriptorPool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DescriptorSetWrapper*)> visitor) const { for (auto entry : descriptorSet_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DescriptorSetLayoutWrapper*)> visitor) const { for (auto entry : descriptorSetLayout_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DescriptorUpdateTemplateWrapper*)> visitor) const { for (auto entry : descriptorUpdateTemplate_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DeviceWrapper*)> visitor) const { for (auto entry : device_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DeviceMemoryWrapper*)> visitor) const { for (auto entry : deviceMemory_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DisplayKHRWrapper*)> visitor) const { for (auto entry : displayKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DisplayModeKHRWrapper*)> visitor) const { for (auto entry : displayModeKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::EventWrapper*)> visitor) const { for (auto entry : event_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::FenceWrapper*)> visitor) const { for (auto entry : fence_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::FramebufferWrapper*)> visitor) const { for (auto entry : framebuffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::ImageWrapper*)> visitor) const { for (auto entry : image_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::ImageViewWrapper*)> visitor) const { for (auto entry : imageView_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::IndirectCommandsLayoutEXTWrapper*)> visitor) const { for (auto entry : indirectCommandsLayoutEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::IndirectCommandsLayoutNVWrapper*)> visitor) const { for (auto entry : indirectCommandsLayoutNV_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::IndirectExecutionSetEXTWrapper*)> visitor) const { for (auto entry : indirectExecutionSetEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::InstanceWrapper*)> visitor) const { for (auto entry : instance_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::MicromapEXTWrapper*)> visitor) const { for (auto entry : micromapEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::OpticalFlowSessionNVWrapper*)> visitor) const { for (auto entry : opticalFlowSessionNV_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::PerformanceConfigurationINTELWrapper*)> visitor) const { for (auto entry : performanceConfigurationINTEL_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::PhysicalDeviceWrapper*)> visitor) const { for (auto entry : physicalDevice_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::PipelineWrapper*)> visitor) const { for (auto entry : pipeline_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::PipelineBinaryKHRWrapper*)> visitor) const { for (auto entry : pipelineBinaryKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::PipelineCacheWrapper*)> visitor) const { for (auto entry : pipelineCache_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::PipelineLayoutWrapper*)> visitor) const { for (auto entry : pipelineLayout_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::PrivateDataSlotWrapper*)> visitor) const { for (auto entry : privateDataSlot_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::QueryPoolWrapper*)> visitor) const { for (auto entry : queryPool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::QueueWrapper*)> visitor) const { for (auto entry : queue_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::RenderPassWrapper*)> visitor) const { for (auto entry : renderPass_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::SamplerWrapper*)> visitor) const { for (auto entry : sampler_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::SamplerYcbcrConversionWrapper*)> visitor) const { for (auto entry : samplerYcbcrConversion_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::SemaphoreWrapper*)> visitor) const { for (auto entry : semaphore_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::ShaderEXTWrapper*)> visitor) const { for (auto entry : shaderEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::ShaderModuleWrapper*)> visitor) const { for (auto entry : shaderModule_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::SurfaceKHRWrapper*)> visitor) const { for (auto entry : surfaceKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::SwapchainKHRWrapper*)> visitor) const { for (auto entry : swapchainKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::ValidationCacheEXTWrapper*)> visitor) const { for (auto entry : validationCacheEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::VideoSessionKHRWrapper*)> visitor) const { for (auto entry : videoSessionKHR_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::VideoSessionParametersKHRWrapper*)> visitor) const { for (auto entry : videoSessionParametersKHR_map_) { visitor(entry.second); } }
+
     template<typename Wrapper> const Wrapper* GetWrapper(typename Wrapper::HandleType handle) const { return nullptr; }
 
     template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }

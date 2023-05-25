@@ -177,6 +177,10 @@ class CommonCaptureManager
     }
 
     static bool CreateInstance(ApiCaptureManager* api_instance_, const std::function<void()>& destroyer);
+    uint32_t    GetFenceQueryDelay() const { return fence_query_delay_; }
+    CaptureSettings::FenceQueryDelayUnit GetFenceQueryDelayUnit() const { return fence_query_delay_unit_; }
+    uint64_t GetFenceQueryDelayTimeoutThreshold() const { return fence_query_delay_timeout_threshold_; }
+
     template <typename Derived>
     static bool CreateInstance()
     {
@@ -418,6 +422,9 @@ class CommonCaptureManager
     bool                                    write_assets_;
     bool                                    previous_write_assets_;
     bool                                    write_state_files_;
+    uint32_t                                fence_query_delay_;
+    CaptureSettings::FenceQueryDelayUnit    fence_query_delay_unit_;
+    uint64_t                                fence_query_delay_timeout_threshold_;
 
     struct
     {

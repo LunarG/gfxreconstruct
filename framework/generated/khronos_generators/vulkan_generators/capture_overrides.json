@@ -14,6 +14,8 @@
         "vkGetPhysicalDeviceQueueFamilyProperties2KHR": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2KHR",
         "vkCmdBuildAccelerationStructuresKHR": "manager->OverrideCmdBuildAccelerationStructuresKHR",
         "vkGetPhysicalDeviceProperties2": "manager->OverrideGetPhysicalDeviceProperties2",
-        "vkGetPhysicalDeviceProperties2KHR": "manager->OverrideGetPhysicalDeviceProperties2"
+        "vkGetPhysicalDeviceProperties2KHR": "manager->OverrideGetPhysicalDeviceProperties2",
+        "vkWaitForFences": "VulkanCaptureManager::Get()->OverrideWaitForFences",
+        "vkGetFenceStatus": "manager->OverrideGetFenceStatus"
     }
 }
