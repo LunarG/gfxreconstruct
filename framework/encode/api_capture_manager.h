@@ -95,7 +95,7 @@ class ApiCaptureManager
 
     void WriteFrameMarker(format::MarkerType marker_type) { common_manager_->WriteFrameMarker(marker_type); }
 
-    void EndFrame() { common_manager_->EndFrame(api_family_); }
+    virtual void EndFrame() { common_manager_->EndFrame(api_family_); }
 
     // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
     // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.

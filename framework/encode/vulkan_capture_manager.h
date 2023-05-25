@@ -334,6 +334,11 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                             uint32_t*                 pQueueFamilyPropertyCount,
                                                             VkQueueFamilyProperties2* pQueueFamilyProperties);
 
+    VkResult OverrideWaitForFences(
+        VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout);
+
+    VkResult OverrideGetFenceStatus(VkDevice device, VkFence fence);
+
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,
@@ -494,6 +499,8 @@ class VulkanCaptureManager : public ApiCaptureManager
             state_tracker_->TrackSemaphoreSignalState(semaphore);
             state_tracker_->TrackAcquireImage(*index, swapchain, semaphore, fence, 0);
         }
+
+        ProcessFenceSubmit(fence);
     }
 
     void PostProcess_vkAcquireNextImage2KHR(VkResult result,
@@ -511,6 +518,8 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               pAcquireInfo->fence,
                                               pAcquireInfo->deviceMask);
         }
+
+        ProcessFenceSubmit(pAcquireInfo->fence);
     }
 
     void PostProcess_vkQueuePresentKHR(VkResult result, VkQueue queue, const VkPresentInfoKHR* pPresentInfo)
@@ -528,7 +537,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     }
 
     void PostProcess_vkQueueBindSparse(
-        VkResult result, VkQueue, uint32_t bindInfoCount, const VkBindSparseInfo* pBindInfo, VkFence)
+        VkResult result, VkQueue, uint32_t bindInfoCount, const VkBindSparseInfo* pBindInfo, VkFence fence)
     {
         if (IsCaptureModeTrack() && (result == VK_SUCCESS))
         {
@@ -540,6 +549,21 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                           pBindInfo[i].signalSemaphoreCount,
                                                           pBindInfo[i].pSignalSemaphores);
             }
+        }
+
+        ProcessFenceSubmit(fence);
+    }
+
+    void PostProcess_vkResetFences(VkResult result, VkDevice device, uint32_t fenceCount, const VkFence* pFences)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+
+        for (uint32_t i = 0; i < fenceCount; ++i)
+        {
+            vulkan_wrappers::FenceWrapper* wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(pFences[i]);
+            assert(wrapper != nullptr);
+            wrapper->query_delay = 0;
         }
     }
 
@@ -1341,6 +1365,10 @@ class VulkanCaptureManager : public ApiCaptureManager
     bool CheckCommandBufferWrapperForFrameBoundary(const vulkan_wrappers::CommandBufferWrapper* command_buffer_wrapper);
 
     bool CheckPNextChainForFrameBoundary(const VkBaseInStructure* current);
+
+    void ProcessFenceSubmit(VkFence fence);
+
+    virtual void EndFrame() override;
 
   private:
     void QueueSubmitWriteFillMemoryCmd();

@@ -157,6 +157,8 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         code += '\n'
         code += vk_remove_code
         code += '\n'
+        code += visit_code
+        code += '\n'
         code += '    template<typename Wrapper> const Wrapper* GetWrapper(typename Wrapper::HandleType handle) const { return nullptr; }\n'
         code += '\n'
         code += '    template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }\n'

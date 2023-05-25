@@ -116,6 +116,12 @@ Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
 }
 
 template <typename Wrapper>
+void VisitWrappers(std::function<void(Wrapper*)> visitor)
+{
+    state_handle_table_.VisitWrappers(visitor);
+}
+
+template <typename Wrapper>
 bool RemoveWrapper(const Wrapper* wrapper)
 {
     return state_handle_table_.RemoveWrapper(wrapper);

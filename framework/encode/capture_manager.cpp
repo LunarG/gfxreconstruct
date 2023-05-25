@@ -309,6 +309,8 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     queue_zero_only_                 = trace_settings.queue_zero_only;
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
     force_fifo_present_mode_         = trace_settings.force_fifo_present_mode;
+    fence_query_delay_               = trace_settings.fence_query_delay;
+    fence_query_delay_unit_          = trace_settings.fence_query_delay_unit;
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -1398,6 +1400,21 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
     {
         buffer += "\n    \"force-command-serialization\": ";
         buffer += force_command_serialization_ ? "true," : "false,";
+    }
+
+    if (fence_query_delay_ != default_settings.fence_query_delay)
+    {
+        buffer += "\n    \"fence-query-delay\": " + std::to_string(fence_query_delay_) + ',';
+        buffer += "\n    \"fence-query-delay-unit\": \"";
+        if (fence_query_delay_unit_ == CaptureSettings::FenceQueryDelayUnit::kCalls)
+        {
+            buffer += "calls";
+        }
+        else if (fence_query_delay_unit_ == CaptureSettings::FenceQueryDelayUnit::kFrames)
+        {
+            buffer += "frames";
+        }
+        buffer += "\",";
     }
 
     if (queue_zero_only_ != default_settings.queue_zero_only)
