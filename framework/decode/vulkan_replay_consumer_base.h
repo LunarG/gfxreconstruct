@@ -1094,6 +1094,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     // Used to track allocated external memory if replay uses VkImportMemoryHostPointerInfoEXT
     std::unordered_map<VkDeviceMemory, std::pair<void*, size_t>> external_memory_;
+
+    // Temporary data used by OverrideQueuePresentKHR
+    std::vector<VkSwapchainKHR>       valid_swapchains_;
+    std::vector<uint32_t>             modified_image_indices_;
+    std::vector<uint32_t>             modified_device_masks_;
+    std::vector<VkPresentRegionKHR>   modified_regions_;
+    std::vector<VkPresentTimeGOOGLE>  modified_times_;
+    std::vector<const SemaphoreInfo*> removed_semaphores_;
+    std::unordered_set<uint32_t>      removed_swapchain_indices_;
+    std::vector<uint32_t>             capture_image_indices_;
+    std::vector<SwapchainKHRInfo*>    swapchain_infos_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

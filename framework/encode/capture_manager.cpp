@@ -94,7 +94,8 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0),
-    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false)
+    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false),
+    queue_zero_only_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -249,6 +250,8 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     accel_struct_padding_        = trace_settings.accel_struct_padding;
     iunknown_wrapping_           = trace_settings.iunknown_wrapping;
     force_command_serialization_ = trace_settings.force_command_serialization;
+    queue_zero_only_             = trace_settings.queue_zero_only;
+
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
 
