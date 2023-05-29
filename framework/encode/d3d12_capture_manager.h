@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -33,6 +33,7 @@
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dx12_state_tracker.h"
 #include "encode/dxgi_dispatch_table.h"
+#include "encode/dx12_rv_annotator.h"
 #include "generated/generated_dx12_wrappers.h"
 #include "graphics/dx12_image_renderer.h"
 
@@ -171,6 +172,10 @@ class D3D12CaptureManager : public CaptureManager
     template <typename Wrapper>
     void ProcessWrapperDestroy(Wrapper* wrapper)
     {
+        if (RvAnnotationActive() == true)
+        {
+            resource_value_annotator_->RemoveObjectGPUVA(wrapper);
+        }
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
             state_tracker_->RemoveEntry(wrapper);
@@ -433,6 +438,13 @@ class D3D12CaptureManager : public CaptureManager
                                                       REFIID                   riid,
                                                       void**                   ppCommandList);
 
+    void PostProcess_ID3D12Device_GetDescriptorHandleIncrementSize(ID3D12Device_Wrapper*      wrapper,
+                                                                   UINT                       result,
+                                                                   D3D12_DESCRIPTOR_HEAP_TYPE heap_type);
+
+    void PostProcess_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper,
+                                                                             D3D12_GPU_DESCRIPTOR_HANDLE   result);
+
     void PostProcess_ID3D12Device_CopyDescriptors(ID3D12Device_Wrapper*              wrapper,
                                                   UINT                               num_dest_ranges,
                                                   const D3D12_CPU_DESCRIPTOR_HANDLE* dest_range_starts,
@@ -641,6 +653,9 @@ class D3D12CaptureManager : public CaptureManager
 
     bool IsAccelerationStructureResource(format::HandleId id);
 
+    bool AddFillMemoryResourceValueCommand(
+        const std::map<uint64_t, Dx12ResourceValueAnnotator::Dx12FillCommandResourceValue>& resource_values);
+
   protected:
     D3D12CaptureManager();
 
@@ -671,7 +686,9 @@ class D3D12CaptureManager : public CaptureManager
                                       D3D12_CPU_PAGE_PROPERTY  page_property,
                                       D3D12_MEMORY_POOL        memory_pool,
                                       D3D12_RESOURCE_STATES    initial_state,
-                                      bool                     has_write_watch);
+                                      bool                     has_write_watch,
+                                      ID3D12Heap_Wrapper*      heap_wrapper,
+                                      uint64_t                 heap_offset);
 
     void InitializeSwapChainBufferResourceInfo(ID3D12Resource_Wrapper* resource_wrapper,
                                                D3D12_RESOURCE_STATES   initial_state);
@@ -689,6 +706,7 @@ class D3D12CaptureManager : public CaptureManager
     PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
     void                          EnableDebugLayer();
     void                          EnableDRED();
+    bool                          RvAnnotationActive();
 
     void                              PrePresent(IDXGISwapChain_Wrapper* wrapper);
     void                              PostPresent(IDXGISwapChain_Wrapper* wrapper);
@@ -711,6 +729,8 @@ class D3D12CaptureManager : public CaptureManager
     std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
 
     graphics::dx12::ActiveAdapterMap adapters_;
+
+    std::unique_ptr<Dx12ResourceValueAnnotator> resource_value_annotator_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(encode)
