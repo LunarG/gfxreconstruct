@@ -91,10 +91,11 @@ static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_p
     else
     {
         output_filename   = input_filename;
-        size_t suffix_pos = output_filename.find(GFXRECON_FILE_EXTENSION);
-        if (suffix_pos != std::string::npos)
+        auto ext_pos      = output_filename.find_last_of(".");
+        auto path_sep_pos = output_filename.find_last_of(gfxrecon::util::filepath::kPathSepStr);
+        if (ext_pos != std::string::npos && (path_sep_pos == std::string::npos || ext_pos > path_sep_pos))
         {
-            output_filename = output_filename.substr(0, suffix_pos);
+            output_filename = output_filename.substr(0, ext_pos);
         }
         switch (output_format)
         {
