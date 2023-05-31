@@ -3740,9 +3740,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
             VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
             VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
-                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                modified_allocate_info.pNext,
-                opaque_address
+                          VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
+                          modified_allocate_info.pNext,
+                          opaque_address
             };
             modified_allocate_info.pNext = &address_info;
 
@@ -5272,15 +5272,15 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     VkPresentRegionsKHR         modified_present_region_info{ VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR };
     VkPresentTimesInfoGOOGLE    modified_present_times_info{ VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE };
 
-    std::vector<VkSwapchainKHR>       valid_swapchains;
-    std::vector<uint32_t>             modified_image_indices;
-    std::vector<uint32_t>             modified_device_masks;
-    std::vector<VkPresentRegionKHR>   modified_regions;
-    std::vector<VkPresentTimeGOOGLE>  modified_times;
-    std::vector<const SemaphoreInfo*> removed_semaphores;
-    std::unordered_set<uint32_t>      removed_swapchain_indices;
-    std::vector<uint32_t>             capture_image_indices;
-    std::vector<SwapchainKHRInfo*>    swapchain_infos;
+    valid_swapchains_.clear();
+    modified_image_indices_.clear();
+    modified_device_masks_.clear();
+    modified_regions_.clear();
+    modified_times_.clear();
+    removed_semaphores_.clear();
+    removed_swapchain_indices_.clear();
+    capture_image_indices_.clear();
+    swapchain_infos_.clear();
 
     if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
     {
@@ -5301,11 +5301,11 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             const auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
             if ((swapchain_info != nullptr) && (swapchain_info->surface != VK_NULL_HANDLE))
             {
-                valid_swapchains.emplace_back(swapchain_info->handle);
-                swapchain_infos.emplace_back(swapchain_info);
+                valid_swapchains_.emplace_back(swapchain_info->handle);
+                swapchain_infos_.emplace_back(swapchain_info);
 
                 uint32_t capture_image_index = present_info->pImageIndices[i];
-                capture_image_indices.emplace_back(capture_image_index);
+                capture_image_indices_.emplace_back(capture_image_index);
 
                 if (capture_image_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
                 {
@@ -5347,16 +5347,16 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 }
 
                 uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
-                modified_image_indices.emplace_back(replay_image_index);
+                modified_image_indices_.emplace_back(replay_image_index);
             }
             else
             {
-                removed_swapchain_indices.insert(i);
+                removed_swapchain_indices_.insert(i);
             }
         }
 
         // If a swapchain was removed, pNext stucts that reference the swapchain need to be modified as well.
-        if (removed_swapchain_indices.empty() == false)
+        if (removed_swapchain_indices_.empty() == false)
         {
             const VkBaseInStructure* next = reinterpret_cast<const VkBaseInStructure*>(modified_present_info.pNext);
             while (next != nullptr)
@@ -5372,18 +5372,18 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                         {
                             for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
                             {
-                                if (removed_swapchain_indices.find(i) == removed_swapchain_indices.end())
+                                if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
                                 {
-                                    modified_device_masks.push_back(pNext->pDeviceMasks[i]);
+                                    modified_device_masks_.push_back(pNext->pDeviceMasks[i]);
                                 }
                             }
 
-                            assert(valid_swapchains.size() == modified_device_masks.size());
+                            assert(valid_swapchains_.size() == modified_device_masks_.size());
 
                             modified_device_group_present_info.pNext = pNext->pNext;
                             modified_device_group_present_info.swapchainCount =
-                                static_cast<uint32_t>(modified_device_masks.size());
-                            modified_device_group_present_info.pDeviceMasks = modified_device_masks.data();
+                                static_cast<uint32_t>(modified_device_masks_.size());
+                            modified_device_group_present_info.pDeviceMasks = modified_device_masks_.data();
                             modified_device_group_present_info.mode         = pNext->mode;
                             pNext                                           = &modified_device_group_present_info;
                         }
@@ -5397,18 +5397,18 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                         {
                             for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
                             {
-                                if (removed_swapchain_indices.find(i) == removed_swapchain_indices.end())
+                                if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
                                 {
-                                    modified_regions.push_back(pNext->pRegions[i]);
+                                    modified_regions_.push_back(pNext->pRegions[i]);
                                 }
                             }
 
-                            assert(valid_swapchains.size() == modified_regions.size());
+                            assert(valid_swapchains_.size() == modified_regions_.size());
 
                             modified_present_region_info.pNext = pNext->pNext;
                             modified_present_region_info.swapchainCount =
-                                static_cast<uint32_t>(modified_regions.size());
-                            modified_present_region_info.pRegions = modified_regions.data();
+                                static_cast<uint32_t>(modified_regions_.size());
+                            modified_present_region_info.pRegions = modified_regions_.data();
                             pNext                                 = &modified_present_region_info;
                         }
                         break;
@@ -5421,17 +5421,17 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                         {
                             for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
                             {
-                                if (removed_swapchain_indices.find(i) == removed_swapchain_indices.end())
+                                if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
                                 {
-                                    modified_times.push_back(pNext->pTimes[i]);
+                                    modified_times_.push_back(pNext->pTimes[i]);
                                 }
                             }
 
-                            assert(valid_swapchains.size() == modified_times.size());
+                            assert(valid_swapchains_.size() == modified_times_.size());
 
                             modified_present_times_info.pNext          = pNext->pNext;
-                            modified_present_times_info.swapchainCount = static_cast<uint32_t>(modified_times.size());
-                            modified_present_times_info.pTimes         = modified_times.data();
+                            modified_present_times_info.swapchainCount = static_cast<uint32_t>(modified_times_.size());
+                            modified_present_times_info.pTimes         = modified_times_.data();
                             pNext                                      = &modified_present_times_info;
                         }
                         break;
@@ -5444,22 +5444,22 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             }
         }
 
-        modified_present_info.swapchainCount = static_cast<uint32_t>(valid_swapchains.size());
-        modified_present_info.pSwapchains    = valid_swapchains.data();
-        modified_present_info.pImageIndices  = modified_image_indices.data();
+        modified_present_info.swapchainCount = static_cast<uint32_t>(valid_swapchains_.size());
+        modified_present_info.pSwapchains    = valid_swapchains_.data();
+        modified_present_info.pImageIndices  = modified_image_indices_.data();
     }
     else
     {
         // Need to match the last acquired image index from replay to avoid OUT_OF_DATE errors from present.
-        modified_image_indices.insert(modified_image_indices.end(),
+        modified_image_indices_.insert(modified_image_indices_.end(),
+                                       present_info->pImageIndices,
+                                       std::next(present_info->pImageIndices, present_info->swapchainCount));
+
+        capture_image_indices_.insert(capture_image_indices_.end(),
                                       present_info->pImageIndices,
                                       std::next(present_info->pImageIndices, present_info->swapchainCount));
 
-        capture_image_indices.insert(capture_image_indices.end(),
-                                     present_info->pImageIndices,
-                                     std::next(present_info->pImageIndices, present_info->swapchainCount));
-
-        swapchain_infos.insert(swapchain_infos.end(), present_info->swapchainCount, nullptr);
+        swapchain_infos_.insert(swapchain_infos_.end(), present_info->swapchainCount, nullptr);
 
         const auto swapchain_ids = present_info_data->pSwapchains.GetPointer();
         for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
@@ -5469,10 +5469,10 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             const auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
             if (swapchain_info != nullptr)
             {
-                swapchain_infos[i] = swapchain_info;
+                swapchain_infos_[i] = swapchain_info;
 
                 uint32_t capture_image_index = present_info->pImageIndices[i];
-                capture_image_indices[i]     = capture_image_index;
+                capture_image_indices_[i]    = capture_image_index;
 
                 if (capture_image_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
                 {
@@ -5515,18 +5515,18 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     swapchain_info->acquired_indices[capture_image_index] = { replay_index, true };
                 }
                 uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
-                modified_image_indices[i]   = replay_image_index;
+                modified_image_indices_[i]  = replay_image_index;
             }
         }
 
-        modified_present_info.pImageIndices = modified_image_indices.data();
+        modified_present_info.pImageIndices = modified_image_indices_.data();
     }
 
     // Only attempt to find imported or shadow semaphores if we know at least one around.
     if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
     {
         result = swapchain_->QueuePresentKHR(
-            func, capture_image_indices, swapchain_infos, queue_info, &modified_present_info);
+            func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
     }
     else if (modified_present_info.swapchainCount == 0)
     {
@@ -5535,32 +5535,32 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
         // Used to mark shadow semaphores as signaled in case acquireNextImage signals were supposed to be waited on
         // here.
-        GetShadowSemaphores(present_info_data->pWaitSemaphores, &removed_semaphores);
+        GetShadowSemaphores(present_info_data->pWaitSemaphores, &removed_semaphores_);
     }
     else
     {
         // Check for imported semaphores in the present info, creating a vector of imported semaphore info structures.
         if (present_info_data != nullptr)
         {
-            GetImportedSemaphores(present_info_data->pWaitSemaphores, &removed_semaphores);
-            GetShadowSemaphores(present_info_data->pWaitSemaphores, &removed_semaphores);
+            GetImportedSemaphores(present_info_data->pWaitSemaphores, &removed_semaphores_);
+            GetShadowSemaphores(present_info_data->pWaitSemaphores, &removed_semaphores_);
         }
 
-        if (removed_semaphores.empty())
+        if (removed_semaphores_.empty())
         {
             result = swapchain_->QueuePresentKHR(
-                func, capture_image_indices, swapchain_infos, queue_info, &modified_present_info);
+                func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
         }
         else
         {
             std::vector<VkSemaphore> semaphore_memory;
-            auto                     semaphore_iter = removed_semaphores.begin();
+            auto                     semaphore_iter = removed_semaphores_.begin();
 
             for (uint32_t i = 0; i < modified_present_info.waitSemaphoreCount; ++i)
             {
                 VkSemaphore semaphore = modified_present_info.pWaitSemaphores[i];
 
-                if ((semaphore_iter == removed_semaphores.end()) || ((*semaphore_iter)->handle != semaphore))
+                if ((semaphore_iter == removed_semaphores_.end()) || ((*semaphore_iter)->handle != semaphore))
                 {
                     semaphore_memory.push_back(semaphore);
                 }
@@ -5575,7 +5575,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             modified_present_info.pWaitSemaphores    = semaphore_memory.data();
 
             result = swapchain_->QueuePresentKHR(
-                func, capture_image_indices, swapchain_infos, queue_info, &modified_present_info);
+                func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
         }
     }
 
@@ -5584,7 +5584,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     {
         if (dispatched_command)
         {
-            TrackSemaphoreForwardProgress(present_info_data->pWaitSemaphores, &removed_semaphores);
+            TrackSemaphoreForwardProgress(present_info_data->pWaitSemaphores, &removed_semaphores_);
         }
         else
         {

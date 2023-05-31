@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -379,6 +380,55 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         return expr
 
+    def gen_remove_rv_annotation_call(
+        self, class_name, method_name, method_parameters, indent
+    ):
+        expr = ''
+        for param in method_parameters:
+            param_name = param['name']
+            param_info = self.get_value_info(param)
+            param_type = param_info.base_type
+            param_ptr_length = param_info.array_length
+            if (param_type in self.REMOVE_RV_ANNOTATION_TYPES):
+                if (param_info.is_pointer):
+                    if (param_ptr_length):
+                        expr += indent + 'std::unique_ptr<' + param_type + '[]> ' + param_name + '_unannotated = nullptr;\n'
+                        expr += indent + 'if((manager->IsAnnotated() == true) && (' + param_ptr_length + ' != 0) && (' + param_name + ' != nullptr))\n'
+                        expr += indent + '{\n'
+                        indent = self.increment_indent(indent)
+                        expr += indent + param_name + '_unannotated = RvAnnotationUtil::RemoveStructArrayRvAnnotations(' + param_name + ', ' + param_ptr_length + ');\n'
+                        expr += indent + param_name + ' = ' + param_name + '_unannotated.get();\n'
+                        indent = self.decrement_indent(indent)
+                        expr += indent + '}\n\n'
+                    else:
+                        dependency_type = self.REMOVE_RV_ANNOTATION_TYPES[
+                            param_type]
+                        expr += indent + 'std::unique_ptr<' + param_type + '> ' + param_name + '_unannotated = nullptr;\n'
+                        if (dependency_type):
+                            expr += indent + 'std::unique_ptr<' + dependency_type + '> ' + param_name + '_dependency = nullptr;\n'
+                        expr += indent + 'if((manager->IsAnnotated() == true) && (' + param_name + ' != nullptr))\n'
+                        expr += indent + '{\n'
+                        indent = self.increment_indent(indent)
+                        expr += indent + param_name + '_unannotated = RvAnnotationUtil::RemoveStructRvAnnotations(' + param_name
+                        if (dependency_type):
+                            expr += ', ' + param_name + '_dependency'
+                        expr += ');\n'
+                        expr += indent + param_name + ' = ' + param_name + '_unannotated.get();\n'
+                        indent = self.decrement_indent(indent)
+                        expr += indent + '}\n\n'
+                else:
+                    expr += indent
+                    expr += 'RvAnnotationUtil::RemoveRvAnnotation(' + param_name + ');\n\n'
+
+        return expr
+
+    def gen_add_rv_annotation_call(self, method_name, return_name, indent):
+        expr = ''
+        if (method_name in self.ADD_RV_ANNOTATION_METHODS):
+            expr += '\n'
+            expr += indent + 'RvAnnotationUtil::AddRvAnnotation(&' + return_name + ');\n'
+        return expr
+
     def gen_method_post_call(
         self, return_type, class_name, method_name, wrapped_args, indent
     ):
@@ -653,6 +703,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             expr += '\n'
 
+            # Add pre process to annotation
+            expr += self.gen_remove_rv_annotation_call(
+                class_name, method_name, parameters, indent
+            )
+
             wrapped_args = ''
             unwrapped_args = ''
             need_unwrap_memory = False
@@ -721,6 +776,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += '\n'
             expr += self.gen_method_post_call(
                 return_type, class_name, method_name, wrapped_args, indent
+            )
+
+            # Add post process to annotation
+            expr += self.gen_add_rv_annotation_call(
+                method_name, 'result', indent
             )
 
             indent = self.decrement_indent(indent)
@@ -872,6 +932,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         code += '#include "encode/d3d12_dispatch_table.h"\n'
         code += '#include "encode/dx12_object_wrapper_util.h"\n'
         code += '#include "encode/dxgi_dispatch_table.h"\n'
+        code += '#include "encode/dx12_rv_annotation_util.h"\n'
         code += '#include "generated/generated_dx12_api_call_encoders.h"\n'
         code += '#include "generated/generated_dx12_struct_unwrappers.h"\n'
         code += '#include "generated/generated_dx12_wrapper_creators.h"\n'
