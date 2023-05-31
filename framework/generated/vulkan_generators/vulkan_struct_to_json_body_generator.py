@@ -119,12 +119,15 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                 {
                     if (data && data->GetPointer())
                     {
-                        switch (reinterpret_cast<const VkBaseInStructure*>(data->GetPointer())->sType)
+                        const auto s_type = reinterpret_cast<const VkBaseInStructure*>(data->GetPointer())->sType;
+                        switch (s_type)
                         {
             ''')
         body += "\n"
         body += self.make_pnext_body()
         body += inspect.cleandoc('''
+                default:
+                                GFXRECON_LOG_WARNING("Unknown pnext node type: %u.", (unsigned) s_type);
                         }
                     }
                 }
