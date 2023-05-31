@@ -13152,7 +13152,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
 {
     if (data && data->GetPointer())
     {
-        switch (reinterpret_cast<const VkBaseInStructure*>(data->GetPointer())->sType)
+        const auto s_type = reinterpret_cast<const VkBaseInStructure*>(data->GetPointer())->sType;
+        switch (s_type)
         {
 
             case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
@@ -16325,7 +16326,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                FieldToJson(jdata, pnext, options);
                break;
             }
-                    }
+            default:
+                GFXRECON_LOG_WARNING("Unknown pnext node type: %u.", (unsigned) s_type);
+        }
     }
 }
 GFXRECON_END_NAMESPACE(decode)

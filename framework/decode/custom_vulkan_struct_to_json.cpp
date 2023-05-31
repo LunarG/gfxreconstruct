@@ -250,6 +250,8 @@ void FieldToJson(nlohmann::ordered_json&                              jdata,
             case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_FLOAT64_KHR:
                 jdata["f64"] = decoded_value.f64;
                 break;
+            case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_MAX_ENUM_KHR:
+                GFXRECON_LOG_WARNING("Invalid format: VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_MAX_ENUM_KHR");
         }
     }
 }
@@ -331,7 +333,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+            case VK_DESCRIPTOR_TYPE_MUTABLE_EXT:
+                GFXRECON_LOG_WARNING("Descriptor type not supported at " __FILE__ ", line: %d.", __LINE__);
                 break;
+            case VK_DESCRIPTOR_TYPE_MAX_ENUM:
+                GFXRECON_LOG_WARNING("Invalid descriptor type: VK_DESCRIPTOR_TYPE_MAX_ENUM");
         }
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
@@ -363,6 +369,8 @@ void FieldToJson(nlohmann::ordered_json&                    jdata,
             case VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL:
                 FieldToJson(jdata["valueString"], meta_struct.valueString, options);
                 break;
+            case VK_PERFORMANCE_VALUE_TYPE_MAX_ENUM_INTEL:
+                GFXRECON_LOG_WARNING("Invalid performance value type: VK_PERFORMANCE_VALUE_TYPE_MAX_ENUM_INTEL");
         }
     }
 }

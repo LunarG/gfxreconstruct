@@ -266,6 +266,10 @@ target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/externa
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
 add_library(vulkan_memory_allocator INTERFACE)
+target_compile_options(vulkan_memory_allocator INTERFACE
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
+        -Wno-nullability-completeness>
+)
 target_include_directories(vulkan_memory_allocator INTERFACE ${CMAKE_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
 
 if (${RUN_TESTS})
