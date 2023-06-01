@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2022 LunarG, Inc.
-** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -94,7 +94,8 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0),
-    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false)
+    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false),
+    queue_zero_only_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -249,6 +250,26 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     accel_struct_padding_        = trace_settings.accel_struct_padding;
     iunknown_wrapping_           = trace_settings.iunknown_wrapping;
     force_command_serialization_ = trace_settings.force_command_serialization;
+    queue_zero_only_             = trace_settings.queue_zero_only;
+
+    rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
+    rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
+
+    rv_annotation_info_.rv_annotation = trace_settings.rv_anotation_info.rv_annotation;
+    if (rv_annotation_info_.rv_annotation == true)
+    {
+        force_file_flush_            = true;
+        force_command_serialization_ = true;
+        if (trace_settings.rv_anotation_info.annotation_mask_rand == true)
+        {
+            rv_annotation_info_.gpuva_mask      = static_cast<uint16_t>(std::rand() % 0xffff);
+            rv_annotation_info_.descriptor_mask = ~rv_annotation_info_.gpuva_mask;
+        }
+        GFXRECON_LOG_INFO(
+            "Resource value annotation capture enabled, GPU virtual address mask = %04x Descriptor handle mask = %04x",
+            rv_annotation_info_.gpuva_mask,
+            rv_annotation_info_.descriptor_mask);
+    }
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {

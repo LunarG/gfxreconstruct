@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to
@@ -25,6 +26,7 @@
 
 #include "format/format.h"
 #include "generated/generated_dx12_wrappers.h"
+#include "graphics/dx12_gpu_va_map.h"
 #include "util/defines.h"
 
 #include <functional>
@@ -46,10 +48,13 @@ class Dx12StateTableBase
     }
 
     // Returns the handle ID for the resource that contains the GPU VA address or kNullHandleId if no match is found.
-    format::HandleId GetResourceForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address)
+    format::HandleId GetResourceForGpuVa(D3D12_GPU_VIRTUAL_ADDRESS          address,
+                                         uint64_t                           minimum_end_address,
+                                         graphics::ResourceMatchFunctionPtr resource_match_func = nullptr)
     {
+        bool             found  = false;
         format::HandleId result = format::kNullHandleId;
-        gpu_va_map_.Map(address, &result);
+        gpu_va_map_.Map(address, &result, &found, minimum_end_address, resource_match_func);
         return result;
     }
 

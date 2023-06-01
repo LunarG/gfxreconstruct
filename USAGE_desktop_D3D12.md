@@ -127,6 +127,10 @@ Enable Debug Layer | GFXRECON_DEBUG_LAYER | BOOL | Direct3D 12 only option. Enab
  Disable DXR Support               | GFXRECON_DISABLE_DXR                   | BOOL   | Direct3D 12 only option. Override the result of `CheckFeatureSupport` to report the `RaytracingTier` as `D3D12_RAYTRACING_TIER_NOT_SUPPORTED`. Default is `false` 
 Acceleration Struct Size Padding | GFXRECON_ACCEL_STRUCT_PADDING | UINT | Direct3D 12 only option. Increase the required acceleration structure size that is reported to the application by calls to `GetRaytracingAccelerationStructurePrebuildInfo`. This can enable replay in environments with increased acceleration structure size requirements. The value should be specified as a percent of size increase. For example, a value of `5` would increase the reported acceleration structure sizes by `5%`. Default is `0` 
 Force Command Serialization | GFXRECON_FORCE_COMMAND_SERIALIZATION | BOOL | Sets exclusive locks(unique_lock) for every ApiCall. It can avoid external multi-thread to cause captured issue.
+Enable Experimental RV Search | GFXRECON_RV_ANNOTATION_EXPERIMENTAL | BOOL | Direct3D 12 only option. Experimental feature to help enable replay of certain DXR/ExecuteIndirect workloads. RV annotation is a capture mode which attempts to detect when applications write Resource Values (RVs) to memory. Conceptually, RVs represent different types of GPU pointers that applications write as resource data. This capture mode writes GFXR-specific identifier values into unoccupied bits of application-facing RVs and then searches for the identifier values when the application performs a memory write. This allows GFXR to better track RV locations and eventually produce an RV-optimized capture file that may be replayed. Enabling this feature introduces performance overhead during capture, and may result in unstable capture and/or replay.
+Use random RV annotation | GFXRECON_RV_ANNOTATION_RAND | BOOL | Option for GFXRECON_RV_ANNOTATION_EXPERIMENTAL. By default, the 2-byte identifier values are hard-coded. This option generates random identifier values used for annotating GPUVAs and GPU descriptors. Use this if capture-time crashes are observed.
+Specify GPU VA RV annotation | GFXRECON_RV_ANNOTATION_GPUVA | STRING | Option for GFXRECON_RV_ANNOTATION_EXPERIMENTAL. By default, the 2-byte identifier values are hard-coded. This option forces a specific identifier value to be used for annotating GPUVAs. The value should be specified as a 2-byte hexadecimal string, e.g., "0xAB12" or "ab12".
+Specify GPU descriptor handle RV annotation | GFXRECON_RV_ANNOTATION_DESCRIPTOR | STRING | Option for GFXRECON_RV_ANNOTATION_EXPERIMENTAL. By default, the 2-byte identifier values are hard-coded. This option forces a specific identifier value to be used for annotating GPU descriptors. The value should be specified as a 2-byte hexadecimal string, e.g., "0xAB12" or "ab12".
 
 
 ### Capture Files
@@ -224,6 +228,11 @@ Optional arguments:
   --validate            Enables the Khronos Vulkan validation layer when replaying a
                         Vulkan capture or the Direct3D debug layer when replaying a
                         Direct3D 12 capture.
+  --gpu <index>         Use the specified device for replay, where index
+                        is the zero-based index to the array of physical devices
+                        returned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.
+                        Replay may fail if the specified device is not compatible with the
+                        original capture devices.
 
 Windows-only:
   --api <api>           Use the specified API for replay
@@ -253,11 +262,6 @@ Vulkan-only:
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.
   --remove-unsupported  Remove unsupported extensions and features from instance
                         and device creation parameters.
-  --gpu <index>         Use the specified device for replay, where index
-                        is the zero-based index to the array of physical devices
-                        returned by vkEnumeratePhysicalDevices.  Replay may fail
-                        if the specified device is not compatible with the
-                        original capture devices.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:

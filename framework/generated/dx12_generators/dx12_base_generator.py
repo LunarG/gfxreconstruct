@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -135,6 +136,28 @@ class Dx12BaseGenerator(BaseGenerator):
     FAMILY_CLASSES_EXECPTION = {
         'ID3D12GraphicsCommandList':
         'ID3D12CommandList'
+    }
+
+    ADD_RV_ANNOTATION_METHODS = [
+        'GetGPUVirtualAddress',
+        'GetGPUDescriptorHandleForHeapStart',
+        'GetShaderIdentifier',
+    ]
+
+    REMOVE_RV_ANNOTATION_TYPES = {
+        'D3D12_GPU_VIRTUAL_ADDRESS':'',
+        'D3D12_GPU_DESCRIPTOR_HANDLE':'',
+        'D3D12_INDEX_BUFFER_VIEW':'',
+        'D3D12_VERTEX_BUFFER_VIEW':'',
+        'D3D12_STREAM_OUTPUT_BUFFER_VIEW':'',
+        'D3D12_CONSTANT_BUFFER_VIEW_DESC':'',
+        'D3D12_SHADER_RESOURCE_VIEW_DESC':'',
+        'D3D12_WRITEBUFFERIMMEDIATE_PARAMETER':'',
+        'D3D12_DISPATCH_RAYS_DESC':'',
+        'D3D12_RAYTRACING_GEOMETRY_DESC':'',
+        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC':'D3D12_RAYTRACING_GEOMETRY_DESC[]',
+        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS':'D3D12_RAYTRACING_GEOMETRY_DESC[]',
+        'D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC':'',
     }
 
     def __init__(

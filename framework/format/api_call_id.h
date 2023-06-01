@@ -680,6 +680,7 @@ enum ApiCallId : uint32_t
     ApiCall_vkDestroyShaderEXT                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x12c8),
     ApiCall_vkGetShaderBinaryDataEXT                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x12c9),
     ApiCall_vkCmdBindShadersEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12ca),
+    ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12cb),
 
     ApiCall_VulkanLast,
 

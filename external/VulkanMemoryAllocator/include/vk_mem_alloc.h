@@ -2597,6 +2597,10 @@ extern "C"
 #include <bit>                                      // For std::popcount
 #endif
 
+#if VMA_STATS_STRING_ENABLED
+    #include <cstdio> // For snprintf
+#endif
+
 /*******************************************************************************
 CONFIGURATION SECTION
 

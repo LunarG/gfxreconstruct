@@ -4963,6 +4963,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkTraceRaysIndirectCommand2KH
     encoder->EncodeUInt32Value(value.depth);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.rayTracingPositionFetch);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -7428,6 +7435,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceFaultVendorBinaryHead
     encoder->EncodeUInt32Value(value.applicationNameOffset);
     encoder->EncodeUInt32Value(value.applicationVersion);
     encoder->EncodeUInt32Value(value.engineNameOffset);
+    encoder->EncodeUInt32Value(value.engineVersion);
+    encoder->EncodeUInt32Value(value.apiVersion);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT& value)
@@ -8423,6 +8432,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMultiviewPerViewRenderAreas
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.perViewRenderAreaCount);
     EncodeStructArray(encoder, value.pPerViewRenderAreas, value.perViewRenderAreaCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.attachmentFeedbackLoopDynamicState);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

@@ -62,8 +62,11 @@ void Dx12GpuVaMap::Remove(format::HandleId resource_id, uint64_t old_start_addre
     }
 }
 
-uint64_t
-Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, uint64_t minimum_old_end_address) const
+uint64_t Dx12GpuVaMap::Map(uint64_t                 address,
+                           format::HandleId*        resource_id,
+                           bool*                    found,
+                           uint64_t                 minimum_old_end_address,
+                           ResourceMatchFunctionPtr resource_match_func) const
 {
     bool local_found = false;
 
@@ -73,7 +76,8 @@ Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, 
         if (va_entry != gpu_va_map_.end())
         {
             // Check for a match in the aliased resource list.
-            local_found = FindMatch(va_entry->second, va_entry->first, address, resource_id, minimum_old_end_address);
+            local_found = FindMatch(
+                va_entry->second, va_entry->first, address, resource_id, minimum_old_end_address, resource_match_func);
 
             // The addresses did not fall within the address range of the resource(s) at the start address returned
             // by the lower_bound search.  These resources may be aliased with a larger resource that contains them.
@@ -89,8 +93,12 @@ Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, 
             // aliased resources as the key.
             while (!local_found && ++va_entry != gpu_va_map_.end())
             {
-                local_found =
-                    FindMatch(va_entry->second, va_entry->first, address, resource_id, minimum_old_end_address);
+                local_found = FindMatch(va_entry->second,
+                                        va_entry->first,
+                                        address,
+                                        resource_id,
+                                        minimum_old_end_address,
+                                        resource_match_func);
             }
         }
 
@@ -108,11 +116,14 @@ Dx12GpuVaMap::Map(uint64_t address, format::HandleId* resource_id, bool* found, 
     return address;
 }
 
+// If func is valid, the function return matched resource which is used for RaytracingAccelerationStructure,
+// if func is nullptr, it return first resource which match old_start_address and minimum_old_end_address.
 bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo& resource_info,
                              uint64_t                     old_start_address,
                              uint64_t&                    address,
                              format::HandleId*            resource_id,
-                             uint64_t                     minimum_old_end_address) const
+                             uint64_t                     minimum_old_end_address,
+                             ResourceMatchFunctionPtr     resource_match_func) const
 {
     // Check for a match in the aliased resource list.
     for (const auto& resource_entry : resource_info)
@@ -122,11 +133,17 @@ bool Dx12GpuVaMap::FindMatch(const AliasedResourceVaInfo& resource_info,
         if (address < info.old_end_address && minimum_old_end_address <= info.old_end_address)
         {
             address = info.new_start_address + (address - old_start_address);
-            if (resource_id != nullptr)
+
+            // if type checking func is valid, then call it to looking for expected type of resource
+            if ((resource_match_func == nullptr) || ((*resource_match_func)(resource_entry.first) == true))
             {
-                *resource_id = resource_entry.first;
+                if (resource_id != nullptr)
+                {
+                    *resource_id = resource_entry.first;
+                }
+
+                return true;
             }
-            return true;
         }
     }
 

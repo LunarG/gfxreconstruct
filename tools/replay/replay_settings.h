@@ -119,8 +119,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");
     GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");
     GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical devices");
-    GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices.  Replay may fail");
-    GFXRECON_WRITE_CONSOLE("          \t\tif the specified device is not compatible with the");
+    GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.");
+    GFXRECON_WRITE_CONSOLE("          \t\tReplay may fail if the specified device is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
