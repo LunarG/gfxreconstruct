@@ -206,6 +206,20 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_call_id_to_string.h>
 )
 
+if(${GFXRECON_AGS_SUPPORT})
+target_sources(gfxrecon_decode
+               PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_ags_decoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_ags_decoder.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_ags_struct_decoders.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_ags_struct_decoders.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_ags_consumer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_ags_replay_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_ags_replay_consumer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/ags_detection_consumer.h
+               )
+endif()
+
 if (MSVC)
     # These files may fail to compile with VS2017 and older, requiring the default section limit of 2^16 to be increased.
     set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp PROPERTIES COMPILE_FLAGS /bigobj)

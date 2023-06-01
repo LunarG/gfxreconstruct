@@ -30,6 +30,7 @@
 #include <cassert>
 #include <stdint.h>
 
+#include "encode/ags_dispatch_table.h"
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dx12_state_tracker.h"
 #include "encode/dxgi_dispatch_table.h"
@@ -80,6 +81,19 @@ class D3D12CaptureManager : public CaptureManager
     void InitD3D12DispatchTable(const D3D12DispatchTable& dispatch_table) { d3d12_dispatch_table_ = dispatch_table; }
 
     //----------------------------------------------------------------------------
+    /// \brief Initializes the AGS dispatch table.
+    ///
+    /// Initializes the CaptureManager's internal AGS dispatch table with
+    /// functions loaded from the AGS DLL.  This dispatch table will be
+    /// used by the 'wrapper' functions to invoke the 'real' AGS function prior
+    /// to processing the function parameters for encoding.
+    ///
+    /// \param dispatch_table An AgsDispatchTable object containing the AGS
+    ///                       function pointers to be used for initialization.
+    //----------------------------------------------------------------------------
+    void InitAgsDispatchTable(const AgsDispatchTable& dispatch_table) { ags_dispatch_table_ = dispatch_table; }
+
+    //----------------------------------------------------------------------------
     /// \brief Retrieves the DXGI dispatch table.
     ///
     /// Retrieves the CaptureManager's internal DXGI dispatch table. Intended to be
@@ -89,6 +103,17 @@ class D3D12CaptureManager : public CaptureManager
     ///         retrieved from the system DLL.
     //----------------------------------------------------------------------------
     const DxgiDispatchTable& GetDxgiDispatchTable() const { return dxgi_dispatch_table_; }
+
+    //----------------------------------------------------------------------------
+    /// \brief Retrieves the Amd Ags X64 dispatch table.
+    ///
+    /// Retrieves the CaptureManager's internal Amd Ags X64 dispatch table. Intended to be
+    /// used by the 'wrapper' functions when invoking the 'real' AGS functions.
+    ///
+    /// \return A AgsDispatchTable object containing AGS function pointers
+    ///         retrieved from the system DLL.
+    //----------------------------------------------------------------------------
+    const AgsDispatchTable& GetAgsDispatchTable() const { return ags_dispatch_table_; }
 
     //----------------------------------------------------------------------------
     /// \brief Retrieves the D3D12 dispatch table.
@@ -124,6 +149,10 @@ class D3D12CaptureManager : public CaptureManager
     uint32_t DecrementCallScope() { return --call_scope_; }
 
     void EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle);
+
+    void EndAgsApiCallCapture(HRESULT result, void* object_ptr);
+
+    void EndAgsApiCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper);
 
     template <typename ParentWrapper>
     void EndCreateMethodCallCapture(HRESULT result, REFIID riid, void** handle, ParentWrapper* create_object_wrapper)
@@ -714,6 +743,7 @@ class D3D12CaptureManager : public CaptureManager
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
     D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
+    AgsDispatchTable   ags_dispatch_table_;   ///< ags dispatch table for functions retrieved from the AGS DLL.
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine when an intercepted API call is
                                               ///< being made directly by the application.
     bool debug_layer_enabled_;                ///< Track if debug layer has been enabled.

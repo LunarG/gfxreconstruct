@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -506,6 +506,12 @@ struct ID3D12DeviceFactoryInfo : public DxWrapperInfo
 {};
 
 struct ID3D12DeviceConfigurationInfo : public DxWrapperInfo
+{};
+
+struct AgsContextInfo : public DxWrapperInfo
+{};
+
+struct AgsDeviceInfo : public DxWrapperInfo
 {};
 
 GFXRECON_END_NAMESPACE(encode)

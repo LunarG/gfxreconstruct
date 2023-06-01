@@ -26,9 +26,9 @@
 #include "format/format.h"
 
 #if defined(WIN32)
-#if !defined(_M_ARM64)
+#if GFXRECON_AGS_SUPPORT
 #include "amd_ags.h"
-#endif
+#endif // GFXRECON_AGS_SUPPORT
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -65,7 +65,7 @@ std::string FindLoadedDriverModule(const std::vector<std::string>& known_user_mo
 bool AMD_GetAGSInfo(std::string& driver_info)
 {
     bool driver_info_read = false;
-#if defined(WIN32) && !defined(_M_ARM64)
+#if GFXRECON_AGS_SUPPORT
     AGSConfiguration ags_config   = {};
     AGSContext*      ags_context  = nullptr;
     AGSGPUInfo       ags_gpu_info = {};
@@ -92,7 +92,7 @@ bool AMD_GetAGSInfo(std::string& driver_info)
 
         agsDeInitialize(ags_context);
     }
-#endif
+#endif // GFXRECON_AGS_SUPPORT
     return driver_info_read;
 }
 

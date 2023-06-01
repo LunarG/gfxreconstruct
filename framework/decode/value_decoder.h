@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -59,6 +60,7 @@ class ValueDecoder
     static size_t DecodeInt64Value(const uint8_t* buffer, size_t buffer_size, int64_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt64Value(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeFloatValue(const uint8_t* buffer, size_t buffer_size, float* value)                         { return DecodeValue(buffer, buffer_size, value); }
+    static size_t DecodeDoubleValue(const uint8_t* buffer, size_t buffer_size, double* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeVkBool32Value(const uint8_t* buffer, size_t buffer_size, VkBool32* value)                   { return DecodeValue(buffer, buffer_size, value); }
 
     static size_t DecodeVkSampleMaskValue(const uint8_t* buffer, size_t buffer_size, VkSampleMask* value)           { return DecodeValueFrom<format::SampleMaskEncodeType>(buffer, buffer_size, value); }

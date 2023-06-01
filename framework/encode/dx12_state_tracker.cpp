@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -50,7 +50,11 @@ void Dx12StateTracker::WriteState(Dx12StateWriter* writer, uint64_t frame_number
     if (writer != nullptr)
     {
         std::unique_lock<std::mutex> lock(state_table_mutex_);
+#ifdef GFXRECON_AGS_SUPPORT
+        writer->WriteState(state_table_, ags_state_table_, frame_number);
+#else
         writer->WriteState(state_table_, frame_number);
+#endif // GFXRECON_AGS_SUPPORT
     }
 }
 
@@ -1014,6 +1018,57 @@ Dx12StateTracker::CommitAccelerationStructureCopyInfo(DxAccelerationStructureCop
 
     return CommitAccelerationStructureBuildInfo(dest_build_info);
 }
+
+#ifdef GFXRECON_AGS_SUPPORT
+void Dx12StateTracker::TrackAgsCalls(void*                           object_ptr,
+                                     format::ApiCallId               call_id,
+                                     const util::MemoryOutputStream* call_parameter_buffer)
+{
+    std::unique_lock<std::mutex> lock(ags_state_table_mutex_);
+    switch (call_id)
+    {
+        case format::ApiCallId::ApiCall_Ags_agsInitialize_6_0_1:
+            AddAgsInitializeEntry(reinterpret_cast<AGSContext*>(object_ptr), call_id, call_parameter_buffer);
+            break;
+        case format::ApiCallId::ApiCall_Ags_agsDeInitialize_6_0_1:
+            TrackAgsDeInitialize(reinterpret_cast<AGSContext*>(object_ptr));
+            break;
+        case format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1:
+            AddAgsDriverExtensionsDX12CreateDeviceEntry(
+                reinterpret_cast<ID3D12Device*>(object_ptr), call_id, call_parameter_buffer);
+            break;
+        case format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_DestroyDevice_6_0_1:
+            TrackAgsDestroyDevice(reinterpret_cast<ID3D12Device*>(object_ptr));
+            break;
+        default:
+            GFXRECON_LOG_WARNING("AGS call track handler has not been implemented, call ID: %d.", call_id);
+            break;
+    }
+}
+
+void Dx12StateTracker::AddAgsInitializeEntry(AGSContext*                     context,
+                                             format::ApiCallId               call_id,
+                                             const util::MemoryOutputStream* create_parameter_buffer)
+{
+    ags_state_table_.InsertContextCreateData(context, create_parameter_buffer);
+}
+
+void Dx12StateTracker::TrackAgsDeInitialize(AGSContext* context)
+{
+    ags_state_table_.RemoveContextCreateData(context);
+}
+
+void Dx12StateTracker::AddAgsDriverExtensionsDX12CreateDeviceEntry(
+    ID3D12Device* device, format::ApiCallId call_id, const util::MemoryOutputStream* create_parameter_buffer)
+{
+    ags_state_table_.InsertDeviceCreateData(device, create_parameter_buffer);
+}
+
+void Dx12StateTracker::TrackAgsDestroyDevice(ID3D12Device* device)
+{
+    ags_state_table_.RemoveDeviceCreateData(device);
+}
+#endif // GFXRECON_AGS_SUPPORT
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

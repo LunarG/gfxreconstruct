@@ -37,6 +37,10 @@ if (D3D12_SUPPORT)
     if (${BUILD_LAUNCHER_AND_INTERCEPTOR})
         add_subdirectory(gfxrecon_interceptor)
     endif()
+
+    if (${GFXRECON_AGS_SUPPORT})
+      add_subdirectory(ags_capture)
+    endif()
 endif()
 
 add_library(VkLayer_gfxreconstruct SHARED "")

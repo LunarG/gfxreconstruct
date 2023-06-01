@@ -171,6 +171,9 @@ if(MSVC)
     if(${BUILD_LAUNCHER_AND_INTERCEPTOR})
         add_definitions(-DBUILD_LAUNCHER_AND_INTERCEPTOR)
     endif()
+
+    # Add option to enable/disable AGS support.
+    option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled" ON)
 	
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.
@@ -189,7 +192,9 @@ endif(MSVC)
 
 # GFXReconstruct provided find modules
 if(${D3D12_SUPPORT})
-    find_package(AGS)
+    if (${GFXRECON_AGS_SUPPORT})
+        find_package(AGS)
+    endif() # GFXRECON_AGS_SUPPORT
 endif() # D3D12_SUPPORT
 
 if(WIN32)
@@ -198,6 +203,13 @@ endif() # WIN32
 
 find_package(LZ4)
 find_package(ZSTD)
+
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    if (TARGET AGS::AGS)
+        add_definitions(-DGFXRECON_AGS_SUPPORT)
+    endif()
+endif()
 
 if(UNIX)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)

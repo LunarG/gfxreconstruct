@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -173,7 +173,7 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBu
 };
 
 template <>
-void CustomWrapperDestroyCall<IDXGISwapChain_Wrapper>(IDXGISwapChain_Wrapper* wrapper)
+inline void CustomWrapperDestroyCall<IDXGISwapChain_Wrapper>(IDXGISwapChain_Wrapper* wrapper)
 {
     D3D12CaptureManager::Get()->Destroy_IDXGISwapChain(wrapper);
 }
@@ -339,7 +339,7 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVir
 };
 
 template <>
-void CustomWrapperDestroyCall<ID3D12Resource_Wrapper>(ID3D12Resource_Wrapper* wrapper)
+inline void CustomWrapperDestroyCall<ID3D12Resource_Wrapper>(ID3D12Resource_Wrapper* wrapper)
 {
     D3D12CaptureManager::Get()->Destroy_ID3D12Resource(wrapper);
 }

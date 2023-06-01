@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,6 +21,10 @@
 */
 
 #include "decode_api_detection.h"
+#ifdef GFXRECON_AGS_SUPPORT
+#include "decode/custom_ags_decoder.h"
+#include "decode/ags_detection_consumer.h"
+#endif // GFXRECON_AGS_SUPPORT
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -42,6 +46,14 @@ bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vu
         gfxrecon::decode::Dx12Decoder           dx12_decoder;
         dx12_decoder.AddConsumer(&dx12_detection_consumer);
         file_processor.AddDecoder(&dx12_decoder);
+
+#ifdef GFXRECON_AGS_SUPPORT
+        gfxrecon::decode::AgsDetectionConsumer ags_detection_consumer;
+        gfxrecon::decode::AgsDecoder           ags_decoder;
+        ags_decoder.AddConsumer(&ags_detection_consumer);
+        file_processor.AddDecoder(&ags_decoder);
+#endif // GFXRECON_AGS_SUPPORT
+
 #endif
         file_processor.ProcessAllFrames();
 #if defined(D3D12_SUPPORT)
@@ -49,6 +61,14 @@ bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vu
         {
             dx12_detected = true;
         }
+
+#ifdef GFXRECON_AGS_SUPPORT
+        if (ags_detection_consumer.WasAgsDx12Detected())
+        {
+            dx12_detected = true;
+        }
+#endif // GFXRECON_AGS_SUPPORT
+
 #endif
         if (vulkan_detection_consumer.WasVulkanAPIDetected())
         {

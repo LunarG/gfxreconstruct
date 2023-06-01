@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -37,6 +37,11 @@
 #if defined(D3D12_SUPPORT)
 #include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_replay_consumer.h"
+#ifdef GFXRECON_AGS_SUPPORT
+#include "decode/custom_ags_consumer_base.h"
+#include "decode/custom_ags_decoder.h"
+#include "decode/custom_ags_replay_consumer.h"
+#endif // GFXRECON_AGS_SUPPORT
 #include "decode/dx12_tracking_consumer.h"
 #include "graphics/dx12_util.h"
 #endif
@@ -173,6 +178,11 @@ int main(int argc, const char** argv)
             gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
             gfxrecon::decode::Dx12Decoder        dx12_decoder;
 
+#ifdef GFXRECON_AGS_SUPPORT
+            gfxrecon::decode::AgsReplayConsumer ags_replay_consumer;
+            gfxrecon::decode::AgsDecoder        ags_decoder;
+#endif // GFXRECON_AGS_SUPPORT
+
             if (dx_replay_options.enable_d3d12)
             {
                 application->InitializeDx12WsiContext();
@@ -205,6 +215,13 @@ int main(int argc, const char** argv)
                 }
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);
                 file_processor.AddDecoder(&dx12_decoder);
+
+#ifdef GFXRECON_AGS_SUPPORT
+                ags_replay_consumer.AddDx12Consumer(&dx12_replay_consumer);
+                ags_decoder.AddConsumer(reinterpret_cast<gfxrecon::decode::AgsConsumerBase*>(&ags_replay_consumer));
+
+                file_processor.AddDecoder(&ags_decoder);
+#endif // GFXRECON_AGS_SUPPORT
             }
 #endif
 
