@@ -82,7 +82,10 @@ class Application final
     void InitializeDx12WsiContext();
 #endif
 
-    void StopRunning() { running_ = false; }
+    void StopRunning()
+    {
+        running_ = false;
+    }
 
   private:
     // clang-format off

@@ -51,7 +51,10 @@ TEST_CASE("handles can be wrapped and unwrapped", "[wrapper]")
                                           gfxrecon::encode::BufferWrapper>(
         VK_NULL_HANDLE, gfxrecon::encode::NoParentWrapper::kHandleValue, &buffer, GetHandleId);
 
-    SECTION("The handle retrieved from the wrapper is the original buffer handle") { REQUIRE(buffer == kBufferHandle); }
+    SECTION("The handle retrieved from the wrapper is the original buffer handle")
+    {
+        REQUIRE(buffer == kBufferHandle);
+    }
 
     SECTION("The handle ID retrieved from the wrapper is 12")
     {

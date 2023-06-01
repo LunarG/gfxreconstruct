@@ -339,9 +339,9 @@ struct DriverInfoBlock
 
 struct ExeFileInfoBlock
 {
-    MetaDataHeader              meta_header;
-    format::ThreadId            thread_id;
-    util::filepath::FileInfo    info_record;
+    MetaDataHeader           meta_header;
+    format::ThreadId         thread_id;
+    util::filepath::FileInfo info_record;
 };
 
 // Not a header because this command does not include a variable length data payload.

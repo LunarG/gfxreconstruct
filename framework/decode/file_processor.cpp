@@ -1763,7 +1763,7 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
 
 bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
 {
-    bool     success      = false;
+    bool                                             success      = false;
     decltype(format::AnnotationHeader::label_length) label_length = 0;
     decltype(format::AnnotationHeader::data_length)  data_length  = 0;
 

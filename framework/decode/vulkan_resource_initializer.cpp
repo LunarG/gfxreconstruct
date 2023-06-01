@@ -657,7 +657,7 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
             input_assembly_info.primitiveRestartEnable = VK_FALSE;
 
             VkViewport viewport     = { 0.0f, 0.0f, static_cast<float>(extent.width), static_cast<float>(extent.height),
-                                    0.0f, 1.0f };
+                                        0.0f, 1.0f };
             VkRect2D   scissor_rect = { { 0, 0 }, { extent.width, extent.height } };
 
             VkPipelineViewportStateCreateInfo viewport_info = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };

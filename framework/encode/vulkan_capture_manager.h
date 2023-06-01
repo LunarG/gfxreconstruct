@@ -1186,9 +1186,15 @@ class VulkanCaptureManager : public CaptureManager
 
     virtual ~VulkanCaptureManager() override {}
 
-    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
+    virtual void CreateStateTracker() override
+    {
+        state_tracker_ = std::make_unique<VulkanStateTracker>();
+    }
 
-    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
+    virtual void DestroyStateTracker() override
+    {
+        state_tracker_ = nullptr;
+    }
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
 
