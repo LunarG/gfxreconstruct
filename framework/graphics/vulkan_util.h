@@ -35,6 +35,8 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 const std::vector<std::string> kLoaderLibNames = {
 #if defined(WIN32)
     "vulkan-1.dll"
+#elif defined(__APPLE__)
+    "libvulkan.1.dylib", "libvulkan.dylib"
 #else
     "libvulkan.so.1", "libvulkan.so"
 #endif

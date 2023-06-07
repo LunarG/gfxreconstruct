@@ -227,17 +227,21 @@ find_package(LZ4)
 find_package(ZSTD)
 
 if(UNIX)
-    option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
-    option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
+    if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
+        option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
+        option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
+
+        if(BUILD_WSI_XCB_SUPPORT)
+            find_package(XCB)
+        endif()
+
+        if(BUILD_WSI_WAYLAND_SUPPORT)
+            find_package(WAYLAND)
+        endif()
+    endif()
+
     option(BUILD_WSI_DISPLAY_SUPPORT "Build direct-to-display swapchain support" ON)
-
-    if(BUILD_WSI_XCB_SUPPORT)
-        find_package(XCB)
-    endif()
-
-    if(BUILD_WSI_WAYLAND_SUPPORT)
-        find_package(WAYLAND)
-    endif()
 endif(UNIX)
 
 # CMake provided find modules
@@ -247,9 +251,11 @@ else()
     find_package(ZLIB)
 endif()
 if(UNIX)
-    option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
-    if(BUILD_WSI_XLIB_SUPPORT)
-        find_package(X11)
+    if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
+        if(BUILD_WSI_XLIB_SUPPORT)
+            find_package(X11)
+        endif()
     endif()
 endif(UNIX)
 
@@ -267,7 +273,7 @@ target_compile_definitions(windows_specific INTERFACE
 
 
 add_library(linux_specific INTERFACE)
-target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
+target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64
     $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR>
     $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
@@ -275,10 +281,28 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
+add_library(macos_specific INTERFACE)
+target_compile_definitions(macos_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
+    $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
+    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
+
 add_library(platform_specific INTERFACE)
-target_link_libraries(platform_specific INTERFACE
-    $<$<BOOL:${WIN32}>:windows_specific>
-    $<$<NOT:$<BOOL:${WIN32}>>:linux_specific>)
+
+if(WIN32)
+    target_link_libraries(platform_specific INTERFACE windows_specific)
+endif(WIN32)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_link_libraries(platform_specific INTERFACE macos_specific)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(platform_specific INTERFACE linux_specific)
+endif()
+
+if(NOT APPLE)
+    target_compile_definitions(platform_specific INTERFACE PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION)
+endif()
 
 if(BUILD_WERROR)
     if(MSVC)
@@ -293,7 +317,7 @@ target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/externa
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
 add_library(vulkan_memory_allocator INTERFACE)
-target_compile_options(vulkan_memory_allocator INTERFACE
+target_compile_options(vulkan_memory_allocator SYSTEM INTERFACE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wno-nullability-completeness>
 )

@@ -48,6 +48,7 @@
 // This file needs to be included first to ensure it is processed with the VMA_IMPLEMENTATION directive, in case it is
 // indirectly included by other include files.
 #define VMA_IMPLEMENTATION
+#define VMA_STATS_STRING_ENABLED 0
 #include "vk_mem_alloc.h"
 
 #include "decode/vulkan_rebind_allocator.h"

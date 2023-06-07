@@ -26,6 +26,7 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "util/defines.h"
 
+#define VMA_STATS_STRING_ENABLED 0
 #include "vk_mem_alloc.h"
 
 #include <limits>

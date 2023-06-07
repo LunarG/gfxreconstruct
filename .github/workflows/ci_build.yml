@@ -111,6 +111,54 @@ jobs:
         name: ${{ matrix.config.artifact }}
         path: .\gfxreconstruct-dev
 
+  macos:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "macOS Release",
+            os: macos-latest,
+            artifact: "gfxreconstruct-dev-macos-release",
+            type: "release",
+            build_dir: "build",
+            cc: "clang", cxx: "clang++"
+          }
+        - {
+            name: "macOS Debug",
+            os: macos-latest,
+            artifact: "gfxreconstruct-dev-macos-debug",
+            type: "debug",
+            build_dir: "dbuild",
+            cc: "clang", cxx: "clang++"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Install Python-3
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Run build script
+      run: |
+        python scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }}
+    - name: Prepare artifacts
+      run: |
+        cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/x64/output/bin/
+        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/darwin/x64/output/bin/
+        cp USAGE_desktop.md ${{ matrix.config.build_dir }}/darwin/x64/output/bin/
+        cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/darwin/x64/output/bin/
+        mv ${{ matrix.config.build_dir }}/darwin/x64/output/bin gfxreconstruct-dev
+        mv ${{ matrix.config.build_dir }}/darwin/x64/output/lib*/*.dylib gfxreconstruct-dev/
+        mv ${{ matrix.config.build_dir }}/darwin/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ./gfxreconstruct-dev
+
   android:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}

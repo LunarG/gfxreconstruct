@@ -125,10 +125,17 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
             // This is a machine-specific method for detecting read vs. write access, and is not portable.
             auto ucontext = reinterpret_cast<const ucontext_t*>(data);
 #if (defined(__x86_64__) || defined(__i386__))
+#if defined(__APPLE__)
+            if ((ucontext->uc_mcontext->__es.__err & 0x2) == 0)
+            {
+                is_write = false;
+            }
+#else
             if ((ucontext->uc_mcontext.gregs[REG_ERR] & 0x2) == 0)
             {
                 is_write = false;
             }
+#endif
 #elif defined(__arm__)
             // Check WnR bit of the ESR register, which indicates write when 1 and read when 0.
             static const unsigned long kEsrWnRBit = 1ul << 11;
@@ -137,8 +144,14 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
                 is_write = false;
             }
 #elif defined(__aarch64__)
-            // Check WnR bit of the ESR_EL1 register, which indicates write when 1 and read when 0.
             static const uint32_t kEsrElxWnRBit = 1u << 6;
+#if defined(__APPLE__)
+            if ((ucontext->uc_mcontext->__es.__esr & kEsrElxWnRBit) == 0)
+            {
+                is_write = false;
+            }
+#else
+            // Check WnR bit of the ESR_EL1 register, which indicates write when 1 and read when 0.
 
             const uint8_t* reserved = ucontext->uc_mcontext.__reserved;
             auto           ctx      = reinterpret_cast<const _aarch64_ctx*>(reserved);
@@ -160,6 +173,7 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
                     ctx = reinterpret_cast<const _aarch64_ctx*>(reserved);
                 }
             }
+#endif
 #endif
         }
 #endif
@@ -632,8 +646,9 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
                 sigaddset(&x, SIGSEGV);
                 if (sigprocmask(SIG_UNBLOCK, &x, nullptr))
                 {
-                    GFXRECON_LOG_ERROR(
-                        "sigprocmask failed to unblock SIGSEGV on thread %d (errno: %d)", syscall(__NR_gettid), errno);
+                    GFXRECON_LOG_ERROR("sigprocmask failed to unblock SIGSEGV on thread %d (errno: %d)",
+                                       platform::GetCurrentThreadId(),
+                                       errno);
                 }
             }
         }
