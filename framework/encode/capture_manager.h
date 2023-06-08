@@ -151,6 +151,12 @@ class CaptureManager
     uint16_t GetDescriptorMask() const { return rv_annotation_info_.descriptor_mask; }
     uint64_t GetShaderIDMask() const { return rv_annotation_info_.shaderid_mask; }
 
+    uint64_t GetBlockIndex()
+    {
+        auto thread_data = GetThreadData();
+        return thread_data->block_index_ == 0 ? 0 : thread_data->block_index_ - 1;
+    }
+
   protected:
     enum CaptureModeFlags : uint32_t
     {
@@ -187,6 +193,7 @@ class CaptureManager
         std::unique_ptr<ParameterEncoder>        parameter_encoder_;
         std::vector<uint8_t>                     compressed_buffer_;
         HandleUnwrapMemory                       handle_unwrap_memory_;
+        uint64_t                                 block_index_;
 
       private:
         static format::ThreadId GetThreadId();
@@ -266,6 +273,7 @@ class CaptureManager
     std::string                       screenshot_prefix_;
     util::ScreenshotFormat            screenshot_format_;
     uint32_t                          global_frame_count_;
+    static std::atomic<uint64_t>      block_index_;
 
     void WriteToFile(const void* data, size_t size);
 

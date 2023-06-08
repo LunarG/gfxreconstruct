@@ -338,5 +338,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice            
     return GetDeviceTable(device)->CopyAccelerationStructureKHR(device, deferredOperation, pInfo);
 }
 
+VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR()
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    return manager->GetBlockIndex();
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

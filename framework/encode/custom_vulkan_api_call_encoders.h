@@ -25,6 +25,7 @@
 #define GFXRECON_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
 
 #include "util/defines.h"
+#include "format/format.h"
 
 #include "vulkan/vulkan.h"
 
@@ -57,6 +58,8 @@ BuildAccelerationStructuresKHR(VkDevice                                         
 VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice                                  device,
                                                             VkDeferredOperationKHR                    deferredOperation,
                                                             const VkCopyAccelerationStructureInfoKHR* pInfo);
+
+VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR();
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

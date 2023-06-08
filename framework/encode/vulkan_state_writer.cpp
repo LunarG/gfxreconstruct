@@ -86,9 +86,10 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream* output_stream,
 
 VulkanStateWriter::~VulkanStateWriter() {}
 
-void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t frame_number)
+uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t frame_number)
 {
     // clang-format off
+    blocks_written_ = 0;
 
     format::Marker marker;
     marker.header.size = sizeof(marker.marker_type) + sizeof(marker.frame_number);
@@ -175,6 +176,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
 
+    return blocks_written_;
     // clang-format on
 }
 
@@ -1282,6 +1284,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*                
 
             output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
             output_stream_->Write(bytes, data_size);
+            ++blocks_written_;
 
             if (snapshot_entry.need_staging_copy)
             {
@@ -1595,6 +1598,8 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
 
                 output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
             }
+
+            ++blocks_written_;
         }
     }
 }
@@ -1902,6 +1907,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
             begin_cmd.max_copy_size     = max_staging_copy_size;
 
             output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
+            ++blocks_written_;
 
             for (const auto& queue_family_entry : resource_entry.second)
             {
@@ -1964,6 +1970,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
             end_cmd.device_id                     = device_wrapper->handle_id;
 
             output_stream_->Write(&end_cmd, sizeof(end_cmd));
+            ++blocks_written_;
 
             if (max_staging_copy_size > 0)
             {
@@ -1999,6 +2006,7 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkMapMemory, &parameter_stream_);
             parameter_stream_.Reset();
+            ++blocks_written_;
         }
     });
 }
@@ -2030,6 +2038,7 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
         header.image_info_count         = static_cast<uint32_t>(image_count);
 
         output_stream_->Write(&header, sizeof(header));
+        ++blocks_written_;
 
         for (size_t i = 0; i < image_count; ++i)
         {
@@ -2760,6 +2769,8 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::Memor
 
     // Write parameter data.
     output_stream_->Write(data_pointer, data_size);
+
+    ++blocks_written_;
 }
 
 // TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
@@ -2803,6 +2814,8 @@ void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
 
     output_stream_->Write(&fill_cmd, sizeof(fill_cmd));
     output_stream_->Write(write_address, write_size);
+
+    ++blocks_written_;
 }
 
 // TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
@@ -2821,6 +2834,8 @@ void VulkanStateWriter::WriteResizeWindowCmd(format::HandleId surface_id, uint32
     resize_cmd.height     = height;
 
     output_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+
+    ++blocks_written_;
 }
 
 // TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
@@ -2864,6 +2879,8 @@ void VulkanStateWriter::WriteResizeWindowCmd2(format::HandleId              surf
     }
 
     output_stream_->Write(&resize_cmd2, sizeof(resize_cmd2));
+
+    ++blocks_written_;
 }
 
 // TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
@@ -2916,6 +2933,8 @@ void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId memory_id,
     {
         output_stream_->Write(plane_info.data(), planes_size);
     }
+
+    ++blocks_written_;
 #else
     GFXRECON_UNREFERENCED_PARAMETER(memory_id);
     GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
@@ -2947,6 +2966,8 @@ void VulkanStateWriter::WriteSetDevicePropertiesCommand(format::HandleId        
 
     output_stream_->Write(&properties_cmd, sizeof(properties_cmd));
     output_stream_->Write(properties.deviceName, properties_cmd.device_name_len);
+
+    ++blocks_written_;
 }
 
 void VulkanStateWriter::WriteSetDeviceMemoryPropertiesCommand(format::HandleId physical_device_id,
@@ -2985,6 +3006,8 @@ void VulkanStateWriter::WriteSetDeviceMemoryPropertiesCommand(format::HandleId p
 
         output_stream_->Write(&heap, sizeof(heap));
     }
+
+    ++blocks_written_;
 }
 
 void VulkanStateWriter::WriteSetOpaqueAddressCommand(format::HandleId device_id,
@@ -3003,6 +3026,8 @@ void VulkanStateWriter::WriteSetOpaqueAddressCommand(format::HandleId device_id,
     opaque_address_cmd.address   = address;
 
     output_stream_->Write(&opaque_address_cmd, sizeof(opaque_address_cmd));
+
+    ++blocks_written_;
 }
 
 void VulkanStateWriter::WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
@@ -3023,6 +3048,8 @@ void VulkanStateWriter::WriteSetRayTracingShaderGroupHandlesCommand(format::Hand
 
     output_stream_->Write(&set_handles_cmd, sizeof(set_handles_cmd));
     output_stream_->Write(data, data_size);
+
+    ++blocks_written_;
 }
 
 VkMemoryPropertyFlags VulkanStateWriter::GetMemoryProperties(const DeviceWrapper*       device_wrapper,

@@ -15,6 +15,7 @@ target_sources(VkLayer_gfxreconstruct
                    ${GFXRECON_SOURCE_DIR}/layer/dll_main.cpp
                    ${GFXRECON_SOURCE_DIR}/layer/trace_layer.h
                    ${GFXRECON_SOURCE_DIR}/layer/trace_layer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_layer_func_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_layer_func_table.h
               )
 
