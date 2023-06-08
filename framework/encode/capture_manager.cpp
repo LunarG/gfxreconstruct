@@ -55,11 +55,13 @@ uint32_t                                                 CaptureManager::instanc
 std::mutex                                               CaptureManager::instance_lock_;
 thread_local std::unique_ptr<CaptureManager::ThreadData> CaptureManager::thread_data_;
 CaptureManager::ApiCallMutexT                            CaptureManager::api_call_mutex_;
+std::atomic<uint64_t>                                    CaptureManager::block_index_ = 0;
 
 std::atomic<format::HandleId> CaptureManager::unique_id_counter_{ format::kNullHandleId };
 
 CaptureManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown)
+    thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown),
+    block_index_(0)
 {
     parameter_buffer_  = std::make_unique<encode::ParameterBuffer>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
@@ -479,6 +481,9 @@ void CaptureManager::EndApiCallCapture()
             WriteToFile(parameter_buffer->GetHeaderData(),
                         parameter_buffer->GetHeaderDataSize() + parameter_buffer->GetDataSize());
         }
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -844,6 +849,7 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
+        auto                                thread_data    = GetThreadData();
         size_t                              message_length = util::platform::StringLength(message);
         format::DisplayMessageCommandHeader message_cmd;
 
@@ -851,14 +857,18 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
         message_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(message_cmd) + message_length;
         message_cmd.meta_header.meta_data_id =
             format::MakeMetaDataId(api_family_, format::MetaDataType::kDisplayMessageCommand);
-        message_cmd.thread_id = GetThreadData()->thread_id_;
+        message_cmd.thread_id = thread_data->thread_id_;
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
 void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info)
 {
+    auto                     thread_data     = GetThreadData();
     size_t                   info_length     = sizeof(format::ExeFileInfoBlock);
     format::ExeFileInfoBlock exe_info_header = {};
     exe_info_header.info_record              = info;
@@ -867,15 +877,19 @@ void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& 
     exe_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(exe_info_header);
     exe_info_header.meta_header.meta_data_id =
         format::MakeMetaDataId(api_family_, format::MetaDataType::kExeFileInfoCommand);
-    exe_info_header.thread_id = GetThreadData()->thread_id_;
+    exe_info_header.thread_id = thread_data->thread_id_;
 
     WriteToFile(&exe_info_header, sizeof(exe_info_header));
+
+    ++block_index_;
+    thread_data->block_index_ = block_index_.load();
 }
 
 void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
+        auto       thread_data  = GetThreadData();
         const auto label_length = util::platform::StringLength(label);
         const auto data_length  = util::platform::StringLength(data);
 
@@ -888,6 +902,9 @@ void CaptureManager::WriteAnnotation(const format::AnnotationType type, const ch
         annotation.data_length  = data_length;
 
         CombineAndWriteToFile({ { &annotation, sizeof(annotation) }, { label, label_length }, { data, data_length } });
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -895,18 +912,22 @@ void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t 
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
+        auto                        thread_data = GetThreadData();
         format::ResizeWindowCommand resize_cmd;
         resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         resize_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd);
         resize_cmd.meta_header.meta_data_id =
             format::MakeMetaDataId(api_family_, format::MetaDataType::kResizeWindowCommand);
-        resize_cmd.thread_id = GetThreadData()->thread_id_;
+        resize_cmd.thread_id = thread_data->thread_id_;
 
         resize_cmd.surface_id = surface_id;
         resize_cmd.width      = width;
         resize_cmd.height     = height;
 
         WriteToFile(&resize_cmd, sizeof(resize_cmd));
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -964,6 +985,9 @@ void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id, uint64_t off
 
             CombineAndWriteToFile({ { &fill_cmd, header_size }, { uncompressed_data, uncompressed_size } });
         }
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -985,6 +1009,9 @@ void CaptureManager::WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64
         allocation_cmd.allocation_size = allocation_size;
 
         WriteToFile(&allocation_cmd, sizeof(allocation_cmd));
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 

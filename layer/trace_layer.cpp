@@ -25,6 +25,7 @@
 
 #include "layer/trace_layer.h"
 
+#include "encode/custom_layer_func_table.h"
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
@@ -270,6 +271,17 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
         const auto entry = func_table.find(pName);
 
         if (entry != func_table.end())
+        {
+            result = entry->second;
+        }
+    }
+
+    // Lastly check custom GFXR exposed functions
+    if (result == nullptr)
+    {
+        const auto entry = custom_func_table.find(pName);
+
+        if (entry != custom_func_table.end())
         {
             result = entry->second;
         }

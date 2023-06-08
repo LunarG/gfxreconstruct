@@ -52,13 +52,15 @@ class VulkanStateTracker
 
     ~VulkanStateTracker();
 
-    void WriteState(VulkanStateWriter* writer, uint64_t frame_number)
+    uint64_t WriteState(VulkanStateWriter* writer, uint64_t frame_number)
     {
         if (writer != nullptr)
         {
             std::unique_lock<std::mutex> lock(state_table_mutex_);
-            writer->WriteState(state_table_, frame_number);
+            return writer->WriteState(state_table_, frame_number);
         }
+
+        return 0;
     }
 
     template <typename ParentHandle, typename Wrapper, typename CreateInfo>
