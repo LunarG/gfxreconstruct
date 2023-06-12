@@ -104,6 +104,8 @@ const char kFormatArgument[]                     = "--format";
 const char kIncludeBinariesOption[]              = "--include-binaries";
 const char kExpandFlagsOption[]                  = "--expand-flags";
 const char kFilePerFrameOption[]                 = "--file-per-frame";
+const char kWaitBeforePresent[]                  = "--wait-before-present";
+
 #if defined(WIN32)
 const char kApiFamilyOption[]       = "--api";
 const char kDxTwoPassReplay[]       = "--dx12-two-pass-replay";
@@ -783,6 +785,11 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (!surface_index.empty())
     {
         replay_options.surface_index = std::stoi(surface_index);
+    }
+
+    if (arg_parser.IsOptionSet(kWaitBeforePresent))
+    {
+        replay_options.wait_before_present = true;
     }
 
     return replay_options;

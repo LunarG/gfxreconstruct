@@ -5522,6 +5522,13 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         modified_present_info.pImageIndices = modified_image_indices_.data();
     }
 
+    if (options_.wait_before_present)
+    {
+        format::HandleId device_handle = queue_info->parent_id;
+        VkDevice         device        = MapHandle<DeviceInfo>(device_handle, &VulkanObjectInfoTable::GetDeviceInfo);
+        GetDeviceTable((const void*)device_handle)->DeviceWaitIdle(device);
+    }
+
     // Only attempt to find imported or shadow semaphores if we know at least one around.
     if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
     {
