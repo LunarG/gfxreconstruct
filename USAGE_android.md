@@ -833,7 +833,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--measurement-file DEVICE_FILE] [--quit-after-measurement-range]
                           [--flush-measurement-range] [-m MODE]
                           [--swapchain MODE] [--use-captured-swapchain-indices]
-                          [--use-colorspace-fallback]
+                          [--use-colorspace-fallback] [--wait-before-present]
                           [file]
 
 Launch the replay tool.
@@ -973,6 +973,10 @@ optional arguments:
   --sgfr FRAME-RANGES, --skip-get-fence-ranges FRAME-RANGES
                         Frame ranges where --sgfs applies. Default is all frames
                         (forwarded to replay tool)
+  --wait-before-present
+                        Force wait on completion of queue operations for all queues
+                        before calling Present. This is needed for accurate acquisition
+                        of instrumentation data on some platforms.
 ```
 
 The command will force-stop an active replay process before starting the replay
