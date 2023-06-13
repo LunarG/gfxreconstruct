@@ -206,7 +206,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_call_id_to_string.h>
 )
 
-if(${GFXRECON_AGS_SUPPORT})
+if (${GFXRECON_AGS_SUPPORT_FINAL})
 target_sources(gfxrecon_decode
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/custom_ags_decoder.h
