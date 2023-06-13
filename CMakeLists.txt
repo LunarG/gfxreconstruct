@@ -168,6 +168,7 @@ if(MSVC)
         option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled" ON)
     else()
         set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
+        set(GFXRECON_AGS_SUPPORT OFF)
     endif()
 
 
