@@ -38,7 +38,7 @@ if (D3D12_SUPPORT)
         add_subdirectory(gfxrecon_interceptor)
     endif()
 
-    if (${GFXRECON_AGS_SUPPORT})
+    if (${GFXRECON_AGS_SUPPORT_FINAL})
       add_subdirectory(ags_capture)
     endif()
 endif()

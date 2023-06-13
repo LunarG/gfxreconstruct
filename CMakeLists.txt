@@ -121,10 +121,10 @@ endif()
 if(MSVC)
 
     # The host toolchain architecture (i.e. are the compiler and other tools compiled to ARM/Intel 32bit/64bit binaries):
-    message("CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE: " ${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE})
+    message(STATUS "CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE: " ${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE})
     # The platform name (architecture), we want to build our project for:
     # e.g. passed through the commandline -A option: cmake -G "Visual Studio 17 2022" -A ARM64
-    message("CMAKE_GENERATOR_PLATFORM: " ${CMAKE_GENERATOR_PLATFORM})
+    message(STATUS "CMAKE_GENERATOR_PLATFORM: " ${CMAKE_GENERATOR_PLATFORM})
 
     set(GFXR_ARM_WINDOWS_BUILD FALSE)
     if(CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
@@ -173,7 +173,22 @@ if(MSVC)
     endif()
 
     # Add option to enable/disable AGS support.
-    option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled" ON)
+    option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Ignored if D3D12_SUPPORT=OFF." ON)
+    
+    if (${D3D12_SUPPORT})
+        if (${GFXRECON_AGS_SUPPORT})
+            if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+                find_package(AGS)
+                if (TARGET AGS::AGS)
+                    add_definitions(-DGFXRECON_AGS_SUPPORT)
+                
+                    # The value for option GFXRECON_AGS_SUPPORT gets cached so use a non-cached variable
+                    # to determine the final result.
+                    set(GFXRECON_AGS_SUPPORT_FINAL ON)
+                endif() # TARGET AGS::AGS
+            endif() # CMAKE_SIZEOF_VOID_P EQUAL 8
+        endif() # GFXRECON_AGS_SUPPORT
+    endif() # D3D12_SUPPORT
 	
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.
@@ -191,25 +206,12 @@ else(MSVC)
 endif(MSVC)
 
 # GFXReconstruct provided find modules
-if(${D3D12_SUPPORT})
-    if (${GFXRECON_AGS_SUPPORT})
-        find_package(AGS)
-    endif() # GFXRECON_AGS_SUPPORT
-endif() # D3D12_SUPPORT
-
 if(WIN32)
 find_package(Detours)
 endif() # WIN32
 
 find_package(LZ4)
 find_package(ZSTD)
-
-
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    if (TARGET AGS::AGS)
-        add_definitions(-DGFXRECON_AGS_SUPPORT)
-    endif()
-endif()
 
 if(UNIX)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
