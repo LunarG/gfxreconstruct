@@ -163,6 +163,9 @@ if(MSVC)
         if(${CONVERT_EXPERIMENTAL_D3D12})
             add_definitions(-DCONVERT_EXPERIMENTAL_D3D12)
         endif()
+
+        # Add option to enable/disable AGS support.
+        option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled" ON)
     else()
         set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
     endif()
@@ -171,9 +174,6 @@ if(MSVC)
     if(${BUILD_LAUNCHER_AND_INTERCEPTOR})
         add_definitions(-DBUILD_LAUNCHER_AND_INTERCEPTOR)
     endif()
-
-    # Add option to enable/disable AGS support.
-    option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled" ON)
 	
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.
