@@ -2348,6 +2348,11 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             }
         }
 
+#if defined(__APPLE__)
+        modified_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+        filtered_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+#endif
+
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(filtered_extensions.size());
         modified_create_info.ppEnabledExtensionNames = filtered_extensions.data();
     }
@@ -2549,6 +2554,10 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                                                    modified_create_info.pEnabledFeatures,
                                                    options_.remove_unsupported_features);
         }
+
+#if defined(__APPLE__)
+        modified_extensions.push_back("VK_KHR_portability_subset" /* VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME */);
+#endif
 
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
         modified_create_info.ppEnabledExtensionNames = modified_extensions.data();

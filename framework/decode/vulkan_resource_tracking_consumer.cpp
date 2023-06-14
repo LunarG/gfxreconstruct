@@ -153,6 +153,8 @@ void VulkanResourceTrackingConsumer::Process_vkCreateInstance(
 
     // TODO(gfxrec-28): Disable layers??
 
+    // TODO(gfxrec-28): portability subset??
+
     VkResult result = create_instance_function_(replay_create_info, nullptr, replay_instance);
 
     if ((replay_instance != nullptr) && (result == VK_SUCCESS))
@@ -195,6 +197,8 @@ void VulkanResourceTrackingConsumer::Process_vkCreateDevice(
         auto replay_create_info = pCreateInfo->GetPointer();
         auto replay_device      = pDevice->GetHandlePointer();
         assert((replay_create_info != nullptr) && (replay_device != nullptr));
+
+        // TODO(gfxrec-28): portability subset??
 
         result = create_device_proc(physical_device, replay_create_info, nullptr, replay_device);
 
