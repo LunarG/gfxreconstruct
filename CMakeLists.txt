@@ -26,15 +26,17 @@
 # Description: CMake script for framework util target
 ###############################################################################
 cmake_minimum_required(VERSION 3.16.3)
-project(GFXReconstruct LANGUAGES CXX)
+project(GFXReconstruct LANGUAGES CXX C)
 
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
 
 include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
 set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/cmake-modules")
 
 # Version info
@@ -174,7 +176,7 @@ if(MSVC)
 
     # Add option to enable/disable AGS support.
     option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled" ON)
-	
+
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.
     set(D3D12_SUPPORT OFF)

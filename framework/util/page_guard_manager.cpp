@@ -24,11 +24,20 @@
 
 #include "util/page_guard_manager.h"
 
+#include "xhook.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
 #include <cassert>
 #include <cinttypes>
+
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+
+#include <unwind.h>
+#include <dlfcn.h>
+#include <cxxabi.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -199,6 +208,122 @@ void PageGuardManager::InitializeSystemExceptionContext(void)
 #endif
 }
 
+namespace
+{
+
+struct BacktraceState
+{
+    void** current;
+    void** end;
+};
+
+static _Unwind_Reason_Code unwindCallback(struct _Unwind_Context* context, void* arg)
+{
+    BacktraceState* state = static_cast<BacktraceState*>(arg);
+    uintptr_t       pc    = _Unwind_GetIP(context);
+    if (pc)
+    {
+        if (state->current == state->end)
+        {
+            return _URC_END_OF_STACK;
+        }
+        else
+        {
+            *state->current++ = reinterpret_cast<void*>(pc);
+        }
+    }
+    return _URC_NO_REASON;
+}
+
+} // namespace
+
+size_t captureBacktrace(void** buffer, size_t max)
+{
+    BacktraceState state = { buffer, buffer + max };
+    _Unwind_Backtrace(unwindCallback, &state);
+
+    return state.current - buffer;
+}
+
+void dumpBacktrace(std::ostream& os, void** buffer, size_t count)
+{
+    for (size_t idx = 0; idx < count; ++idx)
+    {
+        const void* addr   = buffer[idx];
+        const char* symbol = "";
+
+        Dl_info info;
+        if (dladdr(addr, &info) && info.dli_sname)
+        {
+            symbol = info.dli_sname;
+        }
+
+        int   status    = 0;
+        char* demangled = __cxxabiv1::__cxa_demangle(symbol, 0, 0, &status);
+
+        os << "  #" << std::setw(2) << idx << ": " << addr << "  "
+           << ((NULL != demangled && 0 == status) ? demangled : symbol) << "\n";
+    }
+}
+
+void backtraceToLogcat()
+{
+    const size_t       max = 30;
+    void*              buffer[max];
+    std::ostringstream oss;
+
+    dumpBacktrace(oss, buffer, captureBacktrace(buffer, max));
+
+    GFXRECON_WRITE_CONSOLE("%s", oss.str().c_str());
+}
+
+int (*orig_sigaction)(int, const struct sigaction* __restrict, struct sigaction* __restrict) = nullptr;
+
+static int my_sigaction(int __sig, const struct sigaction* __restrict __act, struct sigaction* __restrict __oact)
+{
+    bool check_after_call = false;
+    int  res;
+
+    assert(orig_sigaction);
+
+    GFXRECON_WRITE_CONSOLE("sigaction(%d, %p, %p)\n", __sig, __act, __oact);
+
+    if (__sig == SIGSEGV)
+    {
+        if (__act)
+        {
+            if (__act->sa_sigaction == PageGuardExceptionHandler)
+            {
+                GFXRECON_WRITE_CONSOLE("  This is us!")
+                res = (*orig_sigaction)(__sig, __act, __oact);
+            }
+            else
+            {
+                struct sigaction old;
+                res = (*orig_sigaction)(__sig, nullptr, &old);
+
+                if (old.sa_sigaction == PageGuardExceptionHandler)
+                {
+                    GFXRECON_WRITE_CONSOLE("  Someone is removing us!")
+                    backtraceToLogcat();
+
+                    // res = (*orig_sigaction)(__sig, __act, __oact);
+                }
+            }
+        }
+        else
+        {
+            res = (*orig_sigaction)(__sig, __act, __oact);
+        }
+    }
+    else
+    {
+        res = (*orig_sigaction)(__sig, __act, __oact);
+    }
+
+    return res;
+}
+
 PageGuardManager::PageGuardManager() :
     exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(kDefaultEnableCopyOnMap),
@@ -225,6 +350,13 @@ PageGuardManager::PageGuardManager(bool enable_copy_on_map,
     enable_read_write_same_page_(expect_read_write_same_page)
 {
     InitializeSystemExceptionContext();
+
+    GFXRECON_WRITE_CONSOLE("Initializing xHook")
+
+    xhook_register(".*\\.so$", "sigaction", (void*)my_sigaction, (void**)&orig_sigaction);
+    xhook_refresh(0);
+
+    GFXRECON_WRITE_CONSOLE("Initializing xHook")
 }
 
 PageGuardManager::~PageGuardManager()

@@ -31,6 +31,21 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/page_guard_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/page_guard_manager.cpp
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/queue.h
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/tree.h
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_core.c
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_core.h
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_elf.c
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_elf.h
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_errno.h
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_log.c
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_log.h
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xhook.c
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xhook.h
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_util.c
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_util.h
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_version.c
+                   ${GFXRECON_SOURCE_DIR}/external/xHook/xh_version.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/page_status_tracker.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/platform.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.h
@@ -53,6 +68,7 @@ target_include_directories(gfxrecon_util
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/external/stb
+                               ${GFXRECON_SOURCE_DIR}/external/xHook
                                ${GFXRECON_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_util

@@ -61,6 +61,21 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/monotonic_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/monotonic_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/output_stream.h
+                    ${CMAKE_SOURCE_DIR}/external/xHook/queue.h
+                    ${CMAKE_SOURCE_DIR}/external/xHook/tree.h
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_core.c
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_core.h
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_elf.c
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_elf.h
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_errno.h
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_log.c
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_log.h
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xhook.c
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xhook.h
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_util.c
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_util.h
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_version.c
+                    ${CMAKE_SOURCE_DIR}/external/xHook/xh_version.h
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/page_status_tracker.h
@@ -111,6 +126,7 @@ target_sources(gfxrecon_util
 target_include_directories(gfxrecon_util
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework
+                               ${CMAKE_SOURCE_DIR}/external/xHook
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 target_link_libraries(gfxrecon_util platform_specific vulkan_registry nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
 target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
