@@ -56,7 +56,17 @@ uint8_t* GFXRECON_zlib_compress2(uint8_t* data, int32_t data_len, int32_t* out_l
 #define __STDC_LIB_EXT1__
 #endif
 
+#if defined(__APPLE__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include <stb_image_write.h>
+
+#if defined(__APPLE__)
+#pragma clang diagnostic pop
+#endif
+
 #endif // GFXRECON_ENABLE_ZLIB_COMPRESSION && GFXRECON_ENABLE_PNG_SCREENSHOT
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
