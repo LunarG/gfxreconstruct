@@ -146,13 +146,13 @@ jobs:
         python scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }}
     - name: Prepare artifacts
       run: |
-        cp LICENSE.txt ${{ matrix.config.build_dir }}/macos/x64/output/bin/
-        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/macos/x64/output/bin/
-        cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/macos/x64/output/bin/
-        cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/macos/x64/output/bin/
-        mv ${{ matrix.config.build_dir }}/macos/x64/output/bin gfxreconstruct-dev
-        mv ${{ matrix.config.build_dir }}/macos/x64/output/lib*/*.dylib gfxreconstruct-dev/
-        mv ${{ matrix.config.build_dir }}/macos/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
+        cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/x64/output/bin/
+        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/darwin/x64/output/bin/
+        cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/darwin/x64/output/bin/
+        cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/darwin/x64/output/bin/
+        mv ${{ matrix.config.build_dir }}/darwin/x64/output/bin gfxreconstruct-dev
+        mv ${{ matrix.config.build_dir }}/darwin/x64/output/lib*/*.dylib gfxreconstruct-dev/
+        mv ${{ matrix.config.build_dir }}/darwin/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
