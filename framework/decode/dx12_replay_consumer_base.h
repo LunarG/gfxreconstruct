@@ -182,8 +182,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     {
         if ((p_id != nullptr) && (pp_object != nullptr) && (*pp_object != nullptr))
         {
-            // Don't override object name if this AddObject() call is triggered by a QueryInterface() call
-            if (call_id != format::ApiCall_IUnknown_QueryInterface)
+            // Restrict ID3D12Object name overriding to D3D12 create calls
+            if (format::GetApiCallFamily(call_id) == format::ApiFamilyId::ApiFamily_D3D12)
             {
                 IUnknown* iunknown = reinterpret_cast<IUnknown*>(*pp_object);
 
