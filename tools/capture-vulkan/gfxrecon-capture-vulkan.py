@@ -33,6 +33,9 @@ import shutil
 import sys
 import subprocess
 
+if sys.version_info < (3, 7):
+    print("Error: Python 3.7 or later is required; you're using:", sys.version)
+    sys.exit(1)
 
 def usage_message():
     '''Output the script usage message
