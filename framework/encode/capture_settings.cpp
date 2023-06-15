@@ -685,11 +685,12 @@ CaptureSettings::ParseMemoryTrackingModeString(const std::string&               
     return result;
 }
 
+#if defined(__ANDROID__)
 CaptureSettings::RuntimeTriggerState
 CaptureSettings::ParseAndroidRunTimeTrimState(const std::string&                   value_string,
                                               CaptureSettings::RuntimeTriggerState default_value)
 {
-    CaptureSettings::RuntimeTriggerState result = default_value;
+    static CaptureSettings::RuntimeTriggerState result = default_value;
 
     if (value_string.empty())
     {
@@ -697,12 +698,23 @@ CaptureSettings::ParseAndroidRunTimeTrimState(const std::string&                
     }
     else
     {
-        result = gfxrecon::util::ParseBoolString(value_string, false) ? RuntimeTriggerState::kEnabled
-                                                                      : RuntimeTriggerState::kDisabled;
+        CaptureSettings::RuntimeTriggerState new_result = gfxrecon::util::ParseBoolString(value_string, false)
+                                                              ? RuntimeTriggerState::kEnabled
+                                                              : RuntimeTriggerState::kDisabled;
+
+        if (new_result != result)
+        {
+            GFXRECON_LOG_INFO("Runtime settings: Option %s was set to %s",
+                              kCaptureAndroidTriggerEnvVar,
+                              new_result == RuntimeTriggerState::kEnabled ? "enabled" : "disabled");
+
+            result = new_result;
+        }
     }
 
     return result;
 }
+#endif
 
 format::CompressionType CaptureSettings::ParseCompressionTypeString(const std::string&      value_string,
                                                                     format::CompressionType default_value)
