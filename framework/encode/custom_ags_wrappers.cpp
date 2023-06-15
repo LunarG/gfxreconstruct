@@ -52,25 +52,15 @@ AMD_AGS_API AGSReturnCode agsInitialize(int                     agsVersion,
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
 
-        if (config != nullptr && (config->allocCallback != nullptr || config->freeCallback != nullptr))
-        {
-            GFXRECON_LOG_WARNING_ONCE(
-                "The application calls agsInitialize function with a non-null 'config' parameter. "
-                "GFXR forces the parameter to be a nullptr value. "
-                "The behavior of the application may change.");
-        }
-
-        AGSConfiguration* forced_config = nullptr;
-
         CustomWrapperPreCall<format::ApiCallId::ApiCall_Ags_agsInitialize_6_0_1>::Dispatch(
-            manager, agsVersion, forced_config, context, gpuInfo);
+            manager, agsVersion, config, context, gpuInfo);
 
-        result = manager->GetAgsDispatchTable().agsInitialize(agsVersion, forced_config, context, gpuInfo);
+        result = manager->GetAgsDispatchTable().agsInitialize(agsVersion, config, context, gpuInfo);
 
-        Encode_agsInitialize(result, agsVersion, forced_config, context, gpuInfo);
+        Encode_agsInitialize(result, agsVersion, config, context, gpuInfo);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_Ags_agsInitialize_6_0_1>::Dispatch(
-            manager, result, agsVersion, forced_config, context, gpuInfo);
+            manager, result, agsVersion, config, context, gpuInfo);
     }
     else
     {
