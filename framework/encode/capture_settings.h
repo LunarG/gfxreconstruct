@@ -165,8 +165,10 @@ class CaptureSettings
     static MemoryTrackingMode ParseMemoryTrackingModeString(const std::string& value_string,
                                                             MemoryTrackingMode default_value);
 
+#if defined(__ANDROID__)
     static RuntimeTriggerState ParseAndroidRunTimeTrimState(const std::string&  value_string,
                                                             RuntimeTriggerState default_value);
+#endif
 
     static format::CompressionType ParseCompressionTypeString(const std::string&      value_string,
                                                               format::CompressionType default_value);
