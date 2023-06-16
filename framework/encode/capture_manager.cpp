@@ -606,7 +606,7 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
                 DestroyStateTracker();
                 compressor_ = nullptr;
             }
-            else if (trim_ranges_[trim_current_range_].first == current_frame_)
+            else if (trim_ranges_[trim_current_range_].first <= current_frame_)
             {
                 // Trimming was configured to capture two consecutive frames, so we need to start a new capture
                 // file for the current frame.
@@ -639,7 +639,7 @@ void CaptureManager::CheckStartCaptureForTrackMode()
 {
     if (!trim_ranges_.empty())
     {
-        if (trim_ranges_[trim_current_range_].first == current_frame_)
+        if (trim_ranges_[trim_current_range_].first <= current_frame_)
         {
             const CaptureSettings::TrimRange& trim_range = trim_ranges_[trim_current_range_];
             bool success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
