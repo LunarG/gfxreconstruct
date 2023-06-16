@@ -370,14 +370,15 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
         if (create_info->pStages[i].module != VK_NULL_HANDLE)
         {
             auto shader_wrapper = GetWrapper<ShaderModuleWrapper>(create_info->pStages[i].module);
-            assert(shader_wrapper != nullptr);
+            if (shader_wrapper)
+            {
+                CreateDependencyInfo info;
+                info.handle_id         = shader_wrapper->handle_id;
+                info.create_call_id    = shader_wrapper->create_call_id;
+                info.create_parameters = shader_wrapper->create_parameters;
 
-            CreateDependencyInfo info;
-            info.handle_id         = shader_wrapper->handle_id;
-            info.create_call_id    = shader_wrapper->create_call_id;
-            info.create_parameters = shader_wrapper->create_parameters;
-
-            wrapper->shader_module_dependencies.emplace_back(std::move(info));
+                wrapper->shader_module_dependencies.emplace_back(std::move(info));
+            }
         }
     }
 
@@ -423,15 +424,15 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     wrapper->create_parameters = std::move(create_parameters);
 
     auto shader_wrapper = GetWrapper<ShaderModuleWrapper>(create_info->stage.module);
-    assert(shader_wrapper != nullptr);
+    if (shader_wrapper)
+    {
+        CreateDependencyInfo info;
+        info.handle_id         = shader_wrapper->handle_id;
+        info.create_call_id    = shader_wrapper->create_call_id;
+        info.create_parameters = shader_wrapper->create_parameters;
 
-    CreateDependencyInfo info;
-    info.handle_id         = shader_wrapper->handle_id;
-    info.create_call_id    = shader_wrapper->create_call_id;
-    info.create_parameters = shader_wrapper->create_parameters;
-
-    wrapper->shader_module_dependencies.emplace_back(std::move(info));
-
+        wrapper->shader_module_dependencies.emplace_back(std::move(info));
+    }
     auto layout_wrapper = GetWrapper<PipelineLayoutWrapper>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
@@ -465,14 +466,15 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
         auto shader_wrapper = GetWrapper<ShaderModuleWrapper>(create_info->pStages[i].module);
-        assert(shader_wrapper != nullptr);
+        if (shader_wrapper)
+        {
+            CreateDependencyInfo info;
+            info.handle_id         = shader_wrapper->handle_id;
+            info.create_call_id    = shader_wrapper->create_call_id;
+            info.create_parameters = shader_wrapper->create_parameters;
 
-        CreateDependencyInfo info;
-        info.handle_id         = shader_wrapper->handle_id;
-        info.create_call_id    = shader_wrapper->create_call_id;
-        info.create_parameters = shader_wrapper->create_parameters;
-
-        wrapper->shader_module_dependencies.emplace_back(std::move(info));
+            wrapper->shader_module_dependencies.emplace_back(std::move(info));
+        }
     }
 
     auto layout_wrapper = GetWrapper<PipelineLayoutWrapper>(create_info->layout);
@@ -509,14 +511,15 @@ InitializeGroupObjectState<VkDevice, VkDeferredOperationKHR, PipelineWrapper, Vk
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
         auto shader_wrapper = GetWrapper<ShaderModuleWrapper>(create_info->pStages[i].module);
-        assert(shader_wrapper != nullptr);
+        if (shader_wrapper)
+        {
+            CreateDependencyInfo info;
+            info.handle_id         = shader_wrapper->handle_id;
+            info.create_call_id    = shader_wrapper->create_call_id;
+            info.create_parameters = shader_wrapper->create_parameters;
 
-        CreateDependencyInfo info;
-        info.handle_id         = shader_wrapper->handle_id;
-        info.create_call_id    = shader_wrapper->create_call_id;
-        info.create_parameters = shader_wrapper->create_parameters;
-
-        wrapper->shader_module_dependencies.emplace_back(std::move(info));
+            wrapper->shader_module_dependencies.emplace_back(std::move(info));
+        }
     }
 
     auto layout_wrapper = GetWrapper<PipelineLayoutWrapper>(create_info->layout);
