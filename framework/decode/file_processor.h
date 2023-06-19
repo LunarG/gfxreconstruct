@@ -111,7 +111,7 @@ class FileProcessor
 
     bool ReadBlockHeader(format::BlockHeader* block_header);
 
-    bool ReadBytes(void* buffer, size_t buffer_size);
+    virtual bool ReadBytes(void* buffer, size_t buffer_size);
 
     bool SkipBytes(size_t skip_size);
 
@@ -139,6 +139,7 @@ class FileProcessor
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
     Error                    error_state_;
+    uint64_t                 bytes_read_;
 
     /// @brief Incremented at the end of every block successfully processed.
     uint64_t block_index_;
@@ -163,7 +164,6 @@ class FileProcessor
     format::FileHeader                  file_header_;
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
-    uint64_t                            bytes_read_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
