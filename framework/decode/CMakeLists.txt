@@ -61,6 +61,8 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/preload_file_processor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/preload_file_processor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_transformer.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_transformer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/handle_pointer_decoder.h

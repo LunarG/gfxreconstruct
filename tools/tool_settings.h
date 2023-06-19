@@ -120,6 +120,7 @@ const char kFilePerFrameOption[]                  = "--file-per-frame";
 const char kSkipGetFenceStatus[]                  = "--skip-get-fence-status";
 const char kSkipGetFenceRanges[]                  = "--skip-get-fence-ranges";
 const char kWaitBeforePresent[]                   = "--wait-before-present";
+const char kPreloadMeasurementRangeOption[]       = "--preload-measurement-range";
 #if defined(WIN32)
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
@@ -1045,6 +1046,10 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (arg_parser.IsOptionSet(kWaitBeforePresent))
     {
         replay_options.wait_before_present = true;
+    }
+    if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption))
+    {
+        replay_options.preload_measurement_range = true;
     }
 
     replay_options.dump_resources              = arg_parser.GetArgumentValue(kDumpResourcesArgument);
