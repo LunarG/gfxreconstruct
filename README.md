@@ -1,39 +1,7 @@
-# Project Goals
-
-The primary goal for the GFXReconstruct project is to create an improved
-version of LunarG's [vktrace](https://github.com/LunarG/VulkanTools)
-software for capture and replay of Vulkan API calls. As development
-progresses, existing vktrace functionality such as trimming and
-client-server mode will be integrated with the GFXReconstruct codebase.
-When GFXReconstruct reaches feature parity with vktrace, vktrace will
-be deprecated in favor of GFXReconstruct.
-
-The initial focus of this effort was to improve the code generation process
-responsible for generating the Vulkan API call encoding and decoding code,
-to address some code maintenance and Vulkan API version update issues present
-with the existing vktrace software. It has also offered an opportunity to
-explore potential performance and feature enhancements, such as compression
-for capture files (currently available) and support for multi-threaded replay
-(to be added in the future).
-
-GFXReconstruct's software architecture is API-agnostic. Capture and replay of 
-D3D12 applications has also been added, including support for DXR workloads.
-
-## Stability
-
-The GFXReconstruct project is currently Beta quality software.  The primary
-consideration for stability is the capture file format.  While this format
-does not change regularly, it is not yet finalized and may change in ways
-that are incompatible with the existing format as new features (eg.
-multi-threaded replay and trimming) are implemented.  Once these features
-are implemented and considered stable, the file format will be assigned a
-1.0 version, at which point backward compatibility will be guaranteed across
-GFXReconstruct versions.
-
 # Project Components
 
-The GFXReconstruct project provides tools for the capture and replay of Vulkan 
-and D3D12 API calls, allowing the graphics commands executed by an application
+The GFXReconstruct project provides tools for the capture and replay of graphics 
+API calls, allowing the graphics commands executed by an application
 to be recorded to a file that may later be replayed to reconstruct the
 graphics-specific behavior of the captured application. The replay code has
 been organized with a framework design to make it easy to create additional
@@ -54,7 +22,8 @@ The GFXReconstruct components currently provided with this repository are:
 * The `gfxrecon-extract` tool to extract SPIR-V binaries from
   GFXReconstruct capture files.
 * The `gfxrecon-convert` tool to convert GFXReconstruct capture files to
-  a [JSON Lines](https://jsonlines.org/) listing of API calls.
+  a [JSON Lines](https://jsonlines.org/) listing of API calls. (experimental
+  for D3D12 captures)
 * The `gfxrecon-optimize` tool to produce new capture files with 
   improved replay performance.
 
