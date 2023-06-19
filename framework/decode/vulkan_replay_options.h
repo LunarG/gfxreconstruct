@@ -99,6 +99,8 @@ struct VulkanReplayOptions : public ReplayOptions
     bool  dump_resources_json_per_command{ false };
     bool  dump_resources_dump_immutable_resources{ false };
     bool  dump_resources_dump_all_image_subresources{ false };
+
+    bool preload_measurement_range{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -26,6 +26,7 @@
 
 #include "application/application.h"
 #include "decode/file_processor.h"
+#include "decode/preload_file_processor.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "generated/generated_vulkan_decoder.h"
@@ -149,8 +150,18 @@ int main(int argc, const char** argv)
         const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
         std::string                     filename             = positional_arguments[0];
 
-        gfxrecon::decode::FileProcessor file_processor;
-        if (!file_processor.Initialize(filename))
+        std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
+
+        if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption))
+        {
+            file_processor = std::make_unique<gfxrecon::decode::PreloadFileProcessor>();
+        }
+        else
+        {
+            file_processor = std::make_unique<gfxrecon::decode::FileProcessor>();
+        }
+
+        if (!file_processor->Initialize(filename))
         {
             return_code = -1;
         }
@@ -158,8 +169,8 @@ int main(int argc, const char** argv)
         {
             // Select WSI context based on CLI
             std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
-            auto        application =
-                std::make_shared<gfxrecon::application::Application>(kApplicationName, wsi_extension, &file_processor);
+            auto        application   = std::make_shared<gfxrecon::application::Application>(
+                kApplicationName, wsi_extension, file_processor.get());
 
             gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
             gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
@@ -179,6 +190,7 @@ int main(int argc, const char** argv)
             bool        quit_after_measurement_frame_range = false;
             bool        flush_measurement_frame_range      = false;
             bool        flush_inside_measurement_range     = false;
+            bool        preload_measurement_frame_range    = false;
             std::string measurement_file_name;
 
             if (vulkan_replay_options.enable_vulkan)
@@ -187,6 +199,7 @@ int main(int argc, const char** argv)
                 quit_after_measurement_frame_range = vulkan_replay_options.quit_after_measurement_frame_range;
                 flush_measurement_frame_range      = vulkan_replay_options.flush_measurement_frame_range;
                 flush_inside_measurement_range     = vulkan_replay_options.flush_inside_measurement_range;
+                preload_measurement_frame_range    = vulkan_replay_options.preload_measurement_range;
             }
 
             if (has_mfr)
@@ -200,6 +213,7 @@ int main(int argc, const char** argv)
                                                  quit_after_measurement_frame_range,
                                                  flush_measurement_frame_range,
                                                  flush_inside_measurement_range,
+                                                 preload_measurement_frame_range,
                                                  measurement_file_name);
 
             gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
@@ -212,11 +226,11 @@ int main(int argc, const char** argv)
                 vulkan_replay_consumer.SetFpsInfo(&fps_info);
 
                 vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
-                file_processor.AddDecoder(&vulkan_decoder);
+                file_processor->AddDecoder(&vulkan_decoder);
             }
-            file_processor.SetPrintBlockInfoFlag(vulkan_replay_options.enable_print_block_info,
-                                                 vulkan_replay_options.block_index_from,
-                                                 vulkan_replay_options.block_index_to);
+            file_processor->SetPrintBlockInfoFlag(vulkan_replay_options.enable_print_block_info,
+                                                  vulkan_replay_options.block_index_from,
+                                                  vulkan_replay_options.block_index_to);
 
 #if defined(D3D12_SUPPORT)
             gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser, filename);
@@ -266,13 +280,13 @@ int main(int argc, const char** argv)
                     }
                 }
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);
-                file_processor.AddDecoder(&dx12_decoder);
+                file_processor->AddDecoder(&dx12_decoder);
 
 #ifdef GFXRECON_AGS_SUPPORT
                 ags_replay_consumer.AddDx12Consumer(&dx12_replay_consumer);
                 ags_decoder.AddConsumer(reinterpret_cast<gfxrecon::decode::AgsConsumerBase*>(&ags_replay_consumer));
 
-                file_processor.AddDecoder(&ags_decoder);
+                file_processor->AddDecoder(&ags_decoder);
 #endif // GFXRECON_AGS_SUPPORT
             }
 #endif
@@ -288,24 +302,24 @@ int main(int argc, const char** argv)
 
             // XXX if the final frame ended with a Present, this would be the *next* frame
             // Add one so that it matches the trim range frame number semantic
-            fps_info.EndFile(file_processor.GetCurrentFrameNumber() + 1);
+            fps_info.EndFile(file_processor->GetCurrentFrameNumber() + 1);
 
-            if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+            if ((file_processor->GetCurrentFrameNumber() > 0) &&
+                (file_processor->GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
             {
-                if (file_processor.GetCurrentFrameNumber() < start_frame)
+                if (file_processor->GetCurrentFrameNumber() < start_frame)
                 {
                     GFXRECON_LOG_WARNING(
                         "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
                         "Measurements were never started, cannot calculate measurement range FPS.",
                         start_frame,
-                        file_processor.GetCurrentFrameNumber());
+                        file_processor->GetCurrentFrameNumber());
                 }
                 else
                 {
 #if defined(D3D12_SUPPORT)
                     dx12_replay_consumer.PostReplay();
-                    if (!dx_replay_options.screenshot_ranges.empty() && !file_processor.UsesFrameMarkers() &&
+                    if (!dx_replay_options.screenshot_ranges.empty() && !file_processor->UsesFrameMarkers() &&
                         (dx12_replay_consumer.GetDXGITestPresentCount() > 0))
                     {
                         GFXRECON_LOG_WARNING_ONCE(
@@ -319,7 +333,7 @@ int main(int argc, const char** argv)
                     fps_info.LogToConsole();
                 }
             }
-            else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+            else if (file_processor->GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
             {
                 GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 return_code = -1;

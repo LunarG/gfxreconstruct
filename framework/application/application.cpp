@@ -24,6 +24,7 @@
 #include "application/application.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "decode/preload_file_processor.h"
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 #include "application/win32_context.h"
@@ -149,6 +150,14 @@ void Application::Run()
                 if (fps_info_->ShouldWaitIdleBeforeFrame(frame_number))
                 {
                     file_processor_->WaitDecodersIdle();
+                }
+
+                auto preload_frames_count = fps_info_->ShouldPreloadFrames(frame_number);
+                if (preload_frames_count > 0U)
+                {
+                    auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
+                    GFXRECON_ASSERT(preload_processor)
+                    preload_processor->PreloadNextFrames(preload_frames_count);
                 }
 
                 fps_info_->BeginFrame(frame_number);
