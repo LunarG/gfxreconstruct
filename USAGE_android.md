@@ -715,6 +715,12 @@ optional arguments:
   -h, --help            show this help message and exit
   --version             Print version information and exit (forwarded to
                         replay tool)
+  --log-level LEVEL     Specify highest level message to log. Options are:
+                        debug, info, warning, error, and fatal. Default is
+                        info. (forwarded to replay tool)
+  --log-file DEVICE_FILE
+                        Write log messages to a file at the specified path
+                        instead of logcat (forwarded to replay tool)
   --pause-frame N       Pause after replaying frame number N (forwarded to
                         replay tool)
   --paused              Pause after replaying the first frame (same as "--
