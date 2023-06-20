@@ -39,6 +39,7 @@
 #include "generated/generated_vulkan_decoder.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
+#include "util/measurement_manager.h"
 #include "util/platform.h"
 #include "util/options.h"
 #include "util/strings.h"
@@ -97,6 +98,7 @@ const char kForceWindowedShortArgument[]         = "--fw";
 const char kForceWindowedLongArgument[]          = "--force-windowed";
 const char kOutput[]                             = "--output";
 const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
+const char kMeasurementFileArgument[]            = "--measurement-file";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kEnableUseCapturedSwapchainIndices[]  = "--use-captured-swapchain-indices";
@@ -425,6 +427,19 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
     log_settings.min_severity              = log_level;
     log_settings.file_name                 = arg_parser.GetArgumentValue(kLogFileArgument);
     log_settings.output_to_os_debug_string = arg_parser.IsOptionSet(kLogDebugView);
+}
+
+static void GetMeasurementFilename(const gfxrecon::util::ArgumentParser& arg_parser, std::string& file_name)
+{
+    file_name = arg_parser.GetArgumentValue(kMeasurementFileArgument);
+    if (file_name.empty())
+    {
+#if defined(__ANDROID__)
+        file_name = "/sdcard/gfxrecon-measurements.json";
+#else
+        file_name = "./gfxrecon-measurements.json";
+#endif
+    }
 }
 
 static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util::ArgumentParser& arg_parser)

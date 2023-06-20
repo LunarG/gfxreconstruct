@@ -35,7 +35,7 @@ const char kOptions[] =
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
-    "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range,--fw|--force-windowed";
+    "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range,--measurements-file,--fw|--force-windowed";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -60,6 +60,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-captured-swapchain-indices]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--mfr|--measurement-frame-range <start-frame>-<end-frame>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--flush-measurement-range]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
@@ -183,6 +186,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tframe but can be configured for any range. If the end frame is past the");
     GFXRECON_WRITE_CONSOLE("          \t\tlast frame in the trace it will be clamped to the frame after the last");
     GFXRECON_WRITE_CONSOLE("          \t\t(so in that case the results would include the last frame).");
+    GFXRECON_WRITE_CONSOLE("  --measurement-file <file>");
+    GFXRECON_WRITE_CONSOLE("          \t\tWrite measurements to a file at the specified path.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is: '/sdcard/gfxrecon-measurements.json' on android and");
+    GFXRECON_WRITE_CONSOLE("          \t\t'./gfxrecon-measurements.json' on desktop.");
     GFXRECON_WRITE_CONSOLE("  --quit-after-measurement-range");
     GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will abort");
     GFXRECON_WRITE_CONSOLE("          \t\twhen it reaches the <end_frame> specified in");

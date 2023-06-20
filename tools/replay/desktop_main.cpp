@@ -154,6 +154,14 @@ int main(int argc, const char** argv)
                 flush_measurement_frame_range      = vulkan_replay_options.flush_measurement_frame_range;
             }
 
+            if (has_mfr)
+            {
+                std::string measurement_file_name;
+                GetMeasurementFilename(arg_parser, measurement_file_name);
+                gfxrecon::util::MeasurementManager::Open(measurement_file_name);
+                gfxrecon::util::MeasurementManager::WriteApplication("capture_name", measurement_file_name);
+            }
+
             gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
                                                  static_cast<uint64_t>(end_frame),
                                                  has_mfr,

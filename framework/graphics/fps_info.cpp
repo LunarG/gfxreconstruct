@@ -25,6 +25,7 @@
 
 #include "util/date_time.h"
 #include "util/logging.h"
+#include "util/measurement_manager.h"
 
 #include <cinttypes>
 
@@ -62,7 +63,8 @@ FpsInfo::FpsInfo(uint64_t measurement_start_frame,
     measurement_start_frame_(measurement_start_frame),
     measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
     quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
-    has_measurement_range_(has_measurement_range), started_measurement_(false), ended_measurement_(false)
+    has_measurement_range_(has_measurement_range), started_measurement_(false), ended_measurement_(false),
+    frame_start_time_(0), frame_durations_()
 {}
 
 void FpsInfo::BeginFile()
@@ -90,19 +92,40 @@ void FpsInfo::BeginFrame(uint64_t frame)
         {
             measurement_start_time_ = util::datetime::GetTimestamp();
             started_measurement_    = true;
+            frame_durations_.clear();
         }
     }
+
+    frame_start_time_ = util::datetime::GetTimestamp();
 }
 
 void FpsInfo::EndFrame(uint64_t frame)
 {
     if (started_measurement_ && !ended_measurement_)
     {
+        frame_durations_.push_back(util::datetime::DiffTimestamps(frame_start_time_, util::datetime::GetTimestamp()));
+
         // Measurement frame range end is non-inclusive, as opposed to trim frame range
         if (frame >= measurement_end_frame_ - 1)
         {
             measurement_end_time_ = util::datetime::GetTimestamp();
             ended_measurement_    = true;
+
+            double   start_time   = util::datetime::ConvertTimestampToSeconds(measurement_start_time_);
+            double   end_time     = util::datetime::ConvertTimestampToSeconds(measurement_end_time_);
+            double   diff_time    = GetElapsedSeconds(measurement_start_time_, measurement_end_time_);
+            uint64_t total_frames = measurement_end_frame_ - measurement_start_frame_;
+            double   fps          = static_cast<double>(total_frames) / diff_time;
+            util::MeasurementManager::WriteFrameRange("start_frame", measurement_start_frame_);
+            util::MeasurementManager::WriteFrameRange("end_frame", measurement_end_frame_);
+            util::MeasurementManager::WriteFrameRange("frame_count", total_frames);
+            util::MeasurementManager::WriteFrameRange("start_time_monotonic", start_time);
+            util::MeasurementManager::WriteFrameRange("end_time_monotonic", end_time);
+            util::MeasurementManager::WriteFrameRange("duration", diff_time);
+            util::MeasurementManager::WriteFrameRange("fps", fps);
+            util::MeasurementManager::WriteFrameRange("frame_durations", frame_durations_);
+
+            util::MeasurementManager::SaveAndClose();
         }
     }
 }

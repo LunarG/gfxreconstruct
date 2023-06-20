@@ -20,6 +20,8 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/keyboard.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/measurement_manager.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/measurement_manager.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/zlib_compressor.h
@@ -53,6 +55,7 @@ target_include_directories(gfxrecon_util
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/external/stb
+                               ${GFXRECON_SOURCE_DIR}/external/nlohmann/include
                                ${GFXRECON_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_util
