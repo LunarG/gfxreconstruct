@@ -2,6 +2,11 @@ add_library(gfxrecon_decode STATIC "")
 
 target_sources(gfxrecon_decode
                PRIVATE
+                   ${GFXRECON_SOURCE_DIR}/compatibility/vulkan_swapchain.h
+                   ${GFXRECON_SOURCE_DIR}/compatibility/vulkan_captured_swapchain.h
+                   ${GFXRECON_SOURCE_DIR}/compatibility/vulkan_captured_swapchain.cpp
+                   ${GFXRECON_SOURCE_DIR}/compatibility/vulkan_virtual_swapchain.h
+                   ${GFXRECON_SOURCE_DIR}/compatibility/vulkan_virtual_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/annotation_handler.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/copy_shaders.h
@@ -44,8 +49,6 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_captured_swapchain.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_captured_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_enum_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_feature_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_feature_util.cpp
@@ -72,13 +75,10 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_initializer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_tracking_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_tracking_consumer.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_swapchain.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info_table.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_virtual_swapchain.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_virtual_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/window.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
@@ -99,6 +99,7 @@ target_sources(gfxrecon_decode
 
 target_include_directories(gfxrecon_decode
                            PUBLIC
+                               ${GFXRECON_SOURCE_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific)
+target_link_libraries(gfxrecon_decode gfxrecon_compatibility gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific)

@@ -20,18 +20,18 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_VULKAN_CAPTURED_SWAPCHAIN_H
-#define GFXRECON_DECODE_VULKAN_CAPTURED_SWAPCHAIN_H
+#ifndef GFXRECON_DECODE_VULKAN_VIRTUAL_SWAPCHAIN_H
+#define GFXRECON_DECODE_VULKAN_VIRTUAL_SWAPCHAIN_H
 
-#include "decode/vulkan_swapchain.h"
+#include "compatibility/vulkan_swapchain.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanCapturedSwapchain : public VulkanSwapchain
+class VulkanVirtualSwapchain : public VulkanSwapchain
 {
   public:
-    virtual ~VulkanCapturedSwapchain() override {}
+    virtual ~VulkanVirtualSwapchain() override {}
 
     virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
                                         const DeviceInfo*               device_info,
@@ -114,28 +114,22 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                                       uint32_t          last_presented_image,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_info,
                                                       const VulkanObjectInfoTable& object_info_table,
-                                                      SwapchainImageTracker&       swapchain_image_tracker) override;
+                                                      SwapchainImageTracker&       swapchain_image_tracker) override
+    {}
 
   private:
-    // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
-    // the expected layout and keep them acquired until first use.
-    void ProcessSetSwapchainImageStatePreAcquire(const DeviceInfo*                                   device_info,
-                                                 SwapchainKHRInfo*                                   swapchain_info,
-                                                 const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                 const VulkanObjectInfoTable&                        object_info_table,
-                                                 SwapchainImageTracker& swapchain_image_tracker);
+    VkResult CreateSwapchainImage(const DeviceInfo*               device_info,
+                                  const VkImageCreateInfo&        image_create_info,
+                                  SwapchainKHRInfo::VirtualImage& image);
 
-    // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
-    // the expected layout, and then call queue present if the image is not expected to be in the acquired state so that
-    // no more than one image is acquired at a time.
-    void ProcessSetSwapchainImageStateQueueSubmit(const DeviceInfo* device_info,
-                                                  SwapchainKHRInfo* swapchain_info,
-                                                  uint32_t          last_presented_image,
-                                                  const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                  const VulkanObjectInfoTable& object_info_table);
+    int32_t FindFirstPresentSrcLayout(const VkRenderPassCreateInfo* create_info) const;
+
+    int32_t FindFirstPresentSrcLayout(const VkRenderPassCreateInfo2* create_info) const;
+
+    int32_t FindFirstPresentSrcLayout(uint32_t count, const VkImageMemoryBarrier* barriers) const;
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_VULKAN_CAPTURED_SWAPCHAIN_H
+#endif // GFXRECON_DECODE_VULKAN_VIRTUAL_SWAPCHAIN_H

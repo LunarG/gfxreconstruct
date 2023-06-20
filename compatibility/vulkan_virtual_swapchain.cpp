@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/vulkan_virtual_swapchain.h"
+#include "compatibility/vulkan_virtual_swapchain.h"
 
 #include "decode/vulkan_resource_allocator.h"
 

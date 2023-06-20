@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/vulkan_captured_swapchain.h"
+#include "compatibility/vulkan_captured_swapchain.h"
 
 #include "util/logging.h"
 

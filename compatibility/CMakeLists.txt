@@ -1,6 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2021 LunarG, Inc.
-# Copyright (c) 2020 Advanced Micro Devices, Inc.
+# Copyright (c) 2023 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,30 +25,22 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
-add_executable(gfxrecon-compress "")
+add_library(gfxrecon_compatibility STATIC "")
 
-target_sources(gfxrecon-compress
+target_sources(gfxrecon_compatibility
                PRIVATE
-                   ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-                   ${CMAKE_CURRENT_LIST_DIR}/compression_converter.h
-                   ${CMAKE_CURRENT_LIST_DIR}/compression_converter.cpp
-                   ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.cpp
 )
 
-if (MSVC)
-    # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
-    # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-      target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
-    else()
-      target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
-    endif()
-endif()
+target_include_directories(gfxrecon_compatibility
+                           PUBLIC
+                               ${CMAKE_SOURCE_DIR}
+                               ${CMAKE_SOURCE_DIR}/framework)
 
-target_include_directories(gfxrecon-compress PUBLIC ${CMAKE_BINARY_DIR})
+target_link_libraries(gfxrecon_compatibility gfxrecon_util)
 
-target_link_libraries(gfxrecon-compress gfxrecon_compatibility gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific)
-
-common_build_directives(gfxrecon-compress)
-
-install(TARGETS gfxrecon-compress RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+common_build_directives(gfxrecon_compatibility)

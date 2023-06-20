@@ -30,6 +30,11 @@ add_library(gfxrecon_decode STATIC "")
 
 target_sources(gfxrecon_decode
                PRIVATE
+                    ${CMAKE_SOURCE_DIR}/compatibility/vulkan_swapchain.h
+                    ${CMAKE_SOURCE_DIR}/compatibility/vulkan_captured_swapchain.h
+                    ${CMAKE_SOURCE_DIR}/compatibility/vulkan_captured_swapchain.cpp
+                    ${CMAKE_SOURCE_DIR}/compatibility/vulkan_virtual_swapchain.h
+                    ${CMAKE_SOURCE_DIR}/compatibility/vulkan_virtual_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/copy_shaders.h
@@ -128,8 +133,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_export_json_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_export_json_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_enum_util.h
@@ -158,13 +161,10 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
@@ -241,10 +241,11 @@ endif()
 
 target_include_directories(gfxrecon_decode
                            PUBLIC
+                               ${CMAKE_SOURCE_DIR}
                                ${CMAKE_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 
-target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific nlohmann_json::nlohmann_json $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
+target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util gfxrecon_compatibility vulkan_registry vulkan_memory_allocator platform_specific nlohmann_json::nlohmann_json $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
 
 common_build_directives(gfxrecon_decode)
 

@@ -13,6 +13,7 @@ add_library(native_app_glue STATIC
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
 include(../../framework/cmake-config/PlatformConfig.cmake)
+add_subdirectory(../../compatibility ${CMAKE_SOURCE_DIR}/../../compatibility/build)
 add_subdirectory(../../framework/util ${CMAKE_SOURCE_DIR}/../../framework/util/build)
 add_subdirectory(../../framework/graphics ${CMAKE_SOURCE_DIR}/../../framework/graphics/build)
 add_subdirectory(../../framework/format ${CMAKE_SOURCE_DIR}/../../framework/format/build)
@@ -33,6 +34,7 @@ target_include_directories(gfxrecon-replay
 target_link_libraries(
         gfxrecon-replay
         gfxrecon_application
+        gfxrecon_compatibility
         gfxrecon_decode
         gfxrecon_graphics
         gfxrecon_format

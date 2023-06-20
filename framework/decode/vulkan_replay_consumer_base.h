@@ -35,7 +35,7 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
 #include "decode/vulkan_resource_initializer.h"
-#include "decode/vulkan_swapchain.h"
+#include "compatibility/vulkan_swapchain.h"
 #include "decode/window.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"

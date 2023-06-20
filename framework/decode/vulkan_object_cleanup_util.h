@@ -23,7 +23,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_OBJECT_CLEANUP_UTIL_H
 #define GFXRECON_DECODE_VULKAN_OBJECT_CLEANUP_UTIL_H
 
-#include "decode/vulkan_swapchain.h"
+#include "compatibility/vulkan_swapchain.h"
 #include "decode/vulkan_object_info_table.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
