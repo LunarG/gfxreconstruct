@@ -30,7 +30,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(compatibility)
 
 VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
-                                                    const decode::DeviceInfo*       device_info,
+                                                    VkDevice                        device,
                                                     const VkSwapchainCreateInfoKHR* create_info,
                                                     const VkAllocationCallbacks*    allocator,
                                                     VkSwapchainKHR*                 swapchain,
@@ -38,12 +38,6 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
                                                     const encode::InstanceTable*    instance_table,
                                                     const encode::DeviceTable*      device_table)
 {
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
     instance_table_ = instance_table;
     device_table_   = device_table;
 
@@ -67,26 +61,22 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
     return func(device, &modified_create_info, allocator, swapchain);
 }
 
-void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR       func,
-                                                 const decode::DeviceInfo*       device_info,
-                                                 const decode::SwapchainKHRInfo* swapchain_info,
-                                                 const VkAllocationCallbacks*    allocator)
+void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR        func,
+                                                 VkDevice                         device,
+                                                 decode::VulkanResourceAllocator* resource_allocator,
+                                                 const decode::SwapchainKHRInfo*  swapchain_info,
+                                                 const VkAllocationCallbacks*     allocator)
 {
-    VkDevice       device    = VK_NULL_HANDLE;
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
 
-    if ((device_info != nullptr) && (swapchain_info != nullptr))
+    if ((VK_NULL_HANDLE == device) && (swapchain_info != nullptr))
     {
-        device    = device_info->handle;
         swapchain = swapchain_info->handle;
-
-        auto allocator = device_info->allocator.get();
-        assert(allocator != nullptr);
 
         for (const decode::ImageInfo& image_info : swapchain_info->image_infos)
         {
-            allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
-            allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
+            resource_allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
+            resource_allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
         }
 
         device_table_->FreeCommandBuffers(device,
@@ -97,8 +87,8 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR      
 
         for (const decode::SwapchainKHRInfo::VirtualImage& image_info : swapchain_info->virtual_images)
         {
-            allocator->DestroyImageDirect(image_info.image, nullptr, image_info.resource_allocator_data);
-            allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
+            resource_allocator->DestroyImageDirect(image_info.image, nullptr, image_info.resource_allocator_data);
+            resource_allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
         }
         for (const auto semaphore : swapchain_info->blit_semaphores)
         {
@@ -108,22 +98,18 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR      
     func(device, swapchain, allocator);
 }
 
-VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
-                                                       const decode::DeviceInfo*   device_info,
-                                                       decode::SwapchainKHRInfo*   swapchain_info,
-                                                       uint32_t                    capture_image_count,
-                                                       uint32_t*                   image_count,
-                                                       VkImage*                    images)
+VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR      func,
+                                                       VkPhysicalDevice                 physical_device,
+                                                       VkDevice                         device,
+                                                       decode::VulkanResourceAllocator* resource_allocator,
+                                                       decode::SwapchainKHRInfo*        swapchain_info,
+                                                       uint32_t                         capture_image_count,
+                                                       uint32_t*                        image_count,
+                                                       VkImage*                         images)
 {
-    VkDevice             device             = VK_NULL_HANDLE;
     VkSwapchainKHR       swapchain          = VK_NULL_HANDLE;
     uint32_t*            replay_image_count = nullptr;
     std::vector<VkImage> replay_swapchain_images;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
 
     if (swapchain_info != nullptr)
     {
@@ -189,7 +175,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
         // count.  The virtual images will be returned to the caller in place of the real swapchain images.
         (*image_count) = capture_image_count;
 
-        if ((device_info != nullptr) && (swapchain_info != nullptr) && (images != nullptr))
+        if ((device != VK_NULL_HANDLE) && (swapchain_info != nullptr) && (images != nullptr))
         {
             // Store the retrieved images and create new images to return to the caller.  The replay call always
             // retrieves the full swapchain image count, so this only needs to be done once.  It does not need to handle
@@ -256,7 +242,8 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 {
                     decode::SwapchainKHRInfo::VirtualImage image;
 
-                    result = CreateSwapchainImage(device_info, image_create_info, image);
+                    result =
+                        CreateSwapchainImage(physical_device, device, resource_allocator, image_create_info, image);
 
                     if (result != VK_SUCCESS)
                     {
@@ -331,7 +318,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 }
 
 VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                                     const decode::DeviceInfo* device_info,
+                                                     VkDevice                  device,
                                                      decode::SwapchainKHRInfo* swapchain_info,
                                                      uint64_t                  timeout,
                                                      decode::SemaphoreInfo*    semaphore_info,
@@ -353,11 +340,11 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR f
     }
 
     return AcquireNextImageKHR(
-        func, device_info, swapchain_info, timeout, semaphore, fence, capture_image_index, image_index);
+        func, device, swapchain_info, timeout, semaphore, fence, capture_image_index, image_index);
 }
 
 VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                                     const decode::DeviceInfo* device_info,
+                                                     VkDevice                  device,
                                                      decode::SwapchainKHRInfo* swapchain_info,
                                                      uint64_t                  timeout,
                                                      VkSemaphore               semaphore,
@@ -365,13 +352,7 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR f
                                                      uint32_t                  capture_image_index,
                                                      uint32_t*                 image_index)
 {
-    VkDevice       device    = VK_NULL_HANDLE;
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
 
     if (swapchain_info != nullptr)
     {
@@ -382,19 +363,12 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR f
 }
 
 VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
-                                                      const decode::DeviceInfo*        device_info,
+                                                      VkDevice                         device,
                                                       decode::SwapchainKHRInfo*        swapchain_info,
                                                       const VkAcquireNextImageInfoKHR* acquire_info,
                                                       uint32_t                         capture_image_index,
                                                       uint32_t*                        image_index)
 {
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
-
     return func(device, acquire_info, image_index);
 }
 
@@ -610,34 +584,20 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
 }
 
 VkResult VulkanVirtualSwapchain::CreateRenderPass(PFN_vkCreateRenderPass        func,
-                                                  const decode::DeviceInfo*     device_info,
+                                                  VkDevice                      device,
                                                   const VkRenderPassCreateInfo* create_info,
                                                   const VkAllocationCallbacks*  allocator,
                                                   VkRenderPass*                 render_pass)
 {
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
-
     return func(device, create_info, allocator, render_pass);
 }
 
 VkResult VulkanVirtualSwapchain::CreateRenderPass2(PFN_vkCreateRenderPass2        func,
-                                                   const decode::DeviceInfo*      device_info,
+                                                   VkDevice                       device,
                                                    const VkRenderPassCreateInfo2* create_info,
                                                    const VkAllocationCallbacks*   allocator,
                                                    VkRenderPass*                  render_pass)
 {
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
-
     return func(device, create_info, allocator, render_pass);
 }
 
@@ -672,18 +632,17 @@ void VulkanVirtualSwapchain::CmdPipelineBarrier(PFN_vkCmdPipelineBarrier        
          image_memory_barriers);
 }
 
-VkResult VulkanVirtualSwapchain::CreateSwapchainImage(const decode::DeviceInfo*               device_info,
+VkResult VulkanVirtualSwapchain::CreateSwapchainImage(VkPhysicalDevice                        physical_device,
+                                                      VkDevice                                device,
+                                                      decode::VulkanResourceAllocator*        resource_allocator,
                                                       const VkImageCreateInfo&                image_create_info,
                                                       decode::SwapchainKHRInfo::VirtualImage& image)
 {
     // TODO: This is the same code used in VulkanReplayConsumerBase::CreateSwapchainImage, which
     // should be moved to a shared graphics utility function.
 
-    decode::VulkanResourceAllocator* allocator = device_info->allocator.get();
-    assert(allocator != nullptr);
-
-    VkResult result =
-        allocator->CreateImageDirect(&image_create_info, nullptr, &image.image, &image.resource_allocator_data);
+    VkResult result = resource_allocator->CreateImageDirect(
+        &image_create_info, nullptr, &image.image, &image.resource_allocator_data);
 
     if (result == VK_SUCCESS)
     {
@@ -693,13 +652,13 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainImage(const decode::DeviceInfo* 
         }
 
         VkMemoryRequirements memory_reqs;
-        device_table_->GetImageMemoryRequirements(device_info->handle, image.image, &memory_reqs);
+        device_table_->GetImageMemoryRequirements(device, image.image, &memory_reqs);
 
         VkMemoryPropertyFlags property_flags    = VK_QUEUE_FLAG_BITS_MAX_ENUM;
         uint32_t              memory_type_index = std::numeric_limits<uint32_t>::max();
         {
             VkPhysicalDeviceMemoryProperties properties;
-            instance_table_->GetPhysicalDeviceMemoryProperties(device_info->parent, &properties);
+            instance_table_->GetPhysicalDeviceMemoryProperties(physical_device, &properties);
 
             for (uint32_t i = 0; i < properties.memoryTypeCount; i++)
             {
@@ -718,12 +677,13 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainImage(const decode::DeviceInfo* 
         alloc_info.memoryTypeIndex      = memory_type_index;
         alloc_info.allocationSize       = memory_reqs.size;
 
-        result = allocator->AllocateMemoryDirect(&alloc_info, nullptr, &image.memory, &image.memory_allocator_data);
+        result =
+            resource_allocator->AllocateMemoryDirect(&alloc_info, nullptr, &image.memory, &image.memory_allocator_data);
 
         if (result == VK_SUCCESS)
         {
             VkMemoryPropertyFlags flags;
-            result = allocator->BindImageMemoryDirect(
+            result = resource_allocator->BindImageMemoryDirect(
                 image.image, image.memory, 0, image.resource_allocator_data, image.memory_allocator_data, &flags);
         }
 
@@ -731,10 +691,10 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainImage(const decode::DeviceInfo* 
         {
             if (image.memory != VK_NULL_HANDLE)
             {
-                allocator->FreeMemoryDirect(image.memory, nullptr, image.memory_allocator_data);
+                resource_allocator->FreeMemoryDirect(image.memory, nullptr, image.memory_allocator_data);
             }
 
-            allocator->DestroyImageDirect(image.image, nullptr, image.resource_allocator_data);
+            resource_allocator->DestroyImageDirect(image.image, nullptr, image.resource_allocator_data);
         }
     }
     return result;

@@ -632,8 +632,11 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
             assert((parent_info != nullptr) && (object_info != nullptr));
             if (object_info->surface != VK_NULL_HANDLE)
             {
-                swapchain->DestroySwapchainKHR(
-                    get_device_table(parent_info->handle)->DestroySwapchainKHR, parent_info, object_info, nullptr);
+                swapchain->DestroySwapchainKHR(get_device_table(parent_info->handle)->DestroySwapchainKHR,
+                                               parent_info->handle,
+                                               parent_info->allocator.get(),
+                                               object_info,
+                                               nullptr);
             }
             else
             {

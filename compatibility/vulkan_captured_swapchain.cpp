@@ -28,7 +28,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(compatibility)
 
 VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
-                                                     const decode::DeviceInfo*       device_info,
+                                                     VkDevice                        device,
                                                      const VkSwapchainCreateInfoKHR* create_info,
                                                      const VkAllocationCallbacks*    allocator,
                                                      VkSwapchainKHR*                 swapchain,
@@ -36,30 +36,19 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR   
                                                      const encode::InstanceTable*    instance_table,
                                                      const encode::DeviceTable*      device_table)
 {
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
     instance_table_ = instance_table;
     device_table_   = device_table;
 
     return func(device, create_info, allocator, swapchain);
 }
 
-void VulkanCapturedSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR       func,
-                                                  const decode::DeviceInfo*       device_info,
-                                                  const decode::SwapchainKHRInfo* swapchain_info,
-                                                  const VkAllocationCallbacks*    allocator)
+void VulkanCapturedSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR        func,
+                                                  VkDevice                         device,
+                                                  decode::VulkanResourceAllocator* resource_allocator,
+                                                  const decode::SwapchainKHRInfo*  swapchain_info,
+                                                  const VkAllocationCallbacks*     allocator)
 {
-    VkDevice       device    = VK_NULL_HANDLE;
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
 
     if (swapchain_info != nullptr)
     {
@@ -69,20 +58,16 @@ void VulkanCapturedSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     
     func(device, swapchain, allocator);
 }
 
-VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
-                                                        const decode::DeviceInfo*   device_info,
-                                                        decode::SwapchainKHRInfo*   swapchain_info,
-                                                        uint32_t                    capture_image_count,
-                                                        uint32_t*                   image_count,
-                                                        VkImage*                    images)
+VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR      func,
+                                                        VkPhysicalDevice                 physical_device,
+                                                        VkDevice                         device,
+                                                        decode::VulkanResourceAllocator* resource_allocator,
+                                                        decode::SwapchainKHRInfo*        swapchain_info,
+                                                        uint32_t                         capture_image_count,
+                                                        uint32_t*                        image_count,
+                                                        VkImage*                         images)
 {
-    VkDevice       device    = VK_NULL_HANDLE;
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
 
     if (swapchain_info != nullptr)
     {
@@ -103,7 +88,7 @@ VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImages
 }
 
 VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                                      const decode::DeviceInfo* device_info,
+                                                      VkDevice                  device,
                                                       decode::SwapchainKHRInfo* swapchain_info,
                                                       uint64_t                  timeout,
                                                       decode::SemaphoreInfo*    semaphore_info,
@@ -125,11 +110,11 @@ VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR 
     }
 
     return AcquireNextImageKHR(
-        func, device_info, swapchain_info, timeout, semaphore, fence, capture_image_index, image_index);
+        func, device, swapchain_info, timeout, semaphore, fence, capture_image_index, image_index);
 }
 
 VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                                      const decode::DeviceInfo* device_info,
+                                                      VkDevice                  device,
                                                       decode::SwapchainKHRInfo* swapchain_info,
                                                       uint64_t                  timeout,
                                                       VkSemaphore               semaphore,
@@ -137,13 +122,7 @@ VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR 
                                                       uint32_t                  capture_image_index,
                                                       uint32_t*                 image_index)
 {
-    VkDevice       device    = VK_NULL_HANDLE;
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
 
     if (swapchain_info != nullptr)
     {
@@ -164,20 +143,13 @@ VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR 
 }
 
 VkResult VulkanCapturedSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
-                                                       const decode::DeviceInfo*        device_info,
+                                                       VkDevice                         device,
                                                        decode::SwapchainKHRInfo*        swapchain_info,
                                                        const VkAcquireNextImageInfoKHR* acquire_info,
                                                        uint32_t                         capture_image_index,
                                                        uint32_t*                        image_index)
 {
     GFXRECON_UNREFERENCED_PARAMETER(swapchain_info);
-
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
 
     auto result = func(device, acquire_info, image_index);
 
@@ -209,34 +181,20 @@ VkResult VulkanCapturedSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR         
 }
 
 VkResult VulkanCapturedSwapchain::CreateRenderPass(PFN_vkCreateRenderPass        func,
-                                                   const decode::DeviceInfo*     device_info,
+                                                   VkDevice                      device,
                                                    const VkRenderPassCreateInfo* create_info,
                                                    const VkAllocationCallbacks*  allocator,
                                                    VkRenderPass*                 render_pass)
 {
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
-
     return func(device, create_info, allocator, render_pass);
 }
 
 VkResult VulkanCapturedSwapchain::CreateRenderPass2(PFN_vkCreateRenderPass2        func,
-                                                    const decode::DeviceInfo*      device_info,
+                                                    VkDevice                       device,
                                                     const VkRenderPassCreateInfo2* create_info,
                                                     const VkAllocationCallbacks*   allocator,
                                                     VkRenderPass*                  render_pass)
 {
-    VkDevice device = VK_NULL_HANDLE;
-
-    if (device_info != nullptr)
-    {
-        device = device_info->handle;
-    }
-
     return func(device, create_info, allocator, render_pass);
 }
 
@@ -272,19 +230,18 @@ void VulkanCapturedSwapchain::CmdPipelineBarrier(PFN_vkCmdPipelineBarrier       
 }
 
 void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
-    const decode::DeviceInfo*                           device_info,
-    decode::SwapchainKHRInfo*                           swapchain_info,
-    uint32_t                                            last_presented_image,
-    const std::vector<format::SwapchainImageStateInfo>& image_info,
-    const decode::VulkanObjectInfoTable&                object_info_table,
-    decode::SwapchainImageTracker&                      swapchain_image_tracker)
+    VkPhysicalDevice                                              physical_device,
+    VkDevice                                                      device,
+    decode::VulkanResourceAllocator*                              resource_allocator,
+    const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
+    decode::SwapchainKHRInfo*                                     swapchain_info,
+    uint32_t                                                      last_presented_image,
+    const std::vector<format::SwapchainImageStateInfo>&           image_info,
+    const decode::VulkanObjectInfoTable&                          object_info_table,
+    decode::SwapchainImageTracker&                                swapchain_image_tracker)
 {
 
-    VkDevice       device    = device_info->handle;
     VkSwapchainKHR swapchain = swapchain_info->handle;
-
-    VkPhysicalDevice physical_device = device_info->parent;
-    assert(physical_device != VK_NULL_HANDLE);
 
     const decode::SurfaceKHRInfo* surface_info = object_info_table.GetSurfaceKHRInfo(swapchain_info->surface_id);
     if (surface_info->surface_creation_skipped)
@@ -313,7 +270,9 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     {
         uint32_t capture_image_count = static_cast<uint32_t>(image_info.size());
         result                       = GetSwapchainImagesKHR(device_table_->GetSwapchainImagesKHR,
-                                       device_info,
+                                       physical_device,
+                                       device,
+                                       resource_allocator,
                                        swapchain_info,
                                        capture_image_count,
                                        &image_count,
@@ -329,13 +288,17 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
         if (image_count > max_acquired_images)
         {
             // Cannot acquire all images at the same time.
-            ProcessSetSwapchainImageStateQueueSubmit(
-                device_info, swapchain_info, last_presented_image, image_info, object_info_table);
+            ProcessSetSwapchainImageStateQueueSubmit(device,
+                                                     queue_family_creation_flags,
+                                                     swapchain_info,
+                                                     last_presented_image,
+                                                     image_info,
+                                                     object_info_table);
         }
         else
         {
             ProcessSetSwapchainImageStatePreAcquire(
-                device_info, swapchain_info, image_info, object_info_table, swapchain_image_tracker);
+                device, swapchain_info, image_info, object_info_table, swapchain_image_tracker);
         }
     }
     else
@@ -348,13 +311,12 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
 }
 
 void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
-    const decode::DeviceInfo*                           device_info,
+    VkDevice                                            device,
     decode::SwapchainKHRInfo*                           swapchain_info,
     const std::vector<format::SwapchainImageStateInfo>& image_info,
     const decode::VulkanObjectInfoTable&                object_info_table,
     decode::SwapchainImageTracker&                      swapchain_image_tracker)
 {
-    VkDevice device = device_info->handle;
     assert(device_table_ != nullptr);
 
     VkResult        result             = VK_SUCCESS;
@@ -444,7 +406,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                 if (result == VK_SUCCESS)
                 {
                     result = AcquireNextImageKHR(device_table_->AcquireNextImageKHR,
-                                                 device_info,
+                                                 device,
                                                  swapchain_info,
                                                  std::numeric_limits<uint64_t>::max(),
                                                  acquire_semaphore,
@@ -546,13 +508,13 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
 }
 
 void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
-    const decode::DeviceInfo*                           device_info,
-    decode::SwapchainKHRInfo*                           swapchain_info,
-    uint32_t                                            last_presented_image,
-    const std::vector<format::SwapchainImageStateInfo>& image_info,
-    const decode::VulkanObjectInfoTable&                object_info_table)
+    VkDevice                                                      device,
+    const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
+    decode::SwapchainKHRInfo*                                     swapchain_info,
+    uint32_t                                                      last_presented_image,
+    const std::vector<format::SwapchainImageStateInfo>&           image_info,
+    const decode::VulkanObjectInfoTable&                          object_info_table)
 {
-    auto device = device_info->handle;
     assert(device_table_ != nullptr);
 
     VkResult        result             = VK_SUCCESS;
@@ -568,8 +530,8 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     pool_create_info.queueFamilyIndex        = queue_family_index;
 
-    const auto queue_family_flags = device_info->queue_family_creation_flags.find(queue_family_index);
-    assert(queue_family_flags != device_info->queue_family_creation_flags.end());
+    const auto queue_family_flags = queue_family_creation_flags.find(queue_family_index);
+    assert(queue_family_flags != queue_family_creation_flags.end());
     if (queue_family_flags->second != 0)
     {
         const VkDeviceQueueInfo2 queue_info = {
@@ -655,7 +617,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                 if (result == VK_SUCCESS)
                 {
                     result = AcquireNextImageKHR(device_table_->AcquireNextImageKHR,
-                                                 device_info,
+                                                 device,
                                                  swapchain_info,
                                                  std::numeric_limits<uint64_t>::max(),
                                                  VK_NULL_HANDLE,
@@ -749,7 +711,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                 if (result == VK_SUCCESS)
                 {
                     result = AcquireNextImageKHR(device_table_->AcquireNextImageKHR,
-                                                 device_info,
+                                                 device,
                                                  swapchain_info,
                                                  std::numeric_limits<uint64_t>::max(),
                                                  VK_NULL_HANDLE,
