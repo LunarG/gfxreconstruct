@@ -172,11 +172,11 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     // Process option to select swapchain handler. The options is '--use-captured-swapchain-indices'.
     if (options.enable_use_captured_swapchain_indices)
     {
-        swapchain_ = std::make_unique<VulkanCapturedSwapchain>();
+        swapchain_ = std::make_unique<compatibility::VulkanCapturedSwapchain>();
     }
     else
     {
-        swapchain_ = std::make_unique<VulkanVirtualSwapchain>();
+        swapchain_ = std::make_unique<compatibility::VulkanVirtualSwapchain>();
     }
 
     if (options_.enable_debug_device_lost)
@@ -3740,9 +3740,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
             VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
             VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
-                          VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                          modified_allocate_info.pNext,
-                          opaque_address
+                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
+                modified_allocate_info.pNext,
+                opaque_address
             };
             modified_allocate_info.pNext = &address_info;
 

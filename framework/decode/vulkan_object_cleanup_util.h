@@ -39,7 +39,7 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                         bool                                                     report_leaks,
                         std::function<const encode::InstanceTable*(const void*)> get_instance_table,
                         std::function<const encode::DeviceTable*(const void*)>   get_device_table,
-                        VulkanSwapchain*                                         swapchain);
+                        compatibility::VulkanSwapchain*                          swapchain);
 
 void FreeAllLiveInstances(VulkanObjectInfoTable*                                   table,
                           bool                                                     remove_entries,
