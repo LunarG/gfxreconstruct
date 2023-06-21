@@ -321,32 +321,6 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR f
                                                      VkDevice                  device,
                                                      decode::SwapchainKHRInfo* swapchain_info,
                                                      uint64_t                  timeout,
-                                                     decode::SemaphoreInfo*    semaphore_info,
-                                                     decode::FenceInfo*        fence_info,
-                                                     uint32_t                  capture_image_index,
-                                                     uint32_t*                 image_index)
-{
-    VkSemaphore semaphore = VK_NULL_HANDLE;
-    VkFence     fence     = VK_NULL_HANDLE;
-
-    if (semaphore_info != nullptr)
-    {
-        semaphore = semaphore_info->handle;
-    }
-
-    if (fence_info != nullptr)
-    {
-        fence = fence_info->handle;
-    }
-
-    return AcquireNextImageKHR(
-        func, device, swapchain_info, timeout, semaphore, fence, capture_image_index, image_index);
-}
-
-VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                                     VkDevice                  device,
-                                                     decode::SwapchainKHRInfo* swapchain_info,
-                                                     uint64_t                  timeout,
                                                      VkSemaphore               semaphore,
                                                      VkFence                   fence,
                                                      uint32_t                  capture_image_index,
@@ -375,16 +349,9 @@ VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR
 VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
                                                  const std::vector<uint32_t>&                  capture_image_indices,
                                                  const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
-                                                 const decode::QueueInfo*                      queue_info,
+                                                 VkQueue                                       queue,
                                                  const VkPresentInfoKHR*                       present_info)
 {
-    VkQueue queue = VK_NULL_HANDLE;
-    if (queue_info == nullptr)
-    {
-        return VK_ERROR_FEATURE_NOT_PRESENT;
-    }
-    queue = queue_info->handle;
-
     // TODO: Note that this blit could also be used to scale the image, which would allow replay to support an option
     // for changing the window/swapchain size when the virtual swapchain mode is active.  The virtual image would
     // continue to use the captured swapchain image size, and be scaled to the replay swapchain image size with

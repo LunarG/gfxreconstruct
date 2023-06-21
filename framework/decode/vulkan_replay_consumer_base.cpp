@@ -5123,14 +5123,19 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
 
             assert(replay_index != nullptr);
 
-            result = swapchain_->AcquireNextImageKHR(func,
-                                                     device_info->handle,
-                                                     swapchain_info,
-                                                     timeout,
-                                                     semaphore_info,
-                                                     fence_info,
-                                                     captured_index,
-                                                     replay_index);
+            VkSemaphore semaphore = VK_NULL_HANDLE;
+            VkFence     fence     = VK_NULL_HANDLE;
+            if (semaphore_info != nullptr)
+            {
+                semaphore = semaphore_info->handle;
+            }
+            if (fence_info != nullptr)
+            {
+                fence = fence_info->handle;
+            }
+
+            result = swapchain_->AcquireNextImageKHR(
+                func, device_info->handle, swapchain_info, timeout, semaphore, fence, captured_index, replay_index);
 
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
@@ -5546,8 +5551,15 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     // Only attempt to find imported or shadow semaphores if we know at least one around.
     if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
     {
-        result = swapchain_->QueuePresentKHR(
-            func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
+        if (queue_info == nullptr || queue_info->handle == VK_NULL_HANDLE)
+        {
+            result = VK_ERROR_FEATURE_NOT_PRESENT;
+        }
+        else
+        {
+            result = swapchain_->QueuePresentKHR(
+                func, capture_image_indices_, swapchain_infos_, queue_info->handle, &modified_present_info);
+        }
     }
     else if (modified_present_info.swapchainCount == 0)
     {
@@ -5569,8 +5581,15 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
         if (removed_semaphores_.empty())
         {
-            result = swapchain_->QueuePresentKHR(
-                func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
+            if (queue_info == nullptr || queue_info->handle == VK_NULL_HANDLE)
+            {
+                result = VK_ERROR_FEATURE_NOT_PRESENT;
+            }
+            else
+            {
+                result = swapchain_->QueuePresentKHR(
+                    func, capture_image_indices_, swapchain_infos_, queue_info->handle, &modified_present_info);
+            }
         }
         else
         {
@@ -5595,8 +5614,15 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(semaphore_memory.size());
             modified_present_info.pWaitSemaphores    = semaphore_memory.data();
 
-            result = swapchain_->QueuePresentKHR(
-                func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
+            if (queue_info == nullptr || queue_info->handle == VK_NULL_HANDLE)
+            {
+                result = VK_ERROR_FEATURE_NOT_PRESENT;
+            }
+            else
+            {
+                result = swapchain_->QueuePresentKHR(
+                    func, capture_image_indices_, swapchain_infos_, queue_info->handle, &modified_present_info);
+            }
         }
     }
 

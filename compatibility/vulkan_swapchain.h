@@ -67,15 +67,6 @@ class VulkanSwapchain
                                          VkDevice                  device,
                                          decode::SwapchainKHRInfo* swapchain_info,
                                          uint64_t                  timeout,
-                                         decode::SemaphoreInfo*    semaphore_info,
-                                         decode::FenceInfo*        fence_info,
-                                         uint32_t                  capture_image_index,
-                                         uint32_t*                 image_index) = 0;
-
-    virtual VkResult AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                         VkDevice                  device,
-                                         decode::SwapchainKHRInfo* swapchain_info,
-                                         uint64_t                  timeout,
                                          VkSemaphore               semaphore,
                                          VkFence                   fence,
                                          uint32_t                  capture_image_index,
@@ -91,7 +82,7 @@ class VulkanSwapchain
     virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
                                      const std::vector<uint32_t>&                  capture_image_indices,
                                      const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
-                                     const decode::QueueInfo*                      queue_info,
+                                     VkQueue                                       queue,
                                      const VkPresentInfoKHR*                       present_info) = 0;
 
     virtual VkResult CreateRenderPass(PFN_vkCreateRenderPass        func,

@@ -91,32 +91,6 @@ VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR 
                                                       VkDevice                  device,
                                                       decode::SwapchainKHRInfo* swapchain_info,
                                                       uint64_t                  timeout,
-                                                      decode::SemaphoreInfo*    semaphore_info,
-                                                      decode::FenceInfo*        fence_info,
-                                                      uint32_t                  capture_image_index,
-                                                      uint32_t*                 image_index)
-{
-    VkSemaphore semaphore = VK_NULL_HANDLE;
-    VkFence     fence     = VK_NULL_HANDLE;
-
-    if (semaphore_info != nullptr)
-    {
-        semaphore = semaphore_info->handle;
-    }
-
-    if (fence_info != nullptr)
-    {
-        fence = fence_info->handle;
-    }
-
-    return AcquireNextImageKHR(
-        func, device, swapchain_info, timeout, semaphore, fence, capture_image_index, image_index);
-}
-
-VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                                      VkDevice                  device,
-                                                      decode::SwapchainKHRInfo* swapchain_info,
-                                                      uint64_t                  timeout,
                                                       VkSemaphore               semaphore,
                                                       VkFence                   fence,
                                                       uint32_t                  capture_image_index,
@@ -167,16 +141,9 @@ VkResult VulkanCapturedSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KH
 VkResult VulkanCapturedSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
                                                   const std::vector<uint32_t>&                  capture_image_indices,
                                                   const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
-                                                  const decode::QueueInfo*                      queue_info,
+                                                  VkQueue                                       queue,
                                                   const VkPresentInfoKHR*                       present_info)
 {
-    VkQueue queue = VK_NULL_HANDLE;
-
-    if (queue_info != nullptr)
-    {
-        queue = queue_info->handle;
-    }
-
     return func(queue, present_info);
 }
 
