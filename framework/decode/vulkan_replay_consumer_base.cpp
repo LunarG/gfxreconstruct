@@ -4386,11 +4386,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    return swapchain_->CreateRenderPass(func,
-                                        device_info->handle,
-                                        pCreateInfo->GetPointer(),
-                                        GetAllocationCallbacks(pAllocator),
-                                        pRenderPass->GetHandlePointer());
+    return func(device_info->handle,
+                pCreateInfo->GetPointer(),
+                GetAllocationCallbacks(pAllocator),
+                pRenderPass->GetHandlePointer());
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
@@ -4403,11 +4402,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    return swapchain_->CreateRenderPass2(func,
-                                         device_info->handle,
-                                         pCreateInfo->GetPointer(),
-                                         GetAllocationCallbacks(pAllocator),
-                                         pRenderPass->GetHandlePointer());
+    return func(device_info->handle,
+                pCreateInfo->GetPointer(),
+                GetAllocationCallbacks(pAllocator),
+                pRenderPass->GetHandlePointer());
 }
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
@@ -4423,17 +4421,17 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
     uint32_t                                                   imageMemoryBarrierCount,
     const StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers)
 {
-    swapchain_->CmdPipelineBarrier(func,
-                                   command_buffer_info,
-                                   srcStageMask,
-                                   dstStageMask,
-                                   dependencyFlags,
-                                   memoryBarrierCount,
-                                   pMemoryBarriers->GetPointer(),
-                                   bufferMemoryBarrierCount,
-                                   pBufferMemoryBarriers->GetPointer(),
-                                   imageMemoryBarrierCount,
-                                   pImageMemoryBarriers->GetPointer());
+    assert(command_buffer_info != nullptr);
+    func(command_buffer_info->handle,
+         srcStageMask,
+         dstStageMask,
+         dependencyFlags,
+         memoryBarrierCount,
+         pMemoryBarriers->GetPointer(),
+         bufferMemoryBarrierCount,
+         pBufferMemoryBarriers->GetPointer(),
+         imageMemoryBarrierCount,
+         pImageMemoryBarriers->GetPointer());
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
@@ -5123,8 +5121,13 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
 
             assert(replay_index != nullptr);
 
-            VkSemaphore semaphore = VK_NULL_HANDLE;
-            VkFence     fence     = VK_NULL_HANDLE;
+            VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+            VkSemaphore    semaphore = VK_NULL_HANDLE;
+            VkFence        fence     = VK_NULL_HANDLE;
+            if (swapchain_info != nullptr)
+            {
+                swapchain = swapchain_info->handle;
+            }
             if (semaphore_info != nullptr)
             {
                 semaphore = semaphore_info->handle;
@@ -5135,7 +5138,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
             }
 
             result = swapchain_->AcquireNextImageKHR(
-                func, device_info->handle, swapchain_info, timeout, semaphore, fence, captured_index, replay_index);
+                func, device_info->handle, swapchain, timeout, semaphore, fence, captured_index, replay_index);
 
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
@@ -5244,7 +5247,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
             auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(acquire_meta_info->swapchain);
 
             result = swapchain_->AcquireNextImage2KHR(
-                func, device_info->handle, swapchain_info, replay_acquire_info, captured_index, replay_index);
+                func, device_info->handle, replay_acquire_info, captured_index, replay_index);
 
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
@@ -5357,7 +5360,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     uint32_t replay_index = 0;
                     result                = swapchain_->AcquireNextImageKHR(device_table->AcquireNextImageKHR,
                                                              swapchain_info->device_info->handle,
-                                                             swapchain_info,
+                                                             swapchain_info->handle,
                                                              std::numeric_limits<uint64_t>::max(),
                                                              VK_NULL_HANDLE,
                                                              acquire_fence,
@@ -5526,7 +5529,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     uint32_t replay_index = 0;
                     result                = swapchain_->AcquireNextImageKHR(device_table->AcquireNextImageKHR,
                                                              swapchain_info->device_info->handle,
-                                                             swapchain_info,
+                                                             swapchain_info->handle,
                                                              std::numeric_limits<uint64_t>::max(),
                                                              VK_NULL_HANDLE,
                                                              acquire_fence,

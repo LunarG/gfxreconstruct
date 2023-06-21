@@ -89,20 +89,13 @@ VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImages
 
 VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                                       VkDevice                  device,
-                                                      decode::SwapchainKHRInfo* swapchain_info,
+                                                      VkSwapchainKHR            swapchain,
                                                       uint64_t                  timeout,
                                                       VkSemaphore               semaphore,
                                                       VkFence                   fence,
                                                       uint32_t                  capture_image_index,
                                                       uint32_t*                 image_index)
 {
-    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-    if (swapchain_info != nullptr)
-    {
-        swapchain = swapchain_info->handle;
-    }
-
     auto result = func(device, swapchain, timeout, semaphore, fence, image_index);
 
     if ((image_index != nullptr) && (capture_image_index != *image_index))
@@ -118,13 +111,10 @@ VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR 
 
 VkResult VulkanCapturedSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
                                                        VkDevice                         device,
-                                                       decode::SwapchainKHRInfo*        swapchain_info,
                                                        const VkAcquireNextImageInfoKHR* acquire_info,
                                                        uint32_t                         capture_image_index,
                                                        uint32_t*                        image_index)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(swapchain_info);
-
     auto result = func(device, acquire_info, image_index);
 
     if ((image_index != nullptr) && (capture_image_index != *image_index))
@@ -145,55 +135,6 @@ VkResult VulkanCapturedSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR         
                                                   const VkPresentInfoKHR*                       present_info)
 {
     return func(queue, present_info);
-}
-
-VkResult VulkanCapturedSwapchain::CreateRenderPass(PFN_vkCreateRenderPass        func,
-                                                   VkDevice                      device,
-                                                   const VkRenderPassCreateInfo* create_info,
-                                                   const VkAllocationCallbacks*  allocator,
-                                                   VkRenderPass*                 render_pass)
-{
-    return func(device, create_info, allocator, render_pass);
-}
-
-VkResult VulkanCapturedSwapchain::CreateRenderPass2(PFN_vkCreateRenderPass2        func,
-                                                    VkDevice                       device,
-                                                    const VkRenderPassCreateInfo2* create_info,
-                                                    const VkAllocationCallbacks*   allocator,
-                                                    VkRenderPass*                  render_pass)
-{
-    return func(device, create_info, allocator, render_pass);
-}
-
-void VulkanCapturedSwapchain::CmdPipelineBarrier(PFN_vkCmdPipelineBarrier         func,
-                                                 const decode::CommandBufferInfo* command_buffer_info,
-                                                 VkPipelineStageFlags             src_stage_mask,
-                                                 VkPipelineStageFlags             dst_stage_mask,
-                                                 VkDependencyFlags                dependency_flags,
-                                                 uint32_t                         memory_barrier_count,
-                                                 const VkMemoryBarrier*           memory_barriers,
-                                                 uint32_t                         buffer_memory_barrier_count,
-                                                 const VkBufferMemoryBarrier*     buffer_memory_barriers,
-                                                 uint32_t                         image_memory_barrier_count,
-                                                 const VkImageMemoryBarrier*      image_memory_barriers)
-{
-    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
-
-    if (command_buffer_info != nullptr)
-    {
-        command_buffer = command_buffer_info->handle;
-    }
-
-    func(command_buffer,
-         src_stage_mask,
-         dst_stage_mask,
-         dependency_flags,
-         memory_barrier_count,
-         memory_barriers,
-         buffer_memory_barrier_count,
-         buffer_memory_barriers,
-         image_memory_barrier_count,
-         image_memory_barriers);
 }
 
 void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
@@ -374,7 +315,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                 {
                     result = AcquireNextImageKHR(device_table_->AcquireNextImageKHR,
                                                  device,
-                                                 swapchain_info,
+                                                 swapchain_info->handle,
                                                  std::numeric_limits<uint64_t>::max(),
                                                  acquire_semaphore,
                                                  acquire_fence,
@@ -585,7 +526,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                 {
                     result = AcquireNextImageKHR(device_table_->AcquireNextImageKHR,
                                                  device,
-                                                 swapchain_info,
+                                                 swapchain_info->handle,
                                                  std::numeric_limits<uint64_t>::max(),
                                                  VK_NULL_HANDLE,
                                                  wait_fence,
@@ -679,7 +620,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                 {
                     result = AcquireNextImageKHR(device_table_->AcquireNextImageKHR,
                                                  device,
-                                                 swapchain_info,
+                                                 swapchain_info->handle,
                                                  std::numeric_limits<uint64_t>::max(),
                                                  VK_NULL_HANDLE,
                                                  wait_fence,

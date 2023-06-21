@@ -319,26 +319,18 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 
 VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                                      VkDevice                  device,
-                                                     decode::SwapchainKHRInfo* swapchain_info,
+                                                     VkSwapchainKHR            swapchain,
                                                      uint64_t                  timeout,
                                                      VkSemaphore               semaphore,
                                                      VkFence                   fence,
                                                      uint32_t                  capture_image_index,
                                                      uint32_t*                 image_index)
 {
-    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-    if (swapchain_info != nullptr)
-    {
-        swapchain = swapchain_info->handle;
-    }
-
     return func(device, swapchain, timeout, semaphore, fence, image_index);
 }
 
 VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
                                                       VkDevice                         device,
-                                                      decode::SwapchainKHRInfo*        swapchain_info,
                                                       const VkAcquireNextImageInfoKHR* acquire_info,
                                                       uint32_t                         capture_image_index,
                                                       uint32_t*                        image_index)
@@ -549,56 +541,6 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
     modified_present_info.pWaitSemaphores    = semaphores.data();
     return func(queue, &modified_present_info);
 }
-
-VkResult VulkanVirtualSwapchain::CreateRenderPass(PFN_vkCreateRenderPass        func,
-                                                  VkDevice                      device,
-                                                  const VkRenderPassCreateInfo* create_info,
-                                                  const VkAllocationCallbacks*  allocator,
-                                                  VkRenderPass*                 render_pass)
-{
-    return func(device, create_info, allocator, render_pass);
-}
-
-VkResult VulkanVirtualSwapchain::CreateRenderPass2(PFN_vkCreateRenderPass2        func,
-                                                   VkDevice                       device,
-                                                   const VkRenderPassCreateInfo2* create_info,
-                                                   const VkAllocationCallbacks*   allocator,
-                                                   VkRenderPass*                  render_pass)
-{
-    return func(device, create_info, allocator, render_pass);
-}
-
-void VulkanVirtualSwapchain::CmdPipelineBarrier(PFN_vkCmdPipelineBarrier         func,
-                                                const decode::CommandBufferInfo* command_buffer_info,
-                                                VkPipelineStageFlags             src_stage_mask,
-                                                VkPipelineStageFlags             dst_stage_mask,
-                                                VkDependencyFlags                dependency_flags,
-                                                uint32_t                         memory_barrier_count,
-                                                const VkMemoryBarrier*           memory_barriers,
-                                                uint32_t                         buffer_memory_barrier_count,
-                                                const VkBufferMemoryBarrier*     buffer_memory_barriers,
-                                                uint32_t                         image_memory_barrier_count,
-                                                const VkImageMemoryBarrier*      image_memory_barriers)
-{
-    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
-
-    if (command_buffer_info != nullptr)
-    {
-        command_buffer = command_buffer_info->handle;
-    }
-
-    func(command_buffer,
-         src_stage_mask,
-         dst_stage_mask,
-         dependency_flags,
-         memory_barrier_count,
-         memory_barriers,
-         buffer_memory_barrier_count,
-         buffer_memory_barriers,
-         image_memory_barrier_count,
-         image_memory_barriers);
-}
-
 VkResult VulkanVirtualSwapchain::CreateSwapchainImage(VkPhysicalDevice                        physical_device,
                                                       VkDevice                                device,
                                                       decode::VulkanResourceAllocator*        resource_allocator,
@@ -665,63 +607,6 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainImage(VkPhysicalDevice          
         }
     }
     return result;
-}
-
-int32_t VulkanVirtualSwapchain::FindFirstPresentSrcLayout(const VkRenderPassCreateInfo* create_info) const
-{
-    if ((create_info != nullptr) && (create_info->pAttachments != nullptr))
-    {
-        uint32_t count        = create_info->attachmentCount;
-        auto     descriptions = create_info->pAttachments;
-
-        for (uint32_t i = 0; i < count; ++i)
-        {
-            // TODO: This should also look at the initialLayout values.
-            if (descriptions[i].finalLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-            {
-                return i;
-            }
-        }
-    }
-
-    return -1;
-}
-
-int32_t VulkanVirtualSwapchain::FindFirstPresentSrcLayout(const VkRenderPassCreateInfo2* create_info) const
-{
-    if ((create_info != nullptr) && (create_info->pAttachments != nullptr))
-    {
-        uint32_t count        = create_info->attachmentCount;
-        auto     descriptions = create_info->pAttachments;
-
-        for (uint32_t i = 0; i < count; ++i)
-        {
-            // TODO: This should also look at the initialLayout values.
-            if (descriptions[i].finalLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-            {
-                return i;
-            }
-        }
-    }
-
-    return -1;
-}
-
-int32_t VulkanVirtualSwapchain::FindFirstPresentSrcLayout(uint32_t count, const VkImageMemoryBarrier* barriers) const
-{
-    if (barriers != nullptr)
-    {
-        for (uint32_t i = 0; i < count; ++i)
-        {
-            // TODO: This should also look at the oldLayout values.
-            if (barriers[i].newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-            {
-                return i;
-            }
-        }
-    }
-
-    return -1;
 }
 
 GFXRECON_END_NAMESPACE(compatibility)

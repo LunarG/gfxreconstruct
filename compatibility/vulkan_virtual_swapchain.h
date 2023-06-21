@@ -59,7 +59,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
     virtual VkResult AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                          VkDevice                  device,
-                                         decode::SwapchainKHRInfo* swapchain_info,
+                                         VkSwapchainKHR            swapchain,
                                          uint64_t                  timeout,
                                          VkSemaphore               semaphore,
                                          VkFence                   fence,
@@ -68,7 +68,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
     virtual VkResult AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
                                           VkDevice                         device,
-                                          decode::SwapchainKHRInfo*        swapchain_info,
                                           const VkAcquireNextImageInfoKHR* acquire_info,
                                           uint32_t                         capture_image_index,
                                           uint32_t*                        image_index) override;
@@ -78,30 +77,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                      const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
                                      VkQueue                                       queue,
                                      const VkPresentInfoKHR*                       present_info) override;
-
-    virtual VkResult CreateRenderPass(PFN_vkCreateRenderPass        func,
-                                      VkDevice                      device,
-                                      const VkRenderPassCreateInfo* create_info,
-                                      const VkAllocationCallbacks*  allocator,
-                                      VkRenderPass*                 render_pass) override;
-
-    virtual VkResult CreateRenderPass2(PFN_vkCreateRenderPass2        func,
-                                       VkDevice                       device,
-                                       const VkRenderPassCreateInfo2* create_info,
-                                       const VkAllocationCallbacks*   allocator,
-                                       VkRenderPass*                  render_pass) override;
-
-    virtual void CmdPipelineBarrier(PFN_vkCmdPipelineBarrier         func,
-                                    const decode::CommandBufferInfo* command_buffer_info,
-                                    VkPipelineStageFlags             src_stage_mask,
-                                    VkPipelineStageFlags             dst_stage_mask,
-                                    VkDependencyFlags                dependency_flags,
-                                    uint32_t                         memory_barrier_count,
-                                    const VkMemoryBarrier*           memory_barriers,
-                                    uint32_t                         buffer_memory_barrier_count,
-                                    const VkBufferMemoryBarrier*     buffer_memory_barriers,
-                                    uint32_t                         image_memory_barrier_count,
-                                    const VkImageMemoryBarrier*      image_memory_barriers) override;
 
     virtual void ProcessSetSwapchainImageStateCommand(
         VkPhysicalDevice                                              physical_device,
@@ -121,12 +96,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                   decode::VulkanResourceAllocator*        resource_allocator,
                                   const VkImageCreateInfo&                image_create_info,
                                   decode::SwapchainKHRInfo::VirtualImage& image);
-
-    int32_t FindFirstPresentSrcLayout(const VkRenderPassCreateInfo* create_info) const;
-
-    int32_t FindFirstPresentSrcLayout(const VkRenderPassCreateInfo2* create_info) const;
-
-    int32_t FindFirstPresentSrcLayout(uint32_t count, const VkImageMemoryBarrier* barriers) const;
 };
 
 GFXRECON_END_NAMESPACE(decode)

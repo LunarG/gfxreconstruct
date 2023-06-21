@@ -65,7 +65,7 @@ class VulkanSwapchain
 
     virtual VkResult AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                          VkDevice                  device,
-                                         decode::SwapchainKHRInfo* swapchain_info,
+                                         VkSwapchainKHR            swapchain,
                                          uint64_t                  timeout,
                                          VkSemaphore               semaphore,
                                          VkFence                   fence,
@@ -74,7 +74,6 @@ class VulkanSwapchain
 
     virtual VkResult AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
                                           VkDevice                         device,
-                                          decode::SwapchainKHRInfo*        swapchain_info,
                                           const VkAcquireNextImageInfoKHR* acquire_info,
                                           uint32_t                         capture_image_index,
                                           uint32_t*                        image_index) = 0;
@@ -84,30 +83,6 @@ class VulkanSwapchain
                                      const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
                                      VkQueue                                       queue,
                                      const VkPresentInfoKHR*                       present_info) = 0;
-
-    virtual VkResult CreateRenderPass(PFN_vkCreateRenderPass        func,
-                                      VkDevice                      device,
-                                      const VkRenderPassCreateInfo* create_info,
-                                      const VkAllocationCallbacks*  allocator,
-                                      VkRenderPass*                 render_pass) = 0;
-
-    virtual VkResult CreateRenderPass2(PFN_vkCreateRenderPass2        func,
-                                       VkDevice                       device,
-                                       const VkRenderPassCreateInfo2* create_info,
-                                       const VkAllocationCallbacks*   allocator,
-                                       VkRenderPass*                  render_pass) = 0;
-
-    virtual void CmdPipelineBarrier(PFN_vkCmdPipelineBarrier         func,
-                                    const decode::CommandBufferInfo* command_buffer_info,
-                                    VkPipelineStageFlags             src_stage_mask,
-                                    VkPipelineStageFlags             dst_stage_mask,
-                                    VkDependencyFlags                dependency_flags,
-                                    uint32_t                         memory_barrier_count,
-                                    const VkMemoryBarrier*           memory_barriers,
-                                    uint32_t                         buffer_memory_barrier_count,
-                                    const VkBufferMemoryBarrier*     buffer_memory_barriers,
-                                    uint32_t                         image_memory_barrier_count,
-                                    const VkImageMemoryBarrier*      image_memory_barriers) = 0;
 
     virtual void ProcessSetSwapchainImageStateCommand(
         VkPhysicalDevice                                              physical_device,
