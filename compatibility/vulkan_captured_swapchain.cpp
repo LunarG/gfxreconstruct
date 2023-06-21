@@ -87,47 +87,6 @@ VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImages
     return result;
 }
 
-VkResult VulkanCapturedSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                                      VkDevice                  device,
-                                                      VkSwapchainKHR            swapchain,
-                                                      uint64_t                  timeout,
-                                                      VkSemaphore               semaphore,
-                                                      VkFence                   fence,
-                                                      uint32_t                  capture_image_index,
-                                                      uint32_t*                 image_index)
-{
-    auto result = func(device, swapchain, timeout, semaphore, fence, image_index);
-
-    if ((image_index != nullptr) && (capture_image_index != *image_index))
-    {
-        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the index "
-                             "returned at capture, which may cause replay to fail.");
-        GFXRECON_LOG_WARNING(
-            "Try replay with the virtual swapchain mode via removing \"--use-captured-swapchain-indices\" option.");
-    }
-
-    return result;
-}
-
-VkResult VulkanCapturedSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
-                                                       VkDevice                         device,
-                                                       const VkAcquireNextImageInfoKHR* acquire_info,
-                                                       uint32_t                         capture_image_index,
-                                                       uint32_t*                        image_index)
-{
-    auto result = func(device, acquire_info, image_index);
-
-    if ((image_index != nullptr) && (capture_image_index != *image_index))
-    {
-        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the index "
-                             "returned at capture, which may cause replay to fail.");
-        GFXRECON_LOG_WARNING(
-            "Try replay with the virtual swapchain mode via removing \"--use-captured-swapchain-indices\" option.");
-    }
-
-    return result;
-}
-
 VkResult VulkanCapturedSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
                                                   const std::vector<uint32_t>&                  capture_image_indices,
                                                   const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
@@ -313,14 +272,17 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
 
                 if (result == VK_SUCCESS)
                 {
-                    result = AcquireNextImageKHR(device_table_->AcquireNextImageKHR,
-                                                 device,
-                                                 swapchain_info->handle,
-                                                 std::numeric_limits<uint64_t>::max(),
-                                                 acquire_semaphore,
-                                                 acquire_fence,
-                                                 static_cast<uint32_t>(i),
-                                                 &image_index);
+                    result = device_table_->AcquireNextImageKHR(device,
+                                                                swapchain_info->handle,
+                                                                std::numeric_limits<uint64_t>::max(),
+                                                                acquire_semaphore,
+                                                                acquire_fence,
+                                                                &image_index);
+                    if (image_index != static_cast<uint32_t>(i))
+                    {
+                        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the "
+                                             "expected index during setup");
+                    }
 
                     if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                     {
@@ -524,14 +486,17 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
 
                 if (result == VK_SUCCESS)
                 {
-                    result = AcquireNextImageKHR(device_table_->AcquireNextImageKHR,
-                                                 device,
-                                                 swapchain_info->handle,
-                                                 std::numeric_limits<uint64_t>::max(),
-                                                 VK_NULL_HANDLE,
-                                                 wait_fence,
-                                                 static_cast<uint32_t>(i),
-                                                 &image_index);
+                    result = device_table_->AcquireNextImageKHR(device,
+                                                                swapchain_info->handle,
+                                                                std::numeric_limits<uint64_t>::max(),
+                                                                VK_NULL_HANDLE,
+                                                                wait_fence,
+                                                                &image_index);
+                    if (image_index != static_cast<uint32_t>(i))
+                    {
+                        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the "
+                                             "expected index during setup");
+                    }
                 }
 
                 if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
@@ -618,14 +583,17 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
 
                 if (result == VK_SUCCESS)
                 {
-                    result = AcquireNextImageKHR(device_table_->AcquireNextImageKHR,
-                                                 device,
-                                                 swapchain_info->handle,
-                                                 std::numeric_limits<uint64_t>::max(),
-                                                 VK_NULL_HANDLE,
-                                                 wait_fence,
-                                                 static_cast<uint32_t>(i),
-                                                 &image_index);
+                    result = device_table_->AcquireNextImageKHR(device,
+                                                                swapchain_info->handle,
+                                                                std::numeric_limits<uint64_t>::max(),
+                                                                VK_NULL_HANDLE,
+                                                                wait_fence,
+                                                                &image_index);
+                    if (image_index != static_cast<uint32_t>(i))
+                    {
+                        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the "
+                                             "expected index during setup");
+                    }
                 }
 
                 if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))

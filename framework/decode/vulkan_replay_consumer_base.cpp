@@ -173,10 +173,12 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     if (options.enable_use_captured_swapchain_indices)
     {
         swapchain_ = std::make_unique<compatibility::VulkanCapturedSwapchain>();
+        validate_swapchain_image_indices_ = true;
     }
     else
     {
         swapchain_ = std::make_unique<compatibility::VulkanVirtualSwapchain>();
+        validate_swapchain_image_indices_ = false;
     }
 
     if (options_.enable_debug_device_lost)
@@ -5137,8 +5139,15 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
                 fence = fence_info->handle;
             }
 
-            result = swapchain_->AcquireNextImageKHR(
-                func, device_info->handle, swapchain, timeout, semaphore, fence, captured_index, replay_index);
+            result = func(device_info->handle, swapchain, timeout, semaphore, fence, replay_index);
+
+            if (validate_swapchain_image_indices_ && (replay_index != nullptr) && (captured_index != *replay_index))
+            {
+                GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the index "
+                                     "returned at capture, which may cause replay to fail.");
+                GFXRECON_LOG_WARNING("Try replay with the virtual swapchain mode via removing "
+                                     "\"--use-captured-swapchain-indices\" option.");
+            }
 
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
@@ -5246,8 +5255,15 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 
             auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(acquire_meta_info->swapchain);
 
-            result = swapchain_->AcquireNextImage2KHR(
-                func, device_info->handle, replay_acquire_info, captured_index, replay_index);
+            result = func(device_info->handle, replay_acquire_info, replay_index);
+
+            if (validate_swapchain_image_indices_ && (replay_index != nullptr) && (captured_index != *replay_index))
+            {
+                GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImage2KHR is different than the index "
+                                     "returned at capture, which may cause replay to fail.");
+                GFXRECON_LOG_WARNING("Try replay with the virtual swapchain mode via removing "
+                                     "\"--use-captured-swapchain-indices\" option.");
+            }
 
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
@@ -5358,15 +5374,21 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     GFXRECON_ASSERT(result == VK_SUCCESS);
 
                     uint32_t replay_index = 0;
-                    result                = swapchain_->AcquireNextImageKHR(device_table->AcquireNextImageKHR,
-                                                             swapchain_info->device_info->handle,
-                                                             swapchain_info->handle,
-                                                             std::numeric_limits<uint64_t>::max(),
-                                                             VK_NULL_HANDLE,
-                                                             acquire_fence,
-                                                             capture_image_index,
-                                                             &replay_index);
+                    result                = device_table->AcquireNextImageKHR(swapchain_info->device_info->handle,
+                                                               swapchain_info->handle,
+                                                               std::numeric_limits<uint64_t>::max(),
+                                                               VK_NULL_HANDLE,
+                                                               acquire_fence,
+                                                               &replay_index);
                     GFXRECON_ASSERT((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR));
+                    if (validate_swapchain_image_indices_ && (capture_image_index != replay_index))
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "The image index returned by vkAcquireNextImageKHR is different than the index "
+                            "returned at capture, which may cause replay to fail.");
+                        GFXRECON_LOG_WARNING("Try replay with the virtual swapchain mode via removing "
+                                             "\"--use-captured-swapchain-indices\" option.");
+                    }
 
                     result = device_table->WaitForFences(
                         device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
@@ -5527,15 +5549,21 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     GFXRECON_ASSERT(result == VK_SUCCESS);
 
                     uint32_t replay_index = 0;
-                    result                = swapchain_->AcquireNextImageKHR(device_table->AcquireNextImageKHR,
-                                                             swapchain_info->device_info->handle,
-                                                             swapchain_info->handle,
-                                                             std::numeric_limits<uint64_t>::max(),
-                                                             VK_NULL_HANDLE,
-                                                             acquire_fence,
-                                                             capture_image_index,
-                                                             &replay_index);
+                    result                = device_table->AcquireNextImageKHR(swapchain_info->device_info->handle,
+                                                               swapchain_info->handle,
+                                                               std::numeric_limits<uint64_t>::max(),
+                                                               VK_NULL_HANDLE,
+                                                               acquire_fence,
+                                                               &replay_index);
                     GFXRECON_ASSERT((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR));
+                    if (validate_swapchain_image_indices_ && (capture_image_index != replay_index))
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "The image index returned by vkAcquireNextImageKHR is different than the index "
+                            "returned at capture, which may cause replay to fail.");
+                        GFXRECON_LOG_WARNING("Try replay with the virtual swapchain mode via removing "
+                                             "\"--use-captured-swapchain-indices\" option.");
+                    }
 
                     result = device_table->WaitForFences(
                         device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());

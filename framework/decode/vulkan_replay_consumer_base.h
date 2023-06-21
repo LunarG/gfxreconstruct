@@ -1084,6 +1084,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
     std::unique_ptr<ScreenshotHandler>                               screenshot_handler_;
     std::unique_ptr<compatibility::VulkanSwapchain>                  swapchain_;
+    bool                                                             validate_swapchain_image_indices_;
     std::string                                                      screenshot_file_prefix_;
     int32_t                                                          create_surface_count_;
     graphics::FpsInfo*                                               fps_info_;

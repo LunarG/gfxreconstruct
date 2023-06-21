@@ -317,27 +317,6 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
     return result;
 }
 
-VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                                     VkDevice                  device,
-                                                     VkSwapchainKHR            swapchain,
-                                                     uint64_t                  timeout,
-                                                     VkSemaphore               semaphore,
-                                                     VkFence                   fence,
-                                                     uint32_t                  capture_image_index,
-                                                     uint32_t*                 image_index)
-{
-    return func(device, swapchain, timeout, semaphore, fence, image_index);
-}
-
-VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
-                                                      VkDevice                         device,
-                                                      const VkAcquireNextImageInfoKHR* acquire_info,
-                                                      uint32_t                         capture_image_index,
-                                                      uint32_t*                        image_index)
-{
-    return func(device, acquire_info, image_index);
-}
-
 VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
                                                  const std::vector<uint32_t>&                  capture_image_indices,
                                                  const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,

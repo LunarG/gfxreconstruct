@@ -57,21 +57,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                            uint32_t*                        image_count,
                                            VkImage*                         images) override;
 
-    virtual VkResult AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                         VkDevice                  device,
-                                         VkSwapchainKHR            swapchain,
-                                         uint64_t                  timeout,
-                                         VkSemaphore               semaphore,
-                                         VkFence                   fence,
-                                         uint32_t                  capture_image_index,
-                                         uint32_t*                 image_index) override;
-
-    virtual VkResult AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
-                                          VkDevice                         device,
-                                          const VkAcquireNextImageInfoKHR* acquire_info,
-                                          uint32_t                         capture_image_index,
-                                          uint32_t*                        image_index) override;
-
     virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
                                      const std::vector<uint32_t>&                  capture_image_indices,
                                      const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
