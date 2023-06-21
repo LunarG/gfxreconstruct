@@ -209,9 +209,19 @@ void AgsReplayConsumer::Process_agsInitialize(const ApiCallInfo&      call_info,
     if (ags_dll_loaded_)
     {
         captured_context_ = context;
-        AGSGPUInfo    gpu_info_replay{};
+        AGSGPUInfo gpu_info_replay{};
+
+        if (config != nullptr && (config->allocCallback != nullptr || config->freeCallback != nullptr))
+        {
+            GFXRECON_LOG_WARNING_ONCE(
+                "agsInitialize function was called with a non-null 'config' parameter during capture. "
+                "Now for replay, the parameter is set to a nullptr value, because the callback pointers can't be translated.");
+        }
+
+        AGSConfiguration* forced_config = nullptr;
+
         AGSReturnCode result =
-            ags_dispatch_table_.agsInitialize(agsVersion, config, &current_context_, &gpu_info_replay);
+            ags_dispatch_table_.agsInitialize(agsVersion, forced_config, &current_context_, &gpu_info_replay);
 
         CheckReplayResult("Process_agsInitialize", return_value, result);
     }
