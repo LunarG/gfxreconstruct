@@ -414,6 +414,12 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
         GFXRECON_WRITE_CONSOLE("\tEngine name: %s", vulkan_stats_consumer.GetEngineName().c_str());
         GFXRECON_WRITE_CONSOLE("\tEngine version: %u", vulkan_stats_consumer.GetEngineVersion());
         GFXRECON_WRITE_CONSOLE("\tTarget API version: %u (%s)", api_version, GetVersionString(api_version).c_str());
+        std::string resolutions = "\tUsed resolutions: ";
+        for (const auto& resolution : vulkan_stats_consumer.GetResolutions())
+        {
+            resolutions += std::to_string(resolution.width) + "x" + std::to_string(resolution.height) + " ";
+        }
+        GFXRECON_WRITE_CONSOLE(resolutions.c_str());
 
         // Properties for physical devices used to create logical devices.
         std::vector<const VkPhysicalDeviceProperties*> used_device_properties;
