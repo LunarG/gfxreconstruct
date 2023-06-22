@@ -936,6 +936,25 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          CommandBufferInfo*                                        command_buffer_info,
                                          StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* marker_info_decoder);
 
+    void OverrideCmdBeginRenderPass(PFN_vkCmdBeginRenderPass                             func,
+                                    CommandBufferInfo*                                   command_buffer_info,
+                                    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
+                                    VkSubpassContents                                    contents);
+
+    VkResult OverrideCreateImageView(PFN_vkCreateImageView                                func,
+                                     VkResult                                             original_result,
+                                     const DeviceInfo*                                    device_info,
+                                     StructPointerDecoder<Decoded_VkImageViewCreateInfo>* create_info_decoder,
+                                     StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator_decoder,
+                                     HandlePointerDecoder<VkImageView>*                   view_decoder);
+
+    VkResult OverrideCreateFramebuffer(PFN_vkCreateFramebuffer                                func,
+                                       VkResult                                               original_result,
+                                       const DeviceInfo*                                      device_info,
+                                       StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* create_info_decoder,
+                                       StructPointerDecoder<Decoded_VkAllocationCallbacks>*   allocator_decoder,
+                                       HandlePointerDecoder<VkFramebuffer>*                   frame_buffer_decoder);
+
   private:
     void RaiseFatalError(const char* message) const;
 

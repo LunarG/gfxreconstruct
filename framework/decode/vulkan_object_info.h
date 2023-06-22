@@ -189,7 +189,6 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 typedef VulkanObjectInfo<VkEvent>                         EventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
 typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
-typedef VulkanObjectInfo<VkImageView>                     ImageViewInfo;
 typedef VulkanObjectInfo<VkShaderModule>                  ShaderModuleInfo;
 typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>               PrivateDataSlotInfo;
@@ -433,9 +432,16 @@ struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
     std::unordered_map<uint32_t, size_t> array_counts;
 };
 
+struct ImageViewInfo : public VulkanObjectInfo<VkImageView>
+{
+    format::HandleId image_id{ format::kNullHandleId };
+};
+
 struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    std::vector<format::HandleId> attachment_image_view_ids;
 };
 
 struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR>
@@ -459,7 +465,8 @@ struct ShaderEXTInfo : VulkanObjectInfo<VkShaderEXT>
 
 struct CommandBufferInfo : VulkanPoolObjectInfo<VkCommandBuffer>
 {
-    bool is_frame_boundary{ false };
+    bool                          is_frame_boundary{ false };
+    std::vector<format::HandleId> frame_buffer_ids;
 };
 
 //

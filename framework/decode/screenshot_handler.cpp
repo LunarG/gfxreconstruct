@@ -90,6 +90,16 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
         return;
     }
 
+    if ((width == 0) || (height == 0))
+    {
+        GFXRECON_LOG_WARNING("Cannot create screenshot \"%s\" for 0 size image (width=%" PRIu32 ", height=%" PRIu32
+                             ").",
+                             filename_prefix.c_str(),
+                             width,
+                             height);
+        return;
+    }
+
     VkResult result = VK_SUCCESS;
 
     // TODO: Improved queue selection; ensure queue supports transfer operations.
