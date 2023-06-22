@@ -90,6 +90,9 @@
     "vkGetPhysicalDeviceToolPropertiesEXT": "OverrideGetPhysicalDeviceToolProperties",
     "vkBeginCommandBuffer": "OverrideBeginCommandBuffer",
     "vkResetCommandBuffer": "OverrideResetCommandBuffer",
-    "vkCmdDebugMarkerInsertEXT": "OverrideCmdDebugMarkerInsertEXT"
+    "vkCmdDebugMarkerInsertEXT": "OverrideCmdDebugMarkerInsertEXT",
+    "vkCmdBeginRenderPass": "OverrideCmdBeginRenderPass",
+    "vkCreateImageView": "OverrideCreateImageView",
+    "vkCreateFramebuffer": "OverrideCreateFramebuffer"
   }
 }

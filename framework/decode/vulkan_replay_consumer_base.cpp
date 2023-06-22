@@ -2163,10 +2163,59 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const Comm
     {
         if (screenshot_handler_->IsScreenshotFrame())
         {
-            GFXRECON_LOG_ERROR("Unable to take screenshot requested for frame %" PRIu32
-                               ". The frame ends with vkQueueSubmit* and screenshot requires frames to end with "
-                               "vkQueuePresent.",
-                               screenshot_handler_->GetCurrentFrame());
+            DeviceInfo* device_info = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
+
+            auto instance_table = GetInstanceTable(device_info->parent);
+            GFXRECON_ASSERT(instance_table != nullptr);
+
+            // TODO: This should be stored in the DeviceInfo structure to avoid the need for frequent queries.
+            VkPhysicalDeviceMemoryProperties memory_properties;
+            instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
+
+            for (size_t i = 0; i < command_buffer_info->frame_buffer_ids.size(); ++i)
+            {
+                auto framebuffer_info = object_info_table_.GetFramebufferInfo(command_buffer_info->frame_buffer_ids[i]);
+
+                for (size_t j = 0; j < framebuffer_info->attachment_image_view_ids.size(); ++j)
+                {
+                    auto image_view_id   = framebuffer_info->attachment_image_view_ids[j];
+                    auto image_view_info = object_info_table_.GetImageViewInfo(image_view_id);
+                    auto image_info      = object_info_table_.GetImageInfo(image_view_info->image_id);
+
+                    // Only screenshot images that are color attachments.
+                    if ((image_info->usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) !=
+                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+                    {
+                        continue;
+                    }
+
+                    std::string filename_prefix = screenshot_file_prefix_;
+                    filename_prefix += "_frame_";
+                    filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
+
+                    if (command_buffer_info->frame_buffer_ids.size() > 0)
+                    {
+                        filename_prefix += "_renderpass_";
+                        filename_prefix += std::to_string(i);
+                    }
+
+                    if (framebuffer_info->attachment_image_view_ids.size() > 0)
+                    {
+                        filename_prefix += "_attachment_";
+                        filename_prefix += std::to_string(j);
+                    }
+
+                    screenshot_handler_->WriteImage(filename_prefix,
+                                                    device_info->handle,
+                                                    GetDeviceTable(device_info->handle),
+                                                    memory_properties,
+                                                    device_info->allocator.get(),
+                                                    image_info->handle,
+                                                    image_info->format,
+                                                    image_info->extent.width,
+                                                    image_info->extent.height);
+                }
+            }
         }
         screenshot_handler_->EndFrame();
         return true;
@@ -3215,7 +3264,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
     // Check whether any of the submitted command lists buffers are frame boundaries.
     if (screenshot_handler_ != nullptr)
     {
-        bool is_frame_boundary = false;
+        CommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
             if (submit_info_data != nullptr)
@@ -6366,6 +6415,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesAND
 void VulkanReplayConsumerBase::ClearCommandBufferInfo(CommandBufferInfo* command_buffer_info)
 {
     command_buffer_info->is_frame_boundary = false;
+    command_buffer_info->frame_buffer_ids.clear();
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
@@ -6406,6 +6456,77 @@ void VulkanReplayConsumerBase::OverrideCmdDebugMarkerInsertEXT(
         command_buffer_info->is_frame_boundary = true;
     }
 };
+
+void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
+    PFN_vkCmdBeginRenderPass                             func,
+    CommandBufferInfo*                                   command_buffer_info,
+    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
+    VkSubpassContents                                    contents)
+{
+    command_buffer_info->frame_buffer_ids.push_back(
+        render_pass_begin_info_decoder->GetMetaStructPointer()->framebuffer);
+
+    VkCommandBuffer command_buffer = command_buffer_info->handle;
+    return func(command_buffer, render_pass_begin_info_decoder->GetPointer(), contents);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
+    PFN_vkCreateImageView                                func,
+    VkResult                                             original_result,
+    const DeviceInfo*                                    device_info,
+    StructPointerDecoder<Decoded_VkImageViewCreateInfo>* create_info_decoder,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator_decoder,
+    HandlePointerDecoder<VkImageView>*                   view_decoder)
+{
+    VkDevice                     device      = device_info->handle;
+    const VkImageViewCreateInfo* create_info = create_info_decoder->GetPointer();
+    const VkAllocationCallbacks* allocator   = GetAllocationCallbacks(allocator_decoder);
+    VkImageView*                 out_view    = view_decoder->GetHandlePointer();
+
+    VkResult result = func(device, create_info, allocator, out_view);
+
+    if ((result == VK_SUCCESS) && ((*out_view) != VK_NULL_HANDLE))
+    {
+        auto image_view_info = reinterpret_cast<ImageViewInfo*>(view_decoder->GetConsumerData(0));
+        GFXRECON_ASSERT(image_view_info != nullptr);
+
+        image_view_info->image_id = create_info_decoder->GetMetaStructPointer()->image;
+    }
+
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateFramebuffer(
+    PFN_vkCreateFramebuffer                                func,
+    VkResult                                               original_result,
+    const DeviceInfo*                                      device_info,
+    StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* create_info_decoder,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*   allocator_decoder,
+    HandlePointerDecoder<VkFramebuffer>*                   frame_buffer_decoder)
+{
+    VkDevice                       device          = device_info->handle;
+    const VkFramebufferCreateInfo* create_info     = create_info_decoder->GetPointer();
+    const VkAllocationCallbacks*   allocator       = GetAllocationCallbacks(allocator_decoder);
+    VkFramebuffer*                 out_framebuffer = frame_buffer_decoder->GetHandlePointer();
+
+    VkResult result = func(device, create_info, allocator, out_framebuffer);
+
+    if ((result == VK_SUCCESS) && ((*out_framebuffer) != VK_NULL_HANDLE) && (create_info->attachmentCount > 0) &&
+        (create_info->pAttachments != nullptr) &&
+        ((create_info->flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) != VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT))
+    {
+        auto framebuffer_info = reinterpret_cast<FramebufferInfo*>(frame_buffer_decoder->GetConsumerData(0));
+        GFXRECON_ASSERT(framebuffer_info != nullptr);
+
+        for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
+        {
+            framebuffer_info->attachment_image_view_ids.push_back(
+                create_info_decoder->GetMetaStructPointer()->pAttachments.GetPointer()[i]);
+        }
+    }
+
+    return result;
+}
 
 // We want to allow skipping the query for tool properties because the capture layer actually adds this extension
 // and the application may end up using the query.  However, this extension may not be present for replay, so
