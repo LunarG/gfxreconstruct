@@ -634,7 +634,6 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
             {
                 swapchain->DestroySwapchainKHR(get_device_table(parent_info->handle)->DestroySwapchainKHR,
                                                parent_info->handle,
-                                               parent_info->allocator.get(),
                                                object_info,
                                                nullptr);
             }

@@ -33,29 +33,28 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
   public:
     virtual ~VulkanCapturedSwapchain() override {}
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
-                                        VkDevice                        device,
-                                        const VkSwapchainCreateInfoKHR* create_info,
-                                        const VkAllocationCallbacks*    allocator,
-                                        VkSwapchainKHR*                 swapchain,
-                                        const VkPhysicalDevice          physical_device,
-                                        const encode::InstanceTable*    instance_table,
-                                        const encode::DeviceTable*      device_table) override;
+    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR          func,
+                                        VkDevice                          device,
+                                        const VkSwapchainCreateInfoKHR*   create_info,
+                                        const ResourceAllocatorCallbacks* resource_alloc_callbacks,
+                                        const VkAllocationCallbacks*      allocator,
+                                        VkSwapchainKHR*                   swapchain,
+                                        const VkPhysicalDevice            physical_device,
+                                        const encode::InstanceTable*      instance_table,
+                                        const encode::DeviceTable*        device_table) override;
 
-    virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR        func,
-                                     VkDevice                         device,
-                                     decode::VulkanResourceAllocator* resource_allocator,
-                                     const decode::SwapchainKHRInfo*  swapchain_info,
-                                     const VkAllocationCallbacks*     allocator) override;
+    virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR       func,
+                                     VkDevice                        device,
+                                     const decode::SwapchainKHRInfo* swapchain_info,
+                                     const VkAllocationCallbacks*    allocator) override;
 
-    virtual VkResult GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR      func,
-                                           VkPhysicalDevice                 physical_device,
-                                           VkDevice                         device,
-                                           decode::VulkanResourceAllocator* resource_allocator,
-                                           decode::SwapchainKHRInfo*        swapchain_info,
-                                           uint32_t                         capture_image_count,
-                                           uint32_t*                        image_count,
-                                           VkImage*                         images) override;
+    virtual VkResult GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
+                                           VkPhysicalDevice            physical_device,
+                                           VkDevice                    device,
+                                           decode::SwapchainKHRInfo*   swapchain_info,
+                                           uint32_t                    capture_image_count,
+                                           uint32_t*                   image_count,
+                                           VkImage*                    images) override;
 
     virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
                                      const std::vector<uint32_t>&                  capture_image_indices,
@@ -66,22 +65,21 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
     virtual void ProcessSetSwapchainImageStateCommand(
         VkPhysicalDevice                                              physical_device,
         VkDevice                                                      device,
-        decode::VulkanResourceAllocator*                              resource_allocator,
         const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
         decode::SwapchainKHRInfo*                                     swapchain_info,
         uint32_t                                                      last_presented_image,
-        const std::vector<format::SwapchainImageStateInfo>&           image_info,
+        const std::vector<AllocatedImageData>&                        image_info,
         const decode::VulkanObjectInfoTable&                          object_info_table,
         decode::SwapchainImageTracker&                                swapchain_image_tracker) override;
 
   private:
     // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
     // the expected layout and keep them acquired until first use.
-    void ProcessSetSwapchainImageStatePreAcquire(VkDevice                                            device,
-                                                 decode::SwapchainKHRInfo*                           swapchain_info,
-                                                 const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                 const decode::VulkanObjectInfoTable&                object_info_table,
-                                                 decode::SwapchainImageTracker& swapchain_image_tracker);
+    void ProcessSetSwapchainImageStatePreAcquire(VkDevice                               device,
+                                                 decode::SwapchainKHRInfo*              swapchain_info,
+                                                 const std::vector<AllocatedImageData>& image_info,
+                                                 const decode::VulkanObjectInfoTable&   object_info_table,
+                                                 decode::SwapchainImageTracker&         swapchain_image_tracker);
 
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
     // the expected layout, and then call queue present if the image is not expected to be in the acquired state so that
@@ -91,7 +89,7 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
         const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
         decode::SwapchainKHRInfo*                                     swapchain_info,
         uint32_t                                                      last_presented_image,
-        const std::vector<format::SwapchainImageStateInfo>&           image_info,
+        const std::vector<AllocatedImageData>&                        image_info,
         const decode::VulkanObjectInfoTable&                          object_info_table);
 };
 

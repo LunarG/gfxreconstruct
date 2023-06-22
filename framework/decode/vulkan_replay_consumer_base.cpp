@@ -172,12 +172,12 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     // Process option to select swapchain handler. The options is '--use-captured-swapchain-indices'.
     if (options.enable_use_captured_swapchain_indices)
     {
-        swapchain_ = std::make_unique<compatibility::VulkanCapturedSwapchain>();
+        swapchain_                        = std::make_unique<compatibility::VulkanCapturedSwapchain>();
         validate_swapchain_image_indices_ = true;
     }
     else
     {
-        swapchain_ = std::make_unique<compatibility::VulkanVirtualSwapchain>();
+        swapchain_                        = std::make_unique<compatibility::VulkanVirtualSwapchain>();
         validate_swapchain_image_indices_ = false;
     }
 
@@ -689,13 +689,27 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
         assert((device_info->handle != VK_NULL_HANDLE) && (device_info->parent != VK_NULL_HANDLE) &&
                (device_info->allocator != nullptr));
         assert(swapchain_info->handle != VK_NULL_HANDLE);
+
+        std::vector<compatibility::AllocatedImageData> swapchain_image_info;
+        swapchain_image_info.resize(image_info.size());
+        for (size_t iii = 0; iii < image_info.size(); ++iii)
+        {
+            swapchain_image_info[iii].image_id     = image_info[iii].image_id;
+            swapchain_image_info[iii].image_layout = image_info[iii].image_layout;
+            swapchain_image_info[iii].acquired     = image_info[iii].acquired;
+
+            const decode::ImageInfo* image_entry = object_info_table_.GetImageInfo(image_info[iii].image_id);
+            if (image_entry != nullptr)
+            {
+                swapchain_image_info[iii].image = image_entry->handle;
+            }
+        }
         swapchain_->ProcessSetSwapchainImageStateCommand(device_info->parent,
                                                          device_info->handle,
-                                                         device_info->allocator.get(),
                                                          device_info->queue_family_creation_flags,
                                                          swapchain_info,
                                                          last_presented_image,
-                                                         image_info,
+                                                         swapchain_image_info,
                                                          object_info_table_,
                                                          swapchain_image_tracker_);
     }
@@ -4779,6 +4793,87 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
                 pMessenger->GetHandlePointer());
 }
 
+// Callback functions required to work with the compatibility library since it has no direct
+// knowledge of the VulkanResourceAllocator.
+// ------------------------
+VkResult CreateImageResource(void*                        allocator_class,
+                             const VkImageCreateInfo*     create_info,
+                             const VkAllocationCallbacks* allocation_callbacks,
+                             VkImage*                     image,
+                             uintptr_t*                   resource_id)
+{
+    gfxrecon::decode::VulkanResourceAllocator* resource_allocator =
+        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator*>(allocator_class);
+    gfxrecon::decode::VulkanResourceAllocator::ResourceData data;
+    VkResult res = resource_allocator->CreateImageDirect(create_info, allocation_callbacks, image, &data);
+    if (res == VK_SUCCESS && resource_id != nullptr)
+    {
+        *resource_id = reinterpret_cast<uintptr_t>(data);
+    }
+    return res;
+}
+
+void DestroyImageResource(void*                        allocator_class,
+                          VkImage                      image,
+                          const VkAllocationCallbacks* allocation_callbacks,
+                          uintptr_t                    resource_id)
+{
+    gfxrecon::decode::VulkanResourceAllocator* resource_allocator =
+        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator*>(allocator_class);
+    gfxrecon::decode::VulkanResourceAllocator::ResourceData data =
+        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator::ResourceData>(resource_id);
+    resource_allocator->DestroyImageDirect(image, allocation_callbacks, data);
+}
+
+VkResult AllocateDeviceMemoryResource(void*                        allocator_class,
+                                      const VkMemoryAllocateInfo*  allocate_info,
+                                      const VkAllocationCallbacks* allocation_callbacks,
+                                      VkDeviceMemory*              memory,
+                                      uintptr_t*                   resource_id)
+{
+    gfxrecon::decode::VulkanResourceAllocator* resource_allocator =
+        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator*>(allocator_class);
+    gfxrecon::decode::VulkanResourceAllocator::MemoryData data;
+    VkResult res = resource_allocator->AllocateMemoryDirect(allocate_info, allocation_callbacks, memory, &data);
+    if (res == VK_SUCCESS && resource_id != nullptr)
+    {
+        *resource_id = reinterpret_cast<uintptr_t>(data);
+    }
+    return res;
+}
+
+void FreeDeviceMemoryResource(void*                        allocator_class,
+                              VkDeviceMemory               memory,
+                              const VkAllocationCallbacks* allocation_callbacks,
+                              uintptr_t                    resource_id)
+{
+    gfxrecon::decode::VulkanResourceAllocator* resource_allocator =
+        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator*>(allocator_class);
+    gfxrecon::decode::VulkanResourceAllocator::MemoryData data =
+        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator::MemoryData>(resource_id);
+    resource_allocator->FreeMemoryDirect(memory, allocation_callbacks, data);
+}
+
+VkResult BindImageResourceToDeviceMemoryResource(void*                  allocator_class,
+                                                 VkImage                image,
+                                                 VkDeviceMemory         memory,
+                                                 VkDeviceSize           memory_offset,
+                                                 uintptr_t              image_resource_id,
+                                                 uintptr_t              memory_resource_id,
+                                                 VkMemoryPropertyFlags* bind_memory_properties)
+{
+    gfxrecon::decode::VulkanResourceAllocator* resource_allocator =
+        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator*>(allocator_class);
+    gfxrecon::decode::VulkanResourceAllocator::ResourceData resource_data =
+        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator::ResourceData>(image_resource_id);
+    gfxrecon::decode::VulkanResourceAllocator::MemoryData memory_data =
+        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator::MemoryData>(memory_resource_id);
+    return resource_allocator->BindImageMemoryDirect(
+        image, memory, memory_offset, resource_data, memory_data, bind_memory_properties);
+}
+// End of callback functions
+// ------------------------
+
 VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     PFN_vkCreateSwapchainKHR                                      func,
     VkResult                                                      original_result,
@@ -4818,11 +4913,20 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         VkDevice                     device          = device_info->handle;
         const encode::DeviceTable*   device_table    = GetDeviceTable(device);
 
+        auto allocator = device_info->allocator.get();
+        assert(allocator != nullptr);
+        compatibility::ResourceAllocatorCallbacks resource_callbacks{ allocator,
+                                                                      CreateImageResource,
+                                                                      DestroyImageResource,
+                                                                      AllocateDeviceMemoryResource,
+                                                                      FreeDeviceMemoryResource,
+                                                                      BindImageResourceToDeviceMemoryResource };
         if (screenshot_handler_ == nullptr)
         {
             result = swapchain_->CreateSwapchainKHR(func,
                                                     device_info->handle,
                                                     replay_create_info,
+                                                    &resource_callbacks,
                                                     GetAllocationCallbacks(pAllocator),
                                                     replay_swapchain,
                                                     physical_device,
@@ -4837,6 +4941,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             result = swapchain_->CreateSwapchainKHR(func,
                                                     device_info->handle,
                                                     &modified_create_info,
+                                                    &resource_callbacks,
                                                     GetAllocationCallbacks(pAllocator),
                                                     replay_swapchain,
                                                     physical_device,
@@ -4911,11 +5016,7 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     }
     else
     {
-        swapchain_->DestroySwapchainKHR(func,
-                                        device_info->handle,
-                                        device_info->allocator.get(),
-                                        swapchain_info,
-                                        GetAllocationCallbacks(pAllocator));
+        swapchain_->DestroySwapchainKHR(func, device_info->handle, swapchain_info, GetAllocationCallbacks(pAllocator));
     }
 }
 
@@ -5009,7 +5110,6 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
         result = swapchain_->GetSwapchainImagesKHR(func,
                                                    device_info->parent,
                                                    device_info->handle,
-                                                   device_info->allocator.get(),
                                                    swapchain_info,
                                                    capture_image_count,
                                                    replay_image_count,
