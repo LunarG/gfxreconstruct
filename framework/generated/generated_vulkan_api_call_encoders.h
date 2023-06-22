@@ -365,22 +365,6 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
     uint32_t                                    srcCacheCount,
     const VkPipelineCache*                      pSrcCaches);
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
-    VkDevice                                    device,
-    VkPipelineCache                             pipelineCache,
-    uint32_t                                    createInfoCount,
-    const VkGraphicsPipelineCreateInfo*         pCreateInfos,
-    const VkAllocationCallbacks*                pAllocator,
-    VkPipeline*                                 pPipelines);
-
-VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
-    VkDevice                                    device,
-    VkPipelineCache                             pipelineCache,
-    uint32_t                                    createInfoCount,
-    const VkComputePipelineCreateInfo*          pCreateInfos,
-    const VkAllocationCallbacks*                pAllocator,
-    VkPipeline*                                 pPipelines);
-
 VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
     VkDevice                                    device,
     VkPipeline                                  pipeline,
@@ -2334,14 +2318,6 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(
     uint32_t                                    height,
     uint32_t                                    depth);
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
-    VkDevice                                    device,
-    VkPipelineCache                             pipelineCache,
-    uint32_t                                    createInfoCount,
-    const VkRayTracingPipelineCreateInfoNV*     pCreateInfos,
-    const VkAllocationCallbacks*                pAllocator,
-    VkPipeline*                                 pPipelines);
-
 VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(
     VkDevice                                    device,
     VkPipeline                                  pipeline,
@@ -3215,15 +3191,6 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(
     uint32_t                                    width,
     uint32_t                                    height,
     uint32_t                                    depth);
-
-VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(
-    VkDevice                                    device,
-    VkDeferredOperationKHR                      deferredOperation,
-    VkPipelineCache                             pipelineCache,
-    uint32_t                                    createInfoCount,
-    const VkRayTracingPipelineCreateInfoKHR*    pCreateInfos,
-    const VkAllocationCallbacks*                pAllocator,
-    VkPipeline*                                 pPipelines);
 
 VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(
     VkDevice                                    device,

@@ -145,6 +145,7 @@ class CaptureManager
     bool GetIUnknownWrappingSetting() const { return iunknown_wrapping_; }
     auto GetForceCommandSerialization() const { return force_command_serialization_; }
     auto GetQueueZeroOnly() const { return queue_zero_only_; }
+    auto GetAllowPipelineCompileRequired() const { return allow_pipeline_compile_required_; }
 
     bool     IsAnnotated() const { return rv_annotation_info_.rv_annotation; }
     uint16_t GetGPUVAMask() const { return rv_annotation_info_.gpuva_mask; }
@@ -334,6 +335,7 @@ class CaptureManager
     bool                                    iunknown_wrapping_;
     bool                                    force_command_serialization_;
     bool                                    queue_zero_only_;
+    bool                                    allow_pipeline_compile_required_;
 
     struct
     {
