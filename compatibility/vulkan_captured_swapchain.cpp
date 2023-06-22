@@ -21,6 +21,7 @@
 */
 
 #include "vulkan_captured_swapchain.h"
+#include "swapchain_image_tracker.h"
 
 #include "util/logging.h"
 
@@ -40,6 +41,7 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR   
     instance_table_           = instance_table;
     device_table_             = device_table;
     resource_alloc_callbacks_ = (*resource_alloc_callbacks);
+    swapchain_image_tracker_  = new SwapchainImageTracker();
 
     return func(device, create_info, allocator, swapchain);
 }
@@ -57,6 +59,12 @@ void VulkanCapturedSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     
     }
 
     func(device, swapchain, allocator);
+
+    if (swapchain_image_tracker_)
+    {
+        delete swapchain_image_tracker_;
+        swapchain_image_tracker_ = nullptr;
+    }
 }
 
 VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
@@ -101,49 +109,26 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     VkDevice                                                      device,
     const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
     decode::SwapchainKHRInfo*                                     swapchain_info,
+    VkSurfaceKHR                                                  surface,
+    VkSurfaceCapabilitiesKHR&                                     surface_caps,
     uint32_t                                                      last_presented_image,
-    const std::vector<AllocatedImageData>&                        image_info,
-    const decode::VulkanObjectInfoTable&                          object_info_table,
-    decode::SwapchainImageTracker&                                swapchain_image_tracker)
+    const std::vector<AllocatedImageData>&                        image_info)
 {
-
     VkSwapchainKHR swapchain = swapchain_info->handle;
 
-    const decode::SurfaceKHRInfo* surface_info = object_info_table.GetSurfaceKHRInfo(swapchain_info->surface_id);
-    if (surface_info->surface_creation_skipped)
-    {
-        return;
-    }
+    assert((instance_table_ != nullptr) && (device_table_ != nullptr));
 
-    VkSurfaceKHR surface = swapchain_info->surface;
-    assert((surface_info != nullptr) && (instance_table_ != nullptr) && (device_table_ != nullptr));
+    uint32_t image_count = 0;
+    VkResult result      = VK_SUCCESS;
 
-    VkSurfaceCapabilitiesKHR surface_caps;
-    uint32_t                 image_count = 0;
-
-    const auto& entry  = surface_info->surface_capabilities.find(physical_device);
-    VkResult    result = VK_SUCCESS;
-    if (entry != surface_info->surface_capabilities.end())
-    {
-        surface_caps = entry->second;
-    }
-    else
-    {
-        result = instance_table_->GetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surface_caps);
-    }
-
-    if (result == VK_SUCCESS)
-    {
-        uint32_t capture_image_count = static_cast<uint32_t>(image_info.size());
-        result                       = GetSwapchainImagesKHR(device_table_->GetSwapchainImagesKHR,
-                                       physical_device,
-                                       device,
-                                       swapchain_info,
-                                       capture_image_count,
-                                       &image_count,
-                                       nullptr);
-    }
-
+    uint32_t capture_image_count = static_cast<uint32_t>(image_info.size());
+    result                       = GetSwapchainImagesKHR(device_table_->GetSwapchainImagesKHR,
+                                   physical_device,
+                                   device,
+                                   swapchain_info,
+                                   capture_image_count,
+                                   &image_count,
+                                   nullptr);
     if (result == VK_SUCCESS)
     {
         // Determine if it is possible to acquire all images at the same time.
@@ -153,17 +138,12 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
         if (image_count > max_acquired_images)
         {
             // Cannot acquire all images at the same time.
-            ProcessSetSwapchainImageStateQueueSubmit(device,
-                                                     queue_family_creation_flags,
-                                                     swapchain_info,
-                                                     last_presented_image,
-                                                     image_info,
-                                                     object_info_table);
+            ProcessSetSwapchainImageStateQueueSubmit(
+                device, queue_family_creation_flags, swapchain_info, last_presented_image, image_info);
         }
         else
         {
-            ProcessSetSwapchainImageStatePreAcquire(
-                device, swapchain_info, image_info, object_info_table, swapchain_image_tracker);
+            ProcessSetSwapchainImageStatePreAcquire(device, swapchain_info, image_info);
         }
     }
     else
@@ -175,12 +155,9 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     }
 }
 
-void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
-    VkDevice                               device,
-    decode::SwapchainKHRInfo*              swapchain_info,
-    const std::vector<AllocatedImageData>& image_info,
-    const decode::VulkanObjectInfoTable&   object_info_table,
-    decode::SwapchainImageTracker&         swapchain_image_tracker)
+void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(VkDevice                  device,
+                                                                      decode::SwapchainKHRInfo* swapchain_info,
+                                                                      const std::vector<AllocatedImageData>& image_info)
 {
     assert(device_table_ != nullptr);
 
@@ -338,7 +315,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                                 // The upcoming frames do not expect the image to be acquired. We will store the
                                 // image and the synchronization objects used to acquire it in a data structure.
                                 // Replay of vkAcquireNextImage will retrieve and use the stored objects.
-                                swapchain_image_tracker.TrackPreAcquiredImage(
+                                swapchain_image_tracker_->TrackPreAcquiredImage(
                                     swapchain, image_index, acquire_semaphore, acquire_fence);
                             }
                         }
@@ -376,8 +353,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
     decode::SwapchainKHRInfo*                                     swapchain_info,
     uint32_t                                                      last_presented_image,
-    const std::vector<AllocatedImageData>&                        image_info,
-    const decode::VulkanObjectInfoTable&                          object_info_table)
+    const std::vector<AllocatedImageData>&                        image_info)
 {
     assert(device_table_ != nullptr);
 
@@ -673,6 +649,14 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     {
         device_table_->DestroyFence(device, wait_fence, nullptr);
     }
+}
+
+bool VulkanCapturedSwapchain::RetrievePreAcquiredImage(VkSwapchainKHR swapchain,
+                                                       uint32_t       image_index,
+                                                       VkSemaphore*   semaphore,
+                                                       VkFence*       fence)
+{
+    return swapchain_image_tracker_->RetrievePreAcquiredImage(swapchain, image_index, semaphore, fence);
 }
 
 GFXRECON_END_NAMESPACE(compatibility)

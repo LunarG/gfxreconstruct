@@ -25,7 +25,6 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
-#include "decode/swapchain_image_tracker.h"
 
 #include "util/defines.h"
 
@@ -96,6 +95,8 @@ struct AllocatedImageData
     uintptr_t      image_resource_id{ 0 };
 };
 
+class SwapchainImageTracker;
+
 class VulkanSwapchain
 {
   public:
@@ -135,15 +136,23 @@ class VulkanSwapchain
         VkDevice                                                      device,
         const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
         decode::SwapchainKHRInfo*                                     swapchain_info,
+        VkSurfaceKHR                                                  surface,
+        VkSurfaceCapabilitiesKHR&                                     surface_caps,
         uint32_t                                                      last_presented_image,
-        const std::vector<AllocatedImageData>&                        image_info,
-        const decode::VulkanObjectInfoTable&                          object_info_table,
-        decode::SwapchainImageTracker&                                swapchain_image_tracker) = 0;
+        const std::vector<AllocatedImageData>&                        image_info)
+    {}
+
+    virtual bool
+    RetrievePreAcquiredImage(VkSwapchainKHR swapchain, uint32_t image_index, VkSemaphore* semaphore, VkFence* fence)
+    {
+        return false;
+    }
 
   protected:
     const encode::InstanceTable* instance_table_{ nullptr };
     const encode::DeviceTable*   device_table_{ nullptr };
     ResourceAllocatorCallbacks   resource_alloc_callbacks_;
+    SwapchainImageTracker*       swapchain_image_tracker_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(compatibility)

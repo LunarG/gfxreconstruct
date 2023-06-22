@@ -704,14 +704,37 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
                 swapchain_image_info[iii].image = image_entry->handle;
             }
         }
-        swapchain_->ProcessSetSwapchainImageStateCommand(device_info->parent,
-                                                         device_info->handle,
-                                                         device_info->queue_family_creation_flags,
-                                                         swapchain_info,
-                                                         last_presented_image,
-                                                         swapchain_image_info,
-                                                         object_info_table_,
-                                                         swapchain_image_tracker_);
+        const decode::SurfaceKHRInfo* surface_info = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface_id);
+        if (!surface_info->surface_creation_skipped)
+        {
+            VkResult                 result          = VK_SUCCESS;
+            VkPhysicalDevice         physical_device = device_info->parent;
+            VkSurfaceKHR             surface         = surface_info->handle;
+            VkSurfaceCapabilitiesKHR surface_caps;
+
+            const auto& entry = surface_info->surface_capabilities.find(physical_device);
+            if (entry != surface_info->surface_capabilities.end())
+            {
+                surface_caps = entry->second;
+            }
+            else
+            {
+                result = GetInstanceTable(physical_device)
+                             ->GetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surface_caps);
+            }
+
+            if (result == VK_SUCCESS)
+            {
+                swapchain_->ProcessSetSwapchainImageStateCommand(device_info->parent,
+                                                                 device_info->handle,
+                                                                 device_info->queue_family_creation_flags,
+                                                                 swapchain_info,
+                                                                 surface,
+                                                                 surface_caps,
+                                                                 last_presented_image,
+                                                                 swapchain_image_info);
+            }
+        }
     }
     else
     {
@@ -5182,8 +5205,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
         VkFence        preacquire_fence     = VK_NULL_HANDLE;
         uint32_t       captured_index       = (*pImageIndex->GetPointer());
 
-        if (swapchain_image_tracker_.RetrievePreAcquiredImage(
-                swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
+        if (swapchain_->RetrievePreAcquiredImage(swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
         {
             auto table = GetDeviceTable(device);
             assert(table != nullptr);
@@ -5309,7 +5331,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
         auto        replay_acquire_info  = pAcquireInfo->GetPointer();
         uint32_t    captured_index       = (*pImageIndex->GetPointer());
 
-        if (swapchain_image_tracker_.RetrievePreAcquiredImage(
+        if (swapchain_->RetrievePreAcquiredImage(
                 replay_acquire_info->swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
         {
             auto table = GetDeviceTable(device);

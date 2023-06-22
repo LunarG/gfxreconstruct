@@ -62,17 +62,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                      VkQueue                                       queue,
                                      const VkPresentInfoKHR*                       present_info) override;
 
-    virtual void ProcessSetSwapchainImageStateCommand(
-        VkPhysicalDevice                                              physical_device,
-        VkDevice                                                      device,
-        const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
-        decode::SwapchainKHRInfo*                                     swapchain_info,
-        uint32_t                                                      last_presented_image,
-        const std::vector<AllocatedImageData>&                        image_info,
-        const decode::VulkanObjectInfoTable&                          object_info_table,
-        decode::SwapchainImageTracker&                                swapchain_image_tracker) override
-    {}
-
   private:
     VkResult CreateSwapchainImage(VkPhysicalDevice         physical_device,
                                   VkDevice                 device,

@@ -67,19 +67,22 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
         VkDevice                                                      device,
         const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
         decode::SwapchainKHRInfo*                                     swapchain_info,
+        VkSurfaceKHR                                                  surface,
+        VkSurfaceCapabilitiesKHR&                                     surface_caps,
         uint32_t                                                      last_presented_image,
-        const std::vector<AllocatedImageData>&                        image_info,
-        const decode::VulkanObjectInfoTable&                          object_info_table,
-        decode::SwapchainImageTracker&                                swapchain_image_tracker) override;
+        const std::vector<AllocatedImageData>&                        image_info) override;
+
+    virtual bool RetrievePreAcquiredImage(VkSwapchainKHR swapchain,
+                                          uint32_t       image_index,
+                                          VkSemaphore*   semaphore,
+                                          VkFence*       fence) override;
 
   private:
     // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
     // the expected layout and keep them acquired until first use.
     void ProcessSetSwapchainImageStatePreAcquire(VkDevice                               device,
                                                  decode::SwapchainKHRInfo*              swapchain_info,
-                                                 const std::vector<AllocatedImageData>& image_info,
-                                                 const decode::VulkanObjectInfoTable&   object_info_table,
-                                                 decode::SwapchainImageTracker&         swapchain_image_tracker);
+                                                 const std::vector<AllocatedImageData>& image_info);
 
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
     // the expected layout, and then call queue present if the image is not expected to be in the acquired state so that
@@ -89,8 +92,7 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
         const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
         decode::SwapchainKHRInfo*                                     swapchain_info,
         uint32_t                                                      last_presented_image,
-        const std::vector<AllocatedImageData>&                        image_info,
-        const decode::VulkanObjectInfoTable&                          object_info_table);
+        const std::vector<AllocatedImageData>&                        image_info);
 };
 
 GFXRECON_END_NAMESPACE(compatibility)

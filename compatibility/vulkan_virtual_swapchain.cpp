@@ -21,6 +21,7 @@
 */
 
 #include "vulkan_virtual_swapchain.h"
+#include "swapchain_image_tracker.h"
 
 #include <array>
 
@@ -40,6 +41,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
     instance_table_           = instance_table;
     device_table_             = device_table;
     resource_alloc_callbacks_ = (*resource_alloc_callbacks);
+    swapchain_image_tracker_  = new SwapchainImageTracker();
 
     VkSwapchainCreateInfoKHR modified_create_info = *create_info;
     modified_create_info.imageUsage =
@@ -113,6 +115,12 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR      
     }
 
     func(device, swapchain, allocator);
+
+    if (swapchain_image_tracker_)
+    {
+        delete swapchain_image_tracker_;
+        swapchain_image_tracker_ = nullptr;
+    }
 }
 
 VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,

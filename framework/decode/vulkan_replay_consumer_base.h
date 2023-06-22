@@ -27,7 +27,6 @@
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/screenshot_handler.h"
-#include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
@@ -1079,7 +1078,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     const VulkanReplayOptions                                        options_;
     bool                                                             loading_trim_state_;
     bool                                                             have_imported_semaphores_;
-    SwapchainImageTracker                                            swapchain_image_tracker_;
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
     std::unique_ptr<ScreenshotHandler>                               screenshot_handler_;
