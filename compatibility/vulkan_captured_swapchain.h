@@ -25,8 +25,10 @@
 
 #include "vulkan_swapchain.h"
 
-namespace gfxrecon {
-namespace compatibility {
+namespace gfxrecon
+{
+namespace compatibility
+{
 
 class VulkanCapturedSwapchain : public VulkanSwapchain
 {
@@ -97,7 +99,7 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
         const std::vector<AllocatedImageData>&                        image_info);
 };
 
-} // compatibility
-} // gfxrecon
+} // namespace compatibility
+} // namespace gfxrecon
 
 #endif // GFXRECON_COMPATIBILITY_VULKAN_CAPTURED_SWAPCHAIN_H

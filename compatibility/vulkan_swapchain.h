@@ -29,8 +29,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "generated/generated_vulkan_dispatch_table.h"
-
 #include "vulkan/vulkan.h"
 
 namespace gfxrecon
@@ -91,6 +89,35 @@ struct ResourceAllocatorCallbacks
     }
 };
 
+struct FunctionPointerTable
+{
+    PFN_vkGetPhysicalDeviceMemoryProperties       pfnGetPhysicalDeviceMemoryProperties;
+    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR pfnGetPhysicalDeviceSurfaceCapabilitiesKHR;
+    PFN_vkGetImageMemoryRequirements              pfnGetImageMemoryRequirements;
+    PFN_vkGetDeviceQueue                          pfnGetDeviceQueue;
+    PFN_vkGetDeviceQueue2                         pfnGetDeviceQueue2;
+    PFN_vkCreateCommandPool                       pfnCreateCommandPool;
+    PFN_vkDestroyCommandPool                      pfnDestroyCommandPool;
+    PFN_vkAllocateCommandBuffers                  pfnAllocateCommandBuffers;
+    PFN_vkCreateFence                             pfnCreateFence;
+    PFN_vkDestroyFence                            pfnDestroyFence;
+    PFN_vkResetFences                             pfnResetFences;
+    PFN_vkWaitForFences                           pfnWaitForFences;
+    PFN_vkCreateSemaphore                         pfnCreateSemaphore;
+    PFN_vkDestroySemaphore                        pfnDestroySemaphore;
+    PFN_vkBeginCommandBuffer                      pfnBeginCommandBuffer;
+    PFN_vkCmdPipelineBarrier                      pfnCmdPipelineBarrier;
+    PFN_vkCmdBlitImage                            pfnCmdBlitImage;
+    PFN_vkEndCommandBuffer                        pfnEndCommandBuffer;
+    PFN_vkResetCommandBuffer                      pfnResetCommandBuffer;
+    PFN_vkFreeCommandBuffers                      pfnFreeCommandBuffers;
+    PFN_vkQueueSubmit                             pfnQueueSubmit;
+    PFN_vkQueuePresentKHR                         pfnQueuePresentKHR;
+    PFN_vkQueueWaitIdle                           pfnQueueWaitIdle;
+    PFN_vkGetSwapchainImagesKHR                   pfnGetSwapchainImagesKHR;
+    PFN_vkAcquireNextImageKHR                     pfnAcquireNextImageKHR;
+};
+
 // Internal structure for tracking data
 struct AllocatedImageData
 {
@@ -110,11 +137,10 @@ struct SwapchainCreationInfo
     const VkSwapchainCreateInfoKHR* create_info;
     ResourceAllocatorCallbacks      resource_alloc_callbacks;
     uint64_t                        swapchain_capture_id;
-    const encode::InstanceTable*    instance_table;
-    const encode::DeviceTable*      device_table;
     LogFunctionPointer              log_error;
     LogFunctionPointer              log_warning;
     LogFunctionPointer              log_info;
+    FunctionPointerTable            func_table;
 };
 
 class SwapchainImageTracker;
@@ -250,12 +276,11 @@ class VulkanSwapchain
         }
     }
 
-    const encode::InstanceTable* instance_table_{ nullptr };
-    const encode::DeviceTable*   device_table_{ nullptr };
-    ResourceAllocatorCallbacks   resource_alloc_callbacks_;
-    LogFunctionPointer           log_error_{ nullptr };
-    LogFunctionPointer           log_warning_{ nullptr };
-    LogFunctionPointer           log_info_{ nullptr };
+    FunctionPointerTable       func_table_;
+    ResourceAllocatorCallbacks resource_alloc_callbacks_;
+    LogFunctionPointer         log_error_{ nullptr };
+    LogFunctionPointer         log_warning_{ nullptr };
+    LogFunctionPointer         log_info_{ nullptr };
 
     SwapchainImageTracker*                                   swapchain_image_tracker_{ nullptr };
     std::unordered_map<VkSwapchainKHR, const SwapchainInfo*> swapchain_infos_;

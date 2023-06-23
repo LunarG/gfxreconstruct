@@ -25,8 +25,10 @@
 
 #include "vulkan_swapchain.h"
 
-namespace gfxrecon {
-namespace compatibility {
+namespace gfxrecon
+{
+namespace compatibility
+{
 
 class VulkanVirtualSwapchain : public VulkanSwapchain
 {
@@ -76,13 +78,10 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         std::vector<AllocatedImageData> virtual_images;
     };
 
-    // TODO Brainpain: This should really be in a class.  Honestly, the "Swapchain" classes here
-    // almost seem like they really should be "SwapchainHandler" classes with the content
-    // stored in a separate "Swapchain" class.  Investigate this in the future.
     std::unordered_map<VkSwapchainKHR, VirtualComponents*> swapchain_components_;
 };
 
-} // compatibility
-} // gfxrecon
+} // namespace compatibility
+} // namespace gfxrecon
 
 #endif // GFXRECON_COMPATIBILITY_VULKAN_VIRTUAL_SWAPCHAIN_H

@@ -25,33 +25,43 @@
 
 #include <assert.h>
 #include <array>
+#include <limits>
 
 namespace gfxrecon
 {
 namespace compatibility
 {
 
+#ifndef VK_ACCESS_NONE
+#define DEFINED_NONE
+#define VK_ACCESS_NONE 0
+#endif
+
+#ifndef VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT
+#define DEFINED_2_BOTTOM
+#define VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT ((uint64_t)VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT)
+#endif
+
 VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR     func,
                                                     const SwapchainCreationInfo* create_info,
                                                     const VkAllocationCallbacks* allocator,
                                                     VkSwapchainKHR*              swapchain)
 {
-    instance_table_           = create_info->instance_table;
-    device_table_             = create_info->device_table;
     resource_alloc_callbacks_ = create_info->resource_alloc_callbacks;
     log_error_                = create_info->log_error;
     log_warning_              = create_info->log_warning;
     log_info_                 = create_info->log_info;
     swapchain_image_tracker_  = new SwapchainImageTracker();
+    memcpy(&func_table_, &create_info->func_table, sizeof(FunctionPointerTable));
 
     VkSwapchainCreateInfoKHR modified_create_info = *create_info->create_info;
     modified_create_info.imageUsage =
         modified_create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
     VkSurfaceCapabilitiesKHR surfCapabilities;
-    auto                     result = instance_table_->GetPhysicalDeviceSurfaceCapabilitiesKHR(
+    auto                     result = func_table_.pfnGetPhysicalDeviceSurfaceCapabilitiesKHR(
         create_info->physical_device, create_info->create_info->surface, &surfCapabilities);
-    GFXRECON_ASSERT(result == VK_SUCCESS);
+    assert(result == VK_SUCCESS);
 
     if (modified_create_info.minImageCount < surfCapabilities.minImageCount)
     {
@@ -94,11 +104,11 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    fu
         if (entry != swapchain_components_.end())
         {
             VirtualComponents* virt_comps = swapchain_components_[swapchain];
-            device_table_->FreeCommandBuffers(device,
+            func_table_.pfnFreeCommandBuffers(device,
                                               virt_comps->blit_command_pool,
                                               static_cast<uint32_t>(virt_comps->blit_command_buffers.size()),
                                               virt_comps->blit_command_buffers.data());
-            device_table_->DestroyCommandPool(device, virt_comps->blit_command_pool, nullptr);
+            func_table_.pfnDestroyCommandPool(device, virt_comps->blit_command_pool, nullptr);
 
             for (const AllocatedImageData& virt_image : virt_comps->virtual_images)
             {
@@ -111,7 +121,7 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    fu
             }
             for (const auto semaphore : virt_comps->blit_semaphores)
             {
-                device_table_->DestroySemaphore(device, semaphore, nullptr);
+                func_table_.pfnDestroySemaphore(device, semaphore, nullptr);
             }
             delete virt_comps;
             swapchain_components_.erase(swapchain);
@@ -184,14 +194,14 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 
         if (virt_comps->blit_command_pool == VK_NULL_HANDLE)
         {
-            device_table_->GetDeviceQueue(
+            func_table_.pfnGetDeviceQueue(
                 device, swapchain_info->create_info.pQueueFamilyIndices[0], 0, &virt_comps->blit_queue);
 
             VkCommandPoolCreateInfo command_pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
             command_pool_create_info.flags =
                 VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
             command_pool_create_info.queueFamilyIndex = swapchain_info->create_info.pQueueFamilyIndices[0];
-            VkResult result                           = device_table_->CreateCommandPool(
+            VkResult result                           = func_table_.pfnCreateCommandPool(
                 device, &command_pool_create_info, nullptr, &virt_comps->blit_command_pool);
             if (result != VK_SUCCESS)
             {
@@ -206,7 +216,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
                 allocate_info.commandBufferCount          = 1;
                 VkCommandBuffer command_buffer            = VK_NULL_HANDLE;
-                result = device_table_->AllocateCommandBuffers(device, &allocate_info, &command_buffer);
+                result = func_table_.pfnAllocateCommandBuffers(device, &allocate_info, &command_buffer);
                 if (result != VK_SUCCESS)
                 {
                     return result;
@@ -217,7 +227,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 semaphore_create_info.pNext                 = nullptr;
                 semaphore_create_info.flags                 = 0;
                 VkSemaphore semaphore                       = VK_NULL_HANDLE;
-                result = device_table_->CreateSemaphore(device, &semaphore_create_info, nullptr, &semaphore);
+                result = func_table_.pfnCreateSemaphore(device, &semaphore_create_info, nullptr, &semaphore);
                 if (result != VK_SUCCESS)
                 {
                     return result;
@@ -281,13 +291,13 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 begin_info.pInheritanceInfo         = nullptr;
 
                 auto command_buffer = virt_comps->blit_command_buffers[0];
-                result              = device_table_->ResetCommandBuffer(command_buffer, 0);
+                result              = func_table_.pfnResetCommandBuffer(command_buffer, 0);
                 if (result != VK_SUCCESS)
                 {
                     return result;
                 }
 
-                result = device_table_->BeginCommandBuffer(command_buffer, &begin_info);
+                result = func_table_.pfnBeginCommandBuffer(command_buffer, &begin_info);
                 if (result != VK_SUCCESS)
                 {
                     return result;
@@ -330,7 +340,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 for (uint32_t i = 0; i < *replay_count_ptr; ++i)
                 {
                     barrier.image = replay_swapchain_images[i];
-                    device_table_->CmdPipelineBarrier(command_buffer,
+                    func_table_.pfnCmdPipelineBarrier(command_buffer,
                                                       VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                                       VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                                       0,
@@ -342,7 +352,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                                                       &barrier);
                 }
 
-                result = device_table_->EndCommandBuffer(command_buffer);
+                result = func_table_.pfnEndCommandBuffer(command_buffer);
 
                 VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 
@@ -350,12 +360,12 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 submit_info.commandBufferCount = 1;
                 submit_info.pCommandBuffers    = &command_buffer;
 
-                result = device_table_->QueueSubmit(virt_comps->blit_queue, 1, &submit_info, VK_NULL_HANDLE);
+                result = func_table_.pfnQueueSubmit(virt_comps->blit_queue, 1, &submit_info, VK_NULL_HANDLE);
                 if (result != VK_SUCCESS)
                 {
                     return result;
                 }
-                result = device_table_->QueueWaitIdle(virt_comps->blit_queue);
+                result = func_table_.pfnQueueWaitIdle(virt_comps->blit_queue);
                 if (result != VK_SUCCESS)
                 {
                     return result;
@@ -479,13 +489,13 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
             const auto&        swapchain_image = virt_comps->swapchain_images[replay_image_index];
 
             auto     command_buffer = virt_comps->blit_command_buffers[capture_image_index];
-            VkResult result         = device_table_->ResetCommandBuffer(command_buffer, 0);
+            VkResult result         = func_table_.pfnResetCommandBuffer(command_buffer, 0);
             if (result != VK_SUCCESS)
             {
                 return result;
             }
 
-            result = device_table_->BeginCommandBuffer(command_buffer, &begin_info);
+            result = func_table_.pfnBeginCommandBuffer(command_buffer, &begin_info);
             if (result != VK_SUCCESS)
             {
                 return result;
@@ -499,7 +509,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
             initial_barrier_swapchain_image.image                       = swapchain_image;
             initial_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->create_info.imageArrayLayers;
 
-            device_table_->CmdPipelineBarrier(command_buffer,
+            func_table_.pfnCmdPipelineBarrier(command_buffer,
                                               VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                               VK_PIPELINE_STAGE_TRANSFER_BIT,
                                               0,
@@ -510,7 +520,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                               1,
                                               &initial_barrier_virtual_image);
 
-            device_table_->CmdPipelineBarrier(command_buffer,
+            func_table_.pfnCmdPipelineBarrier(command_buffer,
                                               VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT,
                                               VK_PIPELINE_STAGE_TRANSFER_BIT,
                                               0,
@@ -532,7 +542,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                 { offsets[0], offsets[1] },
             };
 
-            device_table_->CmdBlitImage(command_buffer,
+            func_table_.pfnCmdBlitImage(command_buffer,
                                         virtual_image.image,
                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                         swapchain_image,
@@ -546,7 +556,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
             final_barrier_swapchain_image.image                       = swapchain_image;
             final_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->create_info.imageArrayLayers;
 
-            device_table_->CmdPipelineBarrier(command_buffer,
+            func_table_.pfnCmdPipelineBarrier(command_buffer,
                                               VK_PIPELINE_STAGE_TRANSFER_BIT,
                                               VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                               0,
@@ -557,7 +567,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                               1,
                                               &final_barrier_virtual_image);
 
-            device_table_->CmdPipelineBarrier(command_buffer,
+            func_table_.pfnCmdPipelineBarrier(command_buffer,
                                               VK_PIPELINE_STAGE_TRANSFER_BIT,
                                               VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT,
                                               0,
@@ -568,7 +578,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                               1,
                                               &final_barrier_swapchain_image);
 
-            result = device_table_->EndCommandBuffer(command_buffer);
+            result = func_table_.pfnEndCommandBuffer(command_buffer);
             if (result != VK_SUCCESS)
             {
                 return result;
@@ -585,7 +595,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
             submit_info.signalSemaphoreCount = 1;
             submit_info.pSignalSemaphores    = &semaphore;
 
-            result = device_table_->QueueSubmit(virt_comps->blit_queue, 1, &submit_info, VK_NULL_HANDLE);
+            result = func_table_.pfnQueueSubmit(virt_comps->blit_queue, 1, &submit_info, VK_NULL_HANDLE);
             if (result != VK_SUCCESS)
             {
                 return result;
@@ -612,19 +622,14 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainImage(VkPhysicalDevice         p
 
     if (result == VK_SUCCESS)
     {
-        if ((instance_table_ == nullptr) || (device_table_ == nullptr))
-        {
-            return VK_ERROR_FEATURE_NOT_PRESENT;
-        }
-
         VkMemoryRequirements memory_reqs;
-        device_table_->GetImageMemoryRequirements(device, image.image, &memory_reqs);
+        func_table_.pfnGetImageMemoryRequirements(device, image.image, &memory_reqs);
 
         VkMemoryPropertyFlags property_flags    = VK_QUEUE_FLAG_BITS_MAX_ENUM;
         uint32_t              memory_type_index = std::numeric_limits<uint32_t>::max();
         {
             VkPhysicalDeviceMemoryProperties properties;
-            instance_table_->GetPhysicalDeviceMemoryProperties(physical_device, &properties);
+            func_table_.pfnGetPhysicalDeviceMemoryProperties(physical_device, &properties);
 
             for (uint32_t i = 0; i < properties.memoryTypeCount; i++)
             {
@@ -673,6 +678,14 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainImage(VkPhysicalDevice         p
     }
     return result;
 }
+
+#ifdef DEFINED_NONE
+#undef VK_ACCESS_NONE
+#endif
+
+#ifdef DEFINED_2_BOTTOM
+#undef VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT
+#endif
 
 } // namespace compatibility
 } // namespace gfxrecon

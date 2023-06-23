@@ -14,5 +14,3 @@ target_include_directories(gfxrecon_compatibility
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework)
-
-target_link_libraries(gfxrecon_compatibility gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific)

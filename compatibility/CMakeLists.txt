@@ -38,9 +38,8 @@ target_sources(gfxrecon_compatibility
 
 target_include_directories(gfxrecon_compatibility
                            PUBLIC
+                               ${CMAKE_SOURCE_DIR}/exernal/Vulkan-Headers/include
                                ${CMAKE_SOURCE_DIR}/compatibility
                                ${CMAKE_SOURCE_DIR}/framework)
-
-target_link_libraries(gfxrecon_compatibility gfxrecon_util)
 
 common_build_directives(gfxrecon_compatibility)
