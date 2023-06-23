@@ -23,15 +23,23 @@
 #ifndef GFXRECON_COMPATIBILITY_VULKAN_SWAPCHAIN_H
 #define GFXRECON_COMPATIBILITY_VULKAN_SWAPCHAIN_H
 
-#include "decode/vulkan_object_info.h"
-#include "decode/vulkan_object_info_table.h"
+#include <cinttypes>
+#include <cstdint>
+#include <cstring>
+#include <unordered_map>
+#include <vector>
 
-#include "util/defines.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 
 #include "vulkan/vulkan.h"
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(compatibility)
+namespace gfxrecon
+{
+namespace compatibility
+{
+
+// Defines for logging functions
+typedef void (*LogFunctionPointer)(const char* message, ...);
 
 // Defines for callback functions required to allocate/bind/free resources
 typedef VkResult (*pfnCreateImageResource)(void*                        allocator_class,
@@ -95,6 +103,20 @@ struct AllocatedImageData
     uintptr_t      image_resource_id{ 0 };
 };
 
+struct SwapchainCreationInfo
+{
+    VkDevice                        device;
+    const VkPhysicalDevice          physical_device;
+    const VkSwapchainCreateInfoKHR* create_info;
+    ResourceAllocatorCallbacks      resource_alloc_callbacks;
+    uint64_t                        swapchain_capture_id;
+    const encode::InstanceTable*    instance_table;
+    const encode::DeviceTable*      device_table;
+    LogFunctionPointer              log_error;
+    LogFunctionPointer              log_warning;
+    LogFunctionPointer              log_info;
+};
+
 class SwapchainImageTracker;
 
 class VulkanSwapchain
@@ -102,16 +124,10 @@ class VulkanSwapchain
   public:
     virtual ~VulkanSwapchain() {}
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR          func,
-                                        VkDevice                          device,
-                                        const VkSwapchainCreateInfoKHR*   create_info,
-                                        const ResourceAllocatorCallbacks* resource_alloc_callbacks,
-                                        const VkAllocationCallbacks*      allocator,
-                                        VkSwapchainKHR*                   swapchain,
-                                        uint64_t                          swapchain_capture_id,
-                                        const VkPhysicalDevice            physical_device,
-                                        const encode::InstanceTable*      instance_table,
-                                        const encode::DeviceTable*        device_table) = 0;
+    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR     func,
+                                        const SwapchainCreationInfo* create_info,
+                                        const VkAllocationCallbacks* allocator,
+                                        VkSwapchainKHR*              swapchain) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      VkDevice                     device,
@@ -133,11 +149,19 @@ class VulkanSwapchain
                                      VkQueue                            queue,
                                      const VkPresentInfoKHR*            present_info) = 0;
 
+    struct AcquiredIndexData
+    {
+        uint32_t index = { 0 };
+        bool     acquired{ false };
+    };
+
     virtual void ProcessSetSwapchainImageStateCommand(
         VkPhysicalDevice                                              physical_device,
         VkDevice                                                      device,
         const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
-        decode::SwapchainKHRInfo*                                     swapchain_info,
+        VkSwapchainKHR                                                swapchain,
+        uint32_t*                                                     replay_count_ptr,
+        std::vector<AcquiredIndexData>&                               acquired_info,
         VkSurfaceKHR                                                  surface,
         VkSurfaceCapabilitiesKHR&                                     surface_caps,
         uint32_t                                                      last_presented_image,
@@ -229,12 +253,15 @@ class VulkanSwapchain
     const encode::InstanceTable* instance_table_{ nullptr };
     const encode::DeviceTable*   device_table_{ nullptr };
     ResourceAllocatorCallbacks   resource_alloc_callbacks_;
-    SwapchainImageTracker*       swapchain_image_tracker_{ nullptr };
+    LogFunctionPointer           log_error_{ nullptr };
+    LogFunctionPointer           log_warning_{ nullptr };
+    LogFunctionPointer           log_info_{ nullptr };
 
+    SwapchainImageTracker*                                   swapchain_image_tracker_{ nullptr };
     std::unordered_map<VkSwapchainKHR, const SwapchainInfo*> swapchain_infos_;
 };
 
-GFXRECON_END_NAMESPACE(compatibility)
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace compatibility
+} // namespace gfxrecon
 
 #endif // GFXRECON_COMPATIBILITY_VULKAN_SWAPCHAIN_H

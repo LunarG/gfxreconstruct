@@ -41,6 +41,7 @@
 
 #include "generated/generated_vulkan_enum_to_string.h"
 
+#include <cstdarg>
 #include <cstdint>
 #include <limits>
 #include <unordered_set>
@@ -725,14 +726,28 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
 
             if (result == VK_SUCCESS)
             {
+                std::vector<compatibility::VulkanSwapchain::AcquiredIndexData> acquired_data;
+                acquired_data.resize(swapchain_info->acquired_indices.size());
+                for (size_t iii = 0; iii < swapchain_info->acquired_indices.size(); ++iii)
+                {
+                    acquired_data[iii].index    = swapchain_info->acquired_indices[iii].index;
+                    acquired_data[iii].acquired = swapchain_info->acquired_indices[iii].acquired;
+                }
                 swapchain_->ProcessSetSwapchainImageStateCommand(device_info->parent,
                                                                  device_info->handle,
                                                                  device_info->queue_family_creation_flags,
-                                                                 swapchain_info,
+                                                                 swapchain_info->handle,
+                                                                 &swapchain_info->replay_image_count,
+                                                                 acquired_data,
                                                                  surface,
                                                                  surface_caps,
                                                                  last_presented_image,
                                                                  swapchain_image_info);
+                for (size_t iii = 0; iii < swapchain_info->acquired_indices.size(); ++iii)
+                {
+                    swapchain_info->acquired_indices[iii].index    = acquired_data[iii].index;
+                    swapchain_info->acquired_indices[iii].acquired = acquired_data[iii].acquired;
+                }
             }
         }
     }
@@ -4894,6 +4909,31 @@ VkResult BindImageResourceToDeviceMemoryResource(void*                  allocato
     return resource_allocator->BindImageMemoryDirect(
         image, memory, memory_offset, resource_data, memory_data, bind_memory_properties);
 }
+
+void LogErrorMessage(const char* message, ...)
+{
+    va_list args;
+    va_start(args, message);
+    GFXRECON_LOG_ERROR(message, args);
+    va_end(args);
+}
+
+void LogWarningMessage(const char* message, ...)
+{
+    va_list args;
+    va_start(args, message);
+    GFXRECON_LOG_WARNING(message, args);
+    va_end(args);
+}
+
+void LogInfoMessage(const char* message, ...)
+{
+    va_list args;
+    va_start(args, message);
+    GFXRECON_LOG_INFO(message, args);
+    va_end(args);
+}
+
 // End of callback functions
 // ------------------------
 
@@ -4938,40 +4978,37 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
-        compatibility::ResourceAllocatorCallbacks resource_callbacks{ allocator,
-                                                                      CreateImageResource,
-                                                                      DestroyImageResource,
-                                                                      AllocateDeviceMemoryResource,
-                                                                      FreeDeviceMemoryResource,
-                                                                      BindImageResourceToDeviceMemoryResource };
+
+        compatibility::SwapchainCreationInfo swapchain_creation_info{
+            device_info->handle,
+            physical_device,
+            replay_create_info,
+            { allocator,
+              CreateImageResource,
+              DestroyImageResource,
+              AllocateDeviceMemoryResource,
+              FreeDeviceMemoryResource,
+              BindImageResourceToDeviceMemoryResource },
+            swapchain_info->capture_id,
+            instance_table,
+            device_table,
+            LogErrorMessage,
+            LogWarningMessage,
+            LogInfoMessage,
+        };
         if (screenshot_handler_ == nullptr)
         {
-            result = swapchain_->CreateSwapchainKHR(func,
-                                                    device_info->handle,
-                                                    replay_create_info,
-                                                    &resource_callbacks,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    replay_swapchain,
-                                                    swapchain_info->capture_id,
-                                                    physical_device,
-                                                    instance_table,
-                                                    device_table);
+            result = swapchain_->CreateSwapchainKHR(
+                func, &swapchain_creation_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
         }
         else
         {
             // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
             VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
             modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-            result = swapchain_->CreateSwapchainKHR(func,
-                                                    device_info->handle,
-                                                    &modified_create_info,
-                                                    &resource_callbacks,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    replay_swapchain,
-                                                    swapchain_info->capture_id,
-                                                    physical_device,
-                                                    instance_table,
-                                                    device_table);
+            swapchain_creation_info.create_info = &modified_create_info;
+            result                              = swapchain_->CreateSwapchainKHR(
+                func, &swapchain_creation_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
         }
     }
     else

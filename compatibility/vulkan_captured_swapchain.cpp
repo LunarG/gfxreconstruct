@@ -23,35 +23,35 @@
 #include "vulkan_captured_swapchain.h"
 #include "swapchain_image_tracker.h"
 
-#include "util/logging.h"
+#include <assert.h>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(compatibility)
-
-VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR          func,
-                                                     VkDevice                          device,
-                                                     const VkSwapchainCreateInfoKHR*   create_info,
-                                                     const ResourceAllocatorCallbacks* resource_alloc_callbacks,
-                                                     const VkAllocationCallbacks*      allocator,
-                                                     VkSwapchainKHR*                   swapchain,
-                                                     uint64_t                          swapchain_capture_id,
-                                                     const VkPhysicalDevice            physical_device,
-                                                     const encode::InstanceTable*      instance_table,
-                                                     const encode::DeviceTable*        device_table)
+namespace gfxrecon
 {
-    instance_table_           = instance_table;
-    device_table_             = device_table;
-    resource_alloc_callbacks_ = (*resource_alloc_callbacks);
+namespace compatibility
+{
+
+VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR     func,
+                                                     const SwapchainCreationInfo* create_info,
+                                                     const VkAllocationCallbacks* allocator,
+                                                     VkSwapchainKHR*              swapchain)
+{
+    instance_table_           = create_info->instance_table;
+    device_table_             = create_info->device_table;
+    resource_alloc_callbacks_ = create_info->resource_alloc_callbacks;
+    log_error_                = create_info->log_error;
+    log_warning_              = create_info->log_warning;
+    log_info_                 = create_info->log_info;
     swapchain_image_tracker_  = new SwapchainImageTracker();
 
-    const SwapchainInfo* new_swapchain_info = CreateSwapchainInfo(create_info, swapchain_capture_id);
+    const SwapchainInfo* new_swapchain_info =
+        CreateSwapchainInfo(create_info->create_info, create_info->swapchain_capture_id);
     if (new_swapchain_info == nullptr)
     {
-        GFXRECON_LOG_ERROR("Captured Swapchain failed creating SwapchainInfo struct");
+        log_error_("Captured Swapchain failed creating SwapchainInfo struct");
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
-    VkResult res = func(device, create_info, allocator, swapchain);
+    VkResult res = func(create_info->device, create_info->create_info, allocator, swapchain);
     if (res != VK_SUCCESS)
     {
         FreeSwapchainInfo(new_swapchain_info);
@@ -98,9 +98,9 @@ VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImages
 
     if ((image_count != nullptr) && (capture_image_count != *image_count))
     {
-        GFXRECON_LOG_WARNING("The number of images returned by vkGetSwapchainImageKHR is different than the number "
-                             "returned at capture, which may cause replay to fail.");
-        GFXRECON_LOG_WARNING(
+        log_warning_("The number of images returned by vkGetSwapchainImageKHR is different than the number "
+                     "returned at capture, which may cause replay to fail.");
+        log_warning_(
             "Try replay with the virtual swapchain mode via removing \"--use-captured-swapchain-indices\" option.");
     }
 
@@ -120,13 +120,26 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     VkPhysicalDevice                                              physical_device,
     VkDevice                                                      device,
     const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
-    decode::SwapchainKHRInfo*                                     swapchain_info,
+    VkSwapchainKHR                                                swapchain,
+    uint32_t*                                                     replay_count_ptr,
+    std::vector<AcquiredIndexData>&                               acquired_info,
     VkSurfaceKHR                                                  surface,
     VkSurfaceCapabilitiesKHR&                                     surface_caps,
     uint32_t                                                      last_presented_image,
     const std::vector<AllocatedImageData>&                        image_info)
 {
-    VkSwapchainKHR swapchain = swapchain_info->handle;
+    const SwapchainInfo* swapchain_info = nullptr;
+
+    auto sc_ci = swapchain_infos_.find(swapchain);
+    if (sc_ci != swapchain_infos_.end())
+    {
+        swapchain_info = swapchain_infos_[swapchain];
+    }
+    else
+    {
+        log_error_("Failed to find SwapchainInfo for VkSwapchainKHR object (handle = 0x%" PRIx64 ")", swapchain);
+        return;
+    }
 
     assert((instance_table_ != nullptr) && (device_table_ != nullptr));
 
@@ -139,7 +152,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
                                    device,
                                    swapchain,
                                    capture_image_count,
-                                   &swapchain_info->replay_image_count,
+                                   replay_count_ptr,
                                    &image_count,
                                    nullptr);
     if (result == VK_SUCCESS)
@@ -151,25 +164,31 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
         if (image_count > max_acquired_images)
         {
             // Cannot acquire all images at the same time.
-            ProcessSetSwapchainImageStateQueueSubmit(
-                device, queue_family_creation_flags, swapchain_info, last_presented_image, image_info);
+            ProcessSetSwapchainImageStateQueueSubmit(device,
+                                                     queue_family_creation_flags,
+                                                     swapchain,
+                                                     swapchain_info,
+                                                     acquired_info,
+                                                     last_presented_image,
+                                                     image_info);
         }
         else
         {
-            ProcessSetSwapchainImageStatePreAcquire(device, swapchain_info, image_info);
+            ProcessSetSwapchainImageStatePreAcquire(device, swapchain, swapchain_info, acquired_info, image_info);
         }
     }
     else
     {
-        GFXRECON_LOG_WARNING("Failed image initialization for VkSwapchainKHR object (ID = %" PRIu64
-                             ", handle = 0x%" PRIx64 ")",
-                             swapchain_info->capture_id,
-                             swapchain);
+        log_warning_("Failed image initialization for VkSwapchainKHR object (ID = %" PRIu64 ", handle = 0x%" PRIx64 ")",
+                     swapchain_info->capture_id,
+                     swapchain);
     }
 }
 
-void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(VkDevice                  device,
-                                                                      decode::SwapchainKHRInfo* swapchain_info,
+void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(VkDevice                        device,
+                                                                      VkSwapchainKHR                  swapchain,
+                                                                      const SwapchainInfo*            swapchain_info,
+                                                                      std::vector<AcquiredIndexData>& acquired_info,
                                                                       const std::vector<AllocatedImageData>& image_info)
 {
     assert(device_table_ != nullptr);
@@ -178,8 +197,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(VkDevice  
     VkQueue         transition_queue   = VK_NULL_HANDLE;
     VkCommandPool   transition_pool    = VK_NULL_HANDLE;
     VkCommandBuffer transition_command = VK_NULL_HANDLE;
-    VkSwapchainKHR  swapchain          = swapchain_info->handle;
-    uint32_t        queue_family_index = swapchain_info->queue_family_indices[0];
+    uint32_t        queue_family_index = swapchain_info->create_info.pQueueFamilyIndices[0];
 
     // TODO: Improved queue selection?
     device_table_->GetDeviceQueue(device, queue_family_index, 0, &transition_queue);
@@ -257,15 +275,15 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(VkDevice  
                 if (result == VK_SUCCESS)
                 {
                     result = device_table_->AcquireNextImageKHR(device,
-                                                                swapchain_info->handle,
+                                                                swapchain,
                                                                 std::numeric_limits<uint64_t>::max(),
                                                                 acquire_semaphore,
                                                                 acquire_fence,
                                                                 &image_index);
                     if (image_index != static_cast<uint32_t>(i))
                     {
-                        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the "
-                                             "expected index during setup");
+                        log_warning_("The image index returned by vkAcquireNextImageKHR is different than the "
+                                     "expected index during setup");
                     }
 
                     if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
@@ -314,7 +332,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(VkDevice  
                         {
                             if (image_info[image_index].acquired)
                             {
-                                swapchain_info->acquired_indices[i] = { image_index, true };
+                                acquired_info[i] = { image_index, true };
 
                                 // The upcoming frames expect the image to be acquired. The synchronization objects
                                 // used to acquire the image were already set to the appropriate signaled state when
@@ -334,25 +352,25 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(VkDevice  
                         }
                         else
                         {
-                            GFXRECON_LOG_WARNING("Failed to acquire and transition VkImage object (ID = %" PRIu64
-                                                 ") for swapchain state initialization",
-                                                 image_info[i].image_id);
+                            log_warning_("Failed to acquire and transition VkImage object (ID = %" PRIu64
+                                         ") for swapchain state initialization",
+                                         image_info[i].image_id);
                         }
                     }
                 }
             }
             else
             {
-                GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkImage object (ID = %" PRIu64 ")",
-                                     image_info[i].image_id);
+                log_warning_("Skipping image acquire for unrecognized VkImage object (ID = %" PRIu64 ")",
+                             image_info[i].image_id);
             }
         }
     }
     else
     {
-        GFXRECON_LOG_WARNING(
-            "Failed to create image initialization resources for VkSwapchainKHR object (handle = 0x%" PRIx64 ")",
-            swapchain);
+        log_warning_("Failed to create image initialization resources for VkSwapchainKHR object (handle = 0x%" PRIx64
+                     ")",
+                     swapchain);
     }
 
     if (transition_pool != VK_NULL_HANDLE)
@@ -364,7 +382,9 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(VkDevice  
 void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     VkDevice                                                      device,
     const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
-    decode::SwapchainKHRInfo*                                     swapchain_info,
+    VkSwapchainKHR                                                swapchain,
+    const SwapchainInfo*                                          swapchain_info,
+    std::vector<AcquiredIndexData>&                               acquired_info,
     uint32_t                                                      last_presented_image,
     const std::vector<AllocatedImageData>&                        image_info)
 {
@@ -375,8 +395,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     VkCommandPool   pool               = VK_NULL_HANDLE;
     VkCommandBuffer command            = VK_NULL_HANDLE;
     VkFence         wait_fence         = VK_NULL_HANDLE;
-    VkSwapchainKHR  swapchain          = swapchain_info->handle;
-    uint32_t        queue_family_index = swapchain_info->queue_family_indices[0];
+    uint32_t        queue_family_index = swapchain_info->create_info.pQueueFamilyIndices[0];
 
     VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
     pool_create_info.pNext                   = nullptr;
@@ -466,15 +485,15 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                 if (result == VK_SUCCESS)
                 {
                     result = device_table_->AcquireNextImageKHR(device,
-                                                                swapchain_info->handle,
+                                                                swapchain,
                                                                 std::numeric_limits<uint64_t>::max(),
                                                                 VK_NULL_HANDLE,
                                                                 wait_fence,
                                                                 &image_index);
                     if (image_index != static_cast<uint32_t>(i))
                     {
-                        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the "
-                                             "expected index during setup");
+                        log_warning_("The image index returned by vkAcquireNextImageKHR is different than the "
+                                     "expected index during setup");
                     }
                 }
 
@@ -532,15 +551,15 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
 
                 if (result != VK_SUCCESS)
                 {
-                    GFXRECON_LOG_WARNING("Failed to acquire and transition VkImage object (ID = %" PRIu64
-                                         ") for swapchain state initialization",
-                                         image_info[i].image_id);
+                    log_warning_("Failed to acquire and transition VkImage object (ID = %" PRIu64
+                                 ") for swapchain state initialization",
+                                 image_info[i].image_id);
                 }
             }
             else
             {
-                GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkImage object (ID = %" PRIu64 ")",
-                                     image_info[i].image_id);
+                log_warning_("Skipping image acquire for unrecognized VkImage object (ID = %" PRIu64 ")",
+                             image_info[i].image_id);
             }
         }
 
@@ -559,15 +578,15 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                 if (result == VK_SUCCESS)
                 {
                     result = device_table_->AcquireNextImageKHR(device,
-                                                                swapchain_info->handle,
+                                                                swapchain,
                                                                 std::numeric_limits<uint64_t>::max(),
                                                                 VK_NULL_HANDLE,
                                                                 wait_fence,
                                                                 &image_index);
                     if (image_index != static_cast<uint32_t>(i))
                     {
-                        GFXRECON_LOG_WARNING("The image index returned by vkAcquireNextImageKHR is different than the "
-                                             "expected index during setup");
+                        log_warning_("The image index returned by vkAcquireNextImageKHR is different than the "
+                                     "expected index during setup");
                     }
                 }
 
@@ -580,7 +599,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                     {
                         if (image_info[i].acquired)
                         {
-                            swapchain_info->acquired_indices[i] = { image_index, true };
+                            acquired_info[i] = { image_index, true };
 
                             // Transition the image to the expected layout and keep it acquired.
                             VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[i].image_layout);
@@ -639,18 +658,18 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
 
                 if (result != VK_SUCCESS)
                 {
-                    GFXRECON_LOG_WARNING("Failed to acquire and transition VkImage object (ID = %" PRIu64
-                                         ") for swapchain state initialization",
-                                         image_info[i].image_id);
+                    log_warning_("Failed to acquire and transition VkImage object (ID = %" PRIu64
+                                 ") for swapchain state initialization",
+                                 image_info[i].image_id);
                 }
             }
         }
     }
     else
     {
-        GFXRECON_LOG_WARNING(
-            "Failed to create image initialization resources for VkSwapchainKHR object (handle = 0x%" PRIx64 ")",
-            swapchain);
+        log_warning_("Failed to create image initialization resources for VkSwapchainKHR object (handle = 0x%" PRIx64
+                     ")",
+                     swapchain);
     }
 
     if (pool != VK_NULL_HANDLE)
@@ -672,5 +691,5 @@ bool VulkanCapturedSwapchain::RetrievePreAcquiredImage(VkSwapchainKHR swapchain,
     return swapchain_image_tracker_->RetrievePreAcquiredImage(swapchain, image_index, semaphore, fence);
 }
 
-GFXRECON_END_NAMESPACE(compatibility)
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace compatibility
+} // namespace gfxrecon

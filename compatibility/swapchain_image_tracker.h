@@ -23,14 +23,15 @@
 #ifndef GFXRECON_COMPATIBILITY_SWAPCHAIN_IMAGE_TRACKER_H
 #define GFXRECON_COMPATIBILITY_SWAPCHAIN_IMAGE_TRACKER_H
 
-#include "util/defines.h"
+#include <cstdint>
+#include <cstring>
 
 #include "vulkan/vulkan.h"
 
 #include <unordered_map>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(compatibility)
+namespace gfxrecon {
+namespace compatibility {
 
 class SwapchainImageTracker
 {
@@ -85,7 +86,7 @@ class SwapchainImageTracker
     SwapchainImages images_;
 };
 
-GFXRECON_END_NAMESPACE(compatibility)
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // compatibility
+} // gfxrecon
 
 #endif // GFXRECON_COMPATIBILITY_SWAPCHAIN_IMAGE_TRACKER_H

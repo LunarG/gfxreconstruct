@@ -25,24 +25,18 @@
 
 #include "vulkan_swapchain.h"
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(compatibility)
+namespace gfxrecon {
+namespace compatibility {
 
 class VulkanCapturedSwapchain : public VulkanSwapchain
 {
   public:
     virtual ~VulkanCapturedSwapchain() override {}
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR          func,
-                                        VkDevice                          device,
-                                        const VkSwapchainCreateInfoKHR*   create_info,
-                                        const ResourceAllocatorCallbacks* resource_alloc_callbacks,
-                                        const VkAllocationCallbacks*      allocator,
-                                        VkSwapchainKHR*                   swapchain,
-                                        uint64_t                          swapchain_capture_id,
-                                        const VkPhysicalDevice            physical_device,
-                                        const encode::InstanceTable*      instance_table,
-                                        const encode::DeviceTable*        device_table) override;
+    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR     func,
+                                        const SwapchainCreationInfo* create_info,
+                                        const VkAllocationCallbacks* allocator,
+                                        VkSwapchainKHR*              swapchain) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      VkDevice                     device,
@@ -68,7 +62,9 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
         VkPhysicalDevice                                              physical_device,
         VkDevice                                                      device,
         const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
-        decode::SwapchainKHRInfo*                                     swapchain_info,
+        VkSwapchainKHR                                                swapchain,
+        uint32_t*                                                     replay_count_ptr,
+        std::vector<AcquiredIndexData>&                               acquired_info,
         VkSurfaceKHR                                                  surface,
         VkSurfaceCapabilitiesKHR&                                     surface_caps,
         uint32_t                                                      last_presented_image,
@@ -83,7 +79,9 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
     // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
     // the expected layout and keep them acquired until first use.
     void ProcessSetSwapchainImageStatePreAcquire(VkDevice                               device,
-                                                 decode::SwapchainKHRInfo*              swapchain_info,
+                                                 VkSwapchainKHR                         swapchain,
+                                                 const SwapchainInfo*                   swapchain_info,
+                                                 std::vector<AcquiredIndexData>&        acquired_info,
                                                  const std::vector<AllocatedImageData>& image_info);
 
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
@@ -92,12 +90,14 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
     void ProcessSetSwapchainImageStateQueueSubmit(
         VkDevice                                                      device,
         const std::unordered_map<uint32_t, VkDeviceQueueCreateFlags>& queue_family_creation_flags,
-        decode::SwapchainKHRInfo*                                     swapchain_info,
+        VkSwapchainKHR                                                swapchain,
+        const SwapchainInfo*                                          swapchain_info,
+        std::vector<AcquiredIndexData>&                               acquired_info,
         uint32_t                                                      last_presented_image,
         const std::vector<AllocatedImageData>&                        image_info);
 };
 
-GFXRECON_END_NAMESPACE(compatibility)
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // compatibility
+} // gfxrecon
 
 #endif // GFXRECON_COMPATIBILITY_VULKAN_CAPTURED_SWAPCHAIN_H

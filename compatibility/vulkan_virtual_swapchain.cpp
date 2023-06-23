@@ -23,34 +23,34 @@
 #include "vulkan_virtual_swapchain.h"
 #include "swapchain_image_tracker.h"
 
+#include <assert.h>
 #include <array>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(compatibility)
-
-VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR          func,
-                                                    VkDevice                          device,
-                                                    const VkSwapchainCreateInfoKHR*   create_info,
-                                                    const ResourceAllocatorCallbacks* resource_alloc_callbacks,
-                                                    const VkAllocationCallbacks*      allocator,
-                                                    VkSwapchainKHR*                   swapchain,
-                                                    uint64_t                          swapchain_capture_id,
-                                                    const VkPhysicalDevice            physical_device,
-                                                    const encode::InstanceTable*      instance_table,
-                                                    const encode::DeviceTable*        device_table)
+namespace gfxrecon
 {
-    instance_table_           = instance_table;
-    device_table_             = device_table;
-    resource_alloc_callbacks_ = (*resource_alloc_callbacks);
+namespace compatibility
+{
+
+VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR     func,
+                                                    const SwapchainCreationInfo* create_info,
+                                                    const VkAllocationCallbacks* allocator,
+                                                    VkSwapchainKHR*              swapchain)
+{
+    instance_table_           = create_info->instance_table;
+    device_table_             = create_info->device_table;
+    resource_alloc_callbacks_ = create_info->resource_alloc_callbacks;
+    log_error_                = create_info->log_error;
+    log_warning_              = create_info->log_warning;
+    log_info_                 = create_info->log_info;
     swapchain_image_tracker_  = new SwapchainImageTracker();
 
-    VkSwapchainCreateInfoKHR modified_create_info = *create_info;
+    VkSwapchainCreateInfoKHR modified_create_info = *create_info->create_info;
     modified_create_info.imageUsage =
         modified_create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
     VkSurfaceCapabilitiesKHR surfCapabilities;
     auto                     result = instance_table_->GetPhysicalDeviceSurfaceCapabilitiesKHR(
-        physical_device, create_info->surface, &surfCapabilities);
+        create_info->physical_device, create_info->create_info->surface, &surfCapabilities);
     GFXRECON_ASSERT(result == VK_SUCCESS);
 
     if (modified_create_info.minImageCount < surfCapabilities.minImageCount)
@@ -62,14 +62,15 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
         modified_create_info.minImageCount = surfCapabilities.maxImageCount;
     }
 
-    const SwapchainInfo* new_swapchain_info = CreateSwapchainInfo(&modified_create_info, swapchain_capture_id);
+    const SwapchainInfo* new_swapchain_info =
+        CreateSwapchainInfo(&modified_create_info, create_info->swapchain_capture_id);
     if (new_swapchain_info == nullptr)
     {
-        GFXRECON_LOG_ERROR("Virtual Swapchain failed creating SwapchainInfo struct");
+        log_error_("Virtual Swapchain failed creating SwapchainInfo struct");
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
-    VkResult res = func(device, &modified_create_info, allocator, swapchain);
+    VkResult res = func(create_info->device, &modified_create_info, allocator, swapchain);
     if (res != VK_SUCCESS)
     {
         FreeSwapchainInfo(new_swapchain_info);
@@ -300,8 +301,8 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 
                     if (result != VK_SUCCESS)
                     {
-                        GFXRECON_LOG_ERROR("Failed to create virtual swapchain image for swapchain (ID = %" PRIu64 ")",
-                                           swapchain_info->capture_id);
+                        log_error_("Failed to create virtual swapchain image for swapchain (ID = %" PRIu64 ")",
+                                   swapchain_info->capture_id);
                         break;
                     }
                     virt_comps->virtual_images.emplace_back(std::move(image));
@@ -459,7 +460,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         }
         else
         {
-            GFXRECON_LOG_ERROR("QueuePresent Swapchain at index %d did not have corresponding swapchain info", i);
+            log_error_("QueuePresent Swapchain at index %d did not have corresponding swapchain info", i);
             continue;
         }
 
@@ -467,9 +468,8 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         auto               entry      = swapchain_components_.find(swapchains[i]);
         if (entry == swapchain_components_.end())
         {
-            GFXRECON_LOG_ERROR("Swapchain (ID = %" PRIu64
-                               ") did not have corresponding info for virtual swapchain present",
-                               swapchain_info->capture_id);
+            log_error_("Swapchain (ID = %" PRIu64 ") did not have corresponding info for virtual swapchain present",
+                       swapchain_info->capture_id);
             continue;
         }
         else
@@ -674,5 +674,5 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainImage(VkPhysicalDevice         p
     return result;
 }
 
-GFXRECON_END_NAMESPACE(compatibility)
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace compatibility
+} // namespace gfxrecon

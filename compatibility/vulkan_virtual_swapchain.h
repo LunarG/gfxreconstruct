@@ -25,24 +25,18 @@
 
 #include "vulkan_swapchain.h"
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(compatibility)
+namespace gfxrecon {
+namespace compatibility {
 
 class VulkanVirtualSwapchain : public VulkanSwapchain
 {
   public:
     virtual ~VulkanVirtualSwapchain() override {}
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR          func,
-                                        VkDevice                          device,
-                                        const VkSwapchainCreateInfoKHR*   create_info,
-                                        const ResourceAllocatorCallbacks* resource_alloc_callbacks,
-                                        const VkAllocationCallbacks*      allocator,
-                                        VkSwapchainKHR*                   swapchain,
-                                        uint64_t                          swapchain_capture_id,
-                                        const VkPhysicalDevice            physical_device,
-                                        const encode::InstanceTable*      instance_table,
-                                        const encode::DeviceTable*        device_table) override;
+    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR     func,
+                                        const SwapchainCreationInfo* create_info,
+                                        const VkAllocationCallbacks* allocator,
+                                        VkSwapchainKHR*              swapchain) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      VkDevice                     device,
@@ -88,7 +82,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     std::unordered_map<VkSwapchainKHR, VirtualComponents*> swapchain_components_;
 };
 
-GFXRECON_END_NAMESPACE(compatibility)
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // compatibility
+} // gfxrecon
 
 #endif // GFXRECON_COMPATIBILITY_VULKAN_VIRTUAL_SWAPCHAIN_H
