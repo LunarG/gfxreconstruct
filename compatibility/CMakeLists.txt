@@ -27,8 +27,13 @@
 
 add_library(gfxrecon_compatibility STATIC "")
 
+target_include_directories(gfxrecon_compatibility
+                           PUBLIC
+                               ${CMAKE_SOURCE_DIR}/compatibility)
+
 target_sources(gfxrecon_compatibility
                PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/swapchain_image_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.cpp
@@ -36,10 +41,6 @@ target_sources(gfxrecon_compatibility
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.cpp
 )
 
-target_include_directories(gfxrecon_compatibility
-                           PUBLIC
-                               ${CMAKE_SOURCE_DIR}/exernal/Vulkan-Headers/include
-                               ${CMAKE_SOURCE_DIR}/compatibility
-                               ${CMAKE_SOURCE_DIR}/framework)
+target_link_libraries(gfxrecon_compatibility vulkan_registry)
 
 common_build_directives(gfxrecon_compatibility)
