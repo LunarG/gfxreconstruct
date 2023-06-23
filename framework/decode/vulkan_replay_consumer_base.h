@@ -1103,7 +1103,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::vector<const SemaphoreInfo*> removed_semaphores_;
     std::unordered_set<uint32_t>      removed_swapchain_indices_;
     std::vector<uint32_t>             capture_image_indices_;
-    std::vector<SwapchainKHRInfo*>    swapchain_infos_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

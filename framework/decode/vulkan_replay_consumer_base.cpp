@@ -4952,6 +4952,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                                                     &resource_callbacks,
                                                     GetAllocationCallbacks(pAllocator),
                                                     replay_swapchain,
+                                                    swapchain_info->capture_id,
                                                     physical_device,
                                                     instance_table,
                                                     device_table);
@@ -4967,6 +4968,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                                                     &resource_callbacks,
                                                     GetAllocationCallbacks(pAllocator),
                                                     replay_swapchain,
+                                                    swapchain_info->capture_id,
                                                     physical_device,
                                                     instance_table,
                                                     device_table);
@@ -5025,22 +5027,20 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     SwapchainKHRInfo*                                          swapchain_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Delete backed images of dummy swapchain.
-    if ((swapchain_info != nullptr) && (swapchain_info->surface == VK_NULL_HANDLE))
+    if ((swapchain_info != nullptr) && (swapchain_info->surface != VK_NULL_HANDLE))
     {
-        auto allocator = device_info->allocator.get();
-        assert(allocator != nullptr);
+        swapchain_->DestroySwapchainKHR(
+            func, device_info->handle, swapchain_info->handle, GetAllocationCallbacks(pAllocator));
+    }
 
-        for (const ImageInfo& image_info : swapchain_info->image_infos)
-        {
-            allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
-            allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
-        }
-    }
-    else
+    auto allocator = device_info->allocator.get();
+    assert(allocator != nullptr);
+    for (const ImageInfo& image_info : swapchain_info->image_infos)
     {
-        swapchain_->DestroySwapchainKHR(func, device_info->handle, swapchain_info, GetAllocationCallbacks(pAllocator));
+        allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
+        allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
     }
+    swapchain_info->image_infos.clear();
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR    func,
@@ -5133,8 +5133,9 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
         result = swapchain_->GetSwapchainImagesKHR(func,
                                                    device_info->parent,
                                                    device_info->handle,
-                                                   swapchain_info,
+                                                   swapchain_info->handle,
                                                    capture_image_count,
+                                                   &swapchain_info->replay_image_count,
                                                    replay_image_count,
                                                    replay_images);
 
@@ -5438,6 +5439,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     VkDeviceGroupPresentInfoKHR modified_device_group_present_info{ VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR };
     VkPresentRegionsKHR         modified_present_region_info{ VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR };
     VkPresentTimesInfoGOOGLE    modified_present_times_info{ VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE };
+    std::vector<VkSwapchainKHR> swapchains;
 
     valid_swapchains_.clear();
     modified_image_indices_.clear();
@@ -5447,7 +5449,6 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     removed_semaphores_.clear();
     removed_swapchain_indices_.clear();
     capture_image_indices_.clear();
-    swapchain_infos_.clear();
 
     if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
     {
@@ -5469,7 +5470,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             if ((swapchain_info != nullptr) && (swapchain_info->surface != VK_NULL_HANDLE))
             {
                 valid_swapchains_.emplace_back(swapchain_info->handle);
-                swapchain_infos_.emplace_back(swapchain_info);
+                swapchains.emplace_back(swapchain_info->handle);
 
                 uint32_t capture_image_index = present_info->pImageIndices[i];
                 capture_image_indices_.emplace_back(capture_image_index);
@@ -5632,7 +5633,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                                       present_info->pImageIndices,
                                       std::next(present_info->pImageIndices, present_info->swapchainCount));
 
-        swapchain_infos_.insert(swapchain_infos_.end(), present_info->swapchainCount, nullptr);
+        swapchains.insert(swapchains.end(), present_info->swapchainCount, VK_NULL_HANDLE);
 
         const auto swapchain_ids = present_info_data->pSwapchains.GetPointer();
         for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
@@ -5642,7 +5643,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             const auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
             if (swapchain_info != nullptr)
             {
-                swapchain_infos_[i] = swapchain_info;
+                swapchains[i] = swapchain_info->handle;
 
                 uint32_t capture_image_index = present_info->pImageIndices[i];
                 capture_image_indices_[i]    = capture_image_index;
@@ -5711,7 +5712,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         else
         {
             result = swapchain_->QueuePresentKHR(
-                func, capture_image_indices_, swapchain_infos_, queue_info->handle, &modified_present_info);
+                func, capture_image_indices_, swapchains, queue_info->handle, &modified_present_info);
         }
     }
     else if (modified_present_info.swapchainCount == 0)
@@ -5741,7 +5742,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             else
             {
                 result = swapchain_->QueuePresentKHR(
-                    func, capture_image_indices_, swapchain_infos_, queue_info->handle, &modified_present_info);
+                    func, capture_image_indices_, swapchains, queue_info->handle, &modified_present_info);
             }
         }
         else
@@ -5774,7 +5775,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             else
             {
                 result = swapchain_->QueuePresentKHR(
-                    func, capture_image_indices_, swapchain_infos_, queue_info->handle, &modified_present_info);
+                    func, capture_image_indices_, swapchains, queue_info->handle, &modified_present_info);
             }
         }
     }

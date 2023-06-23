@@ -634,20 +634,17 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
             {
                 swapchain->DestroySwapchainKHR(get_device_table(parent_info->handle)->DestroySwapchainKHR,
                                                parent_info->handle,
-                                               object_info,
+                                               object_info->handle,
                                                nullptr);
             }
-            else
-            {
-                // Destroy placeholder images that were created in place of a valid swapchain.
-                auto allocator = parent_info->allocator.get();
-                assert(allocator != nullptr);
 
-                for (const ImageInfo& image_info : object_info->image_infos)
-                {
-                    allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
-                    allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
-                }
+            // Destroy placeholder images that were created in place of a valid swapchain.
+            auto allocator = parent_info->allocator.get();
+            assert(allocator != nullptr);
+            for (const ImageInfo& image_info : object_info->image_infos)
+            {
+                allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
+                allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
             }
         });
 

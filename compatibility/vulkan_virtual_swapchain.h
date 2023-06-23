@@ -39,28 +39,30 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                         const ResourceAllocatorCallbacks* resource_alloc_callbacks,
                                         const VkAllocationCallbacks*      allocator,
                                         VkSwapchainKHR*                   swapchain,
+                                        uint64_t                          swapchain_capture_id,
                                         const VkPhysicalDevice            physical_device,
                                         const encode::InstanceTable*      instance_table,
                                         const encode::DeviceTable*        device_table) override;
 
-    virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR       func,
-                                     VkDevice                        device,
-                                     const decode::SwapchainKHRInfo* swapchain_info,
-                                     const VkAllocationCallbacks*    allocator) override;
+    virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
+                                     VkDevice                     device,
+                                     VkSwapchainKHR               swapchain,
+                                     const VkAllocationCallbacks* allocator) override;
 
     virtual VkResult GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
                                            VkPhysicalDevice            physical_device,
                                            VkDevice                    device,
-                                           decode::SwapchainKHRInfo*   swapchain_info,
+                                           VkSwapchainKHR              swapchain,
                                            uint32_t                    capture_image_count,
+                                           uint32_t*                   replay_count_ptr,
                                            uint32_t*                   image_count,
                                            VkImage*                    images) override;
 
-    virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
-                                     const std::vector<uint32_t>&                  capture_image_indices,
-                                     const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
-                                     VkQueue                                       queue,
-                                     const VkPresentInfoKHR*                       present_info) override;
+    virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR              func,
+                                     const std::vector<uint32_t>&       capture_image_indices,
+                                     const std::vector<VkSwapchainKHR>& swapchains,
+                                     VkQueue                            queue,
+                                     const VkPresentInfoKHR*            present_info) override;
 
   private:
     VkResult CreateSwapchainImage(VkPhysicalDevice         physical_device,
@@ -86,7 +88,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     std::unordered_map<VkSwapchainKHR, VirtualComponents*> swapchain_components_;
 };
 
-GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(compatibility)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_COMPATIBILITY_VULKAN_VIRTUAL_SWAPCHAIN_H

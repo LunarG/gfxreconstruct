@@ -108,28 +108,30 @@ class VulkanSwapchain
                                         const ResourceAllocatorCallbacks* resource_alloc_callbacks,
                                         const VkAllocationCallbacks*      allocator,
                                         VkSwapchainKHR*                   swapchain,
+                                        uint64_t                          swapchain_capture_id,
                                         const VkPhysicalDevice            physical_device,
                                         const encode::InstanceTable*      instance_table,
                                         const encode::DeviceTable*        device_table) = 0;
 
-    virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR       func,
-                                     VkDevice                        device,
-                                     const decode::SwapchainKHRInfo* swapchain_info,
-                                     const VkAllocationCallbacks*    allocator) = 0;
+    virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
+                                     VkDevice                     device,
+                                     VkSwapchainKHR               swapchain,
+                                     const VkAllocationCallbacks* allocator) = 0;
 
     virtual VkResult GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
                                            VkPhysicalDevice            physical_device,
                                            VkDevice                    device,
-                                           decode::SwapchainKHRInfo*   swapchain_info,
+                                           VkSwapchainKHR              swapchain,
                                            uint32_t                    capture_image_count,
+                                           uint32_t*                   replay_count_ptr,
                                            uint32_t*                   image_count,
                                            VkImage*                    images) = 0;
 
-    virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
-                                     const std::vector<uint32_t>&                  capture_image_indices,
-                                     const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
-                                     VkQueue                                       queue,
-                                     const VkPresentInfoKHR*                       present_info) = 0;
+    virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR              func,
+                                     const std::vector<uint32_t>&       capture_image_indices,
+                                     const std::vector<VkSwapchainKHR>& swapchains,
+                                     VkQueue                            queue,
+                                     const VkPresentInfoKHR*            present_info) = 0;
 
     virtual void ProcessSetSwapchainImageStateCommand(
         VkPhysicalDevice                                              physical_device,
@@ -149,10 +151,87 @@ class VulkanSwapchain
     }
 
   protected:
+    struct SwapchainInfo
+    {
+        VkSwapchainCreateInfoKHR create_info;
+        uint64_t                 capture_id;
+    };
+    SwapchainInfo* CreateSwapchainInfo(const VkSwapchainCreateInfoKHR* old_ci, uint64_t capture_id)
+    {
+        SwapchainInfo* new_si = new SwapchainInfo;
+        if (new_si != nullptr)
+        {
+            bool copy_queue_indices = false;
+
+            new_si->create_info.sType            = old_ci->sType;
+            new_si->create_info.pNext            = nullptr;
+            new_si->create_info.flags            = old_ci->flags;
+            new_si->create_info.surface          = old_ci->surface;
+            new_si->create_info.minImageCount    = old_ci->minImageCount;
+            new_si->create_info.imageFormat      = old_ci->imageFormat;
+            new_si->create_info.imageColorSpace  = old_ci->imageColorSpace;
+            new_si->create_info.imageExtent      = { old_ci->imageExtent.width, old_ci->imageExtent.height };
+            new_si->create_info.imageArrayLayers = old_ci->imageArrayLayers;
+            new_si->create_info.imageUsage       = old_ci->imageUsage;
+            new_si->create_info.imageSharingMode = old_ci->imageSharingMode;
+            new_si->create_info.preTransform     = old_ci->preTransform;
+            new_si->create_info.compositeAlpha   = old_ci->compositeAlpha;
+            new_si->create_info.presentMode      = old_ci->presentMode;
+            new_si->create_info.clipped          = old_ci->clipped;
+            new_si->create_info.oldSwapchain     = old_ci->oldSwapchain;
+            new_si->capture_id                   = capture_id;
+
+            // TODO: This is a duplicate of `vulkan_replay_consumer_base.cpp` line 5003.
+            // There can be only one,
+            if (old_ci->imageSharingMode == VK_SHARING_MODE_CONCURRENT && old_ci->queueFamilyIndexCount > 0 &&
+                old_ci->pQueueFamilyIndices != nullptr)
+            {
+                new_si->create_info.queueFamilyIndexCount = old_ci->queueFamilyIndexCount;
+                copy_queue_indices                        = true;
+            }
+            else
+            {
+                new_si->create_info.queueFamilyIndexCount = 1;
+            }
+            uint32_t* index_array = new uint32_t[old_ci->queueFamilyIndexCount];
+            if (index_array != nullptr)
+            {
+                if (copy_queue_indices)
+                {
+                    for (uint32_t i = 0; i < old_ci->queueFamilyIndexCount; ++i)
+                    {
+                        index_array[i] = old_ci->pQueueFamilyIndices[i];
+                    }
+                }
+                else
+                {
+                    index_array[0] = 0;
+                }
+                new_si->create_info.pQueueFamilyIndices = index_array;
+            }
+            else
+            {
+                delete new_si;
+            }
+        }
+        return new_si;
+    }
+
+    void FreeSwapchainInfo(const SwapchainInfo* si)
+    {
+        if (si)
+        {
+            delete si->create_info.pQueueFamilyIndices;
+            delete si;
+        }
+    }
+
     const encode::InstanceTable* instance_table_{ nullptr };
     const encode::DeviceTable*   device_table_{ nullptr };
     ResourceAllocatorCallbacks   resource_alloc_callbacks_;
     SwapchainImageTracker*       swapchain_image_tracker_{ nullptr };
+
+    std::unordered_map<VkSwapchainKHR, const SwapchainInfo*> swapchain_infos_;
 };
 
 GFXRECON_END_NAMESPACE(compatibility)

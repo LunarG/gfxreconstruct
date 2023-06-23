@@ -34,6 +34,7 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR   
                                                      const ResourceAllocatorCallbacks* resource_alloc_callbacks,
                                                      const VkAllocationCallbacks*      allocator,
                                                      VkSwapchainKHR*                   swapchain,
+                                                     uint64_t                          swapchain_capture_id,
                                                      const VkPhysicalDevice            physical_device,
                                                      const encode::InstanceTable*      instance_table,
                                                      const encode::DeviceTable*        device_table)
@@ -43,22 +44,39 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR   
     resource_alloc_callbacks_ = (*resource_alloc_callbacks);
     swapchain_image_tracker_  = new SwapchainImageTracker();
 
-    return func(device, create_info, allocator, swapchain);
-}
-
-void VulkanCapturedSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR       func,
-                                                  VkDevice                        device,
-                                                  const decode::SwapchainKHRInfo* swapchain_info,
-                                                  const VkAllocationCallbacks*    allocator)
-{
-    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-    if (swapchain_info != nullptr)
+    const SwapchainInfo* new_swapchain_info = CreateSwapchainInfo(create_info, swapchain_capture_id);
+    if (new_swapchain_info == nullptr)
     {
-        swapchain = swapchain_info->handle;
+        GFXRECON_LOG_ERROR("Captured Swapchain failed creating SwapchainInfo struct");
+        return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
+    VkResult res = func(device, create_info, allocator, swapchain);
+    if (res != VK_SUCCESS)
+    {
+        FreeSwapchainInfo(new_swapchain_info);
+    }
+    else
+    {
+        swapchain_infos_[*swapchain] = new_swapchain_info;
+    }
+
+    return res;
+}
+
+void VulkanCapturedSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
+                                                  VkDevice                     device,
+                                                  VkSwapchainKHR               swapchain,
+                                                  const VkAllocationCallbacks* allocator)
+{
     func(device, swapchain, allocator);
+
+    auto create_info = swapchain_infos_.find(swapchain);
+    if (create_info != swapchain_infos_.end())
+    {
+        FreeSwapchainInfo(swapchain_infos_[swapchain]);
+        swapchain_infos_.erase(swapchain);
+    }
 
     if (swapchain_image_tracker_)
     {
@@ -70,18 +88,12 @@ void VulkanCapturedSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     
 VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
                                                         VkPhysicalDevice            physical_device,
                                                         VkDevice                    device,
-                                                        decode::SwapchainKHRInfo*   swapchain_info,
+                                                        VkSwapchainKHR              swapchain,
                                                         uint32_t                    capture_image_count,
+                                                        uint32_t*                   replay_count_ptr,
                                                         uint32_t*                   image_count,
                                                         VkImage*                    images)
 {
-    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-    if (swapchain_info != nullptr)
-    {
-        swapchain = swapchain_info->handle;
-    }
-
     auto result = func(device, swapchain, image_count, images);
 
     if ((image_count != nullptr) && (capture_image_count != *image_count))
@@ -95,11 +107,11 @@ VkResult VulkanCapturedSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImages
     return result;
 }
 
-VkResult VulkanCapturedSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
-                                                  const std::vector<uint32_t>&                  capture_image_indices,
-                                                  const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
-                                                  VkQueue                                       queue,
-                                                  const VkPresentInfoKHR*                       present_info)
+VkResult VulkanCapturedSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR              func,
+                                                  const std::vector<uint32_t>&       capture_image_indices,
+                                                  const std::vector<VkSwapchainKHR>& swapchains,
+                                                  VkQueue                            queue,
+                                                  const VkPresentInfoKHR*            present_info)
 {
     return func(queue, present_info);
 }
@@ -125,8 +137,9 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     result                       = GetSwapchainImagesKHR(device_table_->GetSwapchainImagesKHR,
                                    physical_device,
                                    device,
-                                   swapchain_info,
+                                   swapchain,
                                    capture_image_count,
+                                   &swapchain_info->replay_image_count,
                                    &image_count,
                                    nullptr);
     if (result == VK_SUCCESS)

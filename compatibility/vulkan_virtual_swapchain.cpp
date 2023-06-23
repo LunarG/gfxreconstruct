@@ -34,6 +34,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
                                                     const ResourceAllocatorCallbacks* resource_alloc_callbacks,
                                                     const VkAllocationCallbacks*      allocator,
                                                     VkSwapchainKHR*                   swapchain,
+                                                    uint64_t                          swapchain_capture_id,
                                                     const VkPhysicalDevice            physical_device,
                                                     const encode::InstanceTable*      instance_table,
                                                     const encode::DeviceTable*        device_table)
@@ -60,61 +61,70 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
     {
         modified_create_info.minImageCount = surfCapabilities.maxImageCount;
     }
-    return func(device, &modified_create_info, allocator, swapchain);
+
+    const SwapchainInfo* new_swapchain_info = CreateSwapchainInfo(&modified_create_info, swapchain_capture_id);
+    if (new_swapchain_info == nullptr)
+    {
+        GFXRECON_LOG_ERROR("Virtual Swapchain failed creating SwapchainInfo struct");
+        return VK_ERROR_OUT_OF_HOST_MEMORY;
+    }
+
+    VkResult res = func(device, &modified_create_info, allocator, swapchain);
+    if (res != VK_SUCCESS)
+    {
+        FreeSwapchainInfo(new_swapchain_info);
+    }
+    else
+    {
+        swapchain_infos_[*swapchain] = new_swapchain_info;
+    }
+
+    return res;
 }
 
-void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR       func,
-                                                 VkDevice                        device,
-                                                 const decode::SwapchainKHRInfo* swapchain_info,
-                                                 const VkAllocationCallbacks*    allocator)
+void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
+                                                 VkDevice                     device,
+                                                 VkSwapchainKHR               swapchain,
+                                                 const VkAllocationCallbacks* allocator)
 {
-    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-    if (swapchain_info != nullptr)
+    if (swapchain != VK_NULL_HANDLE && device != VK_NULL_HANDLE)
     {
-        swapchain = swapchain_info->handle;
-#if 0 // Brainpain
-        for (const decode::ImageInfo& image_info : swapchain_info->image_infos)
+        auto entry = swapchain_components_.find(swapchain);
+        if (entry != swapchain_components_.end())
         {
-            resource_alloc_callbacks_.destroy_image_resource(resource_alloc_callbacks_.allocator_class, image_info.handle, nullptr, image_info.allocator_data);
-            resource_alloc_callbacks_.free_device_memory_resource(
-                resource_alloc_callbacks_.allocator_class, image_info.memory, nullptr, image_info.memory_allocator_data);
-        }
-#endif
-        if (VK_NULL_HANDLE != device)
-        {
-            auto entry = swapchain_components_.find(swapchain_info->handle);
-            if (entry != swapchain_components_.end())
-            {
-                VirtualComponents* virt_comps = swapchain_components_[swapchain_info->handle];
-                device_table_->FreeCommandBuffers(device,
-                                                  virt_comps->blit_command_pool,
-                                                  static_cast<uint32_t>(virt_comps->blit_command_buffers.size()),
-                                                  virt_comps->blit_command_buffers.data());
-                device_table_->DestroyCommandPool(device, virt_comps->blit_command_pool, nullptr);
+            VirtualComponents* virt_comps = swapchain_components_[swapchain];
+            device_table_->FreeCommandBuffers(device,
+                                              virt_comps->blit_command_pool,
+                                              static_cast<uint32_t>(virt_comps->blit_command_buffers.size()),
+                                              virt_comps->blit_command_buffers.data());
+            device_table_->DestroyCommandPool(device, virt_comps->blit_command_pool, nullptr);
 
-                for (const AllocatedImageData& virt_image : virt_comps->virtual_images)
-                {
-                    resource_alloc_callbacks_.destroy_image_resource(resource_alloc_callbacks_.allocator_class,
-                                                                     virt_image.image,
-                                                                     nullptr,
-                                                                     virt_image.image_resource_id);
-                    resource_alloc_callbacks_.free_device_memory_resource(resource_alloc_callbacks_.allocator_class,
-                                                                          virt_image.memory,
-                                                                          nullptr,
-                                                                          virt_image.memory_resource_id);
-                }
-                for (const auto semaphore : virt_comps->blit_semaphores)
-                {
-                    device_table_->DestroySemaphore(device, semaphore, nullptr);
-                }
-                delete virt_comps;
-                swapchain_components_.erase(swapchain_info->handle);
+            for (const AllocatedImageData& virt_image : virt_comps->virtual_images)
+            {
+                resource_alloc_callbacks_.destroy_image_resource(
+                    resource_alloc_callbacks_.allocator_class, virt_image.image, nullptr, virt_image.image_resource_id);
+                resource_alloc_callbacks_.free_device_memory_resource(resource_alloc_callbacks_.allocator_class,
+                                                                      virt_image.memory,
+                                                                      nullptr,
+                                                                      virt_image.memory_resource_id);
             }
+            for (const auto semaphore : virt_comps->blit_semaphores)
+            {
+                device_table_->DestroySemaphore(device, semaphore, nullptr);
+            }
+            delete virt_comps;
+            swapchain_components_.erase(swapchain);
         }
     }
 
     func(device, swapchain, allocator);
+
+    auto create_info = swapchain_infos_.find(swapchain);
+    if (create_info != swapchain_infos_.end())
+    {
+        FreeSwapchainInfo(swapchain_infos_[swapchain]);
+        swapchain_infos_.erase(swapchain);
+    }
 
     if (swapchain_image_tracker_)
     {
@@ -126,37 +136,40 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR      
 VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
                                                        VkPhysicalDevice            physical_device,
                                                        VkDevice                    device,
-                                                       decode::SwapchainKHRInfo*   swapchain_info,
+                                                       VkSwapchainKHR              swapchain,
                                                        uint32_t                    capture_image_count,
+                                                       uint32_t*                   replay_count_ptr,
                                                        uint32_t*                   image_count,
                                                        VkImage*                    images)
 {
-    VkSwapchainKHR       swapchain          = VK_NULL_HANDLE;
-    uint32_t*            replay_image_count = nullptr;
     std::vector<VkImage> replay_swapchain_images;
+    const SwapchainInfo* swapchain_info = nullptr;
 
-    if (swapchain_info != nullptr)
+    auto sc_ci = swapchain_infos_.find(swapchain);
+    if (sc_ci != swapchain_infos_.end())
     {
-        swapchain          = swapchain_info->handle;
-        replay_image_count = &swapchain_info->replay_image_count;
-
+        swapchain_info = swapchain_infos_[swapchain];
         if (images != nullptr)
         {
-            replay_swapchain_images.resize(*replay_image_count);
+            replay_swapchain_images.resize(*replay_count_ptr);
         }
+    }
+    else
+    {
+        return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
     // TODO: Adjust the swapchain image format if the specified format is not supported by the replay device.
 
-    auto result = func(device, swapchain, replay_image_count, replay_swapchain_images.data());
+    auto result = func(device, swapchain, replay_count_ptr, replay_swapchain_images.data());
 
     if ((result == VK_SUCCESS) && (image_count != nullptr))
     {
         VirtualComponents* virt_comps = nullptr;
-        auto               entry      = swapchain_components_.find(swapchain_info->handle);
+        auto               entry      = swapchain_components_.find(swapchain);
         if (entry != swapchain_components_.end())
         {
-            virt_comps = swapchain_components_[swapchain_info->handle];
+            virt_comps = swapchain_components_[swapchain];
         }
         else
         {
@@ -165,17 +178,18 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
             {
                 return VK_ERROR_OUT_OF_HOST_MEMORY;
             }
-            swapchain_components_[swapchain_info->handle] = virt_comps;
+            swapchain_components_[swapchain] = virt_comps;
         }
 
         if (virt_comps->blit_command_pool == VK_NULL_HANDLE)
         {
-            device_table_->GetDeviceQueue(device, swapchain_info->queue_family_indices[0], 0, &virt_comps->blit_queue);
+            device_table_->GetDeviceQueue(
+                device, swapchain_info->create_info.pQueueFamilyIndices[0], 0, &virt_comps->blit_queue);
 
             VkCommandPoolCreateInfo command_pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
             command_pool_create_info.flags =
                 VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-            command_pool_create_info.queueFamilyIndex = swapchain_info->queue_family_indices[0];
+            command_pool_create_info.queueFamilyIndex = swapchain_info->create_info.pQueueFamilyIndices[0];
             VkResult result                           = device_table_->CreateCommandPool(
                 device, &command_pool_create_info, nullptr, &virt_comps->blit_command_pool);
             if (result != VK_SUCCESS)
@@ -222,7 +236,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
             if (virt_comps->swapchain_images.empty())
             {
                 virt_comps->swapchain_images = std::vector<VkImage>(
-                    replay_swapchain_images.data(), std::next(replay_swapchain_images.data(), *replay_image_count));
+                    replay_swapchain_images.data(), std::next(replay_swapchain_images.data(), *replay_count_ptr));
             }
 
             // If the call was made more than once because the first call returned VK_INCOMPLETE, only the new images
@@ -240,20 +254,21 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 image_create_info.pNext             = nullptr;
                 image_create_info.flags             = 0;
                 image_create_info.imageType         = VK_IMAGE_TYPE_2D;
-                image_create_info.format            = swapchain_info->format;
-                image_create_info.extent            = { swapchain_info->width, swapchain_info->height, 1 };
+                image_create_info.format            = swapchain_info->create_info.imageFormat;
+                image_create_info.extent            = { swapchain_info->create_info.imageExtent.width,
+                                                        swapchain_info->create_info.imageExtent.height,
+                                                        1 };
                 image_create_info.mipLevels         = 1;
-                image_create_info.arrayLayers       = swapchain_info->image_array_layers;
+                image_create_info.arrayLayers       = swapchain_info->create_info.imageArrayLayers;
                 image_create_info.samples           = VK_SAMPLE_COUNT_1_BIT;
                 image_create_info.tiling            = VK_IMAGE_TILING_OPTIMAL;
-                image_create_info.usage             = swapchain_info->image_usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-                image_create_info.sharingMode       = swapchain_info->image_sharing_mode;
-                image_create_info.queueFamilyIndexCount =
-                    static_cast<uint32_t>(swapchain_info->queue_family_indices.size());
-                image_create_info.pQueueFamilyIndices = swapchain_info->queue_family_indices.data();
-                image_create_info.initialLayout       = VK_IMAGE_LAYOUT_UNDEFINED;
+                image_create_info.usage = swapchain_info->create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+                image_create_info.sharingMode           = swapchain_info->create_info.imageSharingMode;
+                image_create_info.queueFamilyIndexCount = swapchain_info->create_info.queueFamilyIndexCount;
+                image_create_info.pQueueFamilyIndices   = swapchain_info->create_info.pQueueFamilyIndices;
+                image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
 
-                if ((swapchain_info->image_flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
+                if ((swapchain_info->create_info.flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
                     VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
                 {
                     image_create_info.flags |= VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
@@ -311,7 +326,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                     },
                 };
 
-                for (uint32_t i = 0; i < *replay_image_count; ++i)
+                for (uint32_t i = 0; i < *replay_count_ptr; ++i)
                 {
                     barrier.image = replay_swapchain_images[i];
                     device_table_->CmdPipelineBarrier(command_buffer,
@@ -355,11 +370,11 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
     return result;
 }
 
-VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR                         func,
-                                                 const std::vector<uint32_t>&                  capture_image_indices,
-                                                 const std::vector<decode::SwapchainKHRInfo*>& swapchain_infos,
-                                                 VkQueue                                       queue,
-                                                 const VkPresentInfoKHR*                       present_info)
+VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR              func,
+                                                 const std::vector<uint32_t>&       capture_image_indices,
+                                                 const std::vector<VkSwapchainKHR>& swapchains,
+                                                 VkQueue                            queue,
+                                                 const VkPresentInfoKHR*            present_info)
 {
     // TODO: Note that this blit could also be used to scale the image, which would allow replay to support an option
     // for changing the window/swapchain size when the virtual swapchain mode is active.  The virtual image would
@@ -433,12 +448,23 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
 
     for (uint32_t i = 0; i < length; ++i)
     {
-        uint32_t    capture_image_index = capture_image_indices[i];
-        uint32_t    replay_image_index  = present_info->pImageIndices[i];
-        const auto* swapchain_info      = swapchain_infos[i];
+        uint32_t             capture_image_index = capture_image_indices[i];
+        uint32_t             replay_image_index  = present_info->pImageIndices[i];
+        const SwapchainInfo* swapchain_info      = nullptr;
+
+        auto sc_ci = swapchain_infos_.find(swapchains[i]);
+        if (sc_ci != swapchain_infos_.end())
+        {
+            swapchain_info = swapchain_infos_[swapchains[i]];
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("QueuePresent Swapchain at index %d did not have corresponding swapchain info", i);
+            continue;
+        }
 
         VirtualComponents* virt_comps = nullptr;
-        auto               entry      = swapchain_components_.find(swapchain_info->handle);
+        auto               entry      = swapchain_components_.find(swapchains[i]);
         if (entry == swapchain_components_.end())
         {
             GFXRECON_LOG_ERROR("Swapchain (ID = %" PRIu64
@@ -448,7 +474,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         }
         else
         {
-            VirtualComponents* virt_comps      = swapchain_components_[swapchain_info->handle];
+            VirtualComponents* virt_comps      = swapchain_components_[swapchains[i]];
             const auto&        virtual_image   = virt_comps->virtual_images[capture_image_index];
             const auto&        swapchain_image = virt_comps->swapchain_images[replay_image_index];
 
@@ -469,9 +495,9 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
             semaphores.emplace_back(semaphore);
 
             initial_barrier_virtual_image.image                         = virtual_image.image;
-            initial_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
+            initial_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->create_info.imageArrayLayers;
             initial_barrier_swapchain_image.image                       = swapchain_image;
-            initial_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
+            initial_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->create_info.imageArrayLayers;
 
             device_table_->CmdPipelineBarrier(command_buffer,
                                               VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
@@ -495,10 +521,10 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                               1,
                                               &initial_barrier_swapchain_image);
 
-            subresource.layerCount = swapchain_info->image_array_layers;
+            subresource.layerCount = swapchain_info->create_info.imageArrayLayers;
 
-            offsets[1].x     = static_cast<int32_t>(swapchain_info->width);
-            offsets[1].y     = static_cast<int32_t>(swapchain_info->height);
+            offsets[1].x     = static_cast<int32_t>(swapchain_info->create_info.imageExtent.width);
+            offsets[1].y     = static_cast<int32_t>(swapchain_info->create_info.imageExtent.height);
             VkImageBlit blit = {
                 subresource,
                 { offsets[0], offsets[1] },
@@ -516,9 +542,9 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                         VK_FILTER_NEAREST);
 
             final_barrier_virtual_image.image                         = virtual_image.image;
-            final_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
+            final_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->create_info.imageArrayLayers;
             final_barrier_swapchain_image.image                       = swapchain_image;
-            final_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
+            final_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->create_info.imageArrayLayers;
 
             device_table_->CmdPipelineBarrier(command_buffer,
                                               VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -572,6 +598,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
     modified_present_info.pWaitSemaphores    = semaphores.data();
     return func(queue, &modified_present_info);
 }
+
 VkResult VulkanVirtualSwapchain::CreateSwapchainImage(VkPhysicalDevice         physical_device,
                                                       VkDevice                 device,
                                                       const VkImageCreateInfo& image_create_info,
