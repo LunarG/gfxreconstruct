@@ -243,7 +243,7 @@ class VulkanSwapchain
             {
                 new_si->create_info.queueFamilyIndexCount = 1;
             }
-            uint32_t* index_array = new uint32_t[old_ci->queueFamilyIndexCount];
+            uint32_t* index_array = new uint32_t[new_si->create_info.queueFamilyIndexCount];
             if (index_array != nullptr)
             {
                 if (copy_queue_indices)
@@ -262,6 +262,7 @@ class VulkanSwapchain
             else
             {
                 delete new_si;
+                new_si = nullptr;
             }
         }
         return new_si;
@@ -271,7 +272,7 @@ class VulkanSwapchain
     {
         if (si)
         {
-            delete si->create_info.pQueueFamilyIndices;
+            delete[] si->create_info.pQueueFamilyIndices;
             delete si;
         }
     }
