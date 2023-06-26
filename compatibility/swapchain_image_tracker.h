@@ -30,8 +30,10 @@
 
 #include <unordered_map>
 
-namespace gfxrecon {
-namespace compatibility {
+namespace gfxrecon
+{
+namespace compatibility
+{
 
 class SwapchainImageTracker
 {
@@ -86,7 +88,7 @@ class SwapchainImageTracker
     SwapchainImages images_;
 };
 
-} // compatibility
-} // gfxrecon
+} // namespace compatibility
+} // namespace gfxrecon
 
 #endif // GFXRECON_COMPATIBILITY_SWAPCHAIN_IMAGE_TRACKER_H
