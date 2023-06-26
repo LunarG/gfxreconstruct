@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 #define GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 
+#include "compatibility/vulkan_swapchain.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_initializer.h"
 #include "decode/window.h"
@@ -383,16 +384,9 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t             width{ 0 };
     uint32_t             height{ 0 };
     VkFormat             format{ VK_FORMAT_UNDEFINED };
-    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirutalSwapchain.
-    std::unordered_map<uint32_t, size_t> array_counts;
-
-    // The acquired_indices value and the remapping performed with it.
-    struct AcquiredData
-    {
-        uint32_t index = { 0 };
-        bool     acquired{ false };
-    };
-    std::vector<AcquiredData> acquired_indices;
+    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirtualSwapchain.
+    std::unordered_map<uint32_t, size_t>                           array_counts;
+    std::vector<compatibility::VulkanSwapchain::AcquiredIndexData> acquired_indices;
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<uint32_t> queue_family_indices{ 0 };

@@ -36,6 +36,7 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR   
                                                      const VkAllocationCallbacks* allocator,
                                                      VkSwapchainKHR*              swapchain)
 {
+    assert(create_info != nullptr);
     resource_alloc_callbacks_ = create_info->resource_alloc_callbacks;
     log_error_                = create_info->log_error;
     log_warning_              = create_info->log_warning;

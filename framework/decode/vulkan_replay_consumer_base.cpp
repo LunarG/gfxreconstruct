@@ -726,28 +726,16 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
 
             if (result == VK_SUCCESS)
             {
-                std::vector<compatibility::VulkanSwapchain::AcquiredIndexData> acquired_data;
-                acquired_data.resize(swapchain_info->acquired_indices.size());
-                for (size_t iii = 0; iii < swapchain_info->acquired_indices.size(); ++iii)
-                {
-                    acquired_data[iii].index    = swapchain_info->acquired_indices[iii].index;
-                    acquired_data[iii].acquired = swapchain_info->acquired_indices[iii].acquired;
-                }
                 swapchain_->ProcessSetSwapchainImageStateCommand(device_info->parent,
                                                                  device_info->handle,
                                                                  device_info->queue_family_creation_flags,
                                                                  swapchain_info->handle,
                                                                  &swapchain_info->replay_image_count,
-                                                                 acquired_data,
+                                                                 swapchain_info->acquired_indices,
                                                                  surface,
                                                                  surface_caps,
                                                                  last_presented_image,
                                                                  swapchain_image_info);
-                for (size_t iii = 0; iii < swapchain_info->acquired_indices.size(); ++iii)
-                {
-                    swapchain_info->acquired_indices[iii].index    = acquired_data[iii].index;
-                    swapchain_info->acquired_indices[iii].acquired = acquired_data[iii].acquired;
-                }
             }
         }
     }
