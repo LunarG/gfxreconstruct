@@ -4923,18 +4923,20 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateHeap(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
 {
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         if(!ppvHeap->IsNull()) ppvHeap->SetHandleLength(1);
-        auto out_p_ppvHeap    = ppvHeap->GetPointer();
-        auto out_hp_ppvHeap   = ppvHeap->GetHandlePointer();
-        auto replay_result = replay_object->CreateHeap(pDesc->GetPointer(),
-                                                       *riid.decoded_value,
-                                                       out_hp_ppvHeap);
+        DxObjectInfo object_info{};
+        ppvHeap->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateHeap(replay_object,
+                                                return_value,
+                                                pDesc,
+                                                riid,
+                                                ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvHeap, out_hp_ppvHeap, format::ApiCall_ID3D12Device_CreateHeap);
+            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device_CreateHeap);
         }
         CheckReplayResult("ID3D12Device_CreateHeap", return_value, replay_result);
     }
@@ -5759,20 +5761,22 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateHeap1(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
 {
-    auto replay_object = MapObject<ID3D12Device4>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pProtectedSession = MapObject<ID3D12ProtectedResourceSession>(pProtectedSession);
+        auto in_pProtectedSession = GetObjectInfo(pProtectedSession);
         if(!ppvHeap->IsNull()) ppvHeap->SetHandleLength(1);
-        auto out_p_ppvHeap    = ppvHeap->GetPointer();
-        auto out_hp_ppvHeap   = ppvHeap->GetHandlePointer();
-        auto replay_result = replay_object->CreateHeap1(pDesc->GetPointer(),
-                                                        in_pProtectedSession,
-                                                        *riid.decoded_value,
-                                                        out_hp_ppvHeap);
+        DxObjectInfo object_info{};
+        ppvHeap->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateHeap1(replay_object,
+                                                 return_value,
+                                                 pDesc,
+                                                 in_pProtectedSession,
+                                                 riid,
+                                                 ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvHeap, out_hp_ppvHeap, format::ApiCall_ID3D12Device4_CreateHeap1);
+            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device4_CreateHeap1);
         }
         CheckReplayResult("ID3D12Device4_CreateHeap1", return_value, replay_result);
     }

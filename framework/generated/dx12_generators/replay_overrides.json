@@ -24,6 +24,7 @@
       "CreateCommittedResource": "OverrideCreateCommittedResource",
       "CreateFence": "OverrideCreateFence",
       "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize",
+      "CreateHeap": "OverrideCreateHeap",
       "CreateReservedResource": "OverrideCreateReservedResource",
       "CreateGraphicsPipelineState": "OverrideCreateGraphicsPipelineState",
       "CreateComputePipelineState": "OverrideCreateComputePipelineState",
@@ -41,7 +42,8 @@
     "ID3D12Device4": {
       "CreateReservedResource1": "OverrideCreateReservedResource1",
       "CreateCommittedResource1": "OverrideCreateCommittedResource1",
-      "CreateCommandList1": "OverrideCreateCommandList1"
+      "CreateCommandList1": "OverrideCreateCommandList1",
+      "CreateHeap1": "OverrideCreateHeap1"
     },
     "ID3D12Device5": {
       "CreateStateObject": "OverrideCreateStateObject",
