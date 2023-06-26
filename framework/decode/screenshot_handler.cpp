@@ -82,7 +82,8 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                    VkImage                                 image,
                                    VkFormat                                format,
                                    uint32_t                                width,
-                                   uint32_t                                height)
+                                   uint32_t                                height,
+                                   VkImageLayout                           image_layout)
 {
     if ((device_table == nullptr) || (allocator == nullptr))
     {
@@ -193,12 +194,12 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
 
             if (result == VK_SUCCESS)
             {
-                // Transition source image to target to the TRANSFER_DST layout.
+                // Transition source image from image_layout to the TRANSFER_DST layout.
                 VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
                 image_barrier.pNext                           = nullptr;
                 image_barrier.srcAccessMask                   = 0;
                 image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
-                image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                image_barrier.oldLayout                       = image_layout;
                 image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                 image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
@@ -322,11 +323,11 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                                    1,
                                                    &copy_region);
 
-                // Transition source image to PRESENT_SOURCE layout for vkQueuePresentKHR.
+                // Transition source image back to image_layout after the screenshot.
                 image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
                 image_barrier.dstAccessMask       = 0;
                 image_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                image_barrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                image_barrier.newLayout           = image_layout;
                 image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
                 image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 

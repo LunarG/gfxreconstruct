@@ -192,7 +192,6 @@ typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
 typedef VulkanObjectInfo<VkShaderModule>                  ShaderModuleInfo;
 typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>               PrivateDataSlotInfo;
-typedef VulkanObjectInfo<VkRenderPass>                    RenderPassInfo;
 typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
 typedef VulkanPoolObjectInfo<VkDescriptorSet>             DescriptorSetInfo;
@@ -336,6 +335,8 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
     uint32_t                            layer_count{ 0 };
     uint32_t                            level_count{ 0 };
     uint32_t                            queue_family_index{ 0 };
+
+    VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 };
 
 struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
@@ -463,10 +464,16 @@ struct ShaderEXTInfo : VulkanObjectInfo<VkShaderEXT>
     std::unordered_map<uint32_t, size_t> array_counts;
 };
 
-struct CommandBufferInfo : VulkanPoolObjectInfo<VkCommandBuffer>
+struct CommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
-    bool                          is_frame_boundary{ false };
-    std::vector<format::HandleId> frame_buffer_ids;
+    bool                                                is_frame_boundary{ false };
+    std::vector<format::HandleId>                       frame_buffer_ids;
+    std::unordered_map<format::HandleId, VkImageLayout> image_layout_barriers;
+};
+
+struct RenderPassInfo : public VulkanObjectInfo<VkRenderPass>
+{
+    std::vector<VkAttachmentDescription> attachment_descriptions;
 };
 
 //
