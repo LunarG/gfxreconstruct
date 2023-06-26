@@ -2150,7 +2150,8 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                                                 swapchain_info->images[image_index],
                                                 swapchain_info->format,
                                                 swapchain_info->width,
-                                                swapchain_info->height);
+                                                swapchain_info->height,
+                                                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
             }
         }
     }
@@ -2213,7 +2214,8 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const Comm
                                                     image_info->handle,
                                                     image_info->format,
                                                     image_info->extent.width,
-                                                    image_info->extent.height);
+                                                    image_info->extent.height,
+                                                    image_info->current_layout);
                 }
             }
         }
@@ -3261,7 +3263,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
         GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
     }
 
-    // Check whether any of the submitted command lists buffers are frame boundaries.
     if (screenshot_handler_ != nullptr)
     {
         CommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
@@ -3274,6 +3275,18 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
                 for (uint32_t j = 0; j < command_buffer_count; ++j)
                 {
                     auto command_buffer_info = GetObjectInfoTable().GetCommandBufferInfo(command_buffer_ids[j]);
+
+                    // Apply any layouts from submitted command lists.
+                    for (auto image_layout : command_buffer_info->image_layout_barriers)
+                    {
+                        auto image_info = GetObjectInfoTable().GetImageInfo(image_layout.first);
+                        if (image_info != nullptr)
+                        {
+                            image_info->current_layout = image_layout.second;
+                        }
+                    }
+
+                    // Check whether any of the submitted command lists buffers are frame boundaries.
                     if (CheckCommandBufferInfoForFrameBoundary(command_buffer_info))
                     {
                         break;
@@ -4419,6 +4432,8 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         image_info->layer_count    = replay_create_info->arrayLayers;
         image_info->level_count    = replay_create_info->mipLevels;
 
+        image_info->current_layout = replay_create_info->initialLayout;
+
         if ((replay_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT) &&
             (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
         {
@@ -4492,12 +4507,36 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     HandlePointerDecoder<VkRenderPass>*                         pRenderPass)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT(pCreateInfo != nullptr);
 
-    return swapchain_->CreateRenderPass(func,
-                                        device_info,
-                                        pCreateInfo->GetPointer(),
-                                        GetAllocationCallbacks(pAllocator),
-                                        pRenderPass->GetHandlePointer());
+    auto result = swapchain_->CreateRenderPass(func,
+                                               device_info,
+                                               pCreateInfo->GetPointer(),
+                                               GetAllocationCallbacks(pAllocator),
+                                               pRenderPass->GetHandlePointer());
+
+    if ((result == VK_SUCCESS) && (pCreateInfo->GetPointer() != nullptr))
+    {
+        GFXRECON_ASSERT(pCreateInfo->GetMetaStructPointer() != nullptr);
+        uint32_t attachment_count = pCreateInfo->GetPointer()->attachmentCount;
+        if (attachment_count > 0)
+        {
+            GFXRECON_ASSERT(pCreateInfo->GetMetaStructPointer()->pAttachments != nullptr);
+            const VkAttachmentDescription* attachment_descs =
+                pCreateInfo->GetMetaStructPointer()->pAttachments->GetPointer();
+            auto render_pass_info = reinterpret_cast<RenderPassInfo*>(pRenderPass->GetConsumerData(0));
+            GFXRECON_ASSERT(render_pass_info != nullptr)
+
+            // Save attachment descriptions to RenderPassInfo.
+            render_pass_info->attachment_descriptions.resize(attachment_count);
+            for (uint32_t i = 0; i < attachment_count; ++i)
+            {
+                render_pass_info->attachment_descriptions[i] = attachment_descs[i];
+            }
+        }
+    }
+
+    return result;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
@@ -4519,7 +4558,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
     PFN_vkCmdPipelineBarrier                                   func,
-    const CommandBufferInfo*                                   command_buffer_info,
+    CommandBufferInfo*                                         command_buffer_info,
     VkPipelineStageFlags                                       srcStageMask,
     VkPipelineStageFlags                                       dstStageMask,
     VkDependencyFlags                                          dependencyFlags,
@@ -4541,6 +4580,12 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
                                    pBufferMemoryBarriers->GetPointer(),
                                    imageMemoryBarrierCount,
                                    pImageMemoryBarriers->GetPointer());
+
+    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
+    {
+        auto image_id                                        = pImageMemoryBarriers->GetMetaStructPointer()[i].image;
+        command_buffer_info->image_layout_barriers[image_id] = pImageMemoryBarriers->GetPointer()[i].newLayout;
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
@@ -6446,8 +6491,25 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
     VkSubpassContents                                    contents)
 {
-    command_buffer_info->frame_buffer_ids.push_back(
-        render_pass_begin_info_decoder->GetMetaStructPointer()->framebuffer);
+    auto framebuffer_id = render_pass_begin_info_decoder->GetMetaStructPointer()->framebuffer;
+    auto render_pass_id = render_pass_begin_info_decoder->GetMetaStructPointer()->renderPass;
+    command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
+
+    auto framebuffer_info = object_info_table_.GetFramebufferInfo(framebuffer_id);
+    auto render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_id);
+    if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
+    {
+        GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
+                        render_pass_info->attachment_descriptions.size());
+
+        for (size_t i = 0; i < render_pass_info->attachment_descriptions.size(); ++i)
+        {
+            auto image_view_id   = framebuffer_info->attachment_image_view_ids[i];
+            auto image_view_info = object_info_table_.GetImageViewInfo(image_view_id);
+            command_buffer_info->image_layout_barriers[image_view_info->image_id] =
+                render_pass_info->attachment_descriptions[i].finalLayout;
+        }
+    }
 
     VkCommandBuffer command_buffer = command_buffer_info->handle;
     return func(command_buffer, render_pass_begin_info_decoder->GetPointer(), contents);

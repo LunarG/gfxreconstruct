@@ -666,7 +666,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                        HandlePointerDecoder<VkRenderPass>*                          pRenderPass);
 
     void OverrideCmdPipelineBarrier(PFN_vkCmdPipelineBarrier                                   func,
-                                    const CommandBufferInfo*                                   command_buffer_info,
+                                    CommandBufferInfo*                                         command_buffer_info,
                                     VkPipelineStageFlags                                       srcStageMask,
                                     VkPipelineStageFlags                                       dstStageMask,
                                     VkDependencyFlags                                          dependencyFlags,
