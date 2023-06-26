@@ -378,6 +378,19 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                 Decoded_GUID                 riid,
                                 HandlePointerDecoder<void*>* fence);
 
+    HRESULT OverrideCreateHeap(DxObjectInfo*                                  replay_object_info,
+                               HRESULT                                        original_result,
+                               StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
+                               Decoded_GUID                                   riid,
+                               HandlePointerDecoder<void*>*                   ppvHeap);
+
+    HRESULT OverrideCreateHeap1(DxObjectInfo*                                  replay_object_info,
+                                HRESULT                                        return_value,
+                                StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
+                                DxObjectInfo*                                  pProtectedSession,
+                                Decoded_GUID                                   riid,
+                                HandlePointerDecoder<void*>*                   ppvHeap);
+
     UINT OverrideGetDescriptorHandleIncrementSize(DxObjectInfo*              replay_object_info,
                                                   UINT                       original_result,
                                                   D3D12_DESCRIPTOR_HEAP_TYPE descriptor_heap_type);
