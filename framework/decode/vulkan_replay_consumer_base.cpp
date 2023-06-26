@@ -4834,7 +4834,7 @@ VkResult CreateImageResource(void*                        allocator_class,
     VkResult res = resource_allocator->CreateImageDirect(create_info, allocation_callbacks, image, &data);
     if (res == VK_SUCCESS && resource_id != nullptr)
     {
-        *resource_id = reinterpret_cast<uintptr_t>(data);
+        *resource_id = static_cast<uintptr_t>(data);
     }
     return res;
 }
@@ -4847,7 +4847,7 @@ void DestroyImageResource(void*                        allocator_class,
     gfxrecon::decode::VulkanResourceAllocator* resource_allocator =
         reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator*>(allocator_class);
     gfxrecon::decode::VulkanResourceAllocator::ResourceData data =
-        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator::ResourceData>(resource_id);
+        static_cast<gfxrecon::decode::VulkanResourceAllocator::ResourceData>(resource_id);
     resource_allocator->DestroyImageDirect(image, allocation_callbacks, data);
 }
 
@@ -4863,7 +4863,7 @@ VkResult AllocateDeviceMemoryResource(void*                        allocator_cla
     VkResult res = resource_allocator->AllocateMemoryDirect(allocate_info, allocation_callbacks, memory, &data);
     if (res == VK_SUCCESS && resource_id != nullptr)
     {
-        *resource_id = reinterpret_cast<uintptr_t>(data);
+        *resource_id = static_cast<uintptr_t>(data);
     }
     return res;
 }
@@ -4876,7 +4876,7 @@ void FreeDeviceMemoryResource(void*                        allocator_class,
     gfxrecon::decode::VulkanResourceAllocator* resource_allocator =
         reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator*>(allocator_class);
     gfxrecon::decode::VulkanResourceAllocator::MemoryData data =
-        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator::MemoryData>(resource_id);
+        static_cast<gfxrecon::decode::VulkanResourceAllocator::MemoryData>(resource_id);
     resource_allocator->FreeMemoryDirect(memory, allocation_callbacks, data);
 }
 
@@ -4891,9 +4891,9 @@ VkResult BindImageResourceToDeviceMemoryResource(void*                  allocato
     gfxrecon::decode::VulkanResourceAllocator* resource_allocator =
         reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator*>(allocator_class);
     gfxrecon::decode::VulkanResourceAllocator::ResourceData resource_data =
-        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator::ResourceData>(image_resource_id);
+        static_cast<gfxrecon::decode::VulkanResourceAllocator::ResourceData>(image_resource_id);
     gfxrecon::decode::VulkanResourceAllocator::MemoryData memory_data =
-        reinterpret_cast<gfxrecon::decode::VulkanResourceAllocator::MemoryData>(memory_resource_id);
+        static_cast<gfxrecon::decode::VulkanResourceAllocator::MemoryData>(memory_resource_id);
     return resource_allocator->BindImageMemoryDirect(
         image, memory, memory_offset, resource_data, memory_data, bind_memory_properties);
 }
