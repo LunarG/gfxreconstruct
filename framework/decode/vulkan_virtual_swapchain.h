@@ -118,15 +118,43 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     {}
 
   private:
-    VkResult CreateSwapchainImage(const DeviceInfo*               device_info,
-                                  const VkImageCreateInfo&        image_create_info,
-                                  SwapchainKHRInfo::VirtualImage& image);
+    // Structure necessary to track the necessary information related to the virtual swapchain images
+    struct VirtualImage
+    {
+        VkDeviceMemory                        memory{ VK_NULL_HANDLE };
+        VkImage                               image{ VK_NULL_HANDLE };
+        VulkanResourceAllocator::MemoryData   memory_allocator_data{ 0 };
+        VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
+    };
 
-    int32_t FindFirstPresentSrcLayout(const VkRenderPassCreateInfo* create_info) const;
+    // Structure to store data required per device queue family to properly handle creating the
+    // virtual swapchain images and copying that data to the actual swapchain images.
+    struct CopyCmdData
+    {
+        VkCommandPool                command_pool;
+        std::vector<VkCommandBuffer> command_buffers;
+        std::vector<VkSemaphore>     semaphores;
+    };
 
-    int32_t FindFirstPresentSrcLayout(const VkRenderPassCreateInfo2* create_info) const;
+    // Structure to track VulkanVirtualSwapchain private data specific to a particular VkSwapchainKHR handle.
+    struct SwapchainResourceData
+    {
+        // Create a map that correlates copy command data with a queue family index.
+        std::unordered_map<uint32_t, CopyCmdData> copy_cmd_data;
 
-    int32_t FindFirstPresentSrcLayout(uint32_t count, const VkImageMemoryBarrier* barriers) const;
+        // Swapchain images, these include the virtual ones created by this
+        // class that are returned in place of the hardware ones, as well
+        // as a vector of the actual hardware ones used during replay.
+        std::vector<VirtualImage> virtual_swapchain_images;
+        std::vector<VkImage>      replay_swapchain_images;
+    };
+
+    VkResult CreateVirtualSwapchainImage(const DeviceInfo*        device_info,
+                                         const VkImageCreateInfo& image_create_info,
+                                         VirtualImage&            image);
+
+    // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
+    std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
