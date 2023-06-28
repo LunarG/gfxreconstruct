@@ -470,7 +470,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // trim ranges and trim hotkey are exclusive
     // with trim key will be parsed only
     // if trim ranges is empty, else it will be ignored
-    ParseTrimRangeString(FindOption(options, kOptionKeyCaptureFrames), &settings->trace_settings_.trim_ranges);
+    ParseUintRangeList(
+        FindOption(options, kOptionKeyCaptureFrames), &settings->trace_settings_.trim_ranges, "capture frames");
     std::string trim_key_option        = FindOption(options, kOptionKeyCaptureTrigger);
     std::string trim_key_frames_option = FindOption(options, kOptionKeyCaptureTriggerFrames);
     if (!trim_key_option.empty())
@@ -524,7 +525,9 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // Screenshot options
     settings->trace_settings_.screenshot_dir =
         FindOption(options, kOptionKeyScreenshotDir, settings->trace_settings_.screenshot_dir);
-    ParseFramesList(FindOption(options, kOptionKeyScreenshotFrames), &settings->trace_settings_.screenshot_ranges);
+    ParseUintRangeList(FindOption(options, kOptionKeyScreenshotFrames),
+                       &settings->trace_settings_.screenshot_ranges,
+                       "screenshot frames");
     settings->trace_settings_.screenshot_format = ParseScreenshotFormatString(
         FindOption(options, kOptionKeyScreenshotFormat), settings->trace_settings_.screenshot_format);
 
@@ -767,143 +770,19 @@ util::Log::Severity CaptureSettings::ParseLogLevelString(const std::string&  val
     return result;
 }
 
-void CaptureSettings::ParseTrimRangeString(const std::string&                       value_string,
-                                           std::vector<CaptureSettings::TrimRange>* ranges)
-{
-    assert(ranges != nullptr);
-
-    if (!value_string.empty())
-    {
-        std::istringstream value_string_input;
-        value_string_input.str(value_string);
-
-        for (std::string range; std::getline(value_string_input, range, ',');)
-        {
-            if (range.empty() || (std::count(range.begin(), range.end(), '-') > 1))
-            {
-                GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\"", range.c_str());
-                continue;
-            }
-
-            util::strings::RemoveWhitespace(range);
-
-            // Split string on '-' delimiter.
-            bool                     invalid = false;
-            std::vector<std::string> values;
-            std::istringstream       range_input;
-            range_input.str(range);
-
-            for (std::string value; std::getline(range_input, value, '-');)
-            {
-                if (value.empty())
-                {
-                    break;
-                }
-
-                // Check that the value string only contains numbers.
-                size_t count = std::count_if(value.begin(), value.end(), ::isdigit);
-                if (count == value.length())
-                {
-                    values.push_back(value);
-                }
-                else
-                {
-                    GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\", which contains "
-                                         "non-numeric values",
-                                         range.c_str());
-                    invalid = true;
-                    break;
-                }
-            }
-
-            if (!invalid)
-            {
-                CaptureSettings::TrimRange trim_range;
-
-                if (values.size() == 1)
-                {
-                    if (std::count(range.begin(), range.end(), '-') == 0)
-                    {
-                        trim_range.first = std::stoi(values[0]);
-                        trim_range.total = 1;
-                    }
-                    else
-                    {
-                        GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\"",
-                                             range.c_str());
-                        continue;
-                    }
-                }
-                else if (values.size() == 2)
-                {
-                    trim_range.first = std::stoi(values[0]);
-
-                    uint32_t last = std::stoi(values[1]);
-                    if (last >= trim_range.first)
-                    {
-                        trim_range.total = (last - trim_range.first) + 1;
-                    }
-                    else
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "Settings Loader: Ignoring invalid capture frame range \"%s\", where first "
-                            "frame is greater than last frame",
-                            range.c_str());
-                        continue;
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\"", range.c_str());
-                    continue;
-                }
-
-                // Check for invalid start frame of 0.
-                if (trim_range.first == 0)
-                {
-                    GFXRECON_LOG_WARNING(
-                        "Settings Loader: Ignoring invalid capture frame range \"%s\", with first frame equal to zero",
-                        range.c_str());
-                    continue;
-                }
-
-                uint32_t next_allowed = 0;
-
-                // Check that start frame is outside the bounds of the previous range.
-                if (!ranges->empty())
-                {
-                    // This produces the number of the frame after the last frame in the range.
-                    next_allowed = ranges->back().first + ranges->back().total;
-                }
-
-                if (trim_range.first >= next_allowed)
-                {
-                    ranges->emplace_back(trim_range);
-                }
-                else
-                {
-                    GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\", "
-                                         "where start frame precedes the end of the previous range \"%u-%u\"",
-                                         range.c_str(),
-                                         ranges->back().first,
-                                         (next_allowed - 1));
-                }
-            }
-        }
-    }
-}
-
-void CaptureSettings::ParseFramesList(const std::string& value_string, std::vector<util::FrameRange>* frames)
+void CaptureSettings::ParseUintRangeList(const std::string&            value_string,
+                                         std::vector<util::UintRange>* frames,
+                                         const char*                   option_name)
 {
     GFXRECON_ASSERT(frames != nullptr);
 
     if (!value_string.empty())
     {
-        std::vector<gfxrecon::util::FrameRange> frame_ranges = gfxrecon::util::GetFrameRanges(value_string);
+        std::vector<gfxrecon::util::UintRange> frame_ranges = util::GetUintRanges(value_string.c_str(), option_name);
 
         for (uint32_t i = 0; i < frame_ranges.size(); ++i)
         {
-            util::FrameRange range{};
+            util::UintRange range{};
             range.first = frame_ranges[i].first;
             range.last  = frame_ranges[i].last;
             frames->push_back(range);

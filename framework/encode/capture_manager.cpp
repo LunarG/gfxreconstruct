@@ -188,14 +188,14 @@ void CaptureManager::DestroyInstance(std::function<const CaptureManager*()> GetI
     }
 }
 
-std::vector<uint32_t> CalcScreenshotIndices(std::vector<util::FrameRange> ranges)
+std::vector<uint32_t> CalcScreenshotIndices(std::vector<util::UintRange> ranges)
 {
     // Take a range of frames and convert it to a flat list of indices
     std::vector<uint32_t> indices;
 
     for (uint32_t i = 0; i < ranges.size(); ++i)
     {
-        util::FrameRange& range = ranges[i];
+        util::UintRange& range = ranges[i];
 
         uint32_t diff = range.last - range.first + 1;
 
@@ -320,7 +320,13 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     {
         // Override default kModeWrite capture mode.
         trim_enabled_ = true;
-        trim_ranges_  = trace_settings.trim_ranges;
+        std::transform(trace_settings.trim_ranges.begin(),
+                       trace_settings.trim_ranges.end(),
+                       std::back_inserter(trim_ranges_),
+                       [](const util::UintRange& range) {
+                           GFXRECON_ASSERT(range.last >= range.first);
+                           return TrimRange({ range.first, (range.last - range.first + 1) });
+                       });
 
         // Determine if trim starts at the first frame
         if (!trace_settings.trim_ranges.empty())
@@ -610,8 +616,8 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
             {
                 // Trimming was configured to capture two consecutive frames, so we need to start a new capture
                 // file for the current frame.
-                const CaptureSettings::TrimRange& trim_range = trim_ranges_[trim_current_range_];
-                bool success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
+                const TrimRange& trim_range = trim_ranges_[trim_current_range_];
+                bool             success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
                 if (success)
                 {
                     ActivateTrimming();
@@ -641,8 +647,8 @@ void CaptureManager::CheckStartCaptureForTrackMode()
     {
         if (trim_ranges_[trim_current_range_].first == current_frame_)
         {
-            const CaptureSettings::TrimRange& trim_range = trim_ranges_[trim_current_range_];
-            bool success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
+            const TrimRange& trim_range = trim_ranges_[trim_current_range_];
+            bool             success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
             if (success)
             {
                 ActivateTrimming();
@@ -730,8 +736,7 @@ void CaptureManager::EndFrame()
     }
 }
 
-std::string CaptureManager::CreateTrimFilename(const std::string&                base_filename,
-                                               const CaptureSettings::TrimRange& trim_range)
+std::string CaptureManager::CreateTrimFilename(const std::string& base_filename, const TrimRange& trim_range)
 {
     assert(trim_range.total > 0);
 
