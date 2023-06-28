@@ -41,8 +41,10 @@
 
 #include "generated/generated_vulkan_enum_to_string.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <limits>
+#include <numeric>
 #include <unordered_set>
 #include <future>
 
@@ -2664,6 +2666,19 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             // Track state of physical device properties and features at device creation
             device_info->property_feature_info = property_feature_info;
 
+            // Keep track of what queue families this device is planning on using.  This information is
+            // very important if we end up using the VulkanVirtualSwapchain path.
+            auto max = [](uint32_t current_max, const VkDeviceQueueCreateInfo& dqci) {
+                return std::max(current_max, dqci.queueFamilyIndex);
+            };
+            uint32_t max_queue_family =
+                std::accumulate(modified_create_info.pQueueCreateInfos,
+                                modified_create_info.pQueueCreateInfos + modified_create_info.queueCreateInfoCount,
+                                0,
+                                max);
+            device_info->queue_family_index_enabled.clear();
+            device_info->queue_family_index_enabled.resize(max_queue_family + 1, false);
+
             for (uint32_t q = 0; q < modified_create_info.queueCreateInfoCount; ++q)
             {
                 const VkDeviceQueueCreateInfo* queue_create_info = &modified_create_info.pQueueCreateInfos[q];
@@ -2671,6 +2686,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                        device_info->queue_family_creation_flags.end());
                 device_info->queue_family_creation_flags[queue_create_info->queueFamilyIndex] =
                     queue_create_info->flags;
+                device_info->queue_family_index_enabled[queue_create_info->queueFamilyIndex] = true;
             }
         }
 
@@ -2905,6 +2921,52 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
     }
 
     return result;
+}
+
+void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue           func,
+                                                      DeviceInfo*                    device_info,
+                                                      uint32_t                       queueFamilyIndex,
+                                                      uint32_t                       queueIndex,
+                                                      HandlePointerDecoder<VkQueue>* pQueue)
+{
+    VkDevice device = device_info->handle;
+    if (!pQueue->IsNull())
+    {
+        pQueue->SetHandleLength(1);
+    }
+    VkQueue* out_pQueue = pQueue->GetHandlePointer();
+
+    func(device, queueFamilyIndex, queueIndex, out_pQueue);
+
+    // Add tracking for which VkQueue objects are associated with what queue family and index.
+    // This is necessary for the virtual swapchain to determine which command buffer to use when
+    // Bliting the images on the Presenting Queue.
+    auto queue_info          = reinterpret_cast<QueueInfo*>(pQueue->GetConsumerData(0));
+    queue_info->family_index = queueFamilyIndex;
+    queue_info->queue_index  = queueIndex;
+}
+
+void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2                             func,
+                                                       DeviceInfo*                                       device_info,
+                                                       StructPointerDecoder<Decoded_VkDeviceQueueInfo2>* pQueueInfo,
+                                                       HandlePointerDecoder<VkQueue>*                    pQueue)
+{
+    VkDevice                  device        = device_info->handle;
+    const VkDeviceQueueInfo2* in_pQueueInfo = pQueueInfo->GetPointer();
+    if (!pQueue->IsNull())
+    {
+        pQueue->SetHandleLength(1);
+    }
+    VkQueue* out_pQueue = pQueue->GetHandlePointer();
+
+    func(device, in_pQueueInfo, out_pQueue);
+
+    // Add tracking for which VkQueue objects are associated with what queue family and index.
+    // This is necessary for the virtual swapchain to determine which command buffer to use when
+    // Bliting the images on the Presenting Queue.
+    auto queue_info          = reinterpret_cast<QueueInfo*>(pQueue->GetConsumerData(0));
+    queue_info->family_index = in_pQueueInfo->queueFamilyIndex;
+    queue_info->queue_index  = in_pQueueInfo->queueIndex;
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties(

@@ -483,6 +483,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         PointerDecoder<uint32_t>*                                     pToolCount,
         StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties);
 
+    void OverrideGetDeviceQueue(PFN_vkGetDeviceQueue           func,
+                                DeviceInfo*                    device_info,
+                                uint32_t                       queueFamilyIndex,
+                                uint32_t                       queueIndex,
+                                HandlePointerDecoder<VkQueue>* pQueue);
+    void OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2                             func,
+                                 DeviceInfo*                                       device_info,
+                                 StructPointerDecoder<Decoded_VkDeviceQueueInfo2>* pQueueInfo,
+                                 HandlePointerDecoder<VkQueue>*                    pQueue);
+
     VkResult OverrideWaitForFences(PFN_vkWaitForFences                  func,
                                    VkResult                             original_result,
                                    const DeviceInfo*                    device_info,
@@ -1132,7 +1142,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     ActiveWindows                                                    active_windows_;
     const VulkanReplayOptions                                        options_;
     bool                                                             loading_trim_state_;
-    bool                                                             have_imported_semaphores_;
     SwapchainImageTracker                                            swapchain_image_tracker_;
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
@@ -1142,7 +1151,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     int32_t                                                          create_surface_count_;
     graphics::FpsInfo*                                               fps_info_;
 
-    // Used to track if any shadow sync objects are active to avoid checking if not needed
+    // Imported semaphores are semaphores that are used to track external memory.
+    // During replay, the external memory is not present (we have no Fds or handles to valid
+    // data), so we ignore those semaphores when they are encountered.
+    bool have_imported_semaphores_;
+
+    // Used to track if any shadow sync objects are active to avoid checking if not needed.
+    // SHadowed objects are ignored when they would have been unsignaled (waited on).
+    // [Currently set during a call to AcquireNextImage if the VkSurfaceKHR is VK_NULL_HANDLE.
     std::unordered_set<VkSemaphore> shadow_semaphores_;
     std::unordered_set<VkFence>     shadow_fences_;
 

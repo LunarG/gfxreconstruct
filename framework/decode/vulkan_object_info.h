@@ -266,6 +266,7 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
     std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
+    std::vector<bool>                                      queue_family_index_enabled;
 
     std::vector<VkPhysicalDevice> replay_device_group;
 };
@@ -273,6 +274,8 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 struct QueueInfo : public VulkanObjectInfo<VkQueue>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+    uint32_t                             family_index;
+    uint32_t                             queue_index;
 };
 
 struct SemaphoreInfo : public VulkanObjectInfo<VkSemaphore>
@@ -401,31 +404,13 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 
     // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
     // backing images.
+    uint32_t                  replay_image_count{ 0 };
     std::vector<ImageInfo>    image_infos;
     VkSwapchainCreateFlagsKHR image_flags{ 0 };
     VkFormat                  image_format{ VK_FORMAT_UNDEFINED };
     uint32_t                  image_array_layers{ 0 };
     VkImageUsageFlags         image_usage{ 0 };
     VkSharingMode             image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
-
-    // TODO: These values are used by the virtual swapchain.  They should be replaced with an opaque handle, similar to
-    // DeviceMemoryInfo::allocator_data, which is really a pointer to a struct that contains the virtual swapchain's
-    // internal info.  The memory for the struct referenced by the opaque handle would be managed by the virtual
-    // swapchain class, similar to the way that the VulkanRebindAllocator works.
-    struct VirtualImage
-    {
-        VkDeviceMemory                        memory{ VK_NULL_HANDLE };
-        VkImage                               image{ VK_NULL_HANDLE };
-        VulkanResourceAllocator::MemoryData   memory_allocator_data{ 0 };
-        VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
-    };
-    uint32_t                     replay_image_count{ 0 };
-    std::vector<VirtualImage>    virtual_images; // Images created by replay, returned in place of the swapchain images.
-    std::vector<VkImage>         swapchain_images; // The real swapchain images.
-    VkQueue                      blit_queue{ VK_NULL_HANDLE };
-    VkCommandPool                blit_command_pool{ VK_NULL_HANDLE };
-    std::vector<VkCommandBuffer> blit_command_buffers;
-    std::vector<VkSemaphore>     blit_semaphores;
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
