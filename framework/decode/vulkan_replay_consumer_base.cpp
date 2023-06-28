@@ -2907,6 +2907,50 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
     return result;
 }
 
+void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue           func,
+                                                      DeviceInfo*                    device_info,
+                                                      uint32_t                       queueFamilyIndex,
+                                                      uint32_t                       queueIndex,
+                                                      HandlePointerDecoder<VkQueue>* pQueue)
+{
+    VkDevice device = device_info->handle;
+    if (!pQueue->IsNull())
+    {
+        pQueue->SetHandleLength(1);
+    }
+    VkQueue* out_pQueue = pQueue->GetHandlePointer();
+
+    func(device, queueFamilyIndex, queueIndex, out_pQueue);
+
+    // Add tracking for which VkQueue objects are associated with what queue family and index.
+    // This is necessary for the virtual swapchain to determine which command buffer to use when
+    // Bliting the images on the Presenting Queue.
+    device_info->queue_family_indices[*out_pQueue] = queueFamilyIndex;
+    device_info->queue_indices[*out_pQueue]        = queueIndex;
+}
+
+void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2                             func,
+                                                       DeviceInfo*                                       device_info,
+                                                       StructPointerDecoder<Decoded_VkDeviceQueueInfo2>* pQueueInfo,
+                                                       HandlePointerDecoder<VkQueue>*                    pQueue)
+{
+    VkDevice                  device        = device_info->handle;
+    const VkDeviceQueueInfo2* in_pQueueInfo = pQueueInfo->GetPointer();
+    if (!pQueue->IsNull())
+    {
+        pQueue->SetHandleLength(1);
+    }
+    VkQueue* out_pQueue = pQueue->GetHandlePointer();
+
+    func(device, in_pQueueInfo, out_pQueue);
+
+    // Add tracking for which VkQueue objects are associated with what queue family and index.
+    // This is necessary for the virtual swapchain to determine which command buffer to use when
+    // Bliting the images on the Presenting Queue.
+    device_info->queue_family_indices[*out_pQueue] = in_pQueueInfo->queueFamilyIndex;
+    device_info->queue_indices[*out_pQueue]        = in_pQueueInfo->queueIndex;
+}
+
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties(
     PFN_vkGetPhysicalDeviceProperties                         func,
     PhysicalDeviceInfo*                                       physical_device_info,
@@ -4593,17 +4637,16 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
     uint32_t                                                   imageMemoryBarrierCount,
     const StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers)
 {
-    swapchain_->CmdPipelineBarrier(func,
-                                   command_buffer_info,
-                                   srcStageMask,
-                                   dstStageMask,
-                                   dependencyFlags,
-                                   memoryBarrierCount,
-                                   pMemoryBarriers->GetPointer(),
-                                   bufferMemoryBarrierCount,
-                                   pBufferMemoryBarriers->GetPointer(),
-                                   imageMemoryBarrierCount,
-                                   pImageMemoryBarriers->GetPointer());
+    func(command_buffer_info->handle,
+         srcStageMask,
+         dstStageMask,
+         dependencyFlags,
+         memoryBarrierCount,
+         pMemoryBarriers->GetPointer(),
+         bufferMemoryBarrierCount,
+         pBufferMemoryBarriers->GetPointer(),
+         imageMemoryBarrierCount,
+         pImageMemoryBarriers->GetPointer());
 
     for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
     {

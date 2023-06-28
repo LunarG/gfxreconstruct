@@ -97,18 +97,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                        const VkAllocationCallbacks*   allocator,
                                        VkRenderPass*                  render_pass) override;
 
-    virtual void CmdPipelineBarrier(PFN_vkCmdPipelineBarrier     func,
-                                    const CommandBufferInfo*     command_buffer_info,
-                                    VkPipelineStageFlags         src_stage_mask,
-                                    VkPipelineStageFlags         dst_stage_mask,
-                                    VkDependencyFlags            dependency_flags,
-                                    uint32_t                     memory_barrier_count,
-                                    const VkMemoryBarrier*       memory_barriers,
-                                    uint32_t                     buffer_memory_barrier_count,
-                                    const VkBufferMemoryBarrier* buffer_memory_barriers,
-                                    uint32_t                     image_memory_barrier_count,
-                                    const VkImageMemoryBarrier*  image_memory_barriers) override;
-
     virtual void ProcessSetSwapchainImageStateCommand(const DeviceInfo* device_info,
                                                       SwapchainKHRInfo* swapchain_info,
                                                       uint32_t          last_presented_image,
@@ -118,15 +106,9 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     {}
 
   private:
-    VkResult CreateSwapchainImage(const DeviceInfo*               device_info,
-                                  const VkImageCreateInfo&        image_create_info,
-                                  SwapchainKHRInfo::VirtualImage& image);
-
-    int32_t FindFirstPresentSrcLayout(const VkRenderPassCreateInfo* create_info) const;
-
-    int32_t FindFirstPresentSrcLayout(const VkRenderPassCreateInfo2* create_info) const;
-
-    int32_t FindFirstPresentSrcLayout(uint32_t count, const VkImageMemoryBarrier* barriers) const;
+    VkResult CreateVirtualSwapchainImage(const DeviceInfo*               device_info,
+                                         const VkImageCreateInfo&        image_create_info,
+                                         SwapchainKHRInfo::VirtualImage& image);
 };
 
 GFXRECON_END_NAMESPACE(decode)
