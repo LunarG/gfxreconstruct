@@ -18,6 +18,9 @@
     "ID3D12DeviceRemovedExtendedDataSettings1": {
       "SetBreadcrumbContextEnablement": "OverrideSetBreadcrumbContextEnablement"
     },
+    "ID3D12DeviceFactory": {
+      "CreateDevice": "OverrideD3D12DeviceFactoryCreateDevice"
+    },
     "ID3D12Device": {
       "CreateCommandQueue": "OverrideCreateCommandQueue",
       "CreateDescriptorHeap": "OverrideCreateDescriptorHeap",

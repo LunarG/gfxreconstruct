@@ -12915,17 +12915,19 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceFactory_CreateDevice(
             FeatureLevel,
             riid,
             ppvDevice);
-        auto in_adapter = MapObject<IUnknown>(adapter);
+        auto in_adapter = GetObjectInfo(adapter);
         if(!ppvDevice->IsNull()) ppvDevice->SetHandleLength(1);
-        auto out_p_ppvDevice    = ppvDevice->GetPointer();
-        auto out_hp_ppvDevice   = ppvDevice->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D12DeviceFactory*>(replay_object->object)->CreateDevice(in_adapter,
-                                                                                                         FeatureLevel,
-                                                                                                         *riid.decoded_value,
-                                                                                                         out_hp_ppvDevice);
+        DxObjectInfo object_info_ppvDevice{};
+        ppvDevice->SetConsumerData(0, &object_info_ppvDevice);
+        auto replay_result = OverrideD3D12DeviceFactoryCreateDevice(replay_object,
+                                                                    return_value,
+                                                                    in_adapter,
+                                                                    FeatureLevel,
+                                                                    riid,
+                                                                    ppvDevice);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvDevice, out_hp_ppvDevice, format::ApiCall_ID3D12DeviceFactory_CreateDevice);
+            AddObject(ppvDevice->GetPointer(), ppvDevice->GetHandlePointer(), std::move(object_info_ppvDevice), format::ApiCall_ID3D12DeviceFactory_CreateDevice);
         }
         CheckReplayResult("ID3D12DeviceFactory_CreateDevice", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceFactory_CreateDevice>::Dispatch(
