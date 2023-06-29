@@ -367,6 +367,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                       Decoded_GUID                 riid,
                                       HandlePointerDecoder<void*>* device);
 
+    HRESULT OverrideD3D12DeviceFactoryCreateDevice(DxObjectInfo*                replay_object_info,
+                                                   HRESULT                      original_result,
+                                                   DxObjectInfo*                adapter_info,
+                                                   D3D_FEATURE_LEVEL            minimum_feature_level,
+                                                   Decoded_GUID                 riid,
+                                                   HandlePointerDecoder<void*>* device);
+
     void ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header);
 
     void InitCommandQueueExtraInfo(ID3D12Device* device, HandlePointerDecoder<void*>* command_queue_decoder);
@@ -924,6 +931,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
             offsets.clear();
         }
     };
+
+    IUnknown* GetCreateDeviceAdapter(DxObjectInfo* adapter_info);
+
+    void InitializeD3D12Device(HandlePointerDecoder<void*>* device);
 
     void DetectAdapters();
 

@@ -970,36 +970,38 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
     GFXRECON_ASSERT(device != nullptr);
 
-    IUnknown* adapter = nullptr;
-    if (render_adapter_ == nullptr)
-    {
-        if (adapter_info != nullptr)
-        {
-            adapter = adapter_info->object;
-        }
-    }
-    else
-    {
-        adapter = render_adapter_;
-    }
+    IUnknown* adapter = GetCreateDeviceAdapter(adapter_info);
 
     auto replay_result =
         D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
 
     if (SUCCEEDED(replay_result) && !device->IsNull())
     {
-        auto device_info = std::make_unique<D3D12DeviceInfo>();
-        auto device_ptr  = reinterpret_cast<ID3D12Device*>(*device->GetHandlePointer());
+        InitializeD3D12Device(device);
+    }
 
-        graphics::dx12::GetAdapterAndIndexbyDevice(reinterpret_cast<ID3D12Device*>(device_ptr),
-                                                   device_info->adapter3,
-                                                   device_info->adapter_node_index,
-                                                   adapters_);
-        device_info->is_uma = graphics::dx12::IsUma(device_ptr);
+    return replay_result;
+}
 
-        SetExtraInfo(device, std::move(device_info));
+HRESULT Dx12ReplayConsumerBase::OverrideD3D12DeviceFactoryCreateDevice(DxObjectInfo*     replay_object_info,
+                                                                       HRESULT           original_result,
+                                                                       DxObjectInfo*     adapter_info,
+                                                                       D3D_FEATURE_LEVEL minimum_feature_level,
+                                                                       Decoded_GUID      riid,
+                                                                       HandlePointerDecoder<void*>* device)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (device != nullptr));
 
-        graphics::dx12::MarkActiveAdapter(device_ptr, adapters_);
+    IUnknown* adapter = GetCreateDeviceAdapter(adapter_info);
+
+    auto device_factory = static_cast<ID3D12DeviceFactory*>(replay_object_info->object);
+    auto replay_result =
+        device_factory->CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result) && !device->IsNull())
+    {
+        InitializeD3D12Device(device);
     }
 
     return replay_result;
@@ -1091,6 +1093,32 @@ void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInf
             }
         }
     }
+}
+
+IUnknown* Dx12ReplayConsumerBase::GetCreateDeviceAdapter(DxObjectInfo* adapter_info)
+{
+    if ((render_adapter_ == nullptr) && (adapter_info != nullptr))
+    {
+        return adapter_info->object;
+    }
+
+    return render_adapter_;
+}
+
+void Dx12ReplayConsumerBase::InitializeD3D12Device(HandlePointerDecoder<void*>* device)
+{
+    GFXRECON_ASSERT((device != nullptr) && !device->IsNull());
+
+    auto device_info = std::make_unique<D3D12DeviceInfo>();
+    auto device_ptr  = reinterpret_cast<ID3D12Device*>(*device->GetHandlePointer());
+
+    graphics::dx12::GetAdapterAndIndexbyDevice(
+        reinterpret_cast<ID3D12Device*>(device_ptr), device_info->adapter3, device_info->adapter_node_index, adapters_);
+    device_info->is_uma = graphics::dx12::IsUma(device_ptr);
+
+    SetExtraInfo(device, std::move(device_info));
+
+    graphics::dx12::MarkActiveAdapter(device_ptr, adapters_);
 }
 
 void Dx12ReplayConsumerBase::DetectAdapters()
