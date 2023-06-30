@@ -80,6 +80,8 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_CreatePipelineState(AGSContext
                                                                       const IID&                              riid,
                                                                       void** pipelineState);
 
+AMD_AGS_API void agsInitNotSupported();
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

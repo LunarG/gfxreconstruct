@@ -32,6 +32,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+typedef AMD_AGS_API void (*AGS_INIT_NOT_SUPPORTED)();
+
 struct AgsDispatchTable
 {
     // Functions processed for capture.  These are the AGS functions exported by amd_ags_x64.dll.
@@ -45,6 +47,7 @@ struct AgsDispatchTable
     AGS_DRIVEREXTENSIONSDX12_PUSHMARKER    agsDriverExtensionsDX12_PushMarker{ nullptr };
     AGS_DRIVEREXTENSIONSDX12_POPMARKER     agsDriverExtensionsDX12_PopMarker{ nullptr };
     AGS_DRIVEREXTENSIONSDX12_SETMARKER     agsDriverExtensionsDX12_SetMarker{ nullptr };
+    AGS_INIT_NOT_SUPPORTED                 agsInitNotSupported{ nullptr }; // In case, old version dll is used by the application
 };
 
 GFXRECON_END_NAMESPACE(encode)
