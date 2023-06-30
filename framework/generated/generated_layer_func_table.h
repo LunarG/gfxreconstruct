@@ -45,6 +45,8 @@
 
 #include <unordered_map>
 
+/* Hey! */
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
