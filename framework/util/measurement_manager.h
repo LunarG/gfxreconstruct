@@ -24,6 +24,8 @@
 #ifndef GFXRECON_UTIL_MEASUREMENT_MANAGER_H
 #define GFXRECON_UTIL_MEASUREMENT_MANAGER_H
 
+#include <optional>
+
 #include "util/defines.h"
 #include "util/platform.h"
 #include "nlohmann/json.hpp"
