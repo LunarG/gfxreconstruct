@@ -39,7 +39,6 @@
 #include "generated/generated_vulkan_decoder.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
-#include "util/measurement_manager.h"
 #include "util/platform.h"
 #include "util/options.h"
 #include "util/strings.h"

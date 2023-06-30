@@ -33,6 +33,7 @@
 #include "graphics/fps_info.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
+#include "util/measurement_manager.h"
 
 #if defined(D3D12_SUPPORT)
 #include "generated/generated_dx12_decoder.h"

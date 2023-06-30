@@ -34,6 +34,7 @@
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/measurement_manager.h"
 
 #include <android_native_app_glue.h>
 #include <android/log.h>
