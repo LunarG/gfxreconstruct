@@ -277,13 +277,13 @@ int main(int argc, const char** argv)
                     }
                 }
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);
-                file_processor.AddDecoder(&dx12_decoder);
+                file_processor->AddDecoder(&dx12_decoder);
 
 #ifdef GFXRECON_AGS_SUPPORT
                 ags_replay_consumer.AddDx12Consumer(&dx12_replay_consumer);
                 ags_decoder.AddConsumer(reinterpret_cast<gfxrecon::decode::AgsConsumerBase*>(&ags_replay_consumer));
 
-                file_processor.AddDecoder(&ags_decoder);
+                file_processor->AddDecoder(&ags_decoder);
 #endif // GFXRECON_AGS_SUPPORT
             }
 #endif
@@ -316,7 +316,7 @@ int main(int argc, const char** argv)
                 {
 #if defined(D3D12_SUPPORT)
                     dx12_replay_consumer.PostReplay();
-                    if (!dx_replay_options.screenshot_ranges.empty() && !file_processor.UsesFrameMarkers() &&
+                    if (!dx_replay_options.screenshot_ranges.empty() && !file_processor->UsesFrameMarkers() &&
                         (dx12_replay_consumer.GetDXGITestPresentCount() > 0))
                     {
                         GFXRECON_LOG_WARNING_ONCE(
