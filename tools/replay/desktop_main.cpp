@@ -228,13 +228,13 @@ int main(int argc, const char** argv)
                     }
                 }
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);
-                file_processor.AddDecoder(&dx12_decoder);
+                file_processor->AddDecoder(&dx12_decoder);
 
 #ifdef GFXRECON_AGS_SUPPORT
                 ags_replay_consumer.AddDx12Consumer(&dx12_replay_consumer);
                 ags_decoder.AddConsumer(reinterpret_cast<gfxrecon::decode::AgsConsumerBase*>(&ags_replay_consumer));
 
-                file_processor.AddDecoder(&ags_decoder);
+                file_processor->AddDecoder(&ags_decoder);
 #endif // GFXRECON_AGS_SUPPORT
             }
 #endif
