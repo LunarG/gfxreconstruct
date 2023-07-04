@@ -215,7 +215,7 @@ properly align and track the memory.
 First, we will enable page guard on the memory:
 
 ```bash
-adb shell "debug.gfxrecon.page_guard_persistent_memory true"
+adb shell "setprop debug.gfxrecon.page_guard_persistent_memory true"
 ```
 
 When this option is enabled, an allocation with a size equal to that of the
@@ -228,7 +228,7 @@ can have a negative impact on performance.
 Next, we will force page guard buffers are aligned to pages:
 
 ```bash
-adb shell "debug.gfxrecon.page_guard_align_buffer_sizes true"
+adb shell "setprop debug.gfxrecon.page_guard_align_buffer_sizes true"
 ```
 
 This option overrides the Vulkan API calls that report buffer memory properties
