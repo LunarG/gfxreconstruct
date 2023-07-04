@@ -108,6 +108,8 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_loader.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.h>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xdg-shell-client.h>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xdg-shell-client.cpp>
 )
 
 
@@ -157,6 +159,7 @@ endif()
 
 if (WAYLAND_LIBRARY)
     target_compile_definitions(gfxrecon_util PUBLIC "WAYLAND_LIBRARY=\"${WAYLAND_LIBRARY}\"")
+    target_link_libraries(gfxrecon_util wayland-client)
 endif()
 
 if (${GFXRECON_AGS_SUPPORT_FINAL})

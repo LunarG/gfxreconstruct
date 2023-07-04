@@ -28,6 +28,7 @@
 #include "util/platform.h"
 
 #include <wayland-client.h>
+#include "xdg-shell-client.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -45,9 +46,6 @@ class WaylandLoader
         decltype(wl_display_dispatch_pending)* display_dispatch_pending;
         decltype(wl_display_flush)*            display_flush;
         decltype(wl_display_roundtrip)*        display_roundtrip;
-        decltype(wl_compositor_interface)*     compositor_interface;
-        decltype(wl_shell_interface)*          shell_interface;
-        decltype(wl_seat_interface)*           seat_interface;
 
         // proxy functions
         decltype(wl_proxy_add_listener)*                  proxy_add_listener;
@@ -57,12 +55,20 @@ class WaylandLoader
         decltype(wl_proxy_marshal_constructor_versioned)* proxy_marshal_constructor_versioned;
 
         // interfaces
+        decltype(wl_compositor_interface)*    compositor_interface;
+        decltype(wl_shell_interface)*         shell_interface;
+        decltype(wl_seat_interface)*          seat_interface;
         decltype(wl_registry_interface)*      registry_interface;
         decltype(wl_keyboard_interface)*      keyboard_interface;
         decltype(wl_output_interface)*        output_interface;
         decltype(wl_pointer_interface)*       pointer_interface;
-        decltype(wl_shell_surface_interface)* shell_surface_interface;
         decltype(wl_surface_interface)*       surface_interface;
+        decltype(wl_shell_surface_interface)* shell_surface_interface;
+
+        // xdg interfaces
+        decltype(xdg_wm_base_interface)*  wm_base_xdg_interface;
+        decltype(xdg_surface_interface)*  surface_xdg_interface;
+        decltype(xdg_toplevel_interface)* toplevel_xdg_interface;
 
         // inline functions, adapted from wayland-client-protocol.h
         struct wl_surface* compositor_create_surface(struct wl_compositor* wl_compositor) const
@@ -247,6 +253,98 @@ class WaylandLoader
             this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_SET_TOPLEVEL);
         }
 
+        int xdg_wm_base_add_listener(struct xdg_wm_base*          xdg_wm_base,
+                                     struct xdg_wm_base_listener* listener,
+                                     void*                        data) const
+        {
+            return this->proxy_add_listener(
+                reinterpret_cast<struct wl_proxy*>(xdg_wm_base), reinterpret_cast<void (**)(void)>(listener), data);
+        }
+
+        void xdg_wm_base_destroy(struct xdg_wm_base* xdg_wm_base) const
+        {
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(xdg_wm_base));
+        }
+
+        void xdg_wm_base_pong(struct xdg_wm_base* xdg_wm_base, uint32_t serial) const
+        {
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(xdg_wm_base), XDG_WM_BASE_PONG, serial);
+        }
+
+        struct xdg_surface* xdg_wm_base_get_xdg_surface(struct xdg_wm_base* xdg_wm_base,
+                                                        struct wl_surface*  surface) const
+        {
+            struct wl_proxy* id;
+
+            id = this->proxy_marshal_constructor(reinterpret_cast<struct wl_proxy*>(xdg_wm_base),
+                                                 XDG_WM_BASE_GET_XDG_SURFACE,
+                                                 this->surface_xdg_interface,
+                                                 NULL,
+                                                 surface);
+
+            return reinterpret_cast<struct xdg_surface*>(id);
+        }
+
+        int xdg_surface_add_listener(struct xdg_surface*          xdg_surface,
+                                     struct xdg_surface_listener* xdg_surface_listener,
+                                     void*                        data) const
+        {
+            return this->proxy_add_listener(reinterpret_cast<struct wl_proxy*>(xdg_surface),
+                                            reinterpret_cast<void (**)(void)>(xdg_surface_listener),
+                                            data);
+        }
+
+        void xdg_surface_ack_configure(struct xdg_surface* xdg_surface, uint32_t serial) const
+        {
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(xdg_surface), XDG_SURFACE_ACK_CONFIGURE, serial);
+        }
+
+        void xdg_surface_destroy(struct xdg_surface* xdg_surface) const
+        {
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(xdg_surface));
+        }
+
+        struct xdg_toplevel* xdg_surface_get_toplevel(struct xdg_surface* xdg_surface) const
+        {
+            struct wl_proxy* id;
+
+            id = this->proxy_marshal_constructor(reinterpret_cast<struct wl_proxy*>(xdg_surface),
+                                                 XDG_SURFACE_GET_TOPLEVEL,
+                                                 this->toplevel_xdg_interface,
+                                                 NULL);
+
+            return reinterpret_cast<struct xdg_toplevel*>(id);
+        }
+
+        int xdg_toplevel_add_listener(struct xdg_toplevel*          xdg_toplevel,
+                                      struct xdg_toplevel_listener* xdg_toplevel_listener,
+                                      void*                         data) const
+        {
+            return this->proxy_add_listener(reinterpret_cast<struct wl_proxy*>(xdg_toplevel),
+                                            reinterpret_cast<void (**)(void)>(xdg_toplevel_listener),
+                                            data);
+        }
+
+        void xdg_toplevel_destroy(struct xdg_toplevel* xdg_toplevel) const
+        {
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(xdg_toplevel));
+        }
+
+        void xdg_toplevel_move(struct xdg_toplevel* xdg_toplevel, struct wl_seat* seat, uint32_t serial) const
+        {
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(xdg_toplevel), XDG_TOPLEVEL_MOVE, seat, serial);
+        }
+
+        void xdg_toplevel_set_fullscreen(struct xdg_toplevel* xdg_toplevel, struct wl_output* output) const
+        {
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(xdg_toplevel), XDG_TOPLEVEL_SET_FULLSCREEN, output);
+        }
+
+        void xdg_toplevel_set_title(struct xdg_toplevel* xdg_toplevel, const char* title) const
+        {
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(xdg_toplevel), XDG_TOPLEVEL_SET_TITLE, title);
+        }
+
         int surface_add_listener(struct wl_surface* wl_surface, struct wl_surface_listener* listener, void* data) const
         {
             return this->proxy_add_listener(
@@ -256,6 +354,11 @@ class WaylandLoader
         void surface_set_buffer_scale(struct wl_surface* wl_surface, int32_t scale) const
         {
             this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_surface), WL_SURFACE_SET_BUFFER_SCALE, scale);
+        }
+
+        void surface_commit(struct wl_surface* wl_surface) const
+        {
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_surface), WL_SURFACE_COMMIT);
         }
 
         void surface_destroy(struct wl_surface* wl_surface) const
