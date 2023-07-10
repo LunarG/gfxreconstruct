@@ -136,6 +136,31 @@ bool BlockSkippingFileProcessor::ProcessBlocks()
                         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read meta-data block header");
                     }
                 }
+                else if (block_header.type == format::BlockType::kFrameMarkerBlock)
+                {
+                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
+                    uint64_t           frame_number = 0;
+
+                    success = ReadBytes(&marker_type, sizeof(marker_type));
+
+                    if (success)
+                    {
+                        success = ProcessFrameMarker(block_header, marker_type);
+
+                        // Break from loop on frame delimiter.
+                        if (IsFrameDelimiter(block_header.type, marker_type))
+                        {
+                            // Make sure to increment the frame number on the way out.
+                            ++current_frame_number_;
+                            ++block_index_;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read frame marker header");
+                    }
+                }
                 else if (block_header.type == format::BlockType::kStateMarkerBlock)
                 {
                     format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;

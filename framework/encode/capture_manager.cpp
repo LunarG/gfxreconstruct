@@ -707,8 +707,25 @@ bool CaptureManager::ShouldTriggerScreenshot()
     return triger_screenshot;
 }
 
+void CaptureManager::WriteFrameMarker(format::MarkerType marker_type)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        format::Marker marker_cmd;
+        uint64_t       header_size = sizeof(format::Marker);
+        marker_cmd.header.size     = sizeof(marker_cmd.marker_type) + sizeof(marker_cmd.frame_number);
+        marker_cmd.header.type     = format::BlockType::kFrameMarkerBlock;
+        marker_cmd.marker_type     = marker_type;
+        marker_cmd.frame_number    = current_frame_;
+        WriteToFile(&marker_cmd, sizeof(marker_cmd));
+    }
+}
+
 void CaptureManager::EndFrame()
 {
+    // Write an end-of-frame marker to the capture file.
+    WriteFrameMarker(format::MarkerType::kEndMarker);
+
     ++current_frame_;
 
     if (trim_enabled_)

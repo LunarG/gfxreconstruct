@@ -112,6 +112,8 @@ class CaptureManager
 
     void EndMethodCallCapture();
 
+    void WriteFrameMarker(format::MarkerType marker_type);
+
     void EndFrame();
 
     bool ShouldTriggerScreenshot();
