@@ -1771,6 +1771,18 @@ bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header, 
         // true.
         GFXRECON_ASSERT((marker_type != format::kEndMarker) || (!capture_uses_frame_markers_) ||
                         (current_frame_number_ == (frame_number - first_frame_)));
+
+        for (auto decoder : decoders_)
+        {
+            if (marker_type == format::kEndMarker)
+            {
+                decoder->DispatchFrameEndMarker(frame_number);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Skipping unrecognized frame marker with type %u", marker_type);
+            }
+        }
     }
     else
     {

@@ -54,6 +54,14 @@ void VulkanDecoderBase::DispatchStateEndMarker(uint64_t frame_number)
     }
 }
 
+void VulkanDecoderBase::DispatchFrameEndMarker(uint64_t frame_number)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessFrameEndMarker(frame_number);
+    }
+}
+
 void VulkanDecoderBase::DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message)
 {
     GFXRECON_UNREFERENCED_PARAMETER(thread_id);

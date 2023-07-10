@@ -44,6 +44,14 @@ void Dx12DecoderBase::DispatchStateEndMarker(uint64_t frame_number)
     }
 }
 
+void Dx12DecoderBase::DispatchFrameEndMarker(uint64_t frame_number)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessFrameEndMarker(frame_number);
+    }
+}
+
 void Dx12DecoderBase::DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message)
 {
     GFXRECON_UNREFERENCED_PARAMETER(thread_id);

@@ -77,6 +77,8 @@ class InfoDecoder : public ApiDecoder
 
     virtual void DispatchStateEndMarker(uint64_t frame_number) override {}
 
+    virtual void DispatchFrameEndMarker(uint64_t frame_number) override {}
+
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override {}
 
     virtual void DispatchFillMemoryCommand(
