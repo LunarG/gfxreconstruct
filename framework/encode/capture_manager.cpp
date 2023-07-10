@@ -95,9 +95,9 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false), trim_current_range_(0),
     current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0),
-    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false),
-    queue_zero_only_(false), allow_pipeline_compile_required_(false)
+    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
+    accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
+    allow_pipeline_compile_required_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -689,7 +689,7 @@ bool CaptureManager::ShouldTriggerScreenshot()
         uint32_t target_frame = screenshot_indices_.back();
 
         // If this is a frame of interest, take a screenshot
-        if (target_frame == (global_frame_count_ + 1))
+        if (target_frame == current_frame_)
         {
             triger_screenshot = true;
 
@@ -709,10 +709,10 @@ bool CaptureManager::ShouldTriggerScreenshot()
 
 void CaptureManager::EndFrame()
 {
+    ++current_frame_;
+
     if (trim_enabled_)
     {
-        ++current_frame_;
-
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
             // Currently capturing a frame range.
@@ -726,8 +726,6 @@ void CaptureManager::EndFrame()
             CheckStartCaptureForTrackMode();
         }
     }
-
-    global_frame_count_++;
 
     // Flush after presents to help avoid capture files with incomplete final blocks.
     if (file_stream_.get() != nullptr)
