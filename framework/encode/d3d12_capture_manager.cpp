@@ -583,7 +583,7 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
             gfxrecon::graphics::dx12::TakeScreenshot(frame_buffer_renderer_,
                                                      swapchain_info->command_queue,
                                                      swapchain,
-                                                     global_frame_count_ + 1,
+                                                     GetCurrentFrame(),
                                                      screenshot_prefix_,
                                                      screenshot_format_);
         }
