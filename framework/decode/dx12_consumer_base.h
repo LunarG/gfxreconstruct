@@ -50,6 +50,8 @@ class Dx12ConsumerBase
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) {}
 
+    virtual void ProcessFrameEndMarker(uint64_t frame_number) {}
+
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
 
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
