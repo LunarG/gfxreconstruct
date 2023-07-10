@@ -112,9 +112,13 @@ class FileProcessor
 
     bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
+    bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
+
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
     void HandleBlockReadError(Error error_code, const char* error_message);
+
+    bool ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
 
     bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
 
@@ -156,6 +160,8 @@ class FileProcessor
     util::Compressor*                   compressor_;
     uint64_t                            api_call_index_;
     uint64_t                            block_limit_;
+    bool                                capture_uses_frame_markers_;
+    uint64_t                            first_frame_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
