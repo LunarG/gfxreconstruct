@@ -75,7 +75,8 @@ _remove_extensions = [
     # @todo <https://github.com/LunarG/gfxreconstruct/issues/917>
     "VK_EXT_descriptor_buffer",
     "VK_NV_copy_memory_indirect",
-    "VK_NV_memory_decompression"
+    "VK_NV_memory_decompression",
+    "VK_QNX_external_memory_screen_buffer"
 ]
 
 _supported_subsets = [
