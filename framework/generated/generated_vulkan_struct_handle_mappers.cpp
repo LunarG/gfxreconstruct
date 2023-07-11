@@ -1165,6 +1165,16 @@ void MapStructHandles(Decoded_VkVideoEncodeInfoKHR* wrapper, const VulkanObjectI
     }
 }
 
+void MapStructHandles(Decoded_VkVideoEncodeSessionParametersGetInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkVideoEncodeSessionParametersGetInfoKHR* value = wrapper->decoded_value;
+
+        value->videoSessionParameters = handle_mapping::MapHandle<VideoSessionParametersKHRInfo>(wrapper->videoSessionParameters, object_info_table, &VulkanObjectInfoTable::GetVideoSessionParametersKHRInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkDebugMarkerObjectNameInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))

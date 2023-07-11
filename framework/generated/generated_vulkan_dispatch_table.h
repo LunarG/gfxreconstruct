@@ -134,6 +134,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KH
 static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(VkPhysicalDevice, VkDisplayKHR, uint32_t*, VkDisplayModeProperties2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDisplayModeProperties2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(VkPhysicalDevice, const VkDisplayPlaneInfo2KHR*, VkDisplayPlaneCapabilities2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDisplayPlaneCapabilities2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceFragmentShadingRatesKHR(VkPhysicalDevice, uint32_t*, VkPhysicalDeviceFragmentShadingRateKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFragmentShadingRatesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR*, VkVideoEncodeQualityLevelPropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesKHR(VkPhysicalDevice, uint32_t*, VkCooperativeMatrixPropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance, const VkDebugReportCallbackCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugReportCallbackEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDebugReportCallbackEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance, VkDebugReportCallbackEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDebugReportCallbackEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(VkInstance, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*) { GFXRECON_LOG_WARNING("Unsupported function vkDebugReportMessageEXT was called, resulting in no-op behavior."); }
@@ -433,6 +435,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(VkDevic
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableInternalRepresentationKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutableInternalRepresentationsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL MapMemory2KHR(VkDevice, const VkMemoryMapInfoKHR*, void**) { GFXRECON_LOG_WARNING("Unsupported function vkMapMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL UnmapMemory2KHR(VkDevice, const VkMemoryUnmapInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkUnmapMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetEncodedVideoSessionParametersKHR(VkDevice, const VkVideoEncodeSessionParametersGetInfoKHR*, VkVideoEncodeSessionParametersFeedbackInfoKHR*, size_t*, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetEncodedVideoSessionParametersKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdEncodeVideoKHR(VkCommandBuffer, const VkVideoEncodeInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEncodeVideoKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetEvent2KHR(VkCommandBuffer, VkEvent, const VkDependencyInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetEvent2KHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdResetEvent2KHR(VkCommandBuffer, VkEvent, VkPipelineStageFlags2) { GFXRECON_LOG_WARNING("Unsupported function vkCmdResetEvent2KHR was called, resulting in no-op behavior."); }
@@ -557,6 +560,7 @@ static VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsNV(VkCommandBuffer,
 static VKAPI_ATTR void VKAPI_CALL CmdBindPipelineShaderGroupNV(VkCommandBuffer, VkPipelineBindPoint, VkPipeline, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindPipelineShaderGroupNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(VkDevice, const VkIndirectCommandsLayoutCreateInfoNV*, const VkAllocationCallbacks*, VkIndirectCommandsLayoutNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateIndirectCommandsLayoutNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(VkDevice, VkIndirectCommandsLayoutNV, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyIndirectCommandsLayoutNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias2EXT(VkCommandBuffer, const VkDepthBiasInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDepthBias2EXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(VkDevice, const VkPrivateDataSlotCreateInfo*, const VkAllocationCallbacks*, VkPrivateDataSlot*) { GFXRECON_LOG_WARNING("Unsupported function vkCreatePrivateDataSlotEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(VkDevice, VkPrivateDataSlot, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyPrivateDataSlotEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlot, uint64_t) { GFXRECON_LOG_WARNING("Unsupported function vkSetPrivateDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -746,6 +750,8 @@ struct InstanceTable
     PFN_vkGetDisplayModeProperties2KHR GetDisplayModeProperties2KHR{ noop::GetDisplayModeProperties2KHR };
     PFN_vkGetDisplayPlaneCapabilities2KHR GetDisplayPlaneCapabilities2KHR{ noop::GetDisplayPlaneCapabilities2KHR };
     PFN_vkGetPhysicalDeviceFragmentShadingRatesKHR GetPhysicalDeviceFragmentShadingRatesKHR{ noop::GetPhysicalDeviceFragmentShadingRatesKHR };
+    PFN_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR{ noop::GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR };
+    PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR GetPhysicalDeviceCooperativeMatrixPropertiesKHR{ noop::GetPhysicalDeviceCooperativeMatrixPropertiesKHR };
     PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallbackEXT{ noop::CreateDebugReportCallbackEXT };
     PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportCallbackEXT{ noop::DestroyDebugReportCallbackEXT };
     PFN_vkDebugReportMessageEXT DebugReportMessageEXT{ noop::DebugReportMessageEXT };
@@ -1049,6 +1055,7 @@ struct DeviceTable
     PFN_vkGetPipelineExecutableInternalRepresentationsKHR GetPipelineExecutableInternalRepresentationsKHR{ noop::GetPipelineExecutableInternalRepresentationsKHR };
     PFN_vkMapMemory2KHR MapMemory2KHR{ noop::MapMemory2KHR };
     PFN_vkUnmapMemory2KHR UnmapMemory2KHR{ noop::UnmapMemory2KHR };
+    PFN_vkGetEncodedVideoSessionParametersKHR GetEncodedVideoSessionParametersKHR{ noop::GetEncodedVideoSessionParametersKHR };
     PFN_vkCmdEncodeVideoKHR CmdEncodeVideoKHR{ noop::CmdEncodeVideoKHR };
     PFN_vkCmdSetEvent2KHR CmdSetEvent2KHR{ noop::CmdSetEvent2KHR };
     PFN_vkCmdResetEvent2KHR CmdResetEvent2KHR{ noop::CmdResetEvent2KHR };
@@ -1173,6 +1180,7 @@ struct DeviceTable
     PFN_vkCmdBindPipelineShaderGroupNV CmdBindPipelineShaderGroupNV{ noop::CmdBindPipelineShaderGroupNV };
     PFN_vkCreateIndirectCommandsLayoutNV CreateIndirectCommandsLayoutNV{ noop::CreateIndirectCommandsLayoutNV };
     PFN_vkDestroyIndirectCommandsLayoutNV DestroyIndirectCommandsLayoutNV{ noop::DestroyIndirectCommandsLayoutNV };
+    PFN_vkCmdSetDepthBias2EXT CmdSetDepthBias2EXT{ noop::CmdSetDepthBias2EXT };
     PFN_vkCreatePrivateDataSlotEXT CreatePrivateDataSlotEXT{ noop::CreatePrivateDataSlotEXT };
     PFN_vkDestroyPrivateDataSlotEXT DestroyPrivateDataSlotEXT{ noop::DestroyPrivateDataSlotEXT };
     PFN_vkSetPrivateDataEXT SetPrivateDataEXT{ noop::SetPrivateDataEXT };
@@ -1367,6 +1375,8 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkGetDisplayModeProperties2KHR", &table->GetDisplayModeProperties2KHR);
     LoadFunction(gpa, instance, "vkGetDisplayPlaneCapabilities2KHR", &table->GetDisplayPlaneCapabilities2KHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceFragmentShadingRatesKHR", &table->GetPhysicalDeviceFragmentShadingRatesKHR);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR", &table->GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR", &table->GetPhysicalDeviceCooperativeMatrixPropertiesKHR);
     LoadFunction(gpa, instance, "vkCreateDebugReportCallbackEXT", &table->CreateDebugReportCallbackEXT);
     LoadFunction(gpa, instance, "vkDestroyDebugReportCallbackEXT", &table->DestroyDebugReportCallbackEXT);
     LoadFunction(gpa, instance, "vkDebugReportMessageEXT", &table->DebugReportMessageEXT);
@@ -1672,6 +1682,7 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetPipelineExecutableInternalRepresentationsKHR", &table->GetPipelineExecutableInternalRepresentationsKHR);
     LoadFunction(gpa, device, "vkMapMemory2KHR", &table->MapMemory2KHR);
     LoadFunction(gpa, device, "vkUnmapMemory2KHR", &table->UnmapMemory2KHR);
+    LoadFunction(gpa, device, "vkGetEncodedVideoSessionParametersKHR", &table->GetEncodedVideoSessionParametersKHR);
     LoadFunction(gpa, device, "vkCmdEncodeVideoKHR", &table->CmdEncodeVideoKHR);
     LoadFunction(gpa, device, "vkCmdSetEvent2KHR", &table->CmdSetEvent2KHR);
     LoadFunction(gpa, device, "vkCmdResetEvent2KHR", &table->CmdResetEvent2KHR);
@@ -1796,6 +1807,7 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdBindPipelineShaderGroupNV", &table->CmdBindPipelineShaderGroupNV);
     LoadFunction(gpa, device, "vkCreateIndirectCommandsLayoutNV", &table->CreateIndirectCommandsLayoutNV);
     LoadFunction(gpa, device, "vkDestroyIndirectCommandsLayoutNV", &table->DestroyIndirectCommandsLayoutNV);
+    LoadFunction(gpa, device, "vkCmdSetDepthBias2EXT", &table->CmdSetDepthBias2EXT);
     LoadFunction(gpa, device, "vkCreatePrivateDataSlotEXT", &table->CreatePrivateDataSlotEXT);
     LoadFunction(gpa, device, "vkDestroyPrivateDataSlotEXT", &table->DestroyPrivateDataSlotEXT);
     LoadFunction(gpa, device, "vkSetPrivateDataEXT", &table->SetPrivateDataEXT);

@@ -89,11 +89,14 @@ enum PhysicalDeviceArrayIndices : uint32_t
 
 enum DeviceArrayIndices : uint32_t
 {
-    kDeviceArrayGetImageSparseMemoryRequirements2               = 0,
-    kDeviceArrayGetPipelineExecutablePropertiesKHR              = 1,
-    kDeviceArrayGetPipelineExecutableStatisticsKHR              = 2,
-    kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR = 3,
-    kDeviceArrayGetDeviceImageSparseMemoryRequirements          = 4,
+    kDeviceArrayGetImageSparseMemoryRequirements2                       = 0,
+    kDeviceArrayGetPipelineExecutablePropertiesKHR                      = 1,
+    kDeviceArrayGetPipelineExecutableStatisticsKHR                      = 2,
+    kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR         = 3,
+    kDeviceArrayGetDeviceImageSparseMemoryRequirements                  = 4,
+    kDeviceArrayGetEncodedVideoSessionParametersKHR                     = 5,
+    kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesKHR = 6,
+
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,
     kDeviceArrayGetDeviceImageSparseMemoryRequirementsKHR = kDeviceArrayGetDeviceImageSparseMemoryRequirements
