@@ -2431,6 +2431,12 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
     auto swapchain_info = GetExtraInfo<DxgiSwapchainInfo>(info);
     if (swapchain_info != nullptr)
     {
+        // If ResizeBuffers is called with buffer_count == 0, the number of swapchain buffers doesn't change
+        if (buffer_count == 0)
+        {
+            buffer_count = static_cast<uint32_t>(swapchain_info->image_ids.size());
+        }
+
         // Clear the old info entries from the object info table and reset the swapchain info's image count.
         ReleaseSwapchainImages(swapchain_info);
 
