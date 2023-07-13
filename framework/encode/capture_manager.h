@@ -212,10 +212,11 @@ class CaptureManager
     };
 
   protected:
-    static bool CreateInstance(std::function<CaptureManager*()> GetInstanceFunc, std::function<void()> NewInstanceFunc);
+    static bool CreateInstance(std::function<CaptureManager*()> GetInstanceFunc,
+                               std::function<void()>            NewInstanceFunc,
+                               std::function<void()>            DeleteInstanceFunc);
 
-    static void DestroyInstance(std::function<const CaptureManager*()> GetInstanceFunc,
-                                std::function<void()>                  DeleteInstanceFunc);
+    static void DestroyInstance(std::function<const CaptureManager*()> GetInstanceFunc);
 
     CaptureManager(format::ApiFamilyId api_family);
 
@@ -298,6 +299,16 @@ class CaptureManager
     }
 
   private:
+    static void AtExit()
+    {
+        if (delete_instance_func_)
+        {
+            delete_instance_func_();
+            delete_instance_func_ = nullptr;
+        }
+    }
+
+  private:
     static uint32_t                                 instance_count_;
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
@@ -337,6 +348,8 @@ class CaptureManager
     bool                                    force_command_serialization_;
     bool                                    queue_zero_only_;
     bool                                    allow_pipeline_compile_required_;
+    bool                                    quit_after_frame_ranges_;
+    static std::function<void()>            delete_instance_func_;
 
     struct
     {

@@ -82,6 +82,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define SCREENSHOT_FRAMES_UPPER                              "SCREENSHOT_FRAMES"
 #define CAPTURE_FRAMES_LOWER                                 "capture_frames"
 #define CAPTURE_FRAMES_UPPER                                 "CAPTURE_FRAMES"
+#define QUIT_AFTER_CAPTURE_FRAMES_LOWER                      "quit_after_capture_frames"
+#define QUIT_AFTER_CAPTURE_FRAMES_UPPER                      "QUIT_AFTER_CAPTURE_FRAMES"
 #define CAPTURE_TRIGGER_LOWER                                "capture_trigger"
 #define CAPTURE_TRIGGER_UPPER                                "CAPTURE_TRIGGER"
 #define CAPTURE_TRIGGER_FRAMES_LOWER                         "capture_trigger_frames"
@@ -157,6 +159,7 @@ const char kScreenshotDirEnvVar[]                            = GFXRECON_ENV_VAR_
 const char kScreenshotFormatEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FORMAT_LOWER;
 const char kScreenshotFramesEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FRAMES_LOWER;
 const char kCaptureFramesEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
+const char kQuitAfterFramesEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX QUIT_AFTER_CAPTURE_FRAMES_LOWER;
 const char kCaptureTriggerEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_LOWER;
 const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_LOWER;
 const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_IUNKNOWN_WRAPPING_LOWER;
@@ -208,6 +211,7 @@ const char kScreenshotDirEnvVar[]                            = GFXRECON_ENV_VAR_
 const char kScreenshotFormatEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FORMAT_UPPER;
 const char kScreenshotFramesEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FRAMES_UPPER;
 const char kCaptureFramesEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
+const char kQuitAfterFramesEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX QUIT_AFTER_CAPTURE_FRAMES_UPPER;
 const char kPageGuardCopyOnMapEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_UPPER;
 const char kPageGuardSeparateReadEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_UPPER;
 const char kPageGuardPersistentMemoryEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_UPPER;
@@ -257,6 +261,7 @@ const std::string kOptionKeyScreenshotDir                            = std::stri
 const std::string kOptionKeyScreenshotFormat                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FORMAT_LOWER);
 const std::string kOptionKeyScreenshotFrames                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FRAMES_LOWER);
 const std::string kOptionKeyCaptureFrames                            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
+const std::string kOptionKeyQuitAfterCaptureFrames                   = std::string(kSettingsFilter) + std::string(QUIT_AFTER_CAPTURE_FRAMES_LOWER);
 const std::string kOptionKeyCaptureTrigger                           = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_LOWER);
 const std::string kOptionKeyCaptureTriggerFrames                     = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_FRAMES_LOWER);
 const std::string kOptionKeyCaptureIUnknownWrapping                  = std::string(kSettingsFilter) + std::string(CAPTURE_IUNKNOWN_WRAPPING_LOWER);
@@ -389,6 +394,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     // Trimming environment variables
     LoadSingleOptionEnvVar(options, kCaptureFramesEnvVar, kOptionKeyCaptureFrames);
+    LoadSingleOptionEnvVar(options, kQuitAfterFramesEnvVar, kOptionKeyQuitAfterCaptureFrames);
     LoadSingleOptionEnvVar(options, kCaptureTriggerEnvVar, kOptionKeyCaptureTrigger);
     LoadSingleOptionEnvVar(options, kCaptureTriggerFramesEnvVar, kOptionKeyCaptureTriggerFrames);
 
@@ -494,6 +500,9 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
             GFXRECON_LOG_WARNING("Settings Loader: Ignore trim key setting as trim ranges has been specified.");
         }
     }
+
+    settings->trace_settings_.quit_after_frame_ranges = ParseBoolString(
+        FindOption(options, kOptionKeyQuitAfterCaptureFrames), settings->trace_settings_.quit_after_frame_ranges);
 
     // Page guard environment variables
     settings->trace_settings_.page_guard_copy_on_map = ParseBoolString(
