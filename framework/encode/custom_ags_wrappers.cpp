@@ -474,7 +474,7 @@ AMD_AGS_API void agsInitNotSupported()
     static bool check_version = true;
     if (check_version)
     {
-        GFXRECON_LOG_ERROR("AGS version mismatch for GFXR capture: GFXR doesn't support this version of "
+        GFXRECON_LOG_ERROR_ONCE("AGS version mismatch for GFXR capture: GFXR doesn't support this version of "
                            "amd_ags_x64.dll. Please remove the capture DLL and rename the original DLL back.");
 
         check_version = false;
