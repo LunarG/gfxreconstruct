@@ -50,6 +50,13 @@ bool D3D12CaptureManager::CreateInstance()
                                               []() {
                                                   assert(instance_ == nullptr);
                                                   instance_ = new D3D12CaptureManager();
+                                              },
+                                              []() {
+                                                  if (instance_)
+                                                  {
+                                                      delete instance_;
+                                                      instance_ = nullptr;
+                                                  }
                                               });
     if (instance_->IsAnnotated() == true && instance_->resource_value_annotator_ == nullptr)
     {
@@ -60,12 +67,7 @@ bool D3D12CaptureManager::CreateInstance()
 
 void D3D12CaptureManager::DestroyInstance()
 {
-    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; },
-                                    []() {
-                                        assert(instance_ != nullptr);
-                                        delete instance_;
-                                        instance_ = nullptr;
-                                    });
+    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; });
 }
 
 void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle)

@@ -55,7 +55,8 @@ uint32_t                                                 CaptureManager::instanc
 std::mutex                                               CaptureManager::instance_lock_;
 thread_local std::unique_ptr<CaptureManager::ThreadData> CaptureManager::thread_data_;
 CaptureManager::ApiCallMutexT                            CaptureManager::api_call_mutex_;
-std::atomic<uint64_t>                                    CaptureManager::block_index_ = 0;
+std::atomic<uint64_t>                                    CaptureManager::block_index_          = 0;
+std::function<void()>                                    CaptureManager::delete_instance_func_ = nullptr;
 
 std::atomic<format::HandleId> CaptureManager::unique_id_counter_{ format::kNullHandleId };
 
@@ -97,7 +98,7 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
-    allow_pipeline_compile_required_(false)
+    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -106,10 +107,13 @@ CaptureManager::~CaptureManager()
     {
         util::PageGuardManager::Destroy();
     }
+
+    util::Log::Release();
 }
 
 bool CaptureManager::CreateInstance(std::function<CaptureManager*()> GetInstanceFunc,
-                                    std::function<void()>            NewInstanceFunc)
+                                    std::function<void()>            NewInstanceFunc,
+                                    std::function<void()>            DeleteInstanceFunc)
 {
     bool                        success = true;
     std::lock_guard<std::mutex> instance_lock(instance_lock_);
@@ -121,6 +125,11 @@ bool CaptureManager::CreateInstance(std::function<CaptureManager*()> GetInstance
         // Create new instance of capture manager.
         instance_count_ = 1;
         NewInstanceFunc();
+        delete_instance_func_ = DeleteInstanceFunc;
+        if (std::atexit(CaptureManager::AtExit))
+        {
+            GFXRECON_LOG_WARNING("Failed registering atexit");
+        }
 
         assert(GetInstanceFunc() != nullptr);
 
@@ -167,8 +176,7 @@ bool CaptureManager::CreateInstance(std::function<CaptureManager*()> GetInstance
     return success;
 }
 
-void CaptureManager::DestroyInstance(std::function<const CaptureManager*()> GetInstanceFunc,
-                                     std::function<void()>                  DeleteInstanceFunc)
+void CaptureManager::DestroyInstance(std::function<const CaptureManager*()> GetInstanceFunc)
 {
     std::lock_guard<std::mutex> instance_lock(instance_lock_);
 
@@ -180,10 +188,9 @@ void CaptureManager::DestroyInstance(std::function<const CaptureManager*()> GetI
 
         if (instance_count_ == 0)
         {
-            DeleteInstanceFunc();
+            assert(delete_instance_func_);
+            delete_instance_func_();
             assert(GetInstanceFunc() == nullptr);
-
-            util::Log::Release();
         }
 
         GFXRECON_LOG_DEBUG("CaptureManager::DestroyInstance(): Current instance count is %u", instance_count_);
@@ -322,8 +329,9 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     else
     {
         // Override default kModeWrite capture mode.
-        trim_enabled_ = true;
-        trim_ranges_  = trace_settings.trim_ranges;
+        trim_enabled_            = true;
+        trim_ranges_             = trace_settings.trim_ranges;
+        quit_after_frame_ranges_ = trace_settings.quit_after_frame_ranges;
 
         // Determine if trim starts at the first frame
         if (!trace_settings.trim_ranges.empty())
@@ -749,6 +757,13 @@ void CaptureManager::EndFrame()
     {
         file_stream_->Flush();
     }
+
+    // Terminate process if this was the last trim range and the user has asked to do so
+    if (kModeDisabled == capture_mode_ && quit_after_frame_ranges_)
+    {
+        GFXRECON_LOG_INFO("All trim ranges have been captured. Quitting.");
+        exit(EXIT_SUCCESS);
+    }
 }
 
 std::string CaptureManager::CreateTrimFilename(const std::string&                base_filename,
@@ -834,6 +849,9 @@ void CaptureManager::ActivateTrimming()
 void CaptureManager::DeactivateTrimming()
 {
     capture_mode_ &= ~kModeWrite;
+
+    assert(file_stream_);
+    file_stream_->Flush();
     file_stream_ = nullptr;
 }
 

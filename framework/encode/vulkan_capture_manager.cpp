@@ -62,6 +62,13 @@ bool VulkanCaptureManager::CreateInstance()
                                                  []() {
                                                      assert(instance_ == nullptr);
                                                      instance_ = new VulkanCaptureManager();
+                                                 },
+                                                 []() {
+                                                     if (instance_)
+                                                     {
+                                                         delete instance_;
+                                                         instance_ = nullptr;
+                                                     }
                                                  });
 
     GFXRECON_LOG_INFO("  Vulkan Header Version %u.%u.%u",
@@ -74,12 +81,7 @@ bool VulkanCaptureManager::CreateInstance()
 
 void VulkanCaptureManager::DestroyInstance()
 {
-    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; },
-                                    []() {
-                                        assert(instance_ != nullptr);
-                                        delete instance_;
-                                        instance_ = nullptr;
-                                    });
+    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; });
 }
 
 void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
