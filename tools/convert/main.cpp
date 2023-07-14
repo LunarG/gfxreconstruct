@@ -28,7 +28,7 @@
 #include "util/file_path.h"
 #include "util/platform.h"
 
-#include "generated/generated_vulkan_export_json_consumer.h"
+#include "generated/generated_vulkan_json_consumer.h"
 #if defined(CONVERT_EXPERIMENTAL_D3D12)
 #include "generated/generated_dx12_ascii_consumer.h"
 #endif

@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/vulkan_export_json_consumer_base.h"
+#include "decode/vulkan_json_consumer_base.h"
 #include "decode/custom_vulkan_struct_to_json.h"
 
 #include "util/json_util.h"

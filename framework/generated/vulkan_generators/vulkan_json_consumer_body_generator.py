@@ -107,7 +107,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
         includes = format_cpp_code('''
             #include "util/defines.h"
-            #include "generated/generated_vulkan_export_json_consumer.h"
+            #include "generated/generated_vulkan_json_consumer.h"
             #include "decode/custom_vulkan_struct_to_json.h"
         ''')
         write(includes, file=self.outFile)
