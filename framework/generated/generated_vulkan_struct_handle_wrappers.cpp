@@ -33,20 +33,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void UnwrapStructHandles(VkBufferMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(VkImageMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
 void UnwrapStructHandles(VkDeviceCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -69,13 +55,6 @@ void UnwrapStructHandles(VkSubmitInfo* value, HandleUnwrapMemory* unwrap_memory)
     }
 }
 
-void UnwrapStructHandles(VkMappedMemoryRange* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
 void UnwrapStructHandles(VkMemoryAllocateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -84,13 +63,6 @@ void UnwrapStructHandles(VkMemoryAllocateInfo* value, HandleUnwrapMemory* unwrap
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-    }
-}
-
-void UnwrapStructHandles(VkSparseMemoryBind* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
     }
 }
 
@@ -110,13 +82,6 @@ void UnwrapStructHandles(VkSparseImageOpaqueMemoryBindInfo* value, HandleUnwrapM
     }
 }
 
-void UnwrapStructHandles(VkSparseImageMemoryBind* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
 void UnwrapStructHandles(VkSparseImageMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -132,13 +97,6 @@ void UnwrapStructHandles(VkBindSparseInfo* value, HandleUnwrapMemory* unwrap_mem
         value->pBufferBinds = UnwrapStructArrayHandles(value->pBufferBinds, value->bufferBindCount, unwrap_memory);
         value->pImageOpaqueBinds = UnwrapStructArrayHandles(value->pImageOpaqueBinds, value->imageOpaqueBindCount, unwrap_memory);
         value->pImageBinds = UnwrapStructArrayHandles(value->pImageBinds, value->imageBindCount, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(VkBufferViewCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
     }
 }
 
@@ -206,13 +164,6 @@ void UnwrapStructHandles(VkGraphicsPipelineCreateInfo* value, HandleUnwrapMemory
     }
 }
 
-void UnwrapStructHandles(VkPipelineLayoutCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
 void UnwrapStructHandles(VkSamplerCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -224,60 +175,11 @@ void UnwrapStructHandles(VkSamplerCreateInfo* value, HandleUnwrapMemory* unwrap_
     }
 }
 
-void UnwrapStructHandles(VkCopyDescriptorSet* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(VkDescriptorBufferInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(VkDescriptorSetAllocateInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(VkDescriptorSetLayoutBinding* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
 void UnwrapStructHandles(VkDescriptorSetLayoutCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
         value->pBindings = UnwrapStructArrayHandles(value->pBindings, value->bindingCount, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(VkFramebufferCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(VkCommandBufferAllocateInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(VkCommandBufferInheritanceInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
     }
 }
 
@@ -297,13 +199,6 @@ void UnwrapStructHandles(VkRenderPassBeginInfo* value, HandleUnwrapMemory* unwra
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-    }
-}
-
-void UnwrapStructHandles(VkBindBufferMemoryInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
     }
 }
 
