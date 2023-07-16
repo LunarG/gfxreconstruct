@@ -24,6 +24,7 @@
 /*
 ** This file is generated from the Khronos Vulkan XML API Registry.
 **
+**
 */
 
 #ifndef  GFXRECON_GENERATED_VULKAN_STRUCT_HANDLE_WRAPPERS_H
