@@ -64,7 +64,7 @@ class Dx12CallIdToStringHeaderGenerator(Dx12BaseGenerator):
 
     def write_function_call(self):
         code = (
-            "std::wstring GetDx12CallIdString(format::ApiCallId call_id){}\n"
+            "inline std::wstring GetDx12CallIdString(format::ApiCallId call_id){}\n"
             "\n"
             .format(
                 self.get_function_call_body()
@@ -75,16 +75,14 @@ class Dx12CallIdToStringHeaderGenerator(Dx12BaseGenerator):
     def get_function_call_body(self):
         code = '\n'\
                '{\n'\
-               '    std::wstring out = L"Unknown";\n'\
+               '    std::wstring out = L"Unknown_ApiCallId";\n'\
                '    switch (call_id)\n'\
                '    {\n'
 
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for m in v.functions:
-                if self.is_required_function_data(m) and (
-                    not self.is_cmd_black_listed(m['name'])
-                ):
+                if self.is_required_function_data(m):
                     code += (
                         "    case format::ApiCallId::ApiCall_{0}:\n"
                         "        out = L\"{0}\";\n"
@@ -94,16 +92,14 @@ class Dx12CallIdToStringHeaderGenerator(Dx12BaseGenerator):
             for class_name, class_value in v.classes.items():
                 if self.is_required_class_data(class_value):
                     for m in class_value['methods']['public']:
-                        if not self.is_method_black_listed(
-                            class_name, m['name']
-                        ):
-                            code += (
-                                "    case format::ApiCallId::ApiCall_{0}_{1}:\n"
-                                "        out = L\"{0}_{1}\";\n"
-                                "        break;\n".format(
-                                    class_name, m['name']
-                                )
+                        code += (
+                            "    case format::ApiCallId::ApiCall_{0}_{1}:\n"
+                            "        out = L\"{0}_{1}\";\n"
+                            "        break;\n".format(
+                                class_name, m['name']
                             )
+                        )
+
 
         code += '    default:\n'\
                 '        break;\n'\
