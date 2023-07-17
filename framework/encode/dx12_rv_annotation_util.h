@@ -96,10 +96,10 @@ class RvAnnotationUtil
     static void RemoveStructRvAnnotation(D3D12_RAYTRACING_GEOMETRY_DESC& params);
 
     static void RemoveStructRvAnnotation(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& param,
-                                         std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]>&      geometry_desc);
+                                         std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]>&  geometry_desc);
 
     static void RemoveStructRvAnnotation(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& param,
-                                         std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]>&        geometry_descs);
+                                         std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]>&    geometry_descs);
 
     static void RemoveStructRvAnnotation(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC& param);
 
