@@ -23,10 +23,12 @@
 #ifndef GFXRECON_DECODE_VULKAN_JSON_CONSUMER_BASE_H
 #define GFXRECON_DECODE_VULKAN_JSON_CONSUMER_BASE_H
 
+#include "util/output_stream.h"
 #include "util/defines.h"
 #include "annotation_handler.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
+#include "decode/json_writer.h"
 #include "decode/vulkan_json_util.h"
 #include "vulkan/vulkan.h"
 
@@ -36,25 +38,21 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHandler
+class VulkanExportJsonConsumerBase
+    : public VulkanConsumer,
+      public AnnotationHandler /// @todo Make a separate JsonAnnotationHandler which talks to the same JsonWriter so
+                               /// that you could build a convert with DX12 and with no Vulkan.
 {
   public:
     VulkanExportJsonConsumerBase();
 
     virtual ~VulkanExportJsonConsumerBase() override;
 
-    void Initialize(const JsonOptions&     options,
-                    const std::string_view gfxrVersion,
-                    const std::string_view vulkanVersion,
-                    const std::string_view inputFilepath);
+    void Initialize(JsonWriter* writer, const std::string_view vulkanVersion);
 
     void Destroy();
 
-    void StartFile(FILE* file);
-
-    void EndFile();
-
-    bool IsValid() const { return (file_ != nullptr); }
+    bool IsValid() const { return writer_ && writer_->IsValid(); }
 
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
 
@@ -185,17 +183,13 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
                                    const std::string&     label,
                                    const std::string&     data) override;
 
-  private:
-    // Delete the in-memory JSON tree from the last line and count the new object.
-    // Putting it in one non-inline function allows all the JSON deletion work
-    // to show up in one place in a profile.
-    void WriteBlockStart();
-
   protected:
-    // Output the current in-memory json tree to the destination file:
-    // Putting it in one non-inline function avoids code bloat and allows all
-    // The JSON->string work to show up in one place in a profile.
-    void WriteBlockEnd();
+    const JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
+
+    nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }
+
+    /// Output the current in-memory json tree to the destination file.
+    void WriteBlockEnd() { writer_->WriteBlockEnd(); }
 
     // Wrappers for json field names allowing change without code gen and
     // leaving door open for switching output based on internal state.
@@ -237,9 +231,9 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
     inline void WriteMetaCommandToFile(const std::string& command_name, ToJsonFunctionType to_json_function)
     {
         using namespace util;
-        WriteBlockStart();
+        auto& json_data = WriteBlockStart();
 
-        nlohmann::ordered_json& meta = json_data_[NameMeta()];
+        nlohmann::ordered_json& meta = json_data[NameMeta()];
         meta[NameName()]             = command_name;
         to_json_function(meta[NameArgs()]);
 
@@ -249,9 +243,9 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
     inline void WriteStateMarkerToFile(const std::string& marker_type, uint64_t frame_number)
     {
         using namespace util;
-        WriteBlockStart();
+        auto& json_data = WriteBlockStart();
 
-        nlohmann::ordered_json& state = json_data_[NameState()];
+        nlohmann::ordered_json& state = json_data[NameState()];
         state["marker_type"]          = marker_type;
         state["frame_number"]         = frame_number;
 
@@ -261,9 +255,9 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
     inline void WriteFrameMarkerToFile(const std::string& marker_type, uint64_t frame_number)
     {
         using namespace util;
-        WriteBlockStart();
+        auto& json_data = WriteBlockStart();
 
-        nlohmann::ordered_json& frame = json_data_[NameFrame()];
+        nlohmann::ordered_json& frame = json_data[NameFrame()];
         frame["marker_type"]          = marker_type;
         frame["frame_number"]         = frame_number;
 
@@ -281,16 +275,13 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
 
     void ResetCommandBufferRecordIndex(format::HandleId command_buffer) { rec_cmd_index_[command_buffer] = 0; }
 
-    JsonOptions                                    json_options_;
     uint32_t                                       submit_index_{ 0 }; // index of submissions across the trace
     std::unordered_map<format::HandleId, uint32_t> rec_cmd_index_;
 
   private:
-    FILE*                  file_{ nullptr };
-    nlohmann::ordered_json header_;
-    nlohmann::ordered_json json_data_;
-    uint32_t               num_objects_{ 0 };
-    uint32_t               num_files_{ 0 };
+    JsonWriter* writer_{ nullptr };
+    /// Number of side-files generated for dumping binary blobs etc.
+    uint32_t num_files_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

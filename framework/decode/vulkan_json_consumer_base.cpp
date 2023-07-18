@@ -63,60 +63,26 @@ std::string AnnotationTypeToString(const format::AnnotationType& type)
 }
 } // namespace
 
-VulkanExportJsonConsumerBase::VulkanExportJsonConsumerBase() : file_(nullptr) {}
+VulkanExportJsonConsumerBase::VulkanExportJsonConsumerBase() {}
 
 VulkanExportJsonConsumerBase::~VulkanExportJsonConsumerBase()
 {
     Destroy();
 }
 
-void VulkanExportJsonConsumerBase::Initialize(const JsonOptions&     options,
-                                              const std::string_view gfxrVersion,
-                                              const std::string_view vulkanVersion,
-                                              const std::string_view inputFilepath)
+void VulkanExportJsonConsumerBase::Initialize(JsonWriter* writer, const std::string_view vulkanVersion)
 {
-    num_objects_  = 0;
-    json_options_ = options;
+    GFXRECON_ASSERT(writer);
+    writer_ = writer;
 
-    header_["source-path"]      = inputFilepath;
-    header_["gfxrecon-version"] = std::string(gfxrVersion);
-    header_["vulkan-version"]   = std::string(vulkanVersion);
+    writer->GetHeaderkJson()["vulkan-version"] = std::string(vulkanVersion);
 }
 
 void VulkanExportJsonConsumerBase::Destroy()
 {
-    EndFile();
-}
-
-void VulkanExportJsonConsumerBase::StartFile(FILE* file)
-{
-    assert(file);
-    file_        = file;
-    num_objects_ = 0;
-    if (json_options_.format == JsonFormat::JSON)
+    if (writer_)
     {
-        FilePuts("[\n", file_);
-    }
-
-    // Emit the header object as the first line of the file:
-    WriteBlockStart();
-    json_data_["header"] = header_;
-    WriteBlockEnd();
-}
-
-void VulkanExportJsonConsumerBase::EndFile()
-{
-    if (file_ != nullptr)
-    {
-        if (json_options_.format == JsonFormat::JSON)
-        {
-            FilePuts("\n]\n", file_);
-        }
-        else
-        {
-            FilePuts("\n", file_);
-        }
-        file_ = nullptr;
+        writer_->Destroy();
     }
 }
 
@@ -156,7 +122,7 @@ void VulkanExportJsonConsumerBase::ProcessFrameEndMarker(uint64_t frame_number)
 void VulkanExportJsonConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
 {
     WriteMetaCommandToFile("DisplayMessageCommand",
-                           [&](auto& jdata) { FieldToJson(jdata["message"], message, json_options_); });
+                           [&](auto& jdata) { FieldToJson(jdata["message"], message, GetJsonOptions()); });
 }
 
 void VulkanExportJsonConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
@@ -164,27 +130,28 @@ void VulkanExportJsonConsumerBase::ProcessFillMemoryCommand(uint64_t       memor
                                                             uint64_t       size,
                                                             const uint8_t* data)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("FillMemoryCommand", [&](auto& jdata) {
-        HandleToJson(jdata["memory_id"], memory_id, json_options_);
-        FieldToJson(jdata["offset"], offset, json_options_);
-        FieldToJson(jdata["size"], size, json_options_);
-        if (json_options_.dump_binaries)
+        HandleToJson(jdata["memory_id"], memory_id, json_options);
+        FieldToJson(jdata["offset"], offset, json_options);
+        FieldToJson(jdata["size"], size, json_options);
+        if (json_options.dump_binaries)
         {
             std::string filename = GenerateFilename("fill_memory.bin");
-            std::string basename = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
-            std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
+            std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
             if (WriteBinaryFile(filepath, size, data))
             {
-                FieldToJson(jdata["data"], basename, json_options_);
+                FieldToJson(jdata["data"], basename, json_options);
             }
             else
             {
-                FieldToJson(jdata["data"], "Unable to write file", json_options_);
+                FieldToJson(jdata["data"], "Unable to write file", json_options);
             }
         }
         else
         {
-            FieldToJson(jdata["data"], "[Binary data]", json_options_);
+            FieldToJson(jdata["data"], "[Binary data]", json_options);
         }
     });
 }
@@ -193,10 +160,11 @@ void VulkanExportJsonConsumerBase::ProcessResizeWindowCommand(format::HandleId s
                                                               uint32_t         width,
                                                               uint32_t         height)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("ResizeWindowCommand", [&](auto& jdata) {
-        HandleToJson(jdata["surface_id"], surface_id, json_options_);
-        FieldToJson(jdata["width"], width, json_options_);
-        FieldToJson(jdata["height"], height, json_options_);
+        HandleToJson(jdata["surface_id"], surface_id, json_options);
+        FieldToJson(jdata["width"], width, json_options);
+        FieldToJson(jdata["height"], height, json_options);
     });
 }
 
@@ -205,11 +173,12 @@ void VulkanExportJsonConsumerBase::ProcessResizeWindowCommand2(format::HandleId 
                                                                uint32_t         height,
                                                                uint32_t         pre_transform)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("ResizeWindowCommand2", [&](auto& jdata) {
-        HandleToJson(jdata["surface_id"], surface_id, json_options_);
-        FieldToJson(jdata["width"], width, json_options_);
-        FieldToJson(jdata["height"], height, json_options_);
-        FieldToJson(jdata["pre_transform"], pre_transform, json_options_);
+        HandleToJson(jdata["surface_id"], surface_id, json_options);
+        FieldToJson(jdata["width"], width, json_options);
+        FieldToJson(jdata["height"], height, json_options);
+        FieldToJson(jdata["pre_transform"], pre_transform, json_options);
     });
 }
 
@@ -224,22 +193,23 @@ void VulkanExportJsonConsumerBase::ProcessCreateHardwareBufferCommand(
     uint32_t                                            layers,
     const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("CreateHardwareBufferCommand", [&](auto& jdata) {
-        HandleToJson(jdata["memory_id"], memory_id, json_options_);
-        HandleToJson(jdata["buffer_id"], buffer_id, json_options_);
-        FieldToJson(jdata["format"], format, json_options_);
-        FieldToJson(jdata["width"], width, json_options_);
-        FieldToJson(jdata["height"], height, json_options_);
-        FieldToJson(jdata["stride"], stride, json_options_);
-        FieldToJson(jdata["usage"], usage, json_options_);
-        FieldToJson(jdata["layers"], layers, json_options_);
+        HandleToJson(jdata["memory_id"], memory_id, json_options);
+        HandleToJson(jdata["buffer_id"], buffer_id, json_options);
+        FieldToJson(jdata["format"], format, json_options);
+        FieldToJson(jdata["width"], width, json_options);
+        FieldToJson(jdata["height"], height, json_options);
+        FieldToJson(jdata["stride"], stride, json_options);
+        FieldToJson(jdata["usage"], usage, json_options);
+        FieldToJson(jdata["layers"], layers, json_options);
     });
 }
 
 void VulkanExportJsonConsumerBase::ProcessDestroyHardwareBufferCommand(uint64_t buffer_id)
 {
     WriteMetaCommandToFile("DestroyHardwareBufferCommand",
-                           [&](auto& jdata) { HandleToJson(jdata["buffer_id"], buffer_id, json_options_); });
+                           [&](auto& jdata) { HandleToJson(jdata["buffer_id"], buffer_id, GetJsonOptions()); });
 }
 
 void VulkanExportJsonConsumerBase::ProcessSetDevicePropertiesCommand(
@@ -252,16 +222,16 @@ void VulkanExportJsonConsumerBase::ProcessSetDevicePropertiesCommand(
     const uint8_t      pipeline_cache_uuid[format::kUuidSize],
     const std::string& device_name)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("SetDevicePropertiesCommand", [&](auto& jdata) {
-        HandleToJson(jdata["physical_device_id"], physical_device_id, json_options_);
-        FieldToJson(jdata["api_version"], api_version, json_options_);
-        FieldToJson(jdata["driver_version"], driver_version, json_options_);
-        FieldToJson(jdata["vendor_id"], vendor_id, json_options_);
-        FieldToJson(jdata["device_id"], device_id, json_options_);
-        FieldToJson(jdata["device_type"], device_type, json_options_);
-        FieldToJson(
-            jdata["pipeline_cache_uuid"], uuid_to_string(format::kUuidSize, pipeline_cache_uuid), json_options_);
-        FieldToJson(jdata["device_name"], device_name, json_options_);
+        HandleToJson(jdata["physical_device_id"], physical_device_id, json_options);
+        FieldToJson(jdata["api_version"], api_version, json_options);
+        FieldToJson(jdata["driver_version"], driver_version, json_options);
+        FieldToJson(jdata["vendor_id"], vendor_id, json_options);
+        FieldToJson(jdata["device_id"], device_id, json_options);
+        FieldToJson(jdata["device_type"], device_type, json_options);
+        FieldToJson(jdata["pipeline_cache_uuid"], uuid_to_string(format::kUuidSize, pipeline_cache_uuid), json_options);
+        FieldToJson(jdata["device_name"], device_name, json_options);
     });
 }
 
@@ -270,8 +240,9 @@ void VulkanExportJsonConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
     const std::vector<format::DeviceMemoryType>& memory_types,
     const std::vector<format::DeviceMemoryHeap>& memory_heaps)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("SetDeviceMemoryPropertiesCommand", [&](auto& jdata) {
-        HandleToJson(jdata["physical_device_id"], physical_device_id, json_options_);
+        HandleToJson(jdata["physical_device_id"], physical_device_id, json_options);
     });
 }
 
@@ -279,10 +250,11 @@ void VulkanExportJsonConsumerBase::ProcessSetOpaqueAddressCommand(format::Handle
                                                                   format::HandleId object_id,
                                                                   uint64_t         address)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("SetOpaqueAddressCommand", [&](auto& jdata) {
-        HandleToJson(jdata["device_id"], device_id, json_options_);
-        HandleToJson(jdata["object_id"], object_id, json_options_);
-        FieldToJson(jdata["address"], to_hex_variable_width(address), json_options_);
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["object_id"], object_id, json_options);
+        FieldToJson(jdata["address"], to_hex_variable_width(address), json_options);
     });
 }
 
@@ -291,27 +263,28 @@ void VulkanExportJsonConsumerBase::ProcessSetRayTracingShaderGroupHandlesCommand
                                                                                  size_t           data_size,
                                                                                  const uint8_t*   data)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("SetRayTracingShaderGroupHandleCommand", [&](auto& jdata) {
-        HandleToJson(jdata["device_id"], device_id, json_options_);
-        HandleToJson(jdata["pipeline_id"], pipeline_id, json_options_);
-        FieldToJson(jdata["data_size"], data_size, json_options_);
-        if (json_options_.dump_binaries)
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["pipeline_id"], pipeline_id, json_options);
+        FieldToJson(jdata["data_size"], data_size, json_options);
+        if (json_options.dump_binaries)
         {
             std::string filename = GenerateFilename("set_raytracing_shader_group_handle.bin");
-            std::string basename = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
-            std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
+            std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
             if (WriteBinaryFile(filepath, data_size, data))
             {
-                FieldToJson(jdata["data"], basename, json_options_);
+                FieldToJson(jdata["data"], basename, json_options);
             }
             else
             {
-                FieldToJson(jdata["data"], "Unable to write file", json_options_);
+                FieldToJson(jdata["data"], "Unable to write file", json_options);
             }
         }
         else
         {
-            FieldToJson(jdata["data"], "[Binary data]", json_options_);
+            FieldToJson(jdata["data"], "[Binary data]", json_options);
         }
     });
 }
@@ -322,11 +295,12 @@ void VulkanExportJsonConsumerBase::ProcessSetSwapchainImageStateCommand(
     uint32_t                                            last_presented_image,
     const std::vector<format::SwapchainImageStateInfo>& image_state)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("SetSwapchainImageStateCommand", [&](auto& jdata) {
-        HandleToJson(jdata["device_id"], device_id, json_options_);
-        HandleToJson(jdata["swapchain_id"], swapchain_id, json_options_);
-        FieldToJson(jdata["last_presented_image"], last_presented_image, json_options_);
-        FieldToJson(jdata["image_state"], "not available", json_options_);
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["swapchain_id"], swapchain_id, json_options);
+        FieldToJson(jdata["last_presented_image"], last_presented_image, json_options);
+        FieldToJson(jdata["image_state"], "not available", json_options);
     });
 }
 
@@ -334,17 +308,18 @@ void VulkanExportJsonConsumerBase::ProcessBeginResourceInitCommand(format::Handl
                                                                    uint64_t         max_resource_size,
                                                                    uint64_t         max_copy_size)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("BeginResourceInitCommand", [&](auto& jdata) {
-        HandleToJson(jdata["device_id"], device_id, json_options_);
-        FieldToJson(jdata["max_resource_size"], max_resource_size, json_options_);
-        FieldToJson(jdata["max_copy_size"], max_copy_size, json_options_);
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        FieldToJson(jdata["max_resource_size"], max_resource_size, json_options);
+        FieldToJson(jdata["max_copy_size"], max_copy_size, json_options);
     });
 }
 
 void VulkanExportJsonConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
 {
     WriteMetaCommandToFile("EndResourceInitCommand",
-                           [&](auto& jdata) { HandleToJson(jdata["device_id"], device_id, json_options_); });
+                           [&](auto& jdata) { HandleToJson(jdata["device_id"], device_id, GetJsonOptions()); });
 }
 
 void VulkanExportJsonConsumerBase::ProcessInitBufferCommand(format::HandleId device_id,
@@ -352,27 +327,28 @@ void VulkanExportJsonConsumerBase::ProcessInitBufferCommand(format::HandleId dev
                                                             uint64_t         data_size,
                                                             const uint8_t*   data)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("InitBufferCommand", [&](auto& jdata) {
-        HandleToJson(jdata["device_id"], device_id, json_options_);
-        HandleToJson(jdata["buffer_id"], buffer_id, json_options_);
-        FieldToJson(jdata["data_size"], data_size, json_options_);
-        if (json_options_.dump_binaries)
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["buffer_id"], buffer_id, json_options);
+        FieldToJson(jdata["data_size"], data_size, json_options);
+        if (json_options.dump_binaries)
         {
             std::string filename = GenerateFilename("init_buffer.bin");
-            std::string basename = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
-            std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
+            std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
             if (WriteBinaryFile(filepath, data_size, data))
             {
-                FieldToJson(jdata["data"], basename, json_options_);
+                FieldToJson(jdata["data"], basename, json_options);
             }
             else
             {
-                FieldToJson(jdata["data"], "Unable to write file", json_options_);
+                FieldToJson(jdata["data"], "Unable to write file", json_options);
             }
         }
         else
         {
-            FieldToJson(jdata["data"], "[Binary data]", json_options_);
+            FieldToJson(jdata["data"], "[Binary data]", json_options);
         }
     });
 }
@@ -385,32 +361,32 @@ void VulkanExportJsonConsumerBase::ProcessInitImageCommand(format::HandleId     
                                                            const std::vector<uint64_t>& level_sizes,
                                                            const uint8_t*               data)
 {
-
+    const JsonOptions& json_options = GetJsonOptions();
     WriteMetaCommandToFile("InitImageCommand", [&](auto& jdata) {
-        HandleToJson(jdata["device_id"], device_id, json_options_);
-        HandleToJson(jdata["image_id"], image_id, json_options_);
-        FieldToJson(jdata["data_size"], data_size, json_options_);
-        FieldToJson(jdata["aspect"], aspect, json_options_);
-        FieldToJson(jdata["layout"], layout, json_options_);
-        FieldToJson(jdata["level_sizez"], "not available", json_options_); /// @todo Typo: level_sizes
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["image_id"], image_id, json_options);
+        FieldToJson(jdata["data_size"], data_size, json_options);
+        FieldToJson(jdata["aspect"], aspect, json_options);
+        FieldToJson(jdata["layout"], layout, json_options);
+        FieldToJson(jdata["level_sizez"], "not available", json_options); /// @todo Typo: level_sizes
 
-        if (json_options_.dump_binaries)
+        if (json_options.dump_binaries)
         {
             std::string filename = GenerateFilename("init_image.bin");
-            std::string basename = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
-            std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
+            std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
             if (WriteBinaryFile(filepath, data_size, data))
             {
-                FieldToJson(jdata["data"], basename, json_options_);
+                FieldToJson(jdata["data"], basename, json_options);
             }
             else
             {
-                FieldToJson(jdata["data"], "Unable to write file", json_options_);
+                FieldToJson(jdata["data"], "Unable to write file", json_options);
             }
         }
         else
         {
-            FieldToJson(jdata["data"], "[Binary data]", json_options_);
+            FieldToJson(jdata["data"], "[Binary data]", json_options);
         }
     });
 }
@@ -424,13 +400,14 @@ void VulkanExportJsonConsumerBase::Process_vkCmdBuildAccelerationStructuresIndir
     PointerDecoder<uint32_t>*                                                  pIndirectStrides,
     PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", [&](nlohmann::ordered_json& function) {
         auto& args = function[NameArgs()];
-        HandleToJson(args["commandBuffer"], commandBuffer, json_options_);
-        FieldToJson(args["infoCount"], infoCount, json_options_);
-        FieldToJson(args["pInfos"], pInfos, json_options_);
-        FieldToJson(args["pIndirectDeviceAddresses"], pIndirectDeviceAddresses, json_options_);
-        FieldToJson(args["pIndirectStrides"], pIndirectStrides, json_options_);
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["infoCount"], infoCount, json_options);
+        FieldToJson(args["pInfos"], pInfos, json_options);
+        FieldToJson(args["pIndirectDeviceAddresses"], pIndirectDeviceAddresses, json_options);
+        FieldToJson(args["pIndirectStrides"], pIndirectStrides, json_options);
 
         auto infos                     = pInfos ? pInfos->GetPointer() : nullptr;
         auto max_primitive_counts      = ppMaxPrimitiveCounts ? ppMaxPrimitiveCounts->GetPointer() : nullptr;
@@ -439,7 +416,7 @@ void VulkanExportJsonConsumerBase::Process_vkCmdBuildAccelerationStructuresIndir
         for (uint32_t i = 0; i < infoCount; ++i)
         {
             auto element = max_primitive_counts_json[i];
-            FieldToJson(max_primitive_counts_json[i], max_primitive_counts[i], infos[i].geometryCount, json_options_);
+            FieldToJson(max_primitive_counts_json[i], max_primitive_counts[i], infos[i].geometryCount, json_options);
         }
     });
 }
@@ -452,20 +429,21 @@ void VulkanExportJsonConsumerBase::Process_vkCreateShaderModule(
     gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*    pAllocator,
     gfxrecon::decode::HandlePointerDecoder<VkShaderModule>*                                     pShaderModule)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteApiCallToFile(call_info, "vkCreateShaderModule", [&](nlohmann::ordered_json& function) {
-        FieldToJson(function[NameReturn()], returnValue, json_options_);
+        FieldToJson(function[NameReturn()], returnValue, json_options);
         auto& args = function[NameArgs()];
-        HandleToJson(args["device"], device, json_options_);
-        FieldToJson(args["pCreateInfo"], pCreateInfo, json_options_);
-        FieldToJson(args["pAllocator"], pAllocator, json_options_);
-        HandleToJson(args["pShaderModule"], pShaderModule, json_options_);
+        HandleToJson(args["device"], device, json_options);
+        FieldToJson(args["pCreateInfo"], pCreateInfo, json_options);
+        FieldToJson(args["pAllocator"], pAllocator, json_options);
+        HandleToJson(args["pShaderModule"], pShaderModule, json_options);
 
-        if (json_options_.dump_binaries)
+        if (json_options.dump_binaries)
         {
             uint64_t    handle_id     = *pShaderModule->GetPointer();
             std::string filename      = GenerateFilename("shader_module_" + to_hex_fixed_width(handle_id) + ".bin");
-            std::string basename      = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
-            std::string filepath      = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
+            std::string basename      = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+            std::string filepath      = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
             auto        decoded_value = pCreateInfo->GetPointer();
 
             if (WriteBinaryFile(filepath, decoded_value->codeSize, (uint8_t*)decoded_value->pCode))
@@ -487,35 +465,36 @@ void VulkanExportJsonConsumerBase::Process_vkGetPipelineCacheData(const ApiCallI
                                                                   PointerDecoder<size_t>*  pDataSize,
                                                                   PointerDecoder<uint8_t>* pData)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteApiCallToFile(call_info, "vkGetPipelineCacheData", [&](nlohmann::ordered_json& function) {
-        FieldToJson(function[NameReturn()], returnValue, json_options_);
+        FieldToJson(function[NameReturn()], returnValue, json_options);
         auto& args = function[NameArgs()];
-        HandleToJson(args["device"], device, json_options_);
-        HandleToJson(args["pipelineCache"], pipelineCache, json_options_);
-        FieldToJson(args["pDataSize"], pDataSize, json_options_);
+        HandleToJson(args["device"], device, json_options);
+        HandleToJson(args["pipelineCache"], pipelineCache, json_options);
+        FieldToJson(args["pDataSize"], pDataSize, json_options);
         if (pData->IsNull())
         {
             args["pData"] = nullptr;
         }
-        else if (json_options_.dump_binaries)
+        else if (json_options.dump_binaries)
         {
             auto        decoded_data = pData->GetPointer();
             auto        data_size    = pData->GetLength();
             std::string filename     = GenerateFilename("pipeline_cache_data.bin");
-            std::string basename     = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
-            std::string filepath     = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
+            std::string basename     = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+            std::string filepath     = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
             if (WriteBinaryFile(filepath, data_size, decoded_data))
             {
-                FieldToJson(args["pData"], basename, json_options_);
+                FieldToJson(args["pData"], basename, json_options);
             }
             else
             {
-                FieldToJson(args["pData"], "Unable to write file", json_options_);
+                FieldToJson(args["pData"], "Unable to write file", json_options);
             }
         }
         else
         {
-            FieldToJson(args["pData"], "[Binary data]", json_options_);
+            FieldToJson(args["pData"], "[Binary data]", json_options);
         }
     });
 }
@@ -528,31 +507,32 @@ void VulkanExportJsonConsumerBase::Process_vkCreatePipelineCache(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
     HandlePointerDecoder<VkPipelineCache>*                   pPipelineCache)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteApiCallToFile(call_info, "vkCreatePipelineCache", [&](nlohmann::ordered_json& function) {
-        FieldToJson(function[NameReturn()], returnValue, json_options_);
+        FieldToJson(function[NameReturn()], returnValue, json_options);
         auto& args = function[NameArgs()];
-        HandleToJson(args["device"], device, json_options_);
-        FieldToJson(args["pCreateInfo"], pCreateInfo, json_options_);
-        FieldToJson(args["pAllocator"], pAllocator, json_options_);
-        HandleToJson(args["pPipelineCache"], pPipelineCache, json_options_);
-        if (json_options_.dump_binaries)
+        HandleToJson(args["device"], device, json_options);
+        FieldToJson(args["pCreateInfo"], pCreateInfo, json_options);
+        FieldToJson(args["pAllocator"], pAllocator, json_options);
+        HandleToJson(args["pPipelineCache"], pPipelineCache, json_options);
+        if (json_options.dump_binaries)
         {
             auto        decoded_data = pCreateInfo->GetPointer();
             std::string filename     = GenerateFilename("pipeilne_cache_data.bin"); /// @todo Typo
-            std::string basename     = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
-            std::string filepath     = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
+            std::string basename     = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+            std::string filepath     = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
             if (WriteBinaryFile(filepath, decoded_data->initialDataSize, (uint8_t*)decoded_data->pInitialData))
             {
-                FieldToJson(args["pCreateInfo"]["pInitialData"], basename, json_options_);
+                FieldToJson(args["pCreateInfo"]["pInitialData"], basename, json_options);
             }
             else
             {
-                FieldToJson(args["pCreateInfo"]["pInitialData"], "Unable to write file", json_options_);
+                FieldToJson(args["pCreateInfo"]["pInitialData"], "Unable to write file", json_options);
             }
         }
         else
         {
-            FieldToJson(args["pData"], "[Binary data]", json_options_);
+            FieldToJson(args["pData"], "[Binary data]", json_options);
         }
     });
 }
@@ -565,37 +545,38 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
                                                               uint32_t                 size,
                                                               PointerDecoder<uint8_t>* pValues)
 {
+    const JsonOptions& json_options = GetJsonOptions();
     WriteApiCallToFile(call_info, "vkCmdPushConstants", [&](nlohmann::ordered_json& function) {
         auto& args = function[NameArgs()];
-        HandleToJson(args["commandBuffer"], commandBuffer, json_options_);
-        HandleToJson(args["layout"], layout, json_options_);
-        FieldToJson(VkShaderStageFlags_t(), args["stageFlags"], stageFlags, json_options_);
-        FieldToJson(args["offset"], offset, json_options_);
-        FieldToJson(args["size"], size, json_options_);
-        FieldToJson(args["pValues"], pValues, json_options_);
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        HandleToJson(args["layout"], layout, json_options);
+        FieldToJson(VkShaderStageFlags_t(), args["stageFlags"], stageFlags, json_options);
+        FieldToJson(args["offset"], offset, json_options);
+        FieldToJson(args["size"], size, json_options);
+        FieldToJson(args["pValues"], pValues, json_options);
         if (pValues->IsNull())
         {
             args["pValues"] = nullptr;
         }
-        else if (json_options_.dump_binaries)
+        else if (json_options.dump_binaries)
         {
             auto        decoded_data = pValues->GetPointer();
             auto        data_size    = pValues->GetLength();
             std::string filename     = GenerateFilename("pushconstants.bin");
-            std::string basename     = gfxrecon::util::filepath::Join(json_options_.data_sub_dir, filename);
-            std::string filepath     = gfxrecon::util::filepath::Join(json_options_.root_dir, basename);
+            std::string basename     = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+            std::string filepath     = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
             if (WriteBinaryFile(filepath, data_size, decoded_data))
             {
-                FieldToJson(args["pValues"], basename, json_options_);
+                FieldToJson(args["pValues"], basename, json_options);
             }
             else
             {
-                FieldToJson(args["pValues"], "Unable to write file", json_options_);
+                FieldToJson(args["pValues"], "Unable to write file", json_options);
             }
         }
         else
         {
-            FieldToJson(args["pValues"], "[Binary data]", json_options_);
+            FieldToJson(args["pValues"], "[Binary data]", json_options);
         }
     });
 }
@@ -608,51 +589,32 @@ void VulkanExportJsonConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
     DescriptorUpdateTemplateDecoder* pData)
 {
     using namespace gfxrecon::util;
+    const JsonOptions& json_options = GetJsonOptions();
 
     auto& function = WriteApiCallStart(call_info, "vkUpdateDescriptorSetWithTemplateKHR");
     auto& args     = function[NameArgs()];
 
-    HandleToJson(args["device"], device, json_options_);
-    HandleToJson(args["descriptorSet"], descriptorSet, json_options_);
-    HandleToJson(args["descriptorUpdateTemplate"], descriptorUpdateTemplate, json_options_);
-    FieldToJson(args["pData"], pData, json_options_);
+    HandleToJson(args["device"], device, json_options);
+    HandleToJson(args["descriptorSet"], descriptorSet, json_options);
+    HandleToJson(args["descriptorUpdateTemplate"], descriptorUpdateTemplate, json_options);
+    FieldToJson(args["pData"], pData, json_options);
 
     WriteBlockEnd();
-}
-
-void VulkanExportJsonConsumerBase::WriteBlockStart()
-{
-    json_data_.clear(); // < Dominates profiling (1/2).
-    num_objects_++;
 }
 
 nlohmann::ordered_json& VulkanExportJsonConsumerBase::WriteApiCallStart(const ApiCallInfo& call_info,
                                                                         const std::string& command_name)
 {
     using namespace util;
-    WriteBlockStart();
+    auto& json_data = WriteBlockStart();
 
-    json_data_[NameIndex()] = call_info.index;
+    json_data[NameIndex()] = call_info.index;
 
-    nlohmann::ordered_json& function = json_data_[NameFunction()];
+    nlohmann::ordered_json& function = json_data[NameFunction()];
     function[NameName()]             = command_name;
     function[NameThread()]           = call_info.thread_id;
 
     return function;
-}
-
-void VulkanExportJsonConsumerBase::WriteBlockEnd()
-{
-    using namespace util::platform;
-
-    if (num_objects_ > 1)
-    {
-        FilePuts(json_options_.format == JsonFormat::JSONL ? "\n" : ",\n", file_);
-    }
-    // Dominates profiling (2/2):
-    const std::string block = json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : util::kJsonIndentWidth);
-    Write(*file_, block);
-    file_->Flush(); /// @todo Implement a FileFlushNoLock() for all platforms.
 }
 
 void VulkanExportJsonConsumerBase::ProcessAnnotation(uint64_t               block_index,
@@ -660,9 +622,9 @@ void VulkanExportJsonConsumerBase::ProcessAnnotation(uint64_t               bloc
                                                      const std::string&     label,
                                                      const std::string&     data)
 {
-    WriteBlockStart();
-    json_data_["index"] = block_index;
-    auto& annotation    = json_data_["annotation"];
+    auto& json_data     = WriteBlockStart();
+    json_data["index"]  = block_index;
+    auto& annotation    = json_data["annotation"];
     annotation["type"]  = AnnotationTypeToString(type);
     annotation["label"] = label;
     annotation["data"]  = data;

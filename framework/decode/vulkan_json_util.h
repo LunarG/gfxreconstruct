@@ -26,12 +26,13 @@
 #include "util/defines.h"
 #include "format/format.h"
 #include "nlohmann/json.hpp"
-#include "vulkan/vulkan.h"
 
 #include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+static const int kJsonIndentWidth = 2;
 
 enum class JsonFormat
 {
