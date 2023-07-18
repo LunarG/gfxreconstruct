@@ -731,6 +731,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--screenshot-prefix PREFIX] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
                           [-m MODE] [--use-captured-swapchain-indices]
+                          [--wait-before-present]
                           [file]
 
 Launch the replay tool.
@@ -806,6 +807,10 @@ optional arguments:
                         setup for replay. The default without this option is to use a Virtual Swapchain
                         of images which match the swapchain in effect at capture time and which are
                         copied to the underlying swapchain of the implementation being replayed on.
+  --wait-before-present
+                        Force wait on completion of queue operations for all queues 
+                        before calling Present. This is needed for accurate acquisition 
+                        of instrumentation data on some platforms.
 ```
 
 The command will force-stop an active replay process before starting the replay

@@ -31,7 +31,7 @@ const char kOptions[] =
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
     "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos,"
-    "--dx12-override-object-names";
+    "--dx12-override-object-names,--wait-before-present";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -196,6 +196,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDeviceGroups.  Replay may fail");
     GFXRECON_WRITE_CONSOLE("          \t\tif the specified device group is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture device group.");
+    GFXRECON_WRITE_CONSOLE("  --wait-before-present");
+    GFXRECON_WRITE_CONSOLE("          \t\tForce wait on completion of queue operations for all queues");
+    GFXRECON_WRITE_CONSOLE("          \t\tbefore calling Present. This is needed for accurate acquisition");
+    GFXRECON_WRITE_CONSOLE("          \t\tof instrumentation data on some platforms.");
 
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
