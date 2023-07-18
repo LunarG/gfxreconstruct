@@ -26,6 +26,7 @@
 
 #include "util/defines.h"
 
+#include <string_view>
 #include <cstddef>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -44,6 +45,11 @@ class OutputStream
 
     virtual void Flush() {}
 };
+
+inline void Write(OutputStream& os, std::string_view sv)
+{
+    os.Write(sv.data(), sv.size());
+}
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
