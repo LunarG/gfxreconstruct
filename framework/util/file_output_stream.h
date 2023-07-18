@@ -20,6 +20,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+/// @file Streaming into a file using the platform FILE abstractions.
 
 #ifndef GFXRECON_UTIL_FILE_OUTPUT_STREAM_H
 #define GFXRECON_UTIL_FILE_OUTPUT_STREAM_H
@@ -34,13 +35,20 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+/// @brief An implementation of the abstract OuptutStream interface which writes
+/// to a file or sequence of files.
 class FileOutputStream : public OutputStream
 {
   public:
-    // buffer_size controls the size of file stream buffer. If buffer_size is 0, file writes will be unbuffered.
+    /// @param buffer_size Controls the size of file stream buffer. If buffer_size is 0,
+    /// file writes will be unbuffered.
     FileOutputStream(const std::string& filename, size_t buffer_size, bool append = false);
 
     FileOutputStream(FILE* file, bool owned = false);
+
+    /// @brief Change from current file to a new one, closing the old only if it was owned.
+    /// @param file The new file to stream writes into.
+    void Reset(FILE* file);
 
     virtual ~FileOutputStream() override;
 
@@ -50,9 +58,24 @@ class FileOutputStream : public OutputStream
 
     virtual void Flush() override { platform::FileFlush(file_); }
 
-  private:
-    FILE* file_;
-    bool  own_file_;
+  protected:
+    FileOutputStream(const FileOutputStream&)            = delete;
+    FileOutputStream& operator=(const FileOutputStream&) = delete;
+    FILE*             file_;
+    bool              own_file_;
+};
+
+class FileNoLockOutputStream : public FileOutputStream
+{
+  public:
+    /// @param buffer_size Controls the size of file stream buffer. If buffer_size is 0,
+    /// file writes will be unbuffered.
+    FileNoLockOutputStream(const std::string& filename, size_t buffer_size, bool append = false) :
+        FileOutputStream(filename, buffer_size, append)
+    {}
+    FileNoLockOutputStream(FILE* file, bool owned = false) : FileOutputStream(file, owned) {}
+
+    virtual size_t Write(const void* data, size_t len) override;
 };
 
 GFXRECON_END_NAMESPACE(util)
