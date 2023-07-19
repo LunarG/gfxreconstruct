@@ -290,78 +290,420 @@ inline void UnwrapStructHandles(VkImageSwapchainCreateInfoKHR* value, HandleUnwr
     GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
 };
 
-inline void UnwrapStructHandles(VkBindImageMemorySwapchainInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkBindImageMemorySwapchainInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkAcquireNextImageInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkAcquireNextImageInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkDisplayModePropertiesKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkDisplayModePropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkDisplayPlanePropertiesKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkDisplayPlanePropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkDisplayPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkDisplayPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkDisplaySurfaceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkDisplaySurfaceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkVideoPictureResourceInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkVideoPictureResourceInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkBindVideoSessionMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkBindVideoSessionMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkVideoSessionParametersCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkVideoSessionParametersCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkRenderingFragmentShadingRateAttachmentInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkRenderingFragmentShadingRateAttachmentInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkRenderingFragmentDensityMapAttachmentInfoEXT* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkRenderingFragmentDensityMapAttachmentInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkMemoryGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkMemoryGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkMemoryGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkMemoryGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkWin32KeyedMutexAcquireReleaseInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkWin32KeyedMutexAcquireReleaseInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkImportSemaphoreWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkImportSemaphoreWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkSemaphoreGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkSemaphoreGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkImportSemaphoreFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkImportSemaphoreFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkSemaphoreGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkSemaphoreGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkImportFenceWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkImportFenceWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkFenceGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkFenceGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkImportFenceFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkImportFenceFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkFenceGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkFenceGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkPhysicalDeviceSurfaceInfo2KHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkPhysicalDeviceSurfaceInfo2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkDisplayPlaneInfo2KHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkDisplayPlaneInfo2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkPipelineInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkPipelineInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkPipelineExecutableInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkPipelineExecutableInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkMemoryMapInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkMemoryMapInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkMemoryUnmapInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkMemoryUnmapInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkDebugMarkerObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkDebugMarkerObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkDebugMarkerObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkDebugMarkerObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkDedicatedAllocationMemoryAllocateInfoNV* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkDedicatedAllocationMemoryAllocateInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkImageViewHandleInfoNVX* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkImageViewHandleInfoNVX* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkWin32KeyedMutexAcquireReleaseInfoNV* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkWin32KeyedMutexAcquireReleaseInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-inline void UnwrapStructHandles(VkConditionalRenderingBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory) {};
+inline void UnwrapStructHandles(VkConditionalRenderingBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
-// INLINE DEFINITIONS ABOVE ^^^^^^^^********************************************************************
-//******************************************************************************************************
+inline void UnwrapStructHandles(VkDebugUtilsObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkDebugUtilsObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkMemoryGetAndroidHardwareBufferInfoANDROID* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkShaderModuleValidationCacheCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+
+inline void UnwrapStructHandles(VkGeometryTrianglesNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkGeometryAABBNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkBindAccelerationStructureMemoryInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkAccelerationStructureMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkSwapchainPresentFenceInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkReleaseSwapchainImagesInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkIndirectCommandsStreamNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkIndirectCommandsLayoutTokenNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkGeneratedCommandsMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkMemoryGetZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkImportSemaphoreZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkSemaphoreGetZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkMemoryGetRemoteAddressInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkMicromapBuildInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkMicromapCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkCopyMicromapToMemoryInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkCopyMemoryToMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkCopyMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkAccelerationStructureTrianglesOpacityMicromapEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkAccelerationStructureTrianglesDisplacementMicromapNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkDescriptorSetBindingReferenceVALVE* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkShaderCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkAccelerationStructureCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkAccelerationStructureDeviceAddressInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkCopyAccelerationStructureToMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkCopyMemoryToAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
+
+inline void UnwrapStructHandles(VkCopyAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(value);
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+};
 
 void UnwrapStructHandles(VkDeviceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -423,23 +765,7 @@ void UnwrapStructHandles(VkDisplayModeProperties2KHR* value, HandleUnwrapMemory*
 
 void UnwrapStructHandles(VkVideoEncodeInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-//*********************************************************
-// Resume here ********************************************
-// vvvvvvvvvvv ********************************************
-
-void UnwrapStructHandles(VkDebugUtilsObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDebugUtilsObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkMemoryGetAndroidHardwareBufferInfoANDROID* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkShaderModuleValidationCacheCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkRayTracingPipelineCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkGeometryTrianglesNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkGeometryAABBNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkGeometryDataNV* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -449,71 +775,15 @@ void UnwrapStructHandles(VkAccelerationStructureInfoNV* value, HandleUnwrapMemor
 
 void UnwrapStructHandles(VkAccelerationStructureCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkBindAccelerationStructureMemoryInfoNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkAccelerationStructureMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkSwapchainPresentFenceInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkReleaseSwapchainImagesInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkGraphicsShaderGroupCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkGraphicsPipelineShaderGroupsCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkIndirectCommandsStreamNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkIndirectCommandsLayoutTokenNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkGeneratedCommandsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkGeneratedCommandsMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkMemoryGetZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkImportSemaphoreZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkSemaphoreGetZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkMemoryGetRemoteAddressInfoNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkMicromapBuildInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkMicromapCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyMicromapToMemoryInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyMemoryToMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkAccelerationStructureTrianglesOpacityMicromapEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkAccelerationStructureTrianglesDisplacementMicromapNV* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDescriptorSetBindingReferenceVALVE* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkShaderCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkAccelerationStructureCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkAccelerationStructureDeviceAddressInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyAccelerationStructureToMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyMemoryToAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCopyAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkRayTracingPipelineCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
