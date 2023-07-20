@@ -120,6 +120,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define FORCE_COMMAND_SERIALIZATION_UPPER                    "FORCE_COMMAND_SERIALIZATION"
 #define QUEUE_ZERO_ONLY_LOWER                                "queue_zero_only"
 #define QUEUE_ZERO_ONLY_UPPER                                "QUEUE_ZERO_ONLY"
+#define ALLOW_PIPELINE_COMPILE_REQUIRED_LOWER                "allow_pipeline_compile_required"
+#define ALLOW_PIPELINE_COMPILE_REQUIRED_UPPER                "ALLOW_PIPELINE_COMPILE_REQUIRED"
 #define RV_ANNOTATION_EXPERIMENTAL_LOWER                     "rv_annotation_experimental"
 #define RV_ANNOTATION_EXPERIMENTAL_UPPER                     "RV_ANNOTATION_EXPERIMENTAL"
 #define RV_ANNOTATION_RAND_LOWER                             "rv_annotation_rand"
@@ -174,6 +176,7 @@ const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_LOWER;
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_LOWER;
 const char kQueueZeroOnlyEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX QUEUE_ZERO_ONLY_LOWER;
+const char kAllowPipelineCompileRequiredEnvVar[]             = GFXRECON_ENV_VAR_PREFIX ALLOW_PIPELINE_COMPILE_REQUIRED_LOWER;
 const char kAnnotationExperimentalEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_EXPERIMENTAL_LOWER;
 const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_RAND_LOWER;
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_LOWER;
@@ -223,6 +226,7 @@ const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_UPPER;
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_UPPER;
 const char kQueueZeroOnlyEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX QUEUE_ZERO_ONLY_UPPER;
+const char kAllowPipelineCompileRequiredEnvVar[]             = GFXRECON_ENV_VAR_PREFIX ALLOW_PIPELINE_COMPILE_REQUIRED_UPPER;
 const char kAnnotationExperimentalEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_EXPERIMENTAL_UPPER;
 const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_RAND_UPPER;
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_UPPER;
@@ -271,6 +275,7 @@ const std::string kOptionDisableDxr                                  = std::stri
 const std::string kOptionAccelStructPadding                          = std::string(kSettingsFilter) + std::string(ACCEL_STRUCT_PADDING_LOWER);
 const std::string kOptionForceCommandSerialization                   = std::string(kSettingsFilter) + std::string(FORCE_COMMAND_SERIALIZATION_LOWER);
 const std::string kOptionQueueZeroOnly                               = std::string(kSettingsFilter) + std::string(QUEUE_ZERO_ONLY_LOWER);
+const std::string kOptionAllowPipelineCompileRequired                = std::string(kSettingsFilter) + std::string(ALLOW_PIPELINE_COMPILE_REQUIRED_LOWER);
 const std::string kOptionKeyAnnotationExperimental                   = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_EXPERIMENTAL_LOWER);
 const std::string kOptionKeyAnnotationRand                           = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_RAND_LOWER);
 const std::string kOptionKeyAnnotationGPUVA                          = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_GPUVA_LOWER);
@@ -417,6 +422,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     LoadSingleOptionEnvVar(options, kForceCommandSerializationEnvVar, kOptionForceCommandSerialization);
     LoadSingleOptionEnvVar(options, kQueueZeroOnlyEnvVar, kOptionQueueZeroOnly);
+    LoadSingleOptionEnvVar(options, kAllowPipelineCompileRequiredEnvVar, kOptionAllowPipelineCompileRequired);
 
     // Annotated GPUVA mask
     LoadSingleOptionEnvVar(options, kAnnotationExperimentalEnvVar, kOptionKeyAnnotationExperimental);
@@ -540,8 +546,13 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
 
     settings->trace_settings_.force_command_serialization = ParseBoolString(
         FindOption(options, kOptionForceCommandSerialization), settings->trace_settings_.force_command_serialization);
+
     settings->trace_settings_.queue_zero_only =
         ParseBoolString(FindOption(options, kOptionQueueZeroOnly), settings->trace_settings_.queue_zero_only);
+
+    settings->trace_settings_.allow_pipeline_compile_required =
+        ParseBoolString(FindOption(options, kOptionAllowPipelineCompileRequired),
+                        settings->trace_settings_.allow_pipeline_compile_required);
 
     settings->trace_settings_.rv_anotation_info.rv_annotation =
         ParseBoolString(FindOption(options, kOptionKeyAnnotationExperimental),

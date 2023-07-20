@@ -25,6 +25,7 @@
 #define GFXRECON_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
 
 #include "util/defines.h"
+#include "format/format.h"
 
 #include "vulkan/vulkan.h"
 
@@ -57,6 +58,37 @@ BuildAccelerationStructuresKHR(VkDevice                                         
 VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice                                  device,
                                                             VkDeferredOperationKHR                    deferredOperation,
                                                             const VkCopyAccelerationStructureInfoKHR* pInfo);
+
+VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR();
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,
+                                                       VkPipelineCache                     pipelineCache,
+                                                       uint32_t                            createInfoCount,
+                                                       const VkGraphicsPipelineCreateInfo* pCreateInfos,
+                                                       const VkAllocationCallbacks*        pAllocator,
+                                                       VkPipeline*                         pPipelines);
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                           device,
+                                                      VkPipelineCache                    pipelineCache,
+                                                      uint32_t                           createInfoCount,
+                                                      const VkComputePipelineCreateInfo* pCreateInfos,
+                                                      const VkAllocationCallbacks*       pAllocator,
+                                                      VkPipeline*                        pPipelines);
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice                                device,
+                                                           VkPipelineCache                         pipelineCache,
+                                                           uint32_t                                createInfoCount,
+                                                           const VkRayTracingPipelineCreateInfoNV* pCreateInfos,
+                                                           const VkAllocationCallbacks*            pAllocator,
+                                                           VkPipeline*                             pPipelines);
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice                                 device,
+                                                            VkDeferredOperationKHR                   deferredOperation,
+                                                            VkPipelineCache                          pipelineCache,
+                                                            uint32_t                                 createInfoCount,
+                                                            const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
+                                                            const VkAllocationCallbacks*             pAllocator,
+                                                            VkPipeline*                              pPipelines);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

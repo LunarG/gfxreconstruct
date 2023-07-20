@@ -75,7 +75,8 @@ _remove_extensions = [
     # @todo <https://github.com/LunarG/gfxreconstruct/issues/917>
     "VK_EXT_descriptor_buffer",
     "VK_NV_copy_memory_indirect",
-    "VK_NV_memory_decompression"
+    "VK_NV_memory_decompression",
+    "VK_QNX_external_memory_screen_buffer"
 ]
 
 _supported_subsets = [
@@ -265,6 +266,8 @@ class BaseGenerator(OutputGenerator):
 
     # These API calls should not be processed by the code generator.  They require special implementations.
     APICALL_BLACKLIST = []
+
+    APICALL_ENCODER_BLACKLIST = []
 
     APICALL_DECODER_BLACKLIST = []
 
@@ -845,6 +848,8 @@ class BaseGenerator(OutputGenerator):
         if name in self.APICALL_BLACKLIST:
             return True
         if 'Decoder' in self.__class__.__name__ and name in self.APICALL_DECODER_BLACKLIST:
+            return True
+        if 'Encoder' in self.__class__.__name__ and name in self.APICALL_ENCODER_BLACKLIST:
             return True
         return False
 
@@ -1445,7 +1450,8 @@ class BaseGenerator(OutputGenerator):
 
     def __load_blacklists(self, filename):
         lists = json.loads(open(filename, 'r').read())
-        self.APICALL_BLACKLIST += lists['functions']
+        self.APICALL_BLACKLIST += lists['functions-all']
+        self.APICALL_ENCODER_BLACKLIST += lists['functions-encoder']
         self.APICALL_DECODER_BLACKLIST += lists['functions-decoder']
         self.STRUCT_BLACKLIST += lists['structures']
         if 'classmethods' in lists:

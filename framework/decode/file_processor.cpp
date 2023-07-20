@@ -36,10 +36,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// TODO GH #1195: frame numbering should be 1-based.
+const uint32_t kFirstFrame = 0;
+
 FileProcessor::FileProcessor() :
-    file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
+    file_header_{}, file_descriptor_(nullptr), current_frame_number_(kFirstFrame), bytes_read_(0),
     error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0),
-    api_call_index_(0), block_limit_(0)
+    api_call_index_(0), block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -315,6 +318,41 @@ bool FileProcessor::ProcessBlocks()
                     else
                     {
                         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read meta-data block header");
+                    }
+                }
+                else if (block_header.type == format::BlockType::kFrameMarkerBlock)
+                {
+                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
+                    uint64_t           frame_number = 0;
+
+                    success = ReadBytes(&marker_type, sizeof(marker_type));
+
+                    if (success)
+                    {
+                        success = ProcessFrameMarker(block_header, marker_type);
+
+                        // Break from loop on frame delimiter.
+                        if (IsFrameDelimiter(block_header.type, marker_type))
+                        {
+                            // If the capture file contains frame markers, it will have a frame marker for every
+                            // frame-ending API call such as vkQueuePresentKHR. If this is the first frame marker
+                            // encountered, reset the frame count and ignore frame-ending API calls in
+                            // IsFrameDelimiter(format::ApiCallId call_id).
+                            if (!capture_uses_frame_markers_)
+                            {
+                                capture_uses_frame_markers_ = true;
+                                current_frame_number_       = kFirstFrame;
+                            }
+
+                            // Make sure to increment the frame number on the way out.
+                            ++current_frame_number_;
+                            ++block_index_;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read frame marker header");
                     }
                 }
                 else if (block_header.type == format::BlockType::kStateMarkerBlock)
@@ -1721,6 +1759,39 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     return success;
 }
 
+bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
+{
+    // Read the rest of the frame marker data. Currently frame markers are not dispatched to decoders.
+    uint64_t frame_number = 0;
+    bool     success      = ReadBytes(&frame_number, sizeof(frame_number));
+
+    if (success)
+    {
+        // Validate frame end marker's frame number matches current_frame_number_ when capture_uses_frame_markers_ is
+        // true.
+        GFXRECON_ASSERT((marker_type != format::kEndMarker) || (!capture_uses_frame_markers_) ||
+                        (current_frame_number_ == (frame_number - first_frame_)));
+
+        for (auto decoder : decoders_)
+        {
+            if (marker_type == format::kEndMarker)
+            {
+                decoder->DispatchFrameEndMarker(frame_number);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Skipping unrecognized frame marker with type %u", marker_type);
+            }
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockData, "Failed to read frame marker data");
+    }
+
+    return success;
+}
+
 bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
 {
     uint64_t frame_number = 0;
@@ -1735,6 +1806,7 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
         else if (marker_type == format::kEndMarker)
         {
             GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number);
+            first_frame_ = frame_number;
         }
 
         for (auto decoder : decoders_)
@@ -1812,13 +1884,25 @@ bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, f
     return success;
 }
 
+bool FileProcessor::IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const
+{
+    return ((block_type == format::BlockType::kFrameMarkerBlock) && (marker_type == format::MarkerType::kEndMarker));
+}
+
 bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
 {
-    // TODO: IDs of API calls that were treated as frame delimiters by the GFXReconstruct layer should be in the capture
-    // file header.
-    return ((call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ||
-            (call_id == format::ApiCallId::ApiCall_IDXGISwapChain_Present) ||
-            (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1));
+    if (capture_uses_frame_markers_)
+    {
+        return false;
+    }
+    else
+    {
+        // This code is deprecated and no new API calls should be added. Instead, end of frame markers are used to track
+        // the file processor's frame count.
+        return ((call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ||
+                (call_id == format::ApiCallId::ApiCall_IDXGISwapChain_Present) ||
+                (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1));
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

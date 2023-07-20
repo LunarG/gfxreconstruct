@@ -693,6 +693,33 @@ python scripts/gfxrecon.py install-apk tools/replay/build/outputs/apk/debug/repl
 popd
 ```
 
+#### Additional Permissions
+
+A recent change to enable the replay tool on Android 12 and greater has resulted
+in the need of enabling additional permissions on some versions of Android.
+This was the result of updating the replay's Android Manifest file to add the
+`MANAGE_EXTERNAL_STORAGE` permission flag.
+
+##### Android 10
+
+For replay devices running Android 10, the replay tool now requires the enabling
+of legacy storage access:
+
+```bash
+adb shell appops set com.lunarg.gfxreconstruct.replay android:legacy_storage allow
+```
+
+##### Android 11 and Newer
+
+For replay devices running Android 11 and newer, the replay tool requires that
+the Android permission for `MANAGE_EXTERNAL_STORAGE` be granted either through
+the following `adb` command or by clicking on the permission dialog when it
+opens up:
+
+```bash
+adb shell appops set com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STORAGE allow
+```
+
 ### Replay Command
 
 The `gfxrecon.py replay` command has the following usage:
@@ -715,6 +742,12 @@ optional arguments:
   -h, --help            show this help message and exit
   --version             Print version information and exit (forwarded to
                         replay tool)
+  --log-level LEVEL     Specify highest level message to log. Options are:
+                        debug, info, warning, error, and fatal. Default is
+                        info. (forwarded to replay tool)
+  --log-file DEVICE_FILE
+                        Write log messages to a file at the specified path
+                        instead of logcat (forwarded to replay tool)
   --pause-frame N       Pause after replaying frame number N (forwarded to
                         replay tool)
   --paused              Pause after replaying the first frame (same as "--

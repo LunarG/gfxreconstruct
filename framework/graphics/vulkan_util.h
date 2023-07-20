@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -60,6 +60,8 @@ static T* GetPNextStruct(const Parent_T* parent, VkStructureType struct_type)
     }
     return nullptr;
 }
+
+static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

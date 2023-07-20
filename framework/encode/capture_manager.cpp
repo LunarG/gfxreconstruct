@@ -55,11 +55,13 @@ uint32_t                                                 CaptureManager::instanc
 std::mutex                                               CaptureManager::instance_lock_;
 thread_local std::unique_ptr<CaptureManager::ThreadData> CaptureManager::thread_data_;
 CaptureManager::ApiCallMutexT                            CaptureManager::api_call_mutex_;
+std::atomic<uint64_t>                                    CaptureManager::block_index_ = 0;
 
 std::atomic<format::HandleId> CaptureManager::unique_id_counter_{ format::kNullHandleId };
 
 CaptureManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown)
+    thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown),
+    block_index_(0)
 {
     parameter_buffer_  = std::make_unique<encode::ParameterBuffer>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
@@ -93,9 +95,9 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false), trim_current_range_(0),
     current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), global_frame_count_(0),
-    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false),
-    queue_zero_only_(false)
+    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
+    accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
+    allow_pipeline_compile_required_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -235,22 +237,23 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
 {
     bool success = true;
 
-    base_filename_               = base_filename;
-    file_options_                = trace_settings.capture_file_options;
-    timestamp_filename_          = trace_settings.time_stamp_file;
-    memory_tracking_mode_        = trace_settings.memory_tracking_mode;
-    force_file_flush_            = trace_settings.force_flush;
-    debug_layer_                 = trace_settings.debug_layer;
-    debug_device_lost_           = trace_settings.debug_device_lost;
-    screenshots_enabled_         = !trace_settings.screenshot_ranges.empty();
-    screenshot_format_           = trace_settings.screenshot_format;
-    screenshot_indices_          = CalcScreenshotIndices(trace_settings.screenshot_ranges);
-    screenshot_prefix_           = PrepScreenshotPrefix(trace_settings.screenshot_dir);
-    disable_dxr_                 = trace_settings.disable_dxr;
-    accel_struct_padding_        = trace_settings.accel_struct_padding;
-    iunknown_wrapping_           = trace_settings.iunknown_wrapping;
-    force_command_serialization_ = trace_settings.force_command_serialization;
-    queue_zero_only_             = trace_settings.queue_zero_only;
+    base_filename_                   = base_filename;
+    file_options_                    = trace_settings.capture_file_options;
+    timestamp_filename_              = trace_settings.time_stamp_file;
+    memory_tracking_mode_            = trace_settings.memory_tracking_mode;
+    force_file_flush_                = trace_settings.force_flush;
+    debug_layer_                     = trace_settings.debug_layer;
+    debug_device_lost_               = trace_settings.debug_device_lost;
+    screenshots_enabled_             = !trace_settings.screenshot_ranges.empty();
+    screenshot_format_               = trace_settings.screenshot_format;
+    screenshot_indices_              = CalcScreenshotIndices(trace_settings.screenshot_ranges);
+    screenshot_prefix_               = PrepScreenshotPrefix(trace_settings.screenshot_dir);
+    disable_dxr_                     = trace_settings.disable_dxr;
+    accel_struct_padding_            = trace_settings.accel_struct_padding;
+    iunknown_wrapping_               = trace_settings.iunknown_wrapping;
+    force_command_serialization_     = trace_settings.force_command_serialization;
+    queue_zero_only_                 = trace_settings.queue_zero_only;
+    allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -479,6 +482,9 @@ void CaptureManager::EndApiCallCapture()
             WriteToFile(parameter_buffer->GetHeaderData(),
                         parameter_buffer->GetHeaderDataSize() + parameter_buffer->GetDataSize());
         }
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -683,7 +689,7 @@ bool CaptureManager::ShouldTriggerScreenshot()
         uint32_t target_frame = screenshot_indices_.back();
 
         // If this is a frame of interest, take a screenshot
-        if (target_frame == (global_frame_count_ + 1))
+        if (target_frame == current_frame_)
         {
             triger_screenshot = true;
 
@@ -701,12 +707,29 @@ bool CaptureManager::ShouldTriggerScreenshot()
     return triger_screenshot;
 }
 
+void CaptureManager::WriteFrameMarker(format::MarkerType marker_type)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        format::Marker marker_cmd;
+        uint64_t       header_size = sizeof(format::Marker);
+        marker_cmd.header.size     = sizeof(marker_cmd.marker_type) + sizeof(marker_cmd.frame_number);
+        marker_cmd.header.type     = format::BlockType::kFrameMarkerBlock;
+        marker_cmd.marker_type     = marker_type;
+        marker_cmd.frame_number    = current_frame_;
+        WriteToFile(&marker_cmd, sizeof(marker_cmd));
+    }
+}
+
 void CaptureManager::EndFrame()
 {
+    // Write an end-of-frame marker to the capture file.
+    WriteFrameMarker(format::MarkerType::kEndMarker);
+
+    ++current_frame_;
+
     if (trim_enabled_)
     {
-        ++current_frame_;
-
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
             // Currently capturing a frame range.
@@ -720,8 +743,6 @@ void CaptureManager::EndFrame()
             CheckStartCaptureForTrackMode();
         }
     }
-
-    global_frame_count_++;
 
     // Flush after presents to help avoid capture files with incomplete final blocks.
     if (file_stream_.get() != nullptr)
@@ -844,6 +865,7 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
+        auto                                thread_data    = GetThreadData();
         size_t                              message_length = util::platform::StringLength(message);
         format::DisplayMessageCommandHeader message_cmd;
 
@@ -851,14 +873,18 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
         message_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(message_cmd) + message_length;
         message_cmd.meta_header.meta_data_id =
             format::MakeMetaDataId(api_family_, format::MetaDataType::kDisplayMessageCommand);
-        message_cmd.thread_id = GetThreadData()->thread_id_;
+        message_cmd.thread_id = thread_data->thread_id_;
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
 void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info)
 {
+    auto                     thread_data     = GetThreadData();
     size_t                   info_length     = sizeof(format::ExeFileInfoBlock);
     format::ExeFileInfoBlock exe_info_header = {};
     exe_info_header.info_record              = info;
@@ -867,15 +893,19 @@ void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& 
     exe_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(exe_info_header);
     exe_info_header.meta_header.meta_data_id =
         format::MakeMetaDataId(api_family_, format::MetaDataType::kExeFileInfoCommand);
-    exe_info_header.thread_id = GetThreadData()->thread_id_;
+    exe_info_header.thread_id = thread_data->thread_id_;
 
     WriteToFile(&exe_info_header, sizeof(exe_info_header));
+
+    ++block_index_;
+    thread_data->block_index_ = block_index_.load();
 }
 
 void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
+        auto       thread_data  = GetThreadData();
         const auto label_length = util::platform::StringLength(label);
         const auto data_length  = util::platform::StringLength(data);
 
@@ -888,6 +918,9 @@ void CaptureManager::WriteAnnotation(const format::AnnotationType type, const ch
         annotation.data_length  = data_length;
 
         CombineAndWriteToFile({ { &annotation, sizeof(annotation) }, { label, label_length }, { data, data_length } });
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -895,18 +928,22 @@ void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t 
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
+        auto                        thread_data = GetThreadData();
         format::ResizeWindowCommand resize_cmd;
         resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         resize_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd);
         resize_cmd.meta_header.meta_data_id =
             format::MakeMetaDataId(api_family_, format::MetaDataType::kResizeWindowCommand);
-        resize_cmd.thread_id = GetThreadData()->thread_id_;
+        resize_cmd.thread_id = thread_data->thread_id_;
 
         resize_cmd.surface_id = surface_id;
         resize_cmd.width      = width;
         resize_cmd.height     = height;
 
         WriteToFile(&resize_cmd, sizeof(resize_cmd));
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -964,6 +1001,9 @@ void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id, uint64_t off
 
             CombineAndWriteToFile({ { &fill_cmd, header_size }, { uncompressed_data, uncompressed_size } });
         }
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -985,6 +1025,9 @@ void CaptureManager::WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64
         allocation_cmd.allocation_size = allocation_size;
 
         WriteToFile(&allocation_cmd, sizeof(allocation_cmd));
+
+        ++block_index_;
+        thread_data->block_index_ = block_index_.load();
     }
 }
 

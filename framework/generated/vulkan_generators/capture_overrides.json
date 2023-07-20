@@ -7,7 +7,6 @@
     "vkAllocateMemory": "VulkanCaptureManager::Get()->OverrideAllocateMemory",
     "vkGetPhysicalDeviceToolPropertiesEXT": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceToolPropertiesEXT",
     "vkCreateAccelerationStructureKHR": "VulkanCaptureManager::Get()->OverrideCreateAccelerationStructureKHR",
-    "vkCreateRayTracingPipelinesKHR": "VulkanCaptureManager::Get()->OverrideCreateRayTracingPipelinesKHR",
     "vkGetPhysicalDeviceQueueFamilyProperties": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceQueueFamilyProperties",
     "vkGetPhysicalDeviceQueueFamilyProperties2": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceQueueFamilyProperties2",
     "vkGetPhysicalDeviceQueueFamilyProperties2KHR": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceQueueFamilyProperties2KHR"

@@ -683,6 +683,10 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetShaderBinaryDataEXT                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x12c9),
     ApiCall_vkCmdBindShadersEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12ca),
     ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12cb),
+    ApiCall_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR                               = MakeApiCallId(ApiFamily_Vulkan, 0x12cc),
+    ApiCall_vkGetEncodedVideoSessionParametersKHR                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12cd),
+    ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12ce),
+    ApiCall_vkCmdSetDepthBias2EXT                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12cf),
 
     ApiCall_VulkanLast,
 

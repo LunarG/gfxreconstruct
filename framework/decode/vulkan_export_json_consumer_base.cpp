@@ -149,6 +149,11 @@ void VulkanExportJsonConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     WriteStateMarkerToFile("EndMarker", frame_number);
 }
 
+void VulkanExportJsonConsumerBase::ProcessFrameEndMarker(uint64_t frame_number)
+{
+    WriteFrameMarkerToFile("EndMarker", frame_number);
+}
+
 void VulkanExportJsonConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
 {
     WriteMetaCommandToFile("DisplayMessageCommand",

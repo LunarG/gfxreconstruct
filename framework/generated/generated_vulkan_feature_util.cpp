@@ -1319,6 +1319,24 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceCooperativeMatrixFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(next);
+                VkPhysicalDeviceCooperativeMatrixFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->cooperativeMatrix == VK_TRUE) && (query.cooperativeMatrix == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrix, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(currentNext)->cooperativeMatrix = VK_FALSE;
+                }
+                if ((currentNext->cooperativeMatrixRobustBufferAccess == VK_TRUE) && (query.cooperativeMatrixRobustBufferAccess == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixRobustBufferAccess, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(currentNext)->cooperativeMatrixRobustBufferAccess = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:
             {
                 const VkPhysicalDeviceTransformFeedbackFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceTransformFeedbackFeaturesEXT*>(next);
@@ -1994,6 +2012,34 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature texelBufferAlignment, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT*>(currentNext)->texelBufferAlignment = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_BIAS_CONTROL_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceDepthBiasControlFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(next);
+                VkPhysicalDeviceDepthBiasControlFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_BIAS_CONTROL_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->depthBiasControl == VK_TRUE) && (query.depthBiasControl == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature depthBiasControl, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(currentNext)->depthBiasControl = VK_FALSE;
+                }
+                if ((currentNext->leastRepresentableValueForceUnormRepresentation == VK_TRUE) && (query.leastRepresentableValueForceUnormRepresentation == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature leastRepresentableValueForceUnormRepresentation, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(currentNext)->leastRepresentableValueForceUnormRepresentation = VK_FALSE;
+                }
+                if ((currentNext->floatRepresentation == VK_TRUE) && (query.floatRepresentation == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature floatRepresentation, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(currentNext)->floatRepresentation = VK_FALSE;
+                }
+                if ((currentNext->depthBiasExact == VK_TRUE) && (query.depthBiasExact == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature depthBiasExact, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(currentNext)->depthBiasExact = VK_FALSE;
                 }
                 break;
              }
@@ -3018,6 +3064,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature pipelineLibraryGroupHandles, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(currentNext)->pipelineLibraryGroupHandles = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(next);
+                VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->dynamicRenderingUnusedAttachments == VK_TRUE) && (query.dynamicRenderingUnusedAttachments == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dynamicRenderingUnusedAttachments, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(currentNext)->dynamicRenderingUnusedAttachments = VK_FALSE;
                 }
                 break;
              }

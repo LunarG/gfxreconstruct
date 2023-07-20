@@ -109,6 +109,7 @@ class CaptureSettings
         uint32_t                      accel_struct_padding{ 0 };
         bool                          force_command_serialization{ false };
         bool                          queue_zero_only{ false };
+        bool                          allow_pipeline_compile_required{ false };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a

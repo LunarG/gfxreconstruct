@@ -89,11 +89,14 @@ enum PhysicalDeviceArrayIndices : uint32_t
 
 enum DeviceArrayIndices : uint32_t
 {
-    kDeviceArrayGetImageSparseMemoryRequirements2               = 0,
-    kDeviceArrayGetPipelineExecutablePropertiesKHR              = 1,
-    kDeviceArrayGetPipelineExecutableStatisticsKHR              = 2,
-    kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR = 3,
-    kDeviceArrayGetDeviceImageSparseMemoryRequirements          = 4,
+    kDeviceArrayGetImageSparseMemoryRequirements2                       = 0,
+    kDeviceArrayGetPipelineExecutablePropertiesKHR                      = 1,
+    kDeviceArrayGetPipelineExecutableStatisticsKHR                      = 2,
+    kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR         = 3,
+    kDeviceArrayGetDeviceImageSparseMemoryRequirements                  = 4,
+    kDeviceArrayGetEncodedVideoSessionParametersKHR                     = 5,
+    kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesKHR = 6,
+
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,
     kDeviceArrayGetDeviceImageSparseMemoryRequirementsKHR = kDeviceArrayGetDeviceImageSparseMemoryRequirements
@@ -183,7 +186,6 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanPoolObjectInfo<VkCommandBuffer>             CommandBufferInfo;
 typedef VulkanObjectInfo<VkEvent>                         EventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
 typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
@@ -453,6 +455,11 @@ struct VideoSessionKHRInfo : VulkanObjectInfo<VkVideoSessionKHR>
 struct ShaderEXTInfo : VulkanObjectInfo<VkShaderEXT>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct CommandBufferInfo : VulkanPoolObjectInfo<VkCommandBuffer>
+{
+    bool is_frame_boundary{ false };
 };
 
 //

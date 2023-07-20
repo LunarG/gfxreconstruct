@@ -5236,6 +5236,42 @@ void VulkanExportJsonConsumer::Process_vkUnmapMemory2KHR(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR>* pQualityLevelInfo,
+    StructPointerDecoder<Decoded_VkVideoEncodeQualityLevelPropertiesKHR>* pQualityLevelProperties)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR");
+    FieldToJson(jdata[NameReturn()], returnValue, json_options_);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["physicalDevice"], physicalDevice, json_options_);
+        FieldToJson(args["pQualityLevelInfo"], pQualityLevelInfo, json_options_);
+        FieldToJson(args["pQualityLevelProperties"], pQualityLevelProperties, json_options_);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetEncodedVideoSessionParametersKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkVideoEncodeSessionParametersGetInfoKHR>* pVideoSessionParametersInfo,
+    StructPointerDecoder<Decoded_VkVideoEncodeSessionParametersFeedbackInfoKHR>* pFeedbackInfo,
+    PointerDecoder<size_t>*                     pDataSize,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetEncodedVideoSessionParametersKHR");
+    FieldToJson(jdata[NameReturn()], returnValue, json_options_);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options_);
+        FieldToJson(args["pVideoSessionParametersInfo"], pVideoSessionParametersInfo, json_options_);
+        FieldToJson(args["pFeedbackInfo"], pFeedbackInfo, json_options_);
+        FieldToJson(args["pDataSize"], pDataSize, json_options_);
+        FieldToJson(args["pData"], pData, json_options_);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -5510,6 +5546,22 @@ void VulkanExportJsonConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsK
         FieldToJson(args["pInfo"], pInfo, json_options_);
         FieldToJson(args["pSparseMemoryRequirementCount"], pSparseMemoryRequirementCount, json_options_);
         FieldToJson(args["pSparseMemoryRequirements"], pSparseMemoryRequirements, json_options_);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    PointerDecoder<uint32_t>*                   pPropertyCount,
+    StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR");
+    FieldToJson(jdata[NameReturn()], returnValue, json_options_);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["physicalDevice"], physicalDevice, json_options_);
+        FieldToJson(args["pPropertyCount"], pPropertyCount, json_options_);
+        FieldToJson(args["pProperties"], pProperties, json_options_);
     WriteBlockEnd();
 }
 
@@ -7667,6 +7719,19 @@ void VulkanExportJsonConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkCmdSetDepthBias2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDepthBiasInfoEXT>* pDepthBiasInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdSetDepthBias2EXT");
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options_);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options_);
+        FieldToJson(args["pDepthBiasInfo"], pDepthBiasInfo, json_options_);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkAcquireDrmDisplayEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -9104,7 +9169,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     VkImageAspectFlags                          aspectMask)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdSetAttachmentFeedbackLoopEnableEXT");
-    FieldToJson(jdata["rec_command_index"], GetCommandBufferRecordIndex(commandBuffer), json_options_);
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options_);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options_);
         FieldToJson(VkImageAspectFlags_t(), args["aspectMask"], aspectMask, json_options_);
