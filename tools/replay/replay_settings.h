@@ -35,7 +35,8 @@ const char kOptions[] =
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
-    "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range,--fw|--force-windowed";
+    "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range,--fw|--force-windowed,"
+    "--use-cached-psos";
 
 static void PrintUsage(const char* exe_name)
 {

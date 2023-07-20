@@ -183,7 +183,7 @@ Usage:
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
-                        [--dcp | --discard-cached-psos] [--surface-index <N>]
+                        [--use-cached-psos <boolean>] [--surface-index <N>]
                         [--remove-unsupported] [--validate]
                         [--onhb | --omit-null-hardware-buffers]
                         [-m <mode> | --memory-translation <mode>]
@@ -285,16 +285,16 @@ Vulkan-only:
                                         and suballocations.
 
 D3D12-only:
-  --dcp                 Force CachedPSO to null when creating graphics or compute PSOs.
-                        Can help enable replay across changing driver installs.
-                        (Same as --discard-cached-psos)
-  --debug-device-lost   Enables automatic injection of breadcrumbs into command buffers
-                        and page fault reporting.
-                        Used to debug Direct3D 12 device removed problems.
-  --fw <width,height>   Setup windowed and override resolution.
-                        (Same as --force-windowed)
-  --create-dummy-allocations Enables creation of dummy heaps and resources
-                             for replay validation.
+  --use-cached-psos <boolean>  Force CachedPSO to null when creating graphics or compute PSOs.
+                               Can help enable replay across changing driver installs.
+                               Default: enabled
+  --debug-device-lost          Enables automatic injection of breadcrumbs into command buffers
+                               and page fault reporting.
+                               Used to debug Direct3D 12 device removed problems.
+  --fw <width,height>          Setup windowed and override resolution.
+                               (Same as --force-windowed)
+  --create-dummy-allocations   Enables creation of dummy heaps and resources
+                               for replay validation.
   --dx12-override-object-names Generates unique names for all ID3D12Objects and
                                assigns each object the generated name.
                                This is intended to assist replay debugging.
