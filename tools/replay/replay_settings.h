@@ -201,9 +201,9 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12-only:")
-    GFXRECON_WRITE_CONSOLE("  --dcp\t\t\tForce CachedPSO to null when creating graphics or compute PSOs.");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tCan help enable replay across changing driver installs.");
-    GFXRECON_WRITE_CONSOLE("       \t\t\t(Same as --discard-cached-psos)");
+    GFXRECON_WRITE_CONSOLE(
+        "  --use-cached-psos <boolean> Force CachedPSO to null when creating graphics or compute PSOs.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tCan help enable replay across changing driver installs. Default true.");
     GFXRECON_WRITE_CONSOLE("  --debug-device-lost\tEnables automatic injection of breadcrumbs into command buffers");
     GFXRECON_WRITE_CONSOLE("            \t\tand page fault reporting.");
     GFXRECON_WRITE_CONSOLE("            \t\tUsed to debug Direct3D 12 device removed problems.");
