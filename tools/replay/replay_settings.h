@@ -29,9 +29,9 @@
 const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
-    "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
-    "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos,"
-    "--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names";
+    "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-range,--fmr|--flush-"
+    "measurement-range,--flush-inside-measurement-range,--use-captured-swapchain-indices,--dcp,--"
+    "discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -223,6 +223,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will flush")
     GFXRECON_WRITE_CONSOLE("          \t\tand wait for all current GPU work to finish at the");
     GFXRECON_WRITE_CONSOLE("          \t\tstart and end of the measurement range.");
+    GFXRECON_WRITE_CONSOLE("  --flush-inside-measurement-range");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will flush")
+    GFXRECON_WRITE_CONSOLE("          \t\tand wait for all current GPU work to finish at the");
+    GFXRECON_WRITE_CONSOLE("          \t\tend of each frame inside the measurement range.");
     GFXRECON_WRITE_CONSOLE("  --gpu-group <index>\tUse the specified device group for replay, where index");
     GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical device group");
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDeviceGroups.  Replay may fail");

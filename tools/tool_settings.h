@@ -103,6 +103,7 @@ const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kMeasurementFileArgument[]            = "--measurement-file";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
+const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
@@ -808,6 +809,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     if (arg_parser.IsOptionSet(kFlushMeasurementRangeOption))
     {
         options.flush_measurement_frame_range = true;
+    }
+
+    if (arg_parser.IsOptionSet(kFlushInsideMeasurementRangeOption))
+    {
+        options.flush_inside_measurement_range = true;
     }
 
     const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
