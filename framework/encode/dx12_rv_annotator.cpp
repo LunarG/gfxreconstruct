@@ -35,42 +35,29 @@ void Dx12ResourceValueAnnotator::RemoveObjectGPUVA(IUnknown_Wrapper* wrapper)
     if (IsEqualGUID(riid, __uuidof(ID3D12Resource)) || IsEqualGUID(riid, __uuidof(ID3D12Resource1)) ||
         IsEqualGUID(riid, __uuidof(ID3D12Resource2)))
     {
-        RemoveGPUVA(reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper)->GetObjectInfo()->gpu_va);
+        RemoveGPUVA(wrapper->GetCaptureId(),
+                    reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper)->GetObjectInfo()->gpu_va);
     }
     else if (IsEqualGUID(riid, __uuidof(ID3D12Heap)) || IsEqualGUID(riid, __uuidof(ID3D12Heap1)))
     {
-        RemoveGPUVA(reinterpret_cast<ID3D12Heap_Wrapper*>(wrapper)->GetObjectInfo()->gpu_va);
+        RemoveGPUVA(wrapper->GetCaptureId(), reinterpret_cast<ID3D12Heap_Wrapper*>(wrapper)->GetObjectInfo()->gpu_va);
     }
 }
 
-void Dx12ResourceValueAnnotator::AddNewRangeofGPUVA(uint64_t start_address, uint64_t end_address)
+void Dx12ResourceValueAnnotator::AddNewRangeofGPUVA(format::HandleId resource_id,
+                                                    uint64_t         start_address,
+                                                    uint64_t         width)
 {
     if (low_gpuva == 0 || low_gpuva > start_address)
     {
         low_gpuva = start_address;
     }
-    if (high_gpuva == 0 || high_gpuva < end_address)
+    if (high_gpuva == 0 || high_gpuva < (start_address + width))
     {
-        high_gpuva = end_address;
+        high_gpuva = (start_address + width);
     }
-    auto gpuva = gpuva_map_.find(start_address);
-    if (gpuva == gpuva_map_.end())
-    {
-#ifdef _DEBUG
-        auto va_entry = gpuva_map_.lower_bound(start_address);
-        if (va_entry != gpuva_map_.end())
-        {
-            _ASSERT(va_entry->second <= start_address);
-        }
-#endif
-        gpuva_map_.insert(std::pair<uint64_t, uint64_t>(start_address, end_address));
-    }
-#ifdef _DEBUG
-    else
-    {
-        _ASSERT(gpuva->second >= end_address);
-    }
-#endif
+
+    gpuva_map_.Add(resource_id, start_address, width, start_address);
 }
 
 void Dx12ResourceValueAnnotator::SetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type,
@@ -115,29 +102,19 @@ void Dx12ResourceValueAnnotator::AddShaderID(graphics::Dx12ShaderIdentifier shad
     }
 }
 
-void Dx12ResourceValueAnnotator::RemoveGPUVA(D3D12_GPU_VIRTUAL_ADDRESS start_address)
+void Dx12ResourceValueAnnotator::RemoveGPUVA(format::HandleId resource_id, D3D12_GPU_VIRTUAL_ADDRESS start_address)
 {
-    auto va_entry = gpuva_map_.find(start_address);
-    if (va_entry != gpuva_map_.end())
-    {
-        gpuva_map_.erase(start_address);
-    }
+    gpuva_map_.Remove(resource_id, start_address);
 }
 
 bool Dx12ResourceValueAnnotator::IsValidGpuVa(D3D12_GPU_VIRTUAL_ADDRESS address)
 {
+    bool found = false;
     if (address >= low_gpuva && address <= high_gpuva)
     {
-        auto va_entry = gpuva_map_.lower_bound(address);
-        if (va_entry != gpuva_map_.end())
-        {
-            if (address < va_entry->second)
-            {
-                return true;
-            }
-        }
+        gpuva_map_.Map(address, nullptr, &found);
     }
-    return false;
+    return found;
 }
 
 bool Dx12ResourceValueAnnotator::IsValidGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle)
@@ -209,15 +186,10 @@ void Dx12ResourceValueAnnotator::PostProcessGetGPUVirtualAddress(ID3D12Resource_
     auto resource_info = wrapper->GetObjectInfo();
     if (resource_info->dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
-        uint64_t width        = resource_info->subresource_sizes[0];
-        resource_info->gpu_va = result;
-        if (resource_info->heap_wrapper != nullptr)
-        {
-            auto heap_info    = resource_info->heap_wrapper->GetObjectInfo();
-            heap_info->gpu_va = result - resource_info->heap_offset;
-            width             = heap_info->heap_size;
-        }
-        AddNewRangeofGPUVA(result - resource_info->heap_offset, result - resource_info->heap_offset + width);
+        format::HandleId resource_id = wrapper->GetCaptureId();
+        uint64_t         width       = resource_info->subresource_sizes[0];
+        resource_info->gpu_va        = result;
+        AddNewRangeofGPUVA(resource_id, result, width);
     }
 }
 
