@@ -92,6 +92,11 @@ class AgsConsumerBase
                                                            AGSContext*        context,
                                                            format::HandleId   object_id,
                                                            const char*        data) = 0;
+
+    void SetCurrentBlockIndex(uint64_t index) { current_block_index_ = index; }
+
+  protected:
+    uint64_t current_block_index_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

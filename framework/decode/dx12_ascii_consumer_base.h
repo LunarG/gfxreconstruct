@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -100,7 +101,7 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
             [&](std::stringstream& strStrm)
             {
                 // Output the API call index
-                FieldToString(strStrm, true, "index", to_string_flags_, tabCount, tabSize, ToString(api_call_count_++, to_string_flags_, tabCount, tabSize));
+                FieldToString(strStrm, true, "index", to_string_flags_, tabCount, tabSize, ToString(current_block_index_, to_string_flags_, tabCount, tabSize));
 
                 // Output the method/function name
                 assert(writeApiCallToFileInfo.pFunctionName);
@@ -145,7 +146,6 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
   private:
     FILE*       file_{ nullptr };
     std::string filename_;
-    uint64_t    api_call_count_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)
