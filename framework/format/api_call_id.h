@@ -687,6 +687,13 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetEncodedVideoSessionParametersKHR                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12cd),
     ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12ce),
     ApiCall_vkCmdSetDepthBias2EXT                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12cf),
+    ApiCall_vkCopyMemoryToImageEXT                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12d0),
+    ApiCall_vkCopyImageToMemoryEXT                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12d1),
+    ApiCall_vkCopyImageToImageEXT                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12d2),
+    ApiCall_vkTransitionImageLayoutEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12d3),
+    ApiCall_vkGetPipelineIndirectMemoryRequirementsNV                                             = MakeApiCallId(ApiFamily_Vulkan, 0x12d4),
+    ApiCall_vkCmdUpdatePipelineIndirectBuffer                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12d5),
+    ApiCall_vkGetPipelineIndirectDeviceAddressNV                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x12d6),
 
     ApiCall_VulkanLast,
 

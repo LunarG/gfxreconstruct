@@ -1280,6 +1280,13 @@ void TrackCmdDrawClusterIndirectHUAWEIHandles(CommandBufferWrapper* wrapper, VkB
     if(buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId<BufferWrapper>(buffer));
 }
 
+void TrackCmdUpdatePipelineIndirectBufferHandles(CommandBufferWrapper* wrapper, VkPipeline pipeline)
+{
+    assert(wrapper != nullptr);
+
+    if(pipeline != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::PipelineHandle].insert(GetWrappedId<PipelineWrapper>(pipeline));
+}
+
 void TrackCmdOpticalFlowExecuteNVHandles(CommandBufferWrapper* wrapper, VkOpticalFlowSessionNV session)
 {
     assert(wrapper != nullptr);
