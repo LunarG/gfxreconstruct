@@ -105,6 +105,7 @@ struct VkGeometryFlagsKHR_t { };
 struct VkGeometryInstanceFlagsKHR_t { };
 struct VkGraphicsPipelineLibraryFlagsEXT_t { };
 struct VkHeadlessSurfaceCreateFlagsEXT_t { };
+struct VkHostImageCopyFlagsEXT_t { };
 struct VkIOSSurfaceCreateFlagsMVK_t { };
 struct VkImageAspectFlags_t { };
 struct VkImageCompressionFixedRateFlagsEXT_t { };
@@ -341,6 +342,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryFlagBitsKHR& val
 void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryInstanceFlagBitsKHR& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryTypeKHR& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkHostImageCopyFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkImageAspectFlagBits& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFixedRateFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
@@ -550,6 +552,7 @@ void FieldToJson(VkGeometryFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFl
 void FieldToJson(VkGeometryInstanceFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkGraphicsPipelineLibraryFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkHeadlessSurfaceCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
+void FieldToJson(VkHostImageCopyFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkIOSSurfaceCreateFlagsMVK_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkImageAspectFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkImageCompressionFixedRateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());

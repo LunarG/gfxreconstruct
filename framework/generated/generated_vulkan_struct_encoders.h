@@ -881,6 +881,19 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceIndexTypeUint
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryToImageCopyEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageToMemoryCopyEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToImageInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkHostImageLayoutTransitionInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceHostMemcpySizeEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkHostImageCopyDevicePerformanceQueryEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout2EXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource2EXT& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentModeEXT& value);
@@ -966,8 +979,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyCommandTransformInfoQCO
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageCompressionControlFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCompressionControlEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout2EXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource2EXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCompressionPropertiesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT& value);
@@ -1084,6 +1095,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceNonSeamlessCu
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassFragmentDensityMapOffsetEndInfoQCOM& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkComputePipelineIndirectBufferInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineIndirectDeviceAddressInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkBindPipelineIndirectCommandNV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLinearColorAttachmentFeaturesNV& value);
 

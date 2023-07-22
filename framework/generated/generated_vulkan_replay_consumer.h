@@ -3321,6 +3321,38 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         VkStencilOp                                 depthFailOp,
         VkCompareOp                                 compareOp) override;
 
+    virtual void Process_vkCopyMemoryToImageEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkCopyMemoryToImageInfoEXT>* pCopyMemoryToImageInfo) override;
+
+    virtual void Process_vkCopyImageToMemoryEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkCopyImageToMemoryInfoEXT>* pCopyImageToMemoryInfo) override;
+
+    virtual void Process_vkCopyImageToImageEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkCopyImageToImageInfoEXT>* pCopyImageToImageInfo) override;
+
+    virtual void Process_vkTransitionImageLayoutEXT(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        uint32_t                                    transitionCount,
+        StructPointerDecoder<Decoded_VkHostImageLayoutTransitionInfoEXT>* pTransitions) override;
+
+    virtual void Process_vkGetImageSubresourceLayout2EXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            image,
+        StructPointerDecoder<Decoded_VkImageSubresource2EXT>* pSubresource,
+        StructPointerDecoder<Decoded_VkSubresourceLayout2EXT>* pLayout) override;
+
     virtual void Process_vkReleaseSwapchainImagesEXT(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3421,13 +3453,6 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            commandBuffer,
         VkFragmentShadingRateNV                     shadingRate,
         PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) override;
-
-    virtual void Process_vkGetImageSubresourceLayout2EXT(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            device,
-        format::HandleId                            image,
-        StructPointerDecoder<Decoded_VkImageSubresource2EXT>* pSubresource,
-        StructPointerDecoder<Decoded_VkSubresourceLayout2EXT>* pLayout) override;
 
     virtual void Process_vkGetDeviceFaultInfoEXT(
         const ApiCallInfo&                          call_info,
@@ -3705,6 +3730,24 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         format::HandleId                            descriptorSet,
         PointerDecoder<uint64_t, void*>*            ppData) override;
+
+    virtual void Process_vkGetPipelineIndirectMemoryRequirementsNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
+
+    virtual void Process_vkCmdUpdatePipelineIndirectBuffer(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineBindPoint                         pipelineBindPoint,
+        format::HandleId                            pipeline) override;
+
+    virtual void Process_vkGetPipelineIndirectDeviceAddressNV(
+        const ApiCallInfo&                          call_info,
+        VkDeviceAddress                             returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPipelineIndirectDeviceAddressInfoNV>* pInfo) override;
 
     virtual void Process_vkCmdSetTessellationDomainOriginEXT(
         const ApiCallInfo&                          call_info,

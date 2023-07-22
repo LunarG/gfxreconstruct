@@ -1895,6 +1895,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceHostImageCopyFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceHostImageCopyFeaturesEXT*>(next);
+                VkPhysicalDeviceHostImageCopyFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->hostImageCopy == VK_TRUE) && (query.hostImageCopy == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature hostImageCopy, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceHostImageCopyFeaturesEXT*>(currentNext)->hostImageCopy = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
             {
                 const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(next);
@@ -2696,6 +2709,29 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature fragmentDensityMapOffset, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(currentNext)->fragmentDensityMapOffset = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV:
+            {
+                const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV*>(next);
+                VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->deviceGeneratedCompute == VK_TRUE) && (query.deviceGeneratedCompute == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature deviceGeneratedCompute, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV*>(currentNext)->deviceGeneratedCompute = VK_FALSE;
+                }
+                if ((currentNext->deviceGeneratedComputePipelines == VK_TRUE) && (query.deviceGeneratedComputePipelines == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature deviceGeneratedComputePipelines, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV*>(currentNext)->deviceGeneratedComputePipelines = VK_FALSE;
+                }
+                if ((currentNext->deviceGeneratedComputeCaptureReplay == VK_TRUE) && (query.deviceGeneratedComputeCaptureReplay == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature deviceGeneratedComputeCaptureReplay, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV*>(currentNext)->deviceGeneratedComputeCaptureReplay = VK_FALSE;
                 }
                 break;
              }

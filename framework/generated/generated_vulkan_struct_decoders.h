@@ -7145,6 +7145,136 @@ struct Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceHostImageCopyFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceHostImageCopyFeaturesEXT;
+
+    VkPhysicalDeviceHostImageCopyFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceHostImageCopyPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceHostImageCopyPropertiesEXT;
+
+    VkPhysicalDeviceHostImageCopyPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkImageLayout> pCopySrcLayouts;
+    PointerDecoder<VkImageLayout> pCopyDstLayouts;
+    PointerDecoder<uint8_t> optimalTilingLayoutUUID;
+};
+
+struct Decoded_VkMemoryToImageCopyEXT
+{
+    using struct_type = VkMemoryToImageCopyEXT;
+
+    VkMemoryToImageCopyEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    uint64_t pHostPointer{ 0 };
+    Decoded_VkImageSubresourceLayers* imageSubresource{ nullptr };
+    Decoded_VkOffset3D* imageOffset{ nullptr };
+    Decoded_VkExtent3D* imageExtent{ nullptr };
+};
+
+struct Decoded_VkImageToMemoryCopyEXT
+{
+    using struct_type = VkImageToMemoryCopyEXT;
+
+    VkImageToMemoryCopyEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    uint64_t pHostPointer{ 0 };
+    Decoded_VkImageSubresourceLayers* imageSubresource{ nullptr };
+    Decoded_VkOffset3D* imageOffset{ nullptr };
+    Decoded_VkExtent3D* imageExtent{ nullptr };
+};
+
+struct Decoded_VkCopyMemoryToImageInfoEXT
+{
+    using struct_type = VkCopyMemoryToImageInfoEXT;
+
+    VkCopyMemoryToImageInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId dstImage{ format::kNullHandleId };
+    StructPointerDecoder<Decoded_VkMemoryToImageCopyEXT>* pRegions{ nullptr };
+};
+
+struct Decoded_VkCopyImageToMemoryInfoEXT
+{
+    using struct_type = VkCopyImageToMemoryInfoEXT;
+
+    VkCopyImageToMemoryInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId srcImage{ format::kNullHandleId };
+    StructPointerDecoder<Decoded_VkImageToMemoryCopyEXT>* pRegions{ nullptr };
+};
+
+struct Decoded_VkCopyImageToImageInfoEXT
+{
+    using struct_type = VkCopyImageToImageInfoEXT;
+
+    VkCopyImageToImageInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId srcImage{ format::kNullHandleId };
+    format::HandleId dstImage{ format::kNullHandleId };
+    StructPointerDecoder<Decoded_VkImageCopy2>* pRegions{ nullptr };
+};
+
+struct Decoded_VkHostImageLayoutTransitionInfoEXT
+{
+    using struct_type = VkHostImageLayoutTransitionInfoEXT;
+
+    VkHostImageLayoutTransitionInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId image{ format::kNullHandleId };
+    Decoded_VkImageSubresourceRange* subresourceRange{ nullptr };
+};
+
+struct Decoded_VkSubresourceHostMemcpySizeEXT
+{
+    using struct_type = VkSubresourceHostMemcpySizeEXT;
+
+    VkSubresourceHostMemcpySizeEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkHostImageCopyDevicePerformanceQueryEXT
+{
+    using struct_type = VkHostImageCopyDevicePerformanceQueryEXT;
+
+    VkHostImageCopyDevicePerformanceQueryEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSubresourceLayout2EXT
+{
+    using struct_type = VkSubresourceLayout2EXT;
+
+    VkSubresourceLayout2EXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkSubresourceLayout* subresourceLayout{ nullptr };
+};
+
+struct Decoded_VkImageSubresource2EXT
+{
+    using struct_type = VkImageSubresource2EXT;
+
+    VkImageSubresource2EXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkImageSubresource* imageSubresource{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT;
@@ -7760,26 +7890,6 @@ struct Decoded_VkImageCompressionControlEXT
 
     PNextNode* pNext{ nullptr };
     PointerDecoder<VkImageCompressionFixedRateFlagsEXT> pFixedRateFlags;
-};
-
-struct Decoded_VkSubresourceLayout2EXT
-{
-    using struct_type = VkSubresourceLayout2EXT;
-
-    VkSubresourceLayout2EXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkSubresourceLayout* subresourceLayout{ nullptr };
-};
-
-struct Decoded_VkImageSubresource2EXT
-{
-    using struct_type = VkImageSubresource2EXT;
-
-    VkImageSubresource2EXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkImageSubresource* imageSubresource{ nullptr };
 };
 
 struct Decoded_VkImageCompressionPropertiesEXT
@@ -8547,6 +8657,41 @@ struct Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM
 
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkOffset2D>* pFragmentDensityOffsets{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV;
+
+    VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkComputePipelineIndirectBufferInfoNV
+{
+    using struct_type = VkComputePipelineIndirectBufferInfoNV;
+
+    VkComputePipelineIndirectBufferInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPipelineIndirectDeviceAddressInfoNV
+{
+    using struct_type = VkPipelineIndirectDeviceAddressInfoNV;
+
+    VkPipelineIndirectDeviceAddressInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId pipeline{ format::kNullHandleId };
+};
+
+struct Decoded_VkBindPipelineIndirectCommandNV
+{
+    using struct_type = VkBindPipelineIndirectCommandNV;
+
+    VkBindPipelineIndirectCommandNV* decoded_value{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV

@@ -553,6 +553,11 @@ static VKAPI_ATTR void VKAPI_CALL CmdSetDepthCompareOpEXT(VkCommandBuffer, VkCom
 static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBoundsTestEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetDepthBoundsTestEnableEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetStencilTestEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetStencilTestEnableEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(VkCommandBuffer, VkStencilFaceFlags, VkStencilOp, VkStencilOp, VkStencilOp, VkCompareOp) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetStencilOpEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToImageEXT(VkDevice, const VkCopyMemoryToImageInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyMemoryToImageEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CopyImageToMemoryEXT(VkDevice, const VkCopyImageToMemoryInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyImageToMemoryEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CopyImageToImageEXT(VkDevice, const VkCopyImageToImageInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyImageToImageEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL TransitionImageLayoutEXT(VkDevice, uint32_t, const VkHostImageLayoutTransitionInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkTransitionImageLayoutEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2EXT(VkDevice, VkImage, const VkImageSubresource2EXT*, VkSubresourceLayout2EXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2EXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL ReleaseSwapchainImagesEXT(VkDevice, const VkReleaseSwapchainImagesInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkReleaseSwapchainImagesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(VkDevice, const VkGeneratedCommandsMemoryRequirementsInfoNV*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetGeneratedCommandsMemoryRequirementsNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsNV(VkCommandBuffer, const VkGeneratedCommandsInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPreprocessGeneratedCommandsNV was called, resulting in no-op behavior."); }
@@ -566,7 +571,6 @@ static VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(VkDevice, VkPrivateD
 static VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlot, uint64_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSetPrivateDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlot, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPrivateDataEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateEnumNV(VkCommandBuffer, VkFragmentShadingRateNV, const VkFragmentShadingRateCombinerOpKHR[2]) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetFragmentShadingRateEnumNV was called, resulting in no-op behavior."); }
-static VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2EXT(VkDevice, VkImage, const VkImageSubresource2EXT*, VkSubresourceLayout2EXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2EXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceFaultInfoEXT(VkDevice, VkDeviceFaultCountsEXT*, VkDeviceFaultInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceFaultInfoEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdSetVertexInputEXT(VkCommandBuffer, uint32_t, const VkVertexInputBindingDescription2EXT*, uint32_t, const VkVertexInputAttributeDescription2EXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetVertexInputEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryZirconHandleFUCHSIA(VkDevice, const VkMemoryGetZirconHandleInfoFUCHSIA*, zx_handle_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetMemoryZirconHandleFUCHSIA was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -602,6 +606,9 @@ static VKAPI_ATTR void VKAPI_CALL CmdDrawClusterIndirectHUAWEI(VkCommandBuffer, 
 static VKAPI_ATTR void VKAPI_CALL SetDeviceMemoryPriorityEXT(VkDevice, VkDeviceMemory, float) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSetDeviceMemoryPriorityEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutHostMappingInfoVALVE(VkDevice, const VkDescriptorSetBindingReferenceVALVE*, VkDescriptorSetLayoutHostMappingInfoVALVE*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDescriptorSetLayoutHostMappingInfoVALVE was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetHostMappingVALVE(VkDevice, VkDescriptorSet, void**) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDescriptorSetHostMappingVALVE was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPipelineIndirectMemoryRequirementsNV(VkDevice, const VkComputePipelineCreateInfo*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineIndirectMemoryRequirementsNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdUpdatePipelineIndirectBuffer(VkCommandBuffer, VkPipelineBindPoint, VkPipeline) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdUpdatePipelineIndirectBuffer was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetPipelineIndirectDeviceAddressNV(VkDevice, const VkPipelineIndirectDeviceAddressInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineIndirectDeviceAddressNV was called, resulting in no-op behavior."); return 0; }
 static VKAPI_ATTR void VKAPI_CALL CmdSetTessellationDomainOriginEXT(VkCommandBuffer, VkTessellationDomainOrigin) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetTessellationDomainOriginEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetDepthClampEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetDepthClampEnableEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetPolygonModeEXT(VkCommandBuffer, VkPolygonMode) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetPolygonModeEXT was called, resulting in no-op behavior."); }
@@ -1173,6 +1180,11 @@ struct DeviceTable
     PFN_vkCmdSetDepthBoundsTestEnableEXT CmdSetDepthBoundsTestEnableEXT{ noop::CmdSetDepthBoundsTestEnableEXT };
     PFN_vkCmdSetStencilTestEnableEXT CmdSetStencilTestEnableEXT{ noop::CmdSetStencilTestEnableEXT };
     PFN_vkCmdSetStencilOpEXT CmdSetStencilOpEXT{ noop::CmdSetStencilOpEXT };
+    PFN_vkCopyMemoryToImageEXT CopyMemoryToImageEXT{ noop::CopyMemoryToImageEXT };
+    PFN_vkCopyImageToMemoryEXT CopyImageToMemoryEXT{ noop::CopyImageToMemoryEXT };
+    PFN_vkCopyImageToImageEXT CopyImageToImageEXT{ noop::CopyImageToImageEXT };
+    PFN_vkTransitionImageLayoutEXT TransitionImageLayoutEXT{ noop::TransitionImageLayoutEXT };
+    PFN_vkGetImageSubresourceLayout2EXT GetImageSubresourceLayout2EXT{ noop::GetImageSubresourceLayout2EXT };
     PFN_vkReleaseSwapchainImagesEXT ReleaseSwapchainImagesEXT{ noop::ReleaseSwapchainImagesEXT };
     PFN_vkGetGeneratedCommandsMemoryRequirementsNV GetGeneratedCommandsMemoryRequirementsNV{ noop::GetGeneratedCommandsMemoryRequirementsNV };
     PFN_vkCmdPreprocessGeneratedCommandsNV CmdPreprocessGeneratedCommandsNV{ noop::CmdPreprocessGeneratedCommandsNV };
@@ -1186,7 +1198,6 @@ struct DeviceTable
     PFN_vkSetPrivateDataEXT SetPrivateDataEXT{ noop::SetPrivateDataEXT };
     PFN_vkGetPrivateDataEXT GetPrivateDataEXT{ noop::GetPrivateDataEXT };
     PFN_vkCmdSetFragmentShadingRateEnumNV CmdSetFragmentShadingRateEnumNV{ noop::CmdSetFragmentShadingRateEnumNV };
-    PFN_vkGetImageSubresourceLayout2EXT GetImageSubresourceLayout2EXT{ noop::GetImageSubresourceLayout2EXT };
     PFN_vkGetDeviceFaultInfoEXT GetDeviceFaultInfoEXT{ noop::GetDeviceFaultInfoEXT };
     PFN_vkCmdSetVertexInputEXT CmdSetVertexInputEXT{ noop::CmdSetVertexInputEXT };
     PFN_vkGetMemoryZirconHandleFUCHSIA GetMemoryZirconHandleFUCHSIA{ noop::GetMemoryZirconHandleFUCHSIA };
@@ -1222,6 +1233,9 @@ struct DeviceTable
     PFN_vkSetDeviceMemoryPriorityEXT SetDeviceMemoryPriorityEXT{ noop::SetDeviceMemoryPriorityEXT };
     PFN_vkGetDescriptorSetLayoutHostMappingInfoVALVE GetDescriptorSetLayoutHostMappingInfoVALVE{ noop::GetDescriptorSetLayoutHostMappingInfoVALVE };
     PFN_vkGetDescriptorSetHostMappingVALVE GetDescriptorSetHostMappingVALVE{ noop::GetDescriptorSetHostMappingVALVE };
+    PFN_vkGetPipelineIndirectMemoryRequirementsNV GetPipelineIndirectMemoryRequirementsNV{ noop::GetPipelineIndirectMemoryRequirementsNV };
+    PFN_vkCmdUpdatePipelineIndirectBuffer CmdUpdatePipelineIndirectBuffer{ noop::CmdUpdatePipelineIndirectBuffer };
+    PFN_vkGetPipelineIndirectDeviceAddressNV GetPipelineIndirectDeviceAddressNV{ noop::GetPipelineIndirectDeviceAddressNV };
     PFN_vkCmdSetTessellationDomainOriginEXT CmdSetTessellationDomainOriginEXT{ noop::CmdSetTessellationDomainOriginEXT };
     PFN_vkCmdSetDepthClampEnableEXT CmdSetDepthClampEnableEXT{ noop::CmdSetDepthClampEnableEXT };
     PFN_vkCmdSetPolygonModeEXT CmdSetPolygonModeEXT{ noop::CmdSetPolygonModeEXT };
@@ -1800,6 +1814,11 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdSetDepthBoundsTestEnableEXT", &table->CmdSetDepthBoundsTestEnableEXT);
     LoadFunction(gpa, device, "vkCmdSetStencilTestEnableEXT", &table->CmdSetStencilTestEnableEXT);
     LoadFunction(gpa, device, "vkCmdSetStencilOpEXT", &table->CmdSetStencilOpEXT);
+    LoadFunction(gpa, device, "vkCopyMemoryToImageEXT", &table->CopyMemoryToImageEXT);
+    LoadFunction(gpa, device, "vkCopyImageToMemoryEXT", &table->CopyImageToMemoryEXT);
+    LoadFunction(gpa, device, "vkCopyImageToImageEXT", &table->CopyImageToImageEXT);
+    LoadFunction(gpa, device, "vkTransitionImageLayoutEXT", &table->TransitionImageLayoutEXT);
+    LoadFunction(gpa, device, "vkGetImageSubresourceLayout2EXT", &table->GetImageSubresourceLayout2EXT);
     LoadFunction(gpa, device, "vkReleaseSwapchainImagesEXT", &table->ReleaseSwapchainImagesEXT);
     LoadFunction(gpa, device, "vkGetGeneratedCommandsMemoryRequirementsNV", &table->GetGeneratedCommandsMemoryRequirementsNV);
     LoadFunction(gpa, device, "vkCmdPreprocessGeneratedCommandsNV", &table->CmdPreprocessGeneratedCommandsNV);
@@ -1813,7 +1832,6 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkSetPrivateDataEXT", &table->SetPrivateDataEXT);
     LoadFunction(gpa, device, "vkGetPrivateDataEXT", &table->GetPrivateDataEXT);
     LoadFunction(gpa, device, "vkCmdSetFragmentShadingRateEnumNV", &table->CmdSetFragmentShadingRateEnumNV);
-    LoadFunction(gpa, device, "vkGetImageSubresourceLayout2EXT", &table->GetImageSubresourceLayout2EXT);
     LoadFunction(gpa, device, "vkGetDeviceFaultInfoEXT", &table->GetDeviceFaultInfoEXT);
     LoadFunction(gpa, device, "vkCmdSetVertexInputEXT", &table->CmdSetVertexInputEXT);
     LoadFunction(gpa, device, "vkGetMemoryZirconHandleFUCHSIA", &table->GetMemoryZirconHandleFUCHSIA);
@@ -1849,6 +1867,9 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkSetDeviceMemoryPriorityEXT", &table->SetDeviceMemoryPriorityEXT);
     LoadFunction(gpa, device, "vkGetDescriptorSetLayoutHostMappingInfoVALVE", &table->GetDescriptorSetLayoutHostMappingInfoVALVE);
     LoadFunction(gpa, device, "vkGetDescriptorSetHostMappingVALVE", &table->GetDescriptorSetHostMappingVALVE);
+    LoadFunction(gpa, device, "vkGetPipelineIndirectMemoryRequirementsNV", &table->GetPipelineIndirectMemoryRequirementsNV);
+    LoadFunction(gpa, device, "vkCmdUpdatePipelineIndirectBuffer", &table->CmdUpdatePipelineIndirectBuffer);
+    LoadFunction(gpa, device, "vkGetPipelineIndirectDeviceAddressNV", &table->GetPipelineIndirectDeviceAddressNV);
     LoadFunction(gpa, device, "vkCmdSetTessellationDomainOriginEXT", &table->CmdSetTessellationDomainOriginEXT);
     LoadFunction(gpa, device, "vkCmdSetDepthClampEnableEXT", &table->CmdSetDepthClampEnableEXT);
     LoadFunction(gpa, device, "vkCmdSetPolygonModeEXT", &table->CmdSetPolygonModeEXT);

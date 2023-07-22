@@ -2290,6 +2290,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorSetLayoutCreat
         case VK_DESCRIPTOR_SET_LAYOUT_CREATE_EMBEDDED_IMMUTABLE_SAMPLERS_BIT_EXT:
             jdata = "VK_DESCRIPTOR_SET_LAYOUT_CREATE_EMBEDDED_IMMUTABLE_SAMPLERS_BIT_EXT";
             break;
+        case VK_DESCRIPTOR_SET_LAYOUT_CREATE_INDIRECT_BINDABLE_BIT_NV:
+            jdata = "VK_DESCRIPTOR_SET_LAYOUT_CREATE_INDIRECT_BINDABLE_BIT_NV";
+            break;
         case VK_DESCRIPTOR_SET_LAYOUT_CREATE_HOST_ONLY_POOL_BIT_EXT:
             jdata = "VK_DESCRIPTOR_SET_LAYOUT_CREATE_HOST_ONLY_POOL_BIT_EXT";
             break;
@@ -4135,6 +4138,9 @@ void FieldToJson(VkFormatFeatureFlagBits2_t, nlohmann::ordered_json& jdata, cons
         case VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR:
             jdata = "VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
             break;
+        case VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT_EXT:
+            jdata = "VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT_EXT";
+            break;
         case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR:
             jdata = "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR";
             break;
@@ -4377,6 +4383,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryF
             break;
         case VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT:
             jdata = "VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const VkHostImageCopyFlagBitsEXT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_HOST_IMAGE_COPY_MEMCPY_EXT:
+            jdata = "VK_HOST_IMAGE_COPY_MEMCPY_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -4771,6 +4789,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageUsageFlagBits& valu
         case VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR:
             jdata = "VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
             break;
+        case VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT:
+            jdata = "VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT";
+            break;
         case VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR:
             jdata = "VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR";
             break;
@@ -4914,6 +4935,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsTokenTyp
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV:
             jdata = "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV";
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV:
+            jdata = "VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV";
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV:
+            jdata = "VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -8999,6 +9026,36 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR:
             jdata = "VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY_EXT:
+            jdata = "VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_TO_MEMORY_COPY_EXT:
+            jdata = "VK_STRUCTURE_TYPE_IMAGE_TO_MEMORY_COPY_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_MEMORY_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_COPY_IMAGE_TO_MEMORY_INFO_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE_EXT:
+            jdata = "VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY_EXT:
+            jdata = "VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY_EXT";
+            break;
         case VK_STRUCTURE_TYPE_MEMORY_MAP_INFO_KHR:
             jdata = "VK_STRUCTURE_TYPE_MEMORY_MAP_INFO_KHR";
             break;
@@ -9586,6 +9643,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV";
+            break;
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV:
+            jdata = "VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV:
+            jdata = "VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV";
@@ -11559,6 +11625,8 @@ void FieldToJson(VkDescriptorSetLayoutCreateFlags_t, nlohmann::ordered_json& jda
                 return std::string("VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT");
             case VK_DESCRIPTOR_SET_LAYOUT_CREATE_EMBEDDED_IMMUTABLE_SAMPLERS_BIT_EXT:
                 return std::string("VK_DESCRIPTOR_SET_LAYOUT_CREATE_EMBEDDED_IMMUTABLE_SAMPLERS_BIT_EXT");
+            case VK_DESCRIPTOR_SET_LAYOUT_CREATE_INDIRECT_BINDABLE_BIT_NV:
+                return std::string("VK_DESCRIPTOR_SET_LAYOUT_CREATE_INDIRECT_BINDABLE_BIT_NV");
             case VK_DESCRIPTOR_SET_LAYOUT_CREATE_HOST_ONLY_POOL_BIT_EXT:
                 return std::string("VK_DESCRIPTOR_SET_LAYOUT_CREATE_HOST_ONLY_POOL_BIT_EXT");
         }
@@ -12120,6 +12188,8 @@ void FieldToJson(VkFormatFeatureFlags2_t, nlohmann::ordered_json& jdata, const V
                 return std::string("VK_FORMAT_FEATURE_2_FRAGMENT_DENSITY_MAP_BIT_EXT");
             case VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR:
                 return std::string("VK_FORMAT_FEATURE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR");
+            case VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT_EXT:
+                return std::string("VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT_EXT");
             case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR:
                 return std::string("VK_FORMAT_FEATURE_2_VIDEO_ENCODE_INPUT_BIT_KHR");
             case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR:
@@ -12238,6 +12308,24 @@ void FieldToJson(VkGraphicsPipelineLibraryFlagsEXT_t, nlohmann::ordered_json& jd
 void FieldToJson(VkHeadlessSurfaceCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
+}
+
+void FieldToJson(VkHostImageCopyFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_HOST_IMAGE_COPY_MEMCPY_EXT:
+                return std::string("VK_HOST_IMAGE_COPY_MEMCPY_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
 }
 
 void FieldToJson(VkIOSSurfaceCreateFlagsMVK_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
@@ -12471,6 +12559,8 @@ void FieldToJson(VkImageUsageFlags_t, nlohmann::ordered_json& jdata, const VkFla
                 return std::string("VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT");
             case VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR:
                 return std::string("VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR");
+            case VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT:
+                return std::string("VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT");
             case VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR:
                 return std::string("VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR");
             case VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR:
