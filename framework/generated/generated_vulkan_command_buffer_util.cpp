@@ -1280,7 +1280,7 @@ void TrackCmdDrawClusterIndirectHUAWEIHandles(CommandBufferWrapper* wrapper, VkB
     if(buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId<BufferWrapper>(buffer));
 }
 
-void TrackCmdUpdatePipelineIndirectBufferHandles(CommandBufferWrapper* wrapper, VkPipeline pipeline)
+void TrackCmdUpdatePipelineIndirectBufferNVHandles(CommandBufferWrapper* wrapper, VkPipeline pipeline)
 {
     assert(wrapper != nullptr);
 

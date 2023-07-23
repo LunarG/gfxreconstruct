@@ -8592,13 +8592,13 @@ void VulkanExportJsonConsumer::Process_vkGetPipelineIndirectMemoryRequirementsNV
     WriteBlockEnd();
 }
 
-void VulkanExportJsonConsumer::Process_vkCmdUpdatePipelineIndirectBuffer(
+void VulkanExportJsonConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     format::HandleId                            pipeline)
 {
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdUpdatePipelineIndirectBuffer");
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdUpdatePipelineIndirectBufferNV");
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options_);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options_);

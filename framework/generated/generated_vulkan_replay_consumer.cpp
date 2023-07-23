@@ -8091,7 +8091,7 @@ void VulkanReplayConsumer::Process_vkGetPipelineIndirectMemoryRequirementsNV(
     GetDeviceTable(in_device)->GetPipelineIndirectMemoryRequirementsNV(in_device, in_pCreateInfo, out_pMemoryRequirements);
 }
 
-void VulkanReplayConsumer::Process_vkCmdUpdatePipelineIndirectBuffer(
+void VulkanReplayConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
@@ -8100,7 +8100,7 @@ void VulkanReplayConsumer::Process_vkCmdUpdatePipelineIndirectBuffer(
     VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
     VkPipeline in_pipeline = MapHandle<PipelineInfo>(pipeline, &VulkanObjectInfoTable::GetPipelineInfo);
 
-    GetDeviceTable(in_commandBuffer)->CmdUpdatePipelineIndirectBuffer(in_commandBuffer, pipelineBindPoint, in_pipeline);
+    GetDeviceTable(in_commandBuffer)->CmdUpdatePipelineIndirectBufferNV(in_commandBuffer, pipelineBindPoint, in_pipeline);
 }
 
 void VulkanReplayConsumer::Process_vkGetPipelineIndirectDeviceAddressNV(

@@ -3704,7 +3704,7 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
 
-    virtual void Process_vkCmdUpdatePipelineIndirectBuffer(
+    virtual void Process_vkCmdUpdatePipelineIndirectBufferNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         VkPipelineBindPoint                         pipelineBindPoint,

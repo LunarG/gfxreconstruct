@@ -607,7 +607,7 @@ static VKAPI_ATTR void VKAPI_CALL SetDeviceMemoryPriorityEXT(VkDevice, VkDeviceM
 static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutHostMappingInfoVALVE(VkDevice, const VkDescriptorSetBindingReferenceVALVE*, VkDescriptorSetLayoutHostMappingInfoVALVE*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDescriptorSetLayoutHostMappingInfoVALVE was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetHostMappingVALVE(VkDevice, VkDescriptorSet, void**) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDescriptorSetHostMappingVALVE was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetPipelineIndirectMemoryRequirementsNV(VkDevice, const VkComputePipelineCreateInfo*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineIndirectMemoryRequirementsNV was called, resulting in no-op behavior."); }
-static VKAPI_ATTR void VKAPI_CALL CmdUpdatePipelineIndirectBuffer(VkCommandBuffer, VkPipelineBindPoint, VkPipeline) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdUpdatePipelineIndirectBuffer was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdUpdatePipelineIndirectBufferNV(VkCommandBuffer, VkPipelineBindPoint, VkPipeline) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdUpdatePipelineIndirectBufferNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetPipelineIndirectDeviceAddressNV(VkDevice, const VkPipelineIndirectDeviceAddressInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineIndirectDeviceAddressNV was called, resulting in no-op behavior."); return 0; }
 static VKAPI_ATTR void VKAPI_CALL CmdSetTessellationDomainOriginEXT(VkCommandBuffer, VkTessellationDomainOrigin) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetTessellationDomainOriginEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetDepthClampEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetDepthClampEnableEXT was called, resulting in no-op behavior."); }
@@ -1234,7 +1234,7 @@ struct DeviceTable
     PFN_vkGetDescriptorSetLayoutHostMappingInfoVALVE GetDescriptorSetLayoutHostMappingInfoVALVE{ noop::GetDescriptorSetLayoutHostMappingInfoVALVE };
     PFN_vkGetDescriptorSetHostMappingVALVE GetDescriptorSetHostMappingVALVE{ noop::GetDescriptorSetHostMappingVALVE };
     PFN_vkGetPipelineIndirectMemoryRequirementsNV GetPipelineIndirectMemoryRequirementsNV{ noop::GetPipelineIndirectMemoryRequirementsNV };
-    PFN_vkCmdUpdatePipelineIndirectBuffer CmdUpdatePipelineIndirectBuffer{ noop::CmdUpdatePipelineIndirectBuffer };
+    PFN_vkCmdUpdatePipelineIndirectBufferNV CmdUpdatePipelineIndirectBufferNV{ noop::CmdUpdatePipelineIndirectBufferNV };
     PFN_vkGetPipelineIndirectDeviceAddressNV GetPipelineIndirectDeviceAddressNV{ noop::GetPipelineIndirectDeviceAddressNV };
     PFN_vkCmdSetTessellationDomainOriginEXT CmdSetTessellationDomainOriginEXT{ noop::CmdSetTessellationDomainOriginEXT };
     PFN_vkCmdSetDepthClampEnableEXT CmdSetDepthClampEnableEXT{ noop::CmdSetDepthClampEnableEXT };
@@ -1868,7 +1868,7 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetDescriptorSetLayoutHostMappingInfoVALVE", &table->GetDescriptorSetLayoutHostMappingInfoVALVE);
     LoadFunction(gpa, device, "vkGetDescriptorSetHostMappingVALVE", &table->GetDescriptorSetHostMappingVALVE);
     LoadFunction(gpa, device, "vkGetPipelineIndirectMemoryRequirementsNV", &table->GetPipelineIndirectMemoryRequirementsNV);
-    LoadFunction(gpa, device, "vkCmdUpdatePipelineIndirectBuffer", &table->CmdUpdatePipelineIndirectBuffer);
+    LoadFunction(gpa, device, "vkCmdUpdatePipelineIndirectBufferNV", &table->CmdUpdatePipelineIndirectBufferNV);
     LoadFunction(gpa, device, "vkGetPipelineIndirectDeviceAddressNV", &table->GetPipelineIndirectDeviceAddressNV);
     LoadFunction(gpa, device, "vkCmdSetTessellationDomainOriginEXT", &table->CmdSetTessellationDomainOriginEXT);
     LoadFunction(gpa, device, "vkCmdSetDepthClampEnableEXT", &table->CmdSetDepthClampEnableEXT);

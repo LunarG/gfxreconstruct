@@ -11683,7 +11683,7 @@ size_t VulkanDecoder::Decode_vkGetPipelineIndirectMemoryRequirementsNV(const Api
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkCmdUpdatePipelineIndirectBuffer(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t VulkanDecoder::Decode_vkCmdUpdatePipelineIndirectBufferNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -11697,7 +11697,7 @@ size_t VulkanDecoder::Decode_vkCmdUpdatePipelineIndirectBuffer(const ApiCallInfo
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkCmdUpdatePipelineIndirectBuffer(call_info, commandBuffer, pipelineBindPoint, pipeline);
+        consumer->Process_vkCmdUpdatePipelineIndirectBufferNV(call_info, commandBuffer, pipelineBindPoint, pipeline);
     }
 
     return bytes_read;
@@ -14737,8 +14737,8 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkGetPipelineIndirectMemoryRequirementsNV:
         Decode_vkGetPipelineIndirectMemoryRequirementsNV(call_info, parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBuffer:
-        Decode_vkCmdUpdatePipelineIndirectBuffer(call_info, parameter_buffer, buffer_size);
+    case format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBufferNV:
+        Decode_vkCmdUpdatePipelineIndirectBufferNV(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkGetPipelineIndirectDeviceAddressNV:
         Decode_vkGetPipelineIndirectDeviceAddressNV(call_info, parameter_buffer, buffer_size);

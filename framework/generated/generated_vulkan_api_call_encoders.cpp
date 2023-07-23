@@ -20484,7 +20484,7 @@ VKAPI_ATTR void VKAPI_CALL GetPipelineIndirectMemoryRequirementsNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineIndirectMemoryRequirementsNV>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pMemoryRequirements);
 }
 
-VKAPI_ATTR void VKAPI_CALL CmdUpdatePipelineIndirectBuffer(
+VKAPI_ATTR void VKAPI_CALL CmdUpdatePipelineIndirectBufferNV(
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     VkPipeline                                  pipeline)
@@ -20501,20 +20501,20 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdatePipelineIndirectBuffer(
         shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
     }
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBufferNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
 
-    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBufferNV);
     if (encoder)
     {
         encoder->EncodeHandleValue<CommandBufferWrapper>(commandBuffer);
         encoder->EncodeEnumValue(pipelineBindPoint);
         encoder->EncodeHandleValue<PipelineWrapper>(pipeline);
-        VulkanCaptureManager::Get()->EndCommandApiCallCapture(commandBuffer, TrackCmdUpdatePipelineIndirectBufferHandles, pipeline);
+        VulkanCaptureManager::Get()->EndCommandApiCallCapture(commandBuffer, TrackCmdUpdatePipelineIndirectBufferNVHandles, pipeline);
     }
 
-    GetDeviceTable(commandBuffer)->CmdUpdatePipelineIndirectBuffer(commandBuffer, pipelineBindPoint, pipeline);
+    GetDeviceTable(commandBuffer)->CmdUpdatePipelineIndirectBufferNV(commandBuffer, pipelineBindPoint, pipeline);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBufferNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
 }
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetPipelineIndirectDeviceAddressNV(
