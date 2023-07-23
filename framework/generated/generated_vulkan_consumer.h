@@ -3737,7 +3737,7 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) {}
 
-    virtual void Process_vkCmdUpdatePipelineIndirectBuffer(
+    virtual void Process_vkCmdUpdatePipelineIndirectBufferNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         VkPipelineBindPoint                         pipelineBindPoint,

@@ -592,7 +592,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetDescriptorSetLayoutHostMappingInfoVALVE",                                                        reinterpret_cast<PFN_vkVoidFunction>(encode::GetDescriptorSetLayoutHostMappingInfoVALVE) },
     { "vkGetDescriptorSetHostMappingVALVE",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::GetDescriptorSetHostMappingVALVE) },
     { "vkGetPipelineIndirectMemoryRequirementsNV",                                                           reinterpret_cast<PFN_vkVoidFunction>(encode::GetPipelineIndirectMemoryRequirementsNV) },
-    { "vkCmdUpdatePipelineIndirectBuffer",                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::CmdUpdatePipelineIndirectBuffer) },
+    { "vkCmdUpdatePipelineIndirectBufferNV",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::CmdUpdatePipelineIndirectBufferNV) },
     { "vkGetPipelineIndirectDeviceAddressNV",                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::GetPipelineIndirectDeviceAddressNV) },
     { "vkCmdSetTessellationDomainOriginEXT",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetTessellationDomainOriginEXT) },
     { "vkCmdSetDepthClampEnableEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetDepthClampEnableEXT) },

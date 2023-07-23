@@ -694,6 +694,7 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetPipelineIndirectMemoryRequirementsNV                                             = MakeApiCallId(ApiFamily_Vulkan, 0x12d4),
     ApiCall_vkCmdUpdatePipelineIndirectBuffer                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12d5),
     ApiCall_vkGetPipelineIndirectDeviceAddressNV                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x12d6),
+    ApiCall_vkCmdUpdatePipelineIndirectBufferNV                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12d7),
 
     ApiCall_VulkanLast,
 

@@ -232,7 +232,7 @@ void TrackCmdWriteMicromapsPropertiesEXTHandles(CommandBufferWrapper* wrapper, u
 
 void TrackCmdDrawClusterIndirectHUAWEIHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdUpdatePipelineIndirectBufferHandles(CommandBufferWrapper* wrapper, VkPipeline pipeline);
+void TrackCmdUpdatePipelineIndirectBufferNVHandles(CommandBufferWrapper* wrapper, VkPipeline pipeline);
 
 void TrackCmdOpticalFlowExecuteNVHandles(CommandBufferWrapper* wrapper, VkOpticalFlowSessionNV session);
 
