@@ -248,7 +248,6 @@ int main(int argc, const char** argv)
             gfxrecon::decode::VulkanDecoder            decoder;
             decoder.AddConsumer(&json_consumer);
             file_processor.AddDecoder(&decoder);
-            file_processor.SetAnnotationProcessor(&json_consumer);
 
             json_options.root_dir      = output_dir;
             json_options.data_sub_dir  = filename_stem;
@@ -257,6 +256,7 @@ int main(int argc, const char** argv)
             json_options.expand_flags  = expand_flags;
 
             gfxrecon::decode::JsonWriter json_writer{ json_options, GFXRECON_PROJECT_VERSION_STRING, input_filename };
+            file_processor.SetAnnotationProcessor(&json_writer);
 
             bool              success = true;
             const std::string vulkan_version{ std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +

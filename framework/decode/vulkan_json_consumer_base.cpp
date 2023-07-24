@@ -31,38 +31,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 using namespace util::platform;
 
-namespace
-{
-/// @brief Convert an annotation to its string representation
-/// @note This should be moved into util/to_string.h/cpp after the existing
-/// code there that is tied to the deprecated toJSON paths is eliminated.
-std::string AnnotationTypeToString(const format::AnnotationType& type)
-{
-    std::string str;
-    switch (type)
-    {
-        case format::AnnotationType::kUnknown:
-            str.assign("kUnknown");
-            break;
-        case format::AnnotationType::kText:
-            str.assign("kText");
-            break;
-        case format::AnnotationType::kJson:
-            str.assign("kJson");
-            break;
-        case format::AnnotationType::kXml:
-            str.assign("kXml");
-            break;
-        default:
-            str.assign("OUT_OF_RANGE_ERROR");
-            GFXRECON_LOG_WARNING("format::AnnotationType with out of range value: %lu",
-                                 static_cast<long unsigned>(type));
-            break;
-    }
-    return str;
-}
-} // namespace
-
 VulkanExportJsonConsumerBase::VulkanExportJsonConsumerBase() {}
 
 VulkanExportJsonConsumerBase::~VulkanExportJsonConsumerBase()
@@ -615,20 +583,6 @@ nlohmann::ordered_json& VulkanExportJsonConsumerBase::WriteApiCallStart(const Ap
     function[NameThread()]           = call_info.thread_id;
 
     return function;
-}
-
-void VulkanExportJsonConsumerBase::ProcessAnnotation(uint64_t               block_index,
-                                                     format::AnnotationType type,
-                                                     const std::string&     label,
-                                                     const std::string&     data)
-{
-    auto& json_data     = WriteBlockStart();
-    json_data["index"]  = block_index;
-    auto& annotation    = json_data["annotation"];
-    annotation["type"]  = AnnotationTypeToString(type);
-    annotation["label"] = label;
-    annotation["data"]  = data;
-    WriteBlockEnd();
 }
 
 GFXRECON_END_NAMESPACE(decode)

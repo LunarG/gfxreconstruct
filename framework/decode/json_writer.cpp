@@ -32,6 +32,38 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+namespace
+{
+/// @brief Convert an annotation to its string representation
+/// @todo This should be moved into util/to_string.h/cpp after the existing
+/// code there that is tied to the deprecated toJSON paths is eliminated.
+std::string AnnotationTypeToString(const format::AnnotationType& type)
+{
+    std::string str;
+    switch (type)
+    {
+        case format::AnnotationType::kUnknown:
+            str.assign("kUnknown");
+            break;
+        case format::AnnotationType::kText:
+            str.assign("kText");
+            break;
+        case format::AnnotationType::kJson:
+            str.assign("kJson");
+            break;
+        case format::AnnotationType::kXml:
+            str.assign("kXml");
+            break;
+        default:
+            str.assign("OUT_OF_RANGE_ERROR");
+            GFXRECON_LOG_WARNING("format::AnnotationType with out of range value: %lu",
+                                 static_cast<long unsigned>(type));
+            break;
+    }
+    return str;
+}
+} // namespace
+
 JsonWriter::JsonWriter(const JsonOptions&     options,
                        const std::string_view gfxrVersion,
                        const std::string_view inputFilepath) :
@@ -117,6 +149,20 @@ void JsonWriter::WriteBlockEnd()
     const std::string block = json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : kJsonIndentWidth);
     Write(*os_, block);
     os_->Flush();
+}
+
+void JsonWriter::ProcessAnnotation(uint64_t               block_index,
+                                   format::AnnotationType type,
+                                   const std::string&     label,
+                                   const std::string&     data)
+{
+    auto& json_data     = WriteBlockStart();
+    json_data["index"]  = block_index;
+    auto& annotation    = json_data["annotation"];
+    annotation["type"]  = AnnotationTypeToString(type);
+    annotation["label"] = label;
+    annotation["data"]  = data;
+    WriteBlockEnd();
 }
 
 GFXRECON_END_NAMESPACE(decode)

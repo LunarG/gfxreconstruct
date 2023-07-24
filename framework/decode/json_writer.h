@@ -27,6 +27,7 @@
 #ifndef GFXRECON_DECODE_JSON_WRITER_H
 #define GFXRECON_DECODE_JSON_WRITER_H
 
+#include "annotation_handler.h"
 #include "decode/vulkan_json_util.h"
 #include "util/platform.h"
 #include "util/defines.h"
@@ -40,7 +41,7 @@ GFXRECON_END_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 /// Manages writing
-class JsonWriter
+class JsonWriter : public AnnotationHandler
 {
   public:
     JsonWriter(const JsonOptions& options, const std::string_view gfxrVersion, const std::string_view inputFilepath);
@@ -72,8 +73,12 @@ class JsonWriter
 
     uint32_t GetNumStreams() const { return num_streams_; }
 
-  protected:
-    // gfxrecon::util::ToStringFlags to_string_flags_{ gfxrecon::util::kToString_Default }; ///< @deprecated
+    /// @brief Convert annotations, which are simple {type:enum, key:string, value:string} objects.
+    virtual void ProcessAnnotation(uint64_t               block_index,
+                                   format::AnnotationType type,
+                                   const std::string&     label,
+                                   const std::string&     data) override;
+
   private:
     util::OutputStream*    os_;
     nlohmann::ordered_json header_;

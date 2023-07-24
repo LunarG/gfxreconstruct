@@ -38,10 +38,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanExportJsonConsumerBase
-    : public VulkanConsumer,
-      public AnnotationHandler /// @todo Make a separate JsonAnnotationHandler which talks to the same JsonWriter so
-                               /// that you could build a convert with DX12 and with no Vulkan.
+class VulkanExportJsonConsumerBase : public VulkanConsumer
 {
   public:
     VulkanExportJsonConsumerBase();
@@ -176,12 +173,6 @@ class VulkanExportJsonConsumerBase
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
-
-    /// @brief Convert annotations, which are simple {type:enum, key:string, value:string} objects.
-    virtual void ProcessAnnotation(uint64_t               block_index,
-                                   format::AnnotationType type,
-                                   const std::string&     label,
-                                   const std::string&     data) override;
 
   protected:
     const JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
