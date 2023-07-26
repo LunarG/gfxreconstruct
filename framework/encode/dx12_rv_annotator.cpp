@@ -35,7 +35,10 @@ void Dx12ResourceValueAnnotator::RemoveObjectGPUVA(IUnknown_Wrapper* wrapper)
     if (IsEqualGUID(riid, __uuidof(ID3D12Resource)) || IsEqualGUID(riid, __uuidof(ID3D12Resource1)) ||
         IsEqualGUID(riid, __uuidof(ID3D12Resource2)))
     {
-        RemoveGPUVA(reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper)->GetObjectInfo()->gpu_va);
+        if (reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper)->GetObjectInfo()->heap_wrapper == nullptr)
+        {
+            RemoveGPUVA(reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper)->GetObjectInfo()->gpu_va);
+        }
     }
     else if (IsEqualGUID(riid, __uuidof(ID3D12Heap)) || IsEqualGUID(riid, __uuidof(ID3D12Heap1)))
     {
