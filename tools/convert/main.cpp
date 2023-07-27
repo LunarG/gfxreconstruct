@@ -280,13 +280,12 @@ int main(int argc, const char** argv)
             gfxrecon::decode::AgsAsciiConsumer ags_ascii_consumer;
             ags_ascii_consumer.Initialize(out_file_handle, dx12_json_flags);
 
-            gfxrecon::decode::AgsDecoder        ags_decoder;
+            gfxrecon::decode::AgsDecoder ags_decoder;
 
             ags_decoder.AddConsumer(reinterpret_cast<gfxrecon::decode::AgsConsumerBase*>(&ags_ascii_consumer));
 
             file_processor.AddDecoder(&ags_decoder);
 #endif // GFXRECON_AGS_SUPPORT
-
 
 #endif
 
