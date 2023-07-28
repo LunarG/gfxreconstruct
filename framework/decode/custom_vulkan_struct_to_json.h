@@ -26,7 +26,7 @@
 #include "nlohmann/json.hpp"
 #include "vulkan/vulkan.h"
 
-#include "decode/vulkan_json_util.h"
+#include "decode/json_util.h"
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_json.h"
 #include "generated/generated_vulkan_struct_to_json.h"

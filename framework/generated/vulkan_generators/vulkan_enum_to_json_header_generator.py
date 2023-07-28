@@ -87,8 +87,11 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, genOpts)
         includes = format_cpp_code('''
             #include "format/platform_types.h"
-            #include "decode/vulkan_json_util.h"
-        ''')
+            #include "decode/json_util.h"
+
+            '''
+        )
+
         write(includes, file=self.outFile)
         self.includeVulkanHeaders(genOpts)
         write("", file=self.outFile)

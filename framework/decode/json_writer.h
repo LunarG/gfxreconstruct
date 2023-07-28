@@ -28,7 +28,7 @@
 #define GFXRECON_DECODE_JSON_WRITER_H
 
 #include "annotation_handler.h"
-#include "decode/vulkan_json_util.h"
+#include "decode/json_util.h"
 #include "util/platform.h"
 #include "util/defines.h"
 

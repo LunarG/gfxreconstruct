@@ -20,8 +20,11 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_VULKAN_JSON_UTIL_H
-#define GFXRECON_DECODE_VULKAN_JSON_UTIL_H
+/// @file API-agnostic options and helpers for outputting JSON used by all
+/// the JSON-generating Consumers.
+
+#ifndef GFXRECON_DECODE_JSON_UTIL_H
+#define GFXRECON_DECODE_JSON_UTIL_H
 
 #include "util/defines.h"
 #include "format/format.h"
@@ -50,6 +53,7 @@ struct JsonOptions
     bool        hex_handles   = false;
 };
 
+/// @todo No JSON involved here so move to a to_string header.
 template <typename T>
 std::string to_hex_variable_width(T value)
 {
@@ -58,6 +62,7 @@ std::string to_hex_variable_width(T value)
     return stream.str();
 }
 
+/// @todo No JSON involved here so move to a to_string header.
 template <typename T>
 std::string to_hex_fixed_width(T value)
 {
@@ -66,6 +71,8 @@ std::string to_hex_fixed_width(T value)
     return stream.str();
 }
 
+/// @todo No JSON involved here so move to a to_string header.
+/// @todo Move to .cpp. No need to inline this.
 inline std::string uuid_to_string(uint32_t size, const uint8_t* uuid)
 {
     std::ostringstream stream;
@@ -80,6 +87,7 @@ inline std::string uuid_to_string(uint32_t size, const uint8_t* uuid)
 /// @brief Convert the integer representation of a handle in capture files into
 /// either a JSON number or a JSON string with the number represented in
 /// hexadecimal.
+/// @todo Move to .cpp. No need to inline this.
 inline void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options)
 {
     if (options.hex_handles)
@@ -97,4 +105,4 @@ inline void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId h
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_VULKAN_JSON_UTIL_H
+#endif // GFXRECON_DECODE_JSON_UTIL_H

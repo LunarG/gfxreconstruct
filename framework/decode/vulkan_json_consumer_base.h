@@ -29,7 +29,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "decode/json_writer.h"
-#include "decode/vulkan_json_util.h"
+#include "decode/json_util.h"
 #include "vulkan/vulkan.h"
 
 #include <cstdio>

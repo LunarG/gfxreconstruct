@@ -66,6 +66,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/file_transformer.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_transformer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/handle_pointer_decoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/json_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/json_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/pnext_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/pnext_typed_node.h
