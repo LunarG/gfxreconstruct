@@ -285,9 +285,9 @@ Vulkan-only:
                                         and suballocations.
 
 D3D12-only:
-  --use-cached-psos <boolean>  Force CachedPSO to null when creating graphics or compute PSOs.
-                               Can help enable replay across changing driver installs.
-                               Default: enabled
+  --use-cached-psos <boolean>  Permit using cached PSOs when creating graphics or compute pipelines.
+                               Disabling helps enable replay across changing driver installs.
+                               Default: disabled
   --debug-device-lost          Enables automatic injection of breadcrumbs into command buffers
                                and page fault reporting.
                                Used to debug Direct3D 12 device removed problems.

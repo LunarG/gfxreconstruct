@@ -2207,7 +2207,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadGraphicsPipeline(
                (desc != nullptr) && (desc->GetPointer() != nullptr) && (state != nullptr));
 
         auto desc2 = desc->GetPointer();
-        if (options_.discard_cached_psos)
+        if (options_.use_cached_psos == false)
         {
             desc2->CachedPSO.pCachedBlob           = nullptr;
             desc2->CachedPSO.CachedBlobSizeInBytes = 0;
@@ -2240,7 +2240,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadComputePipeline(
                (desc != nullptr) && (desc->GetPointer() != nullptr) && (state != nullptr));
 
         auto desc2 = desc->GetPointer();
-        if (options_.discard_cached_psos)
+        if (options_.use_cached_psos == false)
         {
             desc2->CachedPSO.pCachedBlob           = nullptr;
             desc2->CachedPSO.CachedBlobSizeInBytes = 0;
@@ -3101,7 +3101,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateGraphicsPipelineState(
     auto device = static_cast<ID3D12Device*>(device_object_info->object);
 
     auto pDesc2 = pDesc->GetPointer();
-    if (options_.discard_cached_psos)
+    if (options_.use_cached_psos == false)
     {
         pDesc2->CachedPSO.pCachedBlob           = nullptr;
         pDesc2->CachedPSO.CachedBlobSizeInBytes = 0;
@@ -3128,7 +3128,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateComputePipelineState(
     auto device = static_cast<ID3D12Device*>(device_object_info->object);
 
     auto pDesc2 = pDesc->GetPointer();
-    if (options_.discard_cached_psos)
+    if (options_.use_cached_psos == false)
     {
         pDesc2->CachedPSO.pCachedBlob           = nullptr;
         pDesc2->CachedPSO.CachedBlobSizeInBytes = 0;

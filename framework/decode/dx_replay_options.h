@@ -40,7 +40,7 @@ struct DxReplayOptions : public ReplayOptions
 {
     bool                 enable_d3d12{ true };
     bool                 enable_d3d12_two_pass_replay{ false };
-    bool                 discard_cached_psos{ true };
+    bool                 use_cached_psos{ false };
     std::vector<int32_t> AllowedDebugMessages;
     std::vector<int32_t> DeniedDebugMessages;
     bool                 override_object_names{ false };
