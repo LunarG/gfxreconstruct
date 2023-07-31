@@ -190,8 +190,8 @@ if(MSVC)
     
     if (${D3D12_SUPPORT})
         if (${GFXRECON_AGS_SUPPORT})
+            find_package(AGS)
             if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-                find_package(AGS)
                 if (TARGET AGS::AGS)
                     add_definitions(-DGFXRECON_AGS_SUPPORT)
                 
