@@ -286,7 +286,7 @@ Vulkan-only:
 
 D3D12-only:
   --use-cached-psos            Permit using cached PSOs when creating graphics or compute pipelines.
-                               Disabling helps enable replay across changing driver installs.
+                               Using cached PSOs may reduce PSO creation time but may result in replay errors.
   --debug-device-lost          Enables automatic injection of breadcrumbs into command buffers
                                and page fault reporting.
                                Used to debug Direct3D 12 device removed problems.

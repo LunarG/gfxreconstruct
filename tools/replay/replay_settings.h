@@ -55,7 +55,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--surface-index <N>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--use-cached-psos] [--surface-index <N>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
@@ -202,7 +202,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("D3D12-only:")
     GFXRECON_WRITE_CONSOLE(
         "  --use-cached-psos  \tPermit using cached PSOs when creating graphics or compute pipelines.");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tCan help enable replay across changing driver installs.");
+    GFXRECON_WRITE_CONSOLE(
+        "       \t\t\tUsing cached PSOs may reduce PSO creation time but may result in replay errors.");
     GFXRECON_WRITE_CONSOLE("  --debug-device-lost\tEnables automatic injection of breadcrumbs into command buffers");
     GFXRECON_WRITE_CONSOLE("            \t\tand page fault reporting.");
     GFXRECON_WRITE_CONSOLE("            \t\tUsed to debug Direct3D 12 device removed problems.");
