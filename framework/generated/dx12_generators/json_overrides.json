@@ -1,0 +1,10 @@
+{
+  "classmethods": {
+    "IDXGISwapChain": {
+      "Present": "OverridePresent"
+    },
+    "IDXGISwapChain1": {
+      "Present1": "OverridePresent1"
+    }
+  }
+}
