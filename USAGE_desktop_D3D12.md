@@ -183,7 +183,7 @@ Usage:
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
-                        [--use-cached-psos <boolean>] [--surface-index <N>]
+                        [--use-cached-psos] [--surface-index <N>]
                         [--remove-unsupported] [--validate]
                         [--onhb | --omit-null-hardware-buffers]
                         [-m <mode> | --memory-translation <mode>]
@@ -285,9 +285,8 @@ Vulkan-only:
                                         and suballocations.
 
 D3D12-only:
-  --use-cached-psos <boolean>  Permit using cached PSOs when creating graphics or compute pipelines.
+  --use-cached-psos            Permit using cached PSOs when creating graphics or compute pipelines.
                                Disabling helps enable replay across changing driver installs.
-                               Default: disabled
   --debug-device-lost          Enables automatic injection of breadcrumbs into command buffers
                                and page fault reporting.
                                Used to debug Direct3D 12 device removed problems.

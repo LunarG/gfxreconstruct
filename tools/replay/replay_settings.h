@@ -31,12 +31,11 @@ const char kOptions[] =
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
     "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos,"
-    "--dx12-override-object-names";
+    "--use-cached-psos,--dx12-override-object-names";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
-    "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range,--fw|--force-windowed,"
-    "--use-cached-psos";
+    "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range,--fw|--force-windowed";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -201,8 +200,8 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12-only:")
-    GFXRECON_WRITE_CONSOLE("  --use-cached-psos <boolean>");
-    GFXRECON_WRITE_CONSOLE("          \t\tPermit using cached PSOs when creating graphics or compute pipelines.");
+    GFXRECON_WRITE_CONSOLE(
+        "  --use-cached-psos  \tPermit using cached PSOs when creating graphics or compute pipelines.");
     GFXRECON_WRITE_CONSOLE("       \t\t\tCan help enable replay across changing driver installs.");
     GFXRECON_WRITE_CONSOLE("  --debug-device-lost\tEnables automatic injection of breadcrumbs into command buffers");
     GFXRECON_WRITE_CONSOLE("            \t\tand page fault reporting.");
