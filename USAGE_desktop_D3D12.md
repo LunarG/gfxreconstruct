@@ -466,7 +466,6 @@ Required arguments:
 Optional arguments:
   --d3d12-pso-removal   D3D12-only: Remove creation of unreferenced PSOs.
   --dxr                 D3D12-only: Optimize for DXR replay.
-  --gpu                 D3D12-only: Optimize for DXR replay.
 
 Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.
 ```
