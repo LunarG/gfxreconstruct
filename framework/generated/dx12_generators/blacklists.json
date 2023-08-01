@@ -1,5 +1,6 @@
 {
-  "functions": [],
+  "functions-all": [],
+  "functions-encoder": [],
   "functions-decoder": [],
   "classmethods": {
     "ID3D12Device": [
