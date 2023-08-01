@@ -115,6 +115,27 @@ EXTERN_C AGSReturnCode AMD_AGS_API gfxrecon_agsInitialize(int                   
     return AGS_FAILURE;
 }
 
+// When this API function is called, it means the app is trying to use AGS v5.x.x versions
+EXTERN_C AGSReturnCode AMD_AGS_API gfxrecon_agsInit(AGSContext**            context,
+                                                    const AGSConfiguration* config,
+                                                    AGSGPUInfo*             gpuInfo)
+{
+    if (gfxrecon::Initialize())
+    {
+        GetDispatchTable().agsInitNotSupported();
+    }
+
+    return AGS_FAILURE;
+}
+
+// The system may check the entry point of this function if the app is trying to use AGS v5.x.x versions
+EXTERN_C AGSReturnCode AMD_AGS_API gfxrecon_agsDeInit(AGSContext**            context,
+                                                      const AGSConfiguration* config,
+                                                      AGSGPUInfo*             gpuInfo)
+{
+    return AGS_FAILURE;
+}
+
 EXTERN_C AGSReturnCode AMD_AGS_API gfxrecon_agsDeInitialize(AGSContext* context)
 {
     if (gfxrecon::Initialize())
