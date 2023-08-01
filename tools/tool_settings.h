@@ -72,6 +72,7 @@ const char kSkipFailedAllocationShortOption[]    = "--sfa";
 const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
 const char kDiscardCachedPsosShortOption[]       = "--dcp";
 const char kDiscardCachedPsosLongOption[]        = "--discard-cached-psos";
+const char kUseCachedPsosOption[]                = "--use-cached-psos";
 const char kOmitPipelineCacheDataShortOption[]   = "--opcd";
 const char kOmitPipelineCacheDataLongOption[]    = "--omit-pipeline-cache-data";
 const char kWsiArgument[]                        = "--wsi";
@@ -805,7 +806,13 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
 
     if (arg_parser.IsOptionSet(kDiscardCachedPsosLongOption) || arg_parser.IsOptionSet(kDiscardCachedPsosShortOption))
     {
-        replay_options.discard_cached_psos = true;
+        GFXRECON_LOG_WARNING("The parameters --dcp and --discard-cached-psos have been deprecated in favor for "
+                             "--use-cached-psos");
+    }
+
+    if (arg_parser.IsOptionSet(kUseCachedPsosOption))
+    {
+        replay_options.use_cached_psos = true;
     }
 
     if (arg_parser.IsOptionSet(kDxOverrideObjectNames))

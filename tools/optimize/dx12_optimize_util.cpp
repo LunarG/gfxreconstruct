@@ -73,7 +73,6 @@ void CreateResourceValueTrackingConsumer(
 
     // Use default replay options, except dcp.
     decode::DxReplayOptions dx_replay_options;
-    dx_replay_options.discard_cached_psos = true;
 
     // Create the replay consumer.
     dx12_replay_consumer = std::make_unique<decode::Dx12ResourceValueTrackingConsumer>(
