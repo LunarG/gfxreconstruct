@@ -32,6 +32,8 @@ struct Dx12OptimizationOptions
     bool remove_redundant_psos{ false };
     bool optimize_resource_values{ false };
     bool optimize_resource_values_experimental{ false };
+
+    int32_t override_gpu_index{ -1 };
 };
 
 GFXRECON_END_NAMESPACE(decode)
