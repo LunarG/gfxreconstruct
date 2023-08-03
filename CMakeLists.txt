@@ -170,7 +170,7 @@ if(MSVC)
         set(EXPECTED_WIN_SDK_VER "10.0.20348.0")
         if (NOT ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} STREQUAL ${EXPECTED_WIN_SDK_VER})
             message(WARNING
-                "D3D12 support is authored against Windows SDK ${EXPECTED_WIN_SDK_VER}. Windows SDK verison "
+                "D3D12 support is authored against Windows SDK ${EXPECTED_WIN_SDK_VER}. Windows SDK version "
                 "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} may not be compatible. If you encounter build errors, "
                 "set D3D12_SUPPORT=OFF or configure the build with the recommended Windows SDK version. See BUILD.md "
                 "for more information.")
