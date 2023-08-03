@@ -60,7 +60,8 @@ extern "C"
 }
 #endif
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--dxr,--dxr-experimental";
+const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--dxr,--dxr-experimental";
+const char kArguments[] = "--gpu";
 
 const char kD3d12PsoRemoval[]             = "--d3d12-pso-removal";
 const char kDx12OptimizeDxr[]             = "--dxr";
@@ -82,8 +83,9 @@ static void PrintUsage(const char* exe_name)
         "\t\t\tFor D3D12, the optimizer will improve DXR replay performance and remove unused PSOs (for all captures)");
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--d3d12-pso-removal] [--dxr] <input-file> <output-file>",
-                           app_name.c_str());
+    GFXRECON_WRITE_CONSOLE(
+        "  %s [-h | --help] [--version] [--d3d12-pso-removal] [--dxr] [--gpu <index>] <input-file> <output-file>",
+        app_name.c_str());
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <input-file>\t\tThe path to input GFXReconstruct capture file to be processed.");
@@ -99,6 +101,12 @@ static void PrintUsage(const char* exe_name)
 #endif
     GFXRECON_WRITE_CONSOLE("  --d3d12-pso-removal\tD3D12-only: Remove creation of unreferenced PSOs.");
     GFXRECON_WRITE_CONSOLE("  --dxr\t\t\tD3D12-only: Optimize for DXR and ExecuteIndirect replay.");
+    GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for the optimizer replay, where index");
+    GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical devices");
+    GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.");
+    GFXRECON_WRITE_CONSOLE(
+        "          \t\tThe optimizer replay may fail if the specified device is not compatible with the");
+    GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices.");
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Note: running without optional arguments will instruct the optimizer to detect API and run "
                            "all available optimizations.");
@@ -204,7 +212,7 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
@@ -240,6 +248,11 @@ int main(int argc, const char** argv)
         dx12_options.optimize_resource_values              = arg_parser.IsOptionSet(kDx12OptimizeDxr);
         dx12_options.optimize_resource_values_experimental = arg_parser.IsOptionSet(kDx12OptimizeDxrExperimental);
         dx12_options.remove_redundant_psos                 = arg_parser.IsOptionSet(kD3d12PsoRemoval);
+        const auto& override_gpu                           = arg_parser.GetArgumentValue(kOverrideGpuArgument);
+        if (!override_gpu.empty())
+        {
+            dx12_options.override_gpu_index = std::stoi(override_gpu);
+        }
 
         if (dx12_options.optimize_resource_values_experimental)
         {
