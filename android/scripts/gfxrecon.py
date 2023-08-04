@@ -85,6 +85,9 @@ def CreateReplayParser():
     parser.add_argument('--use-captured-swapchain-indices', action='store_true', default=False, help='Use the swapchain indices stored in the capture directly on the swapchain setup for replay. The default without this option is to use a Virtual Swapchain of images which match the swapchain in effect at capture time and which are copied to the underlying swapchain of the implementation being replayed on.')
 
     parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
+
+    parser.add_argument('--no-retry-on-timeout', action='store_true', default=False, help='Do not retry if initial call to Vulkan API returned VK_TIMEOUT')
+
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
     return parser
 
@@ -155,6 +158,9 @@ def MakeExtrasString(args):
     if args.memory_translation:
         arg_list.append('-m')
         arg_list.append('{}'.format(args.memory_translation))
+
+    if args.no_retry_on_timeout:
+        arg_list.append('--no-retry-on_timeout')
 
     if args.file:
         arg_list.append(args.file)

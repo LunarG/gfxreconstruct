@@ -189,7 +189,7 @@ Usage:
                         [-m <mode> | --memory-translation <mode>]
                         [--fw <width,height> | --force-windowed <width,height>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
-                        [--api <api>] <file>
+                        [--api <api>] [--no-retry-on-timeout] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -283,6 +283,10 @@ Vulkan-only:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
+  --no-retry-on-timeout By default, Vulkan api calls that have a timeout parameter
+                        will retry the api call with a larger timeout value if the
+                        expected return value is VK_SUCCESS but the initial call returned
+                        VK_TIMEOUT. This argument disables the retry.
 
 D3D12-only:
   --use-cached-psos            Permit using cached PSOs when creating graphics or compute pipelines.

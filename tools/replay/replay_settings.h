@@ -31,7 +31,7 @@ const char kOptions[] =
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
     "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos,"
-    "--use-cached-psos,--dx12-override-object-names";
+    "--use-cached-psos,--dx12-override-object-names,--no-retry-on-timeout";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -71,6 +71,7 @@ static void PrintUsage(const char* exe_name)
 #else
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] <file>");
 #endif
+    GFXRECON_WRITE_CONSOLE("\t\t\t[----no-retry-on-timeout]");
 
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
@@ -196,6 +197,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDeviceGroups.  Replay may fail");
     GFXRECON_WRITE_CONSOLE("          \t\tif the specified device group is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture device group.");
+    GFXRECON_WRITE_CONSOLE("  --no-retry-on-timeout\tDo not retry if initial call to Vulkan API returned VK_TIMEOUT");
 
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")

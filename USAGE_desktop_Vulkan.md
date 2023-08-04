@@ -369,7 +369,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [-m <mode> | --memory-translation <mode>]
                         [--use-captured-swapchain-indices]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
-                        [--api <api>] [--no-debug-popup] <file>
+                        [--api <api>] [--no-debug-popup] [--no-retry-on-timeout] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -471,6 +471,10 @@ Optional arguments:
                         setup for replay. The default without this option is to use a Virtual Swapchain
                         of images which match the swapchain in effect at capture time and which are
                         copied to the underlying swapchain of the implementation being replayed on.
+  --no-retry-on-timeout By default, Vulkan api calls that have a timeout parameter
+                        will retry the api call with a larger timeout value if the
+                        expected return value is VK_SUCCESS but the initial call returned
+                        VK_TIMEOUT. This argument disables the retry.
 ```
 
 ### Key Controls

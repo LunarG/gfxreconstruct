@@ -731,6 +731,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--screenshot-prefix PREFIX] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
                           [-m MODE] [--use-captured-swapchain-indices]
+                          [--no-retry-on-timeout]
                           [file]
 
 Launch the replay tool.
@@ -806,6 +807,10 @@ optional arguments:
                         setup for replay. The default without this option is to use a Virtual Swapchain
                         of images which match the swapchain in effect at capture time and which are
                         copied to the underlying swapchain of the implementation being replayed on.
+  --no-retry-on-timeout By default, Vulkan api calls that have a timeout parameter
+                        will retry the api call with a larger timeout value if the
+                        expected return value is VK_SUCCESS but the initial call returned
+                        VK_TIMEOUT. This argument disables the retry.
 ```
 
 The command will force-stop an active replay process before starting the replay

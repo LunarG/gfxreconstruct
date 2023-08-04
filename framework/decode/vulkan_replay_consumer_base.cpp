@@ -49,6 +49,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+const uint64_t kNanosPerSecond = 1000000000;
+
 const size_t kMaxEventStatusRetries      = 16;
 const size_t kMaxQueryPoolResultsRetries = 16;
 
@@ -2997,13 +2999,7 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences    
         modified_fences      = valid_fences.data();
     }
 
-    if (original_result == VK_SUCCESS)
-    {
-        // Ensure that wait for fences waits until the fences have been signaled (or error occurs) by changing the
-        // timeout to UINT64_MAX.
-        result = func(device, modified_fence_count, modified_fences, waitAll, std::numeric_limits<uint64_t>::max());
-    }
-    else if (original_result == VK_TIMEOUT)
+    if (original_result == VK_TIMEOUT)
     {
         // Try to get a timeout result with a 0 timeout.
         result = func(device, modified_fence_count, modified_fences, waitAll, 0);
@@ -3011,8 +3007,16 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences    
     else
     {
         result = func(device, modified_fence_count, modified_fences, waitAll, timeout);
-    }
 
+        // Retry if replay result is VK_TIMEOUT
+        if (result == VK_TIMEOUT && !options_.no_retry_on_timeout && original_result == VK_SUCCESS &&
+            timeout < kNanosPerSecond)
+        {
+            // We don't generate a warning here because this is too common of a case
+            timeout = kNanosPerSecond;
+            result  = func(device, modified_fence_count, modified_fences, waitAll, timeout);
+        }
+    }
     return result;
 }
 
@@ -5174,6 +5178,22 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
             result = swapchain_->AcquireNextImageKHR(
                 func, device_info, swapchain_info, timeout, semaphore_info, fence_info, captured_index, replay_index);
 
+            // Retry if replay result is VK_TIMEOUT
+            if (result == VK_TIMEOUT && !options_.no_retry_on_timeout && original_result == VK_SUCCESS &&
+                timeout < kNanosPerSecond)
+            {
+                GFXRECON_LOG_WARNING_ONCE("vkAcquireNextImageKHR returned VK_TIMEOUT, retrying");
+                timeout = kNanosPerSecond;
+                result  = swapchain_->AcquireNextImageKHR(func,
+                                                         device_info,
+                                                         swapchain_info,
+                                                         timeout,
+                                                         semaphore_info,
+                                                         fence_info,
+                                                         captured_index,
+                                                         replay_index);
+            }
+
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
                 swapchain_info->acquired_indices.resize(captured_index + 1);
@@ -5220,7 +5240,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
     // If image acquire failed at capture, there is nothing worth replaying as the fence and semaphore aren't processed
     // and a successful acquire on replay of an image that does not have a corresponding present to replay can lead to
     // OUT_OF_DATE errors.
-    if (original_result < 0)
+    if (original_result != VK_SUCCESS && original_result != VK_SUBOPTIMAL_KHR)
     {
         result = original_result;
     }
@@ -5282,6 +5302,17 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 
             result = swapchain_->AcquireNextImage2KHR(
                 func, device_info, swapchain_info, replay_acquire_info, captured_index, replay_index);
+
+            // Retry if replay result is VK_TIMEOUT
+            if (result == VK_TIMEOUT && !options_.no_retry_on_timeout && original_result == VK_SUCCESS &&
+                replay_acquire_info->timeout < kNanosPerSecond)
+            {
+                GFXRECON_LOG_WARNING_ONCE("vkAcquireNextImageKHR2 returned VK_TIMEOUT, retrying");
+                VkAcquireNextImageInfoKHR replay_aquire_info_retry = *replay_acquire_info;
+                replay_aquire_info_retry.timeout                   = kNanosPerSecond;
+                result                                             = swapchain_->AcquireNextImage2KHR(
+                    func, device_info, swapchain_info, &replay_aquire_info_retry, captured_index, replay_index);
+            }
 
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
@@ -6415,6 +6446,78 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceToolProperties(
         *pToolCount->GetOutputPointer() = 0;
         return VK_SUCCESS;
     }
+}
+
+VkResult
+VulkanReplayConsumerBase::OverrideWaitSemaphores(PFN_vkWaitSemaphores func,
+                                                 VkResult             original_result,
+                                                 const DeviceInfo*    device_info,
+                                                 const StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pInfo,
+                                                 uint64_t                                                 timeout)
+{
+    assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
+    VkDevice                   device        = device_info->handle;
+    const VkSemaphoreWaitInfo* wait_info     = pInfo->GetPointer();
+    VkResult                   replay_result = func(device, wait_info, timeout);
+
+    // Retry if replay result is VK_TIMEOUT
+    if (replay_result == VK_TIMEOUT && !options_.no_retry_on_timeout && original_result == VK_SUCCESS &&
+        timeout < kNanosPerSecond)
+    {
+        GFXRECON_LOG_WARNING_ONCE("vkWaitSemaphores returned VK_TIMEOUT, retrying");
+        timeout       = kNanosPerSecond;
+        replay_result = func(device, wait_info, timeout);
+    }
+
+    return replay_result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideAcquireProfilingLockKHR(
+    PFN_vkAcquireProfilingLockKHR                                      func,
+    VkResult                                                           original_result,
+    const DeviceInfo*                                                  device_info,
+    const StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
+{
+    assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
+    VkDevice                             device        = device_info->handle;
+    const VkAcquireProfilingLockInfoKHR* acquire_info  = pInfo->GetPointer();
+    VkResult                             replay_result = func(device, acquire_info);
+
+    // Retry if replay result is VK_TIMEOUT
+    if (replay_result == VK_TIMEOUT && !options_.no_retry_on_timeout && original_result == VK_SUCCESS &&
+        acquire_info->timeout < kNanosPerSecond)
+    {
+        GFXRECON_LOG_WARNING_ONCE("vkAcquireProfilingLockKHR returned VK_TIMEOUT, retrying");
+        VkAcquireProfilingLockInfoKHR acquire_info_retry = *acquire_info;
+        acquire_info_retry.timeout                       = kNanosPerSecond;
+        replay_result                                    = func(device, &acquire_info_retry);
+    }
+
+    return replay_result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideWaitForPresentKHR(PFN_vkWaitForPresentKHR func,
+                                                             VkResult                original_result,
+                                                             const DeviceInfo*       device_info,
+                                                             SwapchainKHRInfo*       swapchain_info,
+                                                             uint64_t                presentid,
+                                                             uint64_t                timeout)
+{
+    assert((device_info != nullptr) && (swapchain_info != nullptr));
+    VkDevice       device        = device_info->handle;
+    VkSwapchainKHR swapchain     = swapchain_info->handle;
+    VkResult       replay_result = func(device, swapchain, presentid, timeout);
+
+    // Retry if replay result is VK_TIMEOUT
+    if (replay_result == VK_TIMEOUT && !options_.no_retry_on_timeout && original_result == VK_SUCCESS &&
+        timeout < kNanosPerSecond)
+    {
+        GFXRECON_LOG_WARNING_ONCE("vkWaitForPresentKHR returned VK_TIMEOUT, retrying");
+        timeout       = kNanosPerSecond;
+        replay_result = func(device, swapchain, presentid, timeout);
+    }
+
+    return replay_result;
 }
 
 void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
