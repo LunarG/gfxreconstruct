@@ -2579,15 +2579,13 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                 }
             }
 
-            if (options_.remove_unsupported_features)
-            {
-                // Remove enabled features that are not available from the replay device.
-                feature_util::RemoveUnsupportedFeatures(physical_device,
-                                                        table->GetPhysicalDeviceFeatures,
-                                                        table->GetPhysicalDeviceFeatures2,
-                                                        modified_create_info.pNext,
-                                                        modified_create_info.pEnabledFeatures);
-            }
+            // Remove enabled features that are not available from the replay device.
+            feature_util::CheckUnsupportedFeatures(physical_device,
+                                                   table->GetPhysicalDeviceFeatures,
+                                                   table->GetPhysicalDeviceFeatures2,
+                                                   modified_create_info.pNext,
+                                                   modified_create_info.pEnabledFeatures,
+                                                   options_.remove_unsupported_features);
         }
 
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
