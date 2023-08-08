@@ -55,11 +55,12 @@ void RemoveIgnorableExtensions(const std::vector<VkExtensionProperties>& propert
                                std::vector<const char*>*                 extensions);
 
 // This is a declaration for a generated function.
-void RemoveUnsupportedFeatures(VkPhysicalDevice                 physicalDevice,
-                               PFN_vkGetPhysicalDeviceFeatures  get_device_features_proc,
-                               PFN_vkGetPhysicalDeviceFeatures2 get_device_features2_proc,
-                               const void*                      pNext,
-                               const VkPhysicalDeviceFeatures*  pEnabledFeatures);
+void CheckUnsupportedFeatures(VkPhysicalDevice                 physicalDevice,
+                              PFN_vkGetPhysicalDeviceFeatures  get_device_features_proc,
+                              PFN_vkGetPhysicalDeviceFeatures2 get_device_features2_proc,
+                              const void*                      pNext,
+                              const VkPhysicalDeviceFeatures*  pEnabledFeatures,
+                              bool                             remove_unsupported);
 
 GFXRECON_END_NAMESPACE(feature_util)
 GFXRECON_END_NAMESPACE(decode)
