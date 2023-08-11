@@ -1410,6 +1410,21 @@ void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage2KHR(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdBindIndexBuffer2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    VkDeviceSize                                size,
+    VkIndexType                                 indexType)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+    GFXRECON_UNREFERENCED_PARAMETER(size);
+    GFXRECON_UNREFERENCED_PARAMETER(indexType);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

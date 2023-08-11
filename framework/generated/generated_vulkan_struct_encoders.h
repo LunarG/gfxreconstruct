@@ -571,6 +571,15 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceWorkgroupMemo
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkTraceRaysIndirectCommand2KHR& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance5FeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance5PropertiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAreaInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDeviceImageSubresourceInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateFlags2CreateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferUsageFlags2CreateInfoKHR& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeMatrixPropertiesKHR& value);
@@ -891,8 +900,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToImageInfoEXT& va
 void EncodeStruct(ParameterEncoder* encoder, const VkHostImageLayoutTransitionInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceHostMemcpySizeEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkHostImageCopyDevicePerformanceQueryEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout2EXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource2EXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& value);
 

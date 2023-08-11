@@ -974,6 +974,13 @@ void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkReso
     }
 }
 
+void TrackCmdBindIndexBuffer2KHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer)
+{
+    assert(wrapper != nullptr);
+
+    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId<BufferWrapper>(buffer));
+}
+
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers)
 {
     assert(wrapper != nullptr);

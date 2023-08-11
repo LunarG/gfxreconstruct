@@ -1306,6 +1306,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceMaintenance5FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceMaintenance5FeaturesKHR*>(next);
+                VkPhysicalDeviceMaintenance5FeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->maintenance5 == VK_TRUE) && (query.maintenance5 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature maintenance5, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMaintenance5FeaturesKHR*>(currentNext)->maintenance5 = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
             {
                 const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR*>(next);

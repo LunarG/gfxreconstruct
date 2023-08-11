@@ -2406,6 +2406,33 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
         StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements) override;
 
+    virtual void Process_vkCmdBindIndexBuffer2KHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        VkDeviceSize                                size,
+        VkIndexType                                 indexType) override;
+
+    virtual void Process_vkGetRenderingAreaGranularityKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkRenderingAreaInfoKHR>* pRenderingAreaInfo,
+        StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity) override;
+
+    virtual void Process_vkGetDeviceImageSubresourceLayoutKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDeviceImageSubresourceInfoKHR>* pInfo,
+        StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout) override;
+
+    virtual void Process_vkGetImageSubresourceLayout2KHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            image,
+        StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource,
+        StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout) override;
+
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3317,8 +3344,8 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         format::HandleId                            image,
-        StructPointerDecoder<Decoded_VkImageSubresource2EXT>* pSubresource,
-        StructPointerDecoder<Decoded_VkSubresourceLayout2EXT>* pLayout) override;
+        StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource,
+        StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout) override;
 
     virtual void Process_vkReleaseSwapchainImagesEXT(
         const ApiCallInfo&                          call_info,
