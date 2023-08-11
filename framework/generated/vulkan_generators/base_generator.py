@@ -76,7 +76,8 @@ _remove_extensions = [
     "VK_EXT_descriptor_buffer",
     "VK_NV_copy_memory_indirect",
     "VK_NV_memory_decompression",
-    "VK_QNX_external_memory_screen_buffer"
+    "VK_QNX_external_memory_screen_buffer",
+    "VK_AMDX_shader_enqueue"
 ]
 
 _supported_subsets = [
@@ -111,7 +112,13 @@ def BitsEnumToFlagsTypedef(enum):
     flags = removesuffix(enum, 'Bits2')
     if flags != enum:
         flags = flags + 's2'
+        return flags
     # Gods preserve us from Bits 3, 4, 5, etc.
+    # It might have more extension suffix.
+    flags = removesuffix(enum, 'Bits2KHR')
+    if flags != enum:
+        flags = flags + 's2KHR'
+        return flags
     return flags
 
 class ValueInfo():

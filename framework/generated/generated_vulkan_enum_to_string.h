@@ -290,6 +290,10 @@ template <> std::string ToString<VkVideoEncodeRateControlModeFlagBitsKHR>(VkFlag
 template <> std::string ToString<VkVideoEncodeTuningModeKHR>(const VkVideoEncodeTuningModeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkVideoEncodeUsageFlagBitsKHR>(const VkVideoEncodeUsageFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkVideoEncodeUsageFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+std::string VkBufferUsageFlagBits2KHRToString(const VkBufferUsageFlagBits2KHR value);
+std::string VkBufferUsageFlags2KHRToString(VkFlags64 vkFlags);
+std::string VkPipelineCreateFlagBits2KHRToString(const VkPipelineCreateFlagBits2KHR value);
+std::string VkPipelineCreateFlags2KHRToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkComponentTypeKHR>(const VkComponentTypeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkScopeKHR>(const VkScopeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDebugReportFlagBitsEXT>(const VkDebugReportFlagBitsEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

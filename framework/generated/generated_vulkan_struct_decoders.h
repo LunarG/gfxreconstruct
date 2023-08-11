@@ -4978,6 +4978,83 @@ typedef Decoded_VkDeviceBufferMemoryRequirements Decoded_VkDeviceBufferMemoryReq
 
 typedef Decoded_VkDeviceImageMemoryRequirements Decoded_VkDeviceImageMemoryRequirementsKHR;
 
+struct Decoded_VkPhysicalDeviceMaintenance5FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance5FeaturesKHR;
+
+    VkPhysicalDeviceMaintenance5FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceMaintenance5PropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance5PropertiesKHR;
+
+    VkPhysicalDeviceMaintenance5PropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkRenderingAreaInfoKHR
+{
+    using struct_type = VkRenderingAreaInfoKHR;
+
+    VkRenderingAreaInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkFormat> pColorAttachmentFormats;
+};
+
+struct Decoded_VkImageSubresource2KHR
+{
+    using struct_type = VkImageSubresource2KHR;
+
+    VkImageSubresource2KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkImageSubresource* imageSubresource{ nullptr };
+};
+
+struct Decoded_VkDeviceImageSubresourceInfoKHR
+{
+    using struct_type = VkDeviceImageSubresourceInfoKHR;
+
+    VkDeviceImageSubresourceInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkImageCreateInfo>* pCreateInfo{ nullptr };
+    StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource{ nullptr };
+};
+
+struct Decoded_VkSubresourceLayout2KHR
+{
+    using struct_type = VkSubresourceLayout2KHR;
+
+    VkSubresourceLayout2KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkSubresourceLayout* subresourceLayout{ nullptr };
+};
+
+struct Decoded_VkPipelineCreateFlags2CreateInfoKHR
+{
+    using struct_type = VkPipelineCreateFlags2CreateInfoKHR;
+
+    VkPipelineCreateFlags2CreateInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkBufferUsageFlags2CreateInfoKHR
+{
+    using struct_type = VkBufferUsageFlags2CreateInfoKHR;
+
+    VkBufferUsageFlags2CreateInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR
 {
     using struct_type = VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR;
@@ -7255,25 +7332,9 @@ struct Decoded_VkHostImageCopyDevicePerformanceQueryEXT
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkSubresourceLayout2EXT
-{
-    using struct_type = VkSubresourceLayout2EXT;
+typedef Decoded_VkSubresourceLayout2KHR Decoded_VkSubresourceLayout2EXT;
 
-    VkSubresourceLayout2EXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkSubresourceLayout* subresourceLayout{ nullptr };
-};
-
-struct Decoded_VkImageSubresource2EXT
-{
-    using struct_type = VkImageSubresource2EXT;
-
-    VkImageSubresource2EXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkImageSubresource* imageSubresource{ nullptr };
-};
+typedef Decoded_VkImageSubresource2KHR Decoded_VkImageSubresource2EXT;
 
 struct Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT
 {

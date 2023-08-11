@@ -5007,6 +5007,72 @@ void EncodeStruct(ParameterEncoder* encoder, const VkTraceRaysIndirectCommand2KH
     encoder->EncodeUInt32Value(value.depth);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance5FeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.maintenance5);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance5PropertiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.earlyFragmentMultisampleCoverageAfterSampleCounting);
+    encoder->EncodeVkBool32Value(value.earlyFragmentSampleMaskTestBeforeSampleCounting);
+    encoder->EncodeVkBool32Value(value.depthStencilSwizzleOneSupport);
+    encoder->EncodeVkBool32Value(value.polygonModePointSize);
+    encoder->EncodeVkBool32Value(value.nonStrictSinglePixelWideLinesUseParallelogram);
+    encoder->EncodeVkBool32Value(value.nonStrictWideLinesUseParallelogram);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAreaInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.viewMask);
+    encoder->EncodeUInt32Value(value.colorAttachmentCount);
+    encoder->EncodeEnumArray(value.pColorAttachmentFormats, value.colorAttachmentCount);
+    encoder->EncodeEnumValue(value.depthAttachmentFormat);
+    encoder->EncodeEnumValue(value.stencilAttachmentFormat);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource2KHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.imageSubresource);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDeviceImageSubresourceInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStructPtr(encoder, value.pCreateInfo);
+    EncodeStructPtr(encoder, value.pSubresource);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout2KHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.subresourceLayout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateFlags2CreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlags64Value(value.flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferUsageFlags2CreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlags64Value(value.usage);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -7078,20 +7144,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkHostImageCopyDevicePerforma
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVkBool32Value(value.optimalDeviceAccess);
     encoder->EncodeVkBool32Value(value.identicalMemoryLayout);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout2EXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    EncodeStruct(encoder, value.subresourceLayout);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource2EXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    EncodeStruct(encoder, value.imageSubresource);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& value)

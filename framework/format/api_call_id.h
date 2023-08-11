@@ -695,6 +695,10 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdUpdatePipelineIndirectBuffer                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12d5),
     ApiCall_vkGetPipelineIndirectDeviceAddressNV                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x12d6),
     ApiCall_vkCmdUpdatePipelineIndirectBufferNV                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12d7),
+    ApiCall_vkCmdBindIndexBuffer2KHR                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x12d8),
+    ApiCall_vkGetRenderingAreaGranularityKHR                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12d9),
+    ApiCall_vkGetDeviceImageSubresourceLayoutKHR                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x12da),
+    ApiCall_vkGetImageSubresourceLayout2KHR                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x12db),
 
     ApiCall_VulkanLast,
 

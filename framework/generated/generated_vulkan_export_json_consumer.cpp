@@ -5549,6 +5549,69 @@ void VulkanExportJsonConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsK
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkCmdBindIndexBuffer2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    VkDeviceSize                                size,
+    VkIndexType                                 indexType)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdBindIndexBuffer2KHR");
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options_);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options_);
+        HandleToJson(args["buffer"], buffer, json_options_);
+        FieldToJson(args["offset"], offset, json_options_);
+        FieldToJson(args["size"], size, json_options_);
+        FieldToJson(args["indexType"], indexType, json_options_);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetRenderingAreaGranularityKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkRenderingAreaInfoKHR>* pRenderingAreaInfo,
+    StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetRenderingAreaGranularityKHR");
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options_);
+        FieldToJson(args["pRenderingAreaInfo"], pRenderingAreaInfo, json_options_);
+        FieldToJson(args["pGranularity"], pGranularity, json_options_);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetDeviceImageSubresourceLayoutKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDeviceImageSubresourceInfoKHR>* pInfo,
+    StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetDeviceImageSubresourceLayoutKHR");
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options_);
+        FieldToJson(args["pInfo"], pInfo, json_options_);
+        FieldToJson(args["pLayout"], pLayout, json_options_);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetImageSubresourceLayout2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            image,
+    StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource,
+    StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetImageSubresourceLayout2KHR");
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options_);
+        HandleToJson(args["image"], image, json_options_);
+        FieldToJson(args["pSubresource"], pSubresource, json_options_);
+        FieldToJson(args["pLayout"], pLayout, json_options_);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -7676,8 +7739,8 @@ void VulkanExportJsonConsumer::Process_vkGetImageSubresourceLayout2EXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     format::HandleId                            image,
-    StructPointerDecoder<Decoded_VkImageSubresource2EXT>* pSubresource,
-    StructPointerDecoder<Decoded_VkSubresourceLayout2EXT>* pLayout)
+    StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource,
+    StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetImageSubresourceLayout2EXT");
     auto& args = jdata[NameArgs()];

@@ -53,6 +53,7 @@ struct VkAndroidSurfaceCreateFlagsKHR_t { };
 struct VkAttachmentDescriptionFlags_t { };
 struct VkBufferCreateFlags_t { };
 struct VkBufferUsageFlags_t { };
+struct VkBufferUsageFlags2KHR_t { };
 struct VkBufferViewCreateFlags_t { };
 struct VkBuildAccelerationStructureFlagsKHR_t { };
 struct VkBuildMicromapFlagsEXT_t { };
@@ -138,6 +139,7 @@ struct VkPipelineCoverageModulationStateCreateFlagsNV_t { };
 struct VkPipelineCoverageReductionStateCreateFlagsNV_t { };
 struct VkPipelineCoverageToColorStateCreateFlagsNV_t { };
 struct VkPipelineCreateFlags_t { };
+struct VkPipelineCreateFlags2KHR_t { };
 struct VkPipelineCreationFeedbackFlags_t { };
 struct VkPipelineDepthStencilStateCreateFlags_t { };
 struct VkPipelineDiscardRectangleStateCreateFlagsEXT_t { };
@@ -223,7 +225,9 @@ struct VkWin32SurfaceCreateFlagsKHR_t { };
 struct VkXcbSurfaceCreateFlagsKHR_t { };
 struct VkXlibSurfaceCreateFlagsKHR_t { };
 struct VkAccessFlagBits2_t { };
+struct VkBufferUsageFlagBits2KHR_t { };
 struct VkFormatFeatureFlagBits2_t { };
+struct VkPipelineCreateFlagBits2KHR_t { };
 struct VkPipelineStageFlagBits2_t { };
 
 
@@ -265,6 +269,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendOverlapEXT& value, 
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBorderColor& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferCreateFlagBits& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits& value, const JsonOptions& options = JsonOptions());
+void FieldToJson(VkBufferUsageFlagBits2KHR_t, nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits2KHR& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructureFlagBitsKHR& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructureModeKHR& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildMicromapFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
@@ -392,6 +397,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCacheHeaderVersi
 void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineColorBlendStateCreateFlagBits& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCompilerControlFlagBitsAMD& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits& value, const JsonOptions& options = JsonOptions());
+void FieldToJson(VkPipelineCreateFlagBits2KHR_t, nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits2KHR& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreationFeedbackFlagBits& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineDepthStencilStateCreateFlagBits& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineExecutableStatisticFormatKHR& value, const JsonOptions& options = JsonOptions());
@@ -500,6 +506,7 @@ void FieldToJson(VkAndroidSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata
 void FieldToJson(VkAttachmentDescriptionFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkBufferCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
+void FieldToJson(VkBufferUsageFlags2KHR_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkBufferViewCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkBuildAccelerationStructureFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkBuildMicromapFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
@@ -585,6 +592,7 @@ void FieldToJson(VkPipelineCoverageModulationStateCreateFlagsNV_t, nlohmann::ord
 void FieldToJson(VkPipelineCoverageReductionStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkPipelineCoverageToColorStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkPipelineCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
+void FieldToJson(VkPipelineCreateFlags2KHR_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkPipelineCreationFeedbackFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkPipelineDepthStencilStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());
 void FieldToJson(VkPipelineDiscardRectangleStateCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options = JsonOptions());

@@ -1438,6 +1438,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits& val
         case VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT:
             jdata = "VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT";
             break;
+        case VK_BUFFER_USAGE_EXECUTION_GRAPH_SCRATCH_BIT_AMDX:
+            jdata = "VK_BUFFER_USAGE_EXECUTION_GRAPH_SCRATCH_BIT_AMDX";
+            break;
         case VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR:
             jdata = "VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR";
             break;
@@ -1467,6 +1470,93 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits& val
             break;
         case VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT:
             jdata = "VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(VkBufferUsageFlagBits2KHR_t, nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits2KHR& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_TRANSFER_DST_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_TRANSFER_DST_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX:
+            jdata = "VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX";
+            break;
+        case VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT:
+            jdata = "VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT";
+            break;
+        case VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT:
+            jdata = "VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT";
+            break;
+        case VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT:
+            jdata = "VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT";
+            break;
+        case VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR:
+            jdata = "VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR";
+            break;
+        case VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT:
+            jdata = "VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT";
+            break;
+        case VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT:
+            jdata = "VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT";
+            break;
+        case VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT:
+            jdata = "VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT";
+            break;
+        case VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT:
+            jdata = "VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT";
+            break;
+        case VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT:
+            jdata = "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -3931,6 +4021,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFormat& value, const Jso
         case VK_FORMAT_R16G16_S10_5_NV:
             jdata = "VK_FORMAT_R16G16_S10_5_NV";
             break;
+        case VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR:
+            jdata = "VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR";
+            break;
+        case VK_FORMAT_A8_UNORM_KHR:
+            jdata = "VK_FORMAT_A8_UNORM_KHR";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -5734,6 +5830,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineBindPoint& value
         case VK_PIPELINE_BIND_POINT_COMPUTE:
             jdata = "VK_PIPELINE_BIND_POINT_COMPUTE";
             break;
+        case VK_PIPELINE_BIND_POINT_EXECUTION_GRAPH_AMDX:
+            jdata = "VK_PIPELINE_BIND_POINT_EXECUTION_GRAPH_AMDX";
+            break;
         case VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR:
             jdata = "VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR";
             break;
@@ -5882,6 +5981,108 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits& 
             break;
         case VK_PIPELINE_CREATE_PROTECTED_ACCESS_ONLY_BIT_EXT:
             jdata = "VK_PIPELINE_CREATE_PROTECTED_ACCESS_ONLY_BIT_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(VkPipelineCreateFlagBits2KHR_t, nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits2KHR& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV:
+            jdata = "VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV";
+            break;
+        case VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV:
+            jdata = "VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV";
+            break;
+        case VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR:
+            jdata = "VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV:
+            jdata = "VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV";
+            break;
+        case VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -8576,6 +8777,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID:
             jdata = "VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_PROPERTIES_AMDX:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_PROPERTIES_AMDX";
+            break;
+        case VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX:
+            jdata = "VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX";
+            break;
+        case VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_CREATE_INFO_AMDX:
+            jdata = "VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_CREATE_INFO_AMDX";
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_NODE_CREATE_INFO_AMDX:
+            jdata = "VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_NODE_CREATE_INFO_AMDX";
+            break;
         case VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT:
             jdata = "VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT";
             break;
@@ -9371,12 +9587,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT:
             jdata = "VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT";
             break;
-        case VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_EXT:
-            jdata = "VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_EXT";
-            break;
-        case VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2_EXT:
-            jdata = "VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2_EXT";
-            break;
         case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
             jdata = "VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT";
             break;
@@ -9736,6 +9946,30 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_RENDERING_AREA_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_RENDERING_AREA_INFO_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_KHR:
+            jdata = "VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2_KHR:
+            jdata = "VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO_KHR";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR";
@@ -11182,6 +11416,8 @@ void FieldToJson(VkBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFl
                 return std::string("VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT");
             case VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT:
                 return std::string("VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT");
+            case VK_BUFFER_USAGE_EXECUTION_GRAPH_SCRATCH_BIT_AMDX:
+                return std::string("VK_BUFFER_USAGE_EXECUTION_GRAPH_SCRATCH_BIT_AMDX");
             case VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR:
                 return std::string("VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR");
             case VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR:
@@ -11202,6 +11438,74 @@ void FieldToJson(VkBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFl
                 return std::string("VK_BUFFER_USAGE_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT");
             case VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT:
                 return std::string("VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void FieldToJson(VkBufferUsageFlags2KHR_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    {
+        switch (flags)
+        {
+            case VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT_KHR");
+            case VK_BUFFER_USAGE_2_TRANSFER_DST_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_TRANSFER_DST_BIT_KHR");
+            case VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_UNIFORM_TEXEL_BUFFER_BIT_KHR");
+            case VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_STORAGE_TEXEL_BUFFER_BIT_KHR");
+            case VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_UNIFORM_BUFFER_BIT_KHR");
+            case VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT_KHR");
+            case VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT_KHR");
+            case VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT_KHR");
+            case VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_INDIRECT_BUFFER_BIT_KHR");
+            case VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX:
+                return std::string("VK_BUFFER_USAGE_2_EXECUTION_GRAPH_SCRATCH_BIT_AMDX");
+            case VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT:
+                return std::string("VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT");
+            case VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_SHADER_BINDING_TABLE_BIT_KHR");
+            case VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT:
+                return std::string("VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT");
+            case VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT:
+                return std::string("VK_BUFFER_USAGE_2_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT");
+            case VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR");
+            case VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_VIDEO_DECODE_DST_BIT_KHR");
+            case VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR");
+            case VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR");
+            case VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_SHADER_DEVICE_ADDRESS_BIT_KHR");
+            case VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR");
+            case VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR:
+                return std::string("VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR");
+            case VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT:
+                return std::string("VK_BUFFER_USAGE_2_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT");
+            case VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT:
+                return std::string("VK_BUFFER_USAGE_2_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT");
+            case VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT:
+                return std::string("VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT");
+            case VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT:
+                return std::string("VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT");
+            case VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT:
+                return std::string("VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT");
         }
         return to_hex_fixed_width(flags);
     });
@@ -13045,6 +13349,84 @@ void FieldToJson(VkPipelineCreateFlags_t, nlohmann::ordered_json& jdata, const V
                 return std::string("VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT");
             case VK_PIPELINE_CREATE_PROTECTED_ACCESS_ONLY_BIT_EXT:
                 return std::string("VK_PIPELINE_CREATE_PROTECTED_ACCESS_ONLY_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void FieldToJson(VkPipelineCreateFlags2KHR_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    {
+        switch (flags)
+        {
+            case VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV:
+                return std::string("VK_PIPELINE_CREATE_2_DEFER_COMPILE_BIT_NV");
+            case VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_CAPTURE_STATISTICS_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_EARLY_RETURN_ON_FAILURE_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_LINK_TIME_OPTIMIZATION_BIT_EXT");
+            case VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT");
+            case VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_LIBRARY_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_SKIP_AABBS_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV:
+                return std::string("VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_NV");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MOTION_BIT_NV");
+            case VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR:
+                return std::string("VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT");
+            case VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT");
+            case VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT");
+            case VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_NO_PROTECTED_ACCESS_BIT_EXT");
+            case VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_PROTECTED_ACCESS_ONLY_BIT_EXT");
+            case VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV:
+                return std::string("VK_PIPELINE_CREATE_2_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV");
+            case VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT");
         }
         return to_hex_fixed_width(flags);
     });
