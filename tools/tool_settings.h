@@ -94,6 +94,8 @@ const char kScreenshotRangeArgument[]            = "--screenshots";
 const char kScreenshotFormatArgument[]           = "--screenshot-format";
 const char kScreenshotDirArgument[]              = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]       = "--screenshot-prefix";
+const char kScreenshotSizeArgument[]             = "--screenshot-size";
+const char kScreenshotScaleArgument[]            = "--screenshot-scale";
 const char kForceWindowedShortArgument[]         = "--fw";
 const char kForceWindowedLongArgument[]          = "--force-windowed";
 const char kOutput[]                             = "--output";
@@ -464,6 +466,60 @@ static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_pa
     return kDefaultScreenshotDir;
 }
 
+static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& width, uint32_t& height)
+{
+    const auto& value = arg_parser.GetArgumentValue(kScreenshotSizeArgument);
+
+    if (!value.empty())
+    {
+        std::size_t x = value.find("x");
+        if (x != std::string::npos)
+        {
+            try
+            {
+                width  = std::stoul(value.substr(0, x));
+                height = std::stoul(value.substr(x + 1));
+            }
+            catch (std::exception& e)
+            {
+                GFXRECON_LOG_WARNING("Ignoring invalid screenshot width x height option. Expected format is "
+                                     "--screenshot-size [width]x[height]");
+                width = height = 0;
+            }
+        }
+        else
+        {
+            width = height = 0;
+        }
+    }
+    else
+    {
+        width = height = 0;
+    }
+}
+
+static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const auto& value = arg_parser.GetArgumentValue(kScreenshotScaleArgument);
+
+    float scale = 0.0f;
+
+    if (!value.empty())
+    {
+        try
+        {
+            scale = std::stof(value);
+        }
+        catch (std::exception& e)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
+        }
+    }
+
+    return scale;
+}
+
 static std::vector<gfxrecon::decode::ScreenshotRange>
 GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
 {
@@ -771,6 +827,9 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
     replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
+    GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
+    replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
+
     if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
     {
         replay_options.quit_after_measurement_frame_range = true;
