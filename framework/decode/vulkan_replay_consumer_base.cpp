@@ -2142,6 +2142,17 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 filename_prefix += "_frame_";
                 filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
 
+                // If both copy_scale and copy_width are provided, use copy_scale.
+                const uint32_t screenshot_width =
+                    options_.screenshot_scale
+                        ? (options_.screenshot_scale * swapchain_info->width)
+                        : (options_.screenshot_width ? options_.screenshot_width : swapchain_info->width);
+
+                const uint32_t screenshot_height =
+                    options_.screenshot_scale
+                        ? (options_.screenshot_scale * swapchain_info->height)
+                        : (options_.screenshot_height ? options_.screenshot_height : swapchain_info->height);
+
                 screenshot_handler_->WriteImage(filename_prefix,
                                                 device_info->handle,
                                                 GetDeviceTable(device_info->handle),
@@ -2151,6 +2162,8 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                                                 swapchain_info->format,
                                                 swapchain_info->width,
                                                 swapchain_info->height,
+                                                screenshot_width,
+                                                screenshot_height,
                                                 VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
             }
         }
@@ -2206,6 +2219,17 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const Comm
                         filename_prefix += std::to_string(j);
                     }
 
+                    // If both copy_scale and copy_width are provided, use copy_scale.
+                    const uint32_t screenshot_width =
+                        options_.screenshot_scale
+                            ? (options_.screenshot_scale * image_info->extent.width)
+                            : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
+
+                    const uint32_t screenshot_height =
+                        options_.screenshot_scale
+                            ? (options_.screenshot_scale * image_info->extent.height)
+                            : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
+
                     screenshot_handler_->WriteImage(filename_prefix,
                                                     device_info->handle,
                                                     GetDeviceTable(device_info->handle),
@@ -2215,6 +2239,8 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const Comm
                                                     image_info->format,
                                                     image_info->extent.width,
                                                     image_info->extent.height,
+                                                    screenshot_width,
+                                                    screenshot_height,
                                                     image_info->current_layout);
                 }
             }
