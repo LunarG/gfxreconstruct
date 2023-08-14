@@ -482,7 +482,8 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
 
         if (!value.empty())
         {
-            std::vector<gfxrecon::util::FrameRange> frame_ranges = gfxrecon::util::GetFrameRanges(value);
+            std::vector<gfxrecon::util::UintRange> frame_ranges =
+                gfxrecon::util::GetUintRanges(value.c_str(), "screenshot frames");
 
             for (uint32_t i = 0; i < frame_ranges.size(); ++i)
             {
