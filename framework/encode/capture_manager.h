@@ -116,13 +116,18 @@ class CaptureManager
 
     void EndFrame();
 
+    // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
+    // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.
+    void PreQueueSubmit();
+    void PostQueueSubmit();
+
     bool ShouldTriggerScreenshot();
 
     util::ScreenshotFormat GetScreenshotFormat() { return screenshot_format_; }
 
-    void CheckContinueCaptureForWriteMode();
+    void CheckContinueCaptureForWriteMode(uint32_t current_boundary_count);
 
-    void CheckStartCaptureForTrackMode();
+    void CheckStartCaptureForTrackMode(uint32_t current_boundary_count);
 
     bool IsTrimHotkeyPressed();
 
@@ -329,12 +334,14 @@ class CaptureManager
     bool                                    page_guard_signal_handler_watcher_;
     PageGuardMemoryMode                     page_guard_memory_mode_;
     bool                                    trim_enabled_;
+    CaptureSettings::TrimBoundary           trim_boundary_;
     std::vector<util::UintRange>            trim_ranges_;
     std::string                             trim_key_;
     uint32_t                                trim_key_frames_;
     uint32_t                                trim_key_first_frame_;
     size_t                                  trim_current_range_;
     uint32_t                                current_frame_;
+    uint32_t                                queue_submit_count_;
     CaptureMode                             capture_mode_;
     bool                                    previous_hotkey_state_;
     CaptureSettings::RuntimeTriggerState    previous_runtime_trigger_state_;

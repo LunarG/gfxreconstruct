@@ -2188,6 +2188,8 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
     QueueSubmitWriteFillMemoryCmd();
+
+    PreQueueSubmit();
 }
 
 void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
@@ -2201,6 +2203,8 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
     QueueSubmitWriteFillMemoryCmd();
+
+    PreQueueSubmit();
 }
 
 void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
