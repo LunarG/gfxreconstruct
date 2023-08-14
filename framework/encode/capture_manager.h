@@ -211,12 +211,6 @@ class CaptureManager
         std::vector<uint8_t> scratch_buffer_;
     };
 
-    struct TrimRange
-    {
-        uint32_t first{ 0 }; // First frame to capture.
-        uint32_t total{ 0 }; // Total number of frames to capture.
-    };
-
   protected:
     static bool CreateInstance(std::function<CaptureManager*()> GetInstanceFunc,
                                std::function<void()>            NewInstanceFunc,
@@ -257,7 +251,7 @@ class CaptureManager
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
 
-    std::string CreateTrimFilename(const std::string& base_filename, const TrimRange& trim_range);
+    std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     bool        CreateCaptureFile(const std::string& base_filename);
     void        ActivateTrimming();
     void        DeactivateTrimming();
@@ -335,7 +329,7 @@ class CaptureManager
     bool                                    page_guard_signal_handler_watcher_;
     PageGuardMemoryMode                     page_guard_memory_mode_;
     bool                                    trim_enabled_;
-    std::vector<TrimRange>                  trim_ranges_;
+    std::vector<util::UintRange>            trim_ranges_;
     std::string                             trim_key_;
     uint32_t                                trim_key_frames_;
     uint32_t                                trim_key_first_frame_;

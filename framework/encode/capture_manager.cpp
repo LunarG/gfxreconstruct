@@ -331,17 +331,12 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         // Override default kModeWrite capture mode.
         trim_enabled_            = true;
         quit_after_frame_ranges_ = trace_settings.quit_after_frame_ranges;
-        std::transform(trace_settings.trim_ranges.begin(),
-                       trace_settings.trim_ranges.end(),
-                       std::back_inserter(trim_ranges_),
-                       [](const util::UintRange& range) {
-                           GFXRECON_ASSERT(range.last >= range.first);
-                           return TrimRange({ range.first, (range.last - range.first + 1) });
-                       });
 
         // Determine if trim starts at the first frame
         if (!trace_settings.trim_ranges.empty())
         {
+            trim_ranges_ = trace_settings.trim_ranges;
+
             if (trim_ranges_[0].first == current_frame_)
             {
                 // When capturing from the first frame, state tracking only needs to be enabled if there is more than
@@ -609,8 +604,7 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
 {
     if (!trim_ranges_.empty())
     {
-        --trim_ranges_[trim_current_range_].total;
-        if (trim_ranges_[trim_current_range_].total == 0)
+        if (current_frame_ == (trim_ranges_[trim_current_range_].last + 1))
         {
             // Stop recording and close file.
             DeactivateTrimming();
@@ -630,8 +624,8 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
             {
                 // Trimming was configured to capture two consecutive frames, so we need to start a new capture
                 // file for the current frame.
-                const TrimRange& trim_range = trim_ranges_[trim_current_range_];
-                bool             success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
+                const auto& trim_range = trim_ranges_[trim_current_range_];
+                bool        success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
                 if (success)
                 {
                     ActivateTrimming();
@@ -659,10 +653,10 @@ void CaptureManager::CheckStartCaptureForTrackMode()
 {
     if (!trim_ranges_.empty())
     {
-        if (trim_ranges_[trim_current_range_].first == current_frame_)
+        if (current_frame_ == trim_ranges_[trim_current_range_].first)
         {
-            const TrimRange& trim_range = trim_ranges_[trim_current_range_];
-            bool             success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
+            const auto& trim_range = trim_ranges_[trim_current_range_];
+            bool        success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
             if (success)
             {
                 ActivateTrimming();
@@ -772,23 +766,21 @@ void CaptureManager::EndFrame()
     }
 }
 
-std::string CaptureManager::CreateTrimFilename(const std::string& base_filename, const TrimRange& trim_range)
+std::string CaptureManager::CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range)
 {
-    assert(trim_range.total > 0);
+    GFXRECON_ASSERT(trim_range.last >= trim_range.first);
 
     std::string range_string = "_";
 
-    if (trim_range.total == 1)
+    uint32_t    total        = trim_range.last - trim_range.first + 1;
+    const char* boundary_str = total > 1 ? "frames_" : "frame_";
+
+    range_string += boundary_str;
+    range_string += std::to_string(trim_range.first);
+    if (total > 1)
     {
-        range_string += "frame_";
-        range_string += std::to_string(trim_range.first);
-    }
-    else
-    {
-        range_string += "frames_";
-        range_string += std::to_string(trim_range.first);
         range_string += "_through_";
-        range_string += std::to_string((trim_range.first + trim_range.total) - 1);
+        range_string += std::to_string(trim_range.last);
     }
 
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
