@@ -33,13 +33,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-struct FrameRange
+struct UintRange
 {
     uint32_t first{ 0 };
     uint32_t last{ 0 };
 };
 
-std::vector<FrameRange> GetFrameRanges(const std::string& args);
+std::vector<UintRange> GetUintRanges(const char* args, const char* option_name);
 
 enum class ScreenshotFormat : uint32_t
 {

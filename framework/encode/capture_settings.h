@@ -64,12 +64,6 @@ class CaptureSettings
         kDisabled = 2
     };
 
-    struct TrimRange
-    {
-        uint32_t first{ 0 }; // First frame to capture.
-        uint32_t total{ 0 }; // Total number of frames to capture.
-    };
-
     const static char kDefaultCaptureFileName[];
 
     struct ResourveValueAnnotationInfo
@@ -83,34 +77,34 @@ class CaptureSettings
 
     struct TraceSettings
     {
-        std::string                   capture_file{ kDefaultCaptureFileName };
-        format::EnabledOptions        capture_file_options;
-        bool                          time_stamp_file{ true };
-        bool                          force_flush{ false };
-        MemoryTrackingMode            memory_tracking_mode{ kPageGuard };
-        std::string                   screenshot_dir;
-        std::vector<util::FrameRange> screenshot_ranges;
-        util::ScreenshotFormat        screenshot_format;
-        std::vector<TrimRange>        trim_ranges;
-        std::string                   trim_key;
-        uint32_t                      trim_key_frames{ 0 };
-        RuntimeTriggerState           runtime_capture_trigger{ kNotUsed };
-        int                           page_guard_signal_handler_watcher_max_restores{ 1 };
-        bool                          page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
-        bool                          page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
-        bool                          page_guard_persistent_memory{ false };
-        bool                          page_guard_align_buffer_sizes{ false };
-        bool                          page_guard_track_ahb_memory{ false };
-        bool                          page_guard_unblock_sigsegv{ false };
-        bool                          page_guard_signal_handler_watcher{ false };
-        bool                          debug_layer{ false };
-        bool                          debug_device_lost{ false };
-        bool                          disable_dxr{ false };
-        uint32_t                      accel_struct_padding{ 0 };
-        bool                          force_command_serialization{ false };
-        bool                          queue_zero_only{ false };
-        bool                          allow_pipeline_compile_required{ false };
-        bool                          quit_after_frame_ranges{ false };
+        std::string                  capture_file{ kDefaultCaptureFileName };
+        format::EnabledOptions       capture_file_options;
+        bool                         time_stamp_file{ true };
+        bool                         force_flush{ false };
+        MemoryTrackingMode           memory_tracking_mode{ kPageGuard };
+        std::string                  screenshot_dir;
+        std::vector<util::UintRange> screenshot_ranges;
+        util::ScreenshotFormat       screenshot_format;
+        std::vector<util::UintRange> trim_ranges;
+        std::string                  trim_key;
+        uint32_t                     trim_key_frames{ 0 };
+        RuntimeTriggerState          runtime_capture_trigger{ kNotUsed };
+        int                          page_guard_signal_handler_watcher_max_restores{ 1 };
+        bool                         page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
+        bool                         page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
+        bool                         page_guard_persistent_memory{ false };
+        bool                         page_guard_align_buffer_sizes{ false };
+        bool                         page_guard_track_ahb_memory{ false };
+        bool                         page_guard_unblock_sigsegv{ false };
+        bool                         page_guard_signal_handler_watcher{ false };
+        bool                         debug_layer{ false };
+        bool                         debug_device_lost{ false };
+        bool                         disable_dxr{ false };
+        uint32_t                     accel_struct_padding{ 0 };
+        bool                         force_command_serialization{ false };
+        bool                         queue_zero_only{ false };
+        bool                         allow_pipeline_compile_required{ false };
+        bool                         quit_after_frame_ranges{ false };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a
@@ -177,9 +171,8 @@ class CaptureSettings
 
     static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
 
-    static void ParseFramesList(const std::string& value_string, std::vector<util::FrameRange>* frames);
-
-    static void ParseTrimRangeString(const std::string& value_string, std::vector<CaptureSettings::TrimRange>* ranges);
+    static void
+    ParseUintRangeList(const std::string& value_string, std::vector<util::UintRange>* frames, const char* option_name);
 
     static std::string ParseTrimKeyString(const std::string& value_string);
 
