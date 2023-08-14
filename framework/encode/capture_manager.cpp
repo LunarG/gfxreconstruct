@@ -93,8 +93,9 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     api_family_(api_family), force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
-    page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false), trim_current_range_(0),
-    current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
+    page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
+    trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
+    queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
@@ -328,16 +329,23 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     }
     else
     {
+        GFXRECON_ASSERT(trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kUnknown);
+
         // Override default kModeWrite capture mode.
         trim_enabled_            = true;
+        trim_boundary_           = trace_settings.trim_boundary;
         quit_after_frame_ranges_ = trace_settings.quit_after_frame_ranges;
 
-        // Determine if trim starts at the first frame
+        // Check if trim ranges were specified.
         if (!trace_settings.trim_ranges.empty())
         {
+            GFXRECON_ASSERT((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) ||
+                            (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits));
+
             trim_ranges_ = trace_settings.trim_ranges;
 
-            if (trim_ranges_[0].first == current_frame_)
+            // Determine if trim starts at the first frame
+            if ((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) && (trim_ranges_[0].first == current_frame_))
             {
                 // When capturing from the first frame, state tracking only needs to be enabled if there is more than
                 // one capture range.
@@ -353,10 +361,13 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
                 capture_mode_ = kModeTrack;
             }
         }
-        // Check if trim is enabled by hot-key trigger at the first frame
+        // Check if trim is enabled by hot-key trigger at the first frame.
         else if (!trace_settings.trim_key.empty() ||
                  trace_settings.runtime_capture_trigger != CaptureSettings::RuntimeTriggerState::kNotUsed)
         {
+            // Capture key/trigger only support frames as trim boundaries.
+            GFXRECON_ASSERT(trim_boundary_ == CaptureSettings::TrimBoundary::kFrames);
+
             trim_key_                       = trace_settings.trim_key;
             trim_key_frames_                = trace_settings.trim_key_frames;
             previous_runtime_trigger_state_ = trace_settings.runtime_capture_trigger;
@@ -377,7 +388,10 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         }
         else
         {
-            capture_mode_ = kModeTrack;
+            // if/else blocks above should have covered all "else" cases from the parent conditional.
+            GFXRECON_ASSERT(false);
+            trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
+            capture_mode_  = kModeTrack;
         }
     }
 
@@ -600,11 +614,11 @@ bool CaptureManager::RuntimeTriggerDisabled()
     return result;
 }
 
-void CaptureManager::CheckContinueCaptureForWriteMode()
+void CaptureManager::CheckContinueCaptureForWriteMode(uint32_t current_boundary_count)
 {
     if (!trim_ranges_.empty())
     {
-        if (current_frame_ == (trim_ranges_[trim_current_range_].last + 1))
+        if (current_boundary_count == (trim_ranges_[trim_current_range_].last + 1))
         {
             // Stop recording and close file.
             DeactivateTrimming();
@@ -614,16 +628,17 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
             ++trim_current_range_;
             if (trim_current_range_ >= trim_ranges_.size())
             {
-                // No more frames to capture. Capture can be disabled and resources can be released.
-                trim_enabled_ = false;
-                capture_mode_ = kModeDisabled;
+                // No more trim ranges to capture. Capture can be disabled and resources can be released.
+                trim_enabled_  = false;
+                trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
+                capture_mode_  = kModeDisabled;
                 DestroyStateTracker();
                 compressor_ = nullptr;
             }
-            else if (trim_ranges_[trim_current_range_].first == current_frame_)
+            else if (trim_ranges_[trim_current_range_].first == current_boundary_count)
             {
-                // Trimming was configured to capture two consecutive frames, so we need to start a new capture
-                // file for the current frame.
+                // Trimming was configured to capture two consecutive ranges, so we need to start a new capture
+                // file for the current range.
                 const auto& trim_range = trim_ranges_[trim_current_range_];
                 bool        success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
                 if (success)
@@ -640,7 +655,7 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
         }
     }
     else if (IsTrimHotkeyPressed() ||
-             ((trim_key_frames_ > 0) && (current_frame_ >= (trim_key_first_frame_ + trim_key_frames_))) ||
+             ((trim_key_frames_ > 0) && (current_boundary_count >= (trim_key_first_frame_ + trim_key_frames_))) ||
              RuntimeTriggerDisabled())
     {
         // Stop recording and close file.
@@ -649,11 +664,11 @@ void CaptureManager::CheckContinueCaptureForWriteMode()
     }
 }
 
-void CaptureManager::CheckStartCaptureForTrackMode()
+void CaptureManager::CheckStartCaptureForTrackMode(uint32_t current_boundary_count)
 {
     if (!trim_ranges_.empty())
     {
-        if (current_frame_ == trim_ranges_[trim_current_range_].first)
+        if (current_boundary_count == trim_ranges_[trim_current_range_].first)
         {
             const auto& trim_range = trim_ranges_[trim_current_range_];
             bool        success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
@@ -675,7 +690,7 @@ void CaptureManager::CheckStartCaptureForTrackMode()
         if (success)
         {
 
-            trim_key_first_frame_ = current_frame_;
+            trim_key_first_frame_ = current_boundary_count;
             ActivateTrimming();
         }
         else
@@ -736,19 +751,19 @@ void CaptureManager::EndFrame()
 
     ++current_frame_;
 
-    if (trim_enabled_)
+    if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kFrames))
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
             // Currently capturing a frame range.
             // Check for end of range or hotkey trigger to stop capture.
-            CheckContinueCaptureForWriteMode();
+            CheckContinueCaptureForWriteMode(current_frame_);
         }
         else if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             // Capture is not active.
             // Check for start of capture frame range or hotkey trigger to start capture
-            CheckStartCaptureForTrackMode();
+            CheckStartCaptureForTrackMode(current_frame_);
         }
     }
 
@@ -766,6 +781,32 @@ void CaptureManager::EndFrame()
     }
 }
 
+void CaptureManager::PreQueueSubmit()
+{
+    ++queue_submit_count_;
+
+    if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits))
+    {
+        if (((capture_mode_ & kModeWrite) != kModeWrite) && ((capture_mode_ & kModeTrack) == kModeTrack))
+        {
+            // Capture is not active, check for start of capture frame range.
+            CheckStartCaptureForTrackMode(queue_submit_count_);
+        }
+    }
+}
+
+void CaptureManager::PostQueueSubmit()
+{
+    if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits))
+    {
+        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        {
+            // Currently capturing a queue submit range, check for end of range.
+            CheckContinueCaptureForWriteMode(queue_submit_count_);
+        }
+    }
+}
+
 std::string CaptureManager::CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range)
 {
     GFXRECON_ASSERT(trim_range.last >= trim_range.first);
@@ -773,7 +814,19 @@ std::string CaptureManager::CreateTrimFilename(const std::string& base_filename,
     std::string range_string = "_";
 
     uint32_t    total        = trim_range.last - trim_range.first + 1;
-    const char* boundary_str = total > 1 ? "frames_" : "frame_";
+    const char* boundary_str = "";
+    switch (trim_boundary_)
+    {
+        case CaptureSettings::TrimBoundary::kFrames:
+            boundary_str = total > 1 ? "frames_" : "frame_";
+            break;
+        case CaptureSettings::TrimBoundary::kQueueSubmits:
+            boundary_str = total > 1 ? "queue_submits_" : "queue_submit_";
+            break;
+        default:
+            GFXRECON_ASSERT(false);
+            break;
+    }
 
     range_string += boundary_str;
     range_string += std::to_string(trim_range.first);

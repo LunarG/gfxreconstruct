@@ -64,6 +64,13 @@ class CaptureSettings
         kDisabled = 2
     };
 
+    enum class TrimBoundary
+    {
+        kUnknown,
+        kFrames,
+        kQueueSubmits,
+    };
+
     const static char kDefaultCaptureFileName[];
 
     struct ResourveValueAnnotationInfo
@@ -85,6 +92,7 @@ class CaptureSettings
         std::string                  screenshot_dir;
         std::vector<util::UintRange> screenshot_ranges;
         util::ScreenshotFormat       screenshot_format;
+        TrimBoundary                 trim_boundary{ TrimBoundary::kUnknown };
         std::vector<util::UintRange> trim_ranges;
         std::string                  trim_key;
         uint32_t                     trim_key_frames{ 0 };

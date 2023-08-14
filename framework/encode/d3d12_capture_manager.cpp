@@ -1652,12 +1652,16 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
             }
         }
     }
+
+    PreQueueSubmit();
 }
 
 void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
                                                                              UINT                        num_lists,
                                                                              ID3D12CommandList* const*   lists)
 {
+    PostQueueSubmit();
+
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         state_tracker_->TrackExecuteCommandLists(wrapper, num_lists, lists);
