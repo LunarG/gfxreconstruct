@@ -40,6 +40,7 @@ target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR})
 
 target_link_libraries(gfxrecon-replay
                           gfxrecon_application
+                          gfxrecon_compatibility
                           gfxrecon_decode
                           gfxrecon_graphics
                           gfxrecon_format

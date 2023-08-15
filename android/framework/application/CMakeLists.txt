@@ -14,10 +14,12 @@ target_sources(gfxrecon_application
 
 target_include_directories(gfxrecon_application
                            PUBLIC
+                               ${GFXRECON_SOURCE_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
                                ${ANDROID_NDK}/sources/android/native_app_glue)
 
 target_link_libraries(gfxrecon_application
+                      gfxrecon_compatibility
                       gfxrecon_decode
                       gfxrecon_graphics
                       gfxrecon_format

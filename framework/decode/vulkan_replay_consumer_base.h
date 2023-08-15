@@ -27,7 +27,6 @@
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/screenshot_handler.h"
-#include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
@@ -35,7 +34,7 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
 #include "decode/vulkan_resource_initializer.h"
-#include "decode/vulkan_swapchain.h"
+#include "compatibility/vulkan_swapchain.h"
 #include "decode/window.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
@@ -1097,11 +1096,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     const VulkanReplayOptions                                        options_;
     bool                                                             loading_trim_state_;
     bool                                                             have_imported_semaphores_;
-    SwapchainImageTracker                                            swapchain_image_tracker_;
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
     std::unique_ptr<ScreenshotHandler>                               screenshot_handler_;
-    std::unique_ptr<VulkanSwapchain>                                 swapchain_;
+    std::unique_ptr<compatibility::VulkanSwapchain>                  swapchain_;
+    bool                                                             validate_swapchain_image_indices_;
     std::string                                                      screenshot_file_prefix_;
     int32_t                                                          create_surface_count_;
     graphics::FpsInfo*                                               fps_info_;
@@ -1122,7 +1121,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::vector<const SemaphoreInfo*> removed_semaphores_;
     std::unordered_set<uint32_t>      removed_swapchain_indices_;
     std::vector<uint32_t>             capture_image_indices_;
-    std::vector<SwapchainKHRInfo*>    swapchain_infos_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

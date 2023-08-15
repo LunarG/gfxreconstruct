@@ -20,17 +20,20 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_SWAPCHAIN_IMAGE_TRACKER_H
-#define GFXRECON_DECODE_SWAPCHAIN_IMAGE_TRACKER_H
+#ifndef GFXRECON_COMPATIBILITY_SWAPCHAIN_IMAGE_TRACKER_H
+#define GFXRECON_COMPATIBILITY_SWAPCHAIN_IMAGE_TRACKER_H
 
-#include "util/defines.h"
+#include <cstdint>
+#include <cstring>
 
 #include "vulkan/vulkan.h"
 
 #include <unordered_map>
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+namespace gfxrecon
+{
+namespace compatibility
+{
 
 class SwapchainImageTracker
 {
@@ -85,7 +88,7 @@ class SwapchainImageTracker
     SwapchainImages images_;
 };
 
-GFXRECON_END_NAMESPACE(decode)
-GFXRECON_END_NAMESPACE(gfxrecon)
+} // namespace compatibility
+} // namespace gfxrecon
 
-#endif // GFXRECON_DECODE_SWAPCHAIN_IMAGE_TRACKER_H
+#endif // GFXRECON_COMPATIBILITY_SWAPCHAIN_IMAGE_TRACKER_H

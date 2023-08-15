@@ -47,6 +47,7 @@ endif()
 target_include_directories(gfxrecon-info PUBLIC ${CMAKE_BINARY_DIR})
 
 target_link_libraries(gfxrecon-info
+                      gfxrecon_compatibility
                       gfxrecon_decode
                       gfxrecon_graphics
                       gfxrecon_format

@@ -44,7 +44,7 @@ endif()
 
 target_include_directories(gfxrecon-convert PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/..)
 
-target_link_libraries(gfxrecon-convert gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific)
+target_link_libraries(gfxrecon-convert gfxrecon_compatibility gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific)
 
 common_build_directives(gfxrecon-convert)
 

@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 #define GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 
+#include "compatibility/vulkan_swapchain.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_initializer.h"
 #include "decode/window.h"
@@ -385,16 +386,9 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t             width{ 0 };
     uint32_t             height{ 0 };
     VkFormat             format{ VK_FORMAT_UNDEFINED };
-    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirutalSwapchain.
-    std::unordered_map<uint32_t, size_t> array_counts;
-
-    // The acquired_indices value and the remapping performed with it.
-    struct AcquiredData
-    {
-        uint32_t index = { 0 };
-        bool     acquired{ false };
-    };
-    std::vector<AcquiredData> acquired_indices;
+    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirtualSwapchain.
+    std::unordered_map<uint32_t, size_t>                           array_counts;
+    std::vector<compatibility::VulkanSwapchain::AcquiredIndexData> acquired_indices;
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<uint32_t> queue_family_indices{ 0 };
@@ -407,25 +401,7 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t                  image_array_layers{ 0 };
     VkImageUsageFlags         image_usage{ 0 };
     VkSharingMode             image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
-
-    // TODO: These values are used by the virtual swapchain.  They should be replaced with an opaque handle, similar to
-    // DeviceMemoryInfo::allocator_data, which is really a pointer to a struct that contains the virtual swapchain's
-    // internal info.  The memory for the struct referenced by the opaque handle would be managed by the virtual
-    // swapchain class, similar to the way that the VulkanRebindAllocator works.
-    struct VirtualImage
-    {
-        VkDeviceMemory                        memory{ VK_NULL_HANDLE };
-        VkImage                               image{ VK_NULL_HANDLE };
-        VulkanResourceAllocator::MemoryData   memory_allocator_data{ 0 };
-        VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
-    };
-    uint32_t                     replay_image_count{ 0 };
-    std::vector<VirtualImage>    virtual_images; // Images created by replay, returned in place of the swapchain images.
-    std::vector<VkImage>         swapchain_images; // The real swapchain images.
-    VkQueue                      blit_queue{ VK_NULL_HANDLE };
-    VkCommandPool                blit_command_pool{ VK_NULL_HANDLE };
-    std::vector<VkCommandBuffer> blit_command_buffers;
-    std::vector<VkSemaphore>     blit_semaphores;
+    uint32_t                  replay_image_count{ 0 };
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>

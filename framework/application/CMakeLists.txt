@@ -65,6 +65,7 @@ target_include_directories(gfxrecon_application
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
 target_link_libraries(gfxrecon_application
+                      gfxrecon_compatibility
                       gfxrecon_decode
                       gfxrecon_graphics
                       gfxrecon_format
