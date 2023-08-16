@@ -89,9 +89,46 @@ The functions LockForDestroyHandle and UnlockForDestroyHandle should be used dur
 lock to the deletion of handles and their wrapper.
 */
 
-extern std::shared_mutex mutex_for_create_destroy_handle_;
+class ScopedDestroyLock
+{
+  public:
+    ScopedDestroyLock(bool shared = false)
+    {
+        lock_shared_ = shared;
+        if (shared)
+        {
+            mutex_for_create_destroy_handle_.lock_shared();
+        }
+        else
+        {
+            mutex_for_create_destroy_handle_.lock();
+        }
+    };
 
-std::unique_lock<std::shared_mutex> ScopedDestroyLock();
+    ~ScopedDestroyLock()
+    {
+        if (lock_shared_)
+        {
+            mutex_for_create_destroy_handle_.unlock_shared();
+        }
+        else
+        {
+            mutex_for_create_destroy_handle_.unlock();
+        }
+    };
+
+    ScopedDestroyLock(const ScopedDestroyLock&) = delete;
+
+    ScopedDestroyLock(ScopedDestroyLock&&) = delete;
+
+    ScopedDestroyLock& operator=(const ScopedDestroyLock&) = delete;
+
+    ScopedDestroyLock& operator=(ScopedDestroyLock&&) = delete;
+
+  private:
+    bool                     lock_shared_ = false;
+    static std::shared_mutex mutex_for_create_destroy_handle_;
+};
 
 template <typename Wrapper>
 format::HandleId GetTempWrapperId(const typename Wrapper::HandleType& handle)
@@ -207,7 +244,7 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
                                  typename Wrapper::HandleType*      handle,
                                  PFN_GetHandleId                    get_id)
 {
-    const std::shared_lock<std::shared_mutex> lock(mutex_for_create_destroy_handle_);
+    ScopedDestroyLock shared_scoped_lock(true);
     assert(handle != nullptr);
     if ((*handle) != VK_NULL_HANDLE)
     {
@@ -237,7 +274,7 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
 template <typename Wrapper>
 void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
 {
-    const std::shared_lock<std::shared_mutex> lock(mutex_for_create_destroy_handle_);
+    ScopedDestroyLock shared_scoped_lock(false);
     assert(handle != nullptr);
     if ((*handle) != VK_NULL_HANDLE)
     {

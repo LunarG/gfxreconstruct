@@ -302,8 +302,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 body += '\n'
 
             if self.lock_for_destroy_handle_is_needed(name):
-                body += indent + 'std::unique_lock<std::shared_mutex> exclusive_scoped_lock;\n'
-                body += indent + 'exclusive_scoped_lock = ScopedDestroyLock();\n'
+                body += indent + 'ScopedDestroyLock exclusive_scoped_lock;\n'
 
             # Construct the function call to dispatch to the next layer.
             (call_setup_expr, call_expr) = self.make_layer_dispatch_call(
