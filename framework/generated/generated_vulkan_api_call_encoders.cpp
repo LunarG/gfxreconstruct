@@ -113,8 +113,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(
         manager->EndDestroyApiCallCapture<InstanceWrapper>(instance);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetInstanceTable(instance)->DestroyInstance(instance, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>::Dispatch(manager, instance, pAllocator);
@@ -466,8 +465,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(
         manager->EndDestroyApiCallCapture<DeviceWrapper>(device);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyDevice(device, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(manager, device, pAllocator);
@@ -701,8 +699,7 @@ VKAPI_ATTR void VKAPI_CALL FreeMemory(
         manager->EndDestroyApiCallCapture<DeviceMemoryWrapper>(memory);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->FreeMemory(device, memory, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(manager, device, memory, pAllocator);
@@ -1266,8 +1263,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(
         manager->EndDestroyApiCallCapture<FenceWrapper>(fence);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyFence(device, fence, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFence>::Dispatch(manager, device, fence, pAllocator);
@@ -1472,8 +1468,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySemaphore(
         manager->EndDestroyApiCallCapture<SemaphoreWrapper>(semaphore);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroySemaphore(device, semaphore, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySemaphore>::Dispatch(manager, device, semaphore, pAllocator);
@@ -1562,8 +1557,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(
         manager->EndDestroyApiCallCapture<EventWrapper>(event);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyEvent(device, event, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyEvent>::Dispatch(manager, device, event, pAllocator);
@@ -1760,8 +1754,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(
         manager->EndDestroyApiCallCapture<QueryPoolWrapper>(queryPool);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyQueryPool(device, queryPool, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyQueryPool>::Dispatch(manager, device, queryPool, pAllocator);
@@ -1899,8 +1892,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(
         manager->EndDestroyApiCallCapture<BufferWrapper>(buffer);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyBuffer(device, buffer, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBuffer>::Dispatch(manager, device, buffer, pAllocator);
@@ -1992,8 +1984,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(
         manager->EndDestroyApiCallCapture<BufferViewWrapper>(bufferView);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyBufferView(device, bufferView, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBufferView>::Dispatch(manager, device, bufferView, pAllocator);
@@ -2077,8 +2068,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(
         manager->EndDestroyApiCallCapture<ImageWrapper>(image);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyImage(device, image, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(manager, device, image, pAllocator);
@@ -2207,8 +2197,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyImageView(
         manager->EndDestroyApiCallCapture<ImageViewWrapper>(imageView);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyImageView(device, imageView, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImageView>::Dispatch(manager, device, imageView, pAllocator);
@@ -2300,8 +2289,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(
         manager->EndDestroyApiCallCapture<ShaderModuleWrapper>(shaderModule);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyShaderModule(device, shaderModule, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyShaderModule>::Dispatch(manager, device, shaderModule, pAllocator);
@@ -2390,8 +2378,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(
         manager->EndDestroyApiCallCapture<PipelineCacheWrapper>(pipelineCache);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyPipelineCache(device, pipelineCache, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineCache>::Dispatch(manager, device, pipelineCache, pAllocator);
@@ -2515,8 +2502,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
         manager->EndDestroyApiCallCapture<PipelineWrapper>(pipeline);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyPipeline(device, pipeline, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipeline>::Dispatch(manager, device, pipeline, pAllocator);
@@ -2608,8 +2594,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(
         manager->EndDestroyApiCallCapture<PipelineLayoutWrapper>(pipelineLayout);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyPipelineLayout(device, pipelineLayout, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineLayout>::Dispatch(manager, device, pipelineLayout, pAllocator);
@@ -2701,8 +2686,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySampler(
         manager->EndDestroyApiCallCapture<SamplerWrapper>(sampler);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroySampler(device, sampler, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySampler>::Dispatch(manager, device, sampler, pAllocator);
@@ -2794,8 +2778,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(
         manager->EndDestroyApiCallCapture<DescriptorSetLayoutWrapper>(descriptorSetLayout);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyDescriptorSetLayout(device, descriptorSetLayout, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout>::Dispatch(manager, device, descriptorSetLayout, pAllocator);
@@ -2884,8 +2867,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(
         manager->EndDestroyApiCallCapture<DescriptorPoolWrapper>(descriptorPool);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyDescriptorPool(device, descriptorPool, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorPool>::Dispatch(manager, device, descriptorPool, pAllocator);
@@ -2914,8 +2896,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>::Dispatch(manager, device, descriptorPool, flags);
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     VkResult result = GetDeviceTable(device)->ResetDescriptorPool(device, descriptorPool, flags);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkResetDescriptorPool);
@@ -3007,8 +2988,7 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeDescriptorSets>::Dispatch(manager, device, descriptorPool, descriptorSetCount, pDescriptorSets);
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     VkResult result = GetDeviceTable(device)->FreeDescriptorSets(device, descriptorPool, descriptorSetCount, pDescriptorSets);
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkFreeDescriptorSets);
@@ -3156,8 +3136,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(
         manager->EndDestroyApiCallCapture<FramebufferWrapper>(framebuffer);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyFramebuffer(device, framebuffer, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFramebuffer>::Dispatch(manager, device, framebuffer, pAllocator);
@@ -3246,8 +3225,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(
         manager->EndDestroyApiCallCapture<RenderPassWrapper>(renderPass);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyRenderPass(device, renderPass, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyRenderPass>::Dispatch(manager, device, renderPass, pAllocator);
@@ -3371,8 +3349,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(
         manager->EndDestroyApiCallCapture<CommandPoolWrapper>(commandPool);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyCommandPool(device, commandPool, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyCommandPool>::Dispatch(manager, device, commandPool, pAllocator);
@@ -3502,8 +3479,7 @@ VKAPI_ATTR void VKAPI_CALL FreeCommandBuffers(
         manager->EndDestroyApiCallCapture<CommandBufferWrapper>(commandBufferCount, pCommandBuffers);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->FreeCommandBuffers(device, commandPool, commandBufferCount, pCommandBuffers);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeCommandBuffers>::Dispatch(manager, device, commandPool, commandBufferCount, pCommandBuffers);
@@ -6086,8 +6062,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(
         manager->EndDestroyApiCallCapture<SamplerYcbcrConversionWrapper>(ycbcrConversion);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroySamplerYcbcrConversion(device, ycbcrConversion, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion>::Dispatch(manager, device, ycbcrConversion, pAllocator);
@@ -6179,8 +6154,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(
         manager->EndDestroyApiCallCapture<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyDescriptorUpdateTemplate(device, descriptorUpdateTemplate, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>::Dispatch(manager, device, descriptorUpdateTemplate, pAllocator);
@@ -6977,8 +6951,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlot(
         manager->EndDestroyApiCallCapture<PrivateDataSlotWrapper>(privateDataSlot);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyPrivateDataSlot(device, privateDataSlot, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlot>::Dispatch(manager, device, privateDataSlot, pAllocator);
@@ -8239,8 +8212,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
         manager->EndDestroyApiCallCapture<SurfaceKHRWrapper>(surface);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetInstanceTable(instance)->DestroySurfaceKHR(instance, surface, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>::Dispatch(manager, instance, surface, pAllocator);
@@ -8514,8 +8486,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(
         manager->EndDestroyApiCallCapture<SwapchainKHRWrapper>(swapchain);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroySwapchainKHR(device, swapchain, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySwapchainKHR>::Dispatch(manager, device, swapchain, pAllocator);
@@ -9821,8 +9792,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyVideoSessionKHR(
         manager->EndDestroyApiCallCapture<VideoSessionKHRWrapper>(videoSession);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyVideoSessionKHR(device, videoSession, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyVideoSessionKHR>::Dispatch(manager, device, videoSession, pAllocator);
@@ -10041,8 +10011,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyVideoSessionParametersKHR(
         manager->EndDestroyApiCallCapture<VideoSessionParametersKHRWrapper>(videoSessionParameters);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyVideoSessionParametersKHR(device, videoSessionParameters, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyVideoSessionParametersKHR>::Dispatch(manager, device, videoSessionParameters, pAllocator);
@@ -11260,8 +11229,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
         manager->EndDestroyApiCallCapture<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyDescriptorUpdateTemplateKHR(device, descriptorUpdateTemplate, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(manager, device, descriptorUpdateTemplate, pAllocator);
@@ -12308,8 +12276,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(
         manager->EndDestroyApiCallCapture<SamplerYcbcrConversionWrapper>(ycbcrConversion);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroySamplerYcbcrConversionKHR(device, ycbcrConversion, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR>::Dispatch(manager, device, ycbcrConversion, pAllocator);
@@ -12962,8 +12929,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDeferredOperationKHR(
         manager->EndDestroyApiCallCapture<DeferredOperationKHRWrapper>(operation);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyDeferredOperationKHR(device, operation, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR>::Dispatch(manager, device, operation, pAllocator);
@@ -14725,8 +14691,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(
         manager->EndDestroyApiCallCapture<DebugReportCallbackEXTWrapper>(callback);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetInstanceTable(instance)->DestroyDebugReportCallbackEXT(instance, callback, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT>::Dispatch(manager, instance, callback, pAllocator);
@@ -16763,8 +16728,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(
         manager->EndDestroyApiCallCapture<DebugUtilsMessengerEXTWrapper>(messenger);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetInstanceTable(instance)->DestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT>::Dispatch(manager, instance, messenger, pAllocator);
@@ -17093,8 +17057,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(
         manager->EndDestroyApiCallCapture<ValidationCacheEXTWrapper>(validationCache);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyValidationCacheEXT(device, validationCache, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT>::Dispatch(manager, device, validationCache, pAllocator);
@@ -17381,8 +17344,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(
         manager->EndDestroyApiCallCapture<AccelerationStructureNVWrapper>(accelerationStructure);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyAccelerationStructureNV(device, accelerationStructure, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(manager, device, accelerationStructure, pAllocator);
@@ -18520,8 +18482,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL>::Dispatch(manager, device, configuration);
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     VkResult result = GetDeviceTable(device)->ReleasePerformanceConfigurationINTEL(device, configuration);
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL);
@@ -20104,8 +20065,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(
         manager->EndDestroyApiCallCapture<IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyIndirectCommandsLayoutNV(device, indirectCommandsLayout, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(manager, device, indirectCommandsLayout, pAllocator);
@@ -20316,8 +20276,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(
         manager->EndDestroyApiCallCapture<PrivateDataSlotWrapper>(privateDataSlot);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyPrivateDataSlotEXT(device, privateDataSlot, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT>::Dispatch(manager, device, privateDataSlot, pAllocator);
@@ -21416,8 +21375,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyMicromapEXT(
         manager->EndDestroyApiCallCapture<MicromapEXTWrapper>(micromap);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyMicromapEXT(device, micromap, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyMicromapEXT>::Dispatch(manager, device, micromap, pAllocator);
@@ -23444,8 +23402,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyOpticalFlowSessionNV(
         manager->EndDestroyApiCallCapture<OpticalFlowSessionNVWrapper>(session);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyOpticalFlowSessionNV(device, session, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyOpticalFlowSessionNV>::Dispatch(manager, device, session, pAllocator);
@@ -23616,8 +23573,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderEXT(
         manager->EndDestroyApiCallCapture<ShaderEXTWrapper>(shader);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyShaderEXT(device, shader, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyShaderEXT>::Dispatch(manager, device, shader, pAllocator);
@@ -23910,8 +23866,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(
         manager->EndDestroyApiCallCapture<AccelerationStructureKHRWrapper>(accelerationStructure);
     }
 
-    std::unique_lock<std::shared_mutex> exclusive_scoped_lock;
-    exclusive_scoped_lock = ScopedDestroyLock();
+    ScopedDestroyLock exclusive_scoped_lock;
     GetDeviceTable(device)->DestroyAccelerationStructureKHR(device, accelerationStructure, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR>::Dispatch(manager, device, accelerationStructure, pAllocator);
