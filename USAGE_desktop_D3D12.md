@@ -160,7 +160,24 @@ where the lower-case letters stand for: Year, Month, Day, Hours, Minutes, Second
 
 The following example shows a timestamp that was added to a file that was originally named `gfxrecon_capture.gfxr` and was created at 2:35 PM on November 25, 2018:  `gfxrecon_capture_20181125T143527.gfxr`
 
+### Trimmed Captures
 
+Trimmed captures are created when GFXR is configured to start capturing at some later
+time in execution.
+
+To create a trimmed capture one of the trimming options can be used.
+For example on desktop there is the `GFXRECON_CAPTURE_FRAMES` environment variable,
+which specifies the frame ranges to capture, each range generating a separate
+trimmed capture file. There's also the `GFXRECON_CAPTURE_TRIGGER` environment
+variable. Each time the hot key is pressed a new trimmed capture is started/stopped.
+
+An existing capture file can be trimmed by replaying the capture with the capture layer
+enabled and a trimming frame range or trimming hot key enabled. (However, replay for
+some content may be fast enough using the hot key may be difficult.) Here's an example
+command-line that replays an existing capture with the capture layer enabled and
+configured to capture only from frame 100 through frame 200 into a new capture file:
+
+`gfxrecon-capture.py -f 100-200 gfxrecon-replay gfxrecon-example-capture.gfxr``
 
 ## Replaying API Calls
 
