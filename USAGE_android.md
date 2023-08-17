@@ -502,6 +502,21 @@ adb pull /sdcard/Download/gfxrecon_trace.gfxr
 
 This will download the file to the current directory.
 
+### Trimmed Captures
+
+Trimmed captures are created when GFXR is configured to start capturing at some later
+time in execution.
+
+To create a trimmed capture one of the trimming options can be used.
+For example on android there is the `debug.gfxrecon.capture_frames` property,
+which specifies the frame ranges to capture, each region generating a separate
+trimmed capture file. There's also the `debug.gfxrecon.capture_android_trigger` property.
+Each time the option is set accordingly, a new trimmed capture is started/stopped.
+
+An existing capture file can be trimmed by replaying the capture with the capture layer
+enabled and a trimming frame range or capture trigger enabled. (However, replay for
+some content may be fast enough using the trigger property may be difficult.)
+
 ### Capture Limitations
 
 #### Conflicts With Crash Detection Libraries
