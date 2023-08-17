@@ -1,6 +1,5 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -27,8 +26,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 VulkanStateHandleTable state_handle_table_;
-
-std::shared_mutex ScopedDestroyLock::mutex_for_create_destroy_handle_;
 
 uint64_t GetWrappedId(uint64_t object, VkObjectType object_type)
 {

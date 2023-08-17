@@ -26,6 +26,7 @@
 
 #include "encode/handle_unwrap_memory.h"
 #include "encode/vulkan_handle_wrappers.h"
+#include "vulkan_scoped_destroy_lock.h"
 #include "format/format.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_dispatch_table.h"
@@ -55,80 +56,6 @@ static const format::HandleId kTempCommandBufferId = std::numeric_limits<format:
 typedef format::HandleId (*PFN_GetHandleId)();
 
 extern VulkanStateHandleTable state_handle_table_;
-
-/*
-Regarding mutex_for_create_destroy_handle_ and related lock/unlock functions. These are used to address the following
-race condition during capture:
-
-Sometimes an app will destroy some Vulkan handles in one thread (A) and create same type of Vulkan handle in another
-thread (B). There is a gap of time in between when the real handle is destroyed, and when its wrappers were deleted from
-map in thread A. If during this time period, thread B was able to run, and creates same type of handles, and if any of
-the newly-created handles had the same value of those destroyed by thread A, we crash.
-
-For example, lets say an app's thread A calls vkFreeCommandBuffers, and in thread B it calls vkAllocateCommandBuffers.
-
-GFXR's default API lock is AcquireSharedApiCallLock(), but if every API handling only request shared lock, that means
-there is actually no lock for them. Therefore execution could switch from one thread to another thread. If thread A
-calls vkFreeCommandBuffers to free command buffer group GC-X, those real Vulkan handles get destroyed by the driver, and
-GFXR will proceed to delete wrapper objects of GC-X from the corresponding map. During this time, thread B was able to
-run, and calls vkAllocateCommandBuffers to create a group of command buffers GC-Y. But because GC-X was already
-destroyed, the driver may return some of the same former handle values of GC-X, but their wrapper still exists, and
-GFXR's insertion of the new wrapper into its map will fail. And thread B will delete the wrapper later, so for any
-following process, there would be no wrapper for the real handle which will eventually provoke a crash.
-
-Note: destruction of other things could also potentially have this problem. For example, replace the above
-vkFreeCommandBuffers with vkDestroyCommandPool. This call will free all command buffers of the command pool.
-
-Regarding mutex_for_create_destroy_handle_ :
-
-For any create wrapper operation, the operation which delete real Vulkan handle and its wrapper in map must be atomic.
-This means a real handle and its wrapper must both exist, or both not exist, for any create wrapper operation. In the
-following code, shared locks were already added to create wrapper functions.
-
-The functions LockForDestroyHandle and UnlockForDestroyHandle should be used during capture. This will add exclusive
-lock to the deletion of handles and their wrapper.
-*/
-
-class ScopedDestroyLock
-{
-  public:
-    ScopedDestroyLock(bool shared = false)
-    {
-        lock_shared_ = shared;
-        if (shared)
-        {
-            mutex_for_create_destroy_handle_.lock_shared();
-        }
-        else
-        {
-            mutex_for_create_destroy_handle_.lock();
-        }
-    };
-
-    ~ScopedDestroyLock()
-    {
-        if (lock_shared_)
-        {
-            mutex_for_create_destroy_handle_.unlock_shared();
-        }
-        else
-        {
-            mutex_for_create_destroy_handle_.unlock();
-        }
-    };
-
-    ScopedDestroyLock(const ScopedDestroyLock&) = delete;
-
-    ScopedDestroyLock(ScopedDestroyLock&&) = delete;
-
-    ScopedDestroyLock& operator=(const ScopedDestroyLock&) = delete;
-
-    ScopedDestroyLock& operator=(ScopedDestroyLock&&) = delete;
-
-  private:
-    bool                     lock_shared_ = false;
-    static std::shared_mutex mutex_for_create_destroy_handle_;
-};
 
 template <typename Wrapper>
 format::HandleId GetTempWrapperId(const typename Wrapper::HandleType& handle)
