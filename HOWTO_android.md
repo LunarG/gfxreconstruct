@@ -77,7 +77,7 @@ include(':app',':VkLayer_gfxreconstruct')
 project(':VkLayer_gfxreconstruct').projectDir = file('{gfxreconstruct_root}/android/layer')
 ```
 
-**NOTE**: Replacing {gfxreconstruct_root} with the full path location of the
+**NOTE**: Replace {gfxreconstruct_root} with the full path location of the
 source you cloned from the GFXReconstruct repo in Step 1.
 
 ### 6. Add the capture layer to the samples application
