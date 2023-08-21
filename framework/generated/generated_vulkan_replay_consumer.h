@@ -1717,6 +1717,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex) override;
 
+
     virtual void Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -1803,6 +1804,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo) override;
 
+
     virtual void Process_vkCmdBeginRenderingKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -1811,6 +1813,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
     virtual void Process_vkCmdEndRenderingKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer) override;
+
 
     virtual void Process_vkGetPhysicalDeviceFeatures2KHR(
         const ApiCallInfo&                          call_info,
@@ -1876,6 +1879,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    groupCountY,
         uint32_t                                    groupCountZ) override;
 
+
     virtual void Process_vkTrimCommandPoolKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -1894,6 +1898,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            physicalDevice,
         StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo>* pExternalBufferInfo,
         StructPointerDecoder<Decoded_VkExternalBufferProperties>* pExternalBufferProperties) override;
+
 
     virtual void Process_vkGetMemoryWin32HandleKHR(
         const ApiCallInfo&                          call_info,
@@ -1925,11 +1930,13 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         int                                         fd,
         StructPointerDecoder<Decoded_VkMemoryFdPropertiesKHR>* pMemoryFdProperties) override;
 
+
     virtual void Process_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            physicalDevice,
         StructPointerDecoder<Decoded_VkPhysicalDeviceExternalSemaphoreInfo>* pExternalSemaphoreInfo,
         StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>* pExternalSemaphoreProperties) override;
+
 
     virtual void Process_vkImportSemaphoreWin32HandleKHR(
         const ApiCallInfo&                          call_info,
@@ -1966,6 +1973,9 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    descriptorWriteCount,
         StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites) override;
 
+
+
+
     virtual void Process_vkCreateDescriptorUpdateTemplateKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -1979,6 +1989,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         format::HandleId                            descriptorUpdateTemplate,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
 
     virtual void Process_vkCreateRenderPass2KHR(
         const ApiCallInfo&                          call_info,
@@ -2016,6 +2027,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            physicalDevice,
         StructPointerDecoder<Decoded_VkPhysicalDeviceExternalFenceInfo>* pExternalFenceInfo,
         StructPointerDecoder<Decoded_VkExternalFenceProperties>* pExternalFenceProperties) override;
+
 
     virtual void Process_vkImportFenceWin32HandleKHR(
         const ApiCallInfo&                          call_info,
@@ -2068,6 +2080,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            device) override;
 
+
     virtual void Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2082,6 +2095,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* pSurfaceInfo,
         PointerDecoder<uint32_t>*                   pSurfaceFormatCount,
         StructPointerDecoder<Decoded_VkSurfaceFormat2KHR>* pSurfaceFormats) override;
+
 
     virtual void Process_vkGetPhysicalDeviceDisplayProperties2KHR(
         const ApiCallInfo&                          call_info,
@@ -2112,6 +2126,9 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkDisplayPlaneInfo2KHR>* pDisplayPlaneInfo,
         StructPointerDecoder<Decoded_VkDisplayPlaneCapabilities2KHR>* pCapabilities) override;
 
+
+
+
     virtual void Process_vkGetImageMemoryRequirements2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -2130,6 +2147,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkImageSparseMemoryRequirementsInfo2>* pInfo,
         PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
         StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements) override;
+
 
     virtual void Process_vkCreateSamplerYcbcrConversionKHR(
         const ApiCallInfo&                          call_info,
@@ -2159,6 +2177,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    bindInfoCount,
         StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos) override;
 
+
     virtual void Process_vkGetDescriptorSetLayoutSupportKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -2185,6 +2204,16 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
 
+
+
+
+
+
+
+
+
+
+
     virtual void Process_vkGetSemaphoreCounterValueKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2205,6 +2234,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo) override;
 
+
+
     virtual void Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2218,6 +2249,9 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkExtent2D>*   pFragmentSize,
         PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) override;
 
+
+
+
     virtual void Process_vkWaitForPresentKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2225,6 +2259,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            swapchain,
         uint64_t                                    presentId,
         uint64_t                                    timeout) override;
+
 
     virtual void Process_vkGetBufferDeviceAddressKHR(
         const ApiCallInfo&                          call_info,
@@ -2386,6 +2421,10 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         PointerDecoder<uint32_t>*                   pCheckpointDataCount,
         StructPointerDecoder<Decoded_VkCheckpointData2NV>* pCheckpointData) override;
 
+
+
+
+
     virtual void Process_vkCmdCopyBuffer2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -2416,10 +2455,12 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo) override;
 
+
     virtual void Process_vkCmdTraceRaysIndirect2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         VkDeviceAddress                             indirectDeviceAddress) override;
+
 
     virtual void Process_vkGetDeviceBufferMemoryRequirementsKHR(
         const ApiCallInfo&                          call_info,
@@ -2551,6 +2592,12 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StringDecoder*                              pLayerPrefix,
         StringDecoder*                              pMessage) override;
 
+
+
+
+
+
+
     virtual void Process_vkDebugMarkerSetObjectTagEXT(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2576,6 +2623,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo) override;
+
+
 
     virtual void Process_vkCmdBindTransformFeedbackBuffersEXT(
         const ApiCallInfo&                          call_info,
@@ -2660,6 +2709,12 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
 
+
+
+
+
+
+
     virtual void Process_vkGetShaderInfoAMD(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2670,6 +2725,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         PointerDecoder<size_t>*                     pInfoSize,
         PointerDecoder<uint8_t>*                    pInfo) override;
 
+
     virtual void Process_vkCreateStreamDescriptorSurfaceGGP(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2677,6 +2733,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkStreamDescriptorSurfaceCreateInfoGGP>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkSurfaceKHR>*         pSurface) override;
+
+
 
     virtual void Process_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
         const ApiCallInfo&                          call_info,
@@ -2690,6 +2748,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         VkExternalMemoryHandleTypeFlagsNV           externalHandleType,
         StructPointerDecoder<Decoded_VkExternalImageFormatPropertiesNV>* pExternalImageFormatProperties) override;
 
+
     virtual void Process_vkGetMemoryWin32HandleNV(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2698,6 +2757,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         VkExternalMemoryHandleTypeFlagsNV           handleType,
         PointerDecoder<uint64_t, void*>*            pHandle) override;
 
+
+
     virtual void Process_vkCreateViSurfaceNN(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2705,6 +2766,11 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkViSurfaceCreateInfoNN>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkSurfaceKHR>*         pSurface) override;
+
+
+
+
+
 
     virtual void Process_vkCmdBeginConditionalRenderingEXT(
         const ApiCallInfo&                          call_info,
@@ -2797,6 +2863,11 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         PointerDecoder<uint32_t>*                   pPresentationTimingCount,
         StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>* pPresentationTimings) override;
 
+
+
+
+
+
     virtual void Process_vkCmdSetDiscardRectangleEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -2813,6 +2884,9 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         VkDiscardRectangleModeEXT                   discardRectangleMode) override;
+
+
+
 
     virtual void Process_vkSetHdrMetadataEXT(
         const ApiCallInfo&                          call_info,
@@ -2836,6 +2910,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkMacOSSurfaceCreateInfoMVK>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkSurfaceKHR>*         pSurface) override;
+
+
 
     virtual void Process_vkSetDebugUtilsObjectNameEXT(
         const ApiCallInfo&                          call_info,
@@ -2912,6 +2988,12 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>* pInfo,
         PointerDecoder<uint64_t, void*>*            pBuffer) override;
 
+
+
+
+
+
+
     virtual void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -2922,6 +3004,12 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            physicalDevice,
         VkSampleCountFlagBits                       samples,
         StructPointerDecoder<Decoded_VkMultisamplePropertiesEXT>* pMultisampleProperties) override;
+
+
+
+
+
+
 
     virtual void Process_vkGetImageDrmFormatModifierPropertiesEXT(
         const ApiCallInfo&                          call_info,
@@ -2959,6 +3047,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            validationCache,
         PointerDecoder<size_t>*                     pDataSize,
         PointerDecoder<uint8_t>*                    pData) override;
+
+
 
     virtual void Process_vkCmdBindShadingRateImageNV(
         const ApiCallInfo&                          call_info,
@@ -3098,6 +3188,10 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            pipeline,
         uint32_t                                    shader) override;
 
+
+
+
+
     virtual void Process_vkGetMemoryHostPointerPropertiesEXT(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3114,6 +3208,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         VkDeviceSize                                dstOffset,
         uint32_t                                    marker) override;
 
+
     virtual void Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3129,6 +3224,13 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
         PointerDecoder<uint64_t>*                   pTimestamps,
         PointerDecoder<uint64_t>*                   pMaxDeviation) override;
+
+
+
+
+
+
+
 
     virtual void Process_vkCmdDrawMeshTasksNV(
         const ApiCallInfo&                          call_info,
@@ -3154,6 +3256,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
 
+
+
     virtual void Process_vkCmdSetExclusiveScissorEnableNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -3178,6 +3282,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            queue,
         PointerDecoder<uint32_t>*                   pCheckpointDataCount,
         StructPointerDecoder<Decoded_VkCheckpointDataNV>* pCheckpointData) override;
+
 
     virtual void Process_vkInitializePerformanceApiINTEL(
         const ApiCallInfo&                          call_info,
@@ -3233,6 +3338,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         VkPerformanceParameterTypeINTEL             parameter,
         StructPointerDecoder<Decoded_VkPerformanceValueINTEL>* pValue) override;
 
+
     virtual void Process_vkSetLocalDimmingAMD(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3255,6 +3361,17 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkSurfaceKHR>*         pSurface) override;
 
+
+
+
+
+
+
+
+
+
+
+
     virtual void Process_vkGetBufferDeviceAddressEXT(
         const ApiCallInfo&                          call_info,
         VkDeviceAddress                             returnValue,
@@ -3267,6 +3384,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pToolCount,
         StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties) override;
+
+
 
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
         const ApiCallInfo&                          call_info,
@@ -3281,6 +3400,9 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pCombinationCount,
         StructPointerDecoder<Decoded_VkFramebufferMixedSamplesCombinationNV>* pCombinations) override;
+
+
+
 
     virtual void Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
         const ApiCallInfo&                          call_info,
@@ -3323,12 +3445,14 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    lineStippleFactor,
         uint16_t                                    lineStipplePattern) override;
 
+
     virtual void Process_vkResetQueryPoolEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         format::HandleId                            queryPool,
         uint32_t                                    firstQuery,
         uint32_t                                    queryCount) override;
+
 
     virtual void Process_vkCmdSetCullModeEXT(
         const ApiCallInfo&                          call_info,
@@ -3439,6 +3563,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo) override;
 
+
     virtual void Process_vkGetGeneratedCommandsMemoryRequirementsNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3496,6 +3621,10 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         int32_t                                     drmFd,
         uint32_t                                    connectorId,
         HandlePointerDecoder<VkDisplayKHR>*         display) override;
+
+
+
+
 
     virtual void Process_vkCreatePrivateDataSlotEXT(
         const ApiCallInfo&                          call_info,
@@ -3569,6 +3698,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    dfb) override;
 
+
     virtual void Process_vkCmdSetVertexInputEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -3576,6 +3706,10 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkVertexInputBindingDescription2EXT>* pVertexBindingDescriptions,
         uint32_t                                    vertexAttributeDescriptionCount,
         StructPointerDecoder<Decoded_VkVertexInputAttributeDescription2EXT>* pVertexAttributeDescriptions) override;
+
+
+
+
 
     virtual void Process_vkGetMemoryZirconHandleFUCHSIA(
         const ApiCallInfo&                          call_info,
@@ -3617,6 +3751,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkMemoryGetRemoteAddressInfoNV>* pMemoryGetRemoteAddressInfo,
         PointerDecoder<uint64_t, void*>*            pAddress) override;
+
 
     virtual void Process_vkCmdSetPatchControlPointsEXT(
         const ApiCallInfo&                          call_info,
@@ -3664,6 +3799,9 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    attachmentCount,
         PointerDecoder<VkBool32>*                   pColorWriteEnables) override;
 
+
+
+
     virtual void Process_vkCmdDrawMultiEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -3682,6 +3820,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    firstInstance,
         uint32_t                                    stride,
         PointerDecoder<int32_t>*                    pVertexOffset) override;
+
+
 
     virtual void Process_vkCreateMicromapEXT(
         const ApiCallInfo&                          call_info,
@@ -3780,6 +3920,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pBuildInfo,
         StructPointerDecoder<Decoded_VkMicromapBuildSizesInfoEXT>* pSizeInfo) override;
 
+
+
     virtual void Process_vkCmdDrawClusterHUAWEI(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -3793,11 +3935,14 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            buffer,
         VkDeviceSize                                offset) override;
 
+
     virtual void Process_vkSetDeviceMemoryPriorityEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         format::HandleId                            memory,
         float                                       priority) override;
+
+
 
     virtual void Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
         const ApiCallInfo&                          call_info,
@@ -3996,6 +4141,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            commandBuffer,
         VkCoverageReductionModeNV                   coverageReductionMode) override;
 
+
+
     virtual void Process_vkGetShaderModuleIdentifierEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -4007,6 +4154,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier) override;
+
 
     virtual void Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
         const ApiCallInfo&                          call_info,
@@ -4044,6 +4192,8 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            commandBuffer,
         format::HandleId                            session,
         StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo) override;
+
+
 
     virtual void Process_vkCreateShadersEXT(
         const ApiCallInfo&                          call_info,
@@ -4089,6 +4239,13 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) override;
+
+
+
+
+
+
+
 
     virtual void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
         const ApiCallInfo&                          call_info,
@@ -4236,6 +4393,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         uint32_t                                    pipelineStackSize) override;
+
 
     virtual void Process_vkCmdDrawMeshTasksEXT(
         const ApiCallInfo&                          call_info,
