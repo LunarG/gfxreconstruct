@@ -27,7 +27,7 @@ to perform the same process on your own application.
 **NOTE:**
 Many of these examples are given based on using a Linux system as the build
 and/or host, but you should be able to replicate the behavior on a Windows
-system with very little changes.
+system with very few changes.
 
 ## Building Vulkan Samples with the Capture Layer
 
