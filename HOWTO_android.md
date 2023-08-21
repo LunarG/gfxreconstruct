@@ -251,8 +251,8 @@ After making these changes, re-open the application and re-attempt recapture.
 
 ### 6. Verify the Capture File
 
-With `adb logcat` open, look at the output to determine where the file was
-recorded to.
+With `adb logcat` open, look at the output to determine the location to which
+the file was recorded.
 In my case, the file was recorded to `/sdcard/Download`.
 **NOTE**: It actually lists the full file in the message like the following:
 
