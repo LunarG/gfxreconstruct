@@ -143,7 +143,7 @@ adb install -g ./build/android_gradle/app/build/outputs/apk/debug/vulkan_samples
 ```
 
 This should guarantee that the application (and any associated layers) can
-ouptut anything generated.
+output anything generated.
 
 ### 3. Enable GFXReconstruct
 
