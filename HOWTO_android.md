@@ -34,9 +34,10 @@ system with very few changes.
 Let's look at adding the GFXReconstruct layer as a requirement of the
 [Khronos Vulkan Samples](https://github.com/KhronosGroup/Vulkan-Samples)
 project.
-Completing the following steps will ensure that you have all the dependencies
+These steps assume that you have installed all the appropriate dependencies
 necessary to build that project.
-Please refer to the repository to ensure these are met before continuing.
+Please refer to that repository to ensure these dependencies have been
+met before continuing.
 
 ### 1. Pull down the GFXReconstruct source
 
