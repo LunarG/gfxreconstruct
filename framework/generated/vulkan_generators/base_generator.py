@@ -38,13 +38,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import re
-import sys
-import json
-from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write
-from vkconventions import VulkanConventions
+# The content of this file was derived from the Khronos Registry cgenerator.py
+# and related Python files found in the KhronosGroup/Vulkan-Headers GitHub repository.
 
+import os,re,sys,json
+from collections import OrderedDict
+from generator import (GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write)
+from vkconventions import VulkanConventions
 
 def _make_re_string(list, default=None):
     """Turn a list of strings into a regexp string matching exactly those strings.
@@ -396,21 +396,17 @@ class BaseGenerator(OutputGenerator):
 
         # Command parameter and struct member data for the current feature
         if self.process_structs:
-            self.feature_struct_members = dict(
-            )  # Map of struct names to lists of per-member ValueInfo
-            self.feature_struct_aliases = dict(
-            )  # Map of struct names to aliases
-            self.extension_structs_with_handles = dict(
-            )  # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
-            self.extension_structs_with_handle_ptrs = dict(
-            )  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
+            self.feature_struct_members = OrderedDict()            # Map of struct names to lists of per-member ValueInfo
+            self.feature_struct_aliases = OrderedDict()            # Map of struct names to aliases
+            self.extension_structs_with_handles = OrderedDict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
+            self.extension_structs_with_handle_ptrs = OrderedDict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.process_cmds:
-            self.feature_cmd_params = dict(
-            )  # Map of cmd names to lists of per-parameter ValueInfo
+            self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
 
+    #
+    # Indicates that the current feature has C++ code to generate.
+    # The subclass should override this method.
     def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate.
-        The subclass should override this method."""
         return False
 
     def generate_feature(self):
@@ -473,10 +469,10 @@ class BaseGenerator(OutputGenerator):
 
         # Reset feature specific data sets
         if self.process_structs:
-            self.feature_struct_members = dict()
-            self.feature_struct_aliases = dict()
+            self.feature_struct_members = OrderedDict()
+            self.feature_struct_aliases = OrderedDict()
         if self.process_cmds:
-            self.feature_cmd_params = dict()
+            self.feature_cmd_params = OrderedDict()
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
