@@ -522,12 +522,13 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
                                                  const VkPresentInfoKHR*               present_info)
 {
     VkResult result = VK_ERROR_UNKNOWN;
-    VkQueue  queue  = VK_NULL_HANDLE;
     if (queue_info == nullptr)
     {
         return VK_ERROR_FEATURE_NOT_PRESENT;
     }
-    queue = queue_info->handle;
+
+    VkQueue  queue              = queue_info->handle;
+    uint32_t queue_family_index = queue_info->family_index;
 
     // TODO: Note that this blit could also be used to scale the image, which would allow replay to support an option
     // for changing the window/swapchain size when the virtual swapchain mode is active.  The virtual image would
@@ -557,11 +558,8 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         const auto& replay_image        = swapchain_info->replay_swapchain_images[replay_image_index];
 
         // Use a command buffer and semaphore from the same queue index
-        assert(swapchain_info->device_info->queue_family_indices.find(queue) !=
-               swapchain_info->device_info->queue_family_indices.end());
-        uint32_t queue_family_index = swapchain_info->device_info->queue_family_indices[queue];
-        auto     command_buffer     = swapchain_info->blit_command_buffers[queue_family_index][capture_image_index];
-        auto     blit_semaphore     = swapchain_info->blit_semaphores[queue_family_index][capture_image_index];
+        auto command_buffer = swapchain_info->blit_command_buffers[queue_family_index][capture_image_index];
+        auto blit_semaphore = swapchain_info->blit_semaphores[queue_family_index][capture_image_index];
 
         std::vector<VkSemaphore> wait_semaphores;
         std::vector<VkSemaphore> signal_semaphores;

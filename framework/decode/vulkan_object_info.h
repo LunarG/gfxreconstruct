@@ -266,8 +266,6 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
     std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
-    std::unordered_map<VkQueue, uint32_t>                  queue_family_indices;
-    std::unordered_map<VkQueue, uint32_t>                  queue_indices;
 
     std::vector<VkPhysicalDevice> replay_device_group;
 };
@@ -275,6 +273,8 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 struct QueueInfo : public VulkanObjectInfo<VkQueue>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+    uint32_t                             family_index;
+    uint32_t                             queue_index;
 };
 
 struct SemaphoreInfo : public VulkanObjectInfo<VkSemaphore>

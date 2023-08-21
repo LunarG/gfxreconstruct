@@ -2925,8 +2925,9 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue(PFN_vkGetDeviceQueue      
     // Add tracking for which VkQueue objects are associated with what queue family and index.
     // This is necessary for the virtual swapchain to determine which command buffer to use when
     // Bliting the images on the Presenting Queue.
-    device_info->queue_family_indices[*out_pQueue] = queueFamilyIndex;
-    device_info->queue_indices[*out_pQueue]        = queueIndex;
+    auto queue_info          = reinterpret_cast<QueueInfo*>(pQueue->GetConsumerData(0));
+    queue_info->family_index = queueFamilyIndex;
+    queue_info->queue_index  = queueIndex;
 }
 
 void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2                             func,
@@ -2947,8 +2948,9 @@ void VulkanReplayConsumerBase::OverrideGetDeviceQueue2(PFN_vkGetDeviceQueue2    
     // Add tracking for which VkQueue objects are associated with what queue family and index.
     // This is necessary for the virtual swapchain to determine which command buffer to use when
     // Bliting the images on the Presenting Queue.
-    device_info->queue_family_indices[*out_pQueue] = in_pQueueInfo->queueFamilyIndex;
-    device_info->queue_indices[*out_pQueue]        = in_pQueueInfo->queueIndex;
+    auto queue_info          = reinterpret_cast<QueueInfo*>(pQueue->GetConsumerData(0));
+    queue_info->family_index = in_pQueueInfo->queueFamilyIndex;
+    queue_info->queue_index  = in_pQueueInfo->queueIndex;
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties(
