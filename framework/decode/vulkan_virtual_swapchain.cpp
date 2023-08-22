@@ -549,6 +549,15 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         wait_stages.push_back(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
     }
 
+    // TODO: There is a potential issue here where a vkQueuePresent comes in on a queue (let's call
+    // it QueueX) which does not support vkCmdCopyImage (i.e. a video-only queue).  In that case,
+    // we would need to insert an emtpy command buffer into the command stream of QueueX which
+    // triggers a semaphore (let's say SemA), then we would need to submit the vkCmdCopyImage in a
+    // command buffer on a queue that supports it (let's say QueueY) which will wait on SemA to
+    // start and signaling another semaphore (SemB) when it is done.  Then, we need to add the
+    // QueuePresent to QueueX, but waiting on SemB before it executes.  And that is assuming that
+    // the buffer image is even accessible on both Queues!
+
     for (uint32_t i = 0; i < swapchainCount; ++i)
     {
         const auto* swapchain_info      = swapchain_infos[i];
