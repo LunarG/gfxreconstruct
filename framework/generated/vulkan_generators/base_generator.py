@@ -398,6 +398,8 @@ class BaseGenerator(OutputGenerator):
         if self.process_structs:
             self.feature_struct_members = OrderedDict()            # Map of struct names to lists of per-member ValueInfo
             self.feature_struct_aliases = OrderedDict()            # Map of struct names to aliases
+            self.feature_union_members = OrderedDict()             # Map of union names to lists of per-member ValueInfo
+            self.feature_union_aliases = OrderedDict()             # Map of union names to aliases
             self.extension_structs_with_handles = OrderedDict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
             self.extension_structs_with_handle_ptrs = OrderedDict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.process_cmds:
@@ -541,6 +543,8 @@ class BaseGenerator(OutputGenerator):
             # Skip code generation for union encode/decode functions.
             if category == 'struct':
                 self.genStruct(typeinfo, name, alias)
+            else:
+                self.genUnion(typeinfo, name, alias)
         elif (category == 'handle'):
             self.handle_names.add(name)
         elif (category == 'bitmask'):
@@ -571,6 +575,26 @@ class BaseGenerator(OutputGenerator):
                 )
             else:
                 self.feature_struct_aliases[typename] = alias
+
+    def genUnion(self, typeinfo, typename, alias):
+        """Method override.
+        Union (e.g. C "union" type) generation.
+        This is a special case of the <type> tag where the contents are
+        interpreted as a set of <member> tags instead of freeform C
+        C type declarations. The <member> tags are just like <param>
+        tags - they are a declaration of a struct or union member.
+        """
+        # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
+        # would produce multiple definition errors for functions with struct parameters.
+        if self.process_structs:
+            if not alias:
+                if typename not in self.feature_union_members:
+                    self.feature_union_members[typename] = self.make_value_info(
+                        typeinfo.elem.findall('.//member')
+                    )
+            else:
+                if typename not in self.feature_union_aliases:
+                    self.feature_union_aliases[typename] = alias
 
     def genGroup(self, groupinfo, group_name, alias):
         """Method override.

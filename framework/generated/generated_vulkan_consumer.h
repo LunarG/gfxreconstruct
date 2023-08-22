@@ -2354,6 +2354,10 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkMemoryUnmapInfoKHR>* pMemoryUnmapInfo) {}
 
+
+
+
+
     virtual void Process_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2514,6 +2518,7 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            image,
         StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource,
         StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout) {}
+
 
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
         const ApiCallInfo&                          call_info,
@@ -3570,6 +3575,8 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource,
         StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout) {}
 
+
+
     virtual void Process_vkReleaseSwapchainImagesEXT(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3615,10 +3622,14 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            indirectCommandsLayout,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
 
+
+
+
     virtual void Process_vkCmdSetDepthBias2EXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkDepthBiasInfoEXT>* pDepthBiasInfo) {}
+
 
     virtual void Process_vkAcquireDrmDisplayEXT(
         const ApiCallInfo&                          call_info,
@@ -3681,6 +3692,14 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            commandBuffer,
         VkFragmentShadingRateNV                     shadingRate,
         PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) {}
+
+
+
+
+
+
+
+
 
     virtual void Process_vkGetDeviceFaultInfoEXT(
         const ApiCallInfo&                          call_info,
@@ -3772,6 +3791,7 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkMemoryGetRemoteAddressInfoNV>* pMemoryGetRemoteAddressInfo,
         PointerDecoder<uint64_t, void*>*            pAddress) {}
+
 
 
     virtual void Process_vkCmdSetPatchControlPointsEXT(
@@ -3976,6 +3996,9 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         format::HandleId                            descriptorSet,
         PointerDecoder<uint64_t, void*>*            ppData) {}
+
+
+
 
     virtual void Process_vkGetPipelineIndirectMemoryRequirementsNV(
         const ApiCallInfo&                          call_info,
@@ -4216,6 +4239,7 @@ class VulkanConsumer : public VulkanConsumerBase
 
 
 
+
     virtual void Process_vkCreateShadersEXT(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -4268,10 +4292,17 @@ class VulkanConsumer : public VulkanConsumerBase
 
 
 
+
+
+
+
+
     virtual void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         VkImageAspectFlags                          aspectMask) {}
+
+
 
     virtual void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,

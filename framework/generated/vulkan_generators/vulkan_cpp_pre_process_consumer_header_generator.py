@@ -17,7 +17,7 @@
 
 from base_generator import *
 from vulkan_cpp_consumer_body_generator import CPP_CONSUMER_ADD_EXTENSION_PAT, CPP_CONSUMER_VULKAN_VERSION_PAT, \
-    CPP_CONSUMER_REMOVE_EXTENSION_PAT, CPP_APICALL_BLACKLIST
+    CPP_CONSUMER_REMOVE_EXTENSION_PAT
 
 
 class VulkanCppPreProcessConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -64,8 +64,6 @@ class VulkanCppPreProcessConsumerHeaderGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
-
-        self.APICALL_BLACKLIST += CPP_APICALL_BLACKLIST
 
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)

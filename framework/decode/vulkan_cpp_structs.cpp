@@ -37,7 +37,9 @@ std::string GenerateStruct_VkMemoryAllocateInfo(std::ostream&                 ou
 
     std::stringstream structBody;
     /* sType */
-    structBody << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    structBody << "\t"
+               << "VkStructureType(" << structInfo->sType << ")"
+               << "," << std::endl;
     /* pNext */
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     structBody << "\t" << pNextName << "," << std::endl;
@@ -87,13 +89,15 @@ std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 ou
     std::stringstream structBody;
     std::stringstream structBodyHeader;
 
-    structBody << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    structBody << "VkStructureType(" << structInfo->sType << ")"
+               << "," << std::endl;
     structBody << GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer) << "," << std::endl;
     structBody << consumer.GetHandle(metainfo->dstSet) << "," << std::endl;
     structBody << structInfo->dstBinding << "," << std::endl;
     structBody << structInfo->dstArrayElement << "," << std::endl;
     structBody << structInfo->descriptorCount << "," << std::endl;
-    structBody << "VkDescriptorType(" << structInfo->descriptorType << ")" << "," << std::endl;
+    structBody << "VkDescriptorType(" << structInfo->descriptorType << ")"
+               << "," << std::endl;
 
     switch (structInfo->descriptorType)
     {
@@ -117,7 +121,8 @@ std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 ou
                 }
 
                 infoValues += "{ " + samplerValue + ", " + consumer.GetHandle(imageMetaInfos[idx].imageView) + ", " +
-                              "VkImageLayout(" + std::to_string(static_cast<int>(imageInfos[idx].imageLayout)) + ")" + " }, ";
+                              "VkImageLayout(" + std::to_string(static_cast<int>(imageInfos[idx].imageLayout)) + ")" +
+                              " }, ";
             }
             std::string pInfoArray = "pImageInfoArray_" + std::to_string(consumer.getNextId());
             structBodyHeader << "VkDescriptorImageInfo " << pInfoArray << "[] = { " << infoValues << " };" << std::endl;
@@ -173,7 +178,11 @@ std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 ou
             // Nothing to do.
             break;
         }
-            // No "default" case by design.
+        default:
+        {
+            GFXRECON_LOG_ERROR("ToCpp VkWriteDescriptorSet unknown type %d", structInfo->descriptorType);
+            break;
+        }
     }
 
     std::string varname = "vkWriteDescriptorSet_" + std::to_string(consumer.getNextId());
@@ -248,7 +257,8 @@ std::string GenerateStruct_VkPresentInfoKHR(std::ostream&             out,
     }
 
     std::stringstream structBody;
-    structBody << "VkStructureType(" << structInfo->sType<< ")" << "," << std::endl;
+    structBody << "VkStructureType(" << structInfo->sType << ")"
+               << "," << std::endl;
     /* pNext */
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     structBody << pNextName << "," << std::endl;
@@ -364,12 +374,11 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
             entry.offset = overrideOffset;
             entry.stride = overrideStride;
 
-            std::string varName = GenerateStruct_VkDescriptorUpdateTemplateEntryKHR(
+            std::string varName = GenerateStruct_VkDescriptorUpdateTemplateEntry(
                 out,
                 &entry,
                 metainfo->pDescriptorUpdateEntries->GetMetaStructPointer() + idx,
-                consumer,
-                structTypeSuffix);
+                consumer);
             pDescriptorUpdateEntriesNames += varName + ", ";
         }
         out << "VkDescriptorUpdateTemplateEntry" << structTypeSuffix << " " << pDescriptorUpdateEntriesArray << "[] = {"
@@ -377,22 +386,30 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
     }
     std::stringstream structBody;
     /* sType */
-    structBody << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    structBody << "\t"
+               << "VkStructureType(" << structInfo->sType << ")"
+               << "," << std::endl;
     /* pNext */
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     structBody << "\t" << pNextName << "," << std::endl;
     /* flags */
-    structBody << "\t" << "VkDescriptorUpdateTemplateCreateFlags>(" << structInfo->flags << ")" << "," << std::endl;
+    structBody << "\t"
+               << "VkDescriptorUpdateTemplateCreateFlags>(" << structInfo->flags << ")"
+               << "," << std::endl;
     /* descriptorUpdateEntryCount */
     structBody << "\t" << structInfo->descriptorUpdateEntryCount << "," << std::endl;
     /* pDescriptorUpdateEntries */
     structBody << "\t" << pDescriptorUpdateEntriesArray << "," << std::endl;
     /* templateType */
-    structBody << "\t" << "VkDescriptorUpdateTemplateType(" << structInfo->templateType << ")" << "," << std::endl;
+    structBody << "\t"
+               << "VkDescriptorUpdateTemplateType(" << structInfo->templateType << ")"
+               << "," << std::endl;
     /* descriptorSetLayout */
     structBody << "\t" << consumer.GetHandle(metainfo->descriptorSetLayout) << "," << std::endl;
     /* pipelineBindPoint */
-    structBody << "\t" << "VkPipelineBindPoint(" << structInfo->pipelineBindPoint<< ")" << "," << std::endl;
+    structBody << "\t"
+               << "VkPipelineBindPoint(" << structInfo->pipelineBindPoint << ")"
+               << "," << std::endl;
     /* pipelineLayout */
     structBody << "\t" << consumer.GetHandle(metainfo->pipelineLayout) << "," << std::endl;
     /* set */
@@ -431,7 +448,8 @@ std::string GenerateStruct_VkDescriptorImageInfo(std::ostream&                  
     if (descriptorBaseType != DESCRIPTOR_BASE_TYPE_SAMPLER)
     {
         structBody << consumer.GetHandle(metaInfo->imageView) << "," << std::endl;
-        structBody << "VkImageLayout(" << structInfo->imageLayout << ")" << "," << std::endl;
+        structBody << "VkImageLayout(" << structInfo->imageLayout << ")"
+                   << "," << std::endl;
     }
 
     std::string varName = consumer.GetExistingStruct(structBody);
@@ -445,11 +463,10 @@ std::string GenerateStruct_VkDescriptorImageInfo(std::ostream&                  
     return varName;
 }
 
-std::string GenerateStruct_VkDescriptorUpdateTemplateEntryKHR(std::ostream&                               out,
-                                                              const VkDescriptorUpdateTemplateEntryKHR*   structInfo,
-                                                              Decoded_VkDescriptorUpdateTemplateEntryKHR* metainfo,
-                                                              VulkanCppConsumerBase&                      consumer,
-                                                              const std::string& structTypeSuffix)
+std::string GenerateStruct_VkDescriptorUpdateTemplateEntry(std::ostream&                            out,
+                                                           const VkDescriptorUpdateTemplateEntry*   structInfo,
+                                                           Decoded_VkDescriptorUpdateTemplateEntry* metainfo,
+                                                           VulkanCppConsumerBase&                   consumer)
 {
     std::stringstream structBody;
     /* dstBinding */
@@ -459,7 +476,9 @@ std::string GenerateStruct_VkDescriptorUpdateTemplateEntryKHR(std::ostream&     
     /* descriptorCount */
     structBody << "\t" << structInfo->descriptorCount << "," << std::endl;
     /* descriptorType */
-    structBody << "\t" << "VkDescriptorType(" << structInfo->descriptorType << ")" << "," << std::endl;
+    structBody << "\t"
+               << "VkDescriptorType(" << structInfo->descriptorType << ")"
+               << "," << std::endl;
     /* offset */
     structBody << "\t" << structInfo->offset << "," << std::endl;
     /* stride */
@@ -468,12 +487,82 @@ std::string GenerateStruct_VkDescriptorUpdateTemplateEntryKHR(std::ostream&     
     if (!varname.length())
     {
         varname = consumer.AddStruct(structBody, "descriptorUpdateTemplateEntry");
-        out << "VkDescriptorUpdateTemplateEntry" << structTypeSuffix << " " << varname << " {" << std::endl;
+        out << "VkDescriptorUpdateTemplateEntry " << varname << " {" << std::endl;
         out << structBody.str() << std::endl;
         out << "};" << std::endl;
     }
     return varname;
 }
 
+std::string
+GenerateStruct_VkAccelerationStructureMotionInstanceNV(std::ostream&                                    out,
+                                                       const VkAccelerationStructureMotionInstanceNV*   structInfo,
+                                                       Decoded_VkAccelerationStructureMotionInstanceNV* metainfo,
+                                                       VulkanCppConsumerBase&                           consumer)
+{
+    std::stringstream structBody;
+    std::string       staticInstanceInfoVar = GenerateStruct_VkAccelerationStructureInstanceKHR(
+        out, &structInfo->data.staticInstance, metainfo->staticInstance, consumer);
+    /* type */
+    structBody << "\t"
+               << "VkAccelerationStructureMotionInstanceTypeNV(" << structInfo->type << ")"
+               << "," << std::endl;
+    /* flags */
+    structBody << "\t"
+               << "VkAccelerationStructureMotionInstanceFlagsNV(" << structInfo->flags << ")"
+               << "," << std::endl;
+    /* data */
+    structBody << "\t" << staticInstanceInfoVar << ",";
+    std::string varname = consumer.GetExistingStruct(structBody);
+    if (!varname.length())
+    {
+        varname = consumer.AddStruct(structBody, "accelerationStructureMotionInstanceNV");
+        out << "VkAccelerationStructureMotionInstanceNV " << varname << " {" << std::endl;
+        out << structBody.str() << std::endl;
+        out << "};" << std::endl;
+    }
+    return varname;
+}
+
+std::string GenerateStruct_VkDebugUtilsMessengerCreateInfoEXT(std::ostream&                               out,
+                                                              const VkDebugUtilsMessengerCreateInfoEXT*   structInfo,
+                                                              Decoded_VkDebugUtilsMessengerCreateInfoEXT* metainfo,
+                                                              VulkanCppConsumerBase&                      consumer)
+{
+    std::stringstream structBody;
+    std::string       pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
+    /* sType */
+    structBody << "\t"
+               << "VkStructureType(" << structInfo->sType << ")"
+               << "," << std::endl;
+    /* pNext */
+    structBody << "\t" << pNextName << "," << std::endl;
+    /* flags */
+    structBody << "\t"
+               << "VkDebugUtilsMessengerCreateFlagsEXT(" << structInfo->flags << ")"
+               << "," << std::endl;
+    /* messageSeverity */
+    structBody << "\t"
+               << "VkDebugUtilsMessageSeverityFlagsEXT(" << structInfo->messageSeverity << ")"
+               << "," << std::endl;
+    /* messageType */
+    structBody << "\t"
+               << "VkDebugUtilsMessageTypeFlagsEXT(" << structInfo->messageType << ")"
+               << "," << std::endl;
+    /* pfnUserCallback */
+    structBody << "\t&vulkanCppDebugUtilsCallback," << std::endl;
+    consumer.SetNeedsDebugUtilsCallback(true);
+    /* pUserData */
+    structBody << "\tnullptr," << std::endl;
+    std::string varname = consumer.GetExistingStruct(structBody);
+    if (!varname.length())
+    {
+        varname = consumer.AddStruct(structBody, "debugUtilsMessengerCreateInfoEXT");
+        out << "VkDebugUtilsMessengerCreateInfoEXT " << varname << " {" << std::endl;
+        out << structBody.str() << std::endl;
+        out << "};" << std::endl;
+    }
+    return varname;
+}
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

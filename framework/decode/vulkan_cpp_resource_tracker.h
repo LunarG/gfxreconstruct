@@ -73,7 +73,7 @@ class VulkanCppResourceTracker
 
     void CalculateGlobalVariables();
 
-    bool IsGlobalVariable(format::HandleId handleId) { return m_globalVariableMap[handleId]; }
+    bool IsGlobalVariable(format::HandleId handleId) { return true; } // return m_globalVariableMap[handleId]; }
 
   private:
     // HandleId -> (FrameNumber, FrameSplit)

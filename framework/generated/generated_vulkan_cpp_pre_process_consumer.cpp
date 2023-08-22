@@ -2782,6 +2782,35 @@ void VulkanCppPreProcessConsumer::Process_vkTrimCommandPoolKHR(
     Post_APICall(format::ApiCallId::ApiCall_vkTrimCommandPoolKHR);
 }
 
+void VulkanCppPreProcessConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
+{
+    m_resourceTracker->AddHandleUsage(GetCurrentFrameNumber(),
+                                      GetCurrentFrameSplitNumber(),
+                                      device);
+
+    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
+        m_resourceTracker->AddHandleUsage(GetCurrentFrameNumber(),
+                                          GetCurrentFrameSplitNumber(),
+                                          pCreateInfo->GetMetaStructPointer()->descriptorSetLayout);
+    }
+
+    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
+        m_resourceTracker->AddHandleUsage(GetCurrentFrameNumber(),
+                                          GetCurrentFrameSplitNumber(),
+                                          pCreateInfo->GetMetaStructPointer()->pipelineLayout);
+    }
+
+    m_resourceTracker->AddHandleUsage(GetCurrentFrameNumber(),
+                                      GetCurrentFrameSplitNumber(),
+                                      *pDescriptorUpdateTemplate->GetPointer());
+    Post_APICall(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR);
+}
 void VulkanCppPreProcessConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,

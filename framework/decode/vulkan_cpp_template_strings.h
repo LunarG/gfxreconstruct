@@ -52,6 +52,7 @@ static const char* sCommonFrameSourceHeader = R"(
 #include "global_var.h"
 #include "loader.h"
 #include "vulkan/vulkan.h"
+#include <vector>
 )";
 
 static const char* sCommonFrameSourceFooter = R"(
@@ -76,24 +77,53 @@ uint32_t RecalculateAllocationSize(VkDeviceSize originalSize, VkMemoryRequiremen
 )";
 
 static const char* sCommonRecalculateMemoryTypeIndex = R"(
+static uint8_t CountBits(uint32_t val) {
+  if (val == 0) { return 0; }
+  return ((val & 1) + CountBits(val >> 1));
+}
+
 uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
-    VkMemoryPropertyFlags targetPropertyFlags = originalMemoryTypes[originalMemoryTypeIndex].propertyFlags;
+    VkMemoryPropertyFlags targetPropertyFlags = originalMemoryTypes[0][originalMemoryTypeIndex].propertyFlags;
     uint32_t memoryTypeIndex = UINT32_MAX;
 
-    for (uint32_t i = 0; i < s_physicalDeviceMemoryProperties.memoryTypeCount; i++) {
-        if((s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & targetPropertyFlags) != 0) {
-          memoryTypeIndex = i;
-          break;
+    // Always try the same index in case we are attempting a replay on the same device as it was recorded on.
+    if ((s_physicalDeviceMemoryProperties.memoryTypes[originalMemoryTypeIndex].propertyFlags & targetPropertyFlags) ==
+        targetPropertyFlags) {
+        memoryTypeIndex = originalMemoryTypeIndex;
+    } else {
+        bool     fallback_found         = false;
+        uint32_t fallback_index         = 0;
+        uint8_t fallback_important_bits = 0;
+        uint8_t fallback_normal_bits    = 0;
+        for (uint32_t i = 0; i < s_physicalDeviceMemoryProperties.memoryTypeCount; i++) {
+            if((s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & targetPropertyFlags) == targetPropertyFlags) {
+              memoryTypeIndex = i;
+              break;
+            }
+            uint32_t cur_flags = (s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & targetPropertyFlags);
+            uint8_t normal_bits = CountBits(cur_flags);
+            uint32_t important_flags = (cur_flags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT));
+            uint8_t important_bits = CountBits(important_flags);
+            if (important_bits > fallback_important_bits && normal_bits >= fallback_normal_bits) {
+              fallback_index = i;
+              fallback_found = false;
+              fallback_important_bits = important_bits;
+              fallback_normal_bits    = normal_bits;
+            }
         }
-    }
 
-    if (originalMemoryTypeIndex != memoryTypeIndex) {
-      printf("Warning: memory type index changed from %u to %u.\n", originalMemoryTypeIndex, memoryTypeIndex);
-    }
+        if (memoryTypeIndex == UINT32_MAX) {
+          if (fallback_found) {
+            memoryTypeIndex = fallback_index;
+          } else {
+            printf("Warning: couldn't find a matching memory type index, falling back to original.\n");
+            memoryTypeIndex = originalMemoryTypeIndex;
+          }
+        }
 
-    if (memoryTypeIndex == UINT32_MAX) {
-      printf("Warning: couldn't find a matching memory type index, falling back to original.\n");
-      return originalMemoryTypeIndex;
+        if (originalMemoryTypeIndex != memoryTypeIndex) {
+          printf("Warning: memory type index changed from %u to %u.\n", originalMemoryTypeIndex, memoryTypeIndex);
+        }
     }
 
     return memoryTypeIndex;
@@ -249,7 +279,9 @@ include_directories(${PROJECT_SOURCE_DIR}/src/)
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB MAIN_FILE ${PROJECT_SOURCE_DIR}/*.cpp)
 add_executable(vulkan_app ${SRC_FILES} ${MAIN_FILE})
+target_compile_options(vulkan_app PRIVATE -fPIC -mcmodel=large)
 target_link_libraries(vulkan_app vulkan xcb)
+target_link_options(vulkan_app PRIVATE -mcmodel=large)
 )";
 // End of Xcb template strings
 
