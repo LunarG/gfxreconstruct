@@ -53,6 +53,10 @@
 #include <sys/mman.h>
 #endif // WIN32
 
+#if defined(__ANDROID__)
+#include <sys/system_properties.h>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(platform)
@@ -290,26 +294,20 @@ inline void* GetProcAddress(LibraryHandle handle, const char* name)
 
 inline std::string GetEnv(const char* name)
 {
-    std::string env_value;
+    std::string      env_value;
 
 #if defined(__ANDROID__)
-    std::string command = "getprop ";
-    command += name;
+    const prop_info* pi = __system_property_find(name);
 
-    FILE* pipe = popen(command.c_str(), "r");
-    if (pipe != nullptr)
+    if (pi)
     {
-        char result[kMaxPropertyLength];
-        result[0] = '\0';
-
-        fgets(result, kMaxPropertyLength, pipe);
-        pclose(pipe);
-
-        size_t count = strcspn(result, "\r\n");
-        if (count > 0)
-        {
-            env_value = std::string(result, count);
-        }
+        __system_property_read_callback(
+            pi,
+            [](void* cookie, const char* name, const char* value, uint32_t serial) {
+                std::string* prop = reinterpret_cast<std::string*>(cookie);
+                *prop             = value;
+            },
+            &env_value);
     }
 #else
     const char* ret_value = getenv(name);
