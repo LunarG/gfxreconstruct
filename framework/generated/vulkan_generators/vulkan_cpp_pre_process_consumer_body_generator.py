@@ -18,7 +18,7 @@
 from base_generator import *
 from vulkan_cpp_consumer_body_generator import CPP_CONSUMER_ADD_EXTENSION_PAT, \
     CPP_CONSUMER_REMOVE_EXTENSION_PAT, CPP_CONSUMER_VULKAN_VERSION_PAT, \
-    makeGenCall, makeGenCond, makeGenLoop, makeGen, CPP_APICALL_BLACKLIST, makeParamList
+    makeGenCall, makeGenCond, makeGenLoop, makeGen, makeParamList
 
 
 def reverseReplace(string, oldString, newString, occurrence):
@@ -76,8 +76,6 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
-
-        self.APICALL_BLACKLIST += CPP_APICALL_BLACKLIST
 
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
@@ -216,7 +214,7 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
                 # If the parent is an array iterate through it
                 if arg.is_array:
                     forConditionAccess = reverseReplace(recursivePointerAccess, 'MetaStruct', '', 1)
-                    body.append(makeGenLoop('idx', 'idx < {forConditionAccess}{arg.array_length}',
+                    body.append(makeGenLoop('idx', '{forConditionAccess}{arg.array_length}',
                                             [makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(),
                                                          indent=4 + recursionDepth * 4)], locals(), indent=4))
                 else:

@@ -61,11 +61,21 @@ std::string GenerateStruct_VkDescriptorImageInfo(std::ostream&                  
                                                  Decoded_VkDescriptorImageInfo*  metaInfo,
                                                  VulkanCppConsumerBase&          consumer);
 
-std::string GenerateStruct_VkDescriptorUpdateTemplateEntryKHR(std::ostream&                               out,
-                                                              const VkDescriptorUpdateTemplateEntryKHR*   structInfo,
-                                                              Decoded_VkDescriptorUpdateTemplateEntryKHR* metainfo,
-                                                              VulkanCppConsumerBase&                      consumer,
-                                                              const std::string& structTypeSuffix = "KHR");
+std::string GenerateStruct_VkDescriptorUpdateTemplateEntry(std::ostream&                            out,
+                                                           const VkDescriptorUpdateTemplateEntry*   structInfo,
+                                                           Decoded_VkDescriptorUpdateTemplateEntry* metainfo,
+                                                           VulkanCppConsumerBase&                   consumer);
+
+std::string
+GenerateStruct_VkAccelerationStructureMotionInstanceNV(std::ostream&                                    out,
+                                                       const VkAccelerationStructureMotionInstanceNV*   structInfo,
+                                                       Decoded_VkAccelerationStructureMotionInstanceNV* metainfo,
+                                                       VulkanCppConsumerBase&                           consumer);
+
+std::string GenerateStruct_VkDebugUtilsMessengerCreateInfoEXT(std::ostream&                               out,
+                                                              const VkDebugUtilsMessengerCreateInfoEXT*   structInfo,
+                                                              Decoded_VkDebugUtilsMessengerCreateInfoEXT* metainfo,
+                                                              VulkanCppConsumerBase&                      consumer);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

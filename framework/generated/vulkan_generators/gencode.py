@@ -385,11 +385,11 @@ def make_gen_opts(args):
         VulkanCppConsumerHeaderGenerator,
         VulkanCppConsumerHeaderGeneratorOptions(
         class_name         = 'VulkanCppConsumer',
-        base_class_header   = 'vulkan_cpp_consumer_base.h',
+        base_class_header  = 'vulkan_cpp_consumer_base.h',
         is_override        = True,
-        filename          = 'generated_vulkan_cpp_consumer.h',
-        directory         = directory,
-        blacklists        = blacklists,
+        filename           = 'generated_vulkan_cpp_consumer.h',
+        directory          = directory,
+        blacklists         = blacklists,
         platform_types     = platform_types,
         prefix_text        = prefix_strings + vk_prefix_strings,
         protect_file       = True,
@@ -399,13 +399,14 @@ def make_gen_opts(args):
     gen_opts['generated_vulkan_cpp_consumer.cpp'] = [
         VulkanCppConsumerBodyGenerator,
         VulkanCppConsumerBodyGeneratorOptions(
-        filename          = 'generated_vulkan_cpp_consumer.cpp',
-        directory         = directory,
-        blacklists        = blacklists,
-        platform_types     = platform_types,
-        prefix_text        = prefix_strings + vk_prefix_strings,
-        protect_file       = False,
-        protect_feature    = False)
+            filename           = 'generated_vulkan_cpp_consumer.cpp',
+            directory          = directory,
+            blacklists         = blacklists,
+            platform_types     = platform_types,
+            prefix_text        = prefix_strings + vk_prefix_strings,
+            protect_file       = False,
+            protect_feature    = False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     gen_opts['generated_vulkan_cpp_pre_process_consumer.h'] = [
@@ -438,9 +439,9 @@ def make_gen_opts(args):
     gen_opts['generated_vulkan_cpp_structs.h'] = [
         VulkanCppStructGenerator,
         VulkanCppStructGeneratorOptions(
-            filename          = 'generated_vulkan_cpp_structs.h',
-            directory         = directory,
-            blacklists        = blacklists,
+            filename           = 'generated_vulkan_cpp_structs.h',
+            directory          = directory,
+            blacklists         = blacklists,
             platform_types     = platform_types,
             prefix_text        = prefix_strings + vk_prefix_strings,
             protect_file       = False,

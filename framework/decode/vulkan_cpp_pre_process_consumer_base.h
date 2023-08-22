@@ -43,6 +43,8 @@ class VulkanCppPreProcessConsumerBase : public VulkanConsumer
 
     bool Initialize();
 
+    void SetMaxCommandLimit(uint32_t max) {m_max_command_limit = max;}
+
     void AddResourceTracker(VulkanCppResourceTracker& resourceTracker) { m_resourceTracker = &resourceTracker; };
 
     uint32_t GetCaptureWindowWidth() { return m_captureWindowWidth; }
@@ -109,11 +111,14 @@ class VulkanCppPreProcessConsumerBase : public VulkanConsumer
     void     Post_APICall(format::ApiCallId callId);
     uint32_t GetCurrentFrameSplitNumber() { return m_frameSplitNumber; }
 
+    uint32_t m_max_command_limit{1000};
+
   private:
     uint32_t m_captureWindowWidth;
     uint32_t m_captureWindowHeight;
     uint32_t m_frameNumber;
     uint32_t m_frameSplitNumber;
+    uint32_t m_frameApiCallNumber;
     uint32_t m_apiCallNumber;
 };
 

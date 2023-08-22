@@ -32,6 +32,7 @@ bool VulkanCppPreProcessConsumerBase::Initialize()
 {
     m_frameNumber      = 0;
     m_frameSplitNumber = 0;
+    m_frameApiCallNumber = 0;
     m_apiCallNumber    = 0;
 
     return true;
@@ -42,17 +43,20 @@ void VulkanCppPreProcessConsumerBase::Post_APICall(format::ApiCallId callId)
     // Replicate FileProcessor's frame counter increment process
     if (callId == format::ApiCallId::ApiCall_vkQueuePresentKHR)
     {
+        m_frameApiCallNumber = 0;
         m_frameSplitNumber = 0;
         m_frameNumber++;
     }
-    else if (m_apiCallNumber % MAX_FRAME_CAPACITY == 0)
+    else if (m_frameApiCallNumber != 0 && (m_frameApiCallNumber % m_max_command_limit == 0))
     {
+        m_frameApiCallNumber = 0;
         m_frameSplitNumber++;
     }
 
     if (callId != format::ApiCallId::ApiCall_vkAcquireNextImageKHR)
     {
         m_apiCallNumber++;
+        m_frameApiCallNumber++;
     }
 }
 

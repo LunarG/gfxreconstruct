@@ -1183,6 +1183,14 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         format::HandleId                            commandPool,
         VkCommandPoolTrimFlags                      flags) override;
 
+    virtual void Process_vkCreateDescriptorUpdateTemplateKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate) override;
+
     virtual void Process_vkDestroyDescriptorUpdateTemplateKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
