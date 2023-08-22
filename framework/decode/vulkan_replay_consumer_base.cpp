@@ -5171,6 +5171,14 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
 
             assert(replay_index != nullptr);
 
+            // If expected result is VK_SUCCESS, ensure that vkAcquireNextImageKHR waits until the image is
+            // available by using a timeout of UINT64_MAX.
+            // If expected result is VK_TIMEOUT, try to get a timeout by using a timeout of 0.
+            // If expected result is anything else, use the passed in timeout value.
+            if (original_result == VK_SUCCESS)
+                timeout = std::numeric_limits<uint64_t>::max();
+            else if (original_result == VK_TIMEOUT)
+                timeout = 0;
             result = swapchain_->AcquireNextImageKHR(
                 func, device_info, swapchain_info, timeout, semaphore_info, fence_info, captured_index, replay_index);
 
@@ -5280,8 +5288,17 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 
             auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(acquire_meta_info->swapchain);
 
+            // If expected result is VK_SUCCESS, ensure that vkAcquireNextImageKHR2 waits until the image is
+            // available by using a timeout of UINT64_MAX.
+            // If expected result is VK_TIMEOUT, try to get a timeout by using a timeout of 0.
+            // If expected result is anything else, use the passed in timeout value.
+            VkAcquireNextImageInfoKHR modified_acquire_info = *replay_acquire_info;
+            if (original_result == VK_SUCCESS)
+                modified_acquire_info.timeout = std::numeric_limits<uint64_t>::max();
+            else if (original_result == VK_TIMEOUT)
+                modified_acquire_info.timeout = 0;
             result = swapchain_->AcquireNextImage2KHR(
-                func, device_info, swapchain_info, replay_acquire_info, captured_index, replay_index);
+                func, device_info, swapchain_info, &modified_acquire_info, captured_index, replay_index);
 
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
