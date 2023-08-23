@@ -190,7 +190,8 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 
     if ((result == VK_SUCCESS) && (image_count != nullptr))
     {
-        uint32_t copy_queue_family_index = 0;
+        int32_t copy_queue_family_index = -1;
+        int32_t transfer_queue_index    = -1;
 
         // Determine what queue to use for the initial virtual image setup
         VkQueue                              initial_copy_queue = VK_NULL_HANDLE;
@@ -203,16 +204,54 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 
         for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
         {
-            if (device_info->queue_family_index_enabled[queue_family_index] &&
-                props[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            // If we're past the point of enabled queues, then stop looking because we really can't enable
+            // a queue that isn't flagged during device creation.
+            if (queue_family_index >= static_cast<uint32_t>(device_info->queue_family_index_enabled.size()))
+            {
+                break;
+            }
+
+            if (!device_info->queue_family_index_enabled[queue_family_index])
+            {
+                continue;
+            }
+
+            // If we find a graphics queue, we're good, so grab it and bail
+            if (props[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
                 copy_queue_family_index = queue_family_index;
-                device_table_->GetDeviceQueue(device, copy_queue_family_index, 0, &initial_copy_queue);
-                if (initial_copy_queue != VK_NULL_HANDLE)
-                {
-                    break;
-                }
+                break;
             }
+
+            // Find a transfer queue as an alternative, just in case
+            if (transfer_queue_index < 0 && props[queue_family_index].queueFlags & VK_QUEUE_TRANSFER_BIT)
+            {
+                transfer_queue_index = queue_family_index;
+            }
+        }
+        if (copy_queue_family_index < 0)
+        {
+            if (transfer_queue_index < 0)
+            {
+                GFXRECON_LOG_ERROR("Virtual swapchain failed finding a queue to create initial virtual swapchain "
+                                   "images for swapchain (ID = %" PRIu64 ")",
+                                   swapchain_info->capture_id);
+                return VK_ERROR_INITIALIZATION_FAILED;
+            }
+            copy_queue_family_index = transfer_queue_index;
+            GFXRECON_LOG_INFO("Virtual swapchain using transfer queue %d to create initial virtual swapchain "
+                              "images for swapchain (ID = %" PRIu64 ")",
+                              transfer_queue_index,
+                              swapchain_info->capture_id);
+        }
+        device_table_->GetDeviceQueue(device, copy_queue_family_index, 0, &initial_copy_queue);
+        if (initial_copy_queue == VK_NULL_HANDLE)
+        {
+            GFXRECON_LOG_ERROR("Virtual swapchain failed getting device queue %d to create initial virtual swapchain "
+                               "images for swapchain (ID = %" PRIu64 ")",
+                               copy_queue_family_index,
+                               swapchain_info->capture_id);
+            return VK_ERROR_INITIALIZATION_FAILED;
         }
 
         // Make sure we have enough storage for each of our tracked components (Command pools,
@@ -238,8 +277,8 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                 // We only want to look at a given queue if it was enabled during device creation time
                 // and if it supports present.  Otherwise, we don't need to create a command pool,
                 // command buffers, and semaphores for performing the swapchain copy.
-                if (!device_info->queue_family_index_enabled[queue_family_index] ||
-                    static_cast<uint32_t>(device_info->queue_family_index_enabled.size()) <= queue_family_index)
+                if (static_cast<uint32_t>(device_info->queue_family_index_enabled.size()) <= queue_family_index ||
+                    !device_info->queue_family_index_enabled[queue_family_index])
                 {
                     GFXRECON_LOG_DEBUG("Virtual swapchain skipping creating blit info for queue family %d because it "
                                        "was not enabled by the device",
