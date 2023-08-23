@@ -6641,6 +6641,78 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceToolProperties(
     }
 }
 
+VkResult
+VulkanReplayConsumerBase::OverrideWaitSemaphores(PFN_vkWaitSemaphores func,
+                                                 VkResult             original_result,
+                                                 const DeviceInfo*    device_info,
+                                                 const StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pInfo,
+                                                 uint64_t                                                 timeout)
+{
+    assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
+    VkDevice                   device    = device_info->handle;
+    const VkSemaphoreWaitInfo* wait_info = pInfo->GetPointer();
+    VkResult                   result;
+
+    // If expected result is VK_SUCCESS, ensure that vkWaitSemaphores waits until semaphores
+    // are available by using a timeout of UINT64_MAX.
+    // If expected result is VK_TIMEOUT, try to get a timeout by using a timeout of 0.
+    // If expected result is anything else, use the passed in timeout value.
+    if (original_result == VK_SUCCESS)
+        timeout = std::numeric_limits<uint64_t>::max();
+    else if (original_result == VK_TIMEOUT)
+        timeout = 0;
+    result = func(device, wait_info, timeout);
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideAcquireProfilingLockKHR(
+    PFN_vkAcquireProfilingLockKHR                                      func,
+    VkResult                                                           original_result,
+    const DeviceInfo*                                                  device_info,
+    const StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
+{
+    assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
+    VkDevice                             device       = device_info->handle;
+    const VkAcquireProfilingLockInfoKHR* acquire_info = pInfo->GetPointer();
+    VkResult                             result;
+
+    // If expected result is VK_SUCCESS, ensure that vkAcquireProfilingLockKHR waits for locks
+    // using a timeout of UINT64_MAX.
+    // If expected result is VK_TIMEOUT, try to get a timeout by using a timeout of 0.
+    // If expected result is anything else, use the passed in timeout value.
+    VkAcquireProfilingLockInfoKHR acquire_info_copy = *acquire_info;
+    if (original_result == VK_SUCCESS)
+        acquire_info_copy.timeout = std::numeric_limits<uint64_t>::max();
+    else if (original_result == VK_TIMEOUT)
+        acquire_info_copy.timeout = 0;
+    result = func(device, &acquire_info_copy);
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideWaitForPresentKHR(PFN_vkWaitForPresentKHR func,
+                                                             VkResult                original_result,
+                                                             const DeviceInfo*       device_info,
+                                                             SwapchainKHRInfo*       swapchain_info,
+                                                             uint64_t                presentid,
+                                                             uint64_t                timeout)
+{
+    assert((device_info != nullptr) && (swapchain_info != nullptr));
+    VkDevice       device    = device_info->handle;
+    VkSwapchainKHR swapchain = swapchain_info->handle;
+    VkResult       result;
+
+    // If expected result is VK_SUCCESS, ensure that vkWaitForPresent waits for present by
+    // using a timeout of UINT64_MAX.
+    // If expected result is VK_TIMEOUT, try to get a timeout by using a timeout of 0.
+    // If expected result is anything else, use the passed in timeout value.
+    if (original_result == VK_SUCCESS)
+        timeout = std::numeric_limits<uint64_t>::max();
+    else if (original_result == VK_TIMEOUT)
+        timeout = 0;
+    result = func(device, swapchain, presentid, timeout);
+    return result;
+}
+
 void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
     const DescriptorUpdateTemplateInfo* update_template_info, DescriptorUpdateTemplateDecoder* decoder)
 {
