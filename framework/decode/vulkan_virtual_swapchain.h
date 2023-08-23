@@ -117,9 +117,9 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
     struct PrivateData
     {
-        std::vector<VkCommandPool>                blit_command_pools;
-        std::vector<std::vector<VkCommandBuffer>> blit_command_buffers;
-        std::vector<std::vector<VkSemaphore>>     blit_semaphores;
+        std::vector<VkCommandPool>                copy_command_pools;
+        std::vector<std::vector<VkCommandBuffer>> copy_command_buffers;
+        std::vector<std::vector<VkSemaphore>>     copy_semaphores;
         std::vector<uint32_t>                     capture_to_replay_index;
         std::vector<VirtualImage>
             virtual_swapchain_images; // Images created by replay, returned in place of the swapchain images.

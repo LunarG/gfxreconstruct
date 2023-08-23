@@ -2664,6 +2664,23 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             // Track state of physical device properties and features at device creation
             device_info->property_feature_info = property_feature_info;
 
+            // Keep track of what queue families this device is planning on using.  This information is
+            // very important if we end up using the VulkanVirtualSwapchain path.
+            uint32_t max_queue_family = 0;
+            for (uint32_t q = 0; q < modified_create_info.queueCreateInfoCount; ++q)
+            {
+                const VkDeviceQueueCreateInfo* queue_create_info = &modified_create_info.pQueueCreateInfos[q];
+                if (queue_create_info->queueFamilyIndex > max_queue_family)
+                {
+                    max_queue_family = queue_create_info->queueFamilyIndex;
+                }
+            }
+            device_info->queue_family_index_enabled.resize(max_queue_family + 1);
+            for (uint32_t q = 0; q <= max_queue_family; ++q)
+            {
+                device_info->queue_family_index_enabled[q] = false;
+            }
+
             for (uint32_t q = 0; q < modified_create_info.queueCreateInfoCount; ++q)
             {
                 const VkDeviceQueueCreateInfo* queue_create_info = &modified_create_info.pQueueCreateInfos[q];
@@ -2671,6 +2688,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                        device_info->queue_family_creation_flags.end());
                 device_info->queue_family_creation_flags[queue_create_info->queueFamilyIndex] =
                     queue_create_info->flags;
+                device_info->queue_family_index_enabled[queue_create_info->queueFamilyIndex] = true;
             }
         }
 
