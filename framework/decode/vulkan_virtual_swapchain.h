@@ -106,9 +106,32 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     {}
 
   private:
-    VkResult CreateVirtualSwapchainImage(const DeviceInfo*               device_info,
-                                         const VkImageCreateInfo&        image_create_info,
-                                         SwapchainKHRInfo::VirtualImage& image);
+    // VirtualSwapchain-specific private information.
+    struct VirtualImage
+    {
+        VkDeviceMemory                        memory{ VK_NULL_HANDLE };
+        VkImage                               image{ VK_NULL_HANDLE };
+        VulkanResourceAllocator::MemoryData   memory_allocator_data{ 0 };
+        VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
+    };
+
+    struct PrivateData
+    {
+        std::vector<VkCommandPool>                blit_command_pools;
+        std::vector<std::vector<VkCommandBuffer>> blit_command_buffers;
+        std::vector<std::vector<VkSemaphore>>     blit_semaphores;
+        std::vector<uint32_t>                     capture_to_replay_index;
+        std::vector<VirtualImage>
+            virtual_swapchain_images; // Images created by replay, returned in place of the swapchain images.
+        std::vector<VkImage> replay_swapchain_images; // The real swapchain images.
+    };
+
+    VkResult CreateVirtualSwapchainImage(const DeviceInfo*        device_info,
+                                         const VkImageCreateInfo& image_create_info,
+                                         VirtualImage&            image);
+
+    // Create an unordered map to associate the private information with a particular Vulkan swapchain
+    std::unordered_map<VkSwapchainKHR, PrivateData*> private_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

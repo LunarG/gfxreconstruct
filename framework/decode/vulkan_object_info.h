@@ -400,37 +400,16 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<uint32_t> queue_family_indices{ 0 };
-    uint32_t              virtual_queue_index{ 0 };
 
     // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
     // backing images.
+    uint32_t                  replay_image_count{ 0 };
     std::vector<ImageInfo>    image_infos;
     VkSwapchainCreateFlagsKHR image_flags{ 0 };
     VkFormat                  image_format{ VK_FORMAT_UNDEFINED };
     uint32_t                  image_array_layers{ 0 };
     VkImageUsageFlags         image_usage{ 0 };
     VkSharingMode             image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
-
-    // TODO: These values are used by the virtual swapchain.  They should be replaced with an opaque handle, similar to
-    // DeviceMemoryInfo::allocator_data, which is really a pointer to a struct that contains the virtual swapchain's
-    // internal info.  The memory for the struct referenced by the opaque handle would be managed by the virtual
-    // swapchain class, similar to the way that the VulkanRebindAllocator works.
-    struct VirtualImage
-    {
-        VkDeviceMemory                        memory{ VK_NULL_HANDLE };
-        VkImage                               image{ VK_NULL_HANDLE };
-        VulkanResourceAllocator::MemoryData   memory_allocator_data{ 0 };
-        VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
-    };
-    uint32_t              replay_image_count{ 0 };
-    std::vector<uint32_t> capture_to_replay_index;
-    std::vector<VirtualImage>
-        virtual_swapchain_images; // Images created by replay, returned in place of the swapchain images.
-    std::vector<VkImage> replay_swapchain_images; // The real swapchain images.
-
-    std::vector<VkCommandPool>                blit_command_pools;
-    std::vector<std::vector<VkCommandBuffer>> blit_command_buffers;
-    std::vector<std::vector<VkSemaphore>>     blit_semaphores;
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
