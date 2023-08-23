@@ -6467,13 +6467,26 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             // Use modified shader group infos.
             modified_create_infos[create_info_i].pGroups = modified_group_infos.data();
         }
+
+        VkPipeline* created_pipelines = nullptr;
+
+        if (deferred_operation_info)
+        {
+            created_pipelines = deferred_operation_info->replayPipelines.data();
+        }
+        else
+        {
+            created_pipelines = out_pPipelines;
+        }
+
         result = device_table->CreateRayTracingPipelinesKHR(device,
                                                             in_deferredOperation,
                                                             in_pipelineCache,
                                                             createInfoCount,
                                                             modified_create_infos.data(),
                                                             in_pAllocator,
-                                                            deferred_operation_info->replayPipelines.data());
+                                                            created_pipelines);
+
         if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
             (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
         {
@@ -6488,11 +6501,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             //     If the return value is VK_OPERATION_DEFERRED_KHR, it means the command is deferred, and thus pipeline
             //     creation is not finished. Subsequent handling will be done by
             //     vkDeferredOperationJoinKHR/vkGetDeferredOperationResultKHR after pipeline creation is finished.
-            memcpy(
-                out_pPipelines, deferred_operation_info->replayPipelines.data(), createInfoCount * sizeof(VkPipeline));
 
             if (deferred_operation_info)
             {
+                memcpy(out_pPipelines, created_pipelines, createInfoCount * sizeof(VkPipeline));
+
                 // Eventhough vkCreateRayTracingPipelinesKHR was called with a valid deferred operation object, the
                 // driver may opt to not defer the command. In this case, set pending_state flag to false to skip
                 // vkDeferredOperationJoinKHR handling.
