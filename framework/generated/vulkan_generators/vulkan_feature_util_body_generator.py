@@ -217,7 +217,7 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
 
         result += '    if (!remove_unsupported && found_unsupported)\n'
         result += '    {\n'
-        result += '        GFXRECON_LOG_WARNING("Unsupported features were requested. This might cause the vkCreateDevice to fail. Try \\"--remove-unsupported\\" option to remove those features at replay.");\n'
+        result += '        GFXRECON_LOG_WARNING("Unsupported features were requested. This might cause vkCreateDevice to fail. Try \\"--remove-unsupported\\" option to remove those features at replay.");\n'
         result += '    }\n'
         result += '}'
         return result
