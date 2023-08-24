@@ -4469,7 +4469,7 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
 
     if (!remove_unsupported && found_unsupported)
     {
-        GFXRECON_LOG_WARNING("Unsupported features were requested. This might cause the vkCreateDevice to fail. Try \"--remove-unsupported\" option to remove those features at replay.");
+        GFXRECON_LOG_WARNING("Unsupported features were requested. This might cause vkCreateDevice to fail. Try \"--remove-unsupported\" option to remove those features at replay.");
     }
 }
 
