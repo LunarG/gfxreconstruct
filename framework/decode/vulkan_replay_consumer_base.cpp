@@ -2676,12 +2676,8 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                                 modified_create_info.pQueueCreateInfos + modified_create_info.queueCreateInfoCount,
                                 0,
                                 max);
-
-            device_info->queue_family_index_enabled.resize(max_queue_family + 1);
-            for (uint32_t q = 0; q <= max_queue_family; ++q)
-            {
-                device_info->queue_family_index_enabled[q] = false;
-            }
+            device_info->queue_family_index_enabled.clear();
+            device_info->queue_family_index_enabled.resize(max_queue_family + 1, false);
 
             for (uint32_t q = 0; q < modified_create_info.queueCreateInfoCount; ++q)
             {
