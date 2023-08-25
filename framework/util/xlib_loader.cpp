@@ -70,6 +70,8 @@ bool XlibLoader::Initialize()
                 reinterpret_cast<decltype(XGetErrorText)*>(util::platform::GetProcAddress(libx11_, "XGetErrorText"));
             function_table_.GetWindowAttributes = reinterpret_cast<decltype(XGetWindowAttributes)*>(
                 util::platform::GetProcAddress(libx11_, "XGetWindowAttributes"));
+            function_table_.InitThreads =
+                reinterpret_cast<decltype(XInitThreads)*>(util::platform::GetProcAddress(libx11_, "XInitThreads"));
             function_table_.InternAtom =
                 reinterpret_cast<decltype(XInternAtom)*>(util::platform::GetProcAddress(libx11_, "XInternAtom"));
             function_table_.MapWindow =
