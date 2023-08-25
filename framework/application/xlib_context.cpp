@@ -46,8 +46,8 @@ XlibContext::XlibContext(Application* application) : WsiContext(application)
     }
 
     const auto xlib = xlib_loader_.GetFunctionTable();
+    xlib.InitThreads();
     xlib.SetErrorHandler(ErrorHandler);
-
     display_ = xlib.OpenDisplay(nullptr);
     if (!display_)
     {
@@ -78,6 +78,7 @@ Display* XlibContext::OpenDisplay()
     if (display_ == nullptr)
     {
         auto xlib = xlib_loader_.GetFunctionTable();
+        xlib.InitThreads();
         display_  = xlib.OpenDisplay(nullptr);
     }
     ++display_open_count_;
