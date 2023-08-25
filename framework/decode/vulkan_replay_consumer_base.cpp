@@ -41,8 +41,10 @@
 
 #include "generated/generated_vulkan_enum_to_string.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <limits>
+#include <numeric>
 #include <unordered_set>
 #include <future>
 
@@ -2666,15 +2668,15 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
 
             // Keep track of what queue families this device is planning on using.  This information is
             // very important if we end up using the VulkanVirtualSwapchain path.
-            uint32_t max_queue_family = 0;
-            for (uint32_t q = 0; q < modified_create_info.queueCreateInfoCount; ++q)
-            {
-                const VkDeviceQueueCreateInfo* queue_create_info = &modified_create_info.pQueueCreateInfos[q];
-                if (queue_create_info->queueFamilyIndex > max_queue_family)
-                {
-                    max_queue_family = queue_create_info->queueFamilyIndex;
-                }
-            }
+            auto max = [](uint32_t current_max, const VkDeviceQueueCreateInfo& dqci) {
+                return std::max(current_max, dqci.queueFamilyIndex);
+            };
+            uint32_t max_queue_family =
+                std::accumulate(modified_create_info.pQueueCreateInfos,
+                                modified_create_info.pQueueCreateInfos + modified_create_info.queueCreateInfoCount,
+                                0,
+                                max);
+
             device_info->queue_family_index_enabled.resize(max_queue_family + 1);
             for (uint32_t q = 0; q <= max_queue_family; ++q)
             {
@@ -4657,16 +4659,17 @@ void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
     uint32_t                                                   imageMemoryBarrierCount,
     const StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers)
 {
-    func(command_buffer_info->handle,
-         srcStageMask,
-         dstStageMask,
-         dependencyFlags,
-         memoryBarrierCount,
-         pMemoryBarriers->GetPointer(),
-         bufferMemoryBarrierCount,
-         pBufferMemoryBarriers->GetPointer(),
-         imageMemoryBarrierCount,
-         pImageMemoryBarriers->GetPointer());
+    swapchain_->CmdPipelineBarrier(func,
+                                   command_buffer_info,
+                                   srcStageMask,
+                                   dstStageMask,
+                                   dependencyFlags,
+                                   memoryBarrierCount,
+                                   pMemoryBarriers->GetPointer(),
+                                   bufferMemoryBarrierCount,
+                                   pBufferMemoryBarriers->GetPointer(),
+                                   imageMemoryBarrierCount,
+                                   pImageMemoryBarriers->GetPointer());
 
     for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i)
     {

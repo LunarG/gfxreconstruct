@@ -25,6 +25,8 @@
 
 #include "decode/vulkan_swapchain.h"
 
+#include <map>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -97,6 +99,18 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                        const VkAllocationCallbacks*   allocator,
                                        VkRenderPass*                  render_pass) override;
 
+    virtual void CmdPipelineBarrier(PFN_vkCmdPipelineBarrier     func,
+                                    const CommandBufferInfo*     command_buffer_info,
+                                    VkPipelineStageFlags         src_stage_mask,
+                                    VkPipelineStageFlags         dst_stage_mask,
+                                    VkDependencyFlags            dependency_flags,
+                                    uint32_t                     memory_barrier_count,
+                                    const VkMemoryBarrier*       memory_barriers,
+                                    uint32_t                     buffer_memory_barrier_count,
+                                    const VkBufferMemoryBarrier* buffer_memory_barriers,
+                                    uint32_t                     image_memory_barrier_count,
+                                    const VkImageMemoryBarrier*  image_memory_barriers) override;
+
     virtual void ProcessSetSwapchainImageStateCommand(const DeviceInfo* device_info,
                                                       SwapchainKHRInfo* swapchain_info,
                                                       uint32_t          last_presented_image,
@@ -106,7 +120,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     {}
 
   private:
-    // VirtualSwapchain-specific private information.
+    // Structure necessary to track the necessary information related to the virtual swapchain images
     struct VirtualImage
     {
         VkDeviceMemory                        memory{ VK_NULL_HANDLE };
@@ -115,15 +129,26 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
     };
 
-    struct PrivateData
+    // Structure to store data required per device queue family to properly handle creating the
+    // virtual swapchain images and copying that data to the actual swapchain images.
+    struct CopyCmdData
     {
-        std::vector<VkCommandPool>                copy_command_pools;
-        std::vector<std::vector<VkCommandBuffer>> copy_command_buffers;
-        std::vector<std::vector<VkSemaphore>>     copy_semaphores;
-        std::vector<uint32_t>                     capture_to_replay_index;
-        std::vector<VirtualImage>
-            virtual_swapchain_images; // Images created by replay, returned in place of the swapchain images.
-        std::vector<VkImage> replay_swapchain_images; // The real swapchain images.
+        VkCommandPool                command_pool;
+        std::vector<VkCommandBuffer> command_buffers;
+        std::vector<VkSemaphore>     semaphores;
+    };
+
+    // Structure to track VulkanVirtualSwapchain private data specific to a particular VkSwapchainKHR handle.
+    struct SwapchainData
+    {
+        // Create a map that correlates copy command data with a queue family index.
+        std::map<size_t, CopyCmdData> copy_cmd_data;
+
+        // Swapchain images, these include the virtual ones created by this
+        // class that are returned in place of the hardware ones, as well
+        // as a vector of the actual hardware ones used during replay.
+        std::vector<VirtualImage> virtual_swapchain_images;
+        std::vector<VkImage>      replay_swapchain_images;
     };
 
     VkResult CreateVirtualSwapchainImage(const DeviceInfo*        device_info,
@@ -131,7 +156,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                          VirtualImage&            image);
 
     // Create an unordered map to associate the private information with a particular Vulkan swapchain
-    std::unordered_map<VkSwapchainKHR, PrivateData*> private_data_;
+    std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainData>> private_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
