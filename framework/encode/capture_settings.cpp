@@ -341,7 +341,7 @@ void CaptureSettings::LoadRunTimeEnvVarSettings(CaptureSettings* settings)
         std::string value = util::platform::GetEnv(kCaptureAndroidTriggerEnvVar);
         settings->trace_settings_.runtime_capture_trigger =
             ParseAndroidRunTimeTrimState(value, settings->trace_settings_.runtime_capture_trigger);
-        if (!settings->trace_settings_.runtime_capture_trigger != RuntimeTriggerState::kNotUsed)
+        if (settings->trace_settings_.runtime_capture_trigger != RuntimeTriggerState::kNotUsed)
         {
             settings->trace_settings_.trim_boundary = TrimBoundary::kFrames;
         }
