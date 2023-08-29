@@ -25,8 +25,6 @@
 
 #include "decode/vulkan_swapchain.h"
 
-#include <map>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -142,7 +140,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     struct SwapchainResourceData
     {
         // Create a map that correlates copy command data with a queue family index.
-        std::map<uint32_t, CopyCmdData> copy_cmd_data;
+        std::unordered_map<uint32_t, CopyCmdData> copy_cmd_data;
 
         // Swapchain images, these include the virtual ones created by this
         // class that are returned in place of the hardware ones, as well
