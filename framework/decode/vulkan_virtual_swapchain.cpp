@@ -68,13 +68,13 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR    
     result = func(device, &modified_create_info, allocator, swapchain);
     if (result == VK_SUCCESS && *swapchain != VK_NULL_HANDLE)
     {
-        auto data = std::make_unique<SwapchainData>();
+        auto data = std::make_unique<SwapchainResourceData>();
         if (data == nullptr)
         {
-            GFXRECON_LOG_ERROR("Virtual swapchain failed creating private data during vkCreateSwapchainKHR");
+            GFXRECON_LOG_ERROR("Virtual swapchain failed creating swapchain resource data during vkCreateSwapchainKHR");
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
-        private_data_.emplace(*swapchain, std::move(data));
+        swapchain_resources_.emplace(*swapchain, std::move(data));
     }
     return result;
 }
@@ -101,17 +101,17 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    fu
             allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
         }
 
-        // Delete the virtual swapchain-specific private data
-        if (private_data_.find(swapchain) != private_data_.end())
+        // Delete the virtual swapchain-specific swapchain resource data
+        if (swapchain_resources_.find(swapchain) != swapchain_resources_.end())
         {
-            auto& private_data = private_data_[swapchain];
-            for (const VirtualImage& image_info : private_data->virtual_swapchain_images)
+            auto& swapchain_resources = swapchain_resources_[swapchain];
+            for (const VirtualImage& image_info : swapchain_resources->virtual_swapchain_images)
             {
                 allocator->DestroyImageDirect(image_info.image, nullptr, image_info.resource_allocator_data);
                 allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
             }
 
-            for (auto& copy_cmd_data : private_data->copy_cmd_data)
+            for (auto& copy_cmd_data : swapchain_resources->copy_cmd_data)
             {
                 if (copy_cmd_data.second.command_pool != VK_NULL_HANDLE)
                 {
@@ -128,7 +128,7 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    fu
                 }
             }
 
-            private_data_.erase(swapchain);
+            swapchain_resources_.erase(swapchain);
         }
     }
     func(device, swapchain, allocator);
@@ -158,20 +158,21 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
         replay_image_count = &swapchain_info->replay_image_count;
     }
 
-    // Get the private data so we have access to the virtual swapchain-specific information.
-    if (swapchain == VK_NULL_HANDLE || private_data_.find(swapchain) == private_data_.end())
+    // Get the swapchain resource data so we have access to the virtual swapchain-specific information.
+    if (swapchain == VK_NULL_HANDLE || swapchain_resources_.find(swapchain) == swapchain_resources_.end())
     {
-        GFXRECON_LOG_ERROR("Virtual swapchain vkGetSwapchainImagesKHR missing private data for swapchain (ID = %" PRIu64
-                           ")",
-                           swapchain_info->capture_id);
+        GFXRECON_LOG_ERROR(
+            "Virtual swapchain vkGetSwapchainImagesKHR missing swapchain resource data for swapchain (ID = %" PRIu64
+            ")",
+            swapchain_info->capture_id);
     }
     else if (images != nullptr)
     {
-        auto& private_data = private_data_[swapchain];
-        private_data->replay_swapchain_images.resize(*replay_image_count);
+        auto& swapchain_resources = swapchain_resources_[swapchain];
+        swapchain_resources->replay_swapchain_images.resize(*replay_image_count);
 
         // Use the resized replay images vector to contain the replay device swapchain images.
-        replay_images = private_data->replay_swapchain_images.data();
+        replay_images = swapchain_resources->replay_swapchain_images.data();
     }
 
     // TODO: Adjust the swapchain image format if the specified format is not supported by the replay device.
@@ -189,8 +190,10 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
             return result;
         }
 
-        int32_t copy_queue_family_index = -1;
-        int32_t transfer_queue_index    = -1;
+        bool     found_copy_queue_family           = false;
+        uint32_t copy_queue_family_index           = VK_QUEUE_FAMILY_IGNORED;
+        bool     found_transfer_queue_family_index = false;
+        uint32_t transfer_queue_family_index       = 0;
 
         // Determine what queue to use for the initial virtual image setup
         VkQueue                              initial_copy_queue = VK_NULL_HANDLE;
@@ -219,28 +222,30 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
             if (props[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
                 copy_queue_family_index = queue_family_index;
+                found_copy_queue_family = true;
                 break;
             }
 
             // Find a transfer queue as an alternative, just in case
-            if (transfer_queue_index < 0 && props[queue_family_index].queueFlags & VK_QUEUE_TRANSFER_BIT)
+            if (!found_transfer_queue_family_index && props[queue_family_index].queueFlags & VK_QUEUE_TRANSFER_BIT)
             {
-                transfer_queue_index = queue_family_index;
+                transfer_queue_family_index       = queue_family_index;
+                found_transfer_queue_family_index = true;
             }
         }
-        if (copy_queue_family_index < 0)
+        if (!found_copy_queue_family)
         {
-            if (transfer_queue_index < 0)
+            if (!found_transfer_queue_family_index)
             {
                 GFXRECON_LOG_ERROR("Virtual swapchain failed finding a queue to create initial virtual swapchain "
                                    "images for swapchain (ID = %" PRIu64 ")",
                                    swapchain_info->capture_id);
                 return VK_ERROR_INITIALIZATION_FAILED;
             }
-            copy_queue_family_index = transfer_queue_index;
+            copy_queue_family_index = transfer_queue_family_index;
             GFXRECON_LOG_INFO("Virtual swapchain using transfer queue %d to create initial virtual swapchain "
                               "images for swapchain (ID = %" PRIu64 ")",
-                              transfer_queue_index,
+                              transfer_queue_family_index,
                               swapchain_info->capture_id);
         }
         device_table_->GetDeviceQueue(device, copy_queue_family_index, 0, &initial_copy_queue);
@@ -253,11 +258,11 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
             return VK_ERROR_INITIALIZATION_FAILED;
         }
 
-        auto& private_data = private_data_[swapchain];
+        auto& swapchain_resources = swapchain_resources_[swapchain];
 
-        for (size_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
+        for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
         {
-            if (private_data->copy_cmd_data.find(queue_family_index) == private_data->copy_cmd_data.end())
+            if (swapchain_resources->copy_cmd_data.find(queue_family_index) == swapchain_resources->copy_cmd_data.end())
             {
                 VkBool32 supported = VK_FALSE;
 
@@ -304,10 +309,10 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                                        swapchain_info->capture_id);
                     return result;
                 }
-                private_data->copy_cmd_data.emplace(queue_family_index, std::move(copy_cmd_data));
+                swapchain_resources->copy_cmd_data.emplace(queue_family_index, std::move(copy_cmd_data));
             }
 
-            auto& copy_cmd_data = private_data->copy_cmd_data[queue_family_index];
+            auto& copy_cmd_data = swapchain_resources->copy_cmd_data[queue_family_index];
 
             // Make sure we have enough storage for each of our tracked components (Command pools,
             // Command Buffers, Semaphores, etc) as many queue families that are available.
@@ -374,7 +379,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
             }
         }
 
-        uint32_t virtual_swapchain_count = static_cast<uint32_t>(private_data->virtual_swapchain_images.size());
+        uint32_t virtual_swapchain_count = static_cast<uint32_t>(swapchain_resources->virtual_swapchain_images.size());
 
         // If the call was made more than once because the first call returned VK_INCOMPLETE, only the new images
         // returned by the second call will have virtual images created and appended to the end of the virtual image
@@ -414,7 +419,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
             begin_info.flags                    = 0;
             begin_info.pInheritanceInfo         = nullptr;
 
-            auto command_buffer = private_data->copy_cmd_data[copy_queue_family_index].command_buffers[0];
+            auto command_buffer = swapchain_resources->copy_cmd_data[copy_queue_family_index].command_buffers[0];
 
             result = device_table_->ResetCommandBuffer(command_buffer, 0);
             if (result != VK_SUCCESS)
@@ -448,7 +453,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
                                        swapchain_info->capture_id);
                     break;
                 }
-                private_data->virtual_swapchain_images.emplace_back(std::move(image));
+                swapchain_resources->virtual_swapchain_images.emplace_back(std::move(image));
             }
 
             VkImageMemoryBarrier barrier = {
@@ -472,7 +477,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 
             for (uint32_t i = 0; i < *replay_image_count; ++i)
             {
-                barrier.image = private_data->replay_swapchain_images[i];
+                barrier.image = swapchain_resources->replay_swapchain_images[i];
                 device_table_->CmdPipelineBarrier(command_buffer,
                                                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
@@ -521,7 +526,7 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
 
         for (uint32_t i = 0; i < capture_image_count; ++i)
         {
-            images[i] = private_data->virtual_swapchain_images[i].image;
+            images[i] = swapchain_resources->virtual_swapchain_images[i].image;
         }
     }
 
@@ -690,34 +695,33 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
         uint32_t    capture_image_index = capture_image_indices[i];
         uint32_t    replay_image_index  = present_info->pImageIndices[i];
 
-        // Get the private data so we have access to the virtual swapchain-specific information.
-        if (private_data_.find(swapchain_info->handle) == private_data_.end())
-        {
-            GFXRECON_LOG_ERROR("Virtual swapchain vkQueuePresentKHR missing private data for swapchain (ID = %" PRIu64
-                               ")",
-                               swapchain_info->capture_id);
-            continue;
-        }
-
-        auto& private_data = private_data_[swapchain_info->handle];
-        assert(private_data != nullptr);
-
-        // Find the appropriate CommandCopyData struct for this queue family
-        if (private_data->copy_cmd_data.find(queue_family_index) == private_data->copy_cmd_data.end())
+        // Get the per swapchain resource data so we have access to the virtual swapchain-specific information.
+        if (swapchain_resources_.find(swapchain_info->handle) == swapchain_resources_.end())
         {
             GFXRECON_LOG_ERROR(
-                "Virtual swapchain vkQueuePresentKHR missing private copy command data for queue (Handle %" PRIu64
-                ") in swapchain (ID = %" PRIu64 ")",
-                queue,
+                "Virtual swapchain vkQueuePresentKHR missing swapchain resource data for swapchain (ID = %" PRIu64 ")",
                 swapchain_info->capture_id);
             continue;
         }
 
-        const auto& virtual_image = private_data->virtual_swapchain_images[capture_image_index];
-        const auto& replay_image  = private_data->replay_swapchain_images[replay_image_index];
+        auto& swapchain_resources = swapchain_resources_[swapchain_info->handle];
+        assert(swapchain_resources != nullptr);
+
+        // Find the appropriate CommandCopyData struct for this queue family
+        if (swapchain_resources->copy_cmd_data.find(queue_family_index) == swapchain_resources->copy_cmd_data.end())
+        {
+            GFXRECON_LOG_ERROR("Virtual swapchain vkQueuePresentKHR missing swapchain resource copy command data for "
+                               "queue (Handle %" PRIu64 ") in swapchain (ID = %" PRIu64 ")",
+                               queue,
+                               swapchain_info->capture_id);
+            continue;
+        }
+
+        const auto& virtual_image = swapchain_resources->virtual_swapchain_images[capture_image_index];
+        const auto& replay_image  = swapchain_resources->replay_swapchain_images[replay_image_index];
 
         // Use a command buffer and semaphore from the same queue index
-        auto& copy_cmd_data  = private_data->copy_cmd_data[queue_family_index];
+        auto& copy_cmd_data  = swapchain_resources->copy_cmd_data[queue_family_index];
         auto  command_buffer = copy_cmd_data.command_buffers[capture_image_index];
         auto  copy_semaphore = copy_cmd_data.semaphores[capture_image_index];
 

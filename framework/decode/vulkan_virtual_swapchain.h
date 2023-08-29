@@ -139,10 +139,10 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     };
 
     // Structure to track VulkanVirtualSwapchain private data specific to a particular VkSwapchainKHR handle.
-    struct SwapchainData
+    struct SwapchainResourceData
     {
         // Create a map that correlates copy command data with a queue family index.
-        std::map<size_t, CopyCmdData> copy_cmd_data;
+        std::map<uint32_t, CopyCmdData> copy_cmd_data;
 
         // Swapchain images, these include the virtual ones created by this
         // class that are returned in place of the hardware ones, as well
@@ -155,8 +155,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                          const VkImageCreateInfo& image_create_info,
                                          VirtualImage&            image);
 
-    // Create an unordered map to associate the private information with a particular Vulkan swapchain
-    std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainData>> private_data_;
+    // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
+    std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
