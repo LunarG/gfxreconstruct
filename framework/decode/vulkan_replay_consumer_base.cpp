@@ -2147,12 +2147,12 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 // If both copy_scale and copy_width are provided, use copy_scale.
                 const uint32_t screenshot_width =
                     options_.screenshot_scale
-                        ? (options_.screenshot_scale * swapchain_info->width)
+                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->width)
                         : (options_.screenshot_width ? options_.screenshot_width : swapchain_info->width);
 
                 const uint32_t screenshot_height =
                     options_.screenshot_scale
-                        ? (options_.screenshot_scale * swapchain_info->height)
+                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->height)
                         : (options_.screenshot_height ? options_.screenshot_height : swapchain_info->height);
 
                 screenshot_handler_->WriteImage(filename_prefix,
@@ -2224,12 +2224,12 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const Comm
                     // If both copy_scale and copy_width are provided, use copy_scale.
                     const uint32_t screenshot_width =
                         options_.screenshot_scale
-                            ? (options_.screenshot_scale * image_info->extent.width)
+                            ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.width)
                             : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
 
                     const uint32_t screenshot_height =
                         options_.screenshot_scale
-                            ? (options_.screenshot_scale * image_info->extent.height)
+                            ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.height)
                             : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
 
                     screenshot_handler_->WriteImage(filename_prefix,

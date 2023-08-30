@@ -480,7 +480,7 @@ static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, 
                 width  = std::stoul(value.substr(0, x));
                 height = std::stoul(value.substr(x + 1));
             }
-            catch (std::exception& e)
+            catch (std::exception&)
             {
                 GFXRECON_LOG_WARNING("Ignoring invalid screenshot width x height option. Expected format is "
                                      "--screenshot-size [width]x[height]");
@@ -510,7 +510,7 @@ static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser
         {
             scale = std::stof(value);
         }
-        catch (std::exception& e)
+        catch (std::exception&)
         {
             GFXRECON_LOG_WARNING(
                 "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
