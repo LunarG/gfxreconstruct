@@ -117,6 +117,14 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tPrefix to apply to the screenshot file name.  Default is ");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot\", producing file names similar to");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot_frame_8049.bmp\".");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-scale <factor>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify a decimal factor which will determine screenshot sizes.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe factor will be multiplied with the swapchain images");
+    GFXRECON_WRITE_CONSOLE("          \t\tdimension to determine the screenshot dimensions. Default is 1.0.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-size <width>x<height>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify desired screenshot dimensions. Leaving this unspecified");
+    GFXRECON_WRITE_CONSOLE("          \t\tscreenshots will use the swapchain images dimensions. If ");
+    GFXRECON_WRITE_CONSOLE("          \t\t--screenshot-scale is also specified then this option is ignored.");
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tVulkan capture or the Direct3D debug layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");
