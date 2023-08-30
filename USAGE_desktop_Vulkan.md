@@ -384,6 +384,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--pause-frame <N>] [--paused] [--sync] [--screenshot-all]
                         [--screenshots <N1(-N2),...>] [--screenshot-format <format>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
+                        [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
@@ -440,6 +441,16 @@ Optional arguments:
                         Prefix to apply to the screenshot file name.  Default is
                         "screenshot", producing file names similar to
                         "screenshot_frame8049.bmp".
+  --screenshot-scale SCALE
+                        Specify a decimal factor which will determine screenshot
+                        sizes. The factor will be multiplied with the swapchain
+                        images dimension to determine the screenshot dimensions.
+                        Default is 1.0.
+  --screenshot-size WIDTHxHEIGHT
+                        Specify desired screenshot dimensions. Leaving this
+                        unspecified screenshots will use the swapchain images
+                        dimensions. If --screenshot-scale is also specified then
+                        this option is ignored.
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
