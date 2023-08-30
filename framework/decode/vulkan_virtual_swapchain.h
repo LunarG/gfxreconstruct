@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021-2022 LunarG, Inc.
+** Copyright (c) 2021-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -40,7 +40,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                         VkSwapchainKHR*                 swapchain,
                                         const VkPhysicalDevice          physical_device,
                                         const encode::InstanceTable*    instance_table,
-                                        const encode::DeviceTable*      device_table) override;
+                                        const encode::DeviceTable*      device_table,
+                                        ScreenshotHandler*              screenshot_handler) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
@@ -117,7 +118,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                                       SwapchainImageTracker&       swapchain_image_tracker) override
     {}
 
-  private:
+  protected:
     // Structure necessary to track the necessary information related to the virtual swapchain images
     struct VirtualImage
     {

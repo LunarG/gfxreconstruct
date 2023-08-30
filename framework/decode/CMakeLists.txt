@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2021 LunarG, Inc.
+# Copyright (c) 2018-2023 LunarG, Inc.
 # Copyright (c) 2019-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -165,6 +165,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h

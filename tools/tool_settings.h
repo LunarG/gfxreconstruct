@@ -108,6 +108,7 @@ const char kFormatArgument[]                     = "--format";
 const char kIncludeBinariesOption[]              = "--include-binaries";
 const char kExpandFlagsOption[]                  = "--expand-flags";
 const char kFilePerFrameOption[]                 = "--file-per-frame";
+const char kEnableOffscreen[]                    = "--offscreen";
 #if defined(WIN32)
 const char kApiFamilyOption[]             = "--api";
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
@@ -832,6 +833,11 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (arg_parser.IsOptionSet(kEnableUseCapturedSwapchainIndices))
     {
         replay_options.enable_use_captured_swapchain_indices = true;
+    }
+
+    if (arg_parser.IsOptionSet(kEnableOffscreen))
+    {
+        replay_options.enable_offscreen = true;
     }
 
     replay_options.replace_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);

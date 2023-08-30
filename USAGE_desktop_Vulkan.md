@@ -393,6 +393,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
                         [--measurement-file <file>] [--quit-after-measurement-range]
                         [--flush-measurement-range]
+                        [--offscreen]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--api <api>] [--no-debug-popup] <file>
 
@@ -525,6 +526,7 @@ Optional arguments:
               If this is specified the replayer will flush
               and wait for all current GPU work to finish at the
               start and end of the measurement range.
+  --offscreen           Output the rendering image, and do not create a window.
 ```
 
 ### Key Controls
