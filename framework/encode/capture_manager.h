@@ -195,8 +195,8 @@ class CaptureManager
 
       public:
         const format::ThreadId                   thread_id_;
-        format::ApiCallId                        call_id_;
         format::HandleId                         object_id_;
+        format::ApiCallId                        call_id_;
         std::unique_ptr<encode::ParameterBuffer> parameter_buffer_;
         std::unique_ptr<ParameterEncoder>        parameter_encoder_;
         std::vector<uint8_t>                     compressed_buffer_;
@@ -325,8 +325,8 @@ class CaptureManager
     std::unique_ptr<util::FileOutputStream> file_stream_;
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;
-    bool                                    timestamp_filename_;
     bool                                    force_file_flush_;
+    bool                                    timestamp_filename_;
     CaptureSettings::MemoryTrackingMode     memory_tracking_mode_;
     bool                                    page_guard_align_buffer_sizes_;
     bool                                    page_guard_track_ahb_memory_;

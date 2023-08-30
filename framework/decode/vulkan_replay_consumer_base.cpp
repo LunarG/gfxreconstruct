@@ -161,7 +161,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
                                                    const VulkanReplayOptions&                options) :
     loader_handle_(nullptr),
     get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), application_(application), options_(options),
-    loading_trim_state_(false), have_imported_semaphores_(false), create_surface_count_(0), fps_info_(nullptr)
+    loading_trim_state_(false), create_surface_count_(0), fps_info_(nullptr), have_imported_semaphores_(false)
 {
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -728,10 +728,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
     {
         assert(device_info->handle != VK_NULL_HANDLE);
 
-        VkResult       result = VK_SUCCESS;
-        VkDevice       device = device_info->handle;
-        VkBuffer       buffer = VK_NULL_HANDLE;
-        VkDeviceMemory memory = VK_NULL_HANDLE;
+        VkDevice device = device_info->handle;
 
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
@@ -784,11 +781,10 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
     if ((device_info != nullptr) && (buffer_info != nullptr))
     {
         VkResult                   result      = VK_SUCCESS;
-        VkDevice                   device      = device_info->handle;
         VkBuffer                   buffer      = buffer_info->handle;
         VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
 
-        assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
+        assert((device_info->handle != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
 
         if (initializer != nullptr)
         {
@@ -861,11 +857,10 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
     if ((device_info != nullptr) && (image_info != nullptr))
     {
         VkResult                   result      = VK_SUCCESS;
-        VkDevice                   device      = device_info->handle;
         VkImage                    image       = image_info->handle;
         VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
 
-        assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
+        assert((device_info->handle != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
 
         if (initializer != nullptr)
         {
@@ -1416,6 +1411,7 @@ bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(InstanceInfo*             
     uint32_t   replay_gpu_group_count = 0;
     VkResult   err = table->EnumeratePhysicalDeviceGroups(instance, &replay_gpu_group_count, nullptr);
     GFXRECON_ASSERT(!err);
+    GFXRECON_UNREFERENCED_PARAMETER(err);
 
     std::vector<VkPhysicalDeviceGroupProperties> replay_group_props;
     if (replay_gpu_group_count > 0)
@@ -1585,6 +1581,7 @@ void VulkanReplayConsumerBase::GetMatchingDeviceGroup(InstanceInfo*             
         uint32_t   replay_gpu_group_count = 0;
         VkResult   err = table->EnumeratePhysicalDeviceGroups(instance, &replay_gpu_group_count, nullptr);
         GFXRECON_ASSERT(!err);
+        GFXRECON_UNREFERENCED_PARAMETER(err);
 
         if (replay_gpu_group_count > 0)
         {
@@ -1902,9 +1899,8 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
 
         if ((result == VK_SUCCESS) && (replay_surface != nullptr))
         {
-            auto surface_id   = surface->GetPointer();
             auto surface_info = reinterpret_cast<SurfaceKHRInfo*>(surface->GetConsumerData(0));
-            assert((surface_id != nullptr) && (surface_info != nullptr));
+            assert(surface_info != nullptr);
             assert(!surface_info->surface_creation_skipped);
 
             surface_info->window = window;
@@ -2147,12 +2143,13 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 // If both copy_scale and copy_width are provided, use copy_scale.
                 const uint32_t screenshot_width =
                     options_.screenshot_scale
-                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->width)
+                        ? static_cast<uint32_t>((options_.screenshot_scale * static_cast<float>(swapchain_info->width)))
                         : (options_.screenshot_width ? options_.screenshot_width : swapchain_info->width);
 
                 const uint32_t screenshot_height =
                     options_.screenshot_scale
-                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->height)
+                        ? static_cast<uint32_t>(
+                              (options_.screenshot_scale * static_cast<float>(swapchain_info->height)))
                         : (options_.screenshot_height ? options_.screenshot_height : swapchain_info->height);
 
                 screenshot_handler_->WriteImage(filename_prefix,
@@ -2223,13 +2220,15 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const Comm
 
                     // If both copy_scale and copy_width are provided, use copy_scale.
                     const uint32_t screenshot_width =
-                        options_.screenshot_scale
-                            ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.width)
+                        (options_.screenshot_scale != .0f)
+                            ? static_cast<uint32_t>(
+                                  (options_.screenshot_scale * static_cast<float>(image_info->extent.width)))
                             : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
 
                     const uint32_t screenshot_height =
-                        options_.screenshot_scale
-                            ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.height)
+                        (options_.screenshot_scale != .0f)
+                            ? static_cast<uint32_t>(
+                                  (options_.screenshot_scale * static_cast<float>(image_info->extent.height)))
                             : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
 
                     screenshot_handler_->WriteImage(filename_prefix,
@@ -3351,7 +3350,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
 
     if (screenshot_handler_ != nullptr)
     {
-        CommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
             if (submit_info_data != nullptr)
@@ -3520,7 +3518,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2 func,
     // Check whether any of the submitted command buffers are frame boundaries.
     if (screenshot_handler_ != nullptr)
     {
-        bool is_frame_boundary = false;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
             if (submit_info_data != nullptr)
@@ -4705,6 +4702,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
         size_t buffer_info_count            = 0;
         size_t texel_buffer_view_count      = 0;
         size_t acceleration_structure_count = 0;
+        GFXRECON_UNREFERENCED_PARAMETER(acceleration_structure_count);
 
         for (auto entry = entries.begin(); entry != entries.end(); ++entry)
         {
@@ -4857,8 +4855,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
 
     // Replace shader in 'override_info'
     std::unique_ptr<char[]> file_code;
-    const uint32_t*         orig_code = original_info->pCode;
-    size_t                  orig_size = original_info->codeSize;
     uint64_t                handle_id = *pShaderModule->GetPointer();
     std::string             file_name = "sh" + std::to_string(handle_id);
     std::string             file_path = util::filepath::Join(options_.replace_dir, file_name);
@@ -6594,7 +6590,7 @@ void VulkanReplayConsumerBase::OverrideCmdDebugMarkerInsertEXT(
     {
         command_buffer_info->is_frame_boundary = true;
     }
-};
+}
 
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     PFN_vkCmdBeginRenderPass                             func,

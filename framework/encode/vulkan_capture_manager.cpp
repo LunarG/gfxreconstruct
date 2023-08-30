@@ -664,7 +664,6 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
     // TODO: Only enable KHR_external_memory_capabilities for 1.0 API version.
     size_t                   extension_count = pCreateInfo_unwrapped->enabledExtensionCount;
-    const char* const*       extensions      = pCreateInfo_unwrapped->ppEnabledExtensionNames;
     std::vector<const char*> modified_extensions;
 
     bool has_ext_mem      = false;
@@ -778,11 +777,10 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                                                     const VkAllocationCallbacks* pAllocator,
                                                     VkBuffer*                    pBuffer)
 {
-    VkResult result               = VK_SUCCESS;
-    auto     device_wrapper       = GetWrapper<DeviceWrapper>(device);
-    VkDevice device_unwrapped     = device_wrapper->handle;
-    auto     device_table         = GetDeviceTable(device);
-    auto     handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    VkResult result           = VK_SUCCESS;
+    auto     device_wrapper   = GetWrapper<DeviceWrapper>(device);
+    VkDevice device_unwrapped = device_wrapper->handle;
+    auto     device_table     = GetDeviceTable(device);
 
     VkBufferCreateInfo modified_create_info = (*pCreateInfo);
 
@@ -1392,7 +1390,6 @@ void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          res
                 auto             physical_device_wrapper = GetWrapper<PhysicalDeviceWrapper>(physical_device);
                 format::HandleId physical_device_id      = physical_device_wrapper->handle_id;
                 VkPhysicalDevice physical_device_handle  = physical_device_wrapper->handle;
-                uint32_t         count                   = 0;
 
                 VkPhysicalDeviceProperties       properties;
                 VkPhysicalDeviceMemoryProperties memory_properties;

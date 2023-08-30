@@ -23,7 +23,7 @@
 #ifndef GFXRECON_CUSTOM_COMMON_TO_STRING_H
 #define GFXRECON_CUSTOM_COMMON_TO_STRING_H
 
-#include "format/platform_types.h"
+#include "platform_types.h"
 #include "util/to_string.h"
 
 #include <string>

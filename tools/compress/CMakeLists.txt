@@ -31,6 +31,8 @@ add_executable(gfxrecon-compress "")
 target_sources(gfxrecon-compress
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/../../tools/tool_settings.h
+                   ${CMAKE_CURRENT_LIST_DIR}/../../tools/tool_settings.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.h
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp

@@ -157,7 +157,6 @@ TEST_CASE("SplitString", "[strings]")
 TEST_CASE("RemoveWhitespace", "[strings]")
 {
     using std::string;
-    auto s = [](auto x) { return string{ x }; };
 
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
 

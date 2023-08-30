@@ -279,7 +279,6 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     const VulkanObjectInfoTable&                        object_info_table,
     SwapchainImageTracker&                              swapchain_image_tracker)
 {
-    VkDevice       device    = device_info->handle;
     VkSwapchainKHR swapchain = swapchain_info->handle;
 
     VkPhysicalDevice physical_device = device_info->parent;

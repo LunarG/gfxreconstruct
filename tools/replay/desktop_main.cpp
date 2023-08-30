@@ -23,6 +23,7 @@
 */
 
 #include "replay_settings.h"
+#include "../tool_settings.h"
 
 #include "application/application.h"
 #include "decode/file_processor.h"

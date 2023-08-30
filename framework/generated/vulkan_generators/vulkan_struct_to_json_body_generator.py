@@ -164,6 +164,8 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                         {{
                             const {0}& decoded_value = *data->decoded_value;
                             const Decoded_{0}& meta_struct = *data;
+                            GFXRECON_UNREFERENCED_PARAMETER(decoded_value);
+                            GFXRECON_UNREFERENCED_PARAMETER(meta_struct);
                     '''.format(struct))
                 body += '\n'
                 body += self.makeStructBody(struct, self.feature_struct_members[struct])

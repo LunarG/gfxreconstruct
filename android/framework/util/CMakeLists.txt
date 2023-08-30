@@ -51,9 +51,12 @@ target_compile_definitions(gfxrecon_util
 
 target_include_directories(gfxrecon_util
                            PUBLIC
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
-                               ${GFXRECON_SOURCE_DIR}/external/stb
-                               ${GFXRECON_SOURCE_DIR}/framework)
+                           ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
+                           ${GFXRECON_SOURCE_DIR}/framework)
+
+target_include_directories(gfxrecon_util
+                           SYSTEM PUBLIC
+                           ${GFXRECON_SOURCE_DIR}/external/stb)
 
 target_link_libraries(gfxrecon_util
                           platform_specific

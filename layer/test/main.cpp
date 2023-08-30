@@ -33,7 +33,7 @@
 
 namespace
 {
-bool operator==(const VkExtensionProperties& l, const VkExtensionProperties& r)
+inline bool operator==(const VkExtensionProperties& l, const VkExtensionProperties& r)
 {
     return l.specVersion == r.specVersion &&
            (strncmp(l.extensionName, r.extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0);

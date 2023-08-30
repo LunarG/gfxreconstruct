@@ -27,6 +27,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
+
 util::platform::LibraryHandle InitializeLoader()
 {
     return util::platform::OpenLibrary(kLoaderLibNames);

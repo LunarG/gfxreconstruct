@@ -64,9 +64,9 @@ class FpsInfo
     uint64_t replay_start_time_;
     int64_t  replay_start_frame_;
 
-    bool has_measurement_range_;
     bool quit_after_range_;
     bool flush_measurement_range_;
+    bool has_measurement_range_;
 
     bool started_measurement_;
     bool ended_measurement_;

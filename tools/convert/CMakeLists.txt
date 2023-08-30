@@ -28,6 +28,7 @@ add_executable(gfxrecon-convert "")
 target_sources(gfxrecon-convert
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
+                    ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
               )

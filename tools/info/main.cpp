@@ -59,9 +59,15 @@
 const char kHelpShortOption[]   = "-h";
 const char kHelpLongOption[]    = "--help";
 const char kVersionOption[]     = "--version";
-const char kNoDebugPopup[]      = "--no-debug-popup";
 const char kExeInfoOnlyOption[] = "--exe-info-only";
-const char kEnumGpuIndices[]    = "--enum-gpu-indices";
+
+#if defined(WIN32) && defined(_DEBUG)
+const char kNoDebugPopup[] = "--no-debug-popup";
+#endif
+
+#if defined(D3D12_SUPPORT)
+const char kEnumGpuIndices[] = "--enum-gpu-indices";
+#endif
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only,--enum-gpu-indices";
 
@@ -90,11 +96,11 @@ std::string AdapterTypeToString(gfxrecon::format::AdapterType type)
     }
 }
 
-static void PrintUsage(const char* exe_name)
+void PrintUsage(const char* exe_name)
 {
     std::string app_name     = exe_name;
     size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
+    if (dir_location != std::string::npos)
     {
         app_name.replace(0, dir_location + 1, "");
     }
@@ -134,7 +140,7 @@ static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
         std::string app_name     = exe_name;
         size_t      dir_location = app_name.find_last_of("/\\");
 
-        if (dir_location >= 0)
+        if (dir_location != std::string::npos)
         {
             app_name.replace(0, dir_location + 1, "");
         }

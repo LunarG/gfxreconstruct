@@ -119,7 +119,7 @@ class BaseStructDecodersBodyGenerator():
 
                 if is_static_array:
                     array_dimension = ''
-                    # dx12 treats 2d array as 1d array. EX: [8][2] -> [16], so dx12's 2d array needs *. 
+                    # dx12 treats 2d array as 1d array. EX: [8][2] -> [16], so dx12's 2d array needs *.
                     # But vk keeps 2d array.
                     if self.is_dx12_class() and value.array_dimension and value.array_dimension > 0:
                         array_dimension = '*'
@@ -202,7 +202,7 @@ class BaseStructDecodersBodyGenerator():
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
                     type_name, buffer_args, temp_param_name
                 )
-                body += '    value->{} = {};\n'.format(
+                body += '    value->{} = static_cast<bool>({});\n'.format(
                     value.name, temp_param_name
                 )
             elif is_enum:

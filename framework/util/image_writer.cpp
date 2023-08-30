@@ -40,7 +40,7 @@ uint8_t* GFXRECON_zlib_compress2(uint8_t* data, int32_t data_len, int32_t* out_l
         unsigned long ret_len = data_len;
         if (Z_OK == compress2(target, &ret_len, data, data_len, quality))
         {
-            *out_len = ret_len;
+            *out_len = static_cast<int32_t>(ret_len);
             return target;
         }
         free(target);

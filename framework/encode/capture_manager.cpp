@@ -90,15 +90,15 @@ format::ThreadId CaptureManager::ThreadData::GetThreadId()
 }
 
 CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
-    api_family_(api_family), force_file_flush_(false), timestamp_filename_(true),
+    screenshot_prefix_(""), api_family_(api_family), force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
     queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
-    accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
+    debug_device_lost_(false), screenshots_enabled_(false), disable_dxr_(false), accel_struct_padding_(0),
+    iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
     allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false)
 {}
 
@@ -274,7 +274,7 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         if (trace_settings.rv_anotation_info.annotation_mask_rand == true)
         {
             rv_annotation_info_.gpuva_mask      = static_cast<uint16_t>(std::rand() % 0xffff);
-            rv_annotation_info_.descriptor_mask = ~rv_annotation_info_.gpuva_mask;
+            rv_annotation_info_.descriptor_mask = static_cast<uint16_t>(~rv_annotation_info_.gpuva_mask);
         }
         GFXRECON_LOG_INFO(
             "Resource value annotation capture enabled, GPU virtual address mask = %04x Descriptor handle mask = %04x",
@@ -735,11 +735,10 @@ void CaptureManager::WriteFrameMarker(format::MarkerType marker_type)
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
         format::Marker marker_cmd;
-        uint64_t       header_size = sizeof(format::Marker);
-        marker_cmd.header.size     = sizeof(marker_cmd.marker_type) + sizeof(marker_cmd.frame_number);
-        marker_cmd.header.type     = format::BlockType::kFrameMarkerBlock;
-        marker_cmd.marker_type     = marker_type;
-        marker_cmd.frame_number    = current_frame_;
+        marker_cmd.header.size  = sizeof(marker_cmd.marker_type) + sizeof(marker_cmd.frame_number);
+        marker_cmd.header.type  = format::BlockType::kFrameMarkerBlock;
+        marker_cmd.marker_type  = marker_type;
+        marker_cmd.frame_number = current_frame_;
         WriteToFile(&marker_cmd, sizeof(marker_cmd));
     }
 }
@@ -953,7 +952,6 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
 void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info)
 {
     auto                     thread_data     = GetThreadData();
-    size_t                   info_length     = sizeof(format::ExeFileInfoBlock);
     format::ExeFileInfoBlock exe_info_header = {};
     exe_info_header.info_record              = info;
 

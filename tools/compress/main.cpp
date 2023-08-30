@@ -23,6 +23,7 @@
 
 #include "project_version.h"
 #include "compression_converter.h"
+#include "../tool_settings.h"
 
 #include "decode/file_processor.h"
 #include "format/format.h"
@@ -35,11 +36,6 @@
 #include <cassert>
 #include <cstdlib>
 
-const char kHelpShortOption[] = "-h";
-const char kHelpLongOption[]  = "--help";
-const char kVersionOption[]   = "--version";
-const char kNoDebugPopup[]    = "--no-debug-popup";
-
 const char kOptions[] = "-h|--help,--version,--no-debug-popup";
 
 const char kArgNone[]    = "NONE";
@@ -48,11 +44,11 @@ const char kArgZlib[]    = "ZLIB";
 const char kArgZstd[]    = "ZSTD";
 const char kArgUnknown[] = "<Unknown>";
 
-static void PrintUsage(const char* exe_name)
+void PrintUsage(const char* exe_name)
 {
     std::string app_name     = exe_name;
     size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
+    if (dir_location != std::string::npos)
     {
         app_name.replace(0, dir_location + 1, "");
     }
@@ -82,42 +78,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
-}
-
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
-    {
-        PrintUsage(exe_name);
-        return true;
-    }
-
-    return false;
-}
-
-static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kVersionOption))
-    {
-        std::string app_name     = exe_name;
-        size_t      dir_location = app_name.find_last_of("/\\");
-
-        if (dir_location >= 0)
-        {
-            app_name.replace(0, dir_location + 1, "");
-        }
-
-        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
-        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
-                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-
-        return true;
-    }
-
-    return false;
 }
 
 static std::string GetCompressionTypeName(uint32_t type)

@@ -61,7 +61,7 @@ static T* GetPNextStruct(const Parent_T* parent, VkStructureType struct_type)
     return nullptr;
 }
 
-static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
+extern const char* kVulkanVrFrameDelimiterString;
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

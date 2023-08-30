@@ -52,7 +52,7 @@ bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
         }
     }
 
-    return completed_consumers == consumers.size();
+    return static_cast<size_t>(completed_consumers) == consumers.size();
 }
 
 GFXRECON_END_NAMESPACE(decode)
