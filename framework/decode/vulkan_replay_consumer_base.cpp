@@ -5294,9 +5294,13 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
             // If expected result is VK_TIMEOUT, try to get a timeout by using a timeout of 0.
             // If expected result is anything else, use the passed in timeout value.
             if (original_result == VK_SUCCESS)
+            {
                 timeout = std::numeric_limits<uint64_t>::max();
+            }
             else if (original_result == VK_TIMEOUT)
+            {
                 timeout = 0;
+            }
             result = swapchain_->AcquireNextImageKHR(
                 func, device_info, swapchain_info, timeout, semaphore_info, fence_info, captured_index, replay_index);
 
@@ -5412,9 +5416,13 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
             // If expected result is anything else, use the passed in timeout value.
             VkAcquireNextImageInfoKHR modified_acquire_info = *replay_acquire_info;
             if (original_result == VK_SUCCESS)
+            {
                 modified_acquire_info.timeout = std::numeric_limits<uint64_t>::max();
+            }
             else if (original_result == VK_TIMEOUT)
+            {
                 modified_acquire_info.timeout = 0;
+            }
             result = swapchain_->AcquireNextImage2KHR(
                 func, device_info, swapchain_info, &modified_acquire_info, captured_index, replay_index);
 
@@ -6658,9 +6666,13 @@ VulkanReplayConsumerBase::OverrideWaitSemaphores(PFN_vkWaitSemaphores func,
     // If expected result is VK_TIMEOUT, try to get a timeout by using a timeout of 0.
     // If expected result is anything else, use the passed in timeout value.
     if (original_result == VK_SUCCESS)
+    {
         timeout = std::numeric_limits<uint64_t>::max();
+    }
     else if (original_result == VK_TIMEOUT)
+    {
         timeout = 0;
+    }
     result = func(device, wait_info, timeout);
     return result;
 }
@@ -6680,12 +6692,16 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireProfilingLockKHR(
     // using a timeout of UINT64_MAX.
     // If expected result is VK_TIMEOUT, try to get a timeout by using a timeout of 0.
     // If expected result is anything else, use the passed in timeout value.
-    VkAcquireProfilingLockInfoKHR acquire_info_copy = *acquire_info;
+    VkAcquireProfilingLockInfoKHR modified_acquire_info = *acquire_info;
     if (original_result == VK_SUCCESS)
-        acquire_info_copy.timeout = std::numeric_limits<uint64_t>::max();
+    {
+        modified_acquire_info.timeout = std::numeric_limits<uint64_t>::max();
+    }
     else if (original_result == VK_TIMEOUT)
-        acquire_info_copy.timeout = 0;
-    result = func(device, &acquire_info_copy);
+    {
+        modified_acquire_info.timeout = 0;
+    }
+    result = func(device, &modified_acquire_info);
     return result;
 }
 
@@ -6706,9 +6722,13 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForPresentKHR(PFN_vkWaitForPresen
     // If expected result is VK_TIMEOUT, try to get a timeout by using a timeout of 0.
     // If expected result is anything else, use the passed in timeout value.
     if (original_result == VK_SUCCESS)
+    {
         timeout = std::numeric_limits<uint64_t>::max();
+    }
     else if (original_result == VK_TIMEOUT)
+    {
         timeout = 0;
+    }
     result = func(device, swapchain, presentid, timeout);
     return result;
 }
