@@ -945,6 +945,23 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void OverrideCmdDebugMarkerInsertEXT(PFN_vkCmdDebugMarkerInsertEXT                             func,
                                          CommandBufferInfo*                                        command_buffer_info,
                                          StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* marker_info_decoder);
+    VkResult OverrideWaitSemaphores(PFN_vkWaitSemaphores                                     func,
+                                    VkResult                                                 original_result,
+                                    const DeviceInfo*                                        device_info,
+                                    const StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pInfo,
+                                    uint64_t                                                 timeout);
+
+    VkResult OverrideAcquireProfilingLockKHR(PFN_vkAcquireProfilingLockKHR func,
+                                             VkResult                      original_result,
+                                             const DeviceInfo*             device_info,
+                                             const StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo);
+
+    VkResult OverrideWaitForPresentKHR(PFN_vkWaitForPresentKHR func,
+                                       VkResult                original_result,
+                                       const DeviceInfo*       device_info,
+                                       SwapchainKHRInfo*       swapchain_info,
+                                       uint64_t                presentid,
+                                       uint64_t                timeout);
 
     void OverrideCmdBeginRenderPass(PFN_vkCmdBeginRenderPass                             func,
                                     CommandBufferInfo*                                   command_buffer_info,
