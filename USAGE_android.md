@@ -750,6 +750,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--use-captured-swapchain-indices] [--mfr START-END]
                           [--measurement-file DEVICE_FILE] [--quit-after-measurement-range]
                           [--flush-measurement-range] [-m MODE]
+                          [--offscreen]
                           [file]
 
 Launch the replay tool.
@@ -858,6 +859,7 @@ optional arguments:
                         If this is specified the replayer will flush and wait
                         for all current GPU work to finish at the start and end
                         of the measurement range. (forwarded to replay tool)
+  --offscreen          Output the rendering image, and do not create a window.
 ```
 
 The command will force-stop an active replay process before starting the replay
