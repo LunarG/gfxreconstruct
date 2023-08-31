@@ -1124,7 +1124,10 @@ const VkAllocationCallbacks* VulkanReplayConsumerBase::GetAllocationCallbacks(
     return nullptr;
 }
 
-void VulkanReplayConsumerBase::CheckResult(const char* func_name, VkResult original, VkResult replay)
+void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
+                                           VkResult                   original,
+                                           VkResult                   replay,
+                                           const decode::ApiCallInfo& call_info)
 {
     if (original != replay)
     {
@@ -1133,11 +1136,14 @@ void VulkanReplayConsumerBase::CheckResult(const char* func_name, VkResult origi
             // Raise a fatal error if replay produced an error that did not occur during capture.  Format not supported
             // errors are not treated as fatal, but will be reported as warnings below, allowing the replay to attempt
             // to continue for the case where an application may have queried for formats that it did not use.
-            GFXRECON_LOG_FATAL("API call %s returned error value %s that does not match the result from the "
-                               "capture file: %s.  Replay cannot continue.",
-                               func_name,
-                               util::ToString<VkResult>(replay).c_str(),
-                               util::ToString<VkResult>(original).c_str());
+            GFXRECON_LOG_FATAL(
+                "API call at index: %d thread: %d %s returned error value %s that does not match the result from the "
+                "capture file: %s.  Replay cannot continue.",
+                call_info.index,
+                call_info.thread_id,
+                func_name,
+                util::ToString<VkResult>(replay).c_str(),
+                util::ToString<VkResult>(original).c_str());
 
             RaiseFatalError(enumutil::GetResultDescription(replay));
         }

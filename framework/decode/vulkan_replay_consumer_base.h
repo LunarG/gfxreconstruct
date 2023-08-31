@@ -196,7 +196,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>* original_callbacks);
 
-    void CheckResult(const char* func_name, VkResult original, VkResult replay);
+    void CheckResult(const char* func_name, VkResult original, VkResult replay, const decode::ApiCallInfo& call_info);
 
     template <typename T>
     typename T::HandleType MapHandle(format::HandleId id,
