@@ -50,6 +50,24 @@ adb_install = 'adb install -g -t -r'
 adb_start = 'adb shell am start -n {} -a {} -c {}'.format(app_activity, app_action, app_category)
 adb_stop = 'adb shell am force-stop {}'.format(app_name)
 adb_push = 'adb push'
+adb_devices = 'adb devices'
+
+# List of available devices
+devices = []
+device_selection_insertion_index = len('adb') + 1
+selection_flag = '-s'
+
+class DeviceSelectionException(Exception):
+    pass
+
+def QueryAvailableDevices():
+    devices = subprocess.getoutput(adb_devices).splitlines()[1:]
+    for i in range(len(devices)):
+        devices[i] = devices[i].split('\t')[0]
+    return devices
+
+def InsertDeviceSelectionArgument(cmd, device):
+        return cmd[:device_selection_insertion_index] + f'{selection_flag} {device} ' + cmd[device_selection_insertion_index:]
 
 def CreateCommandParser():
     parser = argparse.ArgumentParser(description='GFXReconstruct utility launcher for Android.')
@@ -60,6 +78,7 @@ def CreateCommandParser():
 def CreateInstallApkParser():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]) + ' install-apk', description='Install the replay tool.')
     parser.add_argument('file', help='APK file to install')
+    parser.add_argument('-s', '--select', metavar='DEVICE_ID', help='Specify the destination device id. Needed if multiple devices are attached.')
     return parser
 
 def CreateReplayParser():
@@ -88,6 +107,9 @@ def CreateReplayParser():
 
     parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
+    parser.add_argument('-s', '--select', metavar='DEVICE_ID', help='Specify the destination device id. Needed if multiple devices are attached.')
+
+
     return parser
 
 def MakeExtrasString(args):
@@ -178,6 +200,17 @@ def InstallApk(install_args):
     install_parser = CreateInstallApkParser()
     args = install_parser.parse_args(install_args)
     cmd = adb_install + ' ' + args.file
+    
+    if len(devices) > 1:
+        selection = None
+        if args.select:
+            selection = args.select
+            if selection not in devices:
+                raise DeviceSelectionException('Selected device not present.')
+            cmd = InsertDeviceSelectionArgument(cmd, selection)
+        else:
+            raise DeviceSelectionException('Multiple devices detected - you must specify which one to use.')
+            
     print('Executing:', cmd)
     subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 
@@ -187,22 +220,41 @@ def Replay(replay_args):
 
     extras = MakeExtrasString(args)
 
+    selection = None
+    if len(devices) > 1:
+        if args.select:
+            selection = args.select
+            if selection not in devices:
+                raise DeviceSelectionException('Selected device not present.')
+        else:
+            raise DeviceSelectionException('Multiple devices detected - you must specify which one to use.')
+
+
     if extras:
         if args.push_file:
             cmd = ' '.join([adb_push, args.push_file, args.file])
+            if selection is not None:
+                cmd = InsertDeviceSelectionArgument(cmd, selection)
             print('Executing:', cmd)
             subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 
-        print('Executing:', adb_stop)
-        subprocess.check_call(shlex.split(adb_stop, posix='win' not in sys.platform))
-
+        cmd = adb_stop
+        if selection is not None:
+            cmd = InsertDeviceSelectionArgument(cmd, selection)
+        print('Executing:', cmd)
+        subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
+        
         cmd = ' '.join([adb_start, '--es', '"args"', '"{}"'.format(extras)])
+        if selection is not None:
+            cmd = InsertDeviceSelectionArgument(cmd, selection)
         print('Executing:', cmd)
 
         # Specify posix=False to prevent removal of quotes from adb extras.
         subprocess.check_call(shlex.split(cmd, posix=False))
 
 if __name__ == '__main__':
+    devices = QueryAvailableDevices()
+
     command_parser = CreateCommandParser()
     command = command_parser.parse_args()
 
