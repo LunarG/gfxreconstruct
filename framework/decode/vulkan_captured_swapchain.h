@@ -33,15 +33,13 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
   public:
     virtual ~VulkanCapturedSwapchain() override {}
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
-                                        const DeviceInfo*               device_info,
-                                        const VkSwapchainCreateInfoKHR* create_info,
-                                        const VkAllocationCallbacks*    allocator,
-                                        VkSwapchainKHR*                 swapchain,
-                                        const VkPhysicalDevice          physical_device,
-                                        const encode::InstanceTable*    instance_table,
-                                        const encode::DeviceTable*      device_table,
-                                        ScreenshotHandler*              screenshot_handler) override;
+    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR              func,
+                                        const DeviceInfo*                     device_info,
+                                        const VkSwapchainCreateInfoKHR*       create_info,
+                                        const VkAllocationCallbacks*          allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>* swapchain,
+                                        const encode::DeviceTable*            device_table,
+                                        ScreenshotHandler*                    screenshot_handler) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,

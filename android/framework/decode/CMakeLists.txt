@@ -73,6 +73,7 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_tracking_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_tracking_consumer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_swapchain.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info.cpp

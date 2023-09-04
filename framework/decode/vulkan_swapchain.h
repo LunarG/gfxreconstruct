@@ -26,10 +26,14 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
 #include "decode/swapchain_image_tracker.h"
-
+#include "decode/window.h"
 #include "util/defines.h"
 
+#include "application/application.h"
+
 #include "vulkan/vulkan.h"
+
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -41,15 +45,28 @@ class VulkanSwapchain
   public:
     virtual ~VulkanSwapchain() {}
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
-                                        const DeviceInfo*               device_info,
-                                        const VkSwapchainCreateInfoKHR* create_info,
-                                        const VkAllocationCallbacks*    allocator,
-                                        VkSwapchainKHR*                 swapchain,
-                                        const VkPhysicalDevice          physical_device,
-                                        const encode::InstanceTable*    instance_table,
-                                        const encode::DeviceTable*      device_table,
-                                        ScreenshotHandler*              screenshot_handler) = 0;
+    virtual void Clean();
+
+    virtual VkResult CreateSurface(InstanceInfo*                       instance_info,
+                                   const std::string&                  wsi_extension,
+                                   VkFlags                             flags,
+                                   HandlePointerDecoder<VkSurfaceKHR>* surface,
+                                   const encode::InstanceTable*        instance_table,
+                                   application::Application*           application,
+                                   int32_t                             options_surface_index);
+
+    virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
+                                const InstanceInfo*          instance_info,
+                                const SurfaceKHRInfo*        surface_info,
+                                const VkAllocationCallbacks* allocator);
+
+    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR              func,
+                                        const DeviceInfo*                     device_info,
+                                        const VkSwapchainCreateInfoKHR*       create_info,
+                                        const VkAllocationCallbacks*          allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>* swapchain,
+                                        const encode::DeviceTable*            device_table,
+                                        ScreenshotHandler*                    screenshot_handler) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
@@ -126,8 +143,15 @@ class VulkanSwapchain
                                                       SwapchainImageTracker&       swapchain_image_tracker) = 0;
 
   protected:
+    typedef std::unordered_set<Window*> ActiveWindows;
+
     const encode::InstanceTable* instance_table_{ nullptr };
     const encode::DeviceTable*   device_table_{ nullptr };
+
+    application::Application* application_{ nullptr };
+    ActiveWindows             active_windows_;
+    int32_t                   create_surface_count_{ 0 };
+    int32_t                   options_surface_index_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

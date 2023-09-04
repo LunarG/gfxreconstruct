@@ -27,15 +27,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
-                                                     const DeviceInfo*               device_info,
-                                                     const VkSwapchainCreateInfoKHR* create_info,
-                                                     const VkAllocationCallbacks*    allocator,
-                                                     VkSwapchainKHR*                 swapchain,
-                                                     const VkPhysicalDevice          physical_device,
-                                                     const encode::InstanceTable*    instance_table,
-                                                     const encode::DeviceTable*      device_table,
-                                                     ScreenshotHandler*              screenshot_handler)
+VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR              func,
+                                                     const DeviceInfo*                     device_info,
+                                                     const VkSwapchainCreateInfoKHR*       create_info,
+                                                     const VkAllocationCallbacks*          allocator,
+                                                     HandlePointerDecoder<VkSwapchainKHR>* swapchain,
+                                                     const encode::DeviceTable*            device_table,
+                                                     ScreenshotHandler*                    screenshot_handler)
 {
     VkDevice device = VK_NULL_HANDLE;
 
@@ -43,10 +41,9 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR   
     {
         device = device_info->handle;
     }
-    instance_table_ = instance_table;
-    device_table_   = device_table;
-
-    return func(device, create_info, allocator, swapchain);
+    device_table_         = device_table;
+    auto replay_swapchain = swapchain->GetHandlePointer();
+    return func(device, create_info, allocator, replay_swapchain);
 }
 
 void VulkanCapturedSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,

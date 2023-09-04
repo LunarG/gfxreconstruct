@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2020-2022 LunarG, Inc.
+** Copyright (c) 2020-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -663,15 +663,7 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
         [&](const InstanceInfo* parent_info, const SurfaceKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             auto table  = get_instance_table(parent_info->handle);
-            auto window = object_info->window;
-            if (window != nullptr)
-            {
-                window->DestroySurface(table, parent_info->handle, object_info->handle);
-            }
-            else
-            {
-                table->DestroySurfaceKHR(parent_info->handle, object_info->handle, nullptr);
-            }
+            swapchain->DestroySurface(table->DestroySurfaceKHR, parent_info, object_info, nullptr);
         });
 
     FreeParentObjects<DeviceInfo>(table,

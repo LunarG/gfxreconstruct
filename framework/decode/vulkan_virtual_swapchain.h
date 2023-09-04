@@ -33,15 +33,13 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
   public:
     virtual ~VulkanVirtualSwapchain() override {}
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
-                                        const DeviceInfo*               device_info,
-                                        const VkSwapchainCreateInfoKHR* create_info,
-                                        const VkAllocationCallbacks*    allocator,
-                                        VkSwapchainKHR*                 swapchain,
-                                        const VkPhysicalDevice          physical_device,
-                                        const encode::InstanceTable*    instance_table,
-                                        const encode::DeviceTable*      device_table,
-                                        ScreenshotHandler*              screenshot_handler) override;
+    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR              func,
+                                        const DeviceInfo*                     device_info,
+                                        const VkSwapchainCreateInfoKHR*       create_info,
+                                        const VkAllocationCallbacks*          allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>* swapchain,
+                                        const encode::DeviceTable*            device_table,
+                                        ScreenshotHandler*                    screenshot_handler) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
@@ -149,6 +147,17 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         std::vector<VirtualImage> virtual_swapchain_images;
         std::vector<VkImage>      replay_swapchain_images;
     };
+
+    bool AddSwapchainResourceData(VkSwapchainKHR swapchain);
+
+    VkResult CreateSwapchainResourceData(const DeviceInfo*       device_info,
+                                         const SwapchainKHRInfo* swapchain_info,
+                                         uint32_t                capture_image_count,
+                                         uint32_t*               replay_image_count,
+                                         VkImage*                images,
+                                         bool                    offscreen);
+
+    void CleanSwapchainResourceData(const DeviceInfo* device_info, const SwapchainKHRInfo* swapchain_info);
 
     VkResult CreateVirtualSwapchainImage(const DeviceInfo*        device_info,
                                          const VkImageCreateInfo& image_create_info,
