@@ -35,15 +35,38 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
   public:
     virtual ~VulkanOffscreenSwapchain() override {}
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
-                                        const DeviceInfo*               device_info,
-                                        const VkSwapchainCreateInfoKHR* create_info,
-                                        const VkAllocationCallbacks*    allocator,
-                                        VkSwapchainKHR*                 swapchain,
-                                        const VkPhysicalDevice          physical_device,
-                                        const encode::InstanceTable*    instance_table,
-                                        const encode::DeviceTable*      device_table,
-                                        ScreenshotHandler*              screenshot_handler) override;
+    virtual VkResult CreateSurface(InstanceInfo*                       instance_info,
+                                   const std::string&                  wsi_extension,
+                                   VkFlags                             flags,
+                                   HandlePointerDecoder<VkSurfaceKHR>* surface,
+                                   const encode::InstanceTable*        instance_table,
+                                   application::Application*           application,
+                                   int32_t                             options_surface_index) override;
+
+    virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
+                                const InstanceInfo*          instance_info,
+                                const SurfaceKHRInfo*        surface_info,
+                                const VkAllocationCallbacks* allocator) override;
+
+    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR              func,
+                                        const DeviceInfo*                     device_info,
+                                        const VkSwapchainCreateInfoKHR*       create_info,
+                                        const VkAllocationCallbacks*          allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>* swapchain,
+                                        const encode::DeviceTable*            device_table,
+                                        ScreenshotHandler*                    screenshot_handler) override;
+
+    virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
+                                     const DeviceInfo*            device_info,
+                                     const SwapchainKHRInfo*      swapchain_info,
+                                     const VkAllocationCallbacks* allocator) override;
+
+    virtual VkResult GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
+                                           const DeviceInfo*           device_info,
+                                           SwapchainKHRInfo*           swapchain_info,
+                                           uint32_t                    capture_image_count,
+                                           uint32_t*                   image_count,
+                                           VkImage*                    images) override;
 
     virtual VkResult AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                          const DeviceInfo*         device_info,
@@ -67,9 +90,10 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                      const QueueInfo*                      queue_info,
                                      const VkPresentInfoKHR*               present_info) override;
 
-
   private:
     ScreenshotHandler* screenshot_handler_{ nullptr };
+    const uint32_t     default_queue_family_index_{ 0 };
+    VkQueue            default_queue_{ VK_NULL_HANDLE }; // default_queue_family_index_,0
 
     VkResult SignalSemaphoresFence(SwapchainKHRInfo*  swapchain_info,
                                    uint32_t           capture_image_index,
@@ -79,7 +103,6 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    uint32_t           signal_semaphore_count,
                                    const VkSemaphore* signal_semaphores,
                                    VkFence            fence);
-    
 };
 
 GFXRECON_END_NAMESPACE(decode)
