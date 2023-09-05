@@ -331,6 +331,18 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                             VkDeviceSize       data_size,
                             const uint8_t*     data);
 
+    void WriteBoundResourceStaging(ResourceAllocInfo* resource_alloc_info,
+                                   size_t             src_offset,
+                                   size_t             dst_offset,
+                                   size_t             data_size,
+                                   const uint8_t*     data);
+
+    void WriteBoundResourceDirect(ResourceAllocInfo* resource_alloc_info,
+                                  size_t             src_offset,
+                                  size_t             dst_offset,
+                                  size_t             data_size,
+                                  const uint8_t*     data);
+
     // Identify sub-ranges of resources that overlap with a memory region from their original memory binding.  If the
     // resource overlapped with the original range, the src_offset is the offset from the start of the original
     // resource, the dst_offset is the offset from the start of the new resource allocation, and the data_size is the
@@ -394,6 +406,11 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VkPhysicalDeviceType             capture_device_type_;
     VkPhysicalDeviceMemoryProperties capture_memory_properties_;
     VkPhysicalDeviceMemoryProperties replay_memory_properties_;
+    VkCommandBuffer                  cmd_buffer_;
+    VkCommandPool                    cmd_pool_;
+    VkQueue                          staging_queue_;
+    uint32_t                         graphics_queue_family_;
+    uint32_t                         graphics_queue_count_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
