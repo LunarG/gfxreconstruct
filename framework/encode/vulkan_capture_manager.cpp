@@ -174,9 +174,6 @@ void VulkanCaptureManager::WriteResizeWindowCmd2(format::HandleId              s
         }
 
         WriteToFile(&resize_cmd2, sizeof(resize_cmd2));
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_;
     }
 }
 
@@ -238,9 +235,6 @@ void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId        
                 WriteToFile(&create_buffer_cmd, sizeof(create_buffer_cmd));
             }
         }
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_;
 #else
         GFXRECON_UNREFERENCED_PARAMETER(memory_id);
         GFXRECON_UNREFERENCED_PARAMETER(buffer);
@@ -271,9 +265,6 @@ void VulkanCaptureManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer
         destroy_buffer_cmd.buffer_id = reinterpret_cast<uint64_t>(buffer);
 
         WriteToFile(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_;
 #else
         GFXRECON_LOG_ERROR("Skipping destroy AHardwareBuffer command write for unsupported platform");
 #endif
@@ -310,9 +301,6 @@ void VulkanCaptureManager::WriteSetDevicePropertiesCommand(format::HandleId     
 
         CombineAndWriteToFile(
             { { &properties_cmd, sizeof(properties_cmd) }, { properties.deviceName, properties_cmd.device_name_len } });
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_;
     }
 }
 
@@ -369,9 +357,6 @@ void VulkanCaptureManager::WriteSetDeviceMemoryPropertiesCommand(
         }
 
         WriteToFile(scratch_buffer.data(), scratch_buffer.size());
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_;
     }
 }
 
@@ -396,9 +381,6 @@ void VulkanCaptureManager::WriteSetOpaqueAddressCommand(format::HandleId device_
         opaque_address_cmd.address   = address;
 
         WriteToFile(&opaque_address_cmd, sizeof(opaque_address_cmd));
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_;
     }
 }
 
@@ -424,9 +406,6 @@ void VulkanCaptureManager::WriteSetRayTracingShaderGroupHandlesCommand(format::H
         set_handles_cmd.data_size   = data_size;
 
         CombineAndWriteToFile({ { &set_handles_cmd, sizeof(set_handles_cmd) }, { data, data_size } });
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_;
     }
 }
 
