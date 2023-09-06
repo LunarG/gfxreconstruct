@@ -505,9 +505,6 @@ void CaptureManager::EndApiCallCapture()
             WriteToFile(parameter_buffer->GetHeaderData(),
                         parameter_buffer->GetHeaderDataSize() + parameter_buffer->GetDataSize());
         }
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -919,6 +916,13 @@ void CaptureManager::WriteFileHeader()
 
     CombineAndWriteToFile({ { &file_header, sizeof(file_header) },
                             { option_list.data(), option_list.size() * sizeof(format::FileOptionPair) } });
+
+    // File header does not count as a block
+    assert(block_index_ > 0);
+    --block_index_;
+
+    auto thread_data          = GetThreadData();
+    thread_data->block_index_ = block_index_.load();
 }
 
 void CaptureManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
@@ -944,9 +948,6 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
         message_cmd.thread_id = thread_data->thread_id_;
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -964,9 +965,6 @@ void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& 
     exe_info_header.thread_id = thread_data->thread_id_;
 
     WriteToFile(&exe_info_header, sizeof(exe_info_header));
-
-    ++block_index_;
-    thread_data->block_index_ = block_index_.load();
 }
 
 void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
@@ -986,9 +984,6 @@ void CaptureManager::WriteAnnotation(const format::AnnotationType type, const ch
         annotation.data_length  = data_length;
 
         CombineAndWriteToFile({ { &annotation, sizeof(annotation) }, { label, label_length }, { data, data_length } });
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -1009,9 +1004,6 @@ void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t 
         resize_cmd.height     = height;
 
         WriteToFile(&resize_cmd, sizeof(resize_cmd));
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -1069,9 +1061,6 @@ void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id, uint64_t off
 
             CombineAndWriteToFile({ { &fill_cmd, header_size }, { uncompressed_data, uncompressed_size } });
         }
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -1093,9 +1082,6 @@ void CaptureManager::WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64
         allocation_cmd.allocation_size = allocation_size;
 
         WriteToFile(&allocation_cmd, sizeof(allocation_cmd));
-
-        ++block_index_;
-        thread_data->block_index_ = block_index_.load();
     }
 }
 
@@ -1106,6 +1092,13 @@ void CaptureManager::WriteToFile(const void* data, size_t size)
     {
         file_stream_->Flush();
     }
+
+    // Increment block index
+    auto thread_data = GetThreadData();
+    assert(thread_data != nullptr);
+
+    ++block_index_;
+    thread_data->block_index_ = block_index_.load();
 }
 
 CaptureSettings::TraceSettings CaptureManager::GetDefaultTraceSettings()
