@@ -111,6 +111,7 @@ const char kFilePerFrameOption[]                 = "--file-per-frame";
 const char kApiFamilyOption[]       = "--api";
 const char kDxTwoPassReplay[]       = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[] = "--dx12-override-object-names";
+const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
 
 enum class WsiPlatform
@@ -878,6 +879,12 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     if (arg_parser.IsOptionSet(kDxOverrideObjectNames))
     {
         replay_options.override_object_names = true;
+    }
+
+    const std::string& memory_usage = arg_parser.GetArgumentValue(kBatchingMemoryUsageArgument);
+    if (!memory_usage.empty())
+    {
+        replay_options.memory_usage = std::stoi(memory_usage);
     }
 
     replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);

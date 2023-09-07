@@ -209,6 +209,7 @@ Usage:
                         [-m <mode> | --memory-translation <mode>]
                         [--fw <width,height> | --force-windowed <width,height>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
+                        [--batching-memory-usage <pct>]
                         [--api <api>] <file>
 
 Required arguments:
@@ -327,6 +328,11 @@ D3D12-only:
   --dx12-override-object-names Generates unique names for all ID3D12Objects and
                                assigns each object the generated name.
                                This is intended to assist replay debugging.
+  --batching-memory-usage <pct>
+                               Max amount of memory consumption while loading a trimmed capture file.
+                               Acceptable values range from 0 to 100 (default: 80)
+                               0 means no batching at all
+                               100 means use all available system and GPU memory
 ```
 
 
