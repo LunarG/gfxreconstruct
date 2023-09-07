@@ -29,19 +29,19 @@
 #ifdef NDEBUG
 #define VMA_ASSERT(expr_)
 #else
-#define VMA_ASSERT(expr_)                                                               \
-    if (!static_cast<bool>(expr_))                                                      \
-    {                                                                                   \
-        std::string msg = __FILE__ ":" + std::to_string(__LINE__) + " ASSERT failure "; \
-        if (strchr(#expr_, '"'))                                                        \
-        {                                                                               \
-            msg += strchr(#expr_, '"');                                                 \
-        }                                                                               \
-        else                                                                            \
-        {                                                                               \
-            msg += #expr_;                                                              \
-        }                                                                               \
-        GFXRECON_LOG_WARNING(msg.c_str());                                              \
+#define VMA_ASSERT(expr_)                                                \
+    if (!static_cast<bool>(expr_))                                       \
+    {                                                                    \
+        std::string msg = __FILE__ ":" + std::to_string(__LINE__) + " "; \
+        if (strchr(#expr_, '"'))                                         \
+        {                                                                \
+            msg += strchr(#expr_, '"');                                  \
+        }                                                                \
+        else                                                             \
+        {                                                                \
+            msg += #expr_;                                               \
+        }                                                                \
+        GFXRECON_LOG_ERROR(msg.c_str());                                 \
     }
 #endif
 
