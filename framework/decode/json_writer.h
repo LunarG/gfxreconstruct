@@ -28,7 +28,7 @@
 #define GFXRECON_DECODE_JSON_WRITER_H
 
 #include "annotation_handler.h"
-#include "decode/json_util.h"
+#include "util/json_util.h"
 #include "util/platform.h"
 #include "util/defines.h"
 
@@ -44,7 +44,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class JsonWriter : public AnnotationHandler
 {
   public:
-    JsonWriter(const JsonOptions& options, const std::string_view gfxrVersion, const std::string_view inputFilepath);
+    JsonWriter(const util::JsonOptions& options, const std::string_view gfxrVersion, const std::string_view inputFilepath);
     ~JsonWriter();
 
     /// Output any data associated with the start of a logical stream such as a header object.
@@ -69,7 +69,7 @@ class JsonWriter : public AnnotationHandler
     /// Get the root of the JSON tree for the current block.
     nlohmann::ordered_json& GetBlockJson() { return json_data_; }
 
-    const JsonOptions& GetOptions() const { return json_options_; }
+    const util::JsonOptions& GetOptions() const { return json_options_; }
 
     uint32_t GetNumStreams() const { return num_streams_; }
 
@@ -82,7 +82,7 @@ class JsonWriter : public AnnotationHandler
   private:
     util::OutputStream*    os_;
     nlohmann::ordered_json header_;
-    JsonOptions            json_options_;
+    util::JsonOptions      json_options_;
     nlohmann::ordered_json json_data_;
     uint32_t               num_streams_{ 0 };
     bool                   first_{ true };

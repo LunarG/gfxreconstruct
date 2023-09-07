@@ -32,6 +32,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+using namespace util;
+
 namespace
 {
 /// @brief Convert an annotation to its string representation

@@ -29,7 +29,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "decode/json_writer.h"
-#include "decode/json_util.h"
+#include "util/json_util.h"
 #include "vulkan/vulkan.h"
 
 #include <cstdio>
@@ -175,7 +175,7 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
   protected:
-    const JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
+    const util::JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
 
     nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }
 

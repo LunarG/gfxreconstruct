@@ -115,6 +115,8 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
         namespace = remove_trailing_empty_lines(indent_cpp_code('''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
+
+            using util::JsonOptions;
         '''))
         write(namespace, file=self.outFile)
 

@@ -97,11 +97,11 @@ class VulkanStructToJsonHeaderGenerator(BaseGenerator):
         body = remove_trailing_empty_lines(indent_cpp_code('''
             /// Works out the type of the struct at the end of a pNext pointer and dispatches
             /// recursively to the FieldToJson for that.
-            void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options = JsonOptions());
+            void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const util::JsonOptions& options = util::JsonOptions());
 
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            '''))
+        '''))
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -122,7 +122,7 @@ class VulkanStructToJsonHeaderGenerator(BaseGenerator):
     def generate_feature(self):
         for struct in self.get_filtered_struct_names():
             if not struct in self.customImplementationRequired:
-                body = "void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options = JsonOptions());".format(struct)
+                body = "void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const util::JsonOptions& options = util::JsonOptions());".format(struct)
                 write(body, file=self.outFile)
     # yapf: enable
 

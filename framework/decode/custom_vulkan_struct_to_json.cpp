@@ -34,6 +34,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+using util::JsonOptions;
+
 void FieldToJson(nlohmann::ordered_json& jdata, float data, const JsonOptions& options)
 {
     if (std::isnan(data))

@@ -31,6 +31,9 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+using util::JsonOptions;
+using util::to_hex_variable_width;
+using util::uuid_to_string;
 
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264SpsVuiFlags* data, const JsonOptions& options)
