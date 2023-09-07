@@ -43,6 +43,8 @@ set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 0)
 set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 4)
 
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
+set(GFXRECONSTRUCT_PROJECT_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
+
 
 option(BUILD_STATIC "Build static binaries for HPC clusters (will not build the tracer library)" OFF)
 
