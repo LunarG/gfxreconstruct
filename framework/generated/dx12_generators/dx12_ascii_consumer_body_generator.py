@@ -55,6 +55,8 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
     def beginFile(self, genOpts):
         # The following functions/methods require custom handling
+        # @todo It would be cleaner to make a custom JSON listing for these as:
+        # framework\generated\dx12_generators\blacklists_ascii.json
         self.APICALL_BLACKLIST.append('D3D12CreateRootSignatureDeserializer')
         self.METHODCALL_BLACKLIST.append('ID3D12RootSignatureDeserializer_GetRootSignatureDesc')
         self.METHODCALL_BLACKLIST.append('ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc')
