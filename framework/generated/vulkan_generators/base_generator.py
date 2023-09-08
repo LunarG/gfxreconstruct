@@ -271,94 +271,6 @@ class BaseGenerator(OutputGenerator):
     Base class for Vulkan API parameter encoding and decoding generators.
     """
 
-    # These API calls should not be processed by the code generator.  They require special implementations.
-    APICALL_BLACKLIST = []
-
-    APICALL_ENCODER_BLACKLIST = []
-
-    APICALL_DECODER_BLACKLIST = []
-
-    # These method calls should not be processed by the code generator.  They require special implementations.
-    METHODCALL_BLACKLIST = []
-
-    # These structures should not be processed by the code generator.  They require special implementations.
-    STRUCT_BLACKLIST = []
-
-    # Platform specific basic types that have been defined extarnally to the Vulkan header.
-    PLATFORM_TYPES = {}
-
-    # Platform specific structure types that have been defined extarnally to the Vulkan header.
-    PLATFORM_STRUCTS = []
-
-    GENERIC_HANDLE_APICALLS = {
-        'vkDebugReportMessageEXT': {
-            'object': 'objectType'
-        },
-        'vkSetPrivateDataEXT': {
-            'objectHandle': 'objectType'
-        },
-        'vkGetPrivateDataEXT': {
-            'objectHandle': 'objectType'
-        },
-        'vkSetPrivateData': {
-            'objectHandle': 'objectType'
-        },
-        'vkGetPrivateData': {
-            'objectHandle': 'objectType'
-        }
-    }
-
-    GENERIC_HANDLE_STRUCTS = {
-        'VkDebugMarkerObjectNameInfoEXT': {
-            'object': 'objectType'
-        },
-        'VkDebugMarkerObjectTagInfoEXT': {
-            'object': 'objectType'
-        },
-        'VkDebugUtilsObjectNameInfoEXT': {
-            'objectHandle': 'objectType'
-        },
-        'VkDebugUtilsObjectTagInfoEXT': {
-            'objectHandle': 'objectType'
-        }
-    }
-
-    VULKAN_REPLACE_TYPE = {
-        "VkRemoteAddressNV": {
-            "baseType": "void",
-            "replaceWith": "void*"
-        }
-    }
-
-    # These types represent pointers to non-Vulkan or non-Dx12 objects that were written as 64-bit address IDs.
-    EXTERNAL_OBJECT_TYPES = ['void', 'Void']
-
-    MAP_STRUCT_TYPE = {
-        'D3D12_GPU_DESCRIPTOR_HANDLE': [
-            'MapGpuDescriptorHandle', 'MapGpuDescriptorHandles',
-            'descriptor_map'
-        ],
-        'D3D12_GPU_VIRTUAL_ADDRESS':
-        ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
-    }
-
-    # Dispatchable handle types.
-    DISPATCHABLE_HANDLE_TYPES = [
-        'VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue',
-        'VkCommandBuffer'
-    ]
-
-    DUPLICATE_HANDLE_TYPES = [
-        'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR', 'VkPrivateDataSlotEXT'
-    ]
-
-    # Default C++ code indentation size.
-    INDENT_SIZE = 4
-
-    VIDEO_TREE = None
-
-    generate_video = False
-
     def __init__(
         self,
         process_cmds,
@@ -369,6 +281,94 @@ class BaseGenerator(OutputGenerator):
         diag_file=sys.stdout
     ):
         OutputGenerator.__init__(self, err_file, warn_file, diag_file)
+
+        # These API calls should not be processed by the code generator.  They require special implementations.
+        self.APICALL_BLACKLIST = []
+
+        self.APICALL_ENCODER_BLACKLIST = []
+
+        self.APICALL_DECODER_BLACKLIST = []
+
+        # These method calls should not be processed by the code generator.  They require special implementations.
+        self.METHODCALL_BLACKLIST = []
+
+        # These structures should not be processed by the code generator.  They require special implementations.
+        self.STRUCT_BLACKLIST = []
+
+        # Platform specific basic types that have been defined extarnally to the Vulkan header.
+        self.PLATFORM_TYPES = {}
+
+        # Platform specific structure types that have been defined extarnally to the Vulkan header.
+        self.PLATFORM_STRUCTS = []
+
+        self.GENERIC_HANDLE_APICALLS = {
+            'vkDebugReportMessageEXT': {
+                'object': 'objectType'
+            },
+            'vkSetPrivateDataEXT': {
+                'objectHandle': 'objectType'
+            },
+            'vkGetPrivateDataEXT': {
+                'objectHandle': 'objectType'
+            },
+            'vkSetPrivateData': {
+                'objectHandle': 'objectType'
+            },
+            'vkGetPrivateData': {
+                'objectHandle': 'objectType'
+            }
+        }
+
+        self.GENERIC_HANDLE_STRUCTS = {
+            'VkDebugMarkerObjectNameInfoEXT': {
+                'object': 'objectType'
+            },
+            'VkDebugMarkerObjectTagInfoEXT': {
+                'object': 'objectType'
+            },
+            'VkDebugUtilsObjectNameInfoEXT': {
+                'objectHandle': 'objectType'
+            },
+            'VkDebugUtilsObjectTagInfoEXT': {
+                'objectHandle': 'objectType'
+            }
+        }
+
+        self.VULKAN_REPLACE_TYPE = {
+            "VkRemoteAddressNV": {
+                "baseType": "void",
+                "replaceWith": "void*"
+            }
+        }
+
+        # These types represent pointers to non-Vulkan or non-Dx12 objects that were written as 64-bit address IDs.
+        self.EXTERNAL_OBJECT_TYPES = ['void', 'Void']
+
+        self.MAP_STRUCT_TYPE = {
+            'D3D12_GPU_DESCRIPTOR_HANDLE': [
+                'MapGpuDescriptorHandle', 'MapGpuDescriptorHandles',
+                'descriptor_map'
+            ],
+            'D3D12_GPU_VIRTUAL_ADDRESS':
+            ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
+        }
+
+        # Dispatchable handle types.
+        self.DISPATCHABLE_HANDLE_TYPES = [
+            'VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue',
+            'VkCommandBuffer'
+        ]
+
+        self.DUPLICATE_HANDLE_TYPES = [
+            'VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR', 'VkPrivateDataSlotEXT'
+        ]
+
+        # Default C++ code indentation size.
+        self.INDENT_SIZE = 4
+
+        self.VIDEO_TREE = None
+
+        self.generate_video = False
 
         # Typenames
         self.struct_names = set()  # Set of Vulkan struct typenames
