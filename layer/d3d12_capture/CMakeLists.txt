@@ -30,7 +30,7 @@ add_library(d3d12_capture SHARED "")
 target_sources(d3d12_capture PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                 ${CMAKE_CURRENT_LIST_DIR}/d3d12_capture.def
-				${CMAKE_SOURCE_DIR}/version.rc)
+                ${CMAKE_SOURCE_DIR}/version.rc)
 
 target_include_directories(d3d12_capture 
                            PUBLIC 
