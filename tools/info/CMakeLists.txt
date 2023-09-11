@@ -32,6 +32,7 @@ target_sources(gfxrecon-info
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
+				   ${CMAKE_SOURCE_DIR}/version.rc
               )
 
 if (MSVC)

@@ -30,7 +30,8 @@ target_sources(ags_capture PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                 ${CMAKE_CURRENT_LIST_DIR}/amd_ags_x64.def
                 ${CMAKE_CURRENT_LIST_DIR}/hook_ags.h
-                ${CMAKE_CURRENT_LIST_DIR}/hook_ags.cpp)
+                ${CMAKE_CURRENT_LIST_DIR}/hook_ags.cpp
+				${CMAKE_SOURCE_DIR}/version.rc)
 target_include_directories(ags_capture PUBLIC 
                            ${CMAKE_BINARY_DIR} 
                            ${CMAKE_SOURCE_DIR})
