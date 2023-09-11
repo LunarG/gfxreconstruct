@@ -33,7 +33,8 @@ target_sources(dxgi PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                 ${CMAKE_CURRENT_LIST_DIR}/hook_dxgi.h
                 ${CMAKE_CURRENT_LIST_DIR}/hook_dxgi.cpp
-                ${CMAKE_CURRENT_LIST_DIR}/dxgi.def)
+                ${CMAKE_CURRENT_LIST_DIR}/dxgi.def
+				${CMAKE_SOURCE_DIR}/version.rc)
 target_include_directories(dxgi PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 target_link_libraries(dxgi gfxrecon_encode gfxrecon_util ${LINK_DXGI_OUTPUT})
 common_build_directives(dxgi)

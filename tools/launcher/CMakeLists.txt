@@ -33,6 +33,7 @@ if(BUILD_LAUNCHER_AND_INTERCEPTOR)
     target_sources(gfxrecon-launcher
                    PRIVATE
                         ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
+						${CMAKE_SOURCE_DIR}/version.rc
     )
 
     target_include_directories(gfxrecon-launcher PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/layer/d3d12_hook ${CMAKE_SOURCE_DIR}/framework/util ${CMAKE_SOURCE_DIR}/framework/interception_util)

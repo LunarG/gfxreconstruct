@@ -33,7 +33,8 @@ target_sources(d3d12 PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                 ${CMAKE_CURRENT_LIST_DIR}/hook_d3d12.h
                 ${CMAKE_CURRENT_LIST_DIR}/hook_d3d12.cpp
-                ${CMAKE_CURRENT_LIST_DIR}/d3d12.def)
+                ${CMAKE_CURRENT_LIST_DIR}/d3d12.def
+				${CMAKE_SOURCE_DIR}/version.rc)
 
 target_include_directories(d3d12 
                            PUBLIC 
