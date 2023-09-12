@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2021-2023 Advanced Micro Devices, Inc.
+# Copyright (c) 2021 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,8 +33,7 @@ target_sources(dxgi PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                 ${CMAKE_CURRENT_LIST_DIR}/hook_dxgi.h
                 ${CMAKE_CURRENT_LIST_DIR}/hook_dxgi.cpp
-                ${CMAKE_CURRENT_LIST_DIR}/dxgi.def
-                ${CMAKE_SOURCE_DIR}/version.rc)
+                ${CMAKE_CURRENT_LIST_DIR}/dxgi.def)
 target_include_directories(dxgi PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 target_link_libraries(dxgi gfxrecon_encode gfxrecon_util ${LINK_DXGI_OUTPUT})
 common_build_directives(dxgi)
