@@ -1,9 +1,6 @@
 /*
 ** Copyright (c) 2022-2023 LunarG, Inc.
-<<<<<<< HEAD
 ** Copyright (c) 2023 Valve Corporation.
-=======
->>>>>>> cd035c3d (Moved json_util.h from decode to util)
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -76,35 +73,21 @@ std::string to_hex_fixed_width(T value)
 }
 
 /// @todo No JSON involved here so move to a to_string header.
-/// @todo Move to .cpp. No need to inline this.
-inline std::string uuid_to_string(uint32_t size, const uint8_t* uuid)
-{
-    std::ostringstream stream;
-    stream << std::setfill('0') << std::setw(2) << std::hex;
-    for (size_t i = 0; i < size; ++i)
-    {
-        stream << (uint32_t)uuid[i];
-    }
-    return stream.str();
-}
+std::string uuid_to_string(uint32_t size, const uint8_t* uuid);
 
 /// @brief Convert the integer representation of a handle in capture files into
 /// either a JSON number or a JSON string with the number represented in
 /// hexadecimal.
-/// @todo Move to .cpp. No need to inline this.
-inline void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options)
-{
-    if (options.hex_handles)
-    {
-        // A JSON string
-        jdata = util::to_hex_variable_width(handle);
-    }
-    else
-    {
-        // A JSON number
-        jdata = handle;
-    }
-}
+void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options);
+
+void FieldToJson(nlohmann::ordered_json& jdata, short data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, int data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, long data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, long long data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, unsigned short data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, unsigned int data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, unsigned long data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, unsigned long long data, const JsonOptions& options = JsonOptions());
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

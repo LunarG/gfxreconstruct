@@ -39,53 +39,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 class DescriptorUpdateTemplateDecoder;
 
-inline void
-FieldToJson(nlohmann::ordered_json& jdata, short data, const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
 
-inline void FieldToJson(nlohmann::ordered_json& jdata, int data, const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
-
-inline void
-FieldToJson(nlohmann::ordered_json& jdata, long data, const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
-
-inline void
-FieldToJson(nlohmann::ordered_json& jdata, long long data, const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
-
-inline void
-FieldToJson(nlohmann::ordered_json& jdata, unsigned short data, const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
-
-inline void
-FieldToJson(nlohmann::ordered_json& jdata, unsigned int data, const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
-
-inline void
-FieldToJson(nlohmann::ordered_json& jdata, unsigned long data, const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
-
-inline void FieldToJson(nlohmann::ordered_json&  jdata,
-                        unsigned long long       data,
-                        const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
 
 /// Convert floats to JSON, logging information loss when floats with no JSON
 /// number type representation are adjusted. The JSON library turns these numbers
