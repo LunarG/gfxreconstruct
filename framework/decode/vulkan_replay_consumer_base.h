@@ -749,6 +749,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
                                         HandlePointerDecoder<VkSwapchainKHR>*                         pSwapchain);
 
+    VkResult
+    OverrideCreateSharedSwapchainsKHR(PFN_vkCreateSharedSwapchainsKHR                               func,
+                                      VkResult                                                      original_result,
+                                      DeviceInfo*                                                   device_info,
+                                      uint32_t                                                      swapchainCount,
+                                      const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfos,
+                                      const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
+                                      HandlePointerDecoder<VkSwapchainKHR>*                         pSwapchains);
+
     void OverrideDestroySwapchainKHR(PFN_vkDestroySwapchainKHR                                  func,
                                      DeviceInfo*                                                device_info,
                                      SwapchainKHRInfo*                                          swapchain_info,
@@ -868,6 +877,22 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     const StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>* pCreateInfo,
                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
                                     HandlePointerDecoder<VkSurfaceKHR>*                                pSurface);
+
+    VkResult
+    OverrideCreateDisplayPlaneSurfaceKHR(PFN_vkCreateDisplayPlaneSurfaceKHR func,
+                                         VkResult                           original_result,
+                                         InstanceInfo*                      instance_info,
+                                         const StructPointerDecoder<Decoded_VkDisplaySurfaceCreateInfoKHR>* pCreateInfo,
+                                         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
+                                         HandlePointerDecoder<VkSurfaceKHR>*                                pSurface);
+
+    VkResult
+    OverrideCreateHeadlessSurfaceEXT(PFN_vkCreateHeadlessSurfaceEXT func,
+                                     VkResult                       original_result,
+                                     InstanceInfo*                  instance_info,
+                                     const StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT>* pCreateInfo,
+                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
+                                     HandlePointerDecoder<VkSurfaceKHR>*                                 pSurface);
 
     VkBool32
     OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
