@@ -187,7 +187,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
             body += '    FieldToJsonAsHex(jdata[NameReturn()], returnValue, json_options);\n'
         elif 'VkBool32' == return_type:
             # Output as JSON boolean type true/false without quotes:
-            body += '            VkBool32ToJson(jdata[NameReturn()], returnValue, json_options);\n'
+            body += '            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);\n'
         elif self.is_handle(return_type):
             body += '    HandleToJson(jdata[NameReturn()], returnValue, json_options);\n'
         # Enums, ints, etc. handled by default and static dispatch based on C++ type:
@@ -207,7 +207,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
                 # Special cases:
                 if 'VkBool32' == value.base_type:
-                    to_json = 'VkBool32ToJson(args["{0}"], {0}, json_options)'
+                    to_json = 'Bool32ToJson(args["{0}"], {0}, json_options)'
                 elif value.name == 'ppData' or (value.base_type in self.formatAsHex):
                     to_json = 'FieldToJsonAsHex(args["{0}"], {0}, json_options)'
                 elif self.is_handle(value.base_type) or value.name in self.formatAsHandle:

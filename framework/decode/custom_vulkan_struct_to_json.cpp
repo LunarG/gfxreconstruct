@@ -447,6 +447,29 @@ void FieldToJson(nlohmann::ordered_json&                   jdata,
     }
 }
 
+void Bool32ToJson(nlohmann::ordered_json&                   jdata,
+                  const PointerDecoder<uint32_t, uint32_t>* data,
+                  const util::JsonOptions&                  options)
+{
+    if (data && data->GetPointer())
+    {
+        const auto decoded_value = data->GetPointer();
+        const auto length        = data->GetLength();
+
+        if (data->IsArray())
+        {
+            for (size_t i = 0; i < length; ++i)
+            {
+                util::Bool32ToJson(jdata[i], decoded_value[i], options);
+            }
+        }
+        else if (length == 1)
+        {
+            util::Bool32ToJson(jdata, *decoded_value, options);
+        }
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json&                      jdata,
                  const DescriptorUpdateTemplateDecoder* const pData,
                  const JsonOptions&                           options)

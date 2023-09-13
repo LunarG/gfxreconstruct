@@ -80,6 +80,12 @@ std::string uuid_to_string(uint32_t size, const uint8_t* uuid);
 /// hexadecimal.
 void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options);
 
+/// @brief  Convert a bool represented as a 32 bit unsigned number to true or false.
+/// @todo rename.
+void Bool32ToJson(nlohmann::ordered_json&  jdata,
+                  const uint32_t           data,
+                  const util::JsonOptions& options = util::JsonOptions());
+
 void FieldToJson(nlohmann::ordered_json& jdata, short data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, int data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, long data, const JsonOptions& options = JsonOptions());

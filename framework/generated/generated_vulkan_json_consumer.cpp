@@ -609,7 +609,7 @@ void VulkanExportJsonConsumer::Process_vkWaitForFences(
         HandleToJson(args["device"], device, json_options);
         FieldToJson(args["fenceCount"], fenceCount, json_options);
         HandleToJson(args["pFences"], pFences, json_options);
-        VkBool32ToJson(args["waitAll"], waitAll, json_options);
+        Bool32ToJson(args["waitAll"], waitAll, json_options);
         FieldToJson(args["timeout"], timeout, json_options);
     WriteBlockEnd();
 }
@@ -3353,7 +3353,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthTestEnable(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthTestEnable"], depthTestEnable, json_options);
+        Bool32ToJson(args["depthTestEnable"], depthTestEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -3367,7 +3367,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthWriteEnable(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthWriteEnable"], depthWriteEnable, json_options);
+        Bool32ToJson(args["depthWriteEnable"], depthWriteEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -3395,7 +3395,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthBoundsTestEnable(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthBoundsTestEnable"], depthBoundsTestEnable, json_options);
+        Bool32ToJson(args["depthBoundsTestEnable"], depthBoundsTestEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -3409,7 +3409,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetStencilTestEnable(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["stencilTestEnable"], stencilTestEnable, json_options);
+        Bool32ToJson(args["stencilTestEnable"], stencilTestEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -3445,7 +3445,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetRasterizerDiscardEnable(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["rasterizerDiscardEnable"], rasterizerDiscardEnable, json_options);
+        Bool32ToJson(args["rasterizerDiscardEnable"], rasterizerDiscardEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -3459,7 +3459,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthBiasEnable(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthBiasEnable"], depthBiasEnable, json_options);
+        Bool32ToJson(args["depthBiasEnable"], depthBiasEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -3473,7 +3473,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetPrimitiveRestartEnable(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["primitiveRestartEnable"], primitiveRestartEnable, json_options);
+        Bool32ToJson(args["primitiveRestartEnable"], primitiveRestartEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -3554,7 +3554,7 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceSurfaceSupportKHR(
         HandleToJson(args["physicalDevice"], physicalDevice, json_options);
         FieldToJson(args["queueFamilyIndex"], queueFamilyIndex, json_options);
         HandleToJson(args["surface"], surface, json_options);
-        VkBool32ToJson(args["pSupported"], pSupported, json_options);
+        Bool32ToJson(args["pSupported"], pSupported, json_options);
     WriteBlockEnd();
 }
 
@@ -3954,7 +3954,7 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceXlibPresentationSuppor
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceXlibPresentationSupportKHR");
     const JsonOptions& json_options = GetJsonOptions();
-            VkBool32ToJson(jdata[NameReturn()], returnValue, json_options);
+            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["physicalDevice"], physicalDevice, json_options);
         FieldToJson(args["queueFamilyIndex"], queueFamilyIndex, json_options);
@@ -3992,7 +3992,7 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupport
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceXcbPresentationSupportKHR");
     const JsonOptions& json_options = GetJsonOptions();
-            VkBool32ToJson(jdata[NameReturn()], returnValue, json_options);
+            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["physicalDevice"], physicalDevice, json_options);
         FieldToJson(args["queueFamilyIndex"], queueFamilyIndex, json_options);
@@ -4029,7 +4029,7 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSup
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceWaylandPresentationSupportKHR");
     const JsonOptions& json_options = GetJsonOptions();
-            VkBool32ToJson(jdata[NameReturn()], returnValue, json_options);
+            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["physicalDevice"], physicalDevice, json_options);
         FieldToJson(args["queueFamilyIndex"], queueFamilyIndex, json_options);
@@ -4083,7 +4083,7 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceWin32PresentationSuppo
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceWin32PresentationSupportKHR");
     const JsonOptions& json_options = GetJsonOptions();
-            VkBool32ToJson(jdata[NameReturn()], returnValue, json_options);
+            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["physicalDevice"], physicalDevice, json_options);
         FieldToJson(args["queueFamilyIndex"], queueFamilyIndex, json_options);
@@ -6687,7 +6687,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDiscardRectangleEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["discardRectangleEnable"], discardRectangleEnable, json_options);
+        Bool32ToJson(args["discardRectangleEnable"], discardRectangleEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -7208,7 +7208,7 @@ void VulkanExportJsonConsumer::Process_vkCmdBuildAccelerationStructureNV(
         FieldToJson(args["pInfo"], pInfo, json_options);
         HandleToJson(args["instanceData"], instanceData, json_options);
         FieldToJson(args["instanceOffset"], instanceOffset, json_options);
-        VkBool32ToJson(args["update"], update, json_options);
+        Bool32ToJson(args["update"], update, json_options);
         HandleToJson(args["dst"], dst, json_options);
         HandleToJson(args["src"], src, json_options);
         HandleToJson(args["scratch"], scratch, json_options);
@@ -7552,7 +7552,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetExclusiveScissorEnableNV(
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
         FieldToJson(args["firstExclusiveScissor"], firstExclusiveScissor, json_options);
         FieldToJson(args["exclusiveScissorCount"], exclusiveScissorCount, json_options);
-        VkBool32ToJson(args["pExclusiveScissorEnables"], pExclusiveScissorEnables, json_options);
+        Bool32ToJson(args["pExclusiveScissorEnables"], pExclusiveScissorEnables, json_options);
     WriteBlockEnd();
 }
 
@@ -7752,7 +7752,7 @@ void VulkanExportJsonConsumer::Process_vkSetLocalDimmingAMD(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["device"], device, json_options);
         HandleToJson(args["swapChain"], swapChain, json_options);
-        VkBool32ToJson(args["localDimmingEnable"], localDimmingEnable, json_options);
+        Bool32ToJson(args["localDimmingEnable"], localDimmingEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -8086,7 +8086,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthTestEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthTestEnable"], depthTestEnable, json_options);
+        Bool32ToJson(args["depthTestEnable"], depthTestEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -8100,7 +8100,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthWriteEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthWriteEnable"], depthWriteEnable, json_options);
+        Bool32ToJson(args["depthWriteEnable"], depthWriteEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -8128,7 +8128,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthBoundsTestEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthBoundsTestEnable"], depthBoundsTestEnable, json_options);
+        Bool32ToJson(args["depthBoundsTestEnable"], depthBoundsTestEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -8142,7 +8142,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetStencilTestEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["stencilTestEnable"], stencilTestEnable, json_options);
+        Bool32ToJson(args["stencilTestEnable"], stencilTestEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -8302,7 +8302,7 @@ void VulkanExportJsonConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["isPreprocessed"], isPreprocessed, json_options);
+        Bool32ToJson(args["isPreprocessed"], isPreprocessed, json_options);
         FieldToJson(args["pGeneratedCommandsInfo"], pGeneratedCommandsInfo, json_options);
     WriteBlockEnd();
 }
@@ -8576,7 +8576,7 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceDirectFBPresentationSu
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceDirectFBPresentationSupportEXT");
     const JsonOptions& json_options = GetJsonOptions();
-            VkBool32ToJson(jdata[NameReturn()], returnValue, json_options);
+            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["physicalDevice"], physicalDevice, json_options);
         FieldToJson(args["queueFamilyIndex"], queueFamilyIndex, json_options);
@@ -8729,7 +8729,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetRasterizerDiscardEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["rasterizerDiscardEnable"], rasterizerDiscardEnable, json_options);
+        Bool32ToJson(args["rasterizerDiscardEnable"], rasterizerDiscardEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -8743,7 +8743,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthBiasEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthBiasEnable"], depthBiasEnable, json_options);
+        Bool32ToJson(args["depthBiasEnable"], depthBiasEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -8771,7 +8771,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetPrimitiveRestartEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["primitiveRestartEnable"], primitiveRestartEnable, json_options);
+        Bool32ToJson(args["primitiveRestartEnable"], primitiveRestartEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -8803,7 +8803,7 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceScreenPresentationSupp
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceScreenPresentationSupportQNX");
     const JsonOptions& json_options = GetJsonOptions();
-            VkBool32ToJson(jdata[NameReturn()], returnValue, json_options);
+            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["physicalDevice"], physicalDevice, json_options);
         FieldToJson(args["queueFamilyIndex"], queueFamilyIndex, json_options);
@@ -8823,7 +8823,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetColorWriteEnableEXT(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
         FieldToJson(args["attachmentCount"], attachmentCount, json_options);
-        VkBool32ToJson(args["pColorWriteEnables"], pColorWriteEnables, json_options);
+        Bool32ToJson(args["pColorWriteEnables"], pColorWriteEnables, json_options);
     WriteBlockEnd();
 }
 
@@ -9263,7 +9263,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthClampEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthClampEnable"], depthClampEnable, json_options);
+        Bool32ToJson(args["depthClampEnable"], depthClampEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9321,7 +9321,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetAlphaToCoverageEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["alphaToCoverageEnable"], alphaToCoverageEnable, json_options);
+        Bool32ToJson(args["alphaToCoverageEnable"], alphaToCoverageEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9335,7 +9335,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetAlphaToOneEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["alphaToOneEnable"], alphaToOneEnable, json_options);
+        Bool32ToJson(args["alphaToOneEnable"], alphaToOneEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9349,7 +9349,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetLogicOpEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["logicOpEnable"], logicOpEnable, json_options);
+        Bool32ToJson(args["logicOpEnable"], logicOpEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9367,7 +9367,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetColorBlendEnableEXT(
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
         FieldToJson(args["firstAttachment"], firstAttachment, json_options);
         FieldToJson(args["attachmentCount"], attachmentCount, json_options);
-        VkBool32ToJson(args["pColorBlendEnables"], pColorBlendEnables, json_options);
+        Bool32ToJson(args["pColorBlendEnables"], pColorBlendEnables, json_options);
     WriteBlockEnd();
 }
 
@@ -9459,7 +9459,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthClipEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["depthClipEnable"], depthClipEnable, json_options);
+        Bool32ToJson(args["depthClipEnable"], depthClipEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9473,7 +9473,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetSampleLocationsEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["sampleLocationsEnable"], sampleLocationsEnable, json_options);
+        Bool32ToJson(args["sampleLocationsEnable"], sampleLocationsEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9533,7 +9533,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetLineStippleEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["stippledLineEnable"], stippledLineEnable, json_options);
+        Bool32ToJson(args["stippledLineEnable"], stippledLineEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9547,7 +9547,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetDepthClipNegativeOneToOneEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["negativeOneToOne"], negativeOneToOne, json_options);
+        Bool32ToJson(args["negativeOneToOne"], negativeOneToOne, json_options);
     WriteBlockEnd();
 }
 
@@ -9561,7 +9561,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetViewportWScalingEnableNV(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["viewportWScalingEnable"], viewportWScalingEnable, json_options);
+        Bool32ToJson(args["viewportWScalingEnable"], viewportWScalingEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9593,7 +9593,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetCoverageToColorEnableNV(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["coverageToColorEnable"], coverageToColorEnable, json_options);
+        Bool32ToJson(args["coverageToColorEnable"], coverageToColorEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9635,7 +9635,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetCoverageModulationTableEnableNV(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["coverageModulationTableEnable"], coverageModulationTableEnable, json_options);
+        Bool32ToJson(args["coverageModulationTableEnable"], coverageModulationTableEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9665,7 +9665,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetShadingRateImageEnableNV(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["shadingRateImageEnable"], shadingRateImageEnable, json_options);
+        Bool32ToJson(args["shadingRateImageEnable"], shadingRateImageEnable, json_options);
     WriteBlockEnd();
 }
 
@@ -9679,7 +9679,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetRepresentativeFragmentTestEnableN
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        VkBool32ToJson(args["representativeFragmentTestEnable"], representativeFragmentTestEnable, json_options);
+        Bool32ToJson(args["representativeFragmentTestEnable"], representativeFragmentTestEnable, json_options);
     WriteBlockEnd();
 }
 

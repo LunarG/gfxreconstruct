@@ -39,8 +39,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 class DescriptorUpdateTemplateDecoder;
 
-
-
 /// Convert floats to JSON, logging information loss when floats with no JSON
 /// number type representation are adjusted. The JSON library turns these numbers
 /// into JSON nulls otherwise.
@@ -330,37 +328,11 @@ FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<uint64_t, void*>*
     FieldToJsonAsHex<uint64_t, void*>(jdata, data, options);
 }
 
-template <typename T>
-void VkBool32ToJson(nlohmann::ordered_json& jdata, const T data, const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = static_cast<bool>(data);
-}
-
 // Convert arrays of and pointers to bools. Since VkBool32 is just a typedef of
 // uint32_t we can't use the standard function name and dispatch on the type.
-template <typename DecodedType, typename OutputDecodedType = DecodedType>
-void VkBool32ToJson(nlohmann::ordered_json&                               jdata,
-                    const PointerDecoder<DecodedType, OutputDecodedType>* data,
-                    const util::JsonOptions&                              options = util::JsonOptions())
-{
-    if (data && data->GetPointer())
-    {
-        const auto decoded_value = data->GetPointer();
-        const auto length        = data->GetLength();
-
-        if (data->IsArray())
-        {
-            for (size_t i = 0; i < length; ++i)
-            {
-                VkBool32ToJson(jdata[i], decoded_value[i], options);
-            }
-        }
-        else if (length == 1)
-        {
-            VkBool32ToJson(jdata, *decoded_value, options);
-        }
-    }
-}
+void Bool32ToJson(nlohmann::ordered_json&                   jdata,
+                  const PointerDecoder<uint32_t, uint32_t>* data,
+                  const util::JsonOptions&                  options = util::JsonOptions());
 
 void FieldToJson(nlohmann::ordered_json&                      jdata,
                  const DescriptorUpdateTemplateDecoder* const pData,

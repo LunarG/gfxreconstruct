@@ -56,6 +56,11 @@ void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, 
 // library hidden in the assignments so we can give the inlining of that code a
 // natural place to stop right here.
 
+void Bool32ToJson(nlohmann::ordered_json& jdata, const uint32_t data, const util::JsonOptions& options)
+{
+    jdata = static_cast<bool>(data);
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, short data, const JsonOptions& options)
 {
     jdata = data;
