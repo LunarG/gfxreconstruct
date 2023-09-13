@@ -836,6 +836,26 @@ std::string CaptureManager::CreateTrimFilename(const std::string& base_filename,
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
+void CaptureManager::WriteNewCaptureAnnotation()
+{
+    // Save parameters of the capture in an annotation.
+    std::string operation_annotation = "{\n"
+                                       "    \"tool\": \"capture\",\n"
+                                       "    \"timestamp\": \"";
+    operation_annotation += util::datetime::UtcNowString();
+    operation_annotation += "\",\n";
+    operation_annotation += "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
+                            "    \"vulkan-version\": \"";
+    operation_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
+    operation_annotation += '.';
+    operation_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
+    operation_annotation += '.';
+    operation_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+    operation_annotation += "\"\n}";
+
+    WriteAnnotation(format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
+}
+
 bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 {
     bool        success          = true;
@@ -857,22 +877,7 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
         gfxrecon::util::filepath::GetApplicationInfo(info);
         WriteExeFileInfo(info);
 
-        // Save parameters of the capture in an annotation.
-        std::string operation_annotation = "{\n"
-                                           "    \"tool\": \"capture\",\n"
-                                           "    \"timestamp\": \"";
-        operation_annotation += util::datetime::UtcNowString();
-        operation_annotation += "\",\n";
-        operation_annotation += "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
-                                "    \"vulkan-version\": \"";
-        operation_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
-        operation_annotation += '.';
-        operation_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
-        operation_annotation += '.';
-        operation_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-        operation_annotation += "\"\n}";
-
-        WriteAnnotation(format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
+        WriteNewCaptureAnnotation();
     }
     else
     {
@@ -886,6 +891,8 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 void CaptureManager::ActivateTrimming()
 {
     capture_mode_ |= kModeWrite;
+
+    WriteNewCaptureAnnotation();
 
     auto thread_data = GetThreadData();
     assert(thread_data != nullptr);
@@ -969,7 +976,8 @@ void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& 
 
 void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
 {
-    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    if (((capture_mode_ & kModeWrite) == kModeWrite) ||
+        ((capture_mode_ & kModeWriteAndTrack) == kModeWriteAndTrack))
     {
         auto       thread_data  = GetThreadData();
         const auto label_length = util::platform::StringLength(label);

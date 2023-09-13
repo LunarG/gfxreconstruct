@@ -260,6 +260,7 @@ class CaptureManager
     bool        CreateCaptureFile(const std::string& base_filename);
     void        ActivateTrimming();
     void        DeactivateTrimming();
+    void        WriteNewCaptureAnnotation();
 
     void WriteFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
