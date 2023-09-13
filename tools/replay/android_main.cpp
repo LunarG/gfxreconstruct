@@ -34,7 +34,6 @@
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
-#include "util/measurement_manager.h"
 
 #include <android_native_app_glue.h>
 #include <android/log.h>
@@ -113,21 +112,20 @@ void android_main(struct android_app* app)
                 gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        decoder;
                 uint32_t                               start_frame, end_frame;
-                bool has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
+                bool        has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
+                std::string measurement_file_name;
 
                 if (has_mfr)
                 {
-                    std::string measurement_file_name;
                     GetMeasurementFilename(arg_parser, measurement_file_name);
-                    gfxrecon::util::MeasurementManager::Open(measurement_file_name);
-                    gfxrecon::util::MeasurementManager::WriteApplication("capture_name", measurement_file_name);
                 }
 
                 gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
                                                      static_cast<uint64_t>(end_frame),
                                                      has_mfr,
                                                      replay_options.quit_after_measurement_frame_range,
-                                                     replay_options.flush_measurement_frame_range);
+                                                     replay_options.flush_measurement_frame_range,
+                                                     measurement_file_name);
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
                 replay_consumer.SetFpsInfo(&fps_info);

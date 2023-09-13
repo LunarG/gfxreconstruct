@@ -35,11 +35,12 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 class FpsInfo
 {
   public:
-    FpsInfo(uint64_t measurement_start_frame = 1,
-            uint64_t measurement_end_frame   = std::numeric_limits<uint64_t>::max(),
-            bool     has_measurement_range   = false,
-            bool     quit_after_range        = false,
-            bool     flush_measurement_range = false);
+    FpsInfo(uint64_t           measurement_start_frame = 1,
+            uint64_t           measurement_end_frame   = std::numeric_limits<uint64_t>::max(),
+            bool               has_measurement_range   = false,
+            bool               quit_after_range        = false,
+            bool               flush_measurement_range = false,
+            const std::string& measurement_file_name   = std::string());
 
     void LogToConsole();
 
@@ -73,6 +74,8 @@ class FpsInfo
 
     int64_t              frame_start_time_;
     std::vector<int64_t> frame_durations_;
+
+    std::string measurement_file_name_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)

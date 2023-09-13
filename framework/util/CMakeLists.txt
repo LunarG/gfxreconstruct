@@ -50,8 +50,6 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/keyboard.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/logging.h
                     ${CMAKE_CURRENT_LIST_DIR}/logging.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/measurement_manager.h
-                    ${CMAKE_CURRENT_LIST_DIR}/measurement_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.h
                     ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/zlib_compressor.h
