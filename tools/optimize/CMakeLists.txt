@@ -42,7 +42,7 @@ target_sources(gfxrecon-optimize
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/block_skipping_file_processor.h>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/block_skipping_file_processor.cpp>
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
-                   ${CMAKE_SOURCE_DIR}/version.rc
+                   $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
               )
 
 if (MSVC)
