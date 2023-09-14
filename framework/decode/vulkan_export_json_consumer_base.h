@@ -60,6 +60,8 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
 
+    virtual void ProcessFrameEndMarker(uint64_t frame_number) override;
+
     virtual void ProcessDisplayMessageCommand(const std::string& message) override;
 
     virtual void
@@ -200,6 +202,7 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
     constexpr const char* NameFunction() const { return "function"; }
     constexpr const char* NameMeta() const { return "meta"; }
     constexpr const char* NameState() const { return "state"; }
+    constexpr const char* NameFrame() const { return "frame"; }
     constexpr const char* NameName() const { return "name"; }
     constexpr const char* NameIndex() const { return "index"; }
     constexpr const char* NameThread() const { return "thread"; }
@@ -251,6 +254,18 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHan
         nlohmann::ordered_json& state = json_data_[NameState()];
         state["marker_type"]          = marker_type;
         state["frame_number"]         = frame_number;
+
+        WriteBlockEnd();
+    }
+
+    inline void WriteFrameMarkerToFile(const std::string& marker_type, uint64_t frame_number)
+    {
+        using namespace util;
+        WriteBlockStart();
+
+        nlohmann::ordered_json& frame = json_data_[NameFrame()];
+        frame["marker_type"]          = marker_type;
+        frame["frame_number"]         = frame_number;
 
         WriteBlockEnd();
     }

@@ -106,6 +106,8 @@ EXTERN_C bool InitializeAgsCapture(gfxrecon::encode::AgsDispatchTable* table)
         table->agsDriverExtensionsDX12_PopMarker     = gfxrecon::encode::agsDriverExtensionsDX12_PopMarker;
         table->agsDriverExtensionsDX12_SetMarker     = gfxrecon::encode::agsDriverExtensionsDX12_SetMarker;
 
+        table->agsInitNotSupported = gfxrecon::encode::agsInitNotSupported;
+
         return true;
     }
 

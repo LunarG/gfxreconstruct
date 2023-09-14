@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2018-2023 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -31,6 +31,7 @@
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
@@ -61,6 +62,13 @@ bool VulkanCaptureManager::CreateInstance()
                                                  []() {
                                                      assert(instance_ == nullptr);
                                                      instance_ = new VulkanCaptureManager();
+                                                 },
+                                                 []() {
+                                                     if (instance_)
+                                                     {
+                                                         delete instance_;
+                                                         instance_ = nullptr;
+                                                     }
                                                  });
 
     GFXRECON_LOG_INFO("  Vulkan Header Version %u.%u.%u",
@@ -73,18 +81,17 @@ bool VulkanCaptureManager::CreateInstance()
 
 void VulkanCaptureManager::DestroyInstance()
 {
-    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; },
-                                    []() {
-                                        assert(instance_ != nullptr);
-                                        delete instance_;
-                                        instance_ = nullptr;
-                                    });
+    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; });
 }
 
 void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
 {
     VulkanStateWriter state_writer(file_stream, compressor_.get(), thread_id);
-    state_tracker_->WriteState(&state_writer, GetCurrentFrame());
+    uint64_t          n_blocks = state_tracker_->WriteState(&state_writer, GetCurrentFrame());
+    block_index_ += n_blocks;
+
+    auto thread_data          = GetThreadData();
+    thread_data->block_index_ = block_index_;
 }
 
 void VulkanCaptureManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
@@ -131,12 +138,14 @@ void VulkanCaptureManager::WriteResizeWindowCmd2(format::HandleId              s
 {
     if ((GetCaptureMode() & kModeWrite) == kModeWrite)
     {
+        auto thread_data = GetThreadData();
+
         format::ResizeWindowCommand2 resize_cmd2;
         resize_cmd2.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         resize_cmd2.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd2);
         resize_cmd2.meta_header.meta_data_id =
             format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kResizeWindowCommand2);
-        resize_cmd2.thread_id = GetThreadData()->thread_id_;
+        resize_cmd2.thread_id = thread_data->thread_id_;
 
         resize_cmd2.surface_id = surface_id;
         resize_cmd2.width      = width;
@@ -2158,6 +2167,8 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
     QueueSubmitWriteFillMemoryCmd();
+
+    PreQueueSubmit();
 }
 
 void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
@@ -2171,6 +2182,8 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
     QueueSubmitWriteFillMemoryCmd();
+
+    PreQueueSubmit();
 }
 
 void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
@@ -2355,6 +2368,21 @@ void VulkanCaptureManager::PostProcess_vkSetLocalDimmingAMD(VkDevice       devic
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkCmdDebugMarkerInsertEXT(VkCommandBuffer                   commandBuffer,
+                                                                 const VkDebugMarkerMarkerInfoEXT* pMarkerInfo)
+{
+    if (pMarkerInfo != nullptr)
+    {
+        // Look for the debug marker that identifies this command buffer as a VR frame boundary.
+        if (util::platform::StringContains(pMarkerInfo->pMarkerName, graphics::kVulkanVrFrameDelimiterString))
+        {
+            auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(commandBuffer);
+            GFXRECON_ASSERT(cmd_buffer_wrapper != nullptr);
+            cmd_buffer_wrapper->is_frame_boundary = true;
+        }
+    }
+}
+
 #if defined(__ANDROID__)
 void VulkanCaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
                                                                            VkPresentModeKHR* pPresentModes)
@@ -2376,6 +2404,18 @@ bool VulkanCaptureManager::CheckBindAlignment(VkDeviceSize memoryOffset)
     }
 
     return true;
+}
+
+bool VulkanCaptureManager::CheckCommandBufferWrapperForFrameBoundary(const CommandBufferWrapper* command_buffer_wrapper)
+{
+    GFXRECON_ASSERT(command_buffer_wrapper != nullptr);
+    if (command_buffer_wrapper->is_frame_boundary)
+    {
+        // Do common capture manager end of frame processing.
+        EndFrame();
+        return true;
+    }
+    return false;
 }
 
 void VulkanCaptureManager::PreProcess_vkBindBufferMemory(VkDevice       device,

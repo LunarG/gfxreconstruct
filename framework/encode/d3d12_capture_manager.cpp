@@ -50,6 +50,13 @@ bool D3D12CaptureManager::CreateInstance()
                                               []() {
                                                   assert(instance_ == nullptr);
                                                   instance_ = new D3D12CaptureManager();
+                                              },
+                                              []() {
+                                                  if (instance_)
+                                                  {
+                                                      delete instance_;
+                                                      instance_ = nullptr;
+                                                  }
                                               });
     if (instance_->IsAnnotated() == true && instance_->resource_value_annotator_ == nullptr)
     {
@@ -60,12 +67,7 @@ bool D3D12CaptureManager::CreateInstance()
 
 void D3D12CaptureManager::DestroyInstance()
 {
-    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; },
-                                    []() {
-                                        assert(instance_ != nullptr);
-                                        delete instance_;
-                                        instance_ = nullptr;
-                                    });
+    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; });
 }
 
 void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle)
@@ -583,7 +585,7 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
             gfxrecon::graphics::dx12::TakeScreenshot(frame_buffer_renderer_,
                                                      swapchain_info->command_queue,
                                                      swapchain,
-                                                     global_frame_count_ + 1,
+                                                     GetCurrentFrame(),
                                                      screenshot_prefix_,
                                                      screenshot_format_);
         }
@@ -1650,12 +1652,16 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
             }
         }
     }
+
+    PreQueueSubmit();
 }
 
 void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
                                                                              UINT                        num_lists,
                                                                              ID3D12CommandList* const*   lists)
 {
+    PostQueueSubmit();
+
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         state_tracker_->TrackExecuteCommandLists(wrapper, num_lists, lists);

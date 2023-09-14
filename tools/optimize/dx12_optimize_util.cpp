@@ -71,9 +71,9 @@ void CreateResourceValueTrackingConsumer(
     application = std::make_shared<gfxrecon::application::Application>(app_string, file_processor);
     application->InitializeDx12WsiContext();
 
-    // Use default replay options, except dcp.
+    // Use default replay options, except gpu index.
     decode::DxReplayOptions dx_replay_options;
-    dx_replay_options.discard_cached_psos = true;
+    dx_replay_options.override_gpu_index  = options.override_gpu_index;
 
     // Create the replay consumer.
     dx12_replay_consumer = std::make_unique<decode::Dx12ResourceValueTrackingConsumer>(

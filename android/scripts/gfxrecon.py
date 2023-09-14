@@ -66,6 +66,8 @@ def CreateReplayParser():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]) + ' replay', description='Launch the replay tool.')
     parser.add_argument('-p', '--push-file', metavar='LOCAL_FILE', help='Local file to push to the location on device specified by <file>')
     parser.add_argument('--version', action='store_true', default=False, help='Print version information and exit (forwarded to replay tool)')
+    parser.add_argument('--log-level', metavar='LEVEL', help='Specify highest level message to log. Options are: debug, info, warning, error, and fatal. Default is info. (forwarded to replay tool)')
+    parser.add_argument('--log-file', metavar='DEVICE_FILE', help='Write log messages to a file at the specified path instead of logcat (forwarded to replay tool)')
     parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
     parser.add_argument('--paused', action='store_true', default=False, help='Pause after replaying the first frame (same as "--pause-frame 1"; forwarded to replay tool)')
     parser.add_argument('--screenshot-all', action='store_true', default=False, help='Generate screenshots for all frames.  When this option is specified, --screenshots is ignored (forwarded to replay tool)')
@@ -73,6 +75,8 @@ def CreateReplayParser():
     parser.add_argument('--screenshot-format', metavar='FORMAT', choices=['bmp', 'png'], help='Image file format to use for screenshot generation.  Available formats are: bmp, png (forwarded to replay tool)')
     parser.add_argument('--screenshot-dir', metavar='DIR', help='Directory to write screenshots. Default is "/sdcard" (forwarded to replay tool)')
     parser.add_argument('--screenshot-prefix', metavar='PREFIX', help='Prefix to apply to the screenshot file name.  Default is "screenshot" (forwarded to replay tool)')
+    parser.add_argument('--screenshot-size', metavar='SIZE', help='Screenshot dimensions. Ignored if --screenshot-scale is specified.  Expected format is <width>x<height>.')
+    parser.add_argument('--screenshot-scale', metavar='SCALE', help='Scale screenshot dimensions. Overrides --screenshot-size, if specified. Expects a number which can be decimal')
     parser.add_argument('--sfa', '--skip-failed-allocations', action='store_true', default=False, help='Skip vkAllocateMemory, vkAllocateCommandBuffers, and vkAllocateDescriptorSets calls that failed during capture (forwarded to replay tool)')
     parser.add_argument('--opcd', '--omit-pipeline-cache-data', action='store_true', default=False, help='Omit pipeline cache data from calls to vkCreatePipelineCache and skip calls to vkGetPipelineCacheData (forwarded to replay tool)')
     parser.add_argument('--surface-index', metavar='N', help='Restrict rendering to the Nth surface object created.  Used with captures that include multiple surfaces.  Default is -1 (render to all surfaces; forwarded to replay tool)')
@@ -95,6 +99,14 @@ def MakeExtrasString(args):
 
     if args.version:
         arg_list.append('--version')
+
+    if args.log_level:
+        arg_list.append('--log-level')
+        arg_list.append('{}'.format(args.log_level))
+
+    if args.log_file:
+        arg_list.append('--log-file')
+        arg_list.append('{}'.format(args.log_file))
 
     if args.pause_frame:
         arg_list.append('--pause-frame')
@@ -120,6 +132,14 @@ def MakeExtrasString(args):
     if args.screenshot_prefix:
         arg_list.append('--screenshot-prefix')
         arg_list.append('{}'.format(args.screenshot_prefix))
+
+    if args.screenshot_size:
+        arg_list.append('--screenshot-size')
+        arg_list.append('{}'.format(args.screenshot_size))
+
+    if args.screenshot_scale:
+        arg_list.append('--screenshot-scale')
+        arg_list.append('{}'.format(args.screenshot_scale))
 
     if args.sfa:
         arg_list.append('--sfa')

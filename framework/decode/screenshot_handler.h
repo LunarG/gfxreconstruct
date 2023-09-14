@@ -59,7 +59,10 @@ class ScreenshotHandler : public ScreenshotHandlerBase
                     VkImage                                 image,
                     VkFormat                                format,
                     uint32_t                                width,
-                    uint32_t                                height);
+                    uint32_t                                height,
+                    uint32_t                                copy_width,
+                    uint32_t                                copy_height,
+                    VkImageLayout                           image_layout);
 
     void DestroyDeviceResources(VkDevice device, const encode::DeviceTable* device_table);
 
@@ -108,6 +111,8 @@ class ScreenshotHandler : public ScreenshotHandlerBase
                                 VkFormat                                screenshot_format,
                                 uint32_t                                width,
                                 uint32_t                                height,
+                                uint32_t                                copy_width,
+                                uint32_t                                copy_height,
                                 CopyResource*                           copy_resource) const;
 
     void DestroyCopyResource(VkDevice device, CopyResource* copy_resource) const;

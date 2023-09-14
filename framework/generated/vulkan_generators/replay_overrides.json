@@ -14,6 +14,8 @@
     "vkGetPhysicalDeviceMemoryProperties2KHR": "OverrideGetPhysicalDeviceMemoryProperties2",
     "vkGetPhysicalDeviceSurfaceCapabilitiesKHR": "OverrideGetPhysicalDeviceSurfaceCapabilitiesKHR",
     "vkGetPhysicalDeviceSurfaceCapabilities2KHR": "OverrideGetPhysicalDeviceSurfaceCapabilities2KHR",
+    "vkGetDeviceQueue": "OverrideGetDeviceQueue",
+    "vkGetDeviceQueue2": "OverrideGetDeviceQueue2",
     "vkWaitForFences": "OverrideWaitForFences",
     "vkGetFenceStatus": "OverrideGetFenceStatus",
     "vkGetEventStatus": "OverrideGetEventStatus",
@@ -87,6 +89,15 @@
     "vkGetAndroidHardwareBufferPropertiesANDROID": "OverrideGetAndroidHardwareBufferPropertiesANDROID",
     "vkDeferredOperationJoinKHR": "OverrideDeferredOperationJoinKHR",
     "vkGetPhysicalDeviceToolProperties": "OverrideGetPhysicalDeviceToolProperties",
-    "vkGetPhysicalDeviceToolPropertiesEXT": "OverrideGetPhysicalDeviceToolProperties"
+    "vkGetPhysicalDeviceToolPropertiesEXT": "OverrideGetPhysicalDeviceToolProperties",
+    "vkBeginCommandBuffer": "OverrideBeginCommandBuffer",
+    "vkResetCommandBuffer": "OverrideResetCommandBuffer",
+    "vkCmdDebugMarkerInsertEXT": "OverrideCmdDebugMarkerInsertEXT",
+    "vkCmdBeginRenderPass": "OverrideCmdBeginRenderPass",
+    "vkCreateImageView": "OverrideCreateImageView",
+    "vkCreateFramebuffer": "OverrideCreateFramebuffer",
+    "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",
+    "vkWaitForPresentKHR": "OverrideWaitForPresentKHR",
+    "vkWaitSemaphores": "OverrideWaitSemaphores"
   }
 }

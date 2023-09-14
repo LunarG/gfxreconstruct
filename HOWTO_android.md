@@ -20,23 +20,24 @@ Copyright &copy; 2023 LunarG, Inc.
 
 ## Purpose
 
-The purpose of this doc is to show several examples in using the GFXReconstruct
-tools.
-These examples are intended to help work through issues you may discover while
-attempting to perform the same process on your own application.
+This document shows several examples of how to use the GFXReconstruct tools.
+These examples will help work through issues you may discover while attempting
+to perform the same process on your own application.
 
 **NOTE:**
 Many of these examples are given based on using a Linux system as the build
-and/or host, but should be fairly easy to replicate behavior on a Windows
-system with very little changes.
+and/or host, but you should be able to replicate the behavior on a Windows
+system with very few changes.
 
 ## Building Vulkan Samples with the Capture Layer
 
-Let's look at adding the GFXReconstruct layer as a requirement of the 
+Let's look at adding the GFXReconstruct layer as a requirement of the
 [Khronos Vulkan Samples](https://github.com/KhronosGroup/Vulkan-Samples)
 project.
-These steps assume that you have all the dependencies necessary to build that
-project, so refer to that repo to ensure those are met before continuing.
+These steps assume that you have installed all the appropriate dependencies
+necessary to build that project.
+Please refer to that repository to ensure these dependencies have been
+met before continuing.
 
 ### 1. Pull down the GFXReconstruct source
 
@@ -77,8 +78,8 @@ include(':app',':VkLayer_gfxreconstruct')
 project(':VkLayer_gfxreconstruct').projectDir = file('{gfxreconstruct_root}/android/layer')
 ```
 
-**NOTE** Replacing {gfxreconstruct_root} with the location of the source you
-cloned from the GFXReconstruct repo in step 1.
+**NOTE**: Replace {gfxreconstruct_root} with the full path location of the
+source you cloned from the GFXReconstruct repo in Step 1.
 
 ### 6. Add the capture layer to the samples application
 
@@ -121,7 +122,7 @@ gradle assembleDebug
 
 ## Capturing Vulkan Samples
 
-This example follows using the Khronos Vulkan Samples built above and assumes
+The example that follows uses the Khronos Vulkan Samples built above and assumes
 that you built the debug version.
 The benefit of building the application in this way is that it will
 automatically incorporate the GFXReconstruct capture layer into the .APK file
@@ -142,12 +143,12 @@ Install the debug version of the samples we just built with the
 adb install -g ./build/android_gradle/app/build/outputs/apk/debug/vulkan_samples-debug.apk
 ```
 
-This should guarantee that the application (and any associated layers) is
-allowed to write out anything generated.
+This should guarantee that the application (and any associated layers) can
+output anything generated.
 
 ### 3. Enable GFXReconstruct
 
-Enable the GFXReconstruct layer just for the application using the global
+Enable the GFXReconstruct layer only for the application using the global
 settings Android provides:
 
 ```bash
@@ -171,13 +172,13 @@ under the [Capture Options](./USAGE_android.md#capture-options) section.
 
 ### 5. Run the application
 
-Keep the logcat output in a separate window/terminal because you can see
-useful information there.
+Keep the logcat output in a separate window/terminal so you can monitor it for
+any useful information.
 
-To run the application, I looked at the application list on the Android device,
-then I clicked it to launch.
-Android may ask you to "Allow access to manage all files".
-When it asks you that, enable the option and click the back arrow to get to the
+To run the application, look at the application list on the Android device,
+then click the `Vulkan Samples` application to launch.
+Android may ask you to "Allow access to manage all files."
+When asked, enable the option and click the back arrow to get to the
 application.
 
 Once launched, you will see something similar to the following in the `logcat`
@@ -188,7 +189,7 @@ D vulkan  : added global layer 'VK_LAYER_LUNARG_gfxreconstruct' from library '/d
 ```
 
 This message states that it found the GFXReconstruct capture layer in the
-base.apk file which we built earlier, meaning there's no need to add an
+base.apk file which we built earlier -- meaning there's no need to add an
 additional external layer to any folders.
 
 Now, click on one of the samples.
@@ -202,10 +203,12 @@ gfxrecon: Finished recording graphics API capture
 
 Exit the application.
 
+**NOTE:**
+If the application rendered correctly, proceed to Step  6.
+If the application rendered incorrectly during the capture, review the guidance
+below.
 
-#### If the application rendered incorrectly during the capture
-
-Running certain Vulkan samples tests results in corruption and require
+Running certain Vulkan samples tests results in corruption and requires
 additional changes to capture properly.
 For example, if you attempted to capture the "Instancing" sample, it will render
 without the asteroids.
@@ -215,29 +218,29 @@ properly align and track the memory.
 First, we will enable page guard on the memory:
 
 ```bash
-adb shell "debug.gfxrecon.page_guard_persistent_memory true"
+adb shell "setprop debug.gfxrecon.page_guard_persistent_memory true"
 ```
 
 When this option is enabled, an allocation with a size equal to that of the
 object being mapped is made once on the first map and is not freed until the
 object is destroyed.
-This option is intended to be used with applications that frequently map and
-unmap large memory ranges, to avoid frequent allocation and copy operations that
-can have a negative impact on performance.
+Use this option with applications that frequently map and unmap large memory
+ranges -- avoiding frequent allocation and copy operations that can have a
+negative impact on performance.
 
-Next, we will force page guard buffers are aligned to pages:
+Next, we will force page guard buffer sizes to be aligned to page size:
 
 ```bash
-adb shell "debug.gfxrecon.page_guard_align_buffer_sizes true"
+adb shell "setprop debug.gfxrecon.page_guard_align_buffer_sizes true"
 ```
 
 This option overrides the Vulkan API calls that report buffer memory properties
 to report that buffer sizes and alignments must be a multiple of the system page
 size.
-This option is intended to be used with applications that perform CPU writes and
-GPU writes/copies to different buffers that are bound to the same page of mapped
-memory, which may result in data being lost when copying pages from the
-`page_guard` shadow allocation to the real allocation.
+Use this option with applications that perform CPU writes and GPU writes/copies
+to different buffers that are bound to the same page of mapped memory, which may
+result in data being lost when copying pages from the `page_guard` shadow
+allocation to the real allocation.
 This data loss can result in visible corruption during capture.
 Forcing buffer sizes and alignments to a multiple of the system page size
 prevents multiple buffers from being bound to the same page, avoiding data loss
@@ -249,8 +252,9 @@ After making these changes, re-open the application and re-attempt recapture.
 
 ### 6. Verify the Capture File
 
-I noticed in my capture `adb logcat` output that the file was recorded to
-`/sdcard/Download`.
+With `adb logcat` open, look at the output to determine the location to which
+the file was recorded.
+In my case, the file was recorded to `/sdcard/Download`.
 **NOTE**: It actually lists the full file in the message like the following:
 
 ```text
@@ -294,6 +298,33 @@ From the top of the source pulled down from the repo by using the
 ./android/scripts/gfxrecon.py install-apk android/tools/replay/build/outputs/apk/debug/replay-debug.apk
 ```
 
+#### Additional Permissions
+
+A recent change to enable the replay tool on Android 12 and greater has resulted
+in the need of enabling additional permissions on some versions of Android.
+This was the result of updating the replay's Android Manifest file to add the
+`MANAGE_EXTERNAL_STORAGE` permission flag.
+
+##### Android 10
+
+For replay devices running Android 10, the replay tool now requires the enabling
+of legacy storage access:
+
+```bash
+adb shell appops set com.lunarg.gfxreconstruct.replay android:legacy_storage allow
+```
+
+##### Android 11 and Newer
+
+For replay devices running Android 11 and newer, the replay tool requires that
+the Android permission for `MANAGE_EXTERNAL_STORAGE` be granted either through
+the following `adb` command or by clicking on the permission dialog when it
+opens up:
+
+```bash
+adb shell appops set com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STORAGE allow
+```
+
 ### 9. Run the replay
 
 Try running the replay using the `gfxrecon.py` script:
@@ -317,8 +348,8 @@ adb pull /sdcard/Download/gfxrecon_capture_frames_500_through_700_20221211T13032
 ## Capturing Released Application On Rooted System
 
 In this example, we'll capture a set of frames from the GPUScore benchmark.
-This set of instructions assume that you have already have properly rooted
-your device, reinstalled the proper Android image, and installed the target
+This set of instructions assume that you have already properly rooted your
+device, reinstalled the correct Android image, and installed the target
 application (in this case the benchmark).
 
 ### 1. Create an ADB shell with admin capabilities
@@ -338,12 +369,12 @@ In another terminal/command window, run `logcat` to see application messages:
 adb logcat -s vulkan
 ```
 
-Then run the application and watch for message with the full name.
+Then run the application and watch for the message with the full name.
 
 In my case, I see that the full application name is
 `com.basemark.gpuscore.sacredpath`.
 
-Alternatively, you can brows the list of installed applications:
+Alternatively, you can browse the list of installed applications:
 
 ```bash
 adb shell cmd package list packages -3
@@ -401,8 +432,10 @@ chmod 777 /data/app/~~CklMw7KUY3NvpJa1VxdzCg==/com.basemark.gpuscore.sacredpath-
 
 ### 5. Enable the layer for capture
 
-I had to enable the layer system wide in this configuration and I also had to
-disable the Vulkan usage for the UI or it would interfere with my capture:
+Several differences versus the non-rooted path include:
+ * You must enable the layer system wide in this configuration
+ * You need to disable the Vulkan usage for the UI or it would interfere with
+   the capture:
 
 ```bash
 adb shell "setprop debug.vulkan.layers 'VK_LAYER_LUNARG_gfxreconstruct'"
@@ -514,3 +547,7 @@ Try running the replay using the `gfxrecon.py` script:
 ```bash
 ./android/scripts/gfxrecon.py replay /storage/emulated/0/Download/sacredpath_capture_frames_100_through_200_20221215T174939.gfxr
 ```
+
+**NOTE:** Please refer to [Additional Permissions](#additional-permissions)
+above for additional permissions that may need to be enabled to run the
+replay application on certain versions of Android.

@@ -552,6 +552,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolVideoEncodeFeedbac
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeUsageInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRateControlLayerInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRateControlInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeQualityLevelPropertiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeQualityLevelInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionParametersGetInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionParametersFeedbackInfoKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyCheckpointProperties2NV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCheckpointData2NV& value);
@@ -566,7 +571,20 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceWorkgroupMemo
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkTraceRaysIndirectCommand2KHR& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance5FeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance5PropertiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAreaInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDeviceImageSubresourceInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateFlags2CreateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferUsageFlags2CreateInfoKHR& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeMatrixPropertiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixFeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixPropertiesKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value);
 
@@ -588,28 +606,38 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageViewHandleInfoNVX& val
 void EncodeStruct(ParameterEncoder* encoder, const VkImageViewAddressPropertiesNVX& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264CapabilitiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264QpEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264QualityLevelPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264SessionCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264SessionParametersAddInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264SessionParametersCreateInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264SessionParametersGetInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264SessionParametersFeedbackInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264NaluSliceInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264VclFrameInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264PictureInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264DpbSlotInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264ProfileInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264RateControlInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264QpEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264FrameSizeEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264RateControlLayerInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH264GopRemainingFrameInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265CapabilitiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265SessionCreateInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265QpEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265QualityLevelPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265SessionParametersAddInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265SessionParametersCreateInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265SessionParametersGetInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265SessionParametersFeedbackInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265NaluSliceSegmentInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265VclFrameInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265PictureInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265DpbSlotInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265ProfileInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265RateControlInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265QpEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265FrameSizeEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265RateControlLayerInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeH265GopRemainingFrameInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkTextureLODGatherFormatPropertiesAMD& value);
 
@@ -862,6 +890,17 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceIndexTypeUint
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostImageCopyPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryToImageCopyEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageToMemoryCopyEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToImageInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkHostImageLayoutTransitionInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceHostMemcpySizeEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkHostImageCopyDevicePerformanceQueryEXT& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentModeEXT& value);
@@ -896,6 +935,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTexelBufferAl
 
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassTransformBeginInfoQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceRenderPassTransformInfoQCOM& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthBiasControlFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDepthBiasInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDepthBiasRepresentationInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceMemoryReportCallbackDataEXT& value);
@@ -943,8 +986,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyCommandTransformInfoQCO
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageCompressionControlFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCompressionControlEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout2EXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource2EXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCompressionPropertiesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT& value);
@@ -1062,6 +1103,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensi
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassFragmentDensityMapOffsetEndInfoQCOM& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkComputePipelineIndirectBufferInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineIndirectDeviceAddressInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkBindPipelineIndirectCommandNV& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLinearColorAttachmentFeaturesNV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT& value);
@@ -1069,6 +1115,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageCompress
 void EncodeStruct(ParameterEncoder* encoder, const VkImageViewSampleWeightCreateInfoQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageProcessingFeaturesQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageProcessingPropertiesQCOM& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkExternalMemoryAcquireUnmodifiedEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT& value);
@@ -1121,6 +1169,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBui
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM& value);

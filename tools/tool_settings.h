@@ -72,6 +72,7 @@ const char kSkipFailedAllocationShortOption[]    = "--sfa";
 const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
 const char kDiscardCachedPsosShortOption[]       = "--dcp";
 const char kDiscardCachedPsosLongOption[]        = "--discard-cached-psos";
+const char kUseCachedPsosOption[]                = "--use-cached-psos";
 const char kOmitPipelineCacheDataShortOption[]   = "--opcd";
 const char kOmitPipelineCacheDataLongOption[]    = "--omit-pipeline-cache-data";
 const char kWsiArgument[]                        = "--wsi";
@@ -93,6 +94,8 @@ const char kScreenshotRangeArgument[]            = "--screenshots";
 const char kScreenshotFormatArgument[]           = "--screenshot-format";
 const char kScreenshotDirArgument[]              = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]       = "--screenshot-prefix";
+const char kScreenshotSizeArgument[]             = "--screenshot-size";
+const char kScreenshotScaleArgument[]            = "--screenshot-scale";
 const char kForceWindowedShortArgument[]         = "--fw";
 const char kForceWindowedLongArgument[]          = "--force-windowed";
 const char kOutput[]                             = "--output";
@@ -477,6 +480,60 @@ static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_pa
     return kDefaultScreenshotDir;
 }
 
+static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& width, uint32_t& height)
+{
+    const auto& value = arg_parser.GetArgumentValue(kScreenshotSizeArgument);
+
+    if (!value.empty())
+    {
+        std::size_t x = value.find("x");
+        if (x != std::string::npos)
+        {
+            try
+            {
+                width  = std::stoul(value.substr(0, x));
+                height = std::stoul(value.substr(x + 1));
+            }
+            catch (std::exception&)
+            {
+                GFXRECON_LOG_WARNING("Ignoring invalid screenshot width x height option. Expected format is "
+                                     "--screenshot-size [width]x[height]");
+                width = height = 0;
+            }
+        }
+        else
+        {
+            width = height = 0;
+        }
+    }
+    else
+    {
+        width = height = 0;
+    }
+}
+
+static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const auto& value = arg_parser.GetArgumentValue(kScreenshotScaleArgument);
+
+    float scale = 0.0f;
+
+    if (!value.empty())
+    {
+        try
+        {
+            scale = std::stof(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
+        }
+    }
+
+    return scale;
+}
+
 static std::vector<gfxrecon::decode::ScreenshotRange>
 GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
 {
@@ -495,7 +552,8 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
 
         if (!value.empty())
         {
-            std::vector<gfxrecon::util::FrameRange> frame_ranges = gfxrecon::util::GetFrameRanges(value);
+            std::vector<gfxrecon::util::UintRange> frame_ranges =
+                gfxrecon::util::GetUintRanges(value.c_str(), "screenshot frames");
 
             for (uint32_t i = 0; i < frame_ranges.size(); ++i)
             {
@@ -783,6 +841,9 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
     replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
+    GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
+    replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
+
     if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
     {
         replay_options.quit_after_measurement_frame_range = true;
@@ -819,7 +880,13 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
 
     if (arg_parser.IsOptionSet(kDiscardCachedPsosLongOption) || arg_parser.IsOptionSet(kDiscardCachedPsosShortOption))
     {
-        replay_options.discard_cached_psos = true;
+        GFXRECON_LOG_WARNING("The parameters --dcp and --discard-cached-psos have been deprecated in favor for "
+                             "--use-cached-psos");
+    }
+
+    if (arg_parser.IsOptionSet(kUseCachedPsosOption))
+    {
+        replay_options.use_cached_psos = true;
     }
 
     if (arg_parser.IsOptionSet(kDxOverrideObjectNames))

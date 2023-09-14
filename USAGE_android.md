@@ -354,6 +354,7 @@ Option | Property | Type | Description
 ------| ------------- |------|-------------
 Capture File Name | debug.gfxrecon.capture_file | STRING | Path to use when creating the capture file.  Default is: `/sdcard/gfxrecon_capture.gfxr`
 Capture Specific Frames | debug.gfxrecon.capture_frames | STRING | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).
+Quit after capturing frame ranges | debug_gfxrecon.quit_after_capture_frames | BOOL | Setting it to `true` will force the application to terminate once all frame ranges specified by `debug.gfxrecon.capture_frames` have been captured.
 Capture trigger for Android | debug.gfxrecon.capture_android_trigger | BOOL | Set during runtime to `true` to start capturing and to `false` to stop. If not set at all then it is disabled (non-trimmed capture). Default is not set.
 Capture File Compression Type | debug.gfxrecon.capture_compression_type | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`
 Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
@@ -500,6 +501,21 @@ adb pull /sdcard/Download/gfxrecon_trace.gfxr
 ```
 
 This will download the file to the current directory.
+
+### Trimmed Captures
+
+Trimmed captures are created when GFXR is configured to start capturing at some later
+time in execution.
+
+To create a trimmed capture one of the trimming options can be used.
+For example on android there is the `debug.gfxrecon.capture_frames` property,
+which specifies the frame ranges to capture, each region generating a separate
+trimmed capture file. There's also the `debug.gfxrecon.capture_android_trigger` property.
+Each time the option is set accordingly, a new trimmed capture is started/stopped.
+
+An existing capture file can be trimmed by replaying the capture with the capture layer
+enabled and a trimming frame range or capture trigger enabled. (However, replay for
+some content may be fast enough using the trigger property may be difficult.)
 
 ### Capture Limitations
 
@@ -693,6 +709,33 @@ python scripts/gfxrecon.py install-apk tools/replay/build/outputs/apk/debug/repl
 popd
 ```
 
+#### Additional Permissions
+
+A recent change to enable the replay tool on Android 12 and greater has resulted
+in the need of enabling additional permissions on some versions of Android.
+This was the result of updating the replay's Android Manifest file to add the
+`MANAGE_EXTERNAL_STORAGE` permission flag.
+
+##### Android 10
+
+For replay devices running Android 10, the replay tool now requires the enabling
+of legacy storage access:
+
+```bash
+adb shell appops set com.lunarg.gfxreconstruct.replay android:legacy_storage allow
+```
+
+##### Android 11 and Newer
+
+For replay devices running Android 11 and newer, the replay tool requires that
+the Android permission for `MANAGE_EXTERNAL_STORAGE` be granted either through
+the following `adb` command or by clicking on the permission dialog when it
+opens up:
+
+```bash
+adb shell appops set com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STORAGE allow
+```
+
 ### Replay Command
 
 The `gfxrecon.py replay` command has the following usage:
@@ -701,7 +744,8 @@ The `gfxrecon.py replay` command has the following usage:
 usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-frame N]
                           [--paused] [--screenshot-all] [--screenshots RANGES]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
-                          [--screenshot-prefix PREFIX] [--sfa] [--opcd]
+                          [--screenshot-prefix PREFIX] [--screenshot-scale SCALE]
+                          [--screenshot-size WIDTHxHEIGHT] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
                           [--use-captured-swapchain-indices] [--mfr START-END]
                           [--measurement-file DEVICE_FILE] [--quit-after-measurement-range]
@@ -717,6 +761,12 @@ optional arguments:
   -h, --help            show this help message and exit
   --version             Print version information and exit (forwarded to
                         replay tool)
+  --log-level LEVEL     Specify highest level message to log. Options are:
+                        debug, info, warning, error, and fatal. Default is
+                        info. (forwarded to replay tool)
+  --log-file DEVICE_FILE
+                        Write log messages to a file at the specified path
+                        instead of logcat (forwarded to replay tool)
   --pause-frame N       Pause after replaying frame number N (forwarded to
                         replay tool)
   --paused              Pause after replaying the first frame (same as "--
@@ -745,6 +795,16 @@ optional arguments:
   --screenshot-prefix PREFIX
                         Prefix to apply to the screenshot file name. Default
                         is "screenshot" (forwarded to replay tool)
+  --screenshot-scale SCALE
+                        Specify a decimal factor which will determine screenshot
+                        sizes. The factor will be multiplied with the swapchain
+                        images dimension to determine the screenshot dimensions.
+                        Default is 1.0.
+  --screenshot-size WIDTHxHEIGHT
+                        Specify desired screenshot dimensions. Leaving this
+                        unspecified screenshots will use the swapchain images
+                        dimensions. If --screenshot-scale is also specified then
+                        this option is ignored.
   --sfa, --skip-failed-allocations
                         Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during

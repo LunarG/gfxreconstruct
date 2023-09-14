@@ -31,11 +31,12 @@ const char kOptions[] =
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
     "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos,"
-    "--dx12-override-object-names";
+    "--use-cached-psos,--dx12-override-object-names";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
-    "screenshot-dir,--screenshot-prefix,--mfr|--measurement-frame-range,--measurements-file,--fw|--force-windowed";
+    "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
+    "force-windowed,--measurements-file";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -53,9 +54,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--pause-frame <N>] [--paused] [--sync] [--screenshot-all]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshots <N1(-N2),...>] [--screenshot-format <format>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-size <width>x<height>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-scale <scale>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--surface-index <N>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--use-cached-psos] [--surface-index <N>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
@@ -117,6 +120,14 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tPrefix to apply to the screenshot file name.  Default is ");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot\", producing file names similar to");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot_frame_8049.bmp\".");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-scale <factor>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify a decimal factor which will determine screenshot sizes.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe factor will be multiplied with the swapchain images");
+    GFXRECON_WRITE_CONSOLE("          \t\tdimension to determine the screenshot dimensions. Default is 1.0.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-size <width>x<height>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify desired screenshot dimensions. Leaving this unspecified");
+    GFXRECON_WRITE_CONSOLE("          \t\tscreenshots will use the swapchain images dimensions. If ");
+    GFXRECON_WRITE_CONSOLE("          \t\t--screenshot-scale is also specified then this option is ignored.");
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tVulkan capture or the Direct3D debug layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");
@@ -207,9 +218,10 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12-only:")
-    GFXRECON_WRITE_CONSOLE("  --dcp\t\t\tForce CachedPSO to null when creating graphics or compute PSOs.");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tCan help enable replay across changing driver installs.");
-    GFXRECON_WRITE_CONSOLE("       \t\t\t(Same as --discard-cached-psos)");
+    GFXRECON_WRITE_CONSOLE(
+        "  --use-cached-psos  \tPermit using cached PSOs when creating graphics or compute pipelines.");
+    GFXRECON_WRITE_CONSOLE(
+        "       \t\t\tUsing cached PSOs may reduce PSO creation time but may result in replay errors.");
     GFXRECON_WRITE_CONSOLE("  --debug-device-lost\tEnables automatic injection of breadcrumbs into command buffers");
     GFXRECON_WRITE_CONSOLE("            \t\tand page fault reporting.");
     GFXRECON_WRITE_CONSOLE("            \t\tUsed to debug Direct3D 12 device removed problems.");

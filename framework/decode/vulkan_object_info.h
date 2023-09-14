@@ -89,11 +89,14 @@ enum PhysicalDeviceArrayIndices : uint32_t
 
 enum DeviceArrayIndices : uint32_t
 {
-    kDeviceArrayGetImageSparseMemoryRequirements2               = 0,
-    kDeviceArrayGetPipelineExecutablePropertiesKHR              = 1,
-    kDeviceArrayGetPipelineExecutableStatisticsKHR              = 2,
-    kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR = 3,
-    kDeviceArrayGetDeviceImageSparseMemoryRequirements          = 4,
+    kDeviceArrayGetImageSparseMemoryRequirements2                       = 0,
+    kDeviceArrayGetPipelineExecutablePropertiesKHR                      = 1,
+    kDeviceArrayGetPipelineExecutableStatisticsKHR                      = 2,
+    kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR         = 3,
+    kDeviceArrayGetDeviceImageSparseMemoryRequirements                  = 4,
+    kDeviceArrayGetEncodedVideoSessionParametersKHR                     = 5,
+    kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesKHR = 6,
+
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,
     kDeviceArrayGetDeviceImageSparseMemoryRequirementsKHR = kDeviceArrayGetDeviceImageSparseMemoryRequirements
@@ -183,15 +186,12 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanPoolObjectInfo<VkCommandBuffer>             CommandBufferInfo;
 typedef VulkanObjectInfo<VkEvent>                         EventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
 typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
-typedef VulkanObjectInfo<VkImageView>                     ImageViewInfo;
 typedef VulkanObjectInfo<VkShaderModule>                  ShaderModuleInfo;
 typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>               PrivateDataSlotInfo;
-typedef VulkanObjectInfo<VkRenderPass>                    RenderPassInfo;
 typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
 typedef VulkanPoolObjectInfo<VkDescriptorSet>             DescriptorSetInfo;
@@ -266,6 +266,7 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
     std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
+    std::vector<bool>                                      queue_family_index_enabled;
 
     std::vector<VkPhysicalDevice> replay_device_group;
 };
@@ -273,6 +274,8 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 struct QueueInfo : public VulkanObjectInfo<VkQueue>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+    uint32_t                             family_index;
+    uint32_t                             queue_index;
 };
 
 struct SemaphoreInfo : public VulkanObjectInfo<VkSemaphore>
@@ -335,6 +338,8 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
     uint32_t                            layer_count{ 0 };
     uint32_t                            level_count{ 0 };
     uint32_t                            queue_family_index{ 0 };
+
+    VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 };
 
 struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
@@ -399,31 +404,13 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 
     // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
     // backing images.
+    uint32_t                  replay_image_count{ 0 };
     std::vector<ImageInfo>    image_infos;
     VkSwapchainCreateFlagsKHR image_flags{ 0 };
     VkFormat                  image_format{ VK_FORMAT_UNDEFINED };
     uint32_t                  image_array_layers{ 0 };
     VkImageUsageFlags         image_usage{ 0 };
     VkSharingMode             image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
-
-    // TODO: These values are used by the virtual swapchain.  They should be replaced with an opaque handle, similar to
-    // DeviceMemoryInfo::allocator_data, which is really a pointer to a struct that contains the virtual swapchain's
-    // internal info.  The memory for the struct referenced by the opaque handle would be managed by the virtual
-    // swapchain class, similar to the way that the VulkanRebindAllocator works.
-    struct VirtualImage
-    {
-        VkDeviceMemory                        memory{ VK_NULL_HANDLE };
-        VkImage                               image{ VK_NULL_HANDLE };
-        VulkanResourceAllocator::MemoryData   memory_allocator_data{ 0 };
-        VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
-    };
-    uint32_t                     replay_image_count{ 0 };
-    std::vector<VirtualImage>    virtual_images; // Images created by replay, returned in place of the swapchain images.
-    std::vector<VkImage>         swapchain_images; // The real swapchain images.
-    VkQueue                      blit_queue{ VK_NULL_HANDLE };
-    VkCommandPool                blit_command_pool{ VK_NULL_HANDLE };
-    std::vector<VkCommandBuffer> blit_command_buffers;
-    std::vector<VkSemaphore>     blit_semaphores;
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
@@ -431,9 +418,16 @@ struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
     std::unordered_map<uint32_t, size_t> array_counts;
 };
 
+struct ImageViewInfo : public VulkanObjectInfo<VkImageView>
+{
+    format::HandleId image_id{ format::kNullHandleId };
+};
+
 struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    std::vector<format::HandleId> attachment_image_view_ids;
 };
 
 struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR>
@@ -453,6 +447,18 @@ struct VideoSessionKHRInfo : VulkanObjectInfo<VkVideoSessionKHR>
 struct ShaderEXTInfo : VulkanObjectInfo<VkShaderEXT>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct CommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
+{
+    bool                                                is_frame_boundary{ false };
+    std::vector<format::HandleId>                       frame_buffer_ids;
+    std::unordered_map<format::HandleId, VkImageLayout> image_layout_barriers;
+};
+
+struct RenderPassInfo : public VulkanObjectInfo<VkRenderPass>
+{
+    std::vector<VkAttachmentDescription> attachment_descriptions;
 };
 
 //

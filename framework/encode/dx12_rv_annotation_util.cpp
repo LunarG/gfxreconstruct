@@ -203,10 +203,10 @@ void RvAnnotationUtil::RemoveStructRvAnnotation(D3D12_BUILD_RAYTRACING_ACCELERAT
             }
 
             // Switch to D3D12_ELEMENTS_LAYOUT_ARRAY instead of allocating an extra array of
-            // D3D12_RAYTRACING_GEOMETRY_DESC*
-            param.DescsLayout     = D3D12_ELEMENTS_LAYOUT::D3D12_ELEMENTS_LAYOUT_ARRAY;
-            param.pGeometryDescs  = geometry_descs.get();
-            param.ppGeometryDescs = nullptr;
+            // D3D12_RAYTRACING_GEOMETRY_DESC*. pGeometryDescs is a union with ppGeometryDescs, so don't set
+            // ppGeometryDescs = nullptr;
+            param.DescsLayout    = D3D12_ELEMENTS_LAYOUT::D3D12_ELEMENTS_LAYOUT_ARRAY;
+            param.pGeometryDescs = geometry_descs.get();
         }
     }
 }

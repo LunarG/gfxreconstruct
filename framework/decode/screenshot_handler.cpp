@@ -82,11 +82,24 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                    VkImage                                 image,
                                    VkFormat                                format,
                                    uint32_t                                width,
-                                   uint32_t                                height)
+                                   uint32_t                                height,
+                                   uint32_t                                copy_width,
+                                   uint32_t                                copy_height,
+                                   VkImageLayout                           image_layout)
 {
     if ((device_table == nullptr) || (allocator == nullptr))
     {
         GFXRECON_LOG_ERROR("Screenshot could not be created: missing device table or allocator");
+        return;
+    }
+
+    if ((width == 0) || (height == 0))
+    {
+        GFXRECON_LOG_WARNING("Cannot create screenshot \"%s\" for 0 size image (width=%" PRIu32 ", height=%" PRIu32
+                             ").",
+                             filename_prefix.c_str(),
+                             width,
+                             height);
         return;
     }
 
@@ -131,10 +144,10 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
         bool         create_resource = false;
 
         // If the copy resource is not initialized, or the image properties have changed, recompute the copy size.
-        if ((buffer_size == 0) || (copy_resource.width != width) || (copy_resource.height != height) ||
+        if ((buffer_size == 0) || (copy_resource.width != copy_width) || (copy_resource.height != copy_height) ||
             (copy_resource.format != copy_format))
         {
-            buffer_size     = GetCopyBufferSize(device, device_table, copy_format, width, height);
+            buffer_size     = GetCopyBufferSize(device, device_table, copy_format, copy_width, copy_height);
             create_resource = true;
         }
 
@@ -151,6 +164,8 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                         copy_format,
                                         width,
                                         height,
+                                        copy_width,
+                                        copy_height,
                                         &copy_resource);
         }
         else if (buffer_size == 0)
@@ -183,12 +198,12 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
 
             if (result == VK_SUCCESS)
             {
-                // Transition source image to target to the TRANSFER_DST layout.
+                // Transition source image from image_layout to the TRANSFER_DST layout.
                 VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
                 image_barrier.pNext                           = nullptr;
                 image_barrier.srcAccessMask                   = 0;
                 image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
-                image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                image_barrier.oldLayout                       = image_layout;
                 image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                 image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
@@ -262,8 +277,8 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                     blit_region.dstOffsets[0].x               = 0;
                     blit_region.dstOffsets[0].y               = 0;
                     blit_region.dstOffsets[0].z               = 0;
-                    blit_region.dstOffsets[1].x               = width;
-                    blit_region.dstOffsets[1].y               = height;
+                    blit_region.dstOffsets[1].x               = copy_width;
+                    blit_region.dstOffsets[1].y               = copy_height;
                     blit_region.dstOffsets[1].z               = 1;
 
                     device_table->CmdBlitImage(command_buffer,
@@ -303,7 +318,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                 copy_region.imageSubresource.baseArrayLayer = 0;
                 copy_region.imageSubresource.layerCount     = 1;
                 copy_region.imageOffset                     = { 0, 0, 0 };
-                copy_region.imageExtent                     = { width, height, 1 };
+                copy_region.imageExtent                     = { copy_width, copy_height, 1 };
 
                 device_table->CmdCopyImageToBuffer(command_buffer,
                                                    copy_image,
@@ -312,11 +327,11 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                                    1,
                                                    &copy_region);
 
-                // Transition source image to PRESENT_SOURCE layout for vkQueuePresentKHR.
+                // Transition source image back to image_layout after the screenshot.
                 image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
                 image_barrier.dstAccessMask       = 0;
                 image_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                image_barrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                image_barrier.newLayout           = image_layout;
                 image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
                 image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
@@ -377,8 +392,12 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                 1, &invalidate_range, &copy_resource.buffer_memory_data);
                         }
 
-                        WriteImageFile(
-                            filename_prefix, screenshot_format_, width, height, copy_resource.buffer_size, data);
+                        WriteImageFile(filename_prefix,
+                                       screenshot_format_,
+                                       copy_width,
+                                       copy_height,
+                                       copy_resource.buffer_size,
+                                       data);
 
                         allocator->UnmapResourceMemoryDirect(copy_resource.buffer_data);
                     }
@@ -534,6 +553,8 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
                                                VkFormat                                screenshot_format,
                                                uint32_t                                width,
                                                uint32_t                                height,
+                                               uint32_t                                copy_width,
+                                               uint32_t                                copy_height,
                                                CopyResource*                           copy_resource) const
 {
     assert(device_table != nullptr);
@@ -597,7 +618,8 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
                                                    &copy_resource->memory_property_flags);
     }
 
-    if ((result == VK_SUCCESS) && (image_format != screenshot_format))
+    if ((result == VK_SUCCESS) &&
+        ((image_format != screenshot_format) || (width != copy_width) || (height != copy_height)))
     {
         // The source image format does not match the image file format and requires a format conversion.  Create an
         // image to serve as the tranfer destination of a blit based color conversion.
@@ -606,7 +628,7 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
         image_create_info.flags                 = 0;
         image_create_info.imageType             = VK_IMAGE_TYPE_2D;
         image_create_info.format                = screenshot_format;
-        image_create_info.extent                = { width, height, 1 };
+        image_create_info.extent                = { copy_width, copy_height, 1 };
         image_create_info.mipLevels             = 1;
         image_create_info.arrayLayers           = 1;
         image_create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
@@ -659,8 +681,8 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
         // Resource creation succeeded.
         copy_resource->buffer_size = buffer_size;
         copy_resource->format      = screenshot_format;
-        copy_resource->width       = width;
-        copy_resource->height      = height;
+        copy_resource->width       = copy_width;
+        copy_resource->height      = copy_height;
     }
     else
     {

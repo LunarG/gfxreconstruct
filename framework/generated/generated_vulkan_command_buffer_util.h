@@ -176,6 +176,8 @@ void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitIma
 
 void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo);
 
+void TrackCmdBindIndexBuffer2KHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
 void TrackCmdBeginTransformFeedbackEXTHandles(CommandBufferWrapper* wrapper, uint32_t counterBufferCount, const VkBuffer* pCounterBuffers);
@@ -231,6 +233,8 @@ void TrackCmdCopyMemoryToMicromapEXTHandles(CommandBufferWrapper* wrapper, const
 void TrackCmdWriteMicromapsPropertiesEXTHandles(CommandBufferWrapper* wrapper, uint32_t micromapCount, const VkMicromapEXT* pMicromaps, VkQueryPool queryPool);
 
 void TrackCmdDrawClusterIndirectHUAWEIHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+
+void TrackCmdUpdatePipelineIndirectBufferNVHandles(CommandBufferWrapper* wrapper, VkPipeline pipeline);
 
 void TrackCmdOpticalFlowExecuteNVHandles(CommandBufferWrapper* wrapper, VkOpticalFlowSessionNV session);
 

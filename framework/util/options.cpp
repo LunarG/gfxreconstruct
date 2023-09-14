@@ -27,24 +27,26 @@
 #include "util/platform.h"
 #include "util/logging.h"
 
+#include <inttypes.h>
 #include <sstream>
 #include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-std::vector<FrameRange> GetFrameRanges(const std::string& args)
+std::vector<UintRange> GetUintRanges(const char* args, const char* option_name)
 {
-    std::vector<FrameRange> ranges;
+    std::vector<UintRange> ranges;
 
     std::istringstream value_input;
     value_input.str(args);
 
+    std::string previous_range = "";
     for (std::string range; std::getline(value_input, range, ',');)
     {
         if (range.empty() || (std::count(range.begin(), range.end(), '-') > 1))
         {
-            GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\"", range.c_str());
+            GFXRECON_LOG_WARNING("Ignoring invalid range \"%s\" for %s", range.c_str(), option_name);
             continue;
         }
 
@@ -71,8 +73,9 @@ std::vector<FrameRange> GetFrameRanges(const std::string& args)
             }
             else
             {
-                GFXRECON_LOG_WARNING(
-                    "Ignoring invalid screenshot frame range \"%s\", which contains non-numeric values", range.c_str());
+                GFXRECON_LOG_WARNING("Ignoring invalid range \"%s\" for %s, which contains non-numeric values",
+                                     range.c_str(),
+                                     option_name);
                 invalid = true;
                 break;
             }
@@ -80,68 +83,71 @@ std::vector<FrameRange> GetFrameRanges(const std::string& args)
 
         if (!invalid)
         {
-            FrameRange screenshot_range;
+            UintRange uint_range;
 
             if (values.size() == 1)
             {
                 if (std::count(range.begin(), range.end(), '-') == 0)
                 {
-                    screenshot_range.first = std::stoi(values[0]);
-                    screenshot_range.last  = screenshot_range.first;
+                    uint_range.first = std::stoi(values[0]);
+                    uint_range.last  = uint_range.first;
                 }
                 else
                 {
-                    GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\"", range.c_str());
+                    GFXRECON_LOG_WARNING("Ignoring invalid range \"%s\" for %s", range.c_str(), option_name);
                     continue;
                 }
             }
             else if (values.size() == 2)
             {
-                screenshot_range.first = std::stoi(values[0]);
-                screenshot_range.last  = std::stoi(values[1]);
-                if (screenshot_range.first > screenshot_range.last)
+                uint_range.first = std::stoi(values[0]);
+                uint_range.last  = std::stoi(values[1]);
+                if (uint_range.first > uint_range.last)
                 {
-                    GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\", where first frame is "
-                                         "greater than last frame",
-                                         range.c_str());
+                    GFXRECON_LOG_WARNING(
+                        "Ignoring invalid range \"%s\" for %s, where range start is greater than range end",
+                        range.c_str(),
+                        option_name);
                     continue;
                 }
             }
             else
             {
-                GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\"", range.c_str());
+                GFXRECON_LOG_WARNING("Ignoring invalid range \"%s\" for %s", range.c_str(), option_name);
                 continue;
             }
 
-            // Check for invalid start frame of 0.
-            if (screenshot_range.first == 0)
+            // Check for invalid start range.
+            if (uint_range.first == 0)
             {
-                GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\", with first frame equal to zero",
-                                     range.c_str());
+                GFXRECON_LOG_WARNING(
+                    "Ignoring invalid range \"%s\" for %s, with range start equal to zero", range.c_str(), option_name);
                 continue;
             }
 
             uint32_t next_allowed = 0;
 
-            // Check that first frame is outside the bounds of the previous range.
+            // Check that range start is outside the bounds of the previous range.
             if (!ranges.empty())
             {
-                // The number of the frame after the last frame of the last range.
+                // The value of the next integer after the end of the last range.
                 next_allowed = ranges.back().last + 1;
             }
 
-            if (screenshot_range.first >= next_allowed)
+            if (uint_range.first >= next_allowed)
             {
-                ranges.emplace_back(std::move(screenshot_range));
+                ranges.emplace_back(std::move(uint_range));
+                previous_range = range;
             }
             else
             {
                 const auto& back = ranges.back();
-                GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\", "
-                                     "where start frame precedes the end of the previous range \"%u-%u\"",
+                GFXRECON_LOG_WARNING("Ignoring invalid range \"%s\" for %s, where the range \"%s\" overlaps with the "
+                                     "previous range \"%s\"",
                                      range.c_str(),
-                                     back.first,
-                                     back.last);
+                                     option_name,
+                                     range.c_str(),
+                                     previous_range.c_str());
             }
         }
     }

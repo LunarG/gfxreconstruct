@@ -293,6 +293,9 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     // pending image layout on calls to vkCmdEndRenderPass.
     RenderPassWrapper*  active_render_pass{ nullptr };
     FramebufferWrapper* render_pass_framebuffer{ nullptr };
+
+    // Treat the sumbission of this command buffer as a frame boundary.
+    bool is_frame_boundary{ false };
 };
 
 struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>

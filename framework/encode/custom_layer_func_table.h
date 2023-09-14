@@ -1,7 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
-** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Valve Corporation
+** Copyright (c) 2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,42 +21,20 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_UTIL_OPTIONS_H
-#define GFXRECON_UTIL_OPTIONS_H
+#ifndef GFXRECON_LAYER_CUSTOM_FUNC_TABLE_H
+#define GFXRECON_LAYER_CUSTOM_FUNC_TABLE_H
 
 #include "util/defines.h"
+#include "custom_vulkan_api_call_encoders.h"
 
-#include <string>
-#include <vector>
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
 
-struct UintRange
-{
-    uint32_t first{ 0 };
-    uint32_t last{ 0 };
+const std::unordered_map<std::string, PFN_vkVoidFunction> custom_func_table = {
+    { "GetBlockIndexGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::GetBlockIndexGFXR) }
 };
 
-std::vector<UintRange> GetUintRanges(const char* args, const char* option_name);
-
-enum class ScreenshotFormat : uint32_t
-{
-    kBmp = 0,
-    kPng = 1,
-};
-
-//----------------------------------------------------------------------------
-/// Read a boolean value out of a string
-/// \param  value_string Input string
-/// \param  default_value Default value in case it couldn't be read
-/// \return True or false interpretation of input string
-//----------------------------------------------------------------------------
-bool ParseBoolString(const std::string& value_string, bool default_value);
-
-uint32_t ParseUintString(const std::string& value_string, uint32_t default_value);
-
-GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_UTIL_OPTIONS_H
+#endif // GFXRECON_LAYER_CUSTOM_FUNC_TABLE_H

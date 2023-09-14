@@ -1,5 +1,5 @@
 {
-  "functions": [
+  "functions-all": [
     "vkGetInstanceProcAddr",
     "vkGetDeviceProcAddr",
     "vkEnumerateInstanceLayerProperties",
@@ -12,6 +12,12 @@
     "vkCmdPushDescriptorSetWithTemplateKHR",
     "vkBuildAccelerationStructuresKHR",
     "vkCopyAccelerationStructureKHR"
+  ],
+  "functions-encoder": [
+    "vkCreateComputePipelines",
+    "vkCreateGraphicsPipelines",
+    "vkCreateRayTracingPipelinesNV",
+    "vkCreateRayTracingPipelinesKHR"
   ],
   "functions-decoder": [
     "vkCreateRayTracingPipelinesKHR",

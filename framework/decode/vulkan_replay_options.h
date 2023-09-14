@@ -55,6 +55,8 @@ struct VulkanReplayOptions : public ReplayOptions
     std::vector<ScreenshotRange> screenshot_ranges;
     std::string                  screenshot_dir;
     std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
+    uint32_t                     screenshot_width, screenshot_height;
+    float                        screenshot_scale;
     std::string                  replace_dir;
 };
 

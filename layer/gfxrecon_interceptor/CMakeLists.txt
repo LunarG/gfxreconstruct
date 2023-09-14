@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2021 Advanced Micro Devices, Inc.
+# Copyright (c) 2021-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,7 +28,8 @@
 
 add_library(gfxrecon_interceptor SHARED "")
 target_sources(gfxrecon_interceptor PRIVATE
-                ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp)
+                ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
+                $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>)
 target_include_directories(gfxrecon_interceptor PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 target_link_libraries(gfxrecon_interceptor gfxrecon_util)
 

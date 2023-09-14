@@ -112,15 +112,22 @@ class CaptureManager
 
     void EndMethodCallCapture();
 
+    void WriteFrameMarker(format::MarkerType marker_type);
+
     void EndFrame();
+
+    // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
+    // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.
+    void PreQueueSubmit();
+    void PostQueueSubmit();
 
     bool ShouldTriggerScreenshot();
 
     util::ScreenshotFormat GetScreenshotFormat() { return screenshot_format_; }
 
-    void CheckContinueCaptureForWriteMode();
+    void CheckContinueCaptureForWriteMode(uint32_t current_boundary_count);
 
-    void CheckStartCaptureForTrackMode();
+    void CheckStartCaptureForTrackMode(uint32_t current_boundary_count);
 
     bool IsTrimHotkeyPressed();
 
@@ -145,11 +152,18 @@ class CaptureManager
     bool GetIUnknownWrappingSetting() const { return iunknown_wrapping_; }
     auto GetForceCommandSerialization() const { return force_command_serialization_; }
     auto GetQueueZeroOnly() const { return queue_zero_only_; }
+    auto GetAllowPipelineCompileRequired() const { return allow_pipeline_compile_required_; }
 
     bool     IsAnnotated() const { return rv_annotation_info_.rv_annotation; }
     uint16_t GetGPUVAMask() const { return rv_annotation_info_.gpuva_mask; }
     uint16_t GetDescriptorMask() const { return rv_annotation_info_.descriptor_mask; }
     uint64_t GetShaderIDMask() const { return rv_annotation_info_.shaderid_mask; }
+
+    uint64_t GetBlockIndex()
+    {
+        auto thread_data = GetThreadData();
+        return thread_data->block_index_ == 0 ? 0 : thread_data->block_index_ - 1;
+    }
 
   protected:
     enum CaptureModeFlags : uint32_t
@@ -187,6 +201,7 @@ class CaptureManager
         std::unique_ptr<ParameterEncoder>        parameter_encoder_;
         std::vector<uint8_t>                     compressed_buffer_;
         HandleUnwrapMemory                       handle_unwrap_memory_;
+        uint64_t                                 block_index_;
 
       private:
         static format::ThreadId GetThreadId();
@@ -202,10 +217,11 @@ class CaptureManager
     };
 
   protected:
-    static bool CreateInstance(std::function<CaptureManager*()> GetInstanceFunc, std::function<void()> NewInstanceFunc);
+    static bool CreateInstance(std::function<CaptureManager*()> GetInstanceFunc,
+                               std::function<void()>            NewInstanceFunc,
+                               std::function<void()>            DeleteInstanceFunc);
 
-    static void DestroyInstance(std::function<const CaptureManager*()> GetInstanceFunc,
-                                std::function<void()>                  DeleteInstanceFunc);
+    static void DestroyInstance(std::function<const CaptureManager*()> GetInstanceFunc);
 
     CaptureManager(format::ApiFamilyId api_family);
 
@@ -240,7 +256,7 @@ class CaptureManager
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
 
-    std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
+    std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     bool        CreateCaptureFile(const std::string& base_filename);
     void        ActivateTrimming();
     void        DeactivateTrimming();
@@ -265,7 +281,7 @@ class CaptureManager
     util::Keyboard                    keyboard_;
     std::string                       screenshot_prefix_;
     util::ScreenshotFormat            screenshot_format_;
-    uint32_t                          global_frame_count_;
+    static std::atomic<uint64_t>      block_index_;
 
     void WriteToFile(const void* data, size_t size);
 
@@ -285,6 +301,16 @@ class CaptureManager
         }
 
         WriteToFile(scratch_buffer.data(), scratch_buffer.size());
+    }
+
+  private:
+    static void AtExit()
+    {
+        if (delete_instance_func_)
+        {
+            delete_instance_func_();
+            delete_instance_func_ = nullptr;
+        }
     }
 
   private:
@@ -308,12 +334,14 @@ class CaptureManager
     bool                                    page_guard_signal_handler_watcher_;
     PageGuardMemoryMode                     page_guard_memory_mode_;
     bool                                    trim_enabled_;
-    std::vector<CaptureSettings::TrimRange> trim_ranges_;
+    CaptureSettings::TrimBoundary           trim_boundary_;
+    std::vector<util::UintRange>            trim_ranges_;
     std::string                             trim_key_;
     uint32_t                                trim_key_frames_;
     uint32_t                                trim_key_first_frame_;
     size_t                                  trim_current_range_;
     uint32_t                                current_frame_;
+    uint32_t                                queue_submit_count_;
     CaptureMode                             capture_mode_;
     bool                                    previous_hotkey_state_;
     CaptureSettings::RuntimeTriggerState    previous_runtime_trigger_state_;
@@ -326,6 +354,9 @@ class CaptureManager
     bool                                    iunknown_wrapping_;
     bool                                    force_command_serialization_;
     bool                                    queue_zero_only_;
+    bool                                    allow_pipeline_compile_required_;
+    bool                                    quit_after_frame_ranges_;
+    static std::function<void()>            delete_instance_func_;
 
     struct
     {

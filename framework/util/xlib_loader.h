@@ -43,6 +43,7 @@ class XlibLoader
         decltype(XFlush)*               Flush;
         decltype(XGetErrorText)*        GetErrorText;
         decltype(XGetWindowAttributes)* GetWindowAttributes;
+        decltype(XInitThreads)*         InitThreads;
         decltype(XInternAtom)*          InternAtom;
         decltype(XMapWindow)*           MapWindow;
         decltype(XMoveWindow)*          MoveWindow;

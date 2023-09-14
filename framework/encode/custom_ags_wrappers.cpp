@@ -469,5 +469,11 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_SetMarker(AGSContext*         
     return result;
 }
 
+AMD_AGS_API void agsInitNotSupported()
+{
+    GFXRECON_LOG_ERROR_ONCE("AGS version mismatch for GFXR capture: GFXR doesn't support this version of "
+                            "amd_ags_x64.dll. Please remove the capture DLL and rename the original DLL back.");
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

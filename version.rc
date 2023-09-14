@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2019-2021 LunarG, Inc.
-** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,22 +20,24 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_DX12_OPTIMIZE_OPTIONS_H
-#define GFXRECON_DECODE_DX12_OPTIMIZE_OPTIONS_H
+#include "project_version.h"
+#include "winres.h"
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
-
-struct Dx12OptimizationOptions
-{
-    bool remove_redundant_psos{ false };
-    bool optimize_resource_values{ false };
-    bool optimize_resource_values_experimental{ false };
-
-    int32_t override_gpu_index{ -1 };
-};
-
-GFXRECON_END_NAMESPACE(decode)
-GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_DECODE_DX12_OPTIMIZE_OPTIONS_H
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION GFXRECON_PROJECT_VERSION_MAJOR,GFXRECON_PROJECT_VERSION_MINOR,GFXRECON_PROJECT_VERSION_PATCH
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", GFXRECON_PROJECT_NAME
+            VALUE "ProductName", GFXRECON_PROJECT_NAME
+            VALUE "ProductVersion", GFXRECON_PROJECT_VERSION_STRING
+            VALUE "LegalCopyright", "Copyright (C) 2023"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

@@ -36,9 +36,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-std::wstring GetDx12CallIdString(format::ApiCallId call_id)
+inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
 {
-    std::wstring out = L"Unknown";
+    std::wstring out = L"Unknown_ApiCallId";
     switch (call_id)
     {
     case format::ApiCallId::ApiCall_CreateDXGIFactory:
@@ -476,6 +476,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1:
         out = L"IDXGIDevice4_ReclaimResources1";
         break;
+    case format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport:
+        out = L"IDXGIFactory5_CheckFeatureSupport";
+        break;
     case format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport:
         out = L"DXGIDeclareAdapterRemovalSupport";
         break;
@@ -499,6 +502,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_D3D12SerializeRootSignature:
         out = L"D3D12SerializeRootSignature";
+        break;
+    case format::ApiCallId::ApiCall_D3D12CreateRootSignatureDeserializer:
+        out = L"D3D12CreateRootSignatureDeserializer";
         break;
     case format::ApiCallId::ApiCall_D3D12SerializeVersionedRootSignature:
         out = L"D3D12SerializeVersionedRootSignature";
@@ -533,8 +539,17 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12DeviceChild_GetDevice:
         out = L"ID3D12DeviceChild_GetDevice";
         break;
+    case format::ApiCallId::ApiCall_ID3D12RootSignatureDeserializer_GetRootSignatureDesc:
+        out = L"ID3D12RootSignatureDeserializer_GetRootSignatureDesc";
+        break;
     case format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion:
         out = L"ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc:
+        out = L"ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Heap_GetDesc:
+        out = L"ID3D12Heap_GetDesc";
         break;
     case format::ApiCallId::ApiCall_ID3D12Resource_Map:
         out = L"ID3D12Resource_Map";
@@ -542,8 +557,14 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12Resource_Unmap:
         out = L"ID3D12Resource_Unmap";
         break;
+    case format::ApiCallId::ApiCall_ID3D12Resource_GetDesc:
+        out = L"ID3D12Resource_GetDesc";
+        break;
     case format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress:
         out = L"ID3D12Resource_GetGPUVirtualAddress";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource:
+        out = L"ID3D12Resource_WriteToSubresource";
         break;
     case format::ApiCallId::ApiCall_ID3D12Resource_ReadFromSubresource:
         out = L"ID3D12Resource_ReadFromSubresource";
@@ -568,6 +589,18 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12PipelineState_GetCachedBlob:
         out = L"ID3D12PipelineState_GetCachedBlob";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetDesc:
+        out = L"ID3D12DescriptorHeap_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart:
+        out = L"ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart:
+        out = L"ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12CommandList_GetType:
+        out = L"ID3D12CommandList_GetType";
         break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close:
         out = L"ID3D12GraphicsCommandList_Close";
@@ -619,6 +652,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPipelineState:
         out = L"ID3D12GraphicsCommandList_SetPipelineState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier:
+        out = L"ID3D12GraphicsCommandList_ResourceBarrier";
         break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle:
         out = L"ID3D12GraphicsCommandList_ExecuteBundle";
@@ -770,6 +806,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12CommandQueue_GetClockCalibration:
         out = L"ID3D12CommandQueue_GetClockCalibration";
         break;
+    case format::ApiCallId::ApiCall_ID3D12CommandQueue_GetDesc:
+        out = L"ID3D12CommandQueue_GetDesc";
+        break;
     case format::ApiCallId::ApiCall_ID3D12Device_GetNodeCount:
         out = L"ID3D12Device_GetNodeCount";
         break;
@@ -788,11 +827,17 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12Device_CreateCommandList:
         out = L"ID3D12Device_CreateCommandList";
         break;
+    case format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport:
+        out = L"ID3D12Device_CheckFeatureSupport";
+        break;
     case format::ApiCallId::ApiCall_ID3D12Device_CreateDescriptorHeap:
         out = L"ID3D12Device_CreateDescriptorHeap";
         break;
     case format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize:
         out = L"ID3D12Device_GetDescriptorHandleIncrementSize";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device_CreateRootSignature:
+        out = L"ID3D12Device_CreateRootSignature";
         break;
     case format::ApiCallId::ApiCall_ID3D12Device_CreateConstantBufferView:
         out = L"ID3D12Device_CreateConstantBufferView";
@@ -817,6 +862,12 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptorsSimple:
         out = L"ID3D12Device_CopyDescriptorsSimple";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device_GetResourceAllocationInfo:
+        out = L"ID3D12Device_GetResourceAllocationInfo";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device_GetCustomHeapProperties:
+        out = L"ID3D12Device_GetCustomHeapProperties";
         break;
     case format::ApiCallId::ApiCall_ID3D12Device_CreateCommittedResource:
         out = L"ID3D12Device_CreateCommittedResource";
@@ -866,6 +917,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12Device_GetResourceTiling:
         out = L"ID3D12Device_GetResourceTiling";
         break;
+    case format::ApiCallId::ApiCall_ID3D12Device_GetAdapterLuid:
+        out = L"ID3D12Device_GetAdapterLuid";
+        break;
     case format::ApiCallId::ApiCall_ID3D12PipelineLibrary_StorePipeline:
         out = L"ID3D12PipelineLibrary_StorePipeline";
         break;
@@ -883,6 +937,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12PipelineLibrary1_LoadPipeline:
         out = L"ID3D12PipelineLibrary1_LoadPipeline";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device1_CreatePipelineLibrary:
+        out = L"ID3D12Device1_CreatePipelineLibrary";
         break;
     case format::ApiCallId::ApiCall_ID3D12Device1_SetEventOnMultipleFenceCompletion:
         out = L"ID3D12Device1_SetEventOnMultipleFenceCompletion";
@@ -908,6 +965,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12ProtectedSession_GetSessionStatus:
         out = L"ID3D12ProtectedSession_GetSessionStatus";
         break;
+    case format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession_GetDesc:
+        out = L"ID3D12ProtectedResourceSession_GetDesc";
+        break;
     case format::ApiCallId::ApiCall_ID3D12Device4_CreateCommandList1:
         out = L"ID3D12Device4_CreateCommandList1";
         break;
@@ -922,6 +982,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12Device4_CreateReservedResource1:
         out = L"ID3D12Device4_CreateReservedResource1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12Device4_GetResourceAllocationInfo1:
+        out = L"ID3D12Device4_GetResourceAllocationInfo1";
         break;
     case format::ApiCallId::ApiCall_ID3D12LifetimeOwner_LifetimeStateUpdated:
         out = L"ID3D12LifetimeOwner_LifetimeStateUpdated";
@@ -1307,6 +1370,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12InfoQueue_ClearStoredMessages:
         out = L"ID3D12InfoQueue_ClearStoredMessages";
         break;
+    case format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMessage:
+        out = L"ID3D12InfoQueue_GetMessage";
+        break;
     case format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter:
         out = L"ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter";
         break;
@@ -1328,6 +1394,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12InfoQueue_AddStorageFilterEntries:
         out = L"ID3D12InfoQueue_AddStorageFilterEntries";
         break;
+    case format::ApiCallId::ApiCall_ID3D12InfoQueue_GetStorageFilter:
+        out = L"ID3D12InfoQueue_GetStorageFilter";
+        break;
     case format::ApiCallId::ApiCall_ID3D12InfoQueue_ClearStorageFilter:
         out = L"ID3D12InfoQueue_ClearStorageFilter";
         break;
@@ -1348,6 +1417,9 @@ std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12InfoQueue_AddRetrievalFilterEntries:
         out = L"ID3D12InfoQueue_AddRetrievalFilterEntries";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12InfoQueue_GetRetrievalFilter:
+        out = L"ID3D12InfoQueue_GetRetrievalFilter";
         break;
     case format::ApiCallId::ApiCall_ID3D12InfoQueue_ClearRetrievalFilter:
         out = L"ID3D12InfoQueue_ClearRetrievalFilter";

@@ -1,7 +1,7 @@
 ###############################################################################
 # Copyright (c) 2018-2023 LunarG, Inc.
 # Copyright (c) 2018-2023 Valve Corporation.
-# Copyright (c) 2020 Advanced Micro Devices, Inc.
+# Copyright (c) 2020-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,15 +30,16 @@ target_sources(gfxrecon-convert
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
+                    $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
               )
 
 if (MSVC)
       # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
       # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
       if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-         target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
+         target_link_options(gfxrecon-convert PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
       else()
-            target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+            target_link_options(gfxrecon-convert PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
       endif()
 endif()
 

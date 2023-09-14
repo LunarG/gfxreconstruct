@@ -163,8 +163,10 @@ Option | Environment Variable | Type | Description
 ------| ------------- |------|-------------
 Capture File Name | GFXRECON_CAPTURE_FILE | STRING | Path to use when creating the capture file.  Default is: `gfxrecon_capture.gfxr`
 Capture Specific Frames | GFXRECON_CAPTURE_FRAMES | STRING | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).
+Quit after capturing frame ranges | GFXRECON_QUIT_AFTER_CAPTURE_FRAMES | BOOL | Setting it to `true` will force the application to terminate once all frame ranges specified by `GFXRECON_CAPTURE_FRAMES` have been captured.
 Hotkey Capture Trigger | GFXRECON_CAPTURE_TRIGGER | STRING | Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture.  Example: `F3` will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).
-Hotkey Capture Trigger | GFXRECON_CAPTURE_TRIGGER_FRAMES | STRING | Specify a limit on the number of frames to be captured via hotkey.  Example: `1` will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)
+Hotkey Capture Trigger Frames | GFXRECON_CAPTURE_TRIGGER_FRAMES | STRING | Specify a limit on the number of frames to be captured via hotkey.  Example: `1` will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)
+Capture Specific GPU Queue Submits | GFXRECON_CAPTURE_QUEUE_SUBMITS | STRING | Specify one or more comma-separated GPU queue submit call ranges to capture.  Queue submit calls are `vkQueueSubmit` for Vulkan and `ID3D12CommandQueue::ExecuteCommandLists` for DX12. Queue submit ranges work as described above in `GFXRECON_CAPTURE_FRAMES` but on GPU queue submit calls instead of frames.  Default is: Empty string (all queue submits are captured).
 Capture File Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`
 Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
 Capture File Flush After Write | GFXRECON_CAPTURE_FILE_FLUSH | BOOL | Flush output stream after each packet is written to the capture file.  Default is: `false`
@@ -189,6 +191,7 @@ Page Guard Signal Handler Watcher | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER |
 Page Guard Signal Handler Watcher Max Restores | GFXRECON_PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES | INTEGER | Sets the number of times the watcher will attempt to restore the signal handler. Setting it to a negative will make the watcher thread run indefinitely. Default is `1`
 Force Command Serialization | GFXRECON_FORCE_COMMAND_SERIALIZATION | BOOL | Sets exclusive locks(unique_lock) for every ApiCall. It can avoid external multi-thread to cause captured issue.
 Queue Zero Only | GFXRECON_QUEUE_ZERO_ONLY | BOOL | Forces to using only QueueFamilyIndex: 0 and queueCount: 1 on capturing to avoid replay error for unavailble VkQueue.
+Allow Pipeline Compile Required | GFXRECON_ALLOW_PIPELINE_COMPILE_REQUIRED | BOOL | The default behaviour forces VK_PIPELINE_COMPILE_REQUIRED to be returned from Create*Pipelines calls which have VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT set, and skips dispatching and recording the calls. This forces applications to fallback to recompiling pipelines without caching, the Vulkan calls for which will be captured. Enabling this option causes capture to record the application's calls and implementation's return values unmodified, but the resulting captures are fragile to changes in Vulkan implementations if they use pipeline caching.
 #### Memory Tracking Known Issues
 
 There is a known issue with the page guard memory tracking method. The logic behind that method is to apply a memory protection to the guarded/shadowed regions so that accesses made by the user to trigger a segmentation fault which is handled by GFXReconstruct.
@@ -271,6 +274,25 @@ The following example shows a timestamp that was added to a file that was
 originally named `gfxrecon_capture.gfxr` and was created at 2:35 PM
 on November 25, 2018:
   `gfxrecon_capture_20181125T143527.gfxr`
+
+### Trimmed Captures
+
+Trimmed captures are created when GFXR is configured to start capturing at some later
+time in execution.
+
+To create a trimmed capture one of the trimming options can be used.
+For example on desktop there is the `GFXRECON_CAPTURE_FRAMES` environment variable,
+which specifies the frame ranges to capture, each range generating a separate
+trimmed capture file. There's also the `GFXRECON_CAPTURE_TRIGGER` environment
+variable. Each time the hot key is pressed a new trimmed capture is started/stopped.
+
+An existing capture file can be trimmed by replaying the capture with the capture layer
+enabled and a trimming frame range or trimming hot key enabled. (However, replay for
+some content may be fast enough using the hot key may be difficult.) Here's an example
+command-line that replays an existing capture with the capture layer enabled and
+configured to capture only from frame 100 through frame 200 into a new capture file:
+
+`gfxrecon-capture.py -f 100-200 gfxrecon-replay gfxrecon-example-capture.gfxr``
 
 ### Capture Script
 
@@ -362,6 +384,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--pause-frame <N>] [--paused] [--sync] [--screenshot-all]
                         [--screenshots <N1(-N2),...>] [--screenshot-format <format>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
+                        [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
@@ -421,6 +444,16 @@ Optional arguments:
                         Prefix to apply to the screenshot file name.  Default is
                         "screenshot", producing file names similar to
                         "screenshot_frame8049.bmp".
+  --screenshot-scale SCALE
+                        Specify a decimal factor which will determine screenshot
+                        sizes. The factor will be multiplied with the swapchain
+                        images dimension to determine the screenshot dimensions.
+                        Default is 1.0.
+  --screenshot-size WIDTHxHEIGHT
+                        Specify desired screenshot dimensions. Leaving this
+                        unspecified screenshots will use the swapchain images
+                        dimensions. If --screenshot-scale is also specified then
+                        this option is ignored.
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
@@ -508,6 +541,10 @@ Right arrow, n | Advance to the next frame when paused.
 During replay, swapchain indices for present can be different from captured indices. Causes for this can include the swapchain image count differing between capture and replay, and `vkAcquireNextImageKHR` returning a different `pImageIndex` at replay to the one that was captured. These issues can cause unexpected rendering or even crashes.
 
 Virtual Swapchain insulates higher layers in the Vulkan stack from these problems by creating a set of images, exactly matching the swapchain configuration at capture time, which it exposes for them to render into.  Before a present, it copies the virtual image to a target swapchain image for display. Since this issue can happen in many situations, virtual swapchain is the default setup. If the user wants to bypass the feature and use the captured indices to present directly on the swapchain of the replay implementation, they should add the `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.
+
+### Debug mode VMA errors
+
+gfxrec-replay with the -m rebind option uses the Vulkan Memory Allocator library for memory allocations. If gfxrecon-replay is compiled debuggable, VMA_ASSERT errors in VMA can be trapped for debugging by setting GFXRECON_LOG_BREAK_ON_ERROR to true.
 
 ## Other Capture File Processing Tools
 

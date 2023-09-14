@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -25,6 +25,7 @@
 
 #include "layer/trace_layer.h"
 
+#include "encode/custom_layer_func_table.h"
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
@@ -33,10 +34,12 @@
 
 #include "vulkan/vk_layer.h"
 
+#include <array>
 #include <cstring>
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -51,7 +54,16 @@ const VkLayerProperties kLayerProps = {
         GFXRECON_PROJECT_VERSION_DESIGNATION
 };
 
-const std::vector<VkExtensionProperties> kDeviceExtensionProps = { VkExtensionProperties{ "VK_EXT_tooling_info", 1 } };
+const std::array<VkExtensionProperties, 2> kDeviceExtensionProps = {
+    VkExtensionProperties{ "VK_EXT_tooling_info", 1 },
+    VkExtensionProperties{ VK_EXT_DEBUG_MARKER_EXTENSION_NAME, VK_EXT_DEBUG_MARKER_SPEC_VERSION }
+};
+
+const std::unordered_set<std::string> kProvidedDeviceFunctions = { "vkCmdDebugMarkerBeginEXT",
+                                                                   "vkCmdDebugMarkerEndEXT",
+                                                                   "vkCmdDebugMarkerInsertEXT",
+                                                                   "vkDebugMarkerSetObjectNameEXT",
+                                                                   "vkDebugMarkerSetObjectTagEXT" };
 
 /// An alphabetical list of device extensions which we do not report upstream if
 /// other layers or ICDs expose them to us.
@@ -66,7 +78,8 @@ const char* const kUnsupportedDeviceExtensions[] = {
     VK_EXT_PIPELINE_PROPERTIES_EXTENSION_NAME,
     VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
     VK_NV_COPY_MEMORY_INDIRECT_EXTENSION_NAME,
-    VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME
+    VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
+    VK_AMDX_SHADER_ENQUEUE_EXTENSION_NAME
 };
 
 static void remove_extensions(std::vector<VkExtensionProperties>& extensionProps,
@@ -275,6 +288,17 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
         }
     }
 
+    // Lastly check custom GFXR exposed functions
+    if (result == nullptr)
+    {
+        const auto entry = custom_func_table.find(pName);
+
+        if (entry != custom_func_table.end())
+        {
+            result = entry->second;
+        }
+    }
+
     return result;
 }
 
@@ -289,10 +313,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
         {
             result = table->GetDeviceProcAddr(device, pName);
 
-            if (result != nullptr)
+            if (result != nullptr || (kProvidedDeviceFunctions.find(pName) != kProvidedDeviceFunctions.end()))
             {
                 // Only check for a layer implementation of the requested function if it is available from the next
-                // level.
+                // level or if we are providing the implementation ourselves.
                 const auto entry = func_table.find(pName);
                 if (entry != func_table.end())
                 {
@@ -378,31 +402,53 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
             return result;
         }
 
-        std::vector<VkExtensionProperties> downstream_properties(downstream_property_count);
+        std::vector<VkExtensionProperties> device_extension_properties(downstream_property_count);
         result = instance_table->EnumerateDeviceExtensionProperties(
-            physicalDevice, pLayerName, &downstream_property_count, downstream_properties.data());
+            physicalDevice, pLayerName, &downstream_property_count, device_extension_properties.data());
         if (result != VK_SUCCESS)
         {
             return result;
         }
 
-        remove_extensions(downstream_properties,
+        remove_extensions(device_extension_properties,
                           kUnsupportedDeviceExtensions,
                           std::end(kUnsupportedDeviceExtensions) - std::begin(kUnsupportedDeviceExtensions));
+
+        // Append the extensions we provide in the list to the caller if they aren't already provided downstream.
+        if (pLayerName == nullptr)
+        {
+            for (auto& provided_prop : kDeviceExtensionProps)
+            {
+                bool append_provided_prop =
+                    std::find_if(device_extension_properties.begin(),
+                                 device_extension_properties.end(),
+                                 [&provided_prop](const VkExtensionProperties& downstream_prop) {
+                                     return util::platform::StringCompare(provided_prop.extensionName,
+                                                                          downstream_prop.extensionName,
+                                                                          VK_MAX_EXTENSION_NAME_SIZE) == 0;
+                                 }) == device_extension_properties.end();
+                if (append_provided_prop)
+                {
+                    device_extension_properties.push_back(provided_prop);
+                }
+            }
+        }
 
         // Output the reduced count or the reduced extension list:
         if (pProperties == nullptr)
         {
-            *pPropertyCount = static_cast<uint32_t>(downstream_properties.size());
+            *pPropertyCount = static_cast<uint32_t>(device_extension_properties.size());
         }
         else
         {
-            if (*pPropertyCount < static_cast<uint32_t>(downstream_properties.size()))
+            if (*pPropertyCount < static_cast<uint32_t>(device_extension_properties.size()))
             {
                 result = VK_INCOMPLETE;
             }
-            *pPropertyCount = std::min(*pPropertyCount, static_cast<uint32_t>(downstream_properties.size()));
-            std::copy(downstream_properties.begin(), downstream_properties.begin() + *pPropertyCount, pProperties);
+            *pPropertyCount = std::min(*pPropertyCount, static_cast<uint32_t>(device_extension_properties.size()));
+            std::copy(device_extension_properties.begin(),
+                      device_extension_properties.begin() + *pPropertyCount,
+                      pProperties);
         }
     }
 
