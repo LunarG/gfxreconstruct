@@ -28,7 +28,6 @@
 
 #include "format/format.h"
 #include "util/defines.h"
-#include "util/logging.h"
 
 #include <iomanip>
 #include <sstream>
@@ -46,13 +45,18 @@ enum ToStringFlagBits
     kToString_Default     = kToString_Unformatted,
 };
 
+constexpr uint32_t kToStringDefaultTabCount = 0;
+constexpr uint32_t kToStringDefaultTabSize  = 4;
+
 typedef uint32_t ToStringFlags;
 
 /// @brief  A template ToString to take care of simple POD cases like the many
 /// types of integers.
 template <typename T>
-inline std::string
-ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
+inline std::string ToString(const T&      obj,
+                            ToStringFlags toStringFlags = kToString_Default,
+                            uint32_t      tabCount      = kToStringDefaultTabCount,
+                            uint32_t      tabSize       = kToStringDefaultTabSize)
 {
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
@@ -72,8 +76,8 @@ ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t
 template <typename T>
 inline std::string ToString(uint32_t      apiFlags,
                             ToStringFlags toStringFlags = kToString_Default,
-                            uint32_t      tabCount      = 0,
-                            uint32_t      tabSize       = 4)
+                            uint32_t      tabCount      = kToStringDefaultTabCount,
+                            uint32_t      tabSize       = kToStringDefaultTabSize)
 {
     GFXRECON_UNREFERENCED_PARAMETER(apiFlags);
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
@@ -182,7 +186,8 @@ inline std::string GetWhitespaceString(ToStringFlags toStringFlags, uint32_t cou
     return (toStringFlags & kToString_Formatted) ? std::string((size_t)count, ' ') : std::string();
 }
 
-inline std::string GetTabString(ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize = 4)
+inline std::string
+GetTabString(ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize = kToStringDefaultTabSize)
 {
     return GetWhitespaceString(toStringFlags, tabCount * tabSize);
 }
@@ -256,8 +261,8 @@ template <typename T>
 inline std::string ArrayToString(size_t        count,
                                  const T*      pObjs,
                                  ToStringFlags toStringFlags = kToString_Default,
-                                 uint32_t      tabCount      = 0,
-                                 uint32_t      tabSize       = 4)
+                                 uint32_t      tabCount      = kToStringDefaultTabCount,
+                                 uint32_t      tabSize       = kToStringDefaultTabSize)
 {
     return ArrayToString(
         count,
@@ -273,8 +278,8 @@ template <typename EnumType>
 inline std::string EnumArrayToString(size_t              count,
                                      const EnumType*     pObjs,
                                      util::ToStringFlags toStringFlags = util::kToString_Default,
-                                     uint32_t            tabCount      = 0,
-                                     uint32_t            tabSize       = 4)
+                                     uint32_t            tabCount      = kToStringDefaultTabCount,
+                                     uint32_t            tabSize       = kToStringDefaultTabSize)
 {
     using namespace util;
     return ArrayToString(
