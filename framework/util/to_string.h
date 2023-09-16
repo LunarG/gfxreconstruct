@@ -52,6 +52,10 @@ typedef uint32_t ToStringFlags;
 
 /// @brief  A template ToString to take care of simple POD cases like the many
 /// types of integers.
+/// It contains the three parameters that are unused for unstructured types like
+/// scalars and strings so that calling code doesn't have to care whether it is
+/// dealing with a simple type or a multi-line struct or array which tabs itself
+/// out.
 template <typename T>
 inline std::string ToString(const T&      obj,
                             ToStringFlags toStringFlags = kToString_Default,
@@ -192,6 +196,15 @@ GetTabString(ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize = 
     return GetWhitespaceString(toStringFlags, tabCount * tabSize);
 }
 
+/// @brief Make a copy of the input string with double quotes at start and end.
+inline std::string Quote(const std::string& str)
+{
+    std::string quoted{ '"' };
+    quoted += str;
+    quoted += '"';
+    return quoted;
+}
+
 template <typename ToStringFunctionType>
 inline std::string
 ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
@@ -289,16 +302,7 @@ inline std::string EnumArrayToString(size_t              count,
         tabCount,
         tabSize,
         [&]() { return pObjs != nullptr; },
-        [&](size_t i) { return '"' + ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
-}
-
-/// @brief Make a copy of the input string with double quotes at start and end.
-inline std::string Quote(const std::string& str)
-{
-    std::string quoted{ '"' };
-    quoted += str;
-    quoted += '"';
-    return quoted;
+        [&](size_t i) { return Quote(ToString(pObjs[i])); });
 }
 
 GFXRECON_END_NAMESPACE(util)
