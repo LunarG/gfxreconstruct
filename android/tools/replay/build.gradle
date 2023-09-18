@@ -9,25 +9,22 @@ android {
         targetSdkVersion 33
         versionCode 1
         versionName "1.0"
-        ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+    }
+
+    sourceSets {
+        debug {
+            jniLibs.srcDirs "libs/debug"
         }
-        externalNativeBuild {
-            cmake {
-                cppFlags "-fexceptions", "-std=c++14", "-Wno-nullability-completeness"
-                arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
-            }
+
+        release {
+            jniLibs.srcDirs "libs/release"
         }
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
         }
     }
 }
@@ -37,4 +34,97 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation project(':layer')
+}
+
+task prepareArtifactFolders {
+    mkdir "../../layer/build/intermediates/cmake/release/obj"
+}
+
+def ndk_abis
+def ndkDir = android.ndkDirectory
+def maxParallelForks = Runtime.runtime.availableProcessors()
+
+task detectAbis {
+    // Specify through command line which ABIs to build with -Pabis="..."
+    if (project.hasProperty("abis")) {
+        ndk_abis = project.getProperty("abis")
+    } else {
+        ndk_abis = "arm64-v8a armeabi-v7a"
+    }
+}
+
+task runNdkBuildDebug(type: Exec, dependsOn: detectAbis) {
+    executable = "$ndkDir/ndk-build"
+    args = ["-j$maxParallelForks",
+            "GFXRECON_SOURCE_DIR:=../..",
+            "GFXRECON_INCLUDE_DIR:=../../..",
+            "APP_ABI=${ndk_abis}",
+            "NDK_DEBUG=1",
+            "APP_BUILD_SCRIPT=../../jni/Android.mk",
+            "NDK_APPLICATION_MK=../../jni/Application.mk",
+            "NDK_OUT=${projectDir}/obj/debug",
+            "NDK_LIBS_OUT=${projectDir}/libs/debug"]
+}
+
+task runNdkBuildRelease(type: Exec, dependsOn: detectAbis) {
+    executable = "$ndkDir/ndk-build"
+    args = ["-j$maxParallelForks",
+            "GFXRECON_SOURCE_DIR:=../..",
+            "GFXRECON_INCLUDE_DIR:=../../..",
+            "APP_ABI=${ndk_abis}",
+            "APP_BUILD_SCRIPT=../../jni/Android.mk",
+            "NDK_APPLICATION_MK=../../jni/Application.mk",
+            "NDK_OUT=${projectDir}/obj/release",
+            "NDK_LIBS_OUT=${projectDir}/libs/release"]
+}
+
+task runNdkBuild(dependsOn: prepareArtifactFolders) {
+    if (gradle.startParameter.taskNames.contains("assembleRelease")) {
+        dependsOn runNdkBuildRelease
+    }
+
+    if (gradle.startParameter.taskNames.contains("assembleDebug")) {
+        dependsOn runNdkBuildDebug
+    }
+}
+
+preBuild {
+    dependsOn runNdkBuild
+}
+
+task runNdkCleanDebug(type: Exec) {
+    executable = "$ndkDir/ndk-build"
+    args = ["GFXRECON_SOURCE_DIR:=../..",
+            "GFXRECON_INCLUDE_DIR:=../../..",
+            "NDK_DEBUG=1",
+            "APP_BUILD_SCRIPT=../../jni/Android.mk",
+            "NDK_APPLICATION_MK=../../jni/Application.mk",
+            "NDK_OUT=${projectDir}/obj/debug",
+            "NDK_LIBS_OUT=${projectDir}/libs/debug",
+            "clean"]
+}
+
+task runNdkCleanRelease(type: Exec) {
+    executable = "$ndkDir/ndk-build"
+    args = ["GFXRECON_SOURCE_DIR:=../..",
+            "GFXRECON_INCLUDE_DIR:=../../..",
+            "NDK_DEBUG=0",
+            "APP_BUILD_SCRIPT=../../jni/Android.mk",
+            "NDK_APPLICATION_MK=../../jni/Application.mk",
+            "NDK_OUT=${projectDir}/obj/release",
+            "NDK_LIBS_OUT=${projectDir}/libs/release",
+            "clean"]
+}
+
+task cleanNdkBuild {
+    dependsOn runNdkCleanDebug
+    dependsOn runNdkCleanRelease
+
+    doLast {
+        delete 'obj', 'libs', '../../layer/outputs'
+    }
+}
+
+afterEvaluate {
+    clean.finalizedBy { cleanNdkBuild }
 }
