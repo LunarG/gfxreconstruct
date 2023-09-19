@@ -20,6 +20,31 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+// Define VMA_ASSERT for use in vk_mem_alloc.h
+// For debug compiles, VMA_ASSERT failure is treated as a warning.
+// For release compiles, VMA_ASSERT failure is a no-op.
+// The expr_ parameter can be in the form of 'condition && "error string"'.
+// The error string will be printed if condition is false.
+#include "util/logging.h"
+#ifdef NDEBUG
+#define VMA_ASSERT(expr_)
+#else
+#define VMA_ASSERT(expr_)                                                \
+    if (!static_cast<bool>(expr_))                                       \
+    {                                                                    \
+        std::string msg = __FILE__ ":" + std::to_string(__LINE__) + " "; \
+        if (strchr(#expr_, '"'))                                         \
+        {                                                                \
+            msg += strchr(#expr_, '"');                                  \
+        }                                                                \
+        else                                                             \
+        {                                                                \
+            msg += #expr_;                                               \
+        }                                                                \
+        GFXRECON_LOG_ERROR(msg.c_str());                                 \
+    }
+#endif
+
 // This file needs to be included first to ensure it is processed with the VMA_IMPLEMENTATION directive, in case it is
 // indirectly included by other include files.
 #define VMA_IMPLEMENTATION

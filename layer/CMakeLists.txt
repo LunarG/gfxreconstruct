@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2020-2021 Advanced Micro Devices, Inc.
+# Copyright (c) 2020-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -53,6 +53,7 @@ target_sources(VkLayer_gfxreconstruct
                    ${CMAKE_SOURCE_DIR}/framework/encode/custom_layer_func_table.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_layer_func_table.h
                    $<$<BOOL:WIN32>:${CMAKE_CURRENT_LIST_DIR}/trace_layer.def>
+                   $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
               )
 
 target_include_directories(VkLayer_gfxreconstruct

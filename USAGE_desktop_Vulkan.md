@@ -520,6 +520,10 @@ During replay, swapchain indices for present can be different from captured indi
 
 Virtual Swapchain insulates higher layers in the Vulkan stack from these problems by creating a set of images, exactly matching the swapchain configuration at capture time, which it exposes for them to render into.  Before a present, it copies the virtual image to a target swapchain image for display. Since this issue can happen in many situations, virtual swapchain is the default setup. If the user wants to bypass the feature and use the captured indices to present directly on the swapchain of the replay implementation, they should add the `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.
 
+### Debug mode VMA errors
+
+gfxrec-replay with the -m rebind option uses the Vulkan Memory Allocator library for memory allocations. If gfxrecon-replay is compiled debuggable, VMA_ASSERT errors in VMA can be trapped for debugging by setting GFXRECON_LOG_BREAK_ON_ERROR to true.
+
 ## Other Capture File Processing Tools
 
 ### Capture File Info

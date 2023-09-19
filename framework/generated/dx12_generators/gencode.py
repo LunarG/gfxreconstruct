@@ -59,6 +59,9 @@ from dx12_struct_to_string_body_generator import Dx12StructToStringBodyGenerator
 from dx12_call_id_to_string_header_generator import Dx12CallIdToStringHeaderGenerator
 
 # JSON files for customizing code generation
+# @todo Review the file of blacklisted functions and determine if each generator
+# needs a custom set in its own file.
+
 default_blacklists = 'blacklists.json'
 default_platform_types = 'platform_types.json'
 default_replay_overrides = 'replay_overrides.json'
@@ -351,6 +354,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_wrapper_creators.h',
             directory=directory,
+            blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
@@ -366,6 +370,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_wrapper_creators.cpp',
             directory=directory,
+            blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
@@ -381,6 +386,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_unwrappers.h',
             directory=directory,
+            blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
@@ -396,6 +402,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_unwrappers.cpp',
             directory=directory,
+            blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
@@ -563,6 +570,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_to_string.h',
             directory=directory,
+            blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
@@ -578,6 +586,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_to_string.cpp',
             directory=directory,
+            blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,

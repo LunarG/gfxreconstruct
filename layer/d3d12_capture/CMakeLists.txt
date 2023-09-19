@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2021 Advanced Micro Devices, Inc.
+# Copyright (c) 2021-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,7 +29,8 @@
 add_library(d3d12_capture SHARED "")
 target_sources(d3d12_capture PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
-                ${CMAKE_CURRENT_LIST_DIR}/d3d12_capture.def)
+                ${CMAKE_CURRENT_LIST_DIR}/d3d12_capture.def
+                $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>)
 
 target_include_directories(d3d12_capture 
                            PUBLIC 

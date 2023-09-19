@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2021 LunarG, Inc.
-# Copyright (c) 2020 Advanced Micro Devices, Inc.
+# Copyright (c) 2020-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,6 +34,7 @@ target_sources(gfxrecon-compress
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.h
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
+                   $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
 )
 
 if (MSVC)
