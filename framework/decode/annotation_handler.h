@@ -40,7 +40,7 @@ class AnnotationHandler
     virtual void ProcessAnnotation(uint64_t               block_index,
                                    format::AnnotationType type,
                                    const std::string&     label,
-                                   const std::string&     data) {};
+                                   const std::string&     data){};
 };
 
 GFXRECON_END_NAMESPACE(decode)
