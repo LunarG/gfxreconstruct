@@ -329,7 +329,9 @@ D3D12-only:
                                assigns each object the generated name.
                                This is intended to assist replay debugging.
   --batching-memory-usage <pct>
-                               Max amount of memory consumption while loading a trimmed capture file.
+                               Max amount of system's physical memory use and the GPU memory budget
+                               consumption while loading a trimmed capture file.
+                               Not guarantee overall max memory usage while loading trimmed capture file.
                                Acceptable values range from 0 to 100 (default: 80)
                                0 means no batching at all
                                100 means use all available system and GPU memory

@@ -108,9 +108,9 @@ const char kIncludeBinariesOption[]              = "--include-binaries";
 const char kExpandFlagsOption[]                  = "--expand-flags";
 const char kFilePerFrameOption[]                 = "--file-per-frame";
 #if defined(WIN32)
-const char kApiFamilyOption[]       = "--api";
-const char kDxTwoPassReplay[]       = "--dx12-two-pass-replay";
-const char kDxOverrideObjectNames[] = "--dx12-override-object-names";
+const char kApiFamilyOption[]             = "--api";
+const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
+const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
 
@@ -884,7 +884,14 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     const std::string& memory_usage = arg_parser.GetArgumentValue(kBatchingMemoryUsageArgument);
     if (!memory_usage.empty())
     {
-        replay_options.memory_usage = std::stoi(memory_usage);
+        if (replay_options.memory_usage >= 0 && replay_options.memory_usage <= 100)
+        {
+            replay_options.memory_usage = std::stoi(memory_usage);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("The parameters --batching-memory-usage out of range, will use 80 as default value");
+        }
     }
 
     replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);

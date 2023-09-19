@@ -980,8 +980,8 @@ bool IsUma(ID3D12Device* device)
 
 uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double memory_usage, const bool is_uma)
 {
+    GFXRECON_ASSERT(memory_usage >= 0.0 && memory_usage <= 1.0);
     uint64_t available_mem = 0;
-
     if (adapter != nullptr)
     {
         DXGI_QUERY_VIDEO_MEMORY_INFO video_memory_info = {};
@@ -992,7 +992,7 @@ uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double memory_usag
         }
         if (SUCCEEDED(adapter->QueryVideoMemoryInfo(0, memory_segment, &video_memory_info)))
         {
-            uint64_t total_memory = video_memory_info.Budget * memory_usage;
+            uint64_t total_memory = static_cast<uint64_t>(video_memory_info.Budget * memory_usage);
             if (total_memory > video_memory_info.CurrentUsage)
             {
                 available_mem = total_memory - video_memory_info.CurrentUsage;
@@ -1017,6 +1017,7 @@ uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double memory_usag
 
 uint64_t GetAvailableCpuMemory(double max_usage)
 {
+    GFXRECON_ASSERT(max_usage >= 0.0 && max_usage <= 1.0);
     MEMORYSTATUSEX mem_info = {};
     mem_info.dwLength       = sizeof(MEMORYSTATUSEX);
     if (GlobalMemoryStatusEx(&mem_info) == FALSE)
@@ -1024,13 +1025,13 @@ uint64_t GetAvailableCpuMemory(double max_usage)
         GFXRECON_LOG_ERROR("Failed to get available virtual memory");
     }
 
+    // Only limit by available physical memory if max_usage <= 1.0.
     uint64_t avail_phys = std::numeric_limits<uint64_t>::max();
     if (max_usage <= 1.0)
     {
         double reserved_phys = mem_info.ullTotalPhys * (1.0 - max_usage);
         avail_phys           = static_cast<uint64_t>(std::max(0.0, mem_info.ullAvailPhys - reserved_phys));
     }
-
     // Always limit by available virtual memory.
     return std::min(avail_phys, mem_info.ullAvailVirtual);
 }
@@ -1040,16 +1041,23 @@ bool IsMemoryAvailable(uint64_t required_memory, IDXGIAdapter3* adapter, double 
     bool available = false;
 #ifdef _WIN64
     // For 32bit, only upload one buffer at one time, to save memory usage.
-    if (adapter != nullptr)
+    if (max_mem_usage > 0.0 && max_mem_usage <= 1.0)
     {
-        uint64_t total_available_gpu_adapter_memory = GetAvailableGpuAdapterMemory(adapter, max_mem_usage, is_uma);
-        uint64_t total_available_cpu_memory         = GetAvailableCpuMemory(max_mem_usage);
-        uint64_t total_required_memory              = static_cast<uint64_t>(required_memory * kMemoryTolerance);
-        if ((total_required_memory < total_available_gpu_adapter_memory) &&
-            (total_required_memory < total_available_cpu_memory))
+        if (adapter != nullptr)
         {
-            available = true;
+            uint64_t total_available_gpu_adapter_memory = GetAvailableGpuAdapterMemory(adapter, max_mem_usage, is_uma);
+            uint64_t total_available_cpu_memory         = GetAvailableCpuMemory(max_mem_usage);
+            uint64_t total_required_memory              = static_cast<uint64_t>(required_memory * kMemoryTolerance);
+            if ((total_required_memory < total_available_gpu_adapter_memory) &&
+                (total_required_memory < total_available_cpu_memory))
+            {
+                available = true;
+            }
         }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Memory usage setting out of range");
     }
 #endif
     return available;
