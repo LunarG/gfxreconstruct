@@ -4584,6 +4584,27 @@ void VulkanReplayConsumerBase::OverrideGetImageSubresourceLayout(
                                          image_info->allocator_data);
 }
 
+template <typename T>
+void StoreAttachmentDescriptionFinalLayouts(const T* pCreateInfo, HandlePointerDecoder<VkRenderPass>* pRenderPass)
+{
+    GFXRECON_ASSERT(pCreateInfo->GetMetaStructPointer() != nullptr);
+    uint32_t attachment_count = pCreateInfo->GetPointer()->attachmentCount;
+    if (attachment_count > 0)
+    {
+        GFXRECON_ASSERT(pCreateInfo->GetMetaStructPointer()->pAttachments != nullptr);
+        const auto* attachment_descs = pCreateInfo->GetMetaStructPointer()->pAttachments->GetPointer();
+        auto        render_pass_info = reinterpret_cast<RenderPassInfo*>(pRenderPass->GetConsumerData(0));
+        GFXRECON_ASSERT(render_pass_info != nullptr)
+
+        // Save attachment descriptions to RenderPassInfo.
+        render_pass_info->attachment_description_final_layouts.resize(attachment_count);
+        for (uint32_t i = 0; i < attachment_count; ++i)
+        {
+            render_pass_info->attachment_description_final_layouts[i] = attachment_descs[i].finalLayout;
+        }
+    }
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     PFN_vkCreateRenderPass                                      func,
     VkResult                                                    original_result,
@@ -4603,23 +4624,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
 
     if ((result == VK_SUCCESS) && (pCreateInfo->GetPointer() != nullptr))
     {
-        GFXRECON_ASSERT(pCreateInfo->GetMetaStructPointer() != nullptr);
-        uint32_t attachment_count = pCreateInfo->GetPointer()->attachmentCount;
-        if (attachment_count > 0)
-        {
-            GFXRECON_ASSERT(pCreateInfo->GetMetaStructPointer()->pAttachments != nullptr);
-            const VkAttachmentDescription* attachment_descs =
-                pCreateInfo->GetMetaStructPointer()->pAttachments->GetPointer();
-            auto render_pass_info = reinterpret_cast<RenderPassInfo*>(pRenderPass->GetConsumerData(0));
-            GFXRECON_ASSERT(render_pass_info != nullptr)
-
-            // Save attachment descriptions to RenderPassInfo.
-            render_pass_info->attachment_descriptions.resize(attachment_count);
-            for (uint32_t i = 0; i < attachment_count; ++i)
-            {
-                render_pass_info->attachment_descriptions[i] = attachment_descs[i];
-            }
-        }
+        StoreAttachmentDescriptionFinalLayouts(pCreateInfo, pRenderPass);
     }
 
     return result;
@@ -4635,11 +4640,18 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    return swapchain_->CreateRenderPass2(func,
-                                         device_info,
-                                         pCreateInfo->GetPointer(),
-                                         GetAllocationCallbacks(pAllocator),
-                                         pRenderPass->GetHandlePointer());
+    auto result = swapchain_->CreateRenderPass2(func,
+                                                device_info,
+                                                pCreateInfo->GetPointer(),
+                                                GetAllocationCallbacks(pAllocator),
+                                                pRenderPass->GetHandlePointer());
+
+    if ((result == VK_SUCCESS) && (pCreateInfo->GetPointer() != nullptr))
+    {
+        StoreAttachmentDescriptionFinalLayouts(pCreateInfo, pRenderPass);
+    }
+
+    return result;
 }
 
 void VulkanReplayConsumerBase::OverrideCmdPipelineBarrier(
@@ -6611,14 +6623,14 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
         GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
-                        render_pass_info->attachment_descriptions.size());
+                        render_pass_info->attachment_description_final_layouts.size());
 
-        for (size_t i = 0; i < render_pass_info->attachment_descriptions.size(); ++i)
+        for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
         {
             auto image_view_id   = framebuffer_info->attachment_image_view_ids[i];
             auto image_view_info = object_info_table_.GetImageViewInfo(image_view_id);
             command_buffer_info->image_layout_barriers[image_view_info->image_id] =
-                render_pass_info->attachment_descriptions[i].finalLayout;
+                render_pass_info->attachment_description_final_layouts[i];
         }
     }
 
