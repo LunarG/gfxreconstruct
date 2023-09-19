@@ -976,8 +976,7 @@ void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& 
 
 void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
 {
-    if (((capture_mode_ & kModeWrite) == kModeWrite) ||
-        ((capture_mode_ & kModeWriteAndTrack) == kModeWriteAndTrack))
+    if (((capture_mode_ & kModeWrite) == kModeWrite) || ((capture_mode_ & kModeWriteAndTrack) == kModeWriteAndTrack))
     {
         auto       thread_data  = GetThreadData();
         const auto label_length = util::platform::StringLength(label);
