@@ -393,23 +393,6 @@ class Dx12StatsConsumer : public Dx12Consumer, public gfxrecon::decode::Annotati
         }
     }
 
-    virtual void ProcessAnnotation(uint64_t                         block_index,
-                                   gfxrecon::format::AnnotationType type,
-                                   const std::string&               label,
-                                   const std::string&               data) override
-    {
-        ++annotation_count_;
-        if (type == gfxrecon::format::AnnotationType::kJson &&
-            label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
-        {
-            operation_annotation_datas_.push_back(data);
-        }
-    }
-
-    uint64_t GetAnnotationCount() const { return annotation_count_; }
-
-    const std::vector<std::string>& GetOperationAnnotationDatas() const { return operation_annotation_datas_; }
-
   private:
     // Holds adapter descs that were obtained from the app calling GetDesc()
     // This list is only here to support older captures which do contain kDxgiAdapterInfoCommand
@@ -428,10 +411,6 @@ class Dx12StatsConsumer : public Dx12Consumer, public gfxrecon::decode::Annotati
     format::Dx12RuntimeInfo runtime_info_;
 
     graphics::dx12::AdapterSubmissionMapping adapter_submission_mapping_;
-
-    // Annotation info.
-    std::vector<std::string> operation_annotation_datas_;
-    uint64_t                 annotation_count_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)
