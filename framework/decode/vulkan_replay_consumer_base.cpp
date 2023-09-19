@@ -68,6 +68,25 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,   VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 };
 
+const char                                kSwapchainColorspaceExtensionName[] = "VK_EXT_swapchain_colorspace";
+const std::unordered_set<VkColorSpaceKHR> kColorspaceFromExtension            = { VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT,
+                                                                       VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT,
+                                                                       VK_COLOR_SPACE_BT2020_LINEAR_EXT,
+                                                                       VK_COLOR_SPACE_BT709_LINEAR_EXT,
+                                                                       VK_COLOR_SPACE_BT709_NONLINEAR_EXT,
+                                                                       VK_COLOR_SPACE_DCI_P3_LINEAR_EXT,
+                                                                       VK_COLOR_SPACE_DCI_P3_NONLINEAR_EXT,
+                                                                       VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT,
+                                                                       VK_COLOR_SPACE_DOLBYVISION_EXT,
+                                                                       VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT,
+                                                                       VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT,
+                                                                       VK_COLOR_SPACE_HDR10_HLG_EXT,
+                                                                       VK_COLOR_SPACE_HDR10_ST2084_EXT,
+                                                                       VK_COLOR_SPACE_PASS_THROUGH_EXT };
+
+const char            kAMDSwapchainColorspaceExtensionName[] = "VK_AMD_display_native_hdr";
+const VkColorSpaceKHR kAMDNativeDisplayColorspace            = VK_COLOR_SPACE_DISPLAY_NATIVE_AMD;
+
 // Device extensions to enable for trimming state setup, when available.
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
 
@@ -2661,7 +2680,8 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                                                             modified_create_info.enabledExtensionCount);
             InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
 
-            device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
+            device_info->enabled_extensions = std::move(enabled_extensions);
+            device_info->allocator          = std::unique_ptr<VulkanResourceAllocator>(allocator);
 
             // Track state of physical device properties and features at device creation
             device_info->property_feature_info = property_feature_info;
@@ -5068,31 +5088,43 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         VkDevice                     device          = device_info->handle;
         const encode::DeviceTable*   device_table    = GetDeviceTable(device);
 
-        if (screenshot_handler_ == nullptr)
-        {
-            result = swapchain_->CreateSwapchainKHR(func,
-                                                    device_info,
-                                                    replay_create_info,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    replay_swapchain,
-                                                    physical_device,
-                                                    instance_table,
-                                                    device_table);
-        }
-        else
+        VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
+
+        if (screenshot_handler_ != nullptr)
         {
             // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
-            VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
             modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-            result = swapchain_->CreateSwapchainKHR(func,
-                                                    device_info,
-                                                    &modified_create_info,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    replay_swapchain,
-                                                    physical_device,
-                                                    instance_table,
-                                                    device_table);
         }
+
+        bool        swap_colorspace = false;
+        const auto& extensions      = device_info->enabled_extensions;
+        if (kColorspaceFromExtension.count(replay_create_info->imageColorSpace) != 0)
+        {
+            swap_colorspace =
+                std::find(extensions.begin(), extensions.end(), kSwapchainColorspaceExtensionName) == extensions.end();
+        }
+
+        else if (replay_create_info->imageColorSpace == kAMDNativeDisplayColorspace)
+        {
+            swap_colorspace = std::find(extensions.begin(), extensions.end(), kAMDSwapchainColorspaceExtensionName) ==
+                              extensions.end();
+        }
+
+        if (swap_colorspace)
+        {
+            modified_create_info.imageColorSpace = VkColorSpaceKHR::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+            GFXRECON_LOG_INFO("Forcing supported color space for swapchain (ID = %" PRIu64 ")",
+                              swapchain_info->capture_id);
+        }
+
+        result = swapchain_->CreateSwapchainKHR(func,
+                                                device_info,
+                                                &modified_create_info,
+                                                GetAllocationCallbacks(pAllocator),
+                                                replay_swapchain,
+                                                physical_device,
+                                                instance_table,
+                                                device_table);
     }
     else
     {

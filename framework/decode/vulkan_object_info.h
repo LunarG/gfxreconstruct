@@ -252,6 +252,7 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     VkPhysicalDevice                         parent{ VK_NULL_HANDLE };
     std::unique_ptr<VulkanResourceAllocator> allocator;
     std::unordered_map<uint32_t, size_t>     array_counts;
+    std::vector<std::string>                 enabled_extensions;
 
     std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
 
