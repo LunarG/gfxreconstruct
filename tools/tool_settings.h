@@ -118,6 +118,7 @@ const char kFormatArgument[]                      = "--format";
 const char kIncludeBinariesOption[]               = "--include-binaries";
 const char kExpandFlagsOption[]                   = "--expand-flags";
 const char kFilePerFrameOption[]                  = "--file-per-frame";
+const char kFrameRange[]                          = "--frame-range";
 const char kSkipGetFenceStatus[]                  = "--skip-get-fence-status";
 const char kSkipGetFenceRanges[]                  = "--skip-get-fence-ranges";
 const char kWaitBeforePresent[]                   = "--wait-before-present";
