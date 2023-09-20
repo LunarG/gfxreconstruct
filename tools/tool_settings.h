@@ -111,6 +111,7 @@ const char kFormatArgument[]        = "--format";
 const char kIncludeBinariesOption[] = "--include-binaries";
 const char kExpandFlagsOption[]     = "--expand-flags";
 const char kFilePerFrameOption[]    = "--file-per-frame";
+const char kFrameRange[]            = "--frame-range";
 #if defined(WIN32)
 const char kApiFamilyOption[]             = "--api";
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
