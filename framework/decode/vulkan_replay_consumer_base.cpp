@@ -1138,7 +1138,7 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
             // to continue for the case where an application may have queried for formats that it did not use.
             GFXRECON_LOG_FATAL(
                 "API call at index: %d thread: %d %s returned error value %s that does not match the result from the "
-                "capture file: %s.  Replay cannot continue.",
+                "capture file: %s. Replay cannot continue.",
                 call_info.index,
                 call_info.thread_id,
                 func_name,
