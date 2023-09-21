@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2020,2022 Valve Corporation
 ** Copyright (c) 2018-2020,2022 LunarG, Inc.
 ** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -871,7 +872,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchDriverInfo(header.thread_id, header);
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchDriverInfo(header.thread_id, header);
+                }
             }
         }
     }

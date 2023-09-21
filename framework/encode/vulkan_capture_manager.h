@@ -1229,7 +1229,7 @@ class VulkanCaptureManager : public CaptureManager
 #endif
 
   protected:
-    VulkanCaptureManager() : CaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
+    VulkanCaptureManager() {}
 
     virtual ~VulkanCaptureManager() override {}
 

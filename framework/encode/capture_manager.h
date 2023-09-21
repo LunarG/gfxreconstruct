@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2022 LunarG, Inc.
 ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -137,7 +138,7 @@ class CaptureManager
 
     bool RuntimeTriggerDisabled();
 
-    void WriteDisplayMessageCmd(const char* message);
+    void WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message);
 
     void WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info);
 
@@ -223,7 +224,7 @@ class CaptureManager
 
     static void DestroyInstance(std::function<const CaptureManager*()> GetInstanceFunc);
 
-    CaptureManager(format::ApiFamilyId api_family);
+    CaptureManager();
 
     virtual ~CaptureManager();
 
@@ -269,11 +270,13 @@ class CaptureManager
 
     ParameterEncoder* InitMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id);
 
-    void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
+    void
+    WriteResizeWindowCmd(format::ApiFamilyId api_family, format::HandleId surface_id, uint32_t width, uint32_t height);
 
-    void WriteFillMemoryCmd(format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
+    void WriteFillMemoryCmd(
+        format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
 
-    void WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64_t allocation_size);
+    void WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family, uint64_t allocation_id, uint64_t allocation_size);
 
   protected:
     std::unique_ptr<util::Compressor> compressor_;
@@ -319,8 +322,6 @@ class CaptureManager
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static std::atomic<format::HandleId>            unique_id_counter_;
     static ApiCallMutexT                            api_call_mutex_;
-
-    const format::ApiFamilyId api_family_;
 
     std::unique_ptr<util::FileOutputStream> file_stream_;
     format::EnabledOptions                  file_options_;

@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -36,26 +37,65 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12DetectionConsumer : public Dx12Consumer
 {
   public:
-    Dx12DetectionConsumer() : dx12_consumer_usage_(false) {}
-    bool         WasD3D12APIDetected() { return dx12_consumer_usage_; }
-    virtual void Process_D3D12CreateDevice(const gfxrecon::decode::ApiCallInfo&           call_info,
-                                           HRESULT                                        return_value,
-                                           gfxrecon::format::HandleId                     pAdapter,
-                                           D3D_FEATURE_LEVEL                              MinimumFeatureLevel,
-                                           gfxrecon::decode::Decoded_GUID                 riid,
-                                           gfxrecon::decode::HandlePointerDecoder<void*>* ppDevice)
+    Dx12DetectionConsumer() : dx11_consumer_usage_(false), dx12_consumer_usage_(false) {}
+
+    bool WasD3D11APIDetected() { return dx11_consumer_usage_; }
+
+    bool WasD3D12APIDetected() { return dx12_consumer_usage_; }
+
+    virtual bool IsComplete(uint64_t block_index) override
+    {
+        return (block_index > kMaxDX12BlockLimit) || WasD3D11APIDetected() || WasD3D12APIDetected();
+    }
+
+    virtual void Process_D3D12CreateDevice(const gfxrecon::decode::ApiCallInfo&,
+                                           HRESULT,
+                                           gfxrecon::format::HandleId,
+                                           D3D_FEATURE_LEVEL,
+                                           gfxrecon::decode::Decoded_GUID,
+                                           gfxrecon::decode::HandlePointerDecoder<void*>*)
     {
         dx12_consumer_usage_ = true;
     }
 
-    virtual bool IsComplete(uint64_t block_index) override
+    void Process_D3D11CreateDevice(const ApiCallInfo&,
+                                   HRESULT,
+                                   format::HandleId,
+                                   D3D_DRIVER_TYPE,
+                                   uint64_t,
+                                   UINT,
+                                   PointerDecoder<D3D_FEATURE_LEVEL>*,
+                                   UINT,
+                                   UINT,
+                                   HandlePointerDecoder<ID3D11Device*>*,
+                                   PointerDecoder<D3D_FEATURE_LEVEL>*,
+                                   HandlePointerDecoder<ID3D11DeviceContext*>*)
     {
-        return (block_index > kMaxDX12BlockLimit) || WasD3D12APIDetected();
+        dx11_consumer_usage_ = true;
+    }
+
+    void Process_D3D11CreateDeviceAndSwapChain(const ApiCallInfo&,
+                                               HRESULT,
+                                               format::HandleId,
+                                               D3D_DRIVER_TYPE,
+                                               uint64_t,
+                                               UINT,
+                                               PointerDecoder<D3D_FEATURE_LEVEL>*,
+                                               UINT,
+                                               UINT,
+                                               StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>*,
+                                               HandlePointerDecoder<IDXGISwapChain*>*,
+                                               HandlePointerDecoder<ID3D11Device*>*,
+                                               PointerDecoder<D3D_FEATURE_LEVEL>*,
+                                               HandlePointerDecoder<ID3D11DeviceContext*>*)
+    {
+        dx11_consumer_usage_ = true;
     }
 
   private:
     static int const kMaxDX12BlockLimit = 1000;
-    bool dx12_consumer_usage_;
+    bool             dx11_consumer_usage_;
+    bool             dx12_consumer_usage_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

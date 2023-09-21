@@ -149,7 +149,7 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                VulkanCaptureManager::Get()->WriteDisplayMessageCmd(message.get());',
+            '                VulkanCaptureManager::Get()->WriteDisplayMessageCmd(format::ApiFamilyId::ApiFamily_Vulkan, message.get());',
             file=self.outFile
         )
         write(

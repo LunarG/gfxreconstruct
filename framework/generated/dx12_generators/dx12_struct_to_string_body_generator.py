@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -68,7 +69,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
     def generate_feature(self):
         struct_dict = self.source_dict['struct_dict']
         for k, v in struct_dict.items():
-            if not self.is_struct_black_listed(k):
+            if (not self.is_struct_black_listed(k)) and (not '<anon-' in k):
                 body = inspect.cleandoc('''
                     std::string ToString(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
                     {{

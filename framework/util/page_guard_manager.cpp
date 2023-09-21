@@ -2,6 +2,7 @@
 ** Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2015-2020 Valve Corporation
 ** Copyright (c) 2015-2020 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -689,9 +690,7 @@ void PageGuardManager::LoadActiveWriteStates(MemoryInfo* memory_info)
 #endif
 }
 
-void PageGuardManager::ProcessEntry(uint64_t                  memory_id,
-                                    MemoryInfo*               memory_info,
-                                    const ModifiedMemoryFunc& handle_modified)
+void PageGuardManager::ProcessEntry(MemoryInfo* memory_info, const ModifiedMemoryFunc& handle_modified)
 {
     assert(memory_info != nullptr);
 
@@ -739,19 +738,18 @@ void PageGuardManager::ProcessEntry(uint64_t                  memory_id,
             {
                 active_range = false;
 
-                ProcessActiveRange(memory_id, memory_info, start_index, i, handle_modified);
+                ProcessActiveRange(memory_info, start_index, i, handle_modified);
             }
         }
     }
 
     if (active_range)
     {
-        ProcessActiveRange(memory_id, memory_info, start_index, memory_info->total_pages, handle_modified);
+        ProcessActiveRange(memory_info, start_index, memory_info->total_pages, handle_modified);
     }
 }
 
-void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
-                                          MemoryInfo*               memory_info,
+void PageGuardManager::ProcessActiveRange(MemoryInfo*               memory_info,
                                           size_t                    start_index,
                                           size_t                    end_index,
                                           const ModifiedMemoryFunc& handle_modified)
@@ -795,7 +793,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
 
         // The shadow memory address, page offset, and range values to be provided to the callback, which will process
         // the memory range.
-        handle_modified(memory_id, memory_info->shadow_memory, page_offset, page_range);
+        handle_modified(memory_info->memory_id, memory_info->shadow_memory, page_offset, page_range);
 
         // Reset page guard to detect both read and write accesses when using shadow memory.
         SetMemoryProtection(guard_address, guard_range, kGuardReadWriteProtect);
@@ -826,17 +824,17 @@ void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
 
         // The mapped memory address, page offset, and range values to be provided to the callback, which will process
         // the memory range.
-        handle_modified(memory_id, memory_info->mapped_memory, page_offset, page_range);
+        handle_modified(memory_info->memory_id, memory_info->mapped_memory, page_offset, page_range);
     }
 }
 
-bool PageGuardManager::GetTrackedMemory(uint64_t memory_id, void** memory)
+bool PageGuardManager::GetTrackedMemory(uint64_t tracker_key, void** memory)
 {
     assert(memory != nullptr);
 
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
-    auto entry = memory_info_.find(memory_id);
+    auto entry = memory_info_.find(tracker_key);
     if (entry != memory_info_.end())
     {
         if (entry->second.shadow_memory != nullptr)
@@ -854,7 +852,8 @@ bool PageGuardManager::GetTrackedMemory(uint64_t memory_id, void** memory)
     return false;
 }
 
-void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
+void* PageGuardManager::AddTrackedMemory(uint64_t  tracker_key,
+                                         uint64_t  memory_id,
                                          void*     mapped_memory,
                                          size_t    mapped_offset,
                                          size_t    mapped_range,
@@ -1011,12 +1010,13 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
 
         if (success)
         {
-            assert(memory_info_.find(memory_id) == memory_info_.end());
+            GFXRECON_ASSERT(memory_info_.find(tracker_key) == memory_info_.end());
 
             auto entry =
                 memory_info_.emplace(std::piecewise_construct,
-                                     std::forward_as_tuple(memory_id),
-                                     std::forward_as_tuple(mapped_memory,
+                                     std::forward_as_tuple(tracker_key),
+                                     std::forward_as_tuple(memory_id,
+                                                           mapped_memory,
                                                            mapped_range,
                                                            shadow_memory,
                                                            shadow_size,
@@ -1056,11 +1056,11 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
     return (shadow_memory != nullptr) ? shadow_memory : mapped_memory;
 }
 
-void PageGuardManager::RemoveTrackedMemory(uint64_t memory_id)
+void PageGuardManager::RemoveTrackedMemory(uint64_t tracker_key)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
-    auto entry = memory_info_.find(memory_id);
+    auto entry = memory_info_.find(tracker_key);
     if (entry != memory_info_.end())
     {
         const MemoryInfo& memory_info = entry->second;
@@ -1079,6 +1079,31 @@ void PageGuardManager::RemoveTrackedMemory(uint64_t memory_id)
 
         memory_info_.erase(entry);
     }
+}
+
+bool PageGuardManager::UpdateTrackedMemory(uint64_t tracker_key,
+                                           uint64_t memory_id,
+                                           void*    mapped_memory,
+                                           void**   shadow_memory)
+{
+    std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    auto entry = memory_info_.find(tracker_key);
+    if (entry != memory_info_.end())
+    {
+        MemoryInfo& memory_info   = entry->second;
+        memory_info.memory_id     = memory_id;
+        memory_info.mapped_memory = mapped_memory;
+
+        if ((shadow_memory != nullptr) && (entry->second.shadow_memory != nullptr))
+        {
+            (*shadow_memory) = entry->second.shadow_memory;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 uintptr_t PageGuardManager::AllocatePersistentShadowMemory(size_t size)
@@ -1109,11 +1134,11 @@ void PageGuardManager::FreePersistentShadowMemory(uintptr_t shadow_memory_handle
     }
 }
 
-void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemoryFunc& handle_modified)
+void PageGuardManager::ProcessMemoryEntry(uint64_t tracker_key, const ModifiedMemoryFunc& handle_modified)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
-    auto entry = memory_info_.find(memory_id);
+    auto entry = memory_info_.find(tracker_key);
 
     if (entry != memory_info_.end())
     {
@@ -1128,7 +1153,7 @@ void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemo
 
         if (memory_info->is_modified)
         {
-            ProcessEntry(entry->first, memory_info, handle_modified);
+            ProcessEntry(memory_info, handle_modified);
         }
     }
 }
@@ -1150,7 +1175,7 @@ void PageGuardManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_mod
 
         if (memory_info->is_modified)
         {
-            ProcessEntry(entry->first, memory_info, handle_modified);
+            ProcessEntry(memory_info, handle_modified);
         }
     }
 }

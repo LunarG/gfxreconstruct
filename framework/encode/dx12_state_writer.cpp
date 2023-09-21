@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -102,7 +103,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
 
     // Write this out before rendering begins
     // This ensures the replayer gets a chance to process the metadata command
-    D3D12CaptureManager::Get()->WriteDxgiAdapterInfo();
+    D3D12CaptureManager::Get()->WriteDxgiAdapterInfo(format::ApiFamilyId::ApiFamily_D3D12);
     D3D12CaptureManager::Get()->WriteDx12DriverInfo();
     D3D12CaptureManager::Get()->WriteDx12RuntimeInfo();
 

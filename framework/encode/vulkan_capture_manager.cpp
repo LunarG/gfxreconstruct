@@ -1516,7 +1516,8 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
                     WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
                     if (data != nullptr)
                     {
-                        WriteFillMemoryCmd(memory_id, 0, properties.allocationSize, data);
+                        WriteFillMemoryCmd(
+                            format::ApiFamilyId::ApiFamily_Vulkan, memory_id, 0, properties.allocationSize, data);
 
                         if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
                             GetPageGuardTrackAhbMemory())
@@ -1902,7 +1903,8 @@ void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice        
                         manager->ProcessMemoryEntry(
                             current_memory_wrapper->handle_id,
                             [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                WriteFillMemoryCmd(
+                                    format::ApiFamilyId::ApiFamily_Vulkan, memory_id, offset, size, start_address);
                             });
                     }
                     else
@@ -1935,8 +1937,11 @@ void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice        
                         size = current_memory_wrapper->allocation_size - pMemoryRanges[i].offset;
                     }
 
-                    WriteFillMemoryCmd(
-                        current_memory_wrapper->handle_id, relative_offset, size, current_memory_wrapper->mapped_data);
+                    WriteFillMemoryCmd(format::ApiFamilyId::ApiFamily_Vulkan,
+                                       current_memory_wrapper->handle_id,
+                                       relative_offset,
+                                       size,
+                                       current_memory_wrapper->mapped_data);
                 }
             }
         }
@@ -1955,10 +1960,10 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
 
-            manager->ProcessMemoryEntry(wrapper->handle_id,
-                                        [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                            WriteFillMemoryCmd(memory_id, offset, size, start_address);
-                                        });
+            manager->ProcessMemoryEntry(
+                wrapper->handle_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                    WriteFillMemoryCmd(format::ApiFamilyId::ApiFamily_Vulkan, memory_id, offset, size, start_address);
+                });
 
             manager->RemoveTrackedMemory(wrapper->handle_id);
         }
@@ -1973,7 +1978,8 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
 
             // Write the entire mapped region.
             // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-            WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
+            WriteFillMemoryCmd(
+                format::ApiFamilyId::ApiFamily_Vulkan, wrapper->handle_id, 0, size, wrapper->mapped_data);
 
             {
                 std::lock_guard<std::mutex> lock(mapped_memory_lock_);
@@ -2194,7 +2200,7 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
         assert(manager != nullptr);
 
         manager->ProcessMemoryEntries([this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-            WriteFillMemoryCmd(memory_id, offset, size, start_address);
+            WriteFillMemoryCmd(format::ApiFamilyId::ApiFamily_Vulkan, memory_id, offset, size, start_address);
         });
     }
     else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -2212,7 +2218,8 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
 
             // If the memory is mapped, write the entire mapped region.
             // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-            WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
+            WriteFillMemoryCmd(
+                format::ApiFamilyId::ApiFamily_Vulkan, wrapper->handle_id, 0, size, wrapper->mapped_data);
         }
     }
 }

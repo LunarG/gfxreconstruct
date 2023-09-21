@@ -40,6 +40,12 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
+#include <d3d11_3.h>
+#include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -294,8 +300,160 @@ std::string ToString(const D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTING
 std::string ToString(const D3D12_MESSAGE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
 std::string ToString(const D3D12_INFO_QUEUE_FILTER_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
 std::string ToString(const D3D12_INFO_QUEUE_FILTER& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_INPUT_ELEMENT_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_SO_DECLARATION_ENTRY& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIEWPORT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_DRAW_INSTANCED_INDIRECT_ARGS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_BOX& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_DEPTH_STENCILOP_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_DEPTH_STENCIL_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_RENDER_TARGET_BLEND_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_BLEND_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_RASTERIZER_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_MAPPED_SUBRESOURCE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_BUFFER_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEXTURE1D_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEXTURE2D_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEXTURE3D_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_BUFFEREX_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX1D_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX1D_ARRAY_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_ARRAY_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX3D_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEXCUBE_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEXCUBE_ARRAY_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2DMS_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2DMS_ARRAY_SRV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX1D_RTV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX1D_ARRAY_RTV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_RTV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2DMS_RTV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_ARRAY_RTV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2DMS_ARRAY_RTV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX3D_RTV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX1D_DSV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX1D_ARRAY_DSV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_DSV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_ARRAY_DSV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2DMS_DSV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2DMS_ARRAY_DSV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_BUFFER_UAV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX1D_UAV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX1D_ARRAY_UAV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_UAV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_ARRAY_UAV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX3D_UAV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_SAMPLER_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_QUERY_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_QUERY_DATA_TIMESTAMP_DISJOINT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_QUERY_DATA_PIPELINE_STATISTICS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_QUERY_DATA_SO_STATISTICS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_COUNTER_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_COUNTER_INFO& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_CLASS_INSTANCE_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_THREADING& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_DOUBLES& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_FORMAT_SUPPORT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_FORMAT_SUPPORT2& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D11_OPTIONS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_ARCHITECTURE_INFO& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D9_OPTIONS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D11_OPTIONS1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_MARKER_SUPPORT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D9_OPTIONS1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D11_OPTIONS2& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D11_OPTIONS3& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_SHADER_CACHE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D11_OPTIONS5& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const CD3D11_VIDEO_DEFAULT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_DECODER_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_DECODER_CONFIG& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AES_CTR_IV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_ENCRYPTED_BLOCK_INFO& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_DECODER_BUFFER_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_DECODER_EXTENSION& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_PROCESSOR_CAPS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_CONTENT_PROTECTION_CAPS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_PROCESSOR_CUSTOM_RATE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_PROCESSOR_FILTER_RANGE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_PROCESSOR_CONTENT_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_COLOR_RGBA& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_COLOR_YCbCrA& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_PROCESSOR_COLOR_SPACE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_PROCESSOR_STREAM& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_OMAC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_PROTECTION_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_CHANNEL_TYPE_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_DEVICE_HANDLE_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_COUNT_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_UNRESTRICTED_PROTECTED_SHARED_RESOURCE_COUNT_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_COUNT_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_QUERY_CURRENT_ACCESSIBILITY_ENCRYPTION_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_CONFIGURE_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_CONFIGURE_OUTPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_CONFIGURE_INITIALIZE_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_CONFIGURE_PROTECTION_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_CONFIGURE_CRYPTO_SESSION_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_CONFIGURE_SHARED_RESOURCE_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_AUTHENTICATED_CONFIGURE_ACCESSIBLE_ENCRYPTION_INPUT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_VDOV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_VPIV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_VPOV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_ARRAY_VPOV& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_RENDER_TARGET_BLEND_DESC1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_BLEND_DESC1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_RASTERIZER_DESC1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_DECODER_BUFFER_DESC1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_KEY_EXCHANGE_HW_PROTECTION_DATA& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_SAMPLE_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TILED_RESOURCE_COORDINATE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TILE_REGION_SIZE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_SUBRESOURCE_TILING& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TILE_SHAPE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_PACKED_MIP_DESC& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEXTURE2D_DESC1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEXTURE3D_DESC1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_RASTERIZER_DESC2& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_SRV1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_ARRAY_SRV1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_RTV1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_ARRAY_RTV1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_UAV1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_TEX2D_ARRAY_UAV1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_QUERY_DESC1& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_VIDEO_DECODER_BUFFER_DESC2& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_FEATURE_DATA_D3D11_OPTIONS4& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const D3D11_RESOURCE_FLAGS& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
 std::string ToString(const tagRECT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
 std::string ToString(const tagPOINT& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
+std::string ToString(const tagSIZE& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

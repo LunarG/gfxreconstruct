@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -721,6 +722,554 @@ ToString(const D3D12_RAYTRACING_GEOMETRY_DESC& obj, ToStringFlags toStringFlags,
                 default:
                 {
                 } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_SUBRESOURCE_DATA>(const D3D11_SUBRESOURCE_DATA& obj,
+                                             ToStringFlags                 toStringFlags,
+                                             uint32_t                      tabCount,
+                                             uint32_t                      tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "pSysMem", toStringFlags, tabCount, tabSize, '"' + PtrToString(obj.pSysMem) + '"');
+            FieldToString(strStrm, false, "SysMemPitch", toStringFlags, tabCount, tabSize, '"' + ToString(obj.SysMemPitch, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "SysMemSlicePitch", toStringFlags, tabCount, tabSize, '"' + ToString(obj.SysMemSlicePitch, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_BUFFER_SRV>(const D3D11_BUFFER_SRV& obj,
+                                       ToStringFlags           toStringFlags,
+                                       uint32_t                tabCount,
+                                       uint32_t                tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "FirstElement", toStringFlags, tabCount, tabSize, '"' + ToString(obj.FirstElement, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "NumElements", toStringFlags, tabCount, tabSize, '"' + ToString(obj.NumElements, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_SHADER_RESOURCE_VIEW_DESC>(const D3D11_SHADER_RESOURCE_VIEW_DESC& obj,
+                                                      ToStringFlags                          toStringFlags,
+                                                      uint32_t                               tabCount,
+                                                      uint32_t                               tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_SRV_DIMENSION_BUFFER:
+            {
+                FieldToString(strStrm, false, "Buffer", toStringFlags, tabCount, tabSize, ToString(obj.Buffer, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE1D:
+            {
+                FieldToString(strStrm, false, "Texture1D", toStringFlags, tabCount, tabSize, ToString(obj.Texture1D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture1DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture1DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+            {
+                FieldToString(strStrm, false, "Texture2DMS", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMS, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DMSArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMSArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE3D:
+            {
+                FieldToString(strStrm, false, "Texture3D", toStringFlags, tabCount, tabSize, ToString(obj.Texture3D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURECUBE:
+            {
+                FieldToString(strStrm, false, "TextureCube", toStringFlags, tabCount, tabSize, ToString(obj.TextureCube, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            {
+                FieldToString(strStrm, false, "TextureCubeArray", toStringFlags, tabCount, tabSize, ToString(obj.TextureCubeArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_BUFFEREX:
+            {
+                FieldToString(strStrm, false, "BufferEx", toStringFlags, tabCount, tabSize, ToString(obj.BufferEx, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_BUFFER_RTV>(const D3D11_BUFFER_RTV& obj,
+                                       ToStringFlags           toStringFlags,
+                                       uint32_t                tabCount,
+                                       uint32_t                tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "FirstElement", toStringFlags, tabCount, tabSize, '"' + ToString(obj.FirstElement, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "NumElements", toStringFlags, tabCount, tabSize, '"' + ToString(obj.NumElements, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_UNORDERED_ACCESS_VIEW_DESC>(const D3D11_UNORDERED_ACCESS_VIEW_DESC& obj,
+                                                       ToStringFlags                           toStringFlags,
+                                                       uint32_t                                tabCount,
+                                                       uint32_t                                tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_UAV_DIMENSION_BUFFER:
+            {
+                FieldToString(strStrm, false, "Buffer", toStringFlags, tabCount, tabSize, ToString(obj.Buffer, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE1D:
+            {
+                FieldToString(strStrm, false, "Texture1D", toStringFlags, tabCount, tabSize, ToString(obj.Texture1D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture1DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture1DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE3D:
+            {
+                FieldToString(strStrm, false, "Texture3D", toStringFlags, tabCount, tabSize, ToString(obj.Texture3D, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_RENDER_TARGET_VIEW_DESC>(const D3D11_RENDER_TARGET_VIEW_DESC& obj,
+                                                    ToStringFlags                        toStringFlags,
+                                                    uint32_t                             tabCount,
+                                                    uint32_t                             tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_RTV_DIMENSION_BUFFER:
+            {
+                FieldToString(strStrm, false, "Buffer", toStringFlags, tabCount, tabSize, ToString(obj.Buffer, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE1D:
+            {
+                FieldToString(strStrm, false, "Texture1D", toStringFlags, tabCount, tabSize, ToString(obj.Texture1D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture1DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture1DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+            {
+                FieldToString(strStrm, false, "Texture2DMS", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMS, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMSArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE3D:
+            {
+                FieldToString(strStrm, false, "Texture3D", toStringFlags, tabCount, tabSize, ToString(obj.Texture3D, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_DEPTH_STENCIL_VIEW_DESC>(const D3D11_DEPTH_STENCIL_VIEW_DESC& obj,
+                                                    ToStringFlags                        toStringFlags,
+                                                    uint32_t                             tabCount,
+                                                    uint32_t                             tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Flags, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_DSV_DIMENSION_TEXTURE1D:
+            {
+                FieldToString(strStrm, false, "Texture1D", toStringFlags, tabCount, tabSize, ToString(obj.Texture1D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_DSV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture1DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture1DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_DSV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_DSV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_DSV_DIMENSION_TEXTURE2DMS:
+            {
+                FieldToString(strStrm, false, "Texture2DMS", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMS, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMSArray, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_SHADER_RESOURCE_VIEW_DESC1>(const D3D11_SHADER_RESOURCE_VIEW_DESC1& obj,
+                                                       ToStringFlags                           toStringFlags,
+                                                       uint32_t                                tabCount,
+                                                       uint32_t                                tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_SRV_DIMENSION_BUFFER:
+            {
+                FieldToString(strStrm, false, "Buffer", toStringFlags, tabCount, tabSize, ToString(obj.Buffer, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE1D:
+            {
+                FieldToString(strStrm, false, "Texture1D", toStringFlags, tabCount, tabSize, ToString(obj.Texture1D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture1DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture1DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+            {
+                FieldToString(strStrm, false, "Texture2DMS", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMS, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DMSArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMSArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURE3D:
+            {
+                FieldToString(strStrm, false, "Texture3D", toStringFlags, tabCount, tabSize, ToString(obj.Texture3D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURECUBE:
+            {
+                FieldToString(strStrm, false, "TextureCube", toStringFlags, tabCount, tabSize, ToString(obj.TextureCube, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            {
+                FieldToString(strStrm, false, "TextureCubeArray", toStringFlags, tabCount, tabSize, ToString(obj.TextureCubeArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_SRV_DIMENSION_BUFFEREX:
+            {
+                FieldToString(strStrm, false, "BufferEx", toStringFlags, tabCount, tabSize, ToString(obj.BufferEx, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_UNORDERED_ACCESS_VIEW_DESC1>(const D3D11_UNORDERED_ACCESS_VIEW_DESC1& obj,
+                                                        ToStringFlags                            toStringFlags,
+                                                        uint32_t                                 tabCount,
+                                                        uint32_t                                 tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_UAV_DIMENSION_BUFFER:
+            {
+                FieldToString(strStrm, false, "Buffer", toStringFlags, tabCount, tabSize, ToString(obj.Buffer, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE1D:
+            {
+                FieldToString(strStrm, false, "Texture1D", toStringFlags, tabCount, tabSize, ToString(obj.Texture1D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture1DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture1DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_UAV_DIMENSION_TEXTURE3D:
+            {
+                FieldToString(strStrm, false, "Texture3D", toStringFlags, tabCount, tabSize, ToString(obj.Texture3D, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_RENDER_TARGET_VIEW_DESC1>(const D3D11_RENDER_TARGET_VIEW_DESC1& obj,
+                                                     ToStringFlags                         toStringFlags,
+                                                     uint32_t                              tabCount,
+                                                     uint32_t                              tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_RTV_DIMENSION_BUFFER:
+            {
+                FieldToString(strStrm, false, "Buffer", toStringFlags, tabCount, tabSize, ToString(obj.Buffer, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE1D:
+            {
+                FieldToString(strStrm, false, "Texture1D", toStringFlags, tabCount, tabSize, ToString(obj.Texture1D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture1DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture1DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+            {
+                FieldToString(strStrm, false, "Texture2DMS", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMS, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DMSArray, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_RTV_DIMENSION_TEXTURE3D:
+            {
+                FieldToString(strStrm, false, "Texture3D", toStringFlags, tabCount, tabSize, ToString(obj.Texture3D, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_VIDEO_COLOR>(const D3D11_VIDEO_COLOR& obj,
+                                        ToStringFlags            toStringFlags,
+                                        uint32_t                 tabCount,
+                                        uint32_t                 tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "RGBA", toStringFlags, tabCount, tabSize, '"' + ToString(obj.RGBA, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_AUTHENTICATED_PROTECTION_FLAGS>(const D3D11_AUTHENTICATED_PROTECTION_FLAGS& obj,
+                                                           ToStringFlags                               toStringFlags,
+                                                           uint32_t                                    tabCount,
+                                                           uint32_t                                    tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            // This is a union of a bitfield and unsigned integer, generate string using the bitfield Flags name and the unsigned integer Value.
+            FieldToString(strStrm, true, "Flags", toStringFlags, tabCount, tabSize, '"' + ToString(obj.Value, toStringFlags, tabCount, tabSize) + '"');
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC>(const D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC& obj,
+                                                           ToStringFlags                               toStringFlags,
+                                                           uint32_t                                    tabCount,
+                                                           uint32_t                                    tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            // This is a union of a bitfield and unsigned integer, generate string using the bitfield Flags name and the unsigned integer Value.
+            FieldToString(strStrm, true, "DecodeProfile", toStringFlags, tabCount, tabSize, '"' + ToString(obj.DecodeProfile, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_VDOV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC>(const D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC& obj,
+                                                            ToStringFlags                                toStringFlags,
+                                                            uint32_t                                     tabCount,
+                                                            uint32_t                                     tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            // This is a union of a bitfield and unsigned integer, generate string using the bitfield Flags name and the unsigned integer Value.
+            FieldToString(strStrm, true, "FourCC", toStringFlags, tabCount, tabSize, '"' + ToString(obj.FourCC, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_VPIV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
+            }
+        }
+    );
+    // clang-format on
+}
+
+template <>
+std::string ToString<D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC>(const D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC& obj,
+                                                             ToStringFlags toStringFlags,
+                                                             uint32_t      tabCount,
+                                                             uint32_t      tabSize)
+{
+    // clang-format off
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            // This is a union of a bitfield and unsigned integer, generate string using the bitfield Flags name and the unsigned integer Value.
+            FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, '"' + ToString(obj.ViewDimension, toStringFlags, tabCount, tabSize) + '"');
+            switch (obj.ViewDimension) {
+            case D3D11_VPOV_DIMENSION_TEXTURE2D:
+            {
+                FieldToString(strStrm, false, "Texture2D", toStringFlags, tabCount, tabSize, ToString(obj.Texture2D, toStringFlags, tabCount, tabSize));
+            } break;
+            case D3D11_VPOV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToString(strStrm, false, "Texture2DArray", toStringFlags, tabCount, tabSize, ToString(obj.Texture2DArray, toStringFlags, tabCount, tabSize));
+            } break;
+            default:
+            {
+            } break;
             }
         }
     );

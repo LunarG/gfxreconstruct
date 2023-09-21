@@ -187,13 +187,14 @@ int main(int argc, const char** argv)
     gfxrecon::decode::FileProcessor file_processor;
 
 #ifndef CONVERT_EXPERIMENTAL_D3D12
+    bool detected_d3d11  = false;
     bool detected_d3d12  = false;
     bool detected_vulkan = false;
-    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
+    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d11, detected_d3d12, detected_vulkan);
 
-    if (detected_d3d12)
+    if (detected_d3d11 || detected_d3d12)
     {
-        GFXRECON_LOG_INFO("D3D12 support for gfxrecon-convert is currently experimental.");
+        GFXRECON_LOG_INFO("D3D support for gfxrecon-convert is currently experimental.");
         GFXRECON_LOG_INFO("To enable it, run cmake again with switch -DCONVERT_EXPERIMENTAL_D3D12");
         goto exit;
     }

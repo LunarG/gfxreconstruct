@@ -72,7 +72,7 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
                 int32_t message_size = std::snprintf(nullptr, 0, "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);
                 std::unique_ptr<char[]> message = std::make_unique<char[]>(message_size + 1); // Add 1 for null-terminator.
                 std::snprintf(message.get(), (message_size + 1), "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->sType);
-                VulkanCaptureManager::Get()->WriteDisplayMessageCmd(message.get());
+                VulkanCaptureManager::Get()->WriteDisplayMessageCmd(format::ApiFamilyId::ApiFamily_Vulkan, message.get());
                 GFXRECON_LOG_WARNING("%s", message.get());
                 EncodePNextStruct(encoder, base->pNext);
             }

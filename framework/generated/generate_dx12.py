@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -75,11 +76,20 @@ DX12_SOURCE_LIST = [
     'd3d12sdklayers.h',
 ]
 
+DX11_SOURCE_LIST = [
+    'um\\d3d11.h',
+    'um\\d3d11_1.h',
+    'um\\d3d11_2.h',
+    'um\\d3d11_3.h',
+    'um\\d3d11_4.h',
+    'um\\d3d11on12.h'
+]
+
 # The second value is required data. It only generates required data.
 WINAPI_SOURCE_LIST = [
     ['um\\Unknwnbase.h', ['IUnknown']],
     ['shared\\guiddef.h', ['GUID']],
-    ['shared\\windef.h', ['tagRECT', 'tagPOINT']],
+    ['shared\\windef.h', ['tagRECT', 'tagPOINT', 'tagSIZE']],
     ['um\\minwinbase.h', ['_SECURITY_ATTRIBUTES']],
 ]
 
@@ -123,20 +133,38 @@ if __name__ == '__main__':
     from gencode import GenCode
     from dx12_generators.dx12_CppHeaderParser import Dx12CppHeader, Dx12CppClass
 
+    # CppHeaderParser objects generate a unique name for anonymous unions using a counter that starts from 0. To ensure
+    # that union names are globally unique, we need each Dx12CppHeader object to initialize its internal counter with a
+    # cumulative count.
+    anon_union_counter = 0
+
     header_dict = {}
     for source in DXGI_SOURCE_LIST:
         source_file = os.path.join(
             WINDOWS_SDK_DIR + 'Include\\' + WINDOWS_SDK_VERSION, source
         )
         print('Parsing', source_file)
+        header = Dx12CppHeader(source_file, anon_union_counter)
+        anon_union_counter = header.anon_union_count
         header_dict[source[source.find('\\') + 1:]
-                    ] = Dx12CppHeader(source_file)
+                    ] = header
 
     for source in DX12_SOURCE_LIST:
         source_file = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'AgilitySDK', 'inc', source)
 
         print('Parsing', source_file)
-        header_dict[source[source.find('\\') + 1:]] = Dx12CppHeader(source_file)
+        header = Dx12CppHeader(source_file, anon_union_counter)
+        anon_union_counter = header.anon_union_count
+        header_dict[source[source.find('\\') + 1:]] = header
+
+    for source in DX11_SOURCE_LIST:
+        source_file = os.path.join(
+            WINDOWS_SDK_DIR + 'Include\\' + WINDOWS_SDK_VERSION, source
+        )
+        print('Parsing', source_file)
+        header = Dx12CppHeader(source_file, anon_union_counter)
+        anon_union_counter = header.anon_union_count
+        header_dict[source[source.find('\\') + 1:]] = header
 
     for source in WINAPI_SOURCE_LIST:
         source_file = os.path.join(

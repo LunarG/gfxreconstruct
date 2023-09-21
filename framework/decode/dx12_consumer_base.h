@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -28,6 +29,8 @@
 #include "decode/struct_pointer_decoder.h"
 
 #include <d3d12.h>
+#include <d3d11.h>
+#include <d3d11_3.h>
 #include <dxgi1_5.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -171,6 +174,99 @@ class Dx12ConsumerBase
                                                            void*                                    pSrcData,
                                                            UINT                                     SrcRowPitch,
                                                            UINT                                     SrcDepthPitch)
+    {}
+
+    virtual void Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo& call_info,
+                                                          format::HandleId   object_id,
+                                                          HRESULT            return_value,
+                                                          D3D11_FEATURE      feature,
+                                                          const void*        capture_feature_data,
+                                                          void*              replay_feature_data,
+                                                          UINT               feature_data_size)
+    {}
+
+    virtual void Process_ID3D11Device_CreateBuffer(const ApiCallInfo&                                    call_info,
+                                                   format::HandleId                                      object_id,
+                                                   HRESULT                                               return_value,
+                                                   StructPointerDecoder<Decoded_D3D11_BUFFER_DESC>*      pDesc,
+                                                   StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                                   HandlePointerDecoder<ID3D11Buffer*>*                  ppBuffer)
+    {}
+
+    virtual void
+    Process_ID3D11Device_CreateTexture1D(const ApiCallInfo&                                    call_info,
+                                         format::HandleId                                      object_id,
+                                         HRESULT                                               return_value,
+                                         StructPointerDecoder<Decoded_D3D11_TEXTURE1D_DESC>*   pDesc,
+                                         StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                         HandlePointerDecoder<ID3D11Texture1D*>*               ppTexture1D)
+    {}
+
+    virtual void
+    Process_ID3D11Device_CreateTexture2D(const ApiCallInfo&                                    call_info,
+                                         format::HandleId                                      object_id,
+                                         HRESULT                                               return_value,
+                                         StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC>*   pDesc,
+                                         StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                         HandlePointerDecoder<ID3D11Texture2D*>*               ppTexture2D)
+    {}
+
+    virtual void
+    Process_ID3D11Device_CreateTexture3D(const ApiCallInfo&                                    call_info,
+                                         format::HandleId                                      object_id,
+                                         HRESULT                                               return_value,
+                                         StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC>*   pDesc,
+                                         StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                         HandlePointerDecoder<ID3D11Texture3D*>*               ppTexture3D)
+    {}
+
+    virtual void Process_ID3D11DeviceContext_UpdateSubresource(const ApiCallInfo&                       call_info,
+                                                               format::HandleId                         object_id,
+                                                               format::HandleId                         pDstResource,
+                                                               UINT                                     DstSubresource,
+                                                               StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                               PointerDecoder<uint8_t>*                 pSrcData,
+                                                               UINT                                     SrcRowPitch,
+                                                               UINT                                     SrcDepthPitch)
+    {}
+
+    virtual void Process_ID3D11DeviceContext1_UpdateSubresource1(const ApiCallInfo& call_info,
+                                                                 format::HandleId   object_id,
+                                                                 format::HandleId   pDstResource,
+                                                                 UINT               DstSubresource,
+                                                                 StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                                 PointerDecoder<uint8_t>*                 pSrcData,
+                                                                 UINT                                     SrcRowPitch,
+                                                                 UINT                                     SrcDepthPitch,
+                                                                 UINT                                     CopyFlags)
+    {}
+
+    virtual void
+    Process_ID3D11Device3_CreateTexture2D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture2D1*>*              ppTexture2D)
+    {}
+
+    virtual void
+    Process_ID3D11Device3_CreateTexture3D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture3D1*>*              ppTexture3D)
+    {}
+
+    virtual void Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo&                       call_info,
+                                                          format::HandleId                         object_id,
+                                                          format::HandleId                         pDstResource,
+                                                          UINT                                     DstSubresource,
+                                                          StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                          PointerDecoder<uint8_t>*                 pSrcData,
+                                                          UINT                                     SrcRowPitch,
+                                                          UINT                                     SrcDepthPitch)
     {}
 
     void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; };

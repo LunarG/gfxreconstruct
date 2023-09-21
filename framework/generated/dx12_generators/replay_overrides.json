@@ -1,7 +1,9 @@
 {
   "functions": {
     "CreateDXGIFactory2": "OverrideCreateDXGIFactory2",
-    "D3D12CreateDevice": "OverrideD3D12CreateDevice"
+    "D3D12CreateDevice": "OverrideD3D12CreateDevice",
+    "D3D11CreateDevice": "OverrideD3D11CreateDevice",
+    "D3D11CreateDeviceAndSwapChain": "OverrideD3D11CreateDeviceAndSwapChain"
   },
   "classmethods": {
     "IUnknown": {
@@ -101,6 +103,14 @@
       "BuildRaytracingAccelerationStructure": "OverrideBuildRaytracingAccelerationStructure",
       "DispatchRays": "OverrideDispatchRays",
       "SetPipelineState1": "OverrideSetPipelineState1"
+    },
+    "ID3D11DeviceContext": {
+      "GetData": "OverrideDeviceContextGetData",
+      "Map": "OverrideDeviceContextMap",
+      "Unmap": "OverrideDeviceContextUnmap"
+    },
+    "ID3D11Device3": {
+      "ReadFromSubresource": "OverrideDevice3ReadFromSubresource"
     },
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"

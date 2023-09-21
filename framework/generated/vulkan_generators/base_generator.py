@@ -1162,7 +1162,7 @@ class BaseGenerator(OutputGenerator):
         if value.is_pointer or value.is_array:
             count = value.pointer_count
 
-            if self.is_struct(type_name):
+            if self.is_struct(type_name) or self.is_union(type_name):
                 if (
                     self.is_dx12_class() and
                     (value.array_dimension and value.array_dimension == 1)
@@ -1191,8 +1191,14 @@ class BaseGenerator(OutputGenerator):
                     type_name = 'StringDecoder'
             elif type_name == 'void':
                 if value.is_array:
-                    # If this was an array (void*) it was encoded as an array of bytes.
-                    type_name = 'PointerDecoder<uint8_t>'
+                    if (self.is_dx12_class() and count > 1):
+                        # If this was a pointer to memory (void**) allocated internally by the implementation, it was encoded as
+                        # an array of bytes but must be retrieved as a pointer to a memory allocation. For this case, the array
+                        # length value defines the size of the memory referenced by the single retrieved pointer.
+                        type_name = 'PointerDecoder<uint8_t, void*>'
+                    else:
+                        # If this was an array (void*) it was encoded as an array of bytes.
+                        type_name = 'PointerDecoder<uint8_t>'
                 elif count > 1:
                     # If this was a pointer to a pointer to an unknown object (void**), it was encoded as a pointer to a 64-bit address value.
                     # So, we specify uint64_t as the decode type and void* as the type to be used for Vulkan API call output parameters.
@@ -1210,7 +1216,7 @@ class BaseGenerator(OutputGenerator):
         elif self.is_function_ptr(type_name):
             # Function pointers are encoded as a 64-bit address value.
             type_name = 'uint64_t'
-        elif self.is_struct(type_name):
+        elif self.is_struct(type_name) or self.is_union(type_name):
             type_name = 'Decoded_{}'.format(type_name)
         elif self.is_handle(type_name):
             type_name = 'format::HandleId'

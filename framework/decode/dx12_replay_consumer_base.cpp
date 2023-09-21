@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
 ** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -59,9 +60,9 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
                                                const DxReplayOptions&                    options) :
     application_(application),
     options_(options), current_message_length_(0), info_queue_(nullptr), resource_data_util_(nullptr),
-    frame_buffer_renderer_(nullptr), debug_layer_enabled_(false), set_auto_breadcrumbs_enablement_(false),
-    set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false), loading_trim_state_(false),
-    fps_info_(nullptr)
+    frame_buffer_renderer12_(nullptr), frame_buffer_renderer11_(nullptr), debug_layer_enabled_(false),
+    set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
+    set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr)
 {
     if (options_.enable_validation_layer)
     {
@@ -234,12 +235,76 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
 
     if (entry != mapped_memory_.end())
     {
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, offset);
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
-        auto copy_size      = static_cast<size_t>(size);
-        auto mapped_pointer = static_cast<uint8_t*>(entry->second.data_pointer) + offset;
+        auto& mapped_memory_entry = entry->second;
+        auto  copy_offset         = static_cast<size_t>(offset);
+        auto  copy_size           = static_cast<size_t>(size);
+        auto  mapped_pointer      = static_cast<uint8_t*>(mapped_memory_entry.data_pointer) + copy_offset;
 
-        util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
+        if (mapped_memory_entry.resource_info == nullptr)
+        {
+            // This is a DX12 resource.
+            util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
+        }
+        else
+        {
+            // This is a DX11 resource that may require row or depth pitch adjustments.
+            auto resource_info      = mapped_memory_entry.resource_info;
+            auto alignment_mismatch = false;
+
+            GFXRECON_ASSERT(resource_info->dimension != D3D11_RESOURCE_DIMENSION_UNKNOWN);
+
+            // Only texture alignments need to be checked.
+            if (((resource_info->dimension != D3D11_RESOURCE_DIMENSION_BUFFER) &&
+                 (mapped_memory_entry.capture_row_pitch_ != mapped_memory_entry.replay_row_pitch_)) ||
+                ((resource_info->dimension == D3D11_RESOURCE_DIMENSION_TEXTURE3D) &&
+                 (mapped_memory_entry.capture_slice_pitch_ != mapped_memory_entry.replay_slice_pitch_)))
+            {
+                alignment_mismatch = true;
+            }
+
+            if (!alignment_mismatch)
+            {
+                util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
+            }
+            else
+            {
+                const uint8_t* src = static_cast<const uint8_t*>(data);
+                uint8_t*       dst = static_cast<uint8_t*>(mapped_memory_entry.data_pointer);
+
+                if (resource_info->dimension == D3D11_RESOURCE_DIMENSION_TEXTURE1D)
+                {
+                    graphics::dx12::CopyAlignedTexture1D(src,
+                                                         dst,
+                                                         mapped_memory_entry.capture_row_pitch_,
+                                                         mapped_memory_entry.replay_row_pitch_,
+                                                         copy_offset,
+                                                         copy_size);
+                }
+                else if (resource_info->dimension == D3D11_RESOURCE_DIMENSION_TEXTURE2D)
+                {
+                    graphics::dx12::CopyAlignedTexture2D(src,
+                                                         dst,
+                                                         mapped_memory_entry.capture_row_pitch_,
+                                                         mapped_memory_entry.replay_row_pitch_,
+                                                         copy_offset,
+                                                         copy_size);
+                }
+                else if (resource_info->dimension == D3D11_RESOURCE_DIMENSION_TEXTURE3D)
+                {
+                    graphics::dx12::CopyAlignedTexture3D(src,
+                                                         dst,
+                                                         mapped_memory_entry.capture_row_pitch_,
+                                                         mapped_memory_entry.replay_row_pitch_,
+                                                         mapped_memory_entry.capture_slice_pitch_,
+                                                         mapped_memory_entry.replay_slice_pitch_,
+                                                         copy_offset,
+                                                         copy_size);
+                }
+            }
+        }
 
         ApplyFillMemoryResourceValueCommand(offset, size, data, static_cast<uint8_t*>(entry->second.data_pointer));
 
@@ -646,6 +711,17 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
             }
             break;
         }
+        case format::ApiCallId::ApiCall_D3D11CreateDevice:
+        case format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain:
+            if (object_id != format::kNullHandleId)
+            {
+                // Return null for the custom software module parameter.
+                // TODO: This may also require a change to the D3D_DRIVER_TYPE.
+                GFXRECON_LOG_WARNING("The captured application called %s with a handle to a custom software module, "
+                                     "which will be ignored for replay.",
+                                     call_name)
+            }
+            break;
         default:
             GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
                                  call_name);
@@ -711,18 +787,37 @@ void Dx12ReplayConsumerBase::PrePresent(DxObjectInfo* swapchain_object_info)
             auto swapchain            = static_cast<IDXGISwapChain*>(swapchain_object_info->object);
             auto swapchain_extra_info = GetExtraInfo<DxgiSwapchainInfo>(swapchain_object_info);
 
-            if (swapchain_extra_info && swapchain_extra_info->command_queue)
+            if (swapchain_extra_info)
             {
-                graphics::dx12::TakeScreenshot(frame_buffer_renderer_,
-                                               swapchain_extra_info->command_queue,
-                                               swapchain,
-                                               screenshot_handler_->GetCurrentFrame(),
-                                               screenshot_file_prefix_,
-                                               screenshot_format_);
+                if (swapchain_extra_info->command_queue)
+                {
+                    graphics::dx12::TakeScreenshot(frame_buffer_renderer12_,
+                                                   swapchain_extra_info->command_queue,
+                                                   swapchain,
+                                                   screenshot_handler_->GetCurrentFrame(),
+                                                   screenshot_file_prefix_,
+                                                   screenshot_format_);
+                }
+                else if (swapchain_extra_info->device)
+                {
+                    graphics::dx12::TakeScreenshot(frame_buffer_renderer11_,
+                                                   swapchain_extra_info->device,
+                                                   swapchain,
+                                                   screenshot_handler_->GetCurrentFrame(),
+                                                   screenshot_file_prefix_,
+                                                   screenshot_format_);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to get the ID3D12CommandQueue or ID3D11Device associated with the "
+                                       "presented swap chain. "
+                                       "GFXReconstruct is unable to take a screenshot.");
+                }
             }
             else
             {
-                GFXRECON_LOG_ERROR("Failed to get the ID3D12CommandQueue associated with the presented swap chain. "
+                GFXRECON_LOG_ERROR("Failed to get the ID3D12CommandQueue or ID3D11Device associated with the "
+                                   "presented swap chain. "
                                    "GFXReconstruct is unable to take a screenshot.");
             }
         }
@@ -838,8 +933,14 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
                     hwnd_id = meta_info->OutputWindow;
                 }
 
-                SetSwapchainInfo(
-                    object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount, device, desc_pointer->Windowed);
+                SetSwapchainInfo(object_info,
+                                 window,
+                                 hwnd_id,
+                                 hwnd,
+                                 desc_pointer->SwapEffect,
+                                 desc_pointer->BufferCount,
+                                 device,
+                                 desc_pointer->Windowed);
             }
             else
             {
@@ -950,6 +1051,192 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideD3D11CreateDevice(HRESULT                              original_result,
+                                                          DxObjectInfo*                        adapter_info,
+                                                          D3D_DRIVER_TYPE                      driver_type,
+                                                          uint64_t                             software,
+                                                          UINT                                 flags,
+                                                          PointerDecoder<D3D_FEATURE_LEVEL>*   feature_levels,
+                                                          UINT                                 num_feature_levels,
+                                                          UINT                                 sdk_version,
+                                                          HandlePointerDecoder<ID3D11Device*>* device,
+                                                          PointerDecoder<D3D_FEATURE_LEVEL>*   feature_level,
+                                                          HandlePointerDecoder<ID3D11DeviceContext*>* immediate_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((feature_levels != nullptr) && (device != nullptr) && (feature_level != nullptr) &&
+                    (immediate_context != nullptr));
+
+    IDXGIAdapter* adapter = nullptr;
+    if (render_adapter_ == nullptr)
+    {
+        if (adapter_info != nullptr)
+        {
+            adapter = static_cast<IDXGIAdapter*>(adapter_info->object);
+        }
+    }
+    else
+    {
+        adapter = render_adapter_;
+    }
+
+    auto in_Software = static_cast<HMODULE>(
+        PreProcessExternalObject(software, format::ApiCallId::ApiCall_D3D11CreateDevice, "D3D11CreateDevice"));
+
+    auto device_pointer            = device->GetHandlePointer();
+    auto immediate_context_pointer = immediate_context->GetHandlePointer();
+
+    if (options_.enable_validation_layer)
+    {
+        flags |= D3D11_CREATE_DEVICE_DEBUG;
+    }
+
+    auto result = D3D11CreateDevice(adapter,
+                                    driver_type,
+                                    in_Software,
+                                    flags,
+                                    feature_levels->GetPointer(),
+                                    num_feature_levels,
+                                    sdk_version,
+                                    device_pointer,
+                                    feature_level->GetOutputPointer(),
+                                    immediate_context_pointer);
+
+    if (SUCCEEDED(result) && (device_pointer != nullptr))
+    {
+        auto device_ptr = reinterpret_cast<ID3D11Device*>(*device_pointer);
+        graphics::dx12::MarkActiveAdapter(device_ptr, adapters_);
+    }
+
+    return result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideD3D11CreateDeviceAndSwapChain(
+    HRESULT                                             original_result,
+    DxObjectInfo*                                       adapter_info,
+    D3D_DRIVER_TYPE                                     driver_type,
+    uint64_t                                            software,
+    UINT                                                flags,
+    PointerDecoder<D3D_FEATURE_LEVEL>*                  feature_levels,
+    UINT                                                num_feature_levels,
+    UINT                                                sdk_version,
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* swapchain_desc,
+    HandlePointerDecoder<IDXGISwapChain*>*              swapchain,
+    HandlePointerDecoder<ID3D11Device*>*                device,
+    PointerDecoder<D3D_FEATURE_LEVEL>*                  feature_level,
+    HandlePointerDecoder<ID3D11DeviceContext*>*         immediate_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((feature_levels != nullptr) && (swapchain_desc != nullptr) && (swapchain != nullptr) &&
+                    (device != nullptr) && (feature_level != nullptr) && (immediate_context != nullptr));
+
+    auto    swapchain_desc_pointer = swapchain_desc->GetPointer();
+    HRESULT result                 = E_FAIL;
+    Window* window                 = nullptr;
+    auto    wsi_context            = application_ ? application_->GetWsiContext("", true) : nullptr;
+    auto    window_factory         = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+
+    if (window_factory != nullptr && swapchain_desc_pointer != nullptr)
+    {
+        ReplaceWindowedResolution(swapchain_desc_pointer->BufferDesc.Width, swapchain_desc_pointer->BufferDesc.Height);
+        window = window_factory->Create(kDefaultWindowPositionX,
+                                        kDefaultWindowPositionY,
+                                        swapchain_desc_pointer->BufferDesc.Width,
+                                        swapchain_desc_pointer->BufferDesc.Height);
+    }
+
+    if (window != nullptr)
+    {
+        HWND hwnd{};
+        if (window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd)))
+        {
+            IDXGIAdapter* adapter = nullptr;
+            if (render_adapter_ == nullptr)
+            {
+                if (adapter_info != nullptr)
+                {
+                    adapter = static_cast<IDXGIAdapter*>(adapter_info->object);
+                }
+            }
+            else
+            {
+                adapter = render_adapter_;
+            }
+
+            auto in_Software = static_cast<HMODULE>(PreProcessExternalObject(
+                software, format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain, "D3D11CreateDeviceAndSwapChain"));
+
+            auto swapchain_pointer         = swapchain->GetHandlePointer();
+            auto device_pointer            = device->GetHandlePointer();
+            auto immediate_context_pointer = immediate_context->GetHandlePointer();
+
+            if (options_.enable_validation_layer)
+            {
+                flags |= D3D11_CREATE_DEVICE_DEBUG;
+            }
+
+            swapchain_desc_pointer->OutputWindow = hwnd;
+
+            result = D3D11CreateDeviceAndSwapChain(adapter,
+                                                   driver_type,
+                                                   in_Software,
+                                                   flags,
+                                                   feature_levels->GetPointer(),
+                                                   num_feature_levels,
+                                                   sdk_version,
+                                                   swapchain_desc_pointer,
+                                                   swapchain_pointer,
+                                                   device_pointer,
+                                                   feature_level->GetOutputPointer(),
+                                                   immediate_context_pointer);
+
+            if (SUCCEEDED(result))
+            {
+                if (device_pointer != nullptr)
+                {
+                    auto device_ptr = reinterpret_cast<ID3D11Device*>(*device_pointer);
+                    graphics::dx12::MarkActiveAdapter(device_ptr, adapters_);
+                }
+
+                auto     object_info = static_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
+                auto     meta_info   = swapchain_desc->GetMetaStructPointer();
+                uint64_t hwnd_id     = 0;
+
+                if (meta_info != nullptr)
+                {
+                    hwnd_id = meta_info->OutputWindow;
+                }
+
+                SetSwapchainInfo(object_info,
+                                 window,
+                                 hwnd_id,
+                                 hwnd,
+                                 swapchain_desc_pointer->SwapEffect,
+                                 swapchain_desc_pointer->BufferCount,
+                                 device_pointer ? *device_pointer : nullptr,
+                                 swapchain_desc_pointer->Windowed);
+            }
+            else
+            {
+                window_factory->Destroy(window);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Failed to retrieve handle from window");
+            window_factory->Destroy(window);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("Failed to create a window.  Replay cannot continue.");
+    }
+
+    return result;
+}
+
 void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
 {
     // Only check this if the block is not of a software adapter
@@ -1040,16 +1327,14 @@ void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInf
 
 void Dx12ReplayConsumerBase::DetectAdapters()
 {
-    IDXGIFactory1* factory1 = nullptr;
+    graphics::dx12::IDXGIFactory1ComPtr factory1;
 
-    HRESULT result = CreateDXGIFactory1(IID_IDXGIFactory1, reinterpret_cast<void**>(&factory1));
+    HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
 
     if (SUCCEEDED(result))
     {
-        graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters_);
+        graphics::dx12::TrackAdapters(factory1, adapters_);
         render_adapter_ = graphics::dx12::GetAdapterbyIndex(adapters_, options_.override_gpu_index);
-
-        factory1->Release();
     }
 }
 
@@ -2357,6 +2642,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
                                  window,
                                  hwnd_id,
                                  hwnd,
+                                 desc_pointer->SwapEffect,
                                  desc_pointer->BufferCount,
                                  device,
                                  (full_screen_desc_ptr == nullptr));
@@ -2380,13 +2666,14 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     return result;
 }
 
-void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
-                                              Window*       window,
-                                              uint64_t      hwnd_id,
-                                              HWND          hwnd,
-                                              uint32_t      image_count,
-                                              IUnknown*     queue_iunknown,
-                                              bool          windowed)
+void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo*    info,
+                                              Window*          window,
+                                              uint64_t         hwnd_id,
+                                              HWND             hwnd,
+                                              DXGI_SWAP_EFFECT swap_effect,
+                                              uint32_t         image_count,
+                                              IUnknown*        queue_iunknown,
+                                              bool             windowed)
 {
     if (window != nullptr)
     {
@@ -2397,16 +2684,36 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
             auto swapchain_info     = std::make_unique<DxgiSwapchainInfo>();
             swapchain_info->window  = window;
             swapchain_info->hwnd_id = hwnd_id;
-            swapchain_info->image_ids.resize(image_count);
-            std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
-            // Get the ID3D12CommandQueue from the IUnknown queue object.
-            HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
-            if (FAILED(hr))
+            if (queue_iunknown != nullptr)
             {
-                GFXRECON_LOG_WARNING("Failed to get the ID3D12CommandQueue interface from the IUnknown* device "
-                                     "argument to CreateSwapChain.");
+                // TODO: Add a method for obtaining the appropriate object from IUnknown without using QueryInterface,
+                // so it is not recorded by recapture for trimming. The device or queue could be stored in a separate
+                // data structure that avoids the call.
+                HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
+                if (FAILED(hr))
+                {
+                    hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->device));
+                    if (FAILED(hr))
+                    {
+                        GFXRECON_LOG_WARNING("Failed to get an ID3D12CommandQueue interface or ID3D11Device interface "
+                                             "from the IUnknown* device argument to CreateSwapChain.");
+                    }
+                }
             }
+
+            if ((swap_effect == DXGI_SWAP_EFFECT_DISCARD) ||
+                (swapchain_info->device && (swap_effect == DXGI_SWAP_EFFECT_FLIP_DISCARD)))
+            {
+                // For these swap effect cases, only the image at index 0 can be acquired.
+                swapchain_info->image_ids.resize(1);
+            }
+            else
+            {
+                swapchain_info->image_ids.resize(image_count);
+            }
+
+            std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
             info->extra_info = std::move(swapchain_info);
 
@@ -2961,6 +3268,317 @@ void Dx12ReplayConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::H
         auto replay_result = OverrideWriteToSubresource(
             replay_object, return_value, dst_subresource, dst_box, src_data, src_row_pitch, src_depth_pitch);
         CheckReplayResult("ID3D12Resource_WriteToSubresource", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo& call_info,
+                                                                      format::HandleId   object_id,
+                                                                      HRESULT            return_value,
+                                                                      D3D11_FEATURE      feature,
+                                                                      const void*        capture_feature_data,
+                                                                      void*              replay_feature_data,
+                                                                      UINT               feature_data_size)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
+
+    auto replay_object = MapObject<ID3D11Device>(object_id);
+
+    if ((replay_object != nullptr) && (replay_feature_data != nullptr))
+    {
+        auto replay_result = replay_object->CheckFeatureSupport(feature, replay_feature_data, feature_data_size);
+        CheckReplayResult("ID3D11Device::CheckFeatureSupport", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateBuffer(
+    const ApiCallInfo&                                    call_info,
+    format::HandleId                                      object_id,
+    HRESULT                                               return_value,
+    StructPointerDecoder<Decoded_D3D11_BUFFER_DESC>*      pDesc,
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+    HandlePointerDecoder<ID3D11Buffer*>*                  ppBuffer)
+{
+    auto replay_object = MapObject<ID3D11Device>(object_id);
+    if (replay_object != nullptr)
+    {
+        if (!ppBuffer->IsNull())
+        {
+            ppBuffer->SetHandleLength(1);
+        }
+
+        auto out_p_ppBuffer  = ppBuffer->GetPointer();
+        auto out_hp_ppBuffer = ppBuffer->GetHandlePointer();
+        auto replay_result =
+            replay_object->CreateBuffer(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppBuffer);
+
+        if (SUCCEEDED(replay_result))
+        {
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_BUFFER;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(
+                out_p_ppBuffer, out_hp_ppBuffer, std::move(object_info), format::ApiCall_ID3D11Device_CreateBuffer);
+        }
+
+        CheckReplayResult("ID3D11Device_CreateBuffer", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture1D(
+    const ApiCallInfo&                                    call_info,
+    format::HandleId                                      object_id,
+    HRESULT                                               return_value,
+    StructPointerDecoder<Decoded_D3D11_TEXTURE1D_DESC>*   pDesc,
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+    HandlePointerDecoder<ID3D11Texture1D*>*               ppTexture1D)
+{
+    auto replay_object = MapObject<ID3D11Device>(object_id);
+    if (replay_object != nullptr)
+    {
+        if (!ppTexture1D->IsNull())
+        {
+            ppTexture1D->SetHandleLength(1);
+        }
+
+        auto out_p_ppTexture1D  = ppTexture1D->GetPointer();
+        auto out_hp_ppTexture1D = ppTexture1D->GetHandlePointer();
+        auto replay_result =
+            replay_object->CreateTexture1D(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture1D);
+
+        if (SUCCEEDED(replay_result))
+        {
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE1D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture1D,
+                      out_hp_ppTexture1D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device_CreateTexture1D);
+        }
+
+        CheckReplayResult("ID3D11Device_CreateTexture1D", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture2D(
+    const ApiCallInfo&                                    call_info,
+    format::HandleId                                      object_id,
+    HRESULT                                               return_value,
+    StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC>*   pDesc,
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+    HandlePointerDecoder<ID3D11Texture2D*>*               ppTexture2D)
+{
+    auto replay_object = MapObject<ID3D11Device>(object_id);
+    if (replay_object != nullptr)
+    {
+        if (!ppTexture2D->IsNull())
+        {
+            ppTexture2D->SetHandleLength(1);
+        }
+
+        auto out_p_ppTexture2D  = ppTexture2D->GetPointer();
+        auto out_hp_ppTexture2D = ppTexture2D->GetHandlePointer();
+        auto replay_result =
+            replay_object->CreateTexture2D(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture2D);
+
+        if (SUCCEEDED(replay_result))
+        {
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture2D,
+                      out_hp_ppTexture2D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device_CreateTexture2D);
+        }
+
+        CheckReplayResult("ID3D11Device_CreateTexture2D", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture3D(
+    const ApiCallInfo&                                    call_info,
+    format::HandleId                                      object_id,
+    HRESULT                                               return_value,
+    StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC>*   pDesc,
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+    HandlePointerDecoder<ID3D11Texture3D*>*               ppTexture3D)
+{
+    auto replay_object = MapObject<ID3D11Device>(object_id);
+    if (replay_object != nullptr)
+    {
+        if (!ppTexture3D->IsNull())
+        {
+            ppTexture3D->SetHandleLength(1);
+        }
+
+        auto out_p_ppTexture3D  = ppTexture3D->GetPointer();
+        auto out_hp_ppTexture3D = ppTexture3D->GetHandlePointer();
+        auto replay_result =
+            replay_object->CreateTexture3D(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture3D);
+
+        if (SUCCEEDED(replay_result))
+        {
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE3D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture3D,
+                      out_hp_ppTexture3D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device_CreateTexture3D);
+        }
+
+        CheckReplayResult("ID3D11Device_CreateTexture3D", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11DeviceContext_UpdateSubresource(
+    const ApiCallInfo&                       call_info,
+    format::HandleId                         object_id,
+    format::HandleId                         pDstResource,
+    UINT                                     DstSubresource,
+    StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+    PointerDecoder<uint8_t>*                 pSrcData,
+    UINT                                     SrcRowPitch,
+    UINT                                     SrcDepthPitch)
+{
+    auto replay_object = MapObject<ID3D11DeviceContext>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pDstResource = MapObject<ID3D11Resource>(pDstResource);
+        auto in_pSrcData     = pSrcData->GetPointer();
+        replay_object->UpdateSubresource(
+            in_pDstResource, DstSubresource, pDstBox->GetPointer(), in_pSrcData, SrcRowPitch, SrcDepthPitch);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11DeviceContext1_UpdateSubresource1(
+    const ApiCallInfo&                       call_info,
+    format::HandleId                         object_id,
+    format::HandleId                         pDstResource,
+    UINT                                     DstSubresource,
+    StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+    PointerDecoder<uint8_t>*                 pSrcData,
+    UINT                                     SrcRowPitch,
+    UINT                                     SrcDepthPitch,
+    UINT                                     CopyFlags)
+{
+    auto replay_object = MapObject<ID3D11DeviceContext1>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pDstResource = MapObject<ID3D11Resource>(pDstResource);
+        auto in_pSrcData     = pSrcData->GetPointer();
+        replay_object->UpdateSubresource1(
+            in_pDstResource, DstSubresource, pDstBox->GetPointer(), in_pSrcData, SrcRowPitch, SrcDepthPitch, CopyFlags);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture2D1(
+    const ApiCallInfo&                                    call_info,
+    format::HandleId                                      object_id,
+    HRESULT                                               return_value,
+    StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC1>*  pDesc,
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+    HandlePointerDecoder<ID3D11Texture2D1*>*              ppTexture2D)
+{
+    auto replay_object = MapObject<ID3D11Device3>(object_id);
+    if (replay_object != nullptr)
+    {
+        if (!ppTexture2D->IsNull())
+        {
+            ppTexture2D->SetHandleLength(1);
+        }
+
+        auto out_p_ppTexture2D  = ppTexture2D->GetPointer();
+        auto out_hp_ppTexture2D = ppTexture2D->GetHandlePointer();
+        auto replay_result =
+            replay_object->CreateTexture2D1(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture2D);
+
+        if (SUCCEEDED(replay_result))
+        {
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture2D,
+                      out_hp_ppTexture2D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device3_CreateTexture2D1);
+        }
+
+        CheckReplayResult("ID3D11Device3_CreateTexture2D1", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture3D1(
+    const ApiCallInfo&                                    call_info,
+    format::HandleId                                      object_id,
+    HRESULT                                               return_value,
+    StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC1>*  pDesc,
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+    HandlePointerDecoder<ID3D11Texture3D1*>*              ppTexture3D)
+{
+    auto replay_object = MapObject<ID3D11Device3>(object_id);
+    if (replay_object != nullptr)
+    {
+        if (!ppTexture3D->IsNull())
+        {
+            ppTexture3D->SetHandleLength(1);
+        }
+
+        auto out_p_ppTexture3D  = ppTexture3D->GetPointer();
+        auto out_hp_ppTexture3D = ppTexture3D->GetHandlePointer();
+        auto replay_result =
+            replay_object->CreateTexture3D1(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture3D);
+
+        if (SUCCEEDED(replay_result))
+        {
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE3D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture3D,
+                      out_hp_ppTexture3D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device3_CreateTexture3D1);
+        }
+
+        CheckReplayResult("ID3D11Device3_CreateTexture3D1", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo& call_info,
+                                                                      format::HandleId   object_id,
+                                                                      format::HandleId   pDstResource,
+                                                                      UINT               DstSubresource,
+                                                                      StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                                      PointerDecoder<uint8_t>*                 pSrcData,
+                                                                      UINT SrcRowPitch,
+                                                                      UINT SrcDepthPitch)
+{
+    auto replay_object = MapObject<ID3D11Device3>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pDstResource = MapObject<ID3D11Resource>(pDstResource);
+        auto in_pSrcData     = pSrcData->GetPointer();
+        replay_object->WriteToSubresource(
+            in_pDstResource, DstSubresource, pDstBox->GetPointer(), in_pSrcData, SrcRowPitch, SrcDepthPitch);
     }
 }
 
@@ -3623,6 +4241,138 @@ void Dx12ReplayConsumerBase::OverrideIASetVertexBuffers(
         resource_value_mapper_->PostProcessIASetVertexBuffers(
             command_list_object_info, start_slot, num_views, views_decoder);
     }
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideDeviceContextMap(
+    DxObjectInfo*                                           replay_object_info,
+    HRESULT                                                 return_value,
+    DxObjectInfo*                                           resource_object_info,
+    UINT                                                    subresource,
+    D3D11_MAP                                               map_type,
+    UINT                                                    map_flags,
+    StructPointerDecoder<Decoded_D3D11_MAPPED_SUBRESOURCE>* mapped_resource)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+           (resource_object_info != nullptr) && (resource_object_info->object != nullptr) &&
+           (mapped_resource != nullptr));
+
+    auto id_pointer           = mapped_resource->GetMetaStructPointer();
+    auto capture_data_pointer = mapped_resource->GetPointer();
+    auto replay_data_pointer  = mapped_resource->GetOutputPointer();
+    auto replay_object        = static_cast<ID3D11DeviceContext*>(replay_object_info->object);
+    auto resource_object      = static_cast<ID3D11Resource*>(resource_object_info->object);
+
+    auto result = replay_object->Map(resource_object, subresource, map_type, map_flags, replay_data_pointer);
+    if (replay_data_pointer != nullptr)
+    {
+        if (SUCCEEDED(result) && (id_pointer != nullptr) && (id_pointer->pData != format::kNullHandleId) &&
+            (replay_data_pointer->pData != nullptr))
+        {
+            GFXRECON_ASSERT(resource_object_info->extra_info != nullptr);
+
+            auto  resource_info   = GetExtraInfo<D3D11ResourceInfo>(resource_object_info);
+            auto& memory_info     = resource_info->mapped_memory_info[subresource][replay_object_info->capture_id];
+            memory_info.memory_id = id_pointer->pData;
+            ++(memory_info.count);
+
+            mapped_memory_[id_pointer->pData] = {
+                replay_data_pointer->pData,     resource_object_info->capture_id, resource_info,
+                capture_data_pointer->RowPitch, capture_data_pointer->DepthPitch, replay_data_pointer->RowPitch,
+                replay_data_pointer->DepthPitch
+            };
+        }
+    }
+
+    return result;
+}
+
+void Dx12ReplayConsumerBase::OverrideDeviceContextUnmap(DxObjectInfo* replay_object_info,
+                                                        DxObjectInfo* resource_object_info,
+                                                        UINT          subresource)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+           (resource_object_info != nullptr) && (resource_object_info->object != nullptr));
+
+    auto replay_object   = static_cast<ID3D11DeviceContext*>(replay_object_info->object);
+    auto resource_object = static_cast<ID3D11Resource*>(resource_object_info->object);
+
+    auto resource_info = GetExtraInfo<D3D11ResourceInfo>(resource_object_info);
+    if (resource_info != nullptr)
+    {
+        auto subresource_entry = resource_info->mapped_memory_info.find(subresource);
+        if (subresource_entry != resource_info->mapped_memory_info.end())
+        {
+            auto device_context_entry = subresource_entry->second.find(replay_object_info->capture_id);
+            if (device_context_entry != subresource_entry->second.end())
+            {
+                auto& memory_info = device_context_entry->second;
+
+                assert(memory_info.count > 0);
+
+                --(memory_info.count);
+                if (memory_info.count == 0)
+                {
+                    mapped_memory_.erase(memory_info.memory_id);
+                    subresource_entry->second.erase(device_context_entry);
+                }
+            }
+        }
+    }
+
+    replay_object->Unmap(resource_object, subresource);
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideDeviceContextGetData(DxObjectInfo*            replay_object_info,
+                                                             HRESULT                  original_result,
+                                                             DxObjectInfo*            async_object_info,
+                                                             PointerDecoder<uint8_t>* data,
+                                                             UINT                     data_size,
+                                                             UINT                     get_data_flags)
+
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+           (async_object_info != nullptr) && (async_object_info->object != nullptr) && (data != nullptr));
+
+    auto replay_data_pointer = data->GetOutputPointer();
+    auto replay_object       = static_cast<ID3D11DeviceContext*>(replay_object_info->object);
+    auto async_object        = static_cast<ID3D11Asynchronous*>(async_object_info->object);
+
+    // Loop on success codes such as S_FALSE when S_OK was captured, to ensure that replay
+    // does not advance before an event is complete.
+    // If you find this loop to be infinite, consider adding a limit in the same way
+    // it is done for the Vulkan GetEventStatus and GetQueryPoolResults overrides.
+    auto result = S_FALSE;
+    do
+    {
+        result = replay_object->GetData(async_object, replay_data_pointer, data_size, get_data_flags);
+    } while ((original_result == S_OK) && (result == S_FALSE));
+
+    if ((result == S_OK) && (original_result == S_FALSE))
+    {
+        // Silence warnings that replay returned S_OK (event complete), when capture returned S_FALSE (event not
+        // complete), by returning the value of original_result.
+        return S_FALSE;
+    }
+
+    return result;
+}
+
+void Dx12ReplayConsumerBase::OverrideDevice3ReadFromSubresource(DxObjectInfo* replay_object_info,
+                                                                uint64_t      dst_data,
+                                                                UINT          dst_row_pitch,
+                                                                UINT          dst_depth_pitch,
+                                                                DxObjectInfo* src_resource,
+                                                                UINT          src_subresource,
+                                                                StructPointerDecoder<Decoded_D3D11_BOX>* src_box)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(replay_object_info);
+    GFXRECON_UNREFERENCED_PARAMETER(dst_data);
+    GFXRECON_UNREFERENCED_PARAMETER(dst_row_pitch);
+    GFXRECON_UNREFERENCED_PARAMETER(dst_depth_pitch);
+    GFXRECON_UNREFERENCED_PARAMETER(src_subresource);
+    GFXRECON_UNREFERENCED_PARAMETER(src_box);
+
+    // TODO: Implement function
 }
 
 void Dx12ReplayConsumerBase::WaitForCommandListExecution(D3D12CommandQueueInfo* queue_info, uint64_t value)

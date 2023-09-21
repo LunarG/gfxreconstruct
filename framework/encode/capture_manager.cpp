@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2022 LunarG, Inc.
 ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -89,8 +90,8 @@ format::ThreadId CaptureManager::ThreadData::GetThreadId()
     return id;
 }
 
-CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
-    api_family_(api_family), force_file_flush_(false), timestamp_filename_(true),
+CaptureManager::CaptureManager() :
+    force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
@@ -933,7 +934,7 @@ void CaptureManager::BuildOptionList(const format::EnabledOptions&        enable
     option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
 }
 
-void CaptureManager::WriteDisplayMessageCmd(const char* message)
+void CaptureManager::WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -944,7 +945,7 @@ void CaptureManager::WriteDisplayMessageCmd(const char* message)
         message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         message_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(message_cmd) + message_length;
         message_cmd.meta_header.meta_data_id =
-            format::MakeMetaDataId(api_family_, format::MetaDataType::kDisplayMessageCommand);
+            format::MakeMetaDataId(api_family, format::MetaDataType::kDisplayMessageCommand);
         message_cmd.thread_id = thread_data->thread_id_;
 
         CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
@@ -961,7 +962,7 @@ void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& 
     exe_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     exe_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(exe_info_header);
     exe_info_header.meta_header.meta_data_id =
-        format::MakeMetaDataId(api_family_, format::MetaDataType::kExeFileInfoCommand);
+        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_None, format::MetaDataType::kExeFileInfoCommand);
     exe_info_header.thread_id = thread_data->thread_id_;
 
     WriteToFile(&exe_info_header, sizeof(exe_info_header));
@@ -987,7 +988,10 @@ void CaptureManager::WriteAnnotation(const format::AnnotationType type, const ch
     }
 }
 
-void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
+void CaptureManager::WriteResizeWindowCmd(format::ApiFamilyId api_family,
+                                          format::HandleId    surface_id,
+                                          uint32_t            width,
+                                          uint32_t            height)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -996,7 +1000,7 @@ void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t 
         resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         resize_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd);
         resize_cmd.meta_header.meta_data_id =
-            format::MakeMetaDataId(api_family_, format::MetaDataType::kResizeWindowCommand);
+            format::MakeMetaDataId(api_family, format::MetaDataType::kResizeWindowCommand);
         resize_cmd.thread_id = thread_data->thread_id_;
 
         resize_cmd.surface_id = surface_id;
@@ -1007,7 +1011,8 @@ void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t 
     }
 }
 
-void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data)
+void CaptureManager::WriteFillMemoryCmd(
+    format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -1023,7 +1028,7 @@ void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id, uint64_t off
 
         fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         fill_cmd.meta_header.meta_data_id =
-            format::MakeMetaDataId(api_family_, format::MetaDataType::kFillMemoryCommand);
+            format::MakeMetaDataId(api_family, format::MetaDataType::kFillMemoryCommand);
         fill_cmd.thread_id     = thread_data->thread_id_;
         fill_cmd.memory_id     = memory_id;
         fill_cmd.memory_offset = offset;
@@ -1064,7 +1069,9 @@ void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id, uint64_t off
     }
 }
 
-void CaptureManager::WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64_t allocation_size)
+void CaptureManager::WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family,
+                                                  uint64_t            allocation_id,
+                                                  uint64_t            allocation_size)
 {
     if ((GetCaptureMode() & kModeWrite) == kModeWrite)
     {
@@ -1076,7 +1083,7 @@ void CaptureManager::WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64
         allocation_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         allocation_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(allocation_cmd);
         allocation_cmd.meta_header.meta_data_id =
-            format::MakeMetaDataId(api_family_, format::MetaDataType::kCreateHeapAllocationCommand);
+            format::MakeMetaDataId(api_family, format::MetaDataType::kCreateHeapAllocationCommand);
         allocation_cmd.thread_id       = thread_data->thread_id_;
         allocation_cmd.allocation_id   = allocation_id;
         allocation_cmd.allocation_size = allocation_size;
