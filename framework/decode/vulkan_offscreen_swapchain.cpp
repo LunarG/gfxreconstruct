@@ -26,14 +26,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const char kDefaultOffscreenFilePrefix[] = "offscreen";
-
-#if defined(__ANDROID__)
-const char kDefaultOffscreenDir[] = "/sdcard/";
-#else
-const char kDefaultOffscreenDir[] = "";
-#endif
-
 VkResult VulkanOffscreenSwapchain::CreateSurface(InstanceInfo*                       instance_info,
                                                  const std::string&                  wsi_extension,
                                                  VkFlags                             flags,
@@ -87,12 +79,10 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR  
                                                       const VkSwapchainCreateInfoKHR*       create_info,
                                                       const VkAllocationCallbacks*          allocator,
                                                       HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                      const encode::DeviceTable*            device_table,
-                                                      ScreenshotHandler*                    screenshot_handler)
+                                                      const encode::DeviceTable*            device_table)
 {
     GFXRECON_ASSERT(device_info);
-    device_table_       = device_table;
-    screenshot_handler_ = screenshot_handler;
+    device_table_ = device_table;
 
     const format::HandleId* id               = swapchain->GetPointer();
     VkSwapchainKHR*         replay_swapchain = swapchain->GetHandlePointer();
@@ -206,46 +196,6 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR        
                                                    const QueueInfo*                      queue_info,
                                                    const VkPresentInfoKHR*               present_info)
 {
-    for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
-    {
-        auto swapchain_info = swapchain_infos[i];
-        if ((swapchain_info != nullptr) && (swapchain_info->device_info != nullptr) &&
-            (swapchain_info->images.size() > 0))
-        {
-            auto     device_info = swapchain_info->device_info;
-            uint32_t image_index = present_info->pImageIndices[i];
-
-            // TODO: This should be stored in the DeviceInfo structure to avoid the need for frequent queries.
-            VkPhysicalDeviceMemoryProperties memory_properties;
-            instance_table_->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
-
-            std::string filename_prefix = kDefaultOffscreenDir;
-            filename_prefix += kDefaultOffscreenFilePrefix;
-
-            if (present_info->swapchainCount > 1)
-            {
-                filename_prefix += "_swapchain_";
-                filename_prefix += std::to_string(i);
-            }
-
-            filename_prefix += "_frame_";
-            filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
-
-            screenshot_handler_->WriteImage(filename_prefix,
-                                            device_info->handle,
-                                            device_table_,
-                                            memory_properties,
-                                            device_info->allocator.get(),
-                                            swapchain_info->images[image_index],
-                                            swapchain_info->format,
-                                            swapchain_info->width,
-                                            swapchain_info->height,
-                                            swapchain_info->width,
-                                            swapchain_info->height,
-                                            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-        }
-    }
-
     if (present_info->waitSemaphoreCount > 0)
     {
         auto length = present_info->swapchainCount;

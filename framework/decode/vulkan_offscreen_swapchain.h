@@ -53,8 +53,7 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                         const VkSwapchainCreateInfoKHR*       create_info,
                                         const VkAllocationCallbacks*          allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const encode::DeviceTable*            device_table,
-                                        ScreenshotHandler*                    screenshot_handler) override;
+                                        const encode::DeviceTable*            device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
@@ -91,9 +90,8 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                      const VkPresentInfoKHR*               present_info) override;
 
   private:
-    ScreenshotHandler* screenshot_handler_{ nullptr };
-    const uint32_t     default_queue_family_index_{ 0 };
-    VkQueue            default_queue_{ VK_NULL_HANDLE }; // default_queue_family_index_,0
+    const uint32_t default_queue_family_index_{ 0 };
+    VkQueue        default_queue_{ VK_NULL_HANDLE }; // default_queue_family_index_,0
 
     VkResult SignalSemaphoresFence(SwapchainKHRInfo*  swapchain_info,
                                    uint32_t           capture_image_index,

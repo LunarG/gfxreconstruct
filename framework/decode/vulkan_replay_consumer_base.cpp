@@ -162,8 +162,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
 
-    // TODO: rename screenshot_handler_ for offscreen
-    if (!options.screenshot_ranges.empty() || options_.enable_offscreen)
+    if (!options.screenshot_ranges.empty())
     {
         InitializeScreenshotHandler();
     }
@@ -5006,8 +5005,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                                                     replay_create_info,
                                                     GetAllocationCallbacks(pAllocator),
                                                     pSwapchain,
-                                                    GetDeviceTable(device_info->handle),
-                                                    nullptr);
+                                                    GetDeviceTable(device_info->handle));
         }
         else
         {
@@ -5019,8 +5017,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                                                     &modified_create_info,
                                                     GetAllocationCallbacks(pAllocator),
                                                     pSwapchain,
-                                                    GetDeviceTable(device_info->handle),
-                                                    screenshot_handler_.get());
+                                                    GetDeviceTable(device_info->handle));
         }
     }
     else
