@@ -39,7 +39,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer, public gfxrecon::decode::AnnotationHandler
+class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
 {
   public:
     uint32_t                        GetTrimmedStartFrame() const { return trimmed_frame_; }

@@ -31,7 +31,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class Dx12StatsConsumer : public Dx12Consumer, public gfxrecon::decode::AnnotationHandler
+class Dx12StatsConsumer : public Dx12Consumer
 {
   public:
     Dx12StatsConsumer() :
