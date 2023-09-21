@@ -859,7 +859,8 @@ optional arguments:
                         If this is specified the replayer will flush and wait
                         for all current GPU work to finish at the start and end
                         of the measurement range. (forwarded to replay tool)
-  --offscreen          Output the rendering image, and do not create a window.
+  --offscreen           Disable creating swapchains, surfaces and windows.
+                        To see rendering, add the --screenshots option.
 ```
 
 The command will force-stop an active replay process before starting the replay

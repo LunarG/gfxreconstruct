@@ -32,8 +32,7 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR   
                                                      const VkSwapchainCreateInfoKHR*       create_info,
                                                      const VkAllocationCallbacks*          allocator,
                                                      HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                     const encode::DeviceTable*            device_table,
-                                                     ScreenshotHandler*                    screenshot_handler)
+                                                     const encode::DeviceTable*            device_table)
 {
     VkDevice device = VK_NULL_HANDLE;
 
