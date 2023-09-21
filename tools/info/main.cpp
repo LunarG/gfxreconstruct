@@ -472,7 +472,6 @@ void GatherVulkanStats(const std::string& input_filename)
         stat_decoder.AddConsumer(&stat_consumer);
         file_processor.AddDecoder(&stat_decoder);
         vulkan_decoder.AddConsumer(&vulkan_stats_consumer);
-        file_processor.SetAnnotationProcessor(&vulkan_stats_consumer);
         file_processor.AddDecoder(&vulkan_decoder);
 
         AnnotationRecorder annotation_recorder;
