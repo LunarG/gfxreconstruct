@@ -27,6 +27,7 @@
 #include "util/logging.h"
 #include "util/platform.h"
 #include "nlohmann/json.hpp"
+#include "decode/vulkan_export_json_consumer_base.h"
 
 #include <cinttypes>
 
@@ -56,12 +57,12 @@ WriteFpsToConsole(const char* prefix, uint64_t start_frame, uint64_t end_frame, 
                            end_frame);
 }
 
-FpsInfo::FpsInfo(uint64_t           measurement_start_frame,
-                 uint64_t           measurement_end_frame,
-                 bool               has_measurement_range,
-                 bool               quit_after_range,
-                 bool               flush_measurement_range,
-                 const std::string& measurement_file_name) :
+FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
+                 uint64_t               measurement_end_frame,
+                 bool                   has_measurement_range,
+                 bool                   quit_after_range,
+                 bool                   flush_measurement_range,
+                 const std::string_view measurement_file_name) :
     measurement_start_frame_(measurement_start_frame),
     measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
     quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
@@ -70,10 +71,10 @@ FpsInfo::FpsInfo(uint64_t           measurement_start_frame,
 {
     if (has_measurement_range_)
     {
-        GFXRECON_ASSERT(!measurement_file_name.empty());
+        GFXRECON_ASSERT(!measurement_file_name_.empty());
 
         // To avoid thinking an ancient file is the result of this run
-        std::remove(measurement_file_name.c_str());
+        std::remove(measurement_file_name_.c_str());
     }
 }
 
@@ -144,7 +145,8 @@ void FpsInfo::EndFrame(uint64_t frame)
                 int32_t result       = util::platform::FileOpen(&file_pointer, measurement_file_name_.c_str(), "w");
                 if (result == 0)
                 {
-                    const std::string json_string = file_content.dump(4);
+                    const std::string json_string =
+                        file_content.dump(decode::VulkanExportJsonConsumerBase::kJsonIndentWidth);
 
                     const size_t size_written =
                         util::platform::FileWrite(json_string.data(), 1, json_string.size(), file_pointer);

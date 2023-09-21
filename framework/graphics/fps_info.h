@@ -28,6 +28,7 @@
 #include "decode/file_processor.h"
 
 #include <limits>
+#include <string_view>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -35,12 +36,12 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 class FpsInfo
 {
   public:
-    FpsInfo(uint64_t           measurement_start_frame = 1,
-            uint64_t           measurement_end_frame   = std::numeric_limits<uint64_t>::max(),
-            bool               has_measurement_range   = false,
-            bool               quit_after_range        = false,
-            bool               flush_measurement_range = false,
-            const std::string& measurement_file_name   = std::string());
+    FpsInfo(uint64_t               measurement_start_frame = 1,
+            uint64_t               measurement_end_frame   = std::numeric_limits<uint64_t>::max(),
+            bool                   has_measurement_range   = false,
+            bool                   quit_after_range        = false,
+            bool                   flush_measurement_range = false,
+            const std::string_view measurement_file_name   = "");
 
     void LogToConsole();
 
