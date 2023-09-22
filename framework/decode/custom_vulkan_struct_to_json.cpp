@@ -36,48 +36,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 using util::JsonOptions;
 
-void FieldToJson(nlohmann::ordered_json& jdata, float data, const JsonOptions& options)
-{
-    if (std::isnan(data))
-    {
-        GFXRECON_LOG_WARNING_ONCE("Converting a NAN to zero.");
-        data = 0.0f;
-    }
-    else if (std::isinf(data))
-    {
-        GFXRECON_LOG_WARNING_ONCE("Converting an infinity to max or min.");
-        if (data < 0)
-        {
-            data = std::numeric_limits<float>::min();
-        }
-        else
-        {
-            data = std::numeric_limits<float>::max();
-        }
-    }
-    // Normal and denormal/subnormal numbers pass through unchanged and unremarked.
-
-    jdata = data;
-}
-
-void HandleToJson(nlohmann::ordered_json& jdata,
-                  const format::HandleId* data,
-                  size_t                  num_elements,
-                  const JsonOptions&      options)
-{
-    if (data)
-    {
-        for (size_t i = 0; i < num_elements; ++i)
-        {
-            HandleToJson(jdata[i], data[i], options);
-        }
-    }
-    else
-    {
-        jdata = nullptr;
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const StringArrayDecoder* data, const JsonOptions& options)
 {
     if (data && data->GetPointer())

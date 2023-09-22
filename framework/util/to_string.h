@@ -50,6 +50,27 @@ constexpr uint32_t kToStringDefaultTabSize  = 4;
 
 typedef uint32_t ToStringFlags;
 
+/// Convert a value to a string in hexadecimal form.
+template <typename T>
+std::string to_hex_variable_width(T value)
+{
+    std::ostringstream stream;
+    stream << "0x" << std::hex << value;
+    return stream.str();
+}
+
+/// Convert a value to a string in hexadecimal form, filling with leading zeros
+/// to make a fixed-width for a given parameter type.
+template <typename T>
+std::string to_hex_fixed_width(T value)
+{
+    std::ostringstream stream;
+    stream << "0x" << std::setfill('0') << std::setw(sizeof(T) * 2) << std::hex << value;
+    return stream.str();
+}
+
+std::string uuid_to_string(uint32_t size, const uint8_t* uuid);
+
 /// @brief  A template ToString to take care of simple POD cases like the many
 /// types of integers.
 /// It contains the three parameters that are unused for unstructured types like
@@ -167,17 +188,13 @@ inline std::string BitmaskToString(FlagsType flags)
 template <typename PtrType>
 inline std::string PtrToString(PtrType* ptr)
 {
-    std::stringstream strStrm;
-    strStrm << "0x" << std::hex << reinterpret_cast<uintptr_t>(ptr);
-    return strStrm.str();
+    return to_hex_variable_width(reinterpret_cast<uintptr_t>(ptr));
 }
 
 template <typename PtrType>
 inline std::string PtrToString(PtrType ptr)
 {
-    std::stringstream strStrm;
-    strStrm << "0x" << std::hex << ptr;
-    return strStrm.str();
+    return to_hex_variable_width(ptr);
 }
 
 inline std::string GetNewlineString(ToStringFlags toStringFlags)
@@ -205,6 +222,13 @@ inline std::string Quote(const std::string& str)
     return quoted;
 }
 
+/// @brief Create the opening and closing braces of a JSON object: calling a function
+/// to fill out the internal fields of the object.
+/// By convention the functions which convert structs will be called ToString and
+/// will call FieldToString() to format each field and another ToString,
+/// ArrayToString(), etc. to form the nested structure or the immediate value of
+/// the field.
+/// @deprecated Use the nlohmann JSON library instead.
 template <typename ToStringFunctionType>
 inline std::string
 ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
@@ -222,23 +246,16 @@ ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize
     return strStrm.str();
 }
 
-inline void FieldToString(std::stringstream& strStrm,
-                          bool               firstField,
-                          const char*        fieldName,
-                          ToStringFlags      toStringFlags,
-                          uint32_t           tabCount,
-                          uint32_t           tabSize,
-                          const std::string& fieldString)
-{
-    if (!firstField)
-    {
-        strStrm << ',' << GetNewlineString(toStringFlags);
-    }
-    strStrm << GetTabString(toStringFlags, tabCount, tabSize);
-    strStrm << "\"" << fieldName << "\":";
-    strStrm << GetWhitespaceString(toStringFlags);
-    strStrm << fieldString;
-}
+/// Part of a system for formatting fields of structs and arguments of functions
+/// as JSON text strings.
+/// @deprecated Use the nlohmann JSON library instead.
+void FieldToString(std::stringstream& strStrm,
+                   bool               firstField,
+                   const char*        fieldName,
+                   ToStringFlags      toStringFlags,
+                   uint32_t           tabCount,
+                   uint32_t           tabSize,
+                   const std::string& fieldString);
 
 template <typename ObjectType, typename ValidateArrayFunctionType, typename ToStringFunctionType>
 inline std::string ArrayToString(size_t                    count,

@@ -24,7 +24,7 @@
 
 #include "util/defines.h"
 #include "util/json_util.h"
-#include "nlohmann/json.hpp"
+#include "util/to_string.h"
 #include "vulkan/vulkan.h"
 
 #include "decode/custom_vulkan_struct_decoders.h"
@@ -32,31 +32,13 @@
 #include "generated/generated_vulkan_struct_to_json.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 
+#include "nlohmann/json.hpp"
 #include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 class DescriptorUpdateTemplateDecoder;
-
-/// Convert floats to JSON, logging information loss when floats with no JSON
-/// number type representation are adjusted. The JSON library turns these numbers
-/// into JSON nulls otherwise.
-void FieldToJson(nlohmann::ordered_json& jdata, float data, const util::JsonOptions& options = util::JsonOptions());
-
-/// @note This is unused dead code currently (try placing a breakpoint on it).
-inline void
-FieldToJson(nlohmann::ordered_json& jdata, double data, const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
-
-inline void FieldToJson(nlohmann::ordered_json&  jdata,
-                        const std::string&       data,
-                        const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = data;
-}
 
 void FieldToJson(nlohmann::ordered_json&   jdata,
                  const StringArrayDecoder* data,
@@ -136,25 +118,6 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
 void FieldToJson(nlohmann::ordered_json&                  jdata,
                  const Decoded_VkPipelineCacheCreateInfo* data,
                  const util::JsonOptions&                 options = util::JsonOptions());
-
-template <typename T>
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const T*                 data,
-                 size_t                   num_elements,
-                 const util::JsonOptions& options = util::JsonOptions())
-{
-    if (data)
-    {
-        for (size_t i = 0; i < num_elements; ++i)
-        {
-            FieldToJson(jdata[i], data[i], options);
-        }
-    }
-    else
-    {
-        jdata = nullptr;
-    }
-}
 
 template <typename DecodedType, typename OutputDecodedType = DecodedType>
 void FieldToJson(nlohmann::ordered_json&                               jdata,
@@ -264,11 +227,6 @@ void HandleToJson(nlohmann::ordered_json&              jdata,
     }
 }
 
-void HandleToJson(nlohmann::ordered_json&  jdata,
-                  const format::HandleId*  data,
-                  size_t                   num_elements,
-                  const util::JsonOptions& options = util::JsonOptions());
-
 /// @brief Thunk to HandleToJson for manual conversion functions which forget to
 /// use that for the array form.
 template <typename THandle>
@@ -277,14 +235,6 @@ void FieldToJson(nlohmann::ordered_json&              jdata,
                  const util::JsonOptions&             options = util::JsonOptions())
 {
     HandleToJson(jdata, data, options);
-}
-
-template <typename T>
-void FieldToJsonAsHex(nlohmann::ordered_json&  jdata,
-                      const T                  data,
-                      const util::JsonOptions& options = util::JsonOptions())
-{
-    jdata = util::to_hex_variable_width(data);
 }
 
 // Same as array FieldToJson above but converts elements pointed-to to hexadecimal
@@ -321,7 +271,6 @@ void FieldToJsonAsHex(nlohmann::ordered_json&                               jdat
 }
 
 // Used by (e.g.) VkMapMemory's ppData
-template <>
 inline void
 FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<uint64_t, void*>* data, const util::JsonOptions& options)
 {

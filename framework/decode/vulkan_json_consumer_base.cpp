@@ -26,6 +26,7 @@
 #include "util/json_util.h"
 #include "util/platform.h"
 #include "util/file_path.h"
+#include "util/to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

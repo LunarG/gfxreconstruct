@@ -22,21 +22,11 @@
 */
 
 #include "util/json_util.h"
-#include "json_util.h"
+#include "util/to_string.h"
+#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
-
-std::string uuid_to_string(uint32_t size, const uint8_t* uuid)
-{
-    std::ostringstream stream;
-    stream << std::setfill('0') << std::setw(2) << std::hex;
-    for (size_t i = 0; i < size; ++i)
-    {
-        stream << (uint32_t)uuid[i];
-    }
-    return stream.str();
-}
 
 void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options)
 {
@@ -52,7 +42,25 @@ void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, 
     }
 }
 
-// The following look trivial but there is a lot of work in a header-only
+void HandleToJson(nlohmann::ordered_json& jdata,
+                  const format::HandleId* data,
+                  size_t                  num_elements,
+                  const JsonOptions&      options)
+{
+    if (data)
+    {
+        for (size_t i = 0; i < num_elements; ++i)
+        {
+            HandleToJson(jdata[i], data[i], options);
+        }
+    }
+    else
+    {
+        jdata = nullptr;
+    }
+}
+
+// The following look trivial but there is some work in a header-only
 // library hidden in the assignments so we can give the inlining of that code a
 // natural place to stop right here.
 
@@ -97,6 +105,40 @@ void FieldToJson(nlohmann::ordered_json& jdata, unsigned long data, const JsonOp
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, unsigned long long data, const JsonOptions& options)
+{
+    jdata = data;
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, float data, const JsonOptions& options)
+{
+    if (std::isnan(data))
+    {
+        GFXRECON_LOG_WARNING_ONCE("Converting a NAN to zero.");
+        data = 0.0f;
+    }
+    else if (std::isinf(data))
+    {
+        GFXRECON_LOG_WARNING_ONCE("Converting an infinity to max or min.");
+        if (data < 0)
+        {
+            data = std::numeric_limits<float>::min();
+        }
+        else
+        {
+            data = std::numeric_limits<float>::max();
+        }
+    }
+    // Normal and denormal/subnormal numbers pass through unchanged and unremarked.
+
+    jdata = data;
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, double data, const util::JsonOptions& options)
+{
+    jdata = data;
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const std::string& data, const util::JsonOptions& options)
 {
     jdata = data;
 }

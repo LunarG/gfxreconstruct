@@ -27,6 +27,7 @@
 */
 
 #include "generated_vulkan_enum_to_json.h"
+#include "util/to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
