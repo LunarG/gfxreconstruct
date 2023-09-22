@@ -191,6 +191,7 @@ void CaptureManager::DestroyInstance(std::function<const CaptureManager*()> GetI
         {
             assert(delete_instance_func_);
             delete_instance_func_();
+            delete_instance_func_ = nullptr;
             assert(GetInstanceFunc() == nullptr);
         }
 
