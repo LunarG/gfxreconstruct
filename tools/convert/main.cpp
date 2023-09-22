@@ -138,7 +138,7 @@ static gfxrecon::util::JsonFormat GetOutputFormat(const gfxrecon::util::Argument
 
 std::string FormatFrameNumber(uint32_t frame_number)
 {
-    std::stringstream stream;
+    std::ostringstream stream;
     stream << std::setfill('0') << std::setw(5) << frame_number;
     return stream.str();
 }

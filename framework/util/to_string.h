@@ -115,7 +115,7 @@ inline std::string ToString(uint32_t      apiFlags,
 template <typename HandleIdType>
 inline std::string HandleIdToString(HandleIdType handleId)
 {
-    std::stringstream strStrm;
+    std::ostringstream strStrm;
     if (handleId)
     {
         strStrm << "\"0x" << reinterpret_cast<const void*>(handleId) << "\"";
@@ -233,8 +233,8 @@ template <typename ToStringFunctionType>
 inline std::string
 ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
 {
-    std::stringstream strStrm;
-    const auto        nl = GetNewlineString(toStringFlags);
+    std::ostringstream strStrm;
+    const auto         nl = GetNewlineString(toStringFlags);
     strStrm << '{';
     strStrm << nl;
     ++tabCount;
@@ -249,13 +249,13 @@ ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize
 /// Part of a system for formatting fields of structs and arguments of functions
 /// as JSON text strings.
 /// @deprecated Use the nlohmann JSON library instead.
-void FieldToString(std::stringstream& strStrm,
-                   bool               firstField,
-                   const char*        fieldName,
-                   ToStringFlags      toStringFlags,
-                   uint32_t           tabCount,
-                   uint32_t           tabSize,
-                   const std::string& fieldString);
+void FieldToString(std::ostringstream& strStrm,
+                   bool                firstField,
+                   const char*         fieldName,
+                   ToStringFlags       toStringFlags,
+                   uint32_t            tabCount,
+                   uint32_t            tabSize,
+                   const std::string&  fieldString);
 
 template <typename ObjectType, typename ValidateArrayFunctionType, typename ToStringFunctionType>
 inline std::string ArrayToString(size_t                    count,
@@ -271,7 +271,7 @@ inline std::string ArrayToString(size_t                    count,
         return "null";
     }
 
-    std::stringstream strStrm;
+    std::ostringstream strStrm;
     strStrm << '[';
     strStrm << GetNewlineString(toStringFlags);
     for (uint32_t i = 0; i < count; ++i)

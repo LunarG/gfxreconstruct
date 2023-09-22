@@ -97,7 +97,7 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
         }
 
         fprintf(file_, "%s", ObjectToString(to_string_flags_, tabCount, tabSize,
-            [&](std::stringstream& strStrm)
+            [&](std::ostringstream& strStrm)
             {
                 // Output the API call index
                 FieldToString(strStrm, true, "index", to_string_flags_, tabCount, tabSize, ToString(api_call_count_++, to_string_flags_, tabCount, tabSize));
@@ -111,7 +111,7 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                 if (writeApiCallToFileInfo.pObjectTypeName) {
                     FieldToString(strStrm, false, "object", to_string_flags_, tabCount, tabSize,
                         ObjectToString(to_string_flags_, tabCount, tabSize,
-                            [&](std::stringstream& objectStrStrm)
+                            [&](std::ostringstream& objectStrStrm)
                             {
                                 FieldToString(objectStrStrm, true, "type", to_string_flags_, tabCount, tabSize, util::Quote(writeApiCallToFileInfo.pObjectTypeName) + '"');
                                 FieldToString(objectStrStrm, false, "handle", to_string_flags_, tabCount, tabSize, HandleIdToString(writeApiCallToFileInfo.handleId));

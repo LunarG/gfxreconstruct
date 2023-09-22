@@ -70,7 +70,7 @@ void Dx12AsciiConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Han
     auto returnValue = ToString(original_result, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(writeApiCallToFileInfo, tab_count, tab_size,
-        [&](std::stringstream& str_strm)
+        [&](std::ostringstream& str_strm)
         {
             #if 0
             FieldToString(str_strm, true, "feature", to_string_flags_, tab_count, tab_size, ToString(feature, to_string_flags_, tab_count, tab_size));
@@ -313,7 +313,7 @@ void Dx12AsciiConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Ha
     auto returnValue = ToString(original_result, to_string_flags_, tab_count, tab_size);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(writeApiCallToFileInfo, tab_count, tab_size,
-        [&](std::stringstream& str_strm)
+        [&](std::ostringstream& str_strm)
         {
             #if 0
             FieldToString(str_strm, true, "feature", to_string_flags_, tab_count, tab_size, ToString(feature, to_string_flags_, tab_count, tab_size));
@@ -355,7 +355,7 @@ void Dx12AsciiConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::Ha
     writeApiCallToFileInfo.pFunctionName   = "WriteToSubresource";
     std::string returnValue                = ToString(return_value);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
-    WriteApiCallToFile(writeApiCallToFileInfo, tab_count, tab_size, [&](std::stringstream& str_strm) {
+    WriteApiCallToFile(writeApiCallToFileInfo, tab_count, tab_size, [&](std::ostringstream& str_strm) {
         FieldToString(str_strm,
                       true,
                       "DstSubresource",

@@ -37,7 +37,7 @@ ToString(const D3D12_CPU_DESCRIPTOR_HANDLE& obj, ToStringFlags toStringFlags, ui
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "ptr", toStringFlags, tabCount, tabSize, ToString(obj.ptr, toStringFlags, tabCount, tabSize));
         }
@@ -50,7 +50,7 @@ ToString(const D3D12_GPU_DESCRIPTOR_HANDLE& obj, ToStringFlags toStringFlags, ui
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "ptr", toStringFlags, tabCount, tabSize, ToString(obj.ptr, toStringFlags, tabCount, tabSize));
         }
@@ -62,7 +62,7 @@ std::string ToString(const LARGE_INTEGER& obj, ToStringFlags toStringFlags, uint
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "QuadPart", toStringFlags, tabCount, tabSize, ToString(obj.QuadPart));
         }
@@ -77,7 +77,7 @@ std::string ToString(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& obj,
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Version", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Version)));
             switch (obj.Version) {
@@ -103,7 +103,7 @@ ToString(const D3D12_TEXTURE_COPY_LOCATION& obj, ToStringFlags toStringFlags, ui
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "pResource", toStringFlags, tabCount, tabSize, HandleIdToString(obj.pResource));
             FieldToString(strStrm, false, "Type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Type)));
@@ -130,7 +130,7 @@ ToString(const D3D12_SHADER_RESOURCE_VIEW_DESC& obj, ToStringFlags toStringFlags
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Format)));
             FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ViewDimension)));
@@ -194,7 +194,7 @@ ToString(const D3D12_UNORDERED_ACCESS_VIEW_DESC& obj, ToStringFlags toStringFlag
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Format)));
             FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ViewDimension)));
@@ -237,7 +237,7 @@ ToString(const D3D12_RENDER_TARGET_VIEW_DESC& obj, ToStringFlags toStringFlags, 
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Format)));
             FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ViewDimension)));
@@ -288,7 +288,7 @@ ToString(const D3D12_DEPTH_STENCIL_VIEW_DESC& obj, ToStringFlags toStringFlags, 
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Format)));
             FieldToString(strStrm, false, "ViewDimension", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ViewDimension)));
@@ -331,7 +331,7 @@ std::string ToString(const D3D12_CLEAR_VALUE& obj, ToStringFlags toStringFlags, 
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Format", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Format)));
             switch (obj.Format) {
@@ -357,7 +357,7 @@ ToString(const D3D12_PIPELINE_STATE_STREAM_DESC& obj, ToStringFlags toStringFlag
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "SizeInBytes", toStringFlags, tabCount, tabSize, ToString(obj.SizeInBytes));
             FieldToString(strStrm, false, "pPipelineStateSubobjectStream", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pPipelineStateSubobjectStream)));
@@ -371,7 +371,7 @@ ToString(const D3D12_STATE_OBJECT_DESC& obj, ToStringFlags toStringFlags, uint32
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Type)));
             FieldToString(strStrm, false, "NumSubobjects", toStringFlags, tabCount, tabSize, ToString(obj.NumSubobjects));
@@ -388,7 +388,7 @@ std::string ToString(const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS&
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Type)));
             FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Flags)));
@@ -430,7 +430,7 @@ std::string ToString(const D3D12_RENDER_PASS_BEGINNING_ACCESS& obj,
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Type)));
             switch (obj.Type) {
@@ -452,7 +452,7 @@ ToString(const D3D12_RENDER_PASS_ENDING_ACCESS& obj, ToStringFlags toStringFlags
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Type)));
             switch (obj.Type) {
@@ -473,7 +473,7 @@ std::string ToString(const D3D12_ROOT_PARAMETER& obj, ToStringFlags toStringFlag
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "ParameterType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ParameterType)));
             switch (obj.ParameterType) {
@@ -503,7 +503,7 @@ std::string ToString(const D3D12_ROOT_PARAMETER1& obj, ToStringFlags toStringFla
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "ParameterType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ParameterType)));
             switch (obj.ParameterType) {
@@ -534,7 +534,7 @@ ToString(const D3D12_INDIRECT_ARGUMENT_DESC& obj, ToStringFlags toStringFlags, u
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Type)));
             switch (obj.Type) {
@@ -574,7 +574,7 @@ ToString(const DXGI_DISPLAY_COLOR_SPACE& obj, ToStringFlags toStringFlags, uint3
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             // TODO : Generic 2D array handler...
             FieldToString(strStrm, true, "PrimaryCoordinates", toStringFlags, tabCount, tabSize, ArrayToString(0, obj.PrimaryCoordinates[0], toStringFlags, tabCount, tabSize));
@@ -589,7 +589,7 @@ ToString(const D3D12_RAYTRACING_INSTANCE_DESC& obj, ToStringFlags toStringFlags,
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             std::string strs[3][4];
             size_t maxStrLength = 0;
@@ -609,7 +609,7 @@ ToString(const D3D12_RAYTRACING_INSTANCE_DESC& obj, ToStringFlags toStringFlags,
                     },
                     [&](size_t y)
                     {
-                        std::stringstream rowStrStrm;
+                        std::ostringstream rowStrStrm;
                         rowStrStrm << '[' << GetWhitespaceString(toStringFlags);
                         for (size_t x = 0; x < 4; ++x)
                         {
@@ -645,7 +645,7 @@ std::string ToString(const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& obj,
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "SubobjectToAssociate", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.SubobjectToAssociate)));
             FieldToString(strStrm, false, "NumExports", toStringFlags, tabCount, tabSize, ToString(obj.NumExports));
@@ -660,7 +660,7 @@ ToString(const D3D12_RESOURCE_BARRIER& obj, ToStringFlags toStringFlags, uint32_
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Type)));
             FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Flags)));
@@ -690,7 +690,7 @@ std::string ToString(const D3D12_STATE_SUBOBJECT& obj, ToStringFlags toStringFla
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Type)));
             FieldToString(strStrm, false, "pDesc", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.pDesc)));
@@ -704,7 +704,7 @@ ToString(const D3D12_RAYTRACING_GEOMETRY_DESC& obj, ToStringFlags toStringFlags,
 {
     // clang-format off
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Type", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Type)));
             FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, Quote(PtrToString(obj.Flags)));
