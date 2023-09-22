@@ -27,6 +27,7 @@
 #include "util/defines.h"
 #include "annotation_handler.h"
 #include "format/platform_types.h"
+#include "format/format_json.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "decode/json_writer.h"
 #include "util/json_util.h"
@@ -184,16 +185,18 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
 
     // Wrappers for json field names allowing change without code gen and
     // leaving door open for switching output based on internal state.
-    constexpr const char* NameFunction() const { return "function"; }
-    constexpr const char* NameMeta() const { return "meta"; }
-    constexpr const char* NameState() const { return "state"; }
-    constexpr const char* NameFrame() const { return "frame"; }
-    constexpr const char* NameName() const { return "name"; }
-    constexpr const char* NameIndex() const { return "index"; }
-    constexpr const char* NameThread() const { return "thread"; }
-    constexpr const char* NameReturn() const { return "return"; }
-    constexpr const char* NameArgs() const { return "args"; }
-    constexpr const char* NameThreadId() const { return "thread"; }
+    /// @todo Just use the constants directly: the requirement to be able to have
+    /// different versions of field names switchable at runtime seems to have
+    /// gone away.
+    constexpr const char* NameFunction() const { return format::kNameFunction; }
+    constexpr const char* NameMeta() const { return format::kNameMeta; }
+    constexpr const char* NameState() const { return format::kNameState; }
+    constexpr const char* NameFrame() const { return format::kNameFrame; }
+    constexpr const char* NameName() const { return format::kNameName; }
+    constexpr const char* NameIndex() const { return format::kNameIndex; }
+    constexpr const char* NameThread() const { return format::kNameThread; }
+    constexpr const char* NameReturn() const { return format::kNameReturn; }
+    constexpr const char* NameArgs() const { return format::kNameArgs; }
     /// A field not present in binary format which identifies the index of each
     /// command within its command buffer.
     /// @todo Make this field optional.
