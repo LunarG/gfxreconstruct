@@ -574,20 +574,5 @@ void VulkanExportJsonConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
     WriteBlockEnd();
 }
 
-nlohmann::ordered_json& VulkanExportJsonConsumerBase::WriteApiCallStart(const ApiCallInfo& call_info,
-                                                                        const std::string& command_name)
-{
-    using namespace util;
-    auto& json_data = WriteBlockStart();
-
-    json_data[NameIndex()] = call_info.index;
-
-    nlohmann::ordered_json& function = json_data[NameFunction()];
-    function[NameName()]             = command_name;
-    function[NameThread()]           = call_info.thread_id;
-
-    return function;
-}
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

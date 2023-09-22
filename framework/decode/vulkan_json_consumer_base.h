@@ -207,7 +207,10 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
     /// @todo Make this field optional.
     constexpr const char* NameSubmitIndex() const { return "sub_index"; }
 
-    nlohmann::ordered_json& WriteApiCallStart(const ApiCallInfo& call_info, const std::string& command_name);
+    nlohmann::ordered_json& WriteApiCallStart(const ApiCallInfo& call_info, const std::string& command_name)
+    {
+        return writer_->WriteApiCallStart(call_info, command_name);
+    }
 
     /// A utility wrapper so that manual output functions can provide a lambda which only needs to output
     /// the fields unique to their call and this tops and tails with the standard boilerplate, defining it

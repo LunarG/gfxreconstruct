@@ -40,6 +40,8 @@ class OutputStream;
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+struct ApiCallInfo;
+
 /// Manages writing
 class JsonWriter : public AnnotationHandler
 {
@@ -61,6 +63,12 @@ class JsonWriter : public AnnotationHandler
 
     /// Finalise the current block and stream it out.
     void WriteBlockEnd();
+
+    /// Start the JSON tree for a function call, building the top-level object
+    /// with index and function fields, adding name and thread to the function.
+    /// @return The "function" object field for the caller to populate further
+    /// with return value if any and arguments.
+    nlohmann::ordered_json& WriteApiCallStart(const ApiCallInfo& call_info, const std::string& command_name);
 
     /// Get the JSON object used to output the per-stream header
     /// Consumers can add their own fields to it.

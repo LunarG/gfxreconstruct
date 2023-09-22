@@ -27,7 +27,8 @@
 #include "decode/json_writer.h"
 #include "util/output_stream.h"
 #include "util/logging.h"
-#include "json_writer.h"
+#include "decode/api_decoder.h"
+#include "format/format_json.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -151,6 +152,20 @@ void JsonWriter::WriteBlockEnd()
     const std::string block = json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : kJsonIndentWidth);
     Write(*os_, block);
     os_->Flush();
+}
+
+nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo& call_info, const std::string& command_name)
+{
+    using namespace util;
+    auto& json_data = WriteBlockStart();
+
+    json_data[format::kNameIndex] = call_info.index;
+
+    nlohmann::ordered_json& function = json_data[format::kNameFunction];
+    function[format::kNameName]      = command_name;
+    function[format::kNameThread]    = call_info.thread_id;
+
+    return function;
 }
 
 void JsonWriter::ProcessAnnotation(uint64_t               block_index,
