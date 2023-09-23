@@ -75,7 +75,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, float data, const util::JsonOpti
 /// @note This is unused dead code currently (try placing a breakpoint on it).
 void FieldToJson(nlohmann::ordered_json& jdata, double data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const std::string&       data,
+                 const std::string_view   data,
                  const util::JsonOptions& options = util::JsonOptions());
 
 /// @brief Convert the integer representation of a handle in capture files into

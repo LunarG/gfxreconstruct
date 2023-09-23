@@ -138,7 +138,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, double data, const util::JsonOpt
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const std::string& data, const util::JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const std::string_view data, const util::JsonOptions& options)
 {
     jdata = data;
 }

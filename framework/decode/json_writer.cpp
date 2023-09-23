@@ -154,7 +154,7 @@ void JsonWriter::WriteBlockEnd()
     os_->Flush();
 }
 
-nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo& call_info, const std::string& command_name)
+nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo& call_info, const std::string_view command_name)
 {
     using namespace util;
     auto& json_data = WriteBlockStart();
