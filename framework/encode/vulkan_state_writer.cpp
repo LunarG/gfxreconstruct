@@ -1008,7 +1008,6 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
             const DeviceWrapper* device_wrapper = wrapper->device;
             assert(device_wrapper != nullptr);
 
-            const VkResult result = VK_SUCCESS;
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
             encoder_.EncodeVkBool32Value(wrapper->local_dimming_enable_AMD);
@@ -2109,7 +2108,6 @@ void VulkanStateWriter::WritePhysicalDevicePropertiesMetaData(const PhysicalDevi
 
     format::HandleId           physical_device_id     = physical_device_wrapper->handle_id;
     VkPhysicalDevice           physical_device_handle = physical_device_wrapper->handle;
-    uint32_t                   count                  = 0;
     VkPhysicalDeviceProperties properties;
 
     instance_table->GetPhysicalDeviceProperties(physical_device_handle, &properties);

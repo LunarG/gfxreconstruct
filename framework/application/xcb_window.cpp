@@ -43,7 +43,6 @@ const char kBypassCompositorName[] = "_NET_WM_BYPASS_COMPOSITOR";
 // Masks for window geometry configuration.
 const uint16_t kConfigurePositionMask     = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y;
 const uint16_t kConfigureSizeMask         = XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-const uint16_t kConfigurePositionSizeMask = kConfigurePositionMask | kConfigureSizeMask;
 
 XcbWindow::XcbWindow(XcbContext* xcb_context) :
     xcb_context_(xcb_context), width_(0), height_(0), screen_width_(std::numeric_limits<uint32_t>::max()),
@@ -430,7 +429,7 @@ xcb_intern_atom_cookie_t
 XcbWindow::SendAtomRequest(xcb_connection_t* connection, const char* name, uint8_t only_if_exists) const
 {
     auto& xcb = xcb_context_->GetXcbFunctionTable();
-    return xcb.intern_atom(connection, only_if_exists, strlen(name), name);
+    return xcb.intern_atom(connection, only_if_exists, static_cast<uint16_t>(strlen(name)), name);
 }
 
 xcb_atom_t

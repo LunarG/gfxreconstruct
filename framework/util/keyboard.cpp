@@ -133,7 +133,6 @@ bool Keyboard::GetKeyState(const std::string& key)
         auto  iterator_key_code = xcb_key_code_map.find(key);
         if (iterator_key_code != xcb_key_code_map.end())
         {
-            int                key_state      = 0;
             xcb_key_symbols_t* hot_key_symbol = xcb_keysyms.key_symbols_alloc(xcb_connection_);
             if (hot_key_symbol != nullptr)
             {

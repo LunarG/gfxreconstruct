@@ -39,8 +39,8 @@ const std::vector<std::string> kLoaderLibNames = {
 
 VulkanResourceTrackingConsumer::VulkanResourceTrackingConsumer(
     const VulkanReplayOptions& options, VulkanTrackedObjectInfoTable* tracked_object_info_table) :
-    options_(options),
-    loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_function_(nullptr),
+    loader_handle_(nullptr),
+    create_instance_function_(nullptr), get_instance_proc_addr_(nullptr), options_(options),
     tracked_object_info_table_(tracked_object_info_table)
 {
     assert(tracked_object_info_table != nullptr);
@@ -491,9 +491,7 @@ void VulkanResourceTrackingConsumer::Process_vkBindBufferMemory2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(returnValue);
 
-    auto tracked_device_info = GetTrackedObjectInfoTable()->GetTrackedDeviceInfo(device);
-
-    assert((pBindInfos != nullptr) && (tracked_device_info != nullptr));
+    assert((pBindInfos != nullptr) && (GetTrackedObjectInfoTable()->GetTrackedDeviceInfo(device) != nullptr));
 
     const VkBindBufferMemoryInfo*         replay_bind_infos      = pBindInfos->GetPointer();
     const Decoded_VkBindBufferMemoryInfo* replay_bind_meta_infos = pBindInfos->GetMetaStructPointer();
@@ -531,9 +529,7 @@ void VulkanResourceTrackingConsumer::Process_vkBindImageMemory2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(returnValue);
 
-    auto tracked_device_info = GetTrackedObjectInfoTable()->GetTrackedDeviceInfo(device);
-
-    assert((pBindInfos != nullptr) && (tracked_device_info != nullptr));
+    assert((pBindInfos != nullptr) && (GetTrackedObjectInfoTable()->GetTrackedDeviceInfo(device) != nullptr));
 
     const VkBindImageMemoryInfo*         replay_bind_infos      = pBindInfos->GetPointer();
     const Decoded_VkBindImageMemoryInfo* replay_bind_meta_infos = pBindInfos->GetMetaStructPointer();

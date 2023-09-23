@@ -40,8 +40,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 const uint32_t kFirstFrame = 0;
 
 FileProcessor::FileProcessor() :
-    file_header_{}, file_descriptor_(nullptr), current_frame_number_(kFirstFrame), bytes_read_(0),
-    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0),
+    file_descriptor_(nullptr), current_frame_number_(kFirstFrame), annotation_handler_(nullptr),
+    error_state_(kErrorInvalidFileDescriptor), block_index_(0), file_header_{}, bytes_read_(0), compressor_(nullptr),
     api_call_index_(0), block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
 {}
 
@@ -72,7 +72,7 @@ void FileProcessor::WaitDecodersIdle()
     {
         decoder->WaitIdle();
     }
-};
+}
 
 bool FileProcessor::Initialize(const std::string& filename)
 {
@@ -169,7 +169,7 @@ bool FileProcessor::ContinueDecoding()
             }
         }
 
-        if (completed_decoders == decoders_.size())
+        if (static_cast<size_t>(completed_decoders) == decoders_.size())
         {
             early_exit = true;
         }
@@ -322,8 +322,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else if (block_header.type == format::BlockType::kFrameMarkerBlock)
                 {
-                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                    uint64_t           frame_number = 0;
+                    format::MarkerType marker_type = format::MarkerType::kUnknownMarker;
 
                     success = ReadBytes(&marker_type, sizeof(marker_type));
 
@@ -357,8 +356,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else if (block_header.type == format::BlockType::kStateMarkerBlock)
                 {
-                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                    uint64_t           frame_number = 0;
+                    format::MarkerType marker_type = format::MarkerType::kUnknownMarker;
 
                     success = ReadBytes(&marker_type, sizeof(marker_type));
 
@@ -1724,8 +1722,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     }
     else if (meta_data_type == format::MetaDataType::kDx12RuntimeInfoCommand)
     {
-        format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header;
-        memset(&dx12_runtime_info_header, 0, sizeof(dx12_runtime_info_header));
+        format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header = {};
 
         success = ReadBytes(&dx12_runtime_info_header.thread_id, sizeof(dx12_runtime_info_header.thread_id));
 
@@ -1835,7 +1832,7 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
 
 bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
 {
-    bool     success      = false;
+    bool                                             success      = false;
     decltype(format::AnnotationHeader::label_length) label_length = 0;
     decltype(format::AnnotationHeader::data_length)  data_length  = 0;
 

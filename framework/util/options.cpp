@@ -141,7 +141,6 @@ std::vector<UintRange> GetUintRanges(const char* args, const char* option_name)
             }
             else
             {
-                const auto& back = ranges.back();
                 GFXRECON_LOG_WARNING("Ignoring invalid range \"%s\" for %s, where the range \"%s\" overlaps with the "
                                      "previous range \"%s\"",
                                      range.c_str(),
@@ -184,13 +183,13 @@ bool ParseBoolString(const std::string& value_string, bool default_value)
 
 uint32_t ParseUintString(const std::string& value_string, uint32_t default_value)
 {
-    auto result = default_value;
+    uint32_t result = default_value;
 
     try
     {
         if (!value_string.empty())
         {
-            result = std::stoul(value_string);
+            result = static_cast<uint32_t>(std::stoul(value_string));
         }
     }
     catch (...)

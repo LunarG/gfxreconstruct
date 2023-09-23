@@ -146,15 +146,15 @@ class FileTransformer
     bool ReadBlockHeader(format::BlockHeader* block_header);
 
   private:
+    format::FileHeader                  file_header_;
     FILE*                               input_file_;
     FILE*                               output_file_;
-    format::FileHeader                  file_header_;
-    std::vector<format::FileOptionPair> file_options_;
-    format::EnabledOptions              enabled_options_;
     uint64_t                            bytes_read_;
     uint64_t                            bytes_written_;
     Error                               error_state_;
     bool                                loading_state_;
+    std::vector<format::FileOptionPair> file_options_;
+    format::EnabledOptions              enabled_options_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     std::unique_ptr<util::Compressor>   compressor_;

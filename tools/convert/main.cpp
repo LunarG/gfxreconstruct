@@ -39,11 +39,11 @@ const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,-
 
 const char kArguments[] = "--output,--format";
 
-static void PrintUsage(const char* exe_name)
+void PrintUsage(const char* exe_name)
 {
     std::string app_name     = exe_name;
     size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
+    if (dir_location != std::string::npos)
     {
         app_name.replace(0, dir_location + 1, "");
     }

@@ -31,6 +31,8 @@ add_executable(gfxrecon-optimize "")
 target_sources(gfxrecon-optimize
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
+                   ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.h
                    ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.cpp
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_file_optimizer.h>
