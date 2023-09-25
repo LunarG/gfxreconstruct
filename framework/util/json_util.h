@@ -89,6 +89,14 @@ void Bool32ToJson(nlohmann::ordered_json&  jdata,
                   const uint32_t           data,
                   const util::JsonOptions& options = util::JsonOptions());
 
+/// @brief Convert an integer type to JSON but encoded in hex as a JSON string
+/// rather than as a JSON number type. Useful for pointers and memory offsets.
+/// @todo Consider replacing FieldToJsonAsHex here and array forms with an
+/// AsHex bit/bool in the JsonOptions struct. Same for Bool32ToJson where the
+/// scalar uint32_t overload of FieldToJson would check the bit and the array
+/// array forms would go away. An IsHandle bit could also replace HandleToJson
+/// for format::HandleId but this is starting to get smelly (function effects
+/// depending on switching on a parameter value).
 template <typename T>
 void FieldToJsonAsHex(nlohmann::ordered_json&  jdata,
                       const T                  data,
