@@ -980,7 +980,7 @@ bool IsUma(ID3D12Device* device)
 
 uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double memory_usage, const bool is_uma)
 {
-    GFXRECON_ASSERT(memory_usage >= 0.0 && memory_usage <= 1.0);
+    GFXRECON_ASSERT(memory_usage > 0.0 && memory_usage <= 1.0);
     uint64_t available_mem = 0;
     if (adapter != nullptr)
     {
@@ -996,10 +996,6 @@ uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double memory_usag
             if (total_memory > video_memory_info.CurrentUsage)
             {
                 available_mem = total_memory - video_memory_info.CurrentUsage;
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR("Detected adapter memory oversubscription");
             }
         }
         else
@@ -1017,7 +1013,7 @@ uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double memory_usag
 
 uint64_t GetAvailableCpuMemory(double max_usage)
 {
-    GFXRECON_ASSERT(max_usage >= 0.0 && max_usage <= 1.0);
+    GFXRECON_ASSERT(max_usage > 0.0 && max_usage <= 1.0);
     MEMORYSTATUSEX mem_info = {};
     mem_info.dwLength       = sizeof(MEMORYSTATUSEX);
     if (GlobalMemoryStatusEx(&mem_info) == FALSE)
@@ -1039,6 +1035,11 @@ uint64_t GetAvailableCpuMemory(double max_usage)
 bool IsMemoryAvailable(uint64_t required_memory, IDXGIAdapter3* adapter, double max_mem_usage, const bool is_uma)
 {
     bool available = false;
+    if (max_mem_usage == 0.0)
+    {
+        // 0.0 means no batching, skip memory checking
+        return available;
+    }
 #ifdef _WIN64
     // For 32bit, only upload one buffer at one time, to save memory usage.
     if (max_mem_usage > 0.0 && max_mem_usage <= 1.0)

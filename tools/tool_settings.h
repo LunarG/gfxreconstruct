@@ -884,13 +884,15 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     const std::string& memory_usage = arg_parser.GetArgumentValue(kBatchingMemoryUsageArgument);
     if (!memory_usage.empty())
     {
-        if (replay_options.memory_usage >= 0 && replay_options.memory_usage <= 100)
+        int memory_usage_int = std::stoi(memory_usage);
+        if (memory_usage_int >= 0 && memory_usage_int <= 100)
         {
-            replay_options.memory_usage = std::stoi(memory_usage);
+            replay_options.memory_usage = static_cast<uint32_t>(memory_usage_int);
         }
         else
         {
-            GFXRECON_LOG_WARNING("The parameters --batching-memory-usage out of range, will use 80 as default value");
+            GFXRECON_LOG_WARNING(
+                "The parameter to --batching-memory-usage is out of range [0, 100], will use 80 as default value.");
         }
     }
 
