@@ -167,18 +167,16 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
         InitializeScreenshotHandler();
     }
 
-    // Process option to select swapchain handler. The options is '--use-captured-swapchain-indices'.
-    if (options.enable_use_captured_swapchain_indices)
+    switch (options.swapchain_option)
     {
-        swapchain_ = std::make_unique<VulkanCapturedSwapchain>();
-    }
-    else if (options.enable_offscreen)
-    {
-        swapchain_ = std::make_unique<VulkanOffscreenSwapchain>();
-    }
-    else
-    {
-        swapchain_ = std::make_unique<VulkanVirtualSwapchain>();
+        case util::SwapchainOption::kCaptured:
+            swapchain_ = std::make_unique<VulkanCapturedSwapchain>();
+            break;
+        case util::SwapchainOption::kOffscreen:
+            swapchain_ = std::make_unique<VulkanOffscreenSwapchain>();
+            break;
+        default:
+            swapchain_ = std::make_unique<VulkanVirtualSwapchain>();
     }
     if (options_.enable_debug_device_lost)
     {
@@ -378,7 +376,7 @@ void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surfa
         }
         else
         {
-            if (options_.enable_offscreen)
+            if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
             {
                 GFXRECON_LOG_DEBUG("Skipping window resize for VkSurface object (ID = %" PRIu64
                                    ") without an associated window",
@@ -416,7 +414,7 @@ void VulkanReplayConsumerBase::ProcessResizeWindowCommand2(format::HandleId surf
         }
         else
         {
-            if (options_.enable_offscreen)
+            if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
             {
                 GFXRECON_LOG_DEBUG("Skipping window resize for VkSurface object (ID = %" PRIu64
                                    ") without an associated window",

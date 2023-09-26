@@ -47,6 +47,13 @@ enum class ScreenshotFormat : uint32_t
     kPng = 1,
 };
 
+enum class SwapchainOption : uint32_t
+{
+    kVirtual   = 0,
+    kCaptured  = 1,
+    kOffscreen = 2,
+};
+
 //----------------------------------------------------------------------------
 /// Read a boolean value out of a string
 /// \param  value_string Input string

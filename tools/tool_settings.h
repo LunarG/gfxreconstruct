@@ -103,12 +103,13 @@ const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kMeasurementFileArgument[]            = "--measurement-file";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
-const char kEnableUseCapturedSwapchainIndices[]  = "--use-captured-swapchain-indices";
-const char kFormatArgument[]                     = "--format";
-const char kIncludeBinariesOption[]              = "--include-binaries";
-const char kExpandFlagsOption[]                  = "--expand-flags";
-const char kFilePerFrameOption[]                 = "--file-per-frame";
-const char kEnableOffscreen[]                    = "--offscreen";
+const char kSwapchainOption[]                    = "--swapchain";
+const char kEnableUseCapturedSwapchainIndices[] =
+    "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
+const char kFormatArgument[]        = "--format";
+const char kIncludeBinariesOption[] = "--include-binaries";
+const char kExpandFlagsOption[]     = "--expand-flags";
+const char kFilePerFrameOption[]    = "--file-per-frame";
 #if defined(WIN32)
 const char kApiFamilyOption[]             = "--api";
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
@@ -139,6 +140,10 @@ const char kMemoryTranslationNone[]    = "none";
 const char kMemoryTranslationRemap[]   = "remap";
 const char kMemoryTranslationRealign[] = "realign";
 const char kMemoryTranslationRebind[]  = "rebind";
+
+const char kSwapchainVirtual[]   = "virtual";
+const char kSwapchainCaptured[]  = "captured";
+const char kSwapchainOffscreen[] = "offscreen";
 
 #if defined(WIN32)
 const char kApiFamilyVulkan[] = "vulkan";
@@ -830,14 +835,36 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.omit_pipeline_cache_data = true;
     }
 
-    if (arg_parser.IsOptionSet(kEnableUseCapturedSwapchainIndices))
+    auto swapchain_option          = arg_parser.GetArgumentValue(kSwapchainOption);
+    auto enable_captured_swapchain = arg_parser.IsOptionSet(kEnableUseCapturedSwapchainIndices);
+    if (swapchain_option.empty())
     {
-        replay_options.enable_use_captured_swapchain_indices = true;
+        if (enable_captured_swapchain)
+        {
+            replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
+        }
     }
-
-    if (arg_parser.IsOptionSet(kEnableOffscreen))
+    else
     {
-        replay_options.enable_offscreen = true;
+        if (enable_captured_swapchain)
+        {
+            GFXRECON_LOG_WARNING("Ignoring option: \"%s\" because option: \"%s\" is added",
+                                 kEnableUseCapturedSwapchainIndices,
+                                 kSwapchainOption);
+        }
+
+        if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainCaptured, swapchain_option.c_str()) == 0)
+        {
+            replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainOffscreen, swapchain_option.c_str()) == 0)
+        {
+            replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kOffscreen;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kSwapchainVirtual, swapchain_option.c_str()) != 0)
+        {
+            GFXRECON_LOG_WARNING("Ignoring unrecognized \"--swapchain\" option: %s", swapchain_option.c_str());
+        }
     }
 
     replay_options.replace_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);

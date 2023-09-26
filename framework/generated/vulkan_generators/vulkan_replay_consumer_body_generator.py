@@ -255,7 +255,7 @@ class VulkanReplayConsumerBodyGenerator(
             for value in values:
                 for key in self.SKIP_FUNCTIONS_OFFSCREEN:
                     if self.is_has_specific_key_word_in_type(value, key):
-                        body += '    if (options_.enable_offscreen)\n'
+                        body += '    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)\n'
                         body += '    {\n'
                         body += '        GFXRECON_LOG_DEBUG("Skip ' + name + ' for offscreen.");\n'
                         body += '        return;\n'

@@ -389,11 +389,10 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
-                        [--use-captured-swapchain-indices]
+                        [--swapchain MODE] [--use-captured-swapchain-indices]
                         [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
                         [--measurement-file <file>] [--quit-after-measurement-range]
                         [--flush-measurement-range]
-                        [--offscreen]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--api <api>] [--no-debug-popup] <file>
 
@@ -502,11 +501,17 @@ Optional arguments:
                                         enabled. This is the default.
   --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
                         displayed when abort() is called (Windows debug only).
+  --swapchain MODE      Choose a swapchain mode to replay. Available modes are:
+                            virtual     Virtual Swapchain of images which match
+                                        the swapchain in effect at capture time and
+                                        which are copied to the underlying swapchain of the
+                                        implementation being replayed on. This is default.
+                            captured    Use the swapchain indices stored in the
+                                        capture directly on the swapchain setup for replay.
+                            offscreen   Disable creating swapchains, surfaces
+                                        and windows. To see rendering, add the --screenshots option.
   --use-captured-swapchain-indices
-                        Use the swapchain indices stored in the capture directly on the swapchain
-                        setup for replay. The default without this option is to use a Virtual Swapchain
-                        of images which match the swapchain in effect at capture time and which are
-                        copied to the underlying swapchain of the implementation being replayed on.
+                        Same as "--swapchain captured". Ignored if the "--swapchain" option is used.
   --measurement-frame-range <start_frame>-<end_frame>
               Custom framerange to measure FPS for.
               This range will include the start frame but not the end frame.
@@ -526,8 +531,6 @@ Optional arguments:
               If this is specified the replayer will flush
               and wait for all current GPU work to finish at the
               start and end of the measurement range.
-  --offscreen           Disable creating swapchains, surfaces and windows.
-                        To see rendering, add the --screenshots option.
 ```
 
 ### Key Controls

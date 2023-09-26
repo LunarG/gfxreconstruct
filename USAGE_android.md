@@ -747,10 +747,10 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--screenshot-prefix PREFIX] [--screenshot-scale SCALE]
                           [--screenshot-size WIDTHxHEIGHT] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
-                          [--use-captured-swapchain-indices] [--mfr START-END]
+                          [--mfr START-END]
                           [--measurement-file DEVICE_FILE] [--quit-after-measurement-range]
                           [--flush-measurement-range] [-m MODE]
-                          [--offscreen]
+                          [--swapchain MODE] [--use-captured-swapchain-indices]
                           [file]
 
 Launch the replay tool.
@@ -831,12 +831,11 @@ optional arguments:
   --onhb, --omit-null-hardware-buffers
                         Omit Vulkan API calls which would pass a NULL
                         AHardwareBuffer*.  (forwarded to replay tool)
+  --swapchain MODE      Choose a swapchain mode to replay. Available modes are:
+                        virtual, captured, offscreen (forwarded to replay tool)
   --use-captured-swapchain-indices
-                        Use the swapchain indices stored in the capture directly on the swapchain
-                        setup for replay. The default without this option is to use a Virtual Swapchain
-                        of images which match the swapchain in effect at capture time and which are
-                        copied to the underlying swapchain of the implementation being replayed on.
-    --mfr START-END, --measurement-frame-range START-END
+                        Same as "--swapchain captured". Ignored if the "--swapchain" option is used.
+  --mfr START-END, --measurement-frame-range START-END
                         Custom framerange to measure FPS for. This range will
                         include the start frame but not the end frame. The
                         measurement frame range defaults to all frames except
@@ -859,8 +858,6 @@ optional arguments:
                         If this is specified the replayer will flush and wait
                         for all current GPU work to finish at the start and end
                         of the measurement range. (forwarded to replay tool)
-  --offscreen           Disable creating swapchains, surfaces and windows.
-                        To see rendering, add the --screenshots option.
 ```
 
 The command will force-stop an active replay process before starting the replay
