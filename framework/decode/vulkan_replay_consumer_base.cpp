@@ -64,6 +64,25 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,   VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 };
 
+const char                                kSwapchainColorspaceExtensionName[] = "VK_EXT_swapchain_colorspace";
+const std::unordered_set<VkColorSpaceKHR> kColorspaceSwapchainExtension       = { VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_BT2020_LINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_BT709_LINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_BT709_NONLINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_DCI_P3_LINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_DCI_P3_NONLINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_DOLBYVISION_EXT,
+                                                                                  VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT,
+                                                                                  VK_COLOR_SPACE_HDR10_HLG_EXT,
+                                                                                  VK_COLOR_SPACE_HDR10_ST2084_EXT,
+                                                                                  VK_COLOR_SPACE_PASS_THROUGH_EXT };
+
+const char            kAMDSwapchainColorspaceExtensionName[] = "VK_AMD_display_native_hdr";
+const VkColorSpaceKHR kAMDNativeDisplayColorspace            = VK_COLOR_SPACE_DISPLAY_NATIVE_AMD;
+
 // Device extensions to enable for trimming state setup, when available.
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
 
@@ -4998,29 +5017,55 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
 
-        if (screenshot_handler_ == nullptr)
-        {
-            result = swapchain_->CreateSwapchainKHR(original_result,
-                                                    func,
-                                                    device_info,
-                                                    replay_create_info,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    pSwapchain,
-                                                    GetDeviceTable(device_info->handle));
-        }
-        else
+        VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
+
+        if (screenshot_handler_ != nullptr)
         {
             // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
-            VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
             modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-            result = swapchain_->CreateSwapchainKHR(original_result,
-                                                    func,
-                                                    device_info,
-                                                    &modified_create_info,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    pSwapchain,
-                                                    GetDeviceTable(device_info->handle));
         }
+
+        bool                               colorspace_extension_used_unsupported = false;
+        std::vector<VkExtensionProperties> properties;
+        if (feature_util::GetDeviceExtensions(device_info->parent,
+                                              GetInstanceTable(device_info->parent)->EnumerateDeviceExtensionProperties,
+                                              &properties) == VK_SUCCESS)
+        {
+            if (kColorspaceSwapchainExtension.count(replay_create_info->imageColorSpace) != 0)
+            {
+                colorspace_extension_used_unsupported =
+                    !feature_util::IsSupportedExtension(properties, kSwapchainColorspaceExtensionName);
+            }
+            else if (replay_create_info->imageColorSpace == kAMDNativeDisplayColorspace)
+            {
+                colorspace_extension_used_unsupported =
+                    !feature_util::IsSupportedExtension(properties, kAMDSwapchainColorspaceExtensionName);
+            }
+        }
+
+        if (colorspace_extension_used_unsupported)
+        {
+            if (options_.colorspace_fallback)
+            {
+                modified_create_info.imageColorSpace = VkColorSpaceKHR::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+                GFXRECON_LOG_INFO("Forcing supported color space for swapchain (ID = %" PRIu64 ")",
+                                  swapchain_info->capture_id);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Swapchain (ID = %" PRIu64
+                                   ") uses color space provided by unsupported VK_EXT_swapchain_colorspace",
+                                   swapchain_info->capture_id);
+            }
+        }
+
+        result = swapchain_->CreateSwapchainKHR(original_result,
+                                                func,
+                                                device_info,
+                                                &modified_create_info,
+                                                GetAllocationCallbacks(pAllocator),
+                                                pSwapchain,
+                                                GetDeviceTable(device_info->handle));
     }
     else
     {
