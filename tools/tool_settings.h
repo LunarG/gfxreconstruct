@@ -108,9 +108,10 @@ const char kIncludeBinariesOption[]              = "--include-binaries";
 const char kExpandFlagsOption[]                  = "--expand-flags";
 const char kFilePerFrameOption[]                 = "--file-per-frame";
 #if defined(WIN32)
-const char kApiFamilyOption[]       = "--api";
-const char kDxTwoPassReplay[]       = "--dx12-two-pass-replay";
-const char kDxOverrideObjectNames[] = "--dx12-override-object-names";
+const char kApiFamilyOption[]             = "--api";
+const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
+const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
+const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
 
 enum class WsiPlatform
@@ -878,6 +879,21 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     if (arg_parser.IsOptionSet(kDxOverrideObjectNames))
     {
         replay_options.override_object_names = true;
+    }
+
+    const std::string& memory_usage = arg_parser.GetArgumentValue(kBatchingMemoryUsageArgument);
+    if (!memory_usage.empty())
+    {
+        int memory_usage_int = std::stoi(memory_usage);
+        if (memory_usage_int >= 0 && memory_usage_int <= 100)
+        {
+            replay_options.memory_usage = static_cast<uint32_t>(memory_usage_int);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "The parameter to --batching-memory-usage is out of range [0, 100], will use 80 as default value.");
+        }
     }
 
     replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);

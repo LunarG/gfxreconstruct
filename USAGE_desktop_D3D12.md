@@ -209,6 +209,7 @@ Usage:
                         [-m <mode> | --memory-translation <mode>]
                         [--fw <width,height> | --force-windowed <width,height>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
+                        [--batching-memory-usage <pct>]
                         [--api <api>] <file>
 
 Required arguments:
@@ -327,6 +328,15 @@ D3D12-only:
   --dx12-override-object-names Generates unique names for all ID3D12Objects and
                                assigns each object the generated name.
                                This is intended to assist replay debugging.
+  --batching-memory-usage <pct>
+                               Limits the max amount of additional memory that can be used to batch
+                               resource data uploads during trim state load. Batching resource data
+                               uploads may reduce the number of GPU submissions required to load the
+                               trim state. <pct> is applied to the total available physical system memory
+                               and to the application's GPU memory budget. This only limits memory use
+                               for batching and does not guarantee overall max memory usage.
+                               Acceptable values range from 0 to 100 (default: 80). 0 means no batching,
+                               100 means use all available system and GPU memory.
 ```
 
 

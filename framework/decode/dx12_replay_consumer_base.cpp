@@ -418,9 +418,9 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
         // If no entry exists in resource_init_infos_, this is the first subresource of a new resource.
         GFXRECON_ASSERT(command_header.subresource == 0);
 
-        const double max_cpu_mem_usage = 15.0 / 16.0;
+        const double max_mem_usage = static_cast<double>(options_.memory_usage) / 100.0;
         if (!graphics::dx12::IsMemoryAvailable(
-                total_size_in_bytes, extra_device_info->adapter3, max_cpu_mem_usage, extra_device_info->is_uma))
+                total_size_in_bytes, extra_device_info->adapter3, max_mem_usage, extra_device_info->is_uma))
         {
             // If neither system memory or GPU memory are able to accommodate next resource,
             // execute the Copy() calls and release temp buffer to free memory

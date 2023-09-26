@@ -36,6 +36,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
+
 struct DxReplayOptions : public ReplayOptions
 {
     bool                 enable_d3d12{ true };
@@ -50,6 +52,7 @@ struct DxReplayOptions : public ReplayOptions
     std::string                  screenshot_dir;
     std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
     std::string                  replace_dir;
+    int32_t                      memory_usage{ kDefaultBatchingMemoryUsage };
 };
 
 GFXRECON_END_NAMESPACE(decode)
