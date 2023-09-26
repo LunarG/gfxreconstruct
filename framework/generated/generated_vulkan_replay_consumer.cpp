@@ -3127,7 +3127,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceSupportKHR(
     format::HandleId                            surface,
     PointerDecoder<VkBool32>*                   pSupported)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDeviceSurfaceSupportKHR for offscreen.");
         return;
@@ -3148,7 +3148,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
     format::HandleId                            surface,
     StructPointerDecoder<Decoded_VkSurfaceCapabilitiesKHR>* pSurfaceCapabilities)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDeviceSurfaceCapabilitiesKHR for offscreen.");
         return;
@@ -3170,7 +3170,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceFormatsKHR(
     PointerDecoder<uint32_t>*                   pSurfaceFormatCount,
     StructPointerDecoder<Decoded_VkSurfaceFormatKHR>* pSurfaceFormats)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDeviceSurfaceFormatsKHR for offscreen.");
         return;
@@ -3195,7 +3195,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfacePresentModesKHR(
     PointerDecoder<uint32_t>*                   pPresentModeCount,
     PointerDecoder<VkPresentModeKHR>*           pPresentModes)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDeviceSurfacePresentModesKHR for offscreen.");
         return;
@@ -3308,7 +3308,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceGroupPresentCapabilitiesKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDeviceGroupPresentCapabilitiesKHR>* pDeviceGroupPresentCapabilities)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetDeviceGroupPresentCapabilitiesKHR for offscreen.");
         return;
@@ -3328,7 +3328,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceGroupSurfacePresentModesKHR(
     format::HandleId                            surface,
     PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>* pModes)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetDeviceGroupSurfacePresentModesKHR for offscreen.");
         return;
@@ -3350,7 +3350,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDevicePresentRectanglesKHR(
     PointerDecoder<uint32_t>*                   pRectCount,
     StructPointerDecoder<Decoded_VkRect2D>*     pRects)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDevicePresentRectanglesKHR for offscreen.");
         return;
@@ -4347,7 +4347,7 @@ void VulkanReplayConsumer::Process_vkGetSwapchainStatusKHR(
     format::HandleId                            device,
     format::HandleId                            swapchain)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetSwapchainStatusKHR for offscreen.");
         return;
@@ -4498,7 +4498,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* pSurfaceInfo,
     StructPointerDecoder<Decoded_VkSurfaceCapabilities2KHR>* pSurfaceCapabilities)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDeviceSurfaceCapabilities2KHR for offscreen.");
         return;
@@ -4524,7 +4524,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
     PointerDecoder<uint32_t>*                   pSurfaceFormatCount,
     StructPointerDecoder<Decoded_VkSurfaceFormat2KHR>* pSurfaceFormats)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDeviceSurfaceFormats2KHR for offscreen.");
         return;
@@ -4860,7 +4860,7 @@ void VulkanReplayConsumer::Process_vkWaitForPresentKHR(
     uint64_t                                    presentId,
     uint64_t                                    timeout)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkWaitForPresentKHR for offscreen.");
         return;
@@ -5890,7 +5890,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
     format::HandleId                            surface,
     StructPointerDecoder<Decoded_VkSurfaceCapabilities2EXT>* pSurfaceCapabilities)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDeviceSurfaceCapabilities2EXT for offscreen.");
         return;
@@ -5970,7 +5970,7 @@ void VulkanReplayConsumer::Process_vkGetSwapchainCounterEXT(
     VkSurfaceCounterFlagBitsEXT                 counter,
     PointerDecoder<uint64_t>*                   pCounterValue)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetSwapchainCounterEXT for offscreen.");
         return;
@@ -5991,7 +5991,7 @@ void VulkanReplayConsumer::Process_vkGetRefreshCycleDurationGOOGLE(
     format::HandleId                            swapchain,
     StructPointerDecoder<Decoded_VkRefreshCycleDurationGOOGLE>* pDisplayTimingProperties)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetRefreshCycleDurationGOOGLE for offscreen.");
         return;
@@ -6013,7 +6013,7 @@ void VulkanReplayConsumer::Process_vkGetPastPresentationTimingGOOGLE(
     PointerDecoder<uint32_t>*                   pPresentationTimingCount,
     StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>* pPresentationTimings)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPastPresentationTimingGOOGLE for offscreen.");
         return;
@@ -6070,7 +6070,7 @@ void VulkanReplayConsumer::Process_vkSetHdrMetadataEXT(
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains,
     StructPointerDecoder<Decoded_VkHdrMetadataEXT>* pMetadata)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkSetHdrMetadataEXT for offscreen.");
         return;
@@ -6962,7 +6962,7 @@ void VulkanReplayConsumer::Process_vkSetLocalDimmingAMD(
     format::HandleId                            swapChain,
     VkBool32                                    localDimmingEnable)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkSetLocalDimmingAMD for offscreen.");
         return;
@@ -7085,7 +7085,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
     PointerDecoder<uint32_t>*                   pPresentModeCount,
     PointerDecoder<VkPresentModeKHR>*           pPresentModes)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDeviceSurfacePresentModes2EXT for offscreen.");
         return;
@@ -7111,7 +7111,7 @@ void VulkanReplayConsumer::Process_vkAcquireFullScreenExclusiveModeEXT(
     format::HandleId                            device,
     format::HandleId                            swapchain)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkAcquireFullScreenExclusiveModeEXT for offscreen.");
         return;
@@ -7130,7 +7130,7 @@ void VulkanReplayConsumer::Process_vkReleaseFullScreenExclusiveModeEXT(
     format::HandleId                            device,
     format::HandleId                            swapchain)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkReleaseFullScreenExclusiveModeEXT for offscreen.");
         return;
@@ -7150,7 +7150,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
     StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* pSurfaceInfo,
     PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>* pModes)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkGetDeviceGroupSurfacePresentModes2EXT for offscreen.");
         return;
@@ -7426,7 +7426,7 @@ void VulkanReplayConsumer::Process_vkReleaseSwapchainImagesEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo)
 {
-    if (options_.enable_offscreen)
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
     {
         GFXRECON_LOG_DEBUG("Skip vkReleaseSwapchainImagesEXT for offscreen.");
         return;
