@@ -85,6 +85,9 @@ def CreateReplayParser():
     parser.add_argument('--validate', action='store_true', default=False, help='Enables the Khronos Vulkan validation layer (forwarded to replay tool)')
     parser.add_argument('--onhb', '--omit-null-hardware-buffers', action='store_true', default=False, help='Omit Vulkan calls that would pass a NULL AHardwareBuffer* (forwarded to replay tool)')
     parser.add_argument('--use-colorspace-fallback', action='store_true', default=False, help='Swap the swapchain color space if unsupported by replay device. Check if color space is not supported by replay device and swap to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR. (forwarded to replay tool).')
+    parser.add_argument('--save-pipeline-cache', metavar='DEVICE_FILE', help='If set, produces pipeline caches at replay time instead of using the one saved at capture time and save those caches in DEVICE_FILE. (forwarded to replay tool)')
+    parser.add_argument('--load-pipeline-cache', metavar='DEVICE_FILE', help='If set, loads data created by the `--save-pipeline-cache` option in DEVICE_FILE and uses it to create the pipelines instead of the pipeline caches saved at capture time. (forwarded to replay tool)')
+    parser.add_argument('--add-new-pipeline-caches', action='store_true', default=False, help='If set, allows gfxreconstruct to create new vkPipelineCache objects when it encounters a pipeline created without cache. This option can be used in coordination with `--save-pipeline-cache` and `--load-pipeline-cache`. (forwarded to replay tool)')
     parser.add_argument('--mfr', '--measurement-frame-range', metavar='START-END', help='Custom framerange to measure FPS for. This range will include the start frame but not the end frame. The measurement frame range defaults to all frames except the loading frame but can be configured for any range. If the end frame is past the last frame in the trace it will be clamped to the frame after the last (so in that case the results would include the last frame). (forwarded to replay tool)')
     parser.add_argument('--measurement-file', metavar='DEVICE_FILE', help='Write measurements to a file at the specified path. Default is: \'/sdcard/gfxrecon-measurements.json\' on android and \'./gfxrecon-measurements.json\' on desktop. (forwarded to replay tool)')
     parser.add_argument('--quit-after-measurement-range', action='store_true', default=False, help='If this is specified the replayer will abort when it reaches the <end_frame> specified in the --measurement-frame-range argument. (forwarded to replay tool)')
@@ -169,6 +172,17 @@ def MakeExtrasString(args):
 
     if args.use_colorspace_fallback:
         arg_list.append('--use-colorspace-fallback')
+
+    if args.save_pipeline_cache:
+        arg_list.append('--save-pipeline-cache')
+        arg_list.append('{}'.format(args.save_pipeline_cache))
+
+    if args.load_pipeline_cache:
+        arg_list.append('--load-pipeline-cache')
+        arg_list.append('{}'.format(args.load_pipeline_cache))
+
+    if args.add_new_pipeline_caches:
+        arg_list.append('--add-new-pipeline-caches')
 
     if args.mfr:
         arg_list.append('--mfr')

@@ -536,6 +536,18 @@ Optional arguments:
               Swap the swapchain color space if unsupported by replay device.
               Check if color space is not supported by replay device and
               fallback to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR.
+  --save-pipeline-cache <cache-file>
+                        If set, produces pipeline caches at replay time instead of using
+                        the one saved at capture time and save those caches in <cache-file>.
+  --load-pipeline-cache <cache-file>
+                        If set, loads data created by the `--save-pipeline-cache`
+                        option in <cache-file> and uses it to create the pipelines instead
+                        of the pipeline caches saved at capture time.
+  --add-new-pipeline-caches
+                        If set, allows gfxreconstruct to create new vkPipelineCache objects
+                        when it encounters a pipeline created without cache. This option can
+                        be used in coordination with `--save-pipeline-cache` and
+                        `--load-pipeline-cache`.
 ```
 
 ### Key Controls

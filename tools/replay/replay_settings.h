@@ -31,12 +31,12 @@ const char kOptions[] =
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
     "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos,"
-    "--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names";
+    "--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--add-new-pipeline-caches";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
-    "force-windowed,--batching-memory-usage,--measurement-file,--swapchain";
+    "force-windowed,--batching-memory-usage,--measurement-file,--swapchain,--save-pipeline-cache,--load-pipeline-cache";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -228,6 +228,18 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDeviceGroups.  Replay may fail");
     GFXRECON_WRITE_CONSOLE("          \t\tif the specified device group is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture device group.");
+    GFXRECON_WRITE_CONSOLE("  --save-pipeline-cache <cache-file>");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, produces pipeline caches at replay time instead of using");
+    GFXRECON_WRITE_CONSOLE("          \t\tthe one saved at capture time and save those caches in <cache-file>.");
+    GFXRECON_WRITE_CONSOLE("  --load-pipeline-cache <cache-file>");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, loads data created by the `--save-pipeline-cache`");
+    GFXRECON_WRITE_CONSOLE("          \t\toption in <cache-file> and uses it to create the pipelines instead");
+    GFXRECON_WRITE_CONSOLE("          \t\tof the pipeline caches saved at capture time.");
+    GFXRECON_WRITE_CONSOLE("  --add-new-pipeline-caches");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, allows gfxreconstruct to create new vkPipelineCache objects");
+    GFXRECON_WRITE_CONSOLE("          \t\twhen it encounters a pipeline created without cache. This option can");
+    GFXRECON_WRITE_CONSOLE("          \t\tbe used in coordination with `--save-pipeline-cache` and");
+    GFXRECON_WRITE_CONSOLE("          \t\t`--load-pipeline-cache`.");
 
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")

@@ -106,11 +106,14 @@ const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
-const char kColorspaceFallback[]    = "--use-colorspace-fallback";
-const char kFormatArgument[]        = "--format";
-const char kIncludeBinariesOption[] = "--include-binaries";
-const char kExpandFlagsOption[]     = "--expand-flags";
-const char kFilePerFrameOption[]    = "--file-per-frame";
+const char kColorspaceFallback[]           = "--use-colorspace-fallback";
+const char kSavePipelineCacheArgument[]    = "--save-pipeline-cache";
+const char kLoadPipelineCacheArgument[]    = "--load-pipeline-cache";
+const char kCreateNewPipelineCacheOption[] = "--add-new-pipeline-caches";
+const char kFormatArgument[]               = "--format";
+const char kIncludeBinariesOption[]        = "--include-binaries";
+const char kExpandFlagsOption[]            = "--expand-flags";
+const char kFilePerFrameOption[]           = "--file-per-frame";
 #if defined(WIN32)
 const char kApiFamilyOption[]             = "--api";
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
@@ -919,6 +922,10 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     {
         replay_options.surface_index = std::stoi(surface_index);
     }
+
+    replay_options.save_pipeline_cache_filename = arg_parser.GetArgumentValue(kSavePipelineCacheArgument);
+    replay_options.load_pipeline_cache_filename = arg_parser.GetArgumentValue(kLoadPipelineCacheArgument);
+    replay_options.add_new_pipeline_caches      = arg_parser.IsOptionSet(kCreateNewPipelineCacheOption);
 
     return replay_options;
 }
