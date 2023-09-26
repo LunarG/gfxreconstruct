@@ -96,6 +96,10 @@ struct VulkanReplayOptions : public ReplayOptions
     bool  dump_resources_dump_separate_alpha{ false };
 
     bool preload_measurement_range{ false };
+
+    std::string load_pipeline_cache_filename;
+    std::string save_pipeline_cache_filename;
+    bool        add_new_pipeline_caches;
 };
 
 GFXRECON_END_NAMESPACE(decode)
