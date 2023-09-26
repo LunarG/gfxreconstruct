@@ -69,7 +69,7 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
 };
 
 const char                                kSwapchainColorspaceExtensionName[] = "VK_EXT_swapchain_colorspace";
-const std::unordered_set<VkColorSpaceKHR> kColorspaceFromExtension            = { VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT,
+const std::unordered_set<VkColorSpaceKHR> kColorspaceSwapchainExtension       = { VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT,
                                                                                   VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT,
                                                                                   VK_COLOR_SPACE_BT2020_LINEAR_EXT,
                                                                                   VK_COLOR_SPACE_BT709_LINEAR_EXT,
@@ -2680,8 +2680,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                                                             modified_create_info.enabledExtensionCount);
             InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
 
-            device_info->enabled_extensions = std::move(enabled_extensions);
-            device_info->allocator          = std::unique_ptr<VulkanResourceAllocator>(allocator);
+            device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
 
             // Track state of physical device properties and features at device creation
             device_info->property_feature_info = property_feature_info;
@@ -5096,25 +5095,37 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         }
 
-        bool        swap_colorspace = false;
-        const auto& extensions      = device_info->enabled_extensions;
-        if (kColorspaceFromExtension.count(replay_create_info->imageColorSpace) != 0)
+        bool                               colorspace_extension_used_unsupported = false;
+        std::vector<VkExtensionProperties> properties;
+        if (feature_util::GetDeviceExtensions(
+                physical_device, instance_table->EnumerateDeviceExtensionProperties, &properties) == VK_SUCCESS)
         {
-            swap_colorspace =
-                std::find(extensions.begin(), extensions.end(), kSwapchainColorspaceExtensionName) == extensions.end();
+            if (kColorspaceSwapchainExtension.count(replay_create_info->imageColorSpace) != 0)
+            {
+                colorspace_extension_used_unsupported =
+                    !feature_util::IsSupportedExtension(properties, kSwapchainColorspaceExtensionName);
+            }
+            else if (replay_create_info->imageColorSpace == kAMDNativeDisplayColorspace)
+            {
+                colorspace_extension_used_unsupported =
+                    !feature_util::IsSupportedExtension(properties, kAMDSwapchainColorspaceExtensionName);
+            }
         }
 
-        else if (replay_create_info->imageColorSpace == kAMDNativeDisplayColorspace)
+        if (colorspace_extension_used_unsupported)
         {
-            swap_colorspace = std::find(extensions.begin(), extensions.end(), kAMDSwapchainColorspaceExtensionName) ==
-                              extensions.end();
-        }
-
-        if (swap_colorspace)
-        {
-            modified_create_info.imageColorSpace = VkColorSpaceKHR::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-            GFXRECON_LOG_INFO("Forcing supported color space for swapchain (ID = %" PRIu64 ")",
-                              swapchain_info->capture_id);
+            if (options_.colorspace_fallback)
+            {
+                modified_create_info.imageColorSpace = VkColorSpaceKHR::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+                GFXRECON_LOG_INFO("Forcing supported color space for swapchain (ID = %" PRIu64 ")",
+                                  swapchain_info->capture_id);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Swapchain (ID = %" PRIu64
+                                   ") uses color space provided by unsupported VK_EXT_swapchain_colorspace",
+                                   swapchain_info->capture_id);
+            }
         }
 
         result = swapchain_->CreateSwapchainKHR(func,
