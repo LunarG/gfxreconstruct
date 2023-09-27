@@ -26,9 +26,9 @@
 #include "util/date_time.h"
 #include "util/logging.h"
 #include "util/platform.h"
-#include "nlohmann/json.hpp"
-#include "decode/vulkan_export_json_consumer_base.h"
+#include "util/json_util.h"
 
+#include "nlohmann/json.hpp"
 #include <cinttypes>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -145,8 +145,7 @@ void FpsInfo::EndFrame(uint64_t frame)
                 int32_t result       = util::platform::FileOpen(&file_pointer, measurement_file_name_.c_str(), "w");
                 if (result == 0)
                 {
-                    const std::string json_string =
-                        file_content.dump(decode::VulkanExportJsonConsumerBase::kJsonIndentWidth);
+                    const std::string json_string = file_content.dump(util::kJsonIndentWidth);
 
                     const size_t size_written =
                         util::platform::FileWrite(json_string.data(), 1, json_string.size(), file_pointer);
