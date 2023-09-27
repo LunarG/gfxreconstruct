@@ -50,7 +50,8 @@ void VulkanSwapchain::Clean()
     }
 }
 
-VkResult VulkanSwapchain::CreateSurface(InstanceInfo*                       instance_info,
+VkResult VulkanSwapchain::CreateSurface(VkResult                            original_result,
+                                        InstanceInfo*                       instance_info,
                                         const std::string&                  wsi_extension,
                                         VkFlags                             flags,
                                         HandlePointerDecoder<VkSurfaceKHR>* surface,
@@ -162,6 +163,40 @@ void VulkanSwapchain::DestroySurface(PFN_vkDestroySurfaceKHR      func,
     {
         func(instance, surface, allocator);
     }
+}
+
+VkResult VulkanSwapchain::AcquireNextImageKHR(VkResult                  original_result,
+                                              PFN_vkAcquireNextImageKHR func,
+                                              const DeviceInfo*         device_info,
+                                              SwapchainKHRInfo*         swapchain_info,
+                                              uint64_t                  timeout,
+                                              SemaphoreInfo*            semaphore_info,
+                                              FenceInfo*                fence_info,
+                                              uint32_t                  capture_image_index,
+                                              uint32_t*                 image_index)
+{
+    VkSemaphore semaphore = VK_NULL_HANDLE;
+    VkFence     fence     = VK_NULL_HANDLE;
+
+    if (semaphore_info != nullptr)
+    {
+        semaphore = semaphore_info->handle;
+    }
+
+    if (fence_info != nullptr)
+    {
+        fence = fence_info->handle;
+    }
+
+    return AcquireNextImageKHR(original_result,
+                               func,
+                               device_info,
+                               swapchain_info,
+                               timeout,
+                               semaphore,
+                               fence,
+                               capture_image_index,
+                               image_index);
 }
 
 GFXRECON_END_NAMESPACE(decode)

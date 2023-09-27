@@ -4549,7 +4549,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_ASSERT(pCreateInfo != nullptr);
 
-    auto result = swapchain_->CreateRenderPass(func,
+    auto result = swapchain_->CreateRenderPass(original_result,
+                                               func,
                                                device_info,
                                                pCreateInfo->GetPointer(),
                                                GetAllocationCallbacks(pAllocator),
@@ -4573,7 +4574,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    auto result = swapchain_->CreateRenderPass2(func,
+    auto result = swapchain_->CreateRenderPass2(original_result,
+                                                func,
                                                 device_info,
                                                 pCreateInfo->GetPointer(),
                                                 GetAllocationCallbacks(pAllocator),
@@ -4998,7 +5000,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         if (screenshot_handler_ == nullptr)
         {
-            result = swapchain_->CreateSwapchainKHR(func,
+            result = swapchain_->CreateSwapchainKHR(original_result,
+                                                    func,
                                                     device_info,
                                                     replay_create_info,
                                                     GetAllocationCallbacks(pAllocator),
@@ -5010,7 +5013,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
             VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
             modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-            result = swapchain_->CreateSwapchainKHR(func,
+            result = swapchain_->CreateSwapchainKHR(original_result,
+                                                    func,
                                                     device_info,
                                                     &modified_create_info,
                                                     GetAllocationCallbacks(pAllocator),
@@ -5192,11 +5196,11 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
         if (swapchain_info->replay_image_count == 0 && replay_images != nullptr)
         {
             swapchain_->GetSwapchainImagesKHR(
-                func, device_info, swapchain_info, capture_image_count, replay_image_count, nullptr);
+                original_result, func, device_info, swapchain_info, capture_image_count, replay_image_count, nullptr);
         }
 
         result = swapchain_->GetSwapchainImagesKHR(
-            func, device_info, swapchain_info, capture_image_count, replay_image_count, replay_images);
+            original_result, func, device_info, swapchain_info, capture_image_count, replay_image_count, replay_images);
 
         if ((result == VK_SUCCESS) && (replay_images != nullptr) && (replay_image_count != nullptr))
         {
@@ -5318,8 +5322,15 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
             {
                 timeout = 0;
             }
-            result = swapchain_->AcquireNextImageKHR(
-                func, device_info, swapchain_info, timeout, semaphore_info, fence_info, captured_index, replay_index);
+            result = swapchain_->AcquireNextImageKHR(original_result,
+                                                     func,
+                                                     device_info,
+                                                     swapchain_info,
+                                                     timeout,
+                                                     semaphore_info,
+                                                     fence_info,
+                                                     captured_index,
+                                                     replay_index);
 
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
@@ -5440,8 +5451,13 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
             {
                 modified_acquire_info.timeout = 0;
             }
-            result = swapchain_->AcquireNextImage2KHR(
-                func, device_info, swapchain_info, &modified_acquire_info, captured_index, replay_index);
+            result = swapchain_->AcquireNextImage2KHR(original_result,
+                                                      func,
+                                                      device_info,
+                                                      swapchain_info,
+                                                      &modified_acquire_info,
+                                                      captured_index,
+                                                      replay_index);
 
             if (captured_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
             {
@@ -5552,7 +5568,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     GFXRECON_ASSERT(result == VK_SUCCESS);
 
                     uint32_t replay_index = 0;
-                    result                = swapchain_->AcquireNextImageKHR(device_table->AcquireNextImageKHR,
+                    result                = swapchain_->AcquireNextImageKHR(original_result,
+                                                             device_table->AcquireNextImageKHR,
                                                              swapchain_info->device_info,
                                                              swapchain_info,
                                                              std::numeric_limits<uint64_t>::max(),
@@ -5721,7 +5738,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     GFXRECON_ASSERT(result == VK_SUCCESS);
 
                     uint32_t replay_index = 0;
-                    result                = swapchain_->AcquireNextImageKHR(device_table->AcquireNextImageKHR,
+                    result                = swapchain_->AcquireNextImageKHR(original_result,
+                                                             device_table->AcquireNextImageKHR,
                                                              swapchain_info->device_info,
                                                              swapchain_info,
                                                              std::numeric_limits<uint64_t>::max(),
@@ -5749,7 +5767,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
     {
         result = swapchain_->QueuePresentKHR(
-            func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
+            original_result, func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
     }
     else if (modified_present_info.swapchainCount == 0)
     {
@@ -5772,7 +5790,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         if (removed_semaphores_.empty())
         {
             result = swapchain_->QueuePresentKHR(
-                func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
+                original_result, func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
         }
         else
         {
@@ -5798,7 +5816,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             modified_present_info.pWaitSemaphores    = semaphore_memory.data();
 
             result = swapchain_->QueuePresentKHR(
-                func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
+                original_result, func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
         }
     }
 
@@ -5966,7 +5984,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return swapchain_->CreateSurface(instance_info,
+    return swapchain_->CreateSurface(original_result,
+                                     instance_info,
                                      VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
                                      replay_create_info->flags,
                                      pSurface,
@@ -5993,7 +6012,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return swapchain_->CreateSurface(instance_info,
+    return swapchain_->CreateSurface(original_result,
+                                     instance_info,
                                      VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
                                      replay_create_info->flags,
                                      pSurface,
@@ -6038,7 +6058,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return swapchain_->CreateSurface(instance_info,
+    return swapchain_->CreateSurface(original_result,
+                                     instance_info,
                                      VK_KHR_XCB_SURFACE_EXTENSION_NAME,
                                      replay_create_info->flags,
                                      pSurface,
@@ -6087,7 +6108,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return swapchain_->CreateSurface(instance_info,
+    return swapchain_->CreateSurface(original_result,
+                                     instance_info,
                                      VK_KHR_XLIB_SURFACE_EXTENSION_NAME,
                                      replay_create_info->flags,
                                      pSurface,
@@ -6136,7 +6158,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return swapchain_->CreateSurface(instance_info,
+    return swapchain_->CreateSurface(original_result,
+                                     instance_info,
                                      VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
                                      replay_create_info->flags,
                                      pSurface,
@@ -6163,7 +6186,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDisplayPlaneSurfaceKHR(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return swapchain_->CreateSurface(instance_info,
+    return swapchain_->CreateSurface(original_result,
+                                     instance_info,
                                      VK_KHR_DISPLAY_EXTENSION_NAME,
                                      replay_create_info->flags,
                                      pSurface,
@@ -6190,7 +6214,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateHeadlessSurfaceEXT(
 
     assert((replay_create_info != nullptr) && (pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
 
-    return swapchain_->CreateSurface(instance_info,
+    return swapchain_->CreateSurface(original_result,
+                                     instance_info,
                                      VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME,
                                      replay_create_info->flags,
                                      pSurface,

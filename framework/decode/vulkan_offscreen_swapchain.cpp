@@ -26,7 +26,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanOffscreenSwapchain::CreateSurface(InstanceInfo*                       instance_info,
+VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                            original_result,
+                                                 InstanceInfo*                       instance_info,
                                                  const std::string&                  wsi_extension,
                                                  VkFlags                             flags,
                                                  HandlePointerDecoder<VkSurfaceKHR>* surface,
@@ -65,7 +66,7 @@ VkResult VulkanOffscreenSwapchain::CreateSurface(InstanceInfo*                  
     // Count the number of surfaces created for restricting replay to a specific surface.
     ++create_surface_count_;
 
-    return VK_SUCCESS;
+    return original_result;
 }
 
 void VulkanOffscreenSwapchain::DestroySurface(PFN_vkDestroySurfaceKHR      func,
@@ -74,7 +75,8 @@ void VulkanOffscreenSwapchain::DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                               const VkAllocationCallbacks* allocator)
 {}
 
-VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR              func,
+VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                              original_result,
+                                                      PFN_vkCreateSwapchainKHR              func,
                                                       const DeviceInfo*                     device_info,
                                                       const VkSwapchainCreateInfoKHR*       create_info,
                                                       const VkAllocationCallbacks*          allocator,
@@ -97,7 +99,7 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR  
     VkDevice device = device = device_info->handle;
     device_table_->GetDeviceQueue(device, default_queue_family_index_, 0, &default_queue_);
 
-    return VK_SUCCESS;
+    return original_result;
 }
 
 void VulkanOffscreenSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
@@ -111,7 +113,8 @@ void VulkanOffscreenSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    
     }
 }
 
-VkResult VulkanOffscreenSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
+VkResult VulkanOffscreenSwapchain::GetSwapchainImagesKHR(VkResult                    original_result,
+                                                         PFN_vkGetSwapchainImagesKHR func,
                                                          const DeviceInfo*           device_info,
                                                          SwapchainKHRInfo*           swapchain_info,
                                                          uint32_t                    capture_image_count,
@@ -125,14 +128,22 @@ VkResult VulkanOffscreenSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImage
     {
         (*image_count)        = capture_image_count;
         (*replay_image_count) = capture_image_count;
-        return VK_SUCCESS;
+        return original_result;
     }
 
-    return CreateSwapchainResourceData(
-        device_info, swapchain_info, capture_image_count, replay_image_count, images, true);
+    VkResult result =
+        CreateSwapchainResourceData(device_info, swapchain_info, capture_image_count, replay_image_count, images, true);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Offscreen swapchain failed to CreateSwapchainResourceData for swapchain (ID = %" PRIu64 ")",
+                           swapchain_info->capture_id);
+        return result;
+    }
+    return original_result;
 }
 
-VkResult VulkanOffscreenSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+VkResult VulkanOffscreenSwapchain::AcquireNextImageKHR(VkResult                  original_result,
+                                                       PFN_vkAcquireNextImageKHR func,
                                                        const DeviceInfo*         device_info,
                                                        SwapchainKHRInfo*         swapchain_info,
                                                        uint64_t                  timeout,
@@ -153,13 +164,23 @@ VkResult VulkanOffscreenSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR
             signal_semaphores      = &semaphore;
         }
 
-        return SignalSemaphoresFence(
-            swapchain_info, capture_image_index, nullptr, 0, nullptr, signal_semaphore_count, signal_semaphores, fence);
+        VkResult result = SignalSemaphoresFence(nullptr, 0, nullptr, signal_semaphore_count, signal_semaphores, fence);
+        if (result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Offscreen swapchain failed to singal semaphore (Handle = %" PRIu64
+                               ") or fence (Handle = %" PRIu64 ") for swapchain (ID = %" PRIu64
+                               ") on AcquireNextImageKHR",
+                               semaphore,
+                               fence,
+                               swapchain_info->capture_id);
+            return result;
+        }
     }
-    return VK_SUCCESS;
+    return original_result;
 }
 
-VkResult VulkanOffscreenSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
+VkResult VulkanOffscreenSwapchain::AcquireNextImage2KHR(VkResult                         original_result,
+                                                        PFN_vkAcquireNextImage2KHR       func,
                                                         const DeviceInfo*                device_info,
                                                         SwapchainKHRInfo*                swapchain_info,
                                                         const VkAcquireNextImageInfoKHR* acquire_info,
@@ -178,19 +199,24 @@ VkResult VulkanOffscreenSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2K
             signal_semaphores      = &acquire_info->semaphore;
         }
 
-        return SignalSemaphoresFence(swapchain_info,
-                                     capture_image_index,
-                                     nullptr,
-                                     0,
-                                     nullptr,
-                                     signal_semaphore_count,
-                                     signal_semaphores,
-                                     acquire_info->fence);
+        VkResult result =
+            SignalSemaphoresFence(nullptr, 0, nullptr, signal_semaphore_count, signal_semaphores, acquire_info->fence);
+        if (result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Offscreen swapchain failed to singal semaphore (Handle = %" PRIu64
+                               ") or fence (Handle = %" PRIu64 ") for swapchain (ID = %" PRIu64
+                               ") on AcquireNextImage2KHR",
+                               acquire_info->semaphore,
+                               acquire_info->fence,
+                               swapchain_info->capture_id);
+            return result;
+        }
     }
-    return VK_SUCCESS;
+    return original_result;
 }
 
-VkResult VulkanOffscreenSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR                 func,
+VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                              original_result,
+                                                   PFN_vkQueuePresentKHR                 func,
                                                    const std::vector<uint32_t>&          capture_image_indices,
                                                    const std::vector<SwapchainKHRInfo*>& swapchain_infos,
                                                    const QueueInfo*                      queue_info,
@@ -198,45 +224,29 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR        
 {
     if (present_info->waitSemaphoreCount > 0)
     {
-        auto length = present_info->swapchainCount;
-        for (uint32_t i = 0; i < length; ++i)
+        VkResult result = SignalSemaphoresFence(
+            queue_info, present_info->waitSemaphoreCount, present_info->pWaitSemaphores, 0, nullptr, VK_NULL_HANDLE);
+        if (result != VK_SUCCESS)
         {
-            return SignalSemaphoresFence(swapchain_infos[i],
-                                         capture_image_indices[i],
-                                         queue_info,
-                                         present_info->waitSemaphoreCount,
-                                         present_info->pWaitSemaphores,
-                                         0,
-                                         nullptr,
-                                         VK_NULL_HANDLE);
+            GFXRECON_LOG_ERROR("Offscreen swapchain failed to wait semaphore (Handle = %" PRIu64
+                               ") for queue (ID = %" PRIu64 ") on QueuePresentKHR",
+                               present_info->pWaitSemaphores[0],
+                               queue_info->handle);
+            return result;
         }
     }
-    return VK_SUCCESS;
+    return original_result;
 }
 
 // queue_info could be nullptr. It means it doesn't specify a VkQueue and use default_queue. Its purpose is to singal
 // semaphores or fence. All VkQueue should work.
-VkResult VulkanOffscreenSwapchain::SignalSemaphoresFence(SwapchainKHRInfo*  swapchain_info,
-                                                         uint32_t           capture_image_index,
-                                                         const QueueInfo*   queue_info,
+VkResult VulkanOffscreenSwapchain::SignalSemaphoresFence(const QueueInfo*   queue_info,
                                                          uint32_t           wait_semaphore_count,
                                                          const VkSemaphore* wait_semaphores,
                                                          uint32_t           signal_semaphore_count,
                                                          const VkSemaphore* signal_semaphores,
                                                          VkFence            fence)
 {
-    // Get the per swapchain resource data so we have access to the swapchain-specific information.
-    if (swapchain_resources_.find(swapchain_info->handle) == swapchain_resources_.end())
-    {
-        GFXRECON_LOG_ERROR("VulkanOffscreenSwapchain::SignalSemaphoresFence missing swapchain resource data for "
-                           "swapchain (ID = %" PRIu64 ")",
-                           swapchain_info->capture_id);
-        return VK_ERROR_UNKNOWN;
-    }
-
-    auto& swapchain_resources = swapchain_resources_[swapchain_info->handle];
-    assert(swapchain_resources != nullptr);
-
     uint32_t queue_family_index = default_queue_family_index_;
     if (queue_info)
     {
