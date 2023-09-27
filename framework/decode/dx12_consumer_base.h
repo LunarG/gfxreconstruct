@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2023 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -189,6 +189,7 @@ class Dx12ConsumerBase
     bool ei_workload_{ false };
     bool opt_fillmem_{ false };
 
+  private:
     uint64_t current_block_index_{ 0 };
 };
 

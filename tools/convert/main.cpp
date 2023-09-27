@@ -282,7 +282,7 @@ int main(int argc, const char** argv)
 
             gfxrecon::decode::AgsDecoder ags_decoder;
 
-            ags_decoder.AddConsumer(reinterpret_cast<gfxrecon::decode::AgsConsumerBase*>(&ags_ascii_consumer));
+            ags_decoder.AddConsumer(&ags_ascii_consumer);
 
             file_processor.AddDecoder(&ags_decoder);
 #endif // GFXRECON_AGS_SUPPORT

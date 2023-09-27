@@ -101,7 +101,7 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
             [&](std::stringstream& strStrm)
             {
                 // Output the API call index
-                FieldToString(strStrm, true, "index", to_string_flags_, tabCount, tabSize, ToString(current_block_index_, to_string_flags_, tabCount, tabSize));
+                FieldToString(strStrm, true, "index", to_string_flags_, tabCount, tabSize, ToString(GetCurrentBlockIndex(), to_string_flags_, tabCount, tabSize));
 
                 // Output the method/function name
                 assert(writeApiCallToFileInfo.pFunctionName);
