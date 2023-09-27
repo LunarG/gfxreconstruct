@@ -36,7 +36,7 @@ const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
-    "force-windowed,--measurement-file";
+    "force-windowed,--batching-memory-usage,--measurement-file";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -69,6 +69,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] [--no-debug-popup] <file>\n");
 #else
@@ -232,6 +233,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --dx12-override-object-names Generates unique names for all ID3D12Objects and");
     GFXRECON_WRITE_CONSOLE("                               assigns each object the generated name.");
     GFXRECON_WRITE_CONSOLE("                               This is intended to assist replay debugging.");
+    GFXRECON_WRITE_CONSOLE("  --batching-memory-usage <pct>");
+    GFXRECON_WRITE_CONSOLE("          \t\tMax amount of memory consumption while loading a trimmed capture file.");
+    GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
+    GFXRECON_WRITE_CONSOLE("          \t\t0 means no batching at all");
+    GFXRECON_WRITE_CONSOLE("          \t\t100 means use all available system and GPU memory");
 
 #endif
 

@@ -47,7 +47,13 @@ class Dx12StructToStringHeaderGenerator(Dx12BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Methond override."""
+        self.STRUCT_BLACKLIST.append('DXGI_DISPLAY_COLOR_SPACE')
+        self.STRUCT_BLACKLIST.append('D3D12_RAYTRACING_INSTANCE_DESC')
+        self.STRUCT_BLACKLIST.append('D3D12_CPU_DESCRIPTOR_HANDLE')
+        self.STRUCT_BLACKLIST.append('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
+        self.STRUCT_BLACKLIST.append('D3D12_GPU_DESCRIPTOR_HANDLE')
         self.STRUCT_BLACKLIST.append('_SECURITY_ATTRIBUTES')
+        self.STRUCT_BLACKLIST.append('GUID') # Generated with the enums.
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         code = ''
@@ -67,7 +73,7 @@ class Dx12StructToStringHeaderGenerator(Dx12BaseGenerator):
         struct_dict = self.source_dict['struct_dict']
         for k, v in struct_dict.items():
             if not self.is_struct_black_listed(k):
-                body = 'template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'.format(k)
+                body = 'std::string ToString(const {0}& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = kToStringDefaultTabCount, uint32_t tabSize = kToStringDefaultTabSize);'.format(k)
                 write(body, file=self.outFile)
 
     def endFile(self):

@@ -516,9 +516,8 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
 {
     size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t    uncompressed_size     = 0;
-    ApiCallInfo call_info             = {};
-    call_info.index                   = block_index_;
-    bool success                      = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
+    ApiCallInfo call_info{ block_index_ };
+    bool        success = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
 
     if (success)
     {
@@ -590,7 +589,7 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, f
     size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t         uncompressed_size     = 0;
     format::HandleId object_id             = 0;
-    ApiCallInfo      call_info             = {};
+    ApiCallInfo      call_info{ block_index_ };
 
     bool success = ReadBytes(&object_id, sizeof(object_id));
     success      = success && ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
@@ -1835,7 +1834,7 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
 
 bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
 {
-    bool     success      = false;
+    bool                                             success      = false;
     decltype(format::AnnotationHeader::label_length) label_length = 0;
     decltype(format::AnnotationHeader::data_length)  data_length  = 0;
 

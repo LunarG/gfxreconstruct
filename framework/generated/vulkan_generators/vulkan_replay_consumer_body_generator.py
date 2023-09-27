@@ -287,7 +287,7 @@ class VulkanReplayConsumerBodyGenerator(
             body += '\n'
         if return_type == 'VkResult':
             body += '    VkResult replay_result = {};\n'.format(call_expr)
-            body += '    CheckResult("{}", returnValue, replay_result);\n'.format(
+            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(
                 name
             )
         else:

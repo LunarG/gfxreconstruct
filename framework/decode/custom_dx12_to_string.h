@@ -35,137 +35,115 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-template <>
-std::string ToString<D3D12_CPU_DESCRIPTOR_HANDLE>(const D3D12_CPU_DESCRIPTOR_HANDLE& obj,
-                                                  ToStringFlags                      toStringFlags,
-                                                  uint32_t                           tabCount,
-                                                  uint32_t                           tabSize);
+std::string ToString(const D3D12_CPU_DESCRIPTOR_HANDLE& obj,
+                     ToStringFlags                      toStringFlags = kToString_Default,
+                     uint32_t                           tabCount      = kToStringDefaultTabCount,
+                     uint32_t                           tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_GPU_DESCRIPTOR_HANDLE>(const D3D12_GPU_DESCRIPTOR_HANDLE& obj,
-                                                  ToStringFlags                      toStringFlags,
-                                                  uint32_t                           tabCount,
-                                                  uint32_t                           tabSize);
+std::string ToString(const D3D12_GPU_DESCRIPTOR_HANDLE& obj,
+                     ToStringFlags                      toStringFlags = kToString_Default,
+                     uint32_t                           tabCount      = kToStringDefaultTabCount,
+                     uint32_t                           tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string
-ToString<LARGE_INTEGER>(const LARGE_INTEGER& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+std::string ToString(const LARGE_INTEGER& obj,
+                     ToStringFlags        toStringFlags = kToString_Default,
+                     uint32_t             tabCount      = kToStringDefaultTabCount,
+                     uint32_t             tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_VERSIONED_ROOT_SIGNATURE_DESC>(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& obj,
-                                                          ToStringFlags                              toStringFlags,
-                                                          uint32_t                                   tabCount,
-                                                          uint32_t                                   tabSize);
+std::string ToString(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& obj,
+                     ToStringFlags                              toStringFlags = kToString_Default,
+                     uint32_t                                   tabCount      = kToStringDefaultTabCount,
+                     uint32_t                                   tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_TEXTURE_COPY_LOCATION>(const D3D12_TEXTURE_COPY_LOCATION& obj,
-                                                  ToStringFlags                      toStringFlags,
-                                                  uint32_t                           tabCount,
-                                                  uint32_t                           tabSize);
+std::string ToString(const D3D12_TEXTURE_COPY_LOCATION& obj,
+                     ToStringFlags                      toStringFlags = kToString_Default,
+                     uint32_t                           tabCount      = kToStringDefaultTabCount,
+                     uint32_t                           tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_SHADER_RESOURCE_VIEW_DESC>(const D3D12_SHADER_RESOURCE_VIEW_DESC& obj,
-                                                      ToStringFlags                          toStringFlags,
-                                                      uint32_t                               tabCount,
-                                                      uint32_t                               tabSize);
+std::string ToString(const D3D12_SHADER_RESOURCE_VIEW_DESC& obj,
+                     ToStringFlags                          toStringFlags = kToString_Default,
+                     uint32_t                               tabCount      = kToStringDefaultTabCount,
+                     uint32_t                               tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_UNORDERED_ACCESS_VIEW_DESC>(const D3D12_UNORDERED_ACCESS_VIEW_DESC& obj,
-                                                       ToStringFlags                           toStringFlags,
-                                                       uint32_t                                tabCount,
-                                                       uint32_t                                tabSize);
+std::string ToString(const D3D12_UNORDERED_ACCESS_VIEW_DESC& obj,
+                     ToStringFlags                           toStringFlags = kToString_Default,
+                     uint32_t                                tabCount      = kToStringDefaultTabCount,
+                     uint32_t                                tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_RENDER_TARGET_VIEW_DESC>(const D3D12_RENDER_TARGET_VIEW_DESC& obj,
-                                                    ToStringFlags                        toStringFlags,
-                                                    uint32_t                             tabCount,
-                                                    uint32_t                             tabSize);
+std::string ToString(const D3D12_RENDER_TARGET_VIEW_DESC& obj,
+                     ToStringFlags                        toStringFlags = kToString_Default,
+                     uint32_t                             tabCount      = kToStringDefaultTabCount,
+                     uint32_t                             tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_DEPTH_STENCIL_VIEW_DESC>(const D3D12_DEPTH_STENCIL_VIEW_DESC& obj,
-                                                    ToStringFlags                        toStringFlags,
-                                                    uint32_t                             tabCount,
-                                                    uint32_t                             tabSize);
+std::string ToString(const D3D12_DEPTH_STENCIL_VIEW_DESC& obj,
+                     ToStringFlags                        toStringFlags = kToString_Default,
+                     uint32_t                             tabCount      = kToStringDefaultTabCount,
+                     uint32_t                             tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_CLEAR_VALUE>(const D3D12_CLEAR_VALUE& obj,
-                                        ToStringFlags            toStringFlags,
-                                        uint32_t                 tabCount,
-                                        uint32_t                 tabSize);
+std::string ToString(const D3D12_CLEAR_VALUE& obj,
+                     ToStringFlags            toStringFlags = kToString_Default,
+                     uint32_t                 tabCount      = kToStringDefaultTabCount,
+                     uint32_t                 tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_PIPELINE_STATE_STREAM_DESC>(const D3D12_PIPELINE_STATE_STREAM_DESC& obj,
-                                                       ToStringFlags                           toStringFlags,
-                                                       uint32_t                                tabCount,
-                                                       uint32_t                                tabSize);
+std::string ToString(const D3D12_PIPELINE_STATE_STREAM_DESC& obj,
+                     ToStringFlags                           toStringFlags = kToString_Default,
+                     uint32_t                                tabCount      = kToStringDefaultTabCount,
+                     uint32_t                                tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_STATE_OBJECT_DESC>(const D3D12_STATE_OBJECT_DESC& obj,
-                                              ToStringFlags                  toStringFlags,
-                                              uint32_t                       tabCount,
-                                              uint32_t                       tabSize);
+std::string ToString(const D3D12_STATE_OBJECT_DESC& obj,
+                     ToStringFlags                  toStringFlags = kToString_Default,
+                     uint32_t                       tabCount      = kToStringDefaultTabCount,
+                     uint32_t                       tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>(
-    const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& obj,
-    ToStringFlags                                               toStringFlags,
-    uint32_t                                                    tabCount,
-    uint32_t                                                    tabSize);
+std::string ToString(const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& obj,
+                     ToStringFlags                                               toStringFlags = kToString_Default,
+                     uint32_t                                                    tabCount = kToStringDefaultTabCount,
+                     uint32_t                                                    tabSize  = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_RENDER_PASS_BEGINNING_ACCESS>(const D3D12_RENDER_PASS_BEGINNING_ACCESS& obj,
-                                                         ToStringFlags                             toStringFlags,
-                                                         uint32_t                                  tabCount,
-                                                         uint32_t                                  tabSize);
+std::string ToString(const D3D12_RENDER_PASS_BEGINNING_ACCESS& obj,
+                     ToStringFlags                             toStringFlags = kToString_Default,
+                     uint32_t                                  tabCount      = kToStringDefaultTabCount,
+                     uint32_t                                  tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_RENDER_PASS_ENDING_ACCESS>(const D3D12_RENDER_PASS_ENDING_ACCESS& obj,
-                                                      ToStringFlags                          toStringFlags,
-                                                      uint32_t                               tabCount,
-                                                      uint32_t                               tabSize);
+std::string ToString(const D3D12_RENDER_PASS_ENDING_ACCESS& obj,
+                     ToStringFlags                          toStringFlags = kToString_Default,
+                     uint32_t                               tabCount      = kToStringDefaultTabCount,
+                     uint32_t                               tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_ROOT_PARAMETER>(const D3D12_ROOT_PARAMETER& obj,
-                                           ToStringFlags               toStringFlags,
-                                           uint32_t                    tabCount,
-                                           uint32_t                    tabSize);
+std::string ToString(const D3D12_ROOT_PARAMETER& obj,
+                     ToStringFlags               toStringFlags = kToString_Default,
+                     uint32_t                    tabCount      = kToStringDefaultTabCount,
+                     uint32_t                    tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_ROOT_PARAMETER1>(const D3D12_ROOT_PARAMETER1& obj,
-                                            ToStringFlags                toStringFlags,
-                                            uint32_t                     tabCount,
-                                            uint32_t                     tabSize);
+std::string ToString(const D3D12_ROOT_PARAMETER1& obj,
+                     ToStringFlags                toStringFlags = kToString_Default,
+                     uint32_t                     tabCount      = kToStringDefaultTabCount,
+                     uint32_t                     tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_INDIRECT_ARGUMENT_DESC>(const D3D12_INDIRECT_ARGUMENT_DESC& obj,
-                                                   ToStringFlags                       toStringFlags,
-                                                   uint32_t                            tabCount,
-                                                   uint32_t                            tabSize);
+std::string ToString(const D3D12_INDIRECT_ARGUMENT_DESC& obj,
+                     ToStringFlags                       toStringFlags = kToString_Default,
+                     uint32_t                            tabCount      = kToStringDefaultTabCount,
+                     uint32_t                            tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string
-ToString<D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION>(const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& obj,
-                                                      ToStringFlags                                      toStringFlags,
-                                                      uint32_t                                           tabCount,
-                                                      uint32_t                                           tabSize);
+std::string ToString(const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& obj,
+                     ToStringFlags                                      toStringFlags = kToString_Default,
+                     uint32_t                                           tabCount      = kToStringDefaultTabCount,
+                     uint32_t                                           tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_RESOURCE_BARRIER>(const D3D12_RESOURCE_BARRIER& obj,
-                                             ToStringFlags                 toStringFlags,
-                                             uint32_t                      tabCount,
-                                             uint32_t                      tabSize);
+std::string ToString(const D3D12_RESOURCE_BARRIER& obj,
+                     ToStringFlags                 toStringFlags = kToString_Default,
+                     uint32_t                      tabCount      = kToStringDefaultTabCount,
+                     uint32_t                      tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_STATE_SUBOBJECT>(const D3D12_STATE_SUBOBJECT& obj,
-                                            ToStringFlags                toStringFlags,
-                                            uint32_t                     tabCount,
-                                            uint32_t                     tabSize);
+std::string ToString(const D3D12_STATE_SUBOBJECT& obj,
+                     ToStringFlags                toStringFlags = kToString_Default,
+                     uint32_t                     tabCount      = kToStringDefaultTabCount,
+                     uint32_t                     tabSize       = kToStringDefaultTabSize);
 
-template <>
-std::string ToString<D3D12_RAYTRACING_GEOMETRY_DESC>(const D3D12_RAYTRACING_GEOMETRY_DESC& obj,
-                                                     ToStringFlags                         toStringFlags,
-                                                     uint32_t                              tabCount,
-                                                     uint32_t                              tabSize);
+std::string ToString(const D3D12_RAYTRACING_GEOMETRY_DESC& obj,
+                     ToStringFlags                         toStringFlags = kToString_Default,
+                     uint32_t                              tabCount      = kToStringDefaultTabCount,
+                     uint32_t                              tabSize       = kToStringDefaultTabSize);
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

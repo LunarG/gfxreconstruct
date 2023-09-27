@@ -70,7 +70,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
         for k, v in struct_dict.items():
             if not self.is_struct_black_listed(k):
                 body = inspect.cleandoc('''
-                    template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+                    std::string ToString(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
                     {{
                         return ObjectToString(toStringFlags, tabCount, tabSize,
                             [&](std::stringstream& strStrm)
@@ -132,7 +132,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                         elif self.is_enum(value.base_type):
                             to_string = 'EnumArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                         elif 'wchar' in value.base_type:
-                            to_string = '\'"\' + WCharArrayToString(obj.{0}) + \'"\''
+                            to_string = 'Quote(WCharArrayToString(obj.{0}))'
                         else:
                             to_string = 'ArrayToString({1}, obj.{0}, toStringFlags, tabCount, tabSize)'
                     else:
@@ -141,7 +141,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                         elif self.is_struct(value.base_type):
                             to_string = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
                         elif self.is_enum(value.base_type):
-                            to_string = '\'"\' + ToString(obj.{0}, toStringFlags, tabCount, tabSize) + \'"\''
+                            to_string = 'Quote(ToString(obj.{0}))'
                         else:
                             to_string = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
 

@@ -28,7 +28,6 @@
 
 #include "format/format.h"
 #include "util/defines.h"
-#include "util/logging.h"
 
 #include <iomanip>
 #include <sstream>
@@ -46,13 +45,22 @@ enum ToStringFlagBits
     kToString_Default     = kToString_Unformatted,
 };
 
+constexpr uint32_t kToStringDefaultTabCount = 0;
+constexpr uint32_t kToStringDefaultTabSize  = 4;
+
 typedef uint32_t ToStringFlags;
 
 /// @brief  A template ToString to take care of simple POD cases like the many
 /// types of integers.
+/// It contains the three parameters that are unused for unstructured types like
+/// scalars and strings so that calling code doesn't have to care whether it is
+/// dealing with a simple type or a multi-line struct or array which tabs itself
+/// out.
 template <typename T>
-inline std::string
-ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t tabCount = 0, uint32_t tabSize = 4)
+inline std::string ToString(const T&      obj,
+                            ToStringFlags toStringFlags = kToString_Default,
+                            uint32_t      tabCount      = kToStringDefaultTabCount,
+                            uint32_t      tabSize       = kToStringDefaultTabSize)
 {
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
@@ -72,8 +80,8 @@ ToString(const T& obj, ToStringFlags toStringFlags = kToString_Default, uint32_t
 template <typename T>
 inline std::string ToString(uint32_t      apiFlags,
                             ToStringFlags toStringFlags = kToString_Default,
-                            uint32_t      tabCount      = 0,
-                            uint32_t      tabSize       = 4)
+                            uint32_t      tabCount      = kToStringDefaultTabCount,
+                            uint32_t      tabSize       = kToStringDefaultTabSize)
 {
     GFXRECON_UNREFERENCED_PARAMETER(apiFlags);
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
@@ -182,9 +190,19 @@ inline std::string GetWhitespaceString(ToStringFlags toStringFlags, uint32_t cou
     return (toStringFlags & kToString_Formatted) ? std::string((size_t)count, ' ') : std::string();
 }
 
-inline std::string GetTabString(ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize = 4)
+inline std::string
+GetTabString(ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize = kToStringDefaultTabSize)
 {
     return GetWhitespaceString(toStringFlags, tabCount * tabSize);
+}
+
+/// @brief Make a copy of the input string with double quotes at start and end.
+inline std::string Quote(const std::string& str)
+{
+    std::string quoted{ '"' };
+    quoted += str;
+    quoted += '"';
+    return quoted;
 }
 
 template <typename ToStringFunctionType>
@@ -256,8 +274,8 @@ template <typename T>
 inline std::string ArrayToString(size_t        count,
                                  const T*      pObjs,
                                  ToStringFlags toStringFlags = kToString_Default,
-                                 uint32_t      tabCount      = 0,
-                                 uint32_t      tabSize       = 4)
+                                 uint32_t      tabCount      = kToStringDefaultTabCount,
+                                 uint32_t      tabSize       = kToStringDefaultTabSize)
 {
     return ArrayToString(
         count,
@@ -273,8 +291,8 @@ template <typename EnumType>
 inline std::string EnumArrayToString(size_t              count,
                                      const EnumType*     pObjs,
                                      util::ToStringFlags toStringFlags = util::kToString_Default,
-                                     uint32_t            tabCount      = 0,
-                                     uint32_t            tabSize       = 4)
+                                     uint32_t            tabCount      = kToStringDefaultTabCount,
+                                     uint32_t            tabSize       = kToStringDefaultTabSize)
 {
     using namespace util;
     return ArrayToString(
@@ -284,16 +302,7 @@ inline std::string EnumArrayToString(size_t              count,
         tabCount,
         tabSize,
         [&]() { return pObjs != nullptr; },
-        [&](size_t i) { return '"' + ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize) + '"'; });
-}
-
-/// @brief Make a copy of the input string with double quotes at start and end.
-inline std::string Quote(const std::string& str)
-{
-    std::string quoted{ '"' };
-    quoted += str;
-    quoted += '"';
-    return quoted;
+        [&](size_t i) { return Quote(ToString(pObjs[i])); });
 }
 
 GFXRECON_END_NAMESPACE(util)

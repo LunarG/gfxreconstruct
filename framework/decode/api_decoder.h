@@ -37,6 +37,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct ApiCallInfo
 {
+    /// The block index of a function call. Stream processors like FileProcessor
+    /// must set this before dispatching function calls to decoders.
+    /// @note This is lightly used: only for a log output in replay and for JSON
+    /// Convert.
+    /// @see ApiDecoder::SetCurrentBlockIndex() which can pass the block index
+    /// to decoders so it is available for any block type, not just API calls.
     uint64_t         index{ 0 };
     format::ThreadId thread_id{ 0 };
 };

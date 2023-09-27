@@ -59,16 +59,17 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
         enum_dict = self.source_dict['enum_dict']
         for k, v in enum_dict.items():
             # Generate enum handler for all enums
-            body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);'
+            body = 'std::string ToString(const {0}& value);'
 
             # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:
                 if k.find(bits) >= 0:
-                    body += '\ntemplate <> std::string ToString<{0}>(uint32_t flags, ToStringFlags to_string_flags, uint32_t tab_count, uint32_t tab_size);'
+                    body += '\nstd::string ToString_{0}(uint32_t flags);'
             write(body.format(k), file=self.outFile)
 
         # Generate REFIID handler
-        body = 'template <> std::string ToString<IID>(const IID& riid, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+        body = 'std::string ToString(const IID& riid);'
+        body += '\ntemplate <> std::string ToString<IID>(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
         write(body, file=self.outFile)
 
     def write_include(self):

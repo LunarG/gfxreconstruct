@@ -44,20 +44,20 @@ class XcbWindow : public decode::Window
 
     xcb_atom_t GetDeleteWindowAtom() const { return delete_window_atom_; }
 
-    void MapNotifyReceived(uint32_t sequence, bool visible)
+    void MapNotifyReceived(uint16_t seq16, bool visible)
     {
-        CheckEventStatus(sequence, XCB_MAP_NOTIFY);
+        CheckEventStatus(seq16, XCB_MAP_NOTIFY);
         visible_ = visible;
     }
 
-    void ResizeNotifyReceived(uint32_t sequence, uint32_t width, uint32_t height)
+    void ResizeNotifyReceived(uint16_t seq16, uint32_t width, uint32_t height)
     {
-        CheckEventStatus(sequence, XCB_CONFIGURE_NOTIFY);
+        CheckEventStatus(seq16, XCB_CONFIGURE_NOTIFY);
         width_  = width;
         height_ = height;
     }
 
-    void DestroyNotifyReceived(uint32_t sequence) { CheckEventStatus(sequence, XCB_DESTROY_NOTIFY); }
+    void DestroyNotifyReceived(uint16_t seq16) { CheckEventStatus(seq16, XCB_DESTROY_NOTIFY); }
 
     virtual bool Create(const std::string& title,
                         const int32_t      xpos,
@@ -101,7 +101,7 @@ class XcbWindow : public decode::Window
 
     void InitializeAtoms();
 
-    void CheckEventStatus(uint32_t sequence, uint32_t type);
+    void CheckEventStatus(uint16_t seq16, uint32_t type);
 
     bool WaitForEvent(uint32_t sequence, uint32_t type);
 

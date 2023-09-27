@@ -59,7 +59,7 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
     def generate_feature(self):
         for k, v in self.source_dict['enum_dict'].items():
             # Generate enum handler for all enums
-            body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
+            body = 'std::string ToString(const {0}& value)\n'
             body += '{{\n'
             body += '    switch (value) {{\n'
             processed_values = set()
@@ -76,7 +76,7 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
             # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:
                 if k.find(bits) >= 0:
-                    body += '\ntemplate <> std::string ToString<{0}>(uint32_t flags, ToStringFlags, uint32_t, uint32_t)\n'
+                    body += '\nstd::string ToString_{0}(uint32_t flags)\n'
                     body += '{{\n'
                     body += '    return BitmaskToString<{0}>(flags);\n'
                     body += '}}\n'
@@ -90,7 +90,8 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
                     if 'DEFINE_GUID' in m['type']:
                         index = m['type'].find(',')
                         iids.append(m['type'][len('DEFINE_GUID ( '):index])
-        body = 'template <> std::string ToString<IID>(const IID& iid, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)\n'
+        body = 'template <> std::string ToString<IID>(const IID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize) { return ToString(obj); }\n'
+        body += 'std::string ToString(const IID& iid)\n'
         body += '{\n'
         if not "IID_IUnknown" in iids:
             iids.append("IID_IUnknown")
