@@ -26,8 +26,10 @@
 #include "generated/generated_vulkan_enum_to_json.h"
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/custom_vulkan_struct_decoders.h"
+
 #include "util/platform.h"
 #include "util/defines.h"
+
 #include "nlohmann/json.hpp"
 #include "vulkan/vulkan.h"
 
@@ -35,41 +37,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 using util::JsonOptions;
-
-void FieldToJson(nlohmann::ordered_json& jdata, const StringArrayDecoder* data, const JsonOptions& options)
-{
-    if (data && data->GetPointer())
-    {
-        const auto decoded_data = data->GetPointer();
-        for (size_t i = 0; i < data->GetLength(); ++i)
-        {
-            jdata[i] = std::string(decoded_data[i]);
-        }
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder* data, const JsonOptions& options)
-{
-    if (data && data->GetPointer())
-    {
-        const auto decoded_data = data->GetPointer();
-        jdata                   = std::string(decoded_data);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder& data, const JsonOptions& options)
-{
-    FieldToJson(jdata, &data, options);
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const WStringDecoder* data, const JsonOptions& options)
-{
-    if (data && data->GetPointer())
-    {
-        const auto decoded_data = data->GetPointer();
-        jdata                   = std::wstring(decoded_data);
-    }
-}
 
 void FieldToJson(nlohmann::ordered_json&                               jdata,
                  VkGeometryTypeKHR                                     discriminant,
@@ -233,18 +200,6 @@ void FieldToJson(nlohmann::ordered_json&                         jdata,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_SECURITY_ATTRIBUTES* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const auto& decoded_value = *data->decoded_value;
-        const auto& meta_struct   = *data;
-        jdata["bInheritHandle"]   = static_cast<bool>(decoded_value.bInheritHandle);
-        FieldToJson(jdata["nLength"], decoded_value.nLength, options);
-        FieldToJson(jdata["lpSecurityDescriptor"], meta_struct.lpSecurityDescriptor->GetAddress(), options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorImageInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -364,6 +319,18 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_SECURITY_ATTRIBUTES* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        jdata["bInheritHandle"]   = static_cast<bool>(decoded_value.bInheritHandle);
+        FieldToJson(jdata["nLength"], decoded_value.nLength, options);
+        FieldToJson(jdata["lpSecurityDescriptor"], meta_struct.lpSecurityDescriptor->GetAddress(), options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json&                  jdata,
                  const Decoded_VkPipelineCacheCreateInfo* data,
                  const JsonOptions&                       options)
@@ -379,52 +346,6 @@ void FieldToJson(nlohmann::ordered_json&                  jdata,
         // consumer decides to dump binaries in separate files.
         FieldToJson(jdata["pInitialData"], "[Binary data]", options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-template <>
-void FieldToJson(nlohmann::ordered_json&                   jdata,
-                 const PointerDecoder<uint64_t, uint64_t>& data,
-                 const JsonOptions&                        options)
-{
-    if (data.GetPointer())
-    {
-        const auto decoded_value = data.GetPointer();
-        const auto length        = data.GetLength();
-        if (length > 1)
-        {
-            for (size_t i = 0; i < length; ++i)
-            {
-                jdata[i] = decoded_value[i];
-            }
-        }
-        else
-        {
-            jdata = *decoded_value;
-        }
-    }
-}
-
-void Bool32ToJson(nlohmann::ordered_json&                   jdata,
-                  const PointerDecoder<uint32_t, uint32_t>* data,
-                  const util::JsonOptions&                  options)
-{
-    if (data && data->GetPointer())
-    {
-        const auto decoded_value = data->GetPointer();
-        const auto length        = data->GetLength();
-
-        if (data->IsArray())
-        {
-            for (size_t i = 0; i < length; ++i)
-            {
-                util::Bool32ToJson(jdata[i], decoded_value[i], options);
-            }
-        }
-        else if (length == 1)
-        {
-            util::Bool32ToJson(jdata, *decoded_value, options);
-        }
     }
 }
 

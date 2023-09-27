@@ -22,35 +22,23 @@
 #ifndef GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_TO_JSON_H
 #define GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_TO_JSON_H
 
-#include "util/defines.h"
-#include "util/json_util.h"
-#include "util/to_string.h"
-#include "vulkan/vulkan.h"
-
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_json.h"
 #include "generated/generated_vulkan_struct_to_json.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "decode/decode_json_util.h"
+
+#include "util/defines.h"
+#include "util/json_util.h"
+#include "util/to_string.h"
 
 #include "nlohmann/json.hpp"
-#include <sstream>
+#include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 class DescriptorUpdateTemplateDecoder;
-
-void FieldToJson(nlohmann::ordered_json&   jdata,
-                 const StringArrayDecoder* data,
-                 const util::JsonOptions&  options = util::JsonOptions());
-
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const StringDecoder*     data,
-                 const util::JsonOptions& options = util::JsonOptions());
-
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const WStringDecoder*    data,
-                 const util::JsonOptions& options = util::JsonOptions());
 
 void FieldToJson(nlohmann::ordered_json&     jdata,
                  const Decoded_VkClearValue* data,
@@ -118,170 +106,6 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
 void FieldToJson(nlohmann::ordered_json&                  jdata,
                  const Decoded_VkPipelineCacheCreateInfo* data,
                  const util::JsonOptions&                 options = util::JsonOptions());
-
-template <typename DecodedType, typename OutputDecodedType = DecodedType>
-void FieldToJson(nlohmann::ordered_json&                               jdata,
-                 const PointerDecoder<DecodedType, OutputDecodedType>* data,
-                 const util::JsonOptions&                              options = util::JsonOptions())
-{
-    if (data && data->GetPointer())
-    {
-        const auto decoded_value = data->GetPointer();
-        const auto length        = data->GetLength();
-
-        if (data->IsArray())
-        {
-            for (size_t i = 0; i < length; ++i)
-            {
-                FieldToJson(jdata[i], decoded_value[i], options);
-            }
-        }
-        else if (length == 1)
-        {
-            FieldToJson(jdata, *decoded_value, options);
-        }
-    }
-}
-
-// Reference to pointer version wraps pointer to pointer version above.
-template <typename DecodedType, typename OutputDecodedType = DecodedType>
-void FieldToJson(nlohmann::ordered_json&                               jdata,
-                 const PointerDecoder<DecodedType, OutputDecodedType>& data,
-                 const util::JsonOptions&                              options = util::JsonOptions())
-{
-    FieldToJson(jdata, &data, options);
-}
-
-template <>
-void FieldToJson(nlohmann::ordered_json&                   jdata,
-                 const PointerDecoder<uint64_t, uint64_t>& data,
-                 const util::JsonOptions&                  options);
-
-template <typename DecodedType>
-void FieldToJson(nlohmann::ordered_json&                  jdata,
-                 const StructPointerDecoder<DecodedType>* data,
-                 const util::JsonOptions&                 options = util::JsonOptions())
-{
-    if (data)
-    {
-        const auto meta_struct = data->GetMetaStructPointer();
-        const auto length      = data->GetLength();
-        if (data->IsArray())
-        {
-            for (size_t i = 0; i < length; ++i)
-            {
-                FieldToJson(jdata[i], &meta_struct[i], options);
-            }
-        }
-        else if (length == 1)
-        {
-            FieldToJson(jdata, meta_struct, options);
-        }
-    }
-}
-
-template <typename DecodedType>
-void FieldToJson(nlohmann::ordered_json&             jdata,
-                 StructPointerDecoder<DecodedType*>* data,
-                 const util::JsonOptions&            options = util::JsonOptions())
-{
-    if (data)
-    {
-        const auto meta_struct = data->GetMetaStructPointer();
-        const auto length      = data->GetLength();
-        if (data->IsArray())
-        {
-            for (size_t i = 0; i < length; ++i)
-            {
-                FieldToJson(jdata[i], meta_struct[i], options);
-            }
-        }
-        else if (length == 1)
-        {
-            FieldToJson(jdata, *meta_struct, options);
-        }
-    }
-}
-
-template <typename THandle>
-void HandleToJson(nlohmann::ordered_json&              jdata,
-                  const HandlePointerDecoder<THandle>* data,
-                  const util::JsonOptions&             options = util::JsonOptions())
-{
-    if (data && data->GetPointer())
-    {
-        const auto decoded_value = data->GetPointer();
-        const auto length        = data->GetLength();
-
-        if (data->IsArray())
-        {
-            for (size_t i = 0; i < length; ++i)
-            {
-                HandleToJson(jdata[i], decoded_value[i], options);
-            }
-        }
-        else if (length == 1)
-        {
-            HandleToJson(jdata, *decoded_value, options);
-        }
-    }
-}
-
-/// @brief Thunk to HandleToJson for manual conversion functions which forget to
-/// use that for the array form.
-template <typename THandle>
-void FieldToJson(nlohmann::ordered_json&              jdata,
-                 const HandlePointerDecoder<THandle>* data,
-                 const util::JsonOptions&             options = util::JsonOptions())
-{
-    HandleToJson(jdata, data, options);
-}
-
-// Same as array FieldToJson above but converts elements pointed-to to hexadecimal
-template <typename DecodedType, typename OutputDecodedType = DecodedType>
-void FieldToJsonAsHex(nlohmann::ordered_json&                               jdata,
-                      const PointerDecoder<DecodedType, OutputDecodedType>* data,
-                      const util::JsonOptions&                              options = util::JsonOptions())
-{
-    if (data && data->GetPointer())
-    {
-        const auto decoded_value = data->GetPointer();
-        const auto length        = data->GetLength();
-
-        if (data->IsArray())
-        {
-            for (size_t i = 0; i < length; ++i)
-            {
-                FieldToJsonAsHex(jdata[i], decoded_value[i], options);
-            }
-        }
-        else if (length == 1)
-        {
-            FieldToJsonAsHex(jdata, *decoded_value, options);
-        }
-    }
-}
-
-template <typename DecodedType, typename OutputDecodedType = DecodedType>
-void FieldToJsonAsHex(nlohmann::ordered_json&                               jdata,
-                      const PointerDecoder<DecodedType, OutputDecodedType>& data,
-                      const util::JsonOptions&                              options = util::JsonOptions())
-{
-    FieldToJsonAsHex(jdata, &data, options);
-}
-
-// Used by (e.g.) VkMapMemory's ppData
-inline void
-FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<uint64_t, void*>* data, const util::JsonOptions& options)
-{
-    FieldToJsonAsHex<uint64_t, void*>(jdata, data, options);
-}
-
-// Convert arrays of and pointers to bools. Since VkBool32 is just a typedef of
-// uint32_t we can't use the standard function name and dispatch on the type.
-void Bool32ToJson(nlohmann::ordered_json&                   jdata,
-                  const PointerDecoder<uint32_t, uint32_t>* data,
-                  const util::JsonOptions&                  options = util::JsonOptions());
 
 void FieldToJson(nlohmann::ordered_json&                      jdata,
                  const DescriptorUpdateTemplateDecoder* const pData,

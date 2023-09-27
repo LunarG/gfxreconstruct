@@ -28,10 +28,10 @@
 #define GFXRECON_UTIL_JSON_UTIL_H
 
 #include "util/defines.h"
+#include "util/to_string.h"
 #include "format/format.h"
-#include "nlohmann/json.hpp"
 
-#include <sstream>
+#include "nlohmann/json.hpp"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -96,7 +96,8 @@ void Bool32ToJson(nlohmann::ordered_json&  jdata,
 /// scalar uint32_t overload of FieldToJson would check the bit and the array
 /// array forms would go away. An IsHandle bit could also replace HandleToJson
 /// for format::HandleId but this is starting to get smelly (function effects
-/// depending on switching on a parameter value).
+/// depending on switching on a parameter value) and should only be done if it
+/// simplifies codegen, removing special cases for the classes of types.
 template <typename T>
 void FieldToJsonAsHex(nlohmann::ordered_json&  jdata,
                       const T                  data,
