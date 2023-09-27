@@ -35,7 +35,8 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
   public:
     virtual ~VulkanOffscreenSwapchain() override {}
 
-    virtual VkResult CreateSurface(InstanceInfo*                       instance_info,
+    virtual VkResult CreateSurface(VkResult                            original_result,
+                                   InstanceInfo*                       instance_info,
                                    const std::string&                  wsi_extension,
                                    VkFlags                             flags,
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
@@ -48,7 +49,8 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                 const SurfaceKHRInfo*        surface_info,
                                 const VkAllocationCallbacks* allocator) override;
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR              func,
+    virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
+                                        PFN_vkCreateSwapchainKHR              func,
                                         const DeviceInfo*                     device_info,
                                         const VkSwapchainCreateInfoKHR*       create_info,
                                         const VkAllocationCallbacks*          allocator,
@@ -60,14 +62,16 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                      const SwapchainKHRInfo*      swapchain_info,
                                      const VkAllocationCallbacks* allocator) override;
 
-    virtual VkResult GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
+    virtual VkResult GetSwapchainImagesKHR(VkResult                    original_result,
+                                           PFN_vkGetSwapchainImagesKHR func,
                                            const DeviceInfo*           device_info,
                                            SwapchainKHRInfo*           swapchain_info,
                                            uint32_t                    capture_image_count,
                                            uint32_t*                   image_count,
                                            VkImage*                    images) override;
 
-    virtual VkResult AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+    virtual VkResult AcquireNextImageKHR(VkResult                  original_result,
+                                         PFN_vkAcquireNextImageKHR func,
                                          const DeviceInfo*         device_info,
                                          SwapchainKHRInfo*         swapchain_info,
                                          uint64_t                  timeout,
@@ -76,14 +80,16 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                          uint32_t                  capture_image_index,
                                          uint32_t*                 image_index) override;
 
-    virtual VkResult AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
+    virtual VkResult AcquireNextImage2KHR(VkResult                         original_result,
+                                          PFN_vkAcquireNextImage2KHR       func,
                                           const DeviceInfo*                device_info,
                                           SwapchainKHRInfo*                swapchain_info,
                                           const VkAcquireNextImageInfoKHR* acquire_info,
                                           uint32_t                         capture_image_index,
                                           uint32_t*                        image_index) override;
 
-    virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR                 func,
+    virtual VkResult QueuePresentKHR(VkResult                              original_result,
+                                     PFN_vkQueuePresentKHR                 func,
                                      const std::vector<uint32_t>&          capture_image_indices,
                                      const std::vector<SwapchainKHRInfo*>& swapchain_infos,
                                      const QueueInfo*                      queue_info,
@@ -93,9 +99,7 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
     const uint32_t default_queue_family_index_{ 0 };
     VkQueue        default_queue_{ VK_NULL_HANDLE }; // default_queue_family_index_,0
 
-    VkResult SignalSemaphoresFence(SwapchainKHRInfo*  swapchain_info,
-                                   uint32_t           capture_image_index,
-                                   const QueueInfo*   queue_info,
+    VkResult SignalSemaphoresFence(const QueueInfo*   queue_info,
                                    uint32_t           wait_semaphore_count,
                                    const VkSemaphore* wait_semaphores,
                                    uint32_t           signal_semaphore_count,

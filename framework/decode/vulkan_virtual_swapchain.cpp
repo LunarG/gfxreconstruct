@@ -41,7 +41,8 @@ bool VulkanVirtualSwapchain::AddSwapchainResourceData(VkSwapchainKHR swapchain)
     return true;
 }
 
-VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(PFN_vkCreateSwapchainKHR              func,
+VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                              original_result,
+                                                    PFN_vkCreateSwapchainKHR              func,
                                                     const DeviceInfo*                     device_info,
                                                     const VkSwapchainCreateInfoKHR*       create_info,
                                                     const VkAllocationCallbacks*          allocator,
@@ -520,7 +521,8 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
     return result;
 }
 
-VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
+VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(VkResult                    original_result,
+                                                       PFN_vkGetSwapchainImagesKHR func,
                                                        const DeviceInfo*           device_info,
                                                        SwapchainKHRInfo*           swapchain_info,
                                                        uint32_t                    capture_image_count,
@@ -583,33 +585,8 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesK
     return result;
 }
 
-VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
-                                                     const DeviceInfo*         device_info,
-                                                     SwapchainKHRInfo*         swapchain_info,
-                                                     uint64_t                  timeout,
-                                                     SemaphoreInfo*            semaphore_info,
-                                                     FenceInfo*                fence_info,
-                                                     uint32_t                  capture_image_index,
-                                                     uint32_t*                 image_index)
-{
-    VkSemaphore semaphore = VK_NULL_HANDLE;
-    VkFence     fence     = VK_NULL_HANDLE;
-
-    if (semaphore_info != nullptr)
-    {
-        semaphore = semaphore_info->handle;
-    }
-
-    if (fence_info != nullptr)
-    {
-        fence = fence_info->handle;
-    }
-
-    return AcquireNextImageKHR(
-        func, device_info, swapchain_info, timeout, semaphore, fence, capture_image_index, image_index);
-}
-
-VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(VkResult                  original_result,
+                                                     PFN_vkAcquireNextImageKHR func,
                                                      const DeviceInfo*         device_info,
                                                      SwapchainKHRInfo*         swapchain_info,
                                                      uint64_t                  timeout,
@@ -642,7 +619,8 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(PFN_vkAcquireNextImageKHR f
     return result;
 }
 
-VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
+VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(VkResult                         original_result,
+                                                      PFN_vkAcquireNextImage2KHR       func,
                                                       const DeviceInfo*                device_info,
                                                       SwapchainKHRInfo*                swapchain_info,
                                                       const VkAcquireNextImageInfoKHR* acquire_info,
@@ -666,7 +644,8 @@ VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR
     return result;
 }
 
-VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR                 func,
+VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                              original_result,
+                                                 PFN_vkQueuePresentKHR                 func,
                                                  const std::vector<uint32_t>&          capture_image_indices,
                                                  const std::vector<SwapchainKHRInfo*>& swapchain_infos,
                                                  const QueueInfo*                      queue_info,
@@ -911,7 +890,8 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(PFN_vkQueuePresentKHR          
     return func(queue, &modified_present_info);
 }
 
-VkResult VulkanVirtualSwapchain::CreateRenderPass(PFN_vkCreateRenderPass        func,
+VkResult VulkanVirtualSwapchain::CreateRenderPass(VkResult                      original_result,
+                                                  PFN_vkCreateRenderPass        func,
                                                   const DeviceInfo*             device_info,
                                                   const VkRenderPassCreateInfo* create_info,
                                                   const VkAllocationCallbacks*  allocator,
@@ -927,7 +907,8 @@ VkResult VulkanVirtualSwapchain::CreateRenderPass(PFN_vkCreateRenderPass        
     return func(device, create_info, allocator, render_pass);
 }
 
-VkResult VulkanVirtualSwapchain::CreateRenderPass2(PFN_vkCreateRenderPass2        func,
+VkResult VulkanVirtualSwapchain::CreateRenderPass2(VkResult                       original_result,
+                                                   PFN_vkCreateRenderPass2        func,
                                                    const DeviceInfo*              device_info,
                                                    const VkRenderPassCreateInfo2* create_info,
                                                    const VkAllocationCallbacks*   allocator,
