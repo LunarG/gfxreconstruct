@@ -25,6 +25,9 @@
 
 #include "util/date_time.h"
 #include "util/logging.h"
+#include "util/platform.h"
+#include "nlohmann/json.hpp"
+#include "decode/vulkan_export_json_consumer_base.h"
 
 #include <cinttypes>
 
@@ -54,16 +57,26 @@ WriteFpsToConsole(const char* prefix, uint64_t start_frame, uint64_t end_frame, 
                            end_frame);
 }
 
-FpsInfo::FpsInfo(uint64_t measurement_start_frame,
-                 uint64_t measurement_end_frame,
-                 bool     has_measurement_range,
-                 bool     quit_after_range,
-                 bool     flush_measurement_range) :
+FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
+                 uint64_t               measurement_end_frame,
+                 bool                   has_measurement_range,
+                 bool                   quit_after_range,
+                 bool                   flush_measurement_range,
+                 const std::string_view measurement_file_name) :
     measurement_start_frame_(measurement_start_frame),
     measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
     quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
-    has_measurement_range_(has_measurement_range), started_measurement_(false), ended_measurement_(false)
-{}
+    has_measurement_range_(has_measurement_range), started_measurement_(false), ended_measurement_(false),
+    frame_start_time_(0), frame_durations_(), measurement_file_name_(measurement_file_name)
+{
+    if (has_measurement_range_)
+    {
+        GFXRECON_ASSERT(!measurement_file_name_.empty());
+
+        // To avoid thinking an ancient file is the result of this run
+        std::remove(measurement_file_name_.c_str());
+    }
+}
 
 void FpsInfo::BeginFile()
 {
@@ -90,19 +103,72 @@ void FpsInfo::BeginFrame(uint64_t frame)
         {
             measurement_start_time_ = util::datetime::GetTimestamp();
             started_measurement_    = true;
+            frame_durations_.clear();
         }
     }
+
+    frame_start_time_ = util::datetime::GetTimestamp();
 }
 
 void FpsInfo::EndFrame(uint64_t frame)
 {
     if (started_measurement_ && !ended_measurement_)
     {
+        frame_durations_.push_back(util::datetime::DiffTimestamps(frame_start_time_, util::datetime::GetTimestamp()));
+
         // Measurement frame range end is non-inclusive, as opposed to trim frame range
         if (frame >= measurement_end_frame_ - 1)
         {
             measurement_end_time_ = util::datetime::GetTimestamp();
             ended_measurement_    = true;
+
+            // Save measurements to file
+            if (!measurement_file_name_.empty())
+            {
+                double   start_time   = util::datetime::ConvertTimestampToSeconds(measurement_start_time_);
+                double   end_time     = util::datetime::ConvertTimestampToSeconds(measurement_end_time_);
+                double   diff_time    = GetElapsedSeconds(measurement_start_time_, measurement_end_time_);
+                uint64_t total_frames = measurement_end_frame_ - measurement_start_frame_;
+                double   fps          = static_cast<double>(total_frames) / diff_time;
+
+                nlohmann::json file_content = { { "frame_range",
+                                                  { { "start_frame", measurement_start_frame_ },
+                                                    { "end_frame", measurement_end_frame_ },
+                                                    { "frame_count", total_frames },
+                                                    { "start_time_monotonic", start_time },
+                                                    { "end_time_monotonic", end_time },
+                                                    { "duration", diff_time },
+                                                    { "fps", fps },
+                                                    { "frame_durations", frame_durations_ } } } };
+
+                FILE*   file_pointer = nullptr;
+                int32_t result       = util::platform::FileOpen(&file_pointer, measurement_file_name_.c_str(), "w");
+                if (result == 0)
+                {
+                    const std::string json_string =
+                        file_content.dump(decode::VulkanExportJsonConsumerBase::kJsonIndentWidth);
+
+                    const size_t size_written =
+                        util::platform::FileWrite(json_string.data(), 1, json_string.size(), file_pointer);
+
+                    util::platform::FileClose(file_pointer);
+
+                    // It either writes a fully valid file, or it doesn't write anything !
+                    if (size_written != json_string.size())
+                    {
+                        GFXRECON_LOG_ERROR("Failed to write to measurements file '%s'.",
+                                           measurement_file_name_.c_str());
+
+                        std::remove(measurement_file_name_.c_str());
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR(
+                        "Failed to open measurements file '%s' (Error %i).", measurement_file_name_.c_str(), result);
+                    GFXRECON_LOG_ERROR("%s", std::strerror(result));
+                }
+            }
         }
     }
 }
