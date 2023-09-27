@@ -46,6 +46,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/hash.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/json_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/keyboard.h
                     ${CMAKE_CURRENT_LIST_DIR}/keyboard.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/logging.h

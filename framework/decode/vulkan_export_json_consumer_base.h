@@ -39,8 +39,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanExportJsonConsumerBase : public VulkanConsumer, public AnnotationHandler
 {
   public:
-    static constexpr int kJsonIndentWidth = 2;
-
     VulkanExportJsonConsumerBase();
 
     virtual ~VulkanExportJsonConsumerBase() override;
