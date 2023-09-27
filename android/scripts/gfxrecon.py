@@ -167,7 +167,7 @@ def MakeExtrasString(args):
     if args.use_captured_swapchain_indices:
         arg_list.append('--use-captured-swapchain-indices')
     
-    if args.scs:
+    if args.colorspace_fallback:
         arg_list.append('--colorspace-fallback')
 
     if args.mfr:
