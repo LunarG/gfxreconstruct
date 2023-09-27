@@ -30,8 +30,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 using namespace util::platform;
 
-static const int kJsonIndentWidth = 2;
-
 namespace
 {
 /// @brief Convert an annotation to its string representation

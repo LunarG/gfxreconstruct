@@ -390,6 +390,9 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
                         [--use-captured-swapchain-indices]
+                        [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
+                        [--measurement-file <file>] [--quit-after-measurement-range]
+                        [--flush-measurement-range]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--api <api>] [--no-debug-popup] <file>
 
@@ -503,6 +506,25 @@ Optional arguments:
                         setup for replay. The default without this option is to use a Virtual Swapchain
                         of images which match the swapchain in effect at capture time and which are
                         copied to the underlying swapchain of the implementation being replayed on.
+  --measurement-frame-range <start_frame>-<end_frame>
+              Custom framerange to measure FPS for.
+              This range will include the start frame but not the end frame.
+              The measurement frame range defaults to all frames except the loading
+              frame but can be configured for any range. If the end frame is past the
+              last frame in the trace it will be clamped to the frame after the last
+              (so in that case the results would include the last frame).
+  --measurement-file <file>
+              Write measurements to a file at the specified path.
+              Default is: '/sdcard/gfxrecon-measurements.json' on android and
+              './gfxrecon-measurements.json' on desktop.
+  --quit-after-measurement-range
+              If this is specified the replayer will abort
+              when it reaches the <end_frame> specified in
+              the --measurement-frame-range argument.
+  --flush-measurement-range
+              If this is specified the replayer will flush
+              and wait for all current GPU work to finish at the
+              start and end of the measurement range.
 ```
 
 ### Key Controls
