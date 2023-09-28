@@ -72,9 +72,6 @@ FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
     if (has_measurement_range_)
     {
         GFXRECON_ASSERT(!measurement_file_name_.empty());
-
-        // To avoid thinking an ancient file is the result of this run
-        std::remove(measurement_file_name_.c_str());
     }
 }
 
@@ -149,7 +146,6 @@ void FpsInfo::EndFrame(uint64_t frame)
 
                     const size_t size_written =
                         util::platform::FileWrite(json_string.data(), 1, json_string.size(), file_pointer);
-
                     util::platform::FileClose(file_pointer);
 
                     // It either writes a fully valid file, or it doesn't write anything !
@@ -158,7 +154,14 @@ void FpsInfo::EndFrame(uint64_t frame)
                         GFXRECON_LOG_ERROR("Failed to write to measurements file '%s'.",
                                            measurement_file_name_.c_str());
 
-                        std::remove(measurement_file_name_.c_str());
+                        // Try to delete the pertial file from disk using <cstdio>
+                        const int remove_result = std::remove(measurement_file_name_.c_str());
+                        if (remove_result != 0)
+                        {
+                            GFXRECON_LOG_ERROR("Failed to remove measurements file '%s' (Error %i).",
+                                               measurement_file_name_.c_str(),
+                                               remove_result);
+                        }
                     }
                 }
                 else
