@@ -409,8 +409,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VkCommandBuffer                  cmd_buffer_;
     VkCommandPool                    cmd_pool_;
     VkQueue                          staging_queue_;
-    uint32_t                         graphics_queue_family_;
-    uint32_t                         graphics_queue_count_;
+    uint32_t                         staging_queue_family_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

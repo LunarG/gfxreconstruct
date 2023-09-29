@@ -2645,23 +2645,6 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                                                              physical_device,
                                                              &modified_create_info);
 
-        // Create queue for stagging buffer/image copy in case of non host visible memory
-        uint32_t queue_family_count = 0;
-        instance_table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, nullptr);
-        std::vector<VkQueueFamilyProperties> queue_family_properties(queue_family_count);
-        instance_table->GetPhysicalDeviceQueueFamilyProperties(
-            physical_device, &queue_family_count, queue_family_properties.data());
-        uint32_t graphics_queue_family = 0;
-        for (const VkQueueFamilyProperties& elt : queue_family_properties)
-        {
-            if (elt.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            {
-                (*const_cast<uint32_t*>(&modified_create_info.pQueueCreateInfos[graphics_queue_family].queueCount))++;
-                break;
-            }
-            graphics_queue_family++;
-        }
-
         result = create_device_proc(
             physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
 
