@@ -58,7 +58,7 @@ set(GIT_BRANCH "")
 if (GIT_REFSPEC)
     string(REGEX REPLACE ".*/(.+)$" "\\1" GIT_BRANCH ${GIT_REFSPEC})
     string(COMPARE EQUAL ${GIT_BRANCH} "master" GIT_IS_MASTER)
-    string(REGEX MATCH "^sdk-[0-9]+\.[0-9]+\.[0-9]+$" GIT_IS_SDK ${GIT_BRANCH})
+    string(REGEX MATCH "^vulkan-sdk-[0-9]+\.[0-9]+\.[0-9]+$" GIT_IS_SDK ${GIT_BRANCH})
 
     if (GIT_IS_MASTER OR GIT_IS_SDK)
         if (GIT_TAG)
