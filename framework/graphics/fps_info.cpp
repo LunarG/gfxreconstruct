@@ -154,7 +154,7 @@ void FpsInfo::EndFrame(uint64_t frame)
                         GFXRECON_LOG_ERROR("Failed to write to measurements file '%s'.",
                                            measurement_file_name_.c_str());
 
-                        // Try to delete the pertial file from disk using <cstdio>
+                        // Try to delete the partial file from disk using <cstdio>
                         const int remove_result = std::remove(measurement_file_name_.c_str());
                         if (remove_result != 0)
                         {
