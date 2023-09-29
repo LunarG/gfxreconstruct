@@ -3985,6 +3985,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
+            {
+                const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(next);
+                VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->descriptorPoolOverallocation == VK_TRUE) && (query.descriptorPoolOverallocation == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature descriptorPoolOverallocation %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(currentNext)->descriptorPoolOverallocation =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
             {
                 const VkPhysicalDeviceAccelerationStructureFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(next);

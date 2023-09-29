@@ -524,11 +524,11 @@ struct Decoded_StdVideoEncodeH265WeightTable
     PointerDecoder<int8_t> delta_chroma_offset_l1;
 };
 
-struct Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics
+struct Decoded_StdVideoEncodeH265LongTermRefPics
 {
-    using struct_type = StdVideoEncodeH265SliceSegmentLongTermRefPics;
+    using struct_type = StdVideoEncodeH265LongTermRefPics;
 
-    StdVideoEncodeH265SliceSegmentLongTermRefPics* decoded_value{ nullptr };
+    StdVideoEncodeH265LongTermRefPics* decoded_value{ nullptr };
 
     PointerDecoder<uint8_t> lt_idx_sps;
     PointerDecoder<uint8_t> poc_lsb_lt;
@@ -550,7 +550,6 @@ struct Decoded_StdVideoEncodeH265SliceSegmentHeader
     StdVideoEncodeH265SliceSegmentHeader* decoded_value{ nullptr };
 
     Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags* flags{ nullptr };
-    PointerDecoder<uint8_t> reserved1;
     StructPointerDecoder<Decoded_StdVideoEncodeH265WeightTable>* pWeightTable{ nullptr };
 };
 
@@ -591,7 +590,7 @@ struct Decoded_StdVideoEncodeH265PictureInfo
     PointerDecoder<uint8_t> reserved1;
     StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceListsInfo>* pRefLists{ nullptr };
     StructPointerDecoder<Decoded_StdVideoH265ShortTermRefPicSet>* pShortTermRefPicSet{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics>* pLongTermRefPics{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoEncodeH265LongTermRefPics>* pLongTermRefPics{ nullptr };
 };
 
 struct Decoded_StdVideoEncodeH265ReferenceInfoFlags
@@ -9286,6 +9285,15 @@ struct Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT
     using struct_type = VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT;
 
     VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV;
+
+    VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };

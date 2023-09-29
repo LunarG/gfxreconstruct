@@ -2395,6 +2395,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorPoolCreateFlag
         case VK_DESCRIPTOR_POOL_CREATE_HOST_ONLY_BIT_EXT:
             jdata = "VK_DESCRIPTOR_POOL_CREATE_HOST_ONLY_BIT_EXT";
             break;
+        case VK_DESCRIPTOR_POOL_CREATE_ALLOW_OVERALLOCATION_SETS_BIT_NV:
+            jdata = "VK_DESCRIPTOR_POOL_CREATE_ALLOW_OVERALLOCATION_SETS_BIT_NV";
+            break;
+        case VK_DESCRIPTOR_POOL_CREATE_ALLOW_OVERALLOCATION_POOLS_BIT_NV:
+            jdata = "VK_DESCRIPTOR_POOL_CREATE_ALLOW_OVERALLOCATION_POOLS_BIT_NV";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -6741,6 +6747,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryResultStatusKHR& va
         case VK_QUERY_RESULT_STATUS_COMPLETE_KHR:
             jdata = "VK_QUERY_RESULT_STATUS_COMPLETE_KHR";
             break;
+        case VK_QUERY_RESULT_STATUS_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_KHR:
+            jdata = "VK_QUERY_RESULT_STATUS_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_KHR";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -10121,6 +10130,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_SCREEN_BUFFER_FEATURES_QNX:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_SCREEN_BUFFER_FEATURES_QNX";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -10724,6 +10736,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeCapabilityFla
         case VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR:
             jdata = "VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR";
             break;
+        case VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR:
+            jdata = "VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -10886,6 +10901,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264StdFlagBi
         case VK_VIDEO_ENCODE_H264_STD_DEBLOCKING_FILTER_PARTIAL_BIT_EXT:
             jdata = "VK_VIDEO_ENCODE_H264_STD_DEBLOCKING_FILTER_PARTIAL_BIT_EXT";
             break;
+        case VK_VIDEO_ENCODE_H264_STD_SLICE_QP_DELTA_BIT_EXT:
+            jdata = "VK_VIDEO_ENCODE_H264_STD_SLICE_QP_DELTA_BIT_EXT";
+            break;
+        case VK_VIDEO_ENCODE_H264_STD_DIFFERENT_SLICE_QP_DELTA_BIT_EXT:
+            jdata = "VK_VIDEO_ENCODE_H264_STD_DIFFERENT_SLICE_QP_DELTA_BIT_EXT";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -11032,6 +11053,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265StdFlagBi
             break;
         case VK_VIDEO_ENCODE_H265_STD_DEPENDENT_SLICE_SEGMENT_FLAG_SET_BIT_EXT:
             jdata = "VK_VIDEO_ENCODE_H265_STD_DEPENDENT_SLICE_SEGMENT_FLAG_SET_BIT_EXT";
+            break;
+        case VK_VIDEO_ENCODE_H265_STD_SLICE_QP_DELTA_BIT_EXT:
+            jdata = "VK_VIDEO_ENCODE_H265_STD_SLICE_QP_DELTA_BIT_EXT";
+            break;
+        case VK_VIDEO_ENCODE_H265_STD_DIFFERENT_SLICE_QP_DELTA_BIT_EXT:
+            jdata = "VK_VIDEO_ENCODE_H265_STD_DIFFERENT_SLICE_QP_DELTA_BIT_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -11966,6 +11993,10 @@ void FieldToJson(VkDescriptorPoolCreateFlags_t, nlohmann::ordered_json& jdata, c
                 return std::string("VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT");
             case VK_DESCRIPTOR_POOL_CREATE_HOST_ONLY_BIT_EXT:
                 return std::string("VK_DESCRIPTOR_POOL_CREATE_HOST_ONLY_BIT_EXT");
+            case VK_DESCRIPTOR_POOL_CREATE_ALLOW_OVERALLOCATION_SETS_BIT_NV:
+                return std::string("VK_DESCRIPTOR_POOL_CREATE_ALLOW_OVERALLOCATION_SETS_BIT_NV");
+            case VK_DESCRIPTOR_POOL_CREATE_ALLOW_OVERALLOCATION_POOLS_BIT_NV:
+                return std::string("VK_DESCRIPTOR_POOL_CREATE_ALLOW_OVERALLOCATION_POOLS_BIT_NV");
         }
         return to_hex_fixed_width(flags);
     });
@@ -14718,6 +14749,8 @@ void FieldToJson(VkVideoEncodeCapabilityFlagsKHR_t, nlohmann::ordered_json& jdat
         {
             case VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR:
                 return std::string("VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR");
+            case VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR:
+                return std::string("VK_VIDEO_ENCODE_CAPABILITY_INSUFFICIENT_BITSTREAM_BUFFER_RANGE_DETECTION_BIT_KHR");
         }
         return to_hex_fixed_width(flags);
     });
@@ -14881,6 +14914,10 @@ void FieldToJson(VkVideoEncodeH264StdFlagsEXT_t, nlohmann::ordered_json& jdata, 
                 return std::string("VK_VIDEO_ENCODE_H264_STD_DEBLOCKING_FILTER_ENABLED_BIT_EXT");
             case VK_VIDEO_ENCODE_H264_STD_DEBLOCKING_FILTER_PARTIAL_BIT_EXT:
                 return std::string("VK_VIDEO_ENCODE_H264_STD_DEBLOCKING_FILTER_PARTIAL_BIT_EXT");
+            case VK_VIDEO_ENCODE_H264_STD_SLICE_QP_DELTA_BIT_EXT:
+                return std::string("VK_VIDEO_ENCODE_H264_STD_SLICE_QP_DELTA_BIT_EXT");
+            case VK_VIDEO_ENCODE_H264_STD_DIFFERENT_SLICE_QP_DELTA_BIT_EXT:
+                return std::string("VK_VIDEO_ENCODE_H264_STD_DIFFERENT_SLICE_QP_DELTA_BIT_EXT");
         }
         return to_hex_fixed_width(flags);
     });
@@ -15019,6 +15056,10 @@ void FieldToJson(VkVideoEncodeH265StdFlagsEXT_t, nlohmann::ordered_json& jdata, 
                 return std::string("VK_VIDEO_ENCODE_H265_STD_DEPENDENT_SLICE_SEGMENTS_ENABLED_FLAG_SET_BIT_EXT");
             case VK_VIDEO_ENCODE_H265_STD_DEPENDENT_SLICE_SEGMENT_FLAG_SET_BIT_EXT:
                 return std::string("VK_VIDEO_ENCODE_H265_STD_DEPENDENT_SLICE_SEGMENT_FLAG_SET_BIT_EXT");
+            case VK_VIDEO_ENCODE_H265_STD_SLICE_QP_DELTA_BIT_EXT:
+                return std::string("VK_VIDEO_ENCODE_H265_STD_SLICE_QP_DELTA_BIT_EXT");
+            case VK_VIDEO_ENCODE_H265_STD_DIFFERENT_SLICE_QP_DELTA_BIT_EXT:
+                return std::string("VK_VIDEO_ENCODE_H265_STD_DIFFERENT_SLICE_QP_DELTA_BIT_EXT");
         }
         return to_hex_fixed_width(flags);
     });

@@ -98,7 +98,7 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoDecodeH265ReferenceIn
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoDecodeH265ReferenceInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265WeightTableFlags& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265WeightTable& value);
-void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265SliceSegmentLongTermRefPics& value);
+void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265LongTermRefPics& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265SliceSegmentHeaderFlags& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265SliceSegmentHeader& value);
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH265ReferenceListsInfoFlags& value);
@@ -1189,6 +1189,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSamplerYcbcrConversionYcbcr
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCubicClampFeaturesQCOM& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);

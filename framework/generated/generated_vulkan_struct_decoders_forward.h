@@ -94,7 +94,7 @@ struct Decoded_StdVideoDecodeH265ReferenceInfoFlags;
 struct Decoded_StdVideoDecodeH265ReferenceInfo;
 struct Decoded_StdVideoEncodeH265WeightTableFlags;
 struct Decoded_StdVideoEncodeH265WeightTable;
-struct Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics;
+struct Decoded_StdVideoEncodeH265LongTermRefPics;
 struct Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags;
 struct Decoded_StdVideoEncodeH265SliceSegmentHeader;
 struct Decoded_StdVideoEncodeH265ReferenceListsInfoFlags;
@@ -257,7 +257,7 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoDecodeH265ReferenceInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265WeightTableFlags* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265WeightTable* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265LongTermRefPics* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265SliceSegmentHeader* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_StdVideoEncodeH265ReferenceListsInfoFlags* wrapper);
@@ -2326,6 +2326,10 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 struct Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* wrapper);
+
+struct Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* wrapper);
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR;
 struct Decoded_VkAccelerationStructureGeometryTrianglesDataKHR;
