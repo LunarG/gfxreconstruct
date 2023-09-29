@@ -18,7 +18,7 @@ name: SDK Android Build
 on:
   push:
     tags:
-      - sdk-*
+      - vulkan-sdk-*
 
 jobs:
   android:
