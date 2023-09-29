@@ -8832,6 +8832,71 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMultiviewPerViewRenderAreas
     EncodeStructArray(encoder, value.pPerViewRenderAreas, value.perViewRenderAreaCount);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageProcessing2FeaturesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.textureBlockMatch2);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageProcessing2PropertiesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.maxBlockMatchWindow);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerBlockMatchWindowCreateInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.windowExtent);
+    encoder->EncodeEnumValue(value.windowCompareMode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCubicWeightsFeaturesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.selectableCubicWeights);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCubicWeightsCreateInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.cubicWeights);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBlitImageCubicWeightsInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.cubicWeights);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceYcbcrDegammaFeaturesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.ycbcrDegamma);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.enableYDegamma);
+    encoder->EncodeVkBool32Value(value.enableCbCrDegamma);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCubicClampFeaturesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.cubicRangeClamp);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);

@@ -1330,6 +1330,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendOverlapEXT& value, 
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkBlockMatchWindowCompareModeQCOM& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MIN_QCOM:
+            jdata = "VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MIN_QCOM";
+            break;
+        case VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MAX_QCOM:
+            jdata = "VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MAX_QCOM";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBorderColor& value, const JsonOptions& options)
 {
     switch (value) {
@@ -2067,6 +2082,27 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCoverageReductionModeNV&
             break;
         case VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV:
             jdata = "VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const VkCubicFilterWeightsQCOM& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_CUBIC_FILTER_WEIGHTS_CATMULL_ROM_QCOM:
+            jdata = "VK_CUBIC_FILTER_WEIGHTS_CATMULL_ROM_QCOM";
+            break;
+        case VK_CUBIC_FILTER_WEIGHTS_ZERO_TANGENT_CARDINAL_QCOM:
+            jdata = "VK_CUBIC_FILTER_WEIGHTS_ZERO_TANGENT_CARDINAL_QCOM";
+            break;
+        case VK_CUBIC_FILTER_WEIGHTS_B_SPLINE_QCOM:
+            jdata = "VK_CUBIC_FILTER_WEIGHTS_B_SPLINE_QCOM";
+            break;
+        case VK_CUBIC_FILTER_WEIGHTS_MITCHELL_NETRAVALI_QCOM:
+            jdata = "VK_CUBIC_FILTER_WEIGHTS_MITCHELL_NETRAVALI_QCOM";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -7185,6 +7221,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerReductionMode& va
         case VK_SAMPLER_REDUCTION_MODE_MAX:
             jdata = "VK_SAMPLER_REDUCTION_MODE_MAX";
             break;
+        case VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_RANGECLAMP_QCOM:
+            jdata = "VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_RANGECLAMP_QCOM";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -10036,6 +10075,33 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
             jdata = "VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT";

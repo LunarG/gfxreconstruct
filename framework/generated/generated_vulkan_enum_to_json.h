@@ -266,6 +266,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentStoreOp& value
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendFactor& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendOp& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendOverlapEXT& value, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkBlockMatchWindowCompareModeQCOM& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBorderColor& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferCreateFlagBits& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits& value, const JsonOptions& options = JsonOptions());
@@ -293,6 +294,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCopyAccelerationStructur
 void FieldToJson(nlohmann::ordered_json& jdata, const VkCopyMicromapModeEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkCoverageModulationModeNV& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkCoverageReductionModeNV& value, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkCubicFilterWeightsQCOM& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkCullModeFlagBits& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportFlagBitsEXT& value, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportObjectTypeEXT& value, const JsonOptions& options = JsonOptions());

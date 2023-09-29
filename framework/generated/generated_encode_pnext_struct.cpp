@@ -1484,6 +1484,33 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceImageProcessing2FeaturesQCOM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceImageProcessing2PropertiesQCOM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSamplerBlockMatchWindowCreateInfoQCOM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceCubicWeightsFeaturesQCOM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSamplerCubicWeightsCreateInfoQCOM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkBlitImageCubicWeightsInfoQCOM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceYcbcrDegammaFeaturesQCOM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceCubicClampFeaturesQCOM*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT*>(base));
             break;

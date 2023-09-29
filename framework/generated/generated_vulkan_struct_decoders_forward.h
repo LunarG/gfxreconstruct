@@ -2297,6 +2297,32 @@ struct Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM;
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* wrapper);
 
+struct Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM;
+struct Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM;
+struct Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM* wrapper);
+
+struct Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM;
+struct Decoded_VkSamplerCubicWeightsCreateInfoQCOM;
+struct Decoded_VkBlitImageCubicWeightsInfoQCOM;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSamplerCubicWeightsCreateInfoQCOM* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBlitImageCubicWeightsInfoQCOM* wrapper);
+
+struct Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM;
+struct Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM* wrapper);
+
+struct Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM* wrapper);
+
 struct Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* wrapper);

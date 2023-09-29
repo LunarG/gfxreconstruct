@@ -9198,6 +9198,89 @@ struct Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM
     StructPointerDecoder<Decoded_VkRect2D>* pPerViewRenderAreas{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceImageProcessing2FeaturesQCOM;
+
+    VkPhysicalDeviceImageProcessing2FeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM
+{
+    using struct_type = VkPhysicalDeviceImageProcessing2PropertiesQCOM;
+
+    VkPhysicalDeviceImageProcessing2PropertiesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* maxBlockMatchWindow{ nullptr };
+};
+
+struct Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM
+{
+    using struct_type = VkSamplerBlockMatchWindowCreateInfoQCOM;
+
+    VkSamplerBlockMatchWindowCreateInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* windowExtent{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceCubicWeightsFeaturesQCOM;
+
+    VkPhysicalDeviceCubicWeightsFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSamplerCubicWeightsCreateInfoQCOM
+{
+    using struct_type = VkSamplerCubicWeightsCreateInfoQCOM;
+
+    VkSamplerCubicWeightsCreateInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkBlitImageCubicWeightsInfoQCOM
+{
+    using struct_type = VkBlitImageCubicWeightsInfoQCOM;
+
+    VkBlitImageCubicWeightsInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceYcbcrDegammaFeaturesQCOM;
+
+    VkPhysicalDeviceYcbcrDegammaFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM
+{
+    using struct_type = VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM;
+
+    VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceCubicClampFeaturesQCOM;
+
+    VkPhysicalDeviceCubicClampFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT;
