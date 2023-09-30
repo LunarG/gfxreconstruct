@@ -873,10 +873,22 @@ if __name__ == '__main__':
 
     reg = Registry(gen, options)
 
+    ## @note We parse vk.xml to an in-memory element tree and then extract the info we need
+    ## from that into the Registry object once per output file we generate rather than once
+    ## per run of the top-level generation script.
     start_timer(args.time)
     tree = etree.parse(args.registry)
     gen.VIDEO_TREE = etree.parse(args.video)
     end_timer(args.time, '* Time to make ElementTree =')
+
+    # Apply any temporary patches to the xml to allow correct code generation
+    # from it. These should be reviewed and removed when the xml is fixed upstream.
+    start_timer(args.time)
+    # Workaround 1.2.264 VkFrameBoundaryEXT.pTag lacking len field:
+    # <https://github.com/KhronosGroup/Vulkan-Docs/pull/2240>
+    if ptag_member := tree.find('types/type[@name="VkFrameBoundaryEXT"]/member[name="pTag"]'):
+        ptag_member.set('len', 'tagSize')
+    end_timer(args.time, '* Time to patch ElementTree =')
 
     start_timer(args.time)
     reg.loadElementTree(tree)

@@ -4399,6 +4399,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateTypeN
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkFrameBoundaryFlagBitsEXT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT:
+            jdata = "VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkFramebufferCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
@@ -5115,6 +5127,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkInternalAllocationType& 
     switch (value) {
         case VK_INTERNAL_ALLOCATION_TYPE_EXECUTABLE:
             jdata = "VK_INTERNAL_ALLOCATION_TYPE_EXECUTABLE";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const VkLayeredDriverUnderlyingApiMSFT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_LAYERED_DRIVER_UNDERLYING_API_NONE_MSFT:
+            jdata = "VK_LAYERED_DRIVER_UNDERLYING_API_NONE_MSFT";
+            break;
+        case VK_LAYERED_DRIVER_UNDERLYING_API_D3D12_MSFT:
+            jdata = "VK_LAYERED_DRIVER_UNDERLYING_API_D3D12_MSFT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -9755,6 +9782,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROPERTIES_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROPERTIES_FEATURES_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
+            jdata = "VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT";
             break;
@@ -10129,6 +10162,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_SCREEN_BUFFER_FEATURES_QNX:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_SCREEN_BUFFER_FEATURES_QNX";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV";
@@ -12611,6 +12647,24 @@ void FieldToJson(VkFormatFeatureFlags2_t, nlohmann::ordered_json& jdata, const V
                 return std::string("VK_FORMAT_FEATURE_2_OPTICAL_FLOW_VECTOR_BIT_NV");
             case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV:
                 return std::string("VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void FieldToJson(VkFrameBoundaryFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT:
+                return std::string("VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT");
         }
         return to_hex_fixed_width(flags);
     });

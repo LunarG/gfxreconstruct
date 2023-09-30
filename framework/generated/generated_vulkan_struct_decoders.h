@@ -8257,6 +8257,27 @@ struct Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceFrameBoundaryFeaturesEXT;
+
+    VkPhysicalDeviceFrameBoundaryFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkFrameBoundaryEXT
+{
+    using struct_type = VkFrameBoundaryEXT;
+
+    VkFrameBoundaryEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    HandlePointerDecoder<VkImage> pImages;
+    HandlePointerDecoder<VkBuffer> pBuffers;
+    PointerDecoder<uint8_t> pTag;
+};
+
 struct Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT;
@@ -9285,6 +9306,15 @@ struct Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT
     using struct_type = VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT;
 
     VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT
+{
+    using struct_type = VkPhysicalDeviceLayeredDriverPropertiesMSFT;
+
+    VkPhysicalDeviceLayeredDriverPropertiesMSFT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };

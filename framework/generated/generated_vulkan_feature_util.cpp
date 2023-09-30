@@ -3040,6 +3040,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceFrameBoundaryFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(next);
+                VkPhysicalDeviceFrameBoundaryFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->frameBoundary == VK_TRUE) && (query.frameBoundary == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature frameBoundary %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(currentNext)->frameBoundary =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
             {
                 const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(next);

@@ -7981,6 +7981,28 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExternalMemor
     encoder->EncodeVkBool32Value(value.externalMemoryRDMA);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFrameBoundaryFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.frameBoundary);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkFrameBoundaryEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt64Value(value.frameID);
+    encoder->EncodeUInt32Value(value.imageCount);
+    encoder->EncodeHandleArray<ImageWrapper>(value.pImages, value.imageCount);
+    encoder->EncodeUInt32Value(value.bufferCount);
+    encoder->EncodeHandleArray<BufferWrapper>(value.pBuffers, value.bufferCount);
+    encoder->EncodeUInt64Value(value.tagName);
+    encoder->EncodeSizeTValue(value.tagSize);
+    encoder->EncodeVoidArray(value.pTag, value.tagSize);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -8904,6 +8926,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceAttachmentFee
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVkBool32Value(value.attachmentFeedbackLoopDynamicState);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLayeredDriverPropertiesMSFT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.underlyingAPI);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV& value)

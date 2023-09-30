@@ -2017,6 +2017,12 @@ struct Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV;
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryGetRemoteAddressInfoNV* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV* wrapper);
 
+struct Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT;
+struct Decoded_VkFrameBoundaryEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkFrameBoundaryEXT* wrapper);
+
 struct Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT;
 struct Decoded_VkSubpassResolvePerformanceQueryEXT;
 struct Decoded_VkMultisampledRenderToSingleSampledInfoEXT;
@@ -2326,6 +2332,10 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 struct Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* wrapper);
+
+struct Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT* wrapper);
 
 struct Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV;
 
