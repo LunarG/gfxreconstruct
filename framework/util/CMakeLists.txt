@@ -46,6 +46,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/hash.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/json_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/keyboard.h
                     ${CMAKE_CURRENT_LIST_DIR}/keyboard.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/logging.h
@@ -112,7 +113,7 @@ target_include_directories(gfxrecon_util
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
-target_link_libraries(gfxrecon_util platform_specific vulkan_registry nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
+target_link_libraries(gfxrecon_util platform_specific Vulkan::Headers nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
 target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
 
 if (UNIX AND NOT APPLE)

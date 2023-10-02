@@ -223,14 +223,14 @@ bool IsUma(ID3D12Device* device);
 
 // This function is used to get available GPU virtual memory.
 // The input is current adapter which created current device.
-uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, bool is_uma);
+uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double max_usage, bool is_uma);
 
 // This function is used to get available CPU memory.
 uint64_t GetAvailableCpuMemory(double max_usage);
 
 // Give require memory size to check if there are enough CPU&GPU memory to allocate the resource. If max_cpu_mem_usage
 // > 1.0, the result is not limited by available physical memory.
-bool IsMemoryAvailable(uint64_t requried_memory, IDXGIAdapter3* adapter, double max_cpu_mem_usage, bool is_uma);
+bool IsMemoryAvailable(uint64_t requried_memory, IDXGIAdapter3* adapter, double max_mem_usage, bool is_uma);
 
 // Get GPU memory usage by resource desc
 uint64_t GetResourceSizeInBytes(ID3D12Device* device, const D3D12_RESOURCE_DESC* desc);

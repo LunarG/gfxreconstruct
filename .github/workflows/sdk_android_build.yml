@@ -11,14 +11,14 @@ name: SDK Android Build
 #
 # The Vulkan SDK release process is similar to the following:
 # 1. Add a lightweight tag with the sdk version string.
-#        git tag sdk-1.2.141.0
+#        git tag vulkan-sdk-1.2.141.0
 # 3. Push the tag to GitHub.
-#        git push origin sdk-1.2.141.0
+#        git push origin vulkan-sdk-1.2.141.0
 
 on:
   push:
     tags:
-      - sdk-*
+      - vulkan-sdk-*
 
 jobs:
   android:

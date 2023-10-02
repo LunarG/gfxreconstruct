@@ -107,6 +107,20 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
     def get_consumer_function_body(self, class_name, method_info, return_type):
         class_method_name = method_info['name']
         code = '\n'
+
+        # Work out the statement to generate the value to return:
+        returned = 'std::string()'
+        if not 'void' in return_type:
+            return_parts = return_type.split()
+            returned_type = return_parts[0]
+            # If we have an enum or other scalar we can pipe straight through to a single-arg converter:
+            # @todo HANDLE -> 64 bit var length hex
+            if self.is_struct(returned_type) or self.is_union(returned_type):
+                # Deprecated mechanism for struct cases which need to know their tab depth:
+                returned = 'DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size)'
+            else:
+                returned = 'ToString(return_value)'
+
         code += inspect.cleandoc('''
             {{
                 using namespace gfxrecon::util;
@@ -125,7 +139,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             '''.format(
                 '"' + class_name + '"' if class_name else 'nullptr',
                 'object_id' if class_name else '0', class_method_name,
-                'DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size)' if not 'void' in return_type else 'std::string()'))
+                returned))
         code += '\n'
         code += self.make_consumer_func_body(class_name, method_info, return_type)
         code += inspect.cleandoc('''
@@ -195,7 +209,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     elif self.is_struct(value.base_type):
                         to_string = 'ToString(*{0}.decoded_value, to_string_flags_, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
-                        to_string = '\'"\' + ToString({0}, to_string_flags_, tab_count, tab_size) + \'"\''
+                        to_string = 'Quote(ToString({0}))'
                     else:
                         to_string = 'ToString({0}, to_string_flags_, tab_count, tab_size)'
 

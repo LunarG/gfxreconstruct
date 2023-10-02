@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2021 LunarG, Inc.
+# Copyright (c) 2018-2023 LunarG, Inc.
 # Copyright (c) 2019-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -159,12 +159,15 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
@@ -244,7 +247,7 @@ target_include_directories(gfxrecon_decode
                                ${CMAKE_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 
-target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific nlohmann_json::nlohmann_json $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
+target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util Vulkan::Headers vulkan_memory_allocator platform_specific nlohmann_json::nlohmann_json $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
 
 common_build_directives(gfxrecon_decode)
 

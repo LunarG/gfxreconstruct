@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019-2022 LunarG, Inc.
+** Copyright (c) 2019-2023 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -36,7 +36,7 @@ const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
-    "force-windowed";
+    "force-windowed,--batching-memory-usage,--measurement-file,--swapchain";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -62,10 +62,15 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--swapchain <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-captured-swapchain-indices]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--mfr|--measurement-frame-range <start-frame>-<end-frame>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--flush-measurement-range]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] [--no-debug-popup] <file>\n");
 #else
@@ -181,12 +186,19 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tto different allocations with different");
     GFXRECON_WRITE_CONSOLE("          \t\t         \toffsets.  Uses VMA to manage allocations");
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand suballocations.");
+    GFXRECON_WRITE_CONSOLE("  --swapchain <mode>\tChoose a swapchain mode to replay.");
+    GFXRECON_WRITE_CONSOLE("          \t\tAvailable modes are:");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tVirtual Swapchain of images which match", kSwapchainVirtual);
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tthe swapchain in effect at capture time and");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \twhich are copied to the underlying swapchain of the");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \timplementation being replayed on. This is default.");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tUse the swapchain indices stored in the ", kSwapchainCaptured);
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tcapture directly on the swapchain setup for replay.");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDisable creating swapchains, surfaces", kSwapchainOffscreen);
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tand windows. To see rendering, add the --screenshots option.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
-    GFXRECON_WRITE_CONSOLE("          \t\tUse the swapchain indices stored in the capture directly on the swapchain");
-    GFXRECON_WRITE_CONSOLE(
-        "          \t\tsetup for replay. The default without this option is to use a Virtual Swapchain");
-    GFXRECON_WRITE_CONSOLE("          \t\tof images which match the swapchain in effect at capture time and which are");
-    GFXRECON_WRITE_CONSOLE("          \t\tcopied to the underlying swapchain of the implementation being replayed on.");
+    GFXRECON_WRITE_CONSOLE("          \t\tSame as \"--swapchain captured\".");
+    GFXRECON_WRITE_CONSOLE("          \t\tIgnored if the \"--swapchain\" option is used.");
     GFXRECON_WRITE_CONSOLE("  --measurement-frame-range <start_frame>-<end_frame>");
     GFXRECON_WRITE_CONSOLE("          \t\tCustom framerange to measure FPS for.");
     GFXRECON_WRITE_CONSOLE("          \t\tThis range will include the start frame but not the end frame.");
@@ -194,6 +206,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tframe but can be configured for any range. If the end frame is past the");
     GFXRECON_WRITE_CONSOLE("          \t\tlast frame in the trace it will be clamped to the frame after the last");
     GFXRECON_WRITE_CONSOLE("          \t\t(so in that case the results would include the last frame).");
+    GFXRECON_WRITE_CONSOLE("  --measurement-file <file>");
+    GFXRECON_WRITE_CONSOLE("          \t\tWrite measurements to a file at the specified path.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is: '/sdcard/gfxrecon-measurements.json' on android and");
+    GFXRECON_WRITE_CONSOLE("          \t\t'./gfxrecon-measurements.json' on desktop.");
     GFXRECON_WRITE_CONSOLE("  --quit-after-measurement-range");
     GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will abort");
     GFXRECON_WRITE_CONSOLE("          \t\twhen it reaches the <end_frame> specified in");
@@ -202,7 +218,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will flush")
     GFXRECON_WRITE_CONSOLE("          \t\tand wait for all current GPU work to finish at the");
     GFXRECON_WRITE_CONSOLE("          \t\tstart and end of the measurement range.");
-    GFXRECON_WRITE_CONSOLE("  --gpu-group <index>\t\tUse the specified device group for replay, where index");
+    GFXRECON_WRITE_CONSOLE("  --gpu-group <index>\tUse the specified device group for replay, where index");
     GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical device group");
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDeviceGroups.  Replay may fail");
     GFXRECON_WRITE_CONSOLE("          \t\tif the specified device group is not compatible with the");
@@ -225,6 +241,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --dx12-override-object-names Generates unique names for all ID3D12Objects and");
     GFXRECON_WRITE_CONSOLE("                               assigns each object the generated name.");
     GFXRECON_WRITE_CONSOLE("                               This is intended to assist replay debugging.");
+    GFXRECON_WRITE_CONSOLE("  --batching-memory-usage <pct>");
+    GFXRECON_WRITE_CONSOLE("          \t\tMax amount of memory consumption while loading a trimmed capture file.");
+    GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
+    GFXRECON_WRITE_CONSOLE("          \t\t0 means no batching at all");
+    GFXRECON_WRITE_CONSOLE("          \t\t100 means use all available system and GPU memory");
 
 #endif
 

@@ -69,7 +69,7 @@ target_link_libraries(gfxrecon_application
                       gfxrecon_graphics
                       gfxrecon_format
                       gfxrecon_util
-                      vulkan_registry
+                      Vulkan::Headers
                       platform_specific
                      )
 

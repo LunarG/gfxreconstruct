@@ -473,9 +473,12 @@ void XcbWindow::InitializeAtoms()
     bypass_compositor_atom_ = GetAtomReply(connection, kBypassCompositorName, bypass_compositor_atom_cookie);
 }
 
-void XcbWindow::CheckEventStatus(uint32_t sequence, uint32_t type)
+void XcbWindow::CheckEventStatus(uint16_t sequence, uint32_t type)
 {
-    if ((sequence >= pending_event_.sequence) && (type == pending_event_.type))
+    // Note that sequence is 16 bits and pending_event_.sequence is 32 bits, so we only compare the lower 16 bits.
+    // We're checking for equality, so checking for the arrival of certain events needs to be done in the same order
+    // as the xcb calls that cause those events to be generated.
+    if ((sequence == static_cast<uint16_t>(pending_event_.sequence & 0xffff)) && (type == pending_event_.type))
     {
         pending_event_.complete = true;
     }

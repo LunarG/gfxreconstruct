@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021-2023 LunarG, Inc.
+** Copyright (c) 2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,18 +20,34 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_VULKAN_CAPTURED_SWAPCHAIN_H
-#define GFXRECON_DECODE_VULKAN_CAPTURED_SWAPCHAIN_H
+#ifndef GFXRECON_DECODE_VULKAN_OFFSCREEN_SWAPCHAIN_H
+#define GFXRECON_DECODE_VULKAN_OFFSCREEN_SWAPCHAIN_H
 
-#include "decode/vulkan_swapchain.h"
+#include "decode/vulkan_virtual_swapchain.h"
+
+#include "decode/screenshot_handler.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanCapturedSwapchain : public VulkanSwapchain
+class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
 {
   public:
-    virtual ~VulkanCapturedSwapchain() override {}
+    virtual ~VulkanOffscreenSwapchain() override {}
+
+    virtual VkResult CreateSurface(VkResult                            original_result,
+                                   InstanceInfo*                       instance_info,
+                                   const std::string&                  wsi_extension,
+                                   VkFlags                             flags,
+                                   HandlePointerDecoder<VkSurfaceKHR>* surface,
+                                   const encode::InstanceTable*        instance_table,
+                                   application::Application*           application,
+                                   int32_t                             options_surface_index) override;
+
+    virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
+                                const InstanceInfo*          instance_info,
+                                const SurfaceKHRInfo*        surface_info,
+                                const VkAllocationCallbacks* allocator) override;
 
     virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
                                         PFN_vkCreateSwapchainKHR              func,
@@ -79,59 +95,19 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                      const QueueInfo*                      queue_info,
                                      const VkPresentInfoKHR*               present_info) override;
 
-    virtual VkResult CreateRenderPass(VkResult                      original_result,
-                                      PFN_vkCreateRenderPass        func,
-                                      const DeviceInfo*             device_info,
-                                      const VkRenderPassCreateInfo* create_info,
-                                      const VkAllocationCallbacks*  allocator,
-                                      VkRenderPass*                 render_pass) override;
-
-    virtual VkResult CreateRenderPass2(VkResult                       original_result,
-                                       PFN_vkCreateRenderPass2        func,
-                                       const DeviceInfo*              device_info,
-                                       const VkRenderPassCreateInfo2* create_info,
-                                       const VkAllocationCallbacks*   allocator,
-                                       VkRenderPass*                  render_pass) override;
-
-    virtual void CmdPipelineBarrier(PFN_vkCmdPipelineBarrier     func,
-                                    const CommandBufferInfo*     command_buffer_info,
-                                    VkPipelineStageFlags         src_stage_mask,
-                                    VkPipelineStageFlags         dst_stage_mask,
-                                    VkDependencyFlags            dependency_flags,
-                                    uint32_t                     memory_barrier_count,
-                                    const VkMemoryBarrier*       memory_barriers,
-                                    uint32_t                     buffer_memory_barrier_count,
-                                    const VkBufferMemoryBarrier* buffer_memory_barriers,
-                                    uint32_t                     image_memory_barrier_count,
-                                    const VkImageMemoryBarrier*  image_memory_barriers) override;
-
-    virtual void ProcessSetSwapchainImageStateCommand(const DeviceInfo* device_info,
-                                                      SwapchainKHRInfo* swapchain_info,
-                                                      uint32_t          last_presented_image,
-                                                      const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                      const VulkanObjectInfoTable& object_info_table,
-                                                      SwapchainImageTracker&       swapchain_image_tracker) override;
-
   private:
-    // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
-    // the expected layout and keep them acquired until first use.
-    void ProcessSetSwapchainImageStatePreAcquire(const DeviceInfo*                                   device_info,
-                                                 SwapchainKHRInfo*                                   swapchain_info,
-                                                 const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                 const VulkanObjectInfoTable&                        object_info_table,
-                                                 SwapchainImageTracker& swapchain_image_tracker);
+    const uint32_t default_queue_family_index_{ 0 };
+    VkQueue        default_queue_{ VK_NULL_HANDLE }; // default_queue_family_index_,0
 
-    // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
-    // the expected layout, and then call queue present if the image is not expected to be in the acquired state so that
-    // no more than one image is acquired at a time.
-    void ProcessSetSwapchainImageStateQueueSubmit(const DeviceInfo* device_info,
-                                                  SwapchainKHRInfo* swapchain_info,
-                                                  uint32_t          last_presented_image,
-                                                  const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                  const VulkanObjectInfoTable& object_info_table);
+    VkResult SignalSemaphoresFence(const QueueInfo*   queue_info,
+                                   uint32_t           wait_semaphore_count,
+                                   const VkSemaphore* wait_semaphores,
+                                   uint32_t           signal_semaphore_count,
+                                   const VkSemaphore* signal_semaphores,
+                                   VkFence            fence);
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_VULKAN_CAPTURED_SWAPCHAIN_H
+#endif // GFXRECON_DECODE_VULKAN_OFFSCREEN_SWAPCHAIN_H

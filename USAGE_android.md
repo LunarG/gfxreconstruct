@@ -354,7 +354,7 @@ Option | Property | Type | Description
 ------| ------------- |------|-------------
 Capture File Name | debug.gfxrecon.capture_file | STRING | Path to use when creating the capture file.  Default is: `/sdcard/gfxrecon_capture.gfxr`
 Capture Specific Frames | debug.gfxrecon.capture_frames | STRING | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).
-Quit after capturing frame ranges | debug_gfxrecon.quit_after_capture_frames | BOOL | Setting it to `true` will force the application to terminate once all frame ranges specified by `debug.gfxrecon.capture_frames` have been captured.
+Quit after capturing frame ranges | debug.gfxrecon.quit_after_capture_frames | BOOL | Setting it to `true` will force the application to terminate once all frame ranges specified by `debug.gfxrecon.capture_frames` have been captured. Default is: `false`
 Capture trigger for Android | debug.gfxrecon.capture_android_trigger | BOOL | Set during runtime to `true` to start capturing and to `false` to stop. If not set at all then it is disabled (non-trimmed capture). Default is not set.
 Capture File Compression Type | debug.gfxrecon.capture_compression_type | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`
 Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
@@ -747,7 +747,10 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--screenshot-prefix PREFIX] [--screenshot-scale SCALE]
                           [--screenshot-size WIDTHxHEIGHT] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
-                          [-m MODE] [--use-captured-swapchain-indices]
+                          [--mfr START-END]
+                          [--measurement-file DEVICE_FILE] [--quit-after-measurement-range]
+                          [--flush-measurement-range] [-m MODE]
+                          [--swapchain MODE] [--use-captured-swapchain-indices]
                           [file]
 
 Launch the replay tool.
@@ -828,11 +831,33 @@ optional arguments:
   --onhb, --omit-null-hardware-buffers
                         Omit Vulkan API calls which would pass a NULL
                         AHardwareBuffer*.  (forwarded to replay tool)
+  --swapchain MODE      Choose a swapchain mode to replay. Available modes are:
+                        virtual, captured, offscreen (forwarded to replay tool)
   --use-captured-swapchain-indices
-                        Use the swapchain indices stored in the capture directly on the swapchain
-                        setup for replay. The default without this option is to use a Virtual Swapchain
-                        of images which match the swapchain in effect at capture time and which are
-                        copied to the underlying swapchain of the implementation being replayed on.
+                        Same as "--swapchain captured". Ignored if the "--swapchain" option is used.
+  --mfr START-END, --measurement-frame-range START-END
+                        Custom framerange to measure FPS for. This range will
+                        include the start frame but not the end frame. The
+                        measurement frame range defaults to all frames except
+                        the loading frame but can be configured for any range.
+                        If the end frame is past the last frame in the trace it
+                        will be clamped to the frame after the last (so in that
+                        case the results would include the last frame).
+                        (forwarded to replay tool)
+  --measurement-file DEVICE_FILE
+                        Write measurements to a file at the specified path.
+                        Default is: '/sdcard/gfxrecon-measurements.json' on
+                        android and './gfxrecon-measurements.json' on desktop.
+                        (forwarded to replay tool)
+  --quit-after-measurement-range
+                        If this is specified the replayer will abort when it
+                        reaches the <end_frame> specified in the
+                        --measurement-frame-range argument.
+                        (forwarded to replay tool)
+  --flush-measurement-range
+                        If this is specified the replayer will flush and wait
+                        for all current GPU work to finish at the start and end
+                        of the measurement range. (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay

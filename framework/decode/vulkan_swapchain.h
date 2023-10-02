@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021-2022 LunarG, Inc.
+** Copyright (c) 2021-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -26,50 +26,74 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
 #include "decode/swapchain_image_tracker.h"
-
+#include "decode/window.h"
 #include "util/defines.h"
+
+#include "application/application.h"
 
 #include "vulkan/vulkan.h"
 
+#include <string>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+class ScreenshotHandler;
 
 class VulkanSwapchain
 {
   public:
     virtual ~VulkanSwapchain() {}
 
-    virtual VkResult CreateSwapchainKHR(PFN_vkCreateSwapchainKHR        func,
-                                        const DeviceInfo*               device_info,
-                                        const VkSwapchainCreateInfoKHR* create_info,
-                                        const VkAllocationCallbacks*    allocator,
-                                        VkSwapchainKHR*                 swapchain,
-                                        const VkPhysicalDevice          physical_device,
-                                        const encode::InstanceTable*    instance_table,
-                                        const encode::DeviceTable*      device_table) = 0;
+    virtual void Clean();
+
+    virtual VkResult CreateSurface(VkResult                            original_result,
+                                   InstanceInfo*                       instance_info,
+                                   const std::string&                  wsi_extension,
+                                   VkFlags                             flags,
+                                   HandlePointerDecoder<VkSurfaceKHR>* surface,
+                                   const encode::InstanceTable*        instance_table,
+                                   application::Application*           application,
+                                   int32_t                             options_surface_index);
+
+    virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
+                                const InstanceInfo*          instance_info,
+                                const SurfaceKHRInfo*        surface_info,
+                                const VkAllocationCallbacks* allocator);
+
+    virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
+                                        PFN_vkCreateSwapchainKHR              func,
+                                        const DeviceInfo*                     device_info,
+                                        const VkSwapchainCreateInfoKHR*       create_info,
+                                        const VkAllocationCallbacks*          allocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>* swapchain,
+                                        const encode::DeviceTable*            device_table) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
                                      const SwapchainKHRInfo*      swapchain_info,
                                      const VkAllocationCallbacks* allocator) = 0;
 
-    virtual VkResult GetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR func,
+    virtual VkResult GetSwapchainImagesKHR(VkResult                    original_result,
+                                           PFN_vkGetSwapchainImagesKHR func,
                                            const DeviceInfo*           device_info,
                                            SwapchainKHRInfo*           swapchain_info,
                                            uint32_t                    capture_image_count,
                                            uint32_t*                   image_count,
                                            VkImage*                    images) = 0;
 
-    virtual VkResult AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+    virtual VkResult AcquireNextImageKHR(VkResult                  original_result,
+                                         PFN_vkAcquireNextImageKHR func,
                                          const DeviceInfo*         device_info,
                                          SwapchainKHRInfo*         swapchain_info,
                                          uint64_t                  timeout,
                                          SemaphoreInfo*            semaphore_info,
                                          FenceInfo*                fence_info,
                                          uint32_t                  capture_image_index,
-                                         uint32_t*                 image_index) = 0;
+                                         uint32_t*                 image_index);
 
-    virtual VkResult AcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+    virtual VkResult AcquireNextImageKHR(VkResult                  original_result,
+                                         PFN_vkAcquireNextImageKHR func,
                                          const DeviceInfo*         device_info,
                                          SwapchainKHRInfo*         swapchain_info,
                                          uint64_t                  timeout,
@@ -78,26 +102,30 @@ class VulkanSwapchain
                                          uint32_t                  capture_image_index,
                                          uint32_t*                 image_index) = 0;
 
-    virtual VkResult AcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
+    virtual VkResult AcquireNextImage2KHR(VkResult                         original_result,
+                                          PFN_vkAcquireNextImage2KHR       func,
                                           const DeviceInfo*                device_info,
                                           SwapchainKHRInfo*                swapchain_info,
                                           const VkAcquireNextImageInfoKHR* acquire_info,
                                           uint32_t                         capture_image_index,
                                           uint32_t*                        image_index) = 0;
 
-    virtual VkResult QueuePresentKHR(PFN_vkQueuePresentKHR                 func,
+    virtual VkResult QueuePresentKHR(VkResult                              original_result,
+                                     PFN_vkQueuePresentKHR                 func,
                                      const std::vector<uint32_t>&          capture_image_indices,
                                      const std::vector<SwapchainKHRInfo*>& swapchain_infos,
                                      const QueueInfo*                      queue_info,
                                      const VkPresentInfoKHR*               present_info) = 0;
 
-    virtual VkResult CreateRenderPass(PFN_vkCreateRenderPass        func,
+    virtual VkResult CreateRenderPass(VkResult                      original_result,
+                                      PFN_vkCreateRenderPass        func,
                                       const DeviceInfo*             device_info,
                                       const VkRenderPassCreateInfo* create_info,
                                       const VkAllocationCallbacks*  allocator,
                                       VkRenderPass*                 render_pass) = 0;
 
-    virtual VkResult CreateRenderPass2(PFN_vkCreateRenderPass2        func,
+    virtual VkResult CreateRenderPass2(VkResult                       original_result,
+                                       PFN_vkCreateRenderPass2        func,
                                        const DeviceInfo*              device_info,
                                        const VkRenderPassCreateInfo2* create_info,
                                        const VkAllocationCallbacks*   allocator,
@@ -123,8 +151,15 @@ class VulkanSwapchain
                                                       SwapchainImageTracker&       swapchain_image_tracker) = 0;
 
   protected:
+    typedef std::unordered_set<Window*> ActiveWindows;
+
     const encode::InstanceTable* instance_table_{ nullptr };
     const encode::DeviceTable*   device_table_{ nullptr };
+
+    application::Application* application_{ nullptr };
+    ActiveWindows             active_windows_;
+    int32_t                   create_surface_count_{ 0 };
+    int32_t                   options_surface_index_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2018-2021 Valve Corporation
-# Copyright (c) 2018-2021 LunarG, Inc.
+# Copyright (c) 2018-2023 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -1497,3 +1497,13 @@ class BaseGenerator(OutputGenerator):
     def is_flags_enum_64bit(self, enum):
         flag_type = BitsEnumToFlagsTypedef(enum)
         return self.is_64bit_flags(flag_type)
+    
+    def is_has_specific_key_word_in_type(self, value, key_word):
+        if key_word in value.base_type:
+            return True
+        
+        values = self.feature_struct_members.get(value.base_type)
+        if values:
+            for value in values:
+                return self.is_has_specific_key_word_in_type(value, key_word)
+        return False  

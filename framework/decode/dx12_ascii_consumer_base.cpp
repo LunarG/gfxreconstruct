@@ -353,7 +353,7 @@ void Dx12AsciiConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::Ha
     writeApiCallToFileInfo.pObjectTypeName = "ID3D12Resource";
     writeApiCallToFileInfo.handleId        = object_id;
     writeApiCallToFileInfo.pFunctionName   = "WriteToSubresource";
-    std::string returnValue             = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
+    std::string returnValue                = ToString(return_value);
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(writeApiCallToFileInfo, tab_count, tab_size, [&](std::stringstream& str_strm) {
         FieldToString(str_strm,

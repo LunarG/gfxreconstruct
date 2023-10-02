@@ -52,7 +52,7 @@ target_include_directories(gfxrecon_graphics
                                ${CMAKE_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 
-target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific $<$<BOOL:${D3D12_SUPPORT}>:D3DCompiler.lib>)
+target_link_libraries(gfxrecon_graphics gfxrecon_util Vulkan::Headers platform_specific $<$<BOOL:${D3D12_SUPPORT}>:D3DCompiler.lib>)
 
 common_build_directives(gfxrecon_graphics)
 

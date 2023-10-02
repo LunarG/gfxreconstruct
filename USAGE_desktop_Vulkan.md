@@ -163,7 +163,7 @@ Option | Environment Variable | Type | Description
 ------| ------------- |------|-------------
 Capture File Name | GFXRECON_CAPTURE_FILE | STRING | Path to use when creating the capture file.  Default is: `gfxrecon_capture.gfxr`
 Capture Specific Frames | GFXRECON_CAPTURE_FRAMES | STRING | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).
-Quit after capturing frame ranges | GFXRECON_QUIT_AFTER_CAPTURE_FRAMES | BOOL | Setting it to `true` will force the application to terminate once all frame ranges specified by `GFXRECON_CAPTURE_FRAMES` have been captured.
+Quit after capturing frame ranges | GFXRECON_QUIT_AFTER_CAPTURE_FRAMES | BOOL | Setting it to `true` will force the application to terminate once all frame ranges specified by `GFXRECON_CAPTURE_FRAMES` have been captured. Default is: `false`
 Hotkey Capture Trigger | GFXRECON_CAPTURE_TRIGGER | STRING | Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture.  Example: `F3` will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).
 Hotkey Capture Trigger Frames | GFXRECON_CAPTURE_TRIGGER_FRAMES | STRING | Specify a limit on the number of frames to be captured via hotkey.  Example: `1` will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)
 Capture Specific GPU Queue Submits | GFXRECON_CAPTURE_QUEUE_SUBMITS | STRING | Specify one or more comma-separated GPU queue submit call ranges to capture.  Queue submit calls are `vkQueueSubmit` for Vulkan and `ID3D12CommandQueue::ExecuteCommandLists` for DX12. Queue submit ranges work as described above in `GFXRECON_CAPTURE_FRAMES` but on GPU queue submit calls instead of frames.  Default is: Empty string (all queue submits are captured).
@@ -389,7 +389,10 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
-                        [--use-captured-swapchain-indices]
+                        [--swapchain MODE] [--use-captured-swapchain-indices]
+                        [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
+                        [--measurement-file <file>] [--quit-after-measurement-range]
+                        [--flush-measurement-range]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--api <api>] [--no-debug-popup] <file>
 
@@ -498,11 +501,36 @@ Optional arguments:
                                         enabled. This is the default.
   --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
                         displayed when abort() is called (Windows debug only).
+  --swapchain MODE      Choose a swapchain mode to replay. Available modes are:
+                            virtual     Virtual Swapchain of images which match
+                                        the swapchain in effect at capture time and
+                                        which are copied to the underlying swapchain of the
+                                        implementation being replayed on. This is default.
+                            captured    Use the swapchain indices stored in the
+                                        capture directly on the swapchain setup for replay.
+                            offscreen   Disable creating swapchains, surfaces
+                                        and windows. To see rendering, add the --screenshots option.
   --use-captured-swapchain-indices
-                        Use the swapchain indices stored in the capture directly on the swapchain
-                        setup for replay. The default without this option is to use a Virtual Swapchain
-                        of images which match the swapchain in effect at capture time and which are
-                        copied to the underlying swapchain of the implementation being replayed on.
+                        Same as "--swapchain captured". Ignored if the "--swapchain" option is used.
+  --measurement-frame-range <start_frame>-<end_frame>
+              Custom framerange to measure FPS for.
+              This range will include the start frame but not the end frame.
+              The measurement frame range defaults to all frames except the loading
+              frame but can be configured for any range. If the end frame is past the
+              last frame in the trace it will be clamped to the frame after the last
+              (so in that case the results would include the last frame).
+  --measurement-file <file>
+              Write measurements to a file at the specified path.
+              Default is: '/sdcard/gfxrecon-measurements.json' on android and
+              './gfxrecon-measurements.json' on desktop.
+  --quit-after-measurement-range
+              If this is specified the replayer will abort
+              when it reaches the <end_frame> specified in
+              the --measurement-frame-range argument.
+  --flush-measurement-range
+              If this is specified the replayer will flush
+              and wait for all current GPU work to finish at the
+              start and end of the measurement range.
 ```
 
 ### Key Controls

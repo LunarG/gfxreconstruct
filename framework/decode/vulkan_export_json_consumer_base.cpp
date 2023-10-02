@@ -23,14 +23,13 @@
 #include "decode/vulkan_export_json_consumer_base.h"
 #include "decode/custom_vulkan_struct_to_json.h"
 
+#include "util/json_util.h"
 #include "util/platform.h"
 #include "util/file_path.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 using namespace util::platform;
-
-static const int kJsonIndentWidth = 2;
 
 namespace
 {
@@ -651,7 +650,7 @@ void VulkanExportJsonConsumerBase::WriteBlockEnd()
         FilePuts(json_options_.format == JsonFormat::JSONL ? "\n" : ",\n", file_);
     }
     // Dominates profiling (2/2):
-    const std::string block = json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : kJsonIndentWidth);
+    const std::string block = json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : util::kJsonIndentWidth);
     FileWriteNoLock(block.data(), sizeof(std::string::value_type), block.length(), file_);
     FileFlush(file_); /// @todo Implement a FileFlushNoLock() for all platforms.
 }
