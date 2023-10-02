@@ -155,6 +155,7 @@ void VulkanVirtualSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    fu
     }
 }
 
+// Offscreen only need virtual_swapchain_images. Skip ther other tasks for offscreen.
 VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*       device_info,
                                                              const SwapchainKHRInfo* swapchain_info,
                                                              uint32_t                capture_image_count,
@@ -244,25 +245,24 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
     }
 
     auto& swapchain_resources = swapchain_resources_[swapchain];
-
-    for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
+    if (!offscreen)
     {
-        if (swapchain_resources->copy_cmd_data.find(queue_family_index) == swapchain_resources->copy_cmd_data.end())
+        for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
         {
-            // We only want to look at a given queue if it was enabled during device creation time
-            // and if it supports present.  Otherwise, we don't need to create a command pool,
-            // command buffers, and semaphores for performing the swapchain copy.
-            if (device_info->queue_family_index_enabled.size() <= queue_family_index ||
-                !device_info->queue_family_index_enabled[queue_family_index])
+            if (swapchain_resources->copy_cmd_data.find(queue_family_index) == swapchain_resources->copy_cmd_data.end())
             {
-                GFXRECON_LOG_DEBUG("Virtual swapchain skipping creating blit info for queue family %d because it "
-                                   "was not enabled by the device",
-                                   queue_family_index);
-                continue;
-            }
+                // We only want to look at a given queue if it was enabled during device creation time
+                // and if it supports present.  Otherwise, we don't need to create a command pool,
+                // command buffers, and semaphores for performing the swapchain copy.
+                if (device_info->queue_family_index_enabled.size() <= queue_family_index ||
+                    !device_info->queue_family_index_enabled[queue_family_index])
+                {
+                    GFXRECON_LOG_DEBUG("Virtual swapchain skipping creating blit info for queue family %d because it "
+                                       "was not enabled by the device",
+                                       queue_family_index);
+                    continue;
+                }
 
-            if (!offscreen)
-            {
                 VkBool32 supported = VK_FALSE;
                 result             = instance_table_->GetPhysicalDeviceSurfaceSupportKHR(
                     device_info->parent, queue_family_index, swapchain_info->surface, &supported);
@@ -275,67 +275,66 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
                         swapchain_info->capture_id);
                     continue;
                 }
-            }
-            // Create one command pool per queue.
-            VkCommandPoolCreateInfo command_pool_create_info = {
-                VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,                                             // sType
-                nullptr,                                                                                // pNext
-                VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // flags
-                static_cast<uint32_t>(queue_family_index) // queueFamilyIndex
-            };
 
-            CopyCmdData copy_cmd_data = {};
-            result                    = device_table_->CreateCommandPool(
-                device, &command_pool_create_info, nullptr, &copy_cmd_data.command_pool);
-            if (result != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR("Virtual swapchain failed creating command pool %d for swapchain (ID = %" PRIu64 ")",
-                                   queue_family_index,
-                                   swapchain_info->capture_id);
-                return result;
-            }
-            swapchain_resources->copy_cmd_data.emplace(queue_family_index, std::move(copy_cmd_data));
-        }
-
-        auto& copy_cmd_data = swapchain_resources->copy_cmd_data[queue_family_index];
-
-        // Make sure we have enough storage for each of our tracked components (Command pools,
-        // Command Buffers, Semaphores, etc) as many queue families that are available.
-        // This is because at any point, the application may get a Device queue from that family and
-        // use it during the present.
-        uint32_t start_size = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
-        uint32_t new_count  = property_count;
-        if (start_size < new_count)
-        {
-            // Create one command buffer per queue per swapchain image so that we don't reset a command buffer that
-            // may be in active use.
-            uint32_t command_buffer_count = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
-            if (command_buffer_count < capture_image_count)
-            {
-                copy_cmd_data.command_buffers.resize(capture_image_count);
-
-                uint32_t                    new_count     = capture_image_count - command_buffer_count;
-                VkCommandBufferAllocateInfo allocate_info = {
-                    VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, // sType
-                    nullptr,                                        // pNext
-                    copy_cmd_data.command_pool,                     // commandPool
-                    VK_COMMAND_BUFFER_LEVEL_PRIMARY,                // level
-                    new_count                                       // commandBufferCount
+                // Create one command pool per queue.
+                VkCommandPoolCreateInfo command_pool_create_info = {
+                    VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,                                             // sType
+                    nullptr,                                                                                // pNext
+                    VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // flags
+                    static_cast<uint32_t>(queue_family_index) // queueFamilyIndex
                 };
 
-                result = device_table_->AllocateCommandBuffers(
-                    device, &allocate_info, &copy_cmd_data.command_buffers[command_buffer_count]);
+                CopyCmdData copy_cmd_data = {};
+                result                    = device_table_->CreateCommandPool(
+                    device, &command_pool_create_info, nullptr, &copy_cmd_data.command_pool);
                 if (result != VK_SUCCESS)
                 {
-                    GFXRECON_LOG_ERROR("Virtual swapchain failed allocating internal command buffer %d for "
-                                       "swapchain (ID = %" PRIu64 ")",
+                    GFXRECON_LOG_ERROR("Virtual swapchain failed creating command pool %d for swapchain (ID = %" PRIu64
+                                       ")",
                                        queue_family_index,
                                        swapchain_info->capture_id);
                     return result;
                 }
+                swapchain_resources->copy_cmd_data.emplace(queue_family_index, std::move(copy_cmd_data));
             }
-            if (!offscreen)
+
+            auto& copy_cmd_data = swapchain_resources->copy_cmd_data[queue_family_index];
+
+            // Make sure we have enough storage for each of our tracked components (Command pools,
+            // Command Buffers, Semaphores, etc) as many queue families that are available.
+            // This is because at any point, the application may get a Device queue from that family and
+            // use it during the present.
+            uint32_t start_size = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
+            uint32_t new_count  = property_count;
+            if (start_size < new_count)
             {
+                // Create one command buffer per queue per swapchain image so that we don't reset a command buffer that
+                // may be in active use.
+                uint32_t command_buffer_count = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
+                if (command_buffer_count < capture_image_count)
+                {
+                    copy_cmd_data.command_buffers.resize(capture_image_count);
+
+                    uint32_t                    new_count     = capture_image_count - command_buffer_count;
+                    VkCommandBufferAllocateInfo allocate_info = {
+                        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, // sType
+                        nullptr,                                        // pNext
+                        copy_cmd_data.command_pool,                     // commandPool
+                        VK_COMMAND_BUFFER_LEVEL_PRIMARY,                // level
+                        new_count                                       // commandBufferCount
+                    };
+
+                    result = device_table_->AllocateCommandBuffers(
+                        device, &allocate_info, &copy_cmd_data.command_buffers[command_buffer_count]);
+                    if (result != VK_SUCCESS)
+                    {
+                        GFXRECON_LOG_ERROR("Virtual swapchain failed allocating internal command buffer %d for "
+                                           "swapchain (ID = %" PRIu64 ")",
+                                           queue_family_index,
+                                           swapchain_info->capture_id);
+                        return result;
+                    }
+                }
                 uint32_t semaphore_count = static_cast<uint32_t>(copy_cmd_data.semaphores.size());
                 if (semaphore_count < capture_image_count)
                 {
@@ -353,10 +352,9 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
                         result = device_table_->CreateSemaphore(device, &semaphore_create_info, nullptr, &semaphore);
                         if (result != VK_SUCCESS)
                         {
-                            GFXRECON_LOG_ERROR(
-                                "Virtual swapchain failed creating internal copy semaphore for swapchain (ID = %" PRIu64
-                                ")",
-                                swapchain_info->capture_id);
+                            GFXRECON_LOG_ERROR("Virtual swapchain failed creating internal copy semaphore for "
+                                               "swapchain (ID = %" PRIu64 ")",
+                                               swapchain_info->capture_id);
                             return result;
                         }
                         copy_cmd_data.semaphores[ii] = semaphore;
