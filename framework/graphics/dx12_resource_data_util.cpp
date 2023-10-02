@@ -688,6 +688,7 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
 
                 // Prepare resource state.
                 AddTransitionBarrier(command_list_, target_resource, i, before_states[i], copy_state);
+                dx12::ResourceStateInfo promoted_state = copy_state;
 
                 // Copy data.
                 if (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
@@ -699,11 +700,13 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
                     {
                         // Copy from buffer.
                         command_list_->CopyBufferRegion(staging_buffer, 0, target_resource, 0, copy_size);
+                        promoted_state.states = D3D12_RESOURCE_STATE_COPY_SOURCE;
                     }
                     else
                     {
                         // Copy to buffer.
                         command_list_->CopyBufferRegion(target_resource, 0, staging_buffer, 0, copy_size);
+                        promoted_state.states = D3D12_RESOURCE_STATE_COPY_DEST;
                     }
                 }
                 else
@@ -722,16 +725,18 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
                     {
                         // Copy from texture.
                         command_list_->CopyTextureRegion(&copy_location, 0, 0, 0, &texture_location, nullptr);
+                        promoted_state.states = D3D12_RESOURCE_STATE_COPY_SOURCE;
                     }
                     else
                     {
                         // Copy to texture.
                         command_list_->CopyTextureRegion(&texture_location, 0, 0, 0, &copy_location, nullptr);
+                        promoted_state.states = D3D12_RESOURCE_STATE_COPY_DEST;
                     }
                 }
 
                 // Restore resource state.
-                AddTransitionBarrier(command_list_, target_resource, i, copy_state, after_states[i]);
+                AddTransitionBarrier(command_list_, target_resource, i, promoted_state, after_states[i]);
             }
 
             // Close and execute the command list.
