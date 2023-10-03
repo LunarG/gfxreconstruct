@@ -82,7 +82,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265ReferenceInfo* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265WeightTableFlags* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265WeightTable* data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265LongTermRefPics* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265SliceSegmentHeader* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265ReferenceListsInfoFlags* data, const JsonOptions& options = JsonOptions());
@@ -843,6 +843,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreGetZirc
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetRemoteAddressInfoNV* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFrameBoundaryEXT* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassResolvePerformanceQueryEXT* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultisampledRenderToSingleSampledInfoEXT* data, const JsonOptions& options = JsonOptions());
@@ -942,7 +944,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerCubicWeightsCreateInfoQCOM* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBlitImageCubicWeightsInfoQCOM* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT* data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureBuildRangeInfoKHR* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryAabbsDataKHR* data, const JsonOptions& options = JsonOptions());

@@ -365,7 +365,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
     {
         const StdVideoEncodeH264RefPicMarkingEntry& decoded_value = *data->decoded_value;
         const Decoded_StdVideoEncodeH264RefPicMarkingEntry& meta_struct = *data;
-        FieldToJson(jdata["operation"], decoded_value.operation, options);
+        FieldToJson(jdata["memory_management_control_operation"], decoded_value.memory_management_control_operation, options);
         FieldToJson(jdata["difference_of_pic_nums_minus1"], decoded_value.difference_of_pic_nums_minus1, options);
         FieldToJson(jdata["long_term_pic_num"], decoded_value.long_term_pic_num, options);
         FieldToJson(jdata["long_term_frame_idx"], decoded_value.long_term_frame_idx, options);
@@ -440,6 +440,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["slice_type"], decoded_value.slice_type, options);
         FieldToJson(jdata["slice_alpha_c0_offset_div2"], decoded_value.slice_alpha_c0_offset_div2, options);
         FieldToJson(jdata["slice_beta_offset_div2"], decoded_value.slice_beta_offset_div2, options);
+        FieldToJson(jdata["slice_qp_delta"], decoded_value.slice_qp_delta, options);
         FieldToJson(jdata["reserved1"], decoded_value.reserved1, options);
         FieldToJson(jdata["cabac_init_idc"], decoded_value.cabac_init_idc, options);
         FieldToJson(jdata["disable_deblocking_filter_idc"], decoded_value.disable_deblocking_filter_idc, options);
@@ -965,12 +966,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265LongTermRefPics* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
     {
-        const StdVideoEncodeH265SliceSegmentLongTermRefPics& decoded_value = *data->decoded_value;
-        const Decoded_StdVideoEncodeH265SliceSegmentLongTermRefPics& meta_struct = *data;
+        const StdVideoEncodeH265LongTermRefPics& decoded_value = *data->decoded_value;
+        const Decoded_StdVideoEncodeH265LongTermRefPics& meta_struct = *data;
         FieldToJson(jdata["num_long_term_sps"], decoded_value.num_long_term_sps, options);
         FieldToJson(jdata["num_long_term_pics"], decoded_value.num_long_term_pics, options);
         FieldToJson(jdata["lt_idx_sps"], &meta_struct.lt_idx_sps, options);
@@ -1021,7 +1022,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["slice_act_y_qp_offset"], decoded_value.slice_act_y_qp_offset, options);
         FieldToJson(jdata["slice_act_cb_qp_offset"], decoded_value.slice_act_cb_qp_offset, options);
         FieldToJson(jdata["slice_act_cr_qp_offset"], decoded_value.slice_act_cr_qp_offset, options);
-        FieldToJson(jdata["reserved1"], &meta_struct.reserved1, options);
+        FieldToJson(jdata["slice_qp_delta"], decoded_value.slice_qp_delta, options);
+        FieldToJson(jdata["reserved1"], decoded_value.reserved1, options);
         FieldToJson(jdata["pWeightTable"], meta_struct.pWeightTable, options);
     }
 }
@@ -11987,6 +11989,38 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceFrameBoundaryFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["frameBoundary"] = static_cast<bool>(decoded_value.frameBoundary);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFrameBoundaryEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkFrameBoundaryEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkFrameBoundaryEXT& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkFrameBoundaryFlagsEXT_t(),jdata["flags"], decoded_value.flags, options);
+        FieldToJson(jdata["frameID"], decoded_value.frameID, options);
+        FieldToJson(jdata["imageCount"], decoded_value.imageCount, options);
+        HandleToJson(jdata["pImages"], &meta_struct.pImages, options);
+        FieldToJson(jdata["bufferCount"], decoded_value.bufferCount, options);
+        HandleToJson(jdata["pBuffers"], &meta_struct.pBuffers, options);
+        FieldToJson(jdata["tagName"], decoded_value.tagName, options);
+        FieldToJson(jdata["tagSize"], decoded_value.tagSize, options);
+        FieldToJson(jdata["pTag"], meta_struct.pTag, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13335,6 +13369,116 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiviewPerView
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceImageProcessing2FeaturesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["textureBlockMatch2"] = static_cast<bool>(decoded_value.textureBlockMatch2);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceImageProcessing2PropertiesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["maxBlockMatchWindow"], meta_struct.maxBlockMatchWindow, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSamplerBlockMatchWindowCreateInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["windowExtent"], meta_struct.windowExtent, options);
+        FieldToJson(jdata["windowCompareMode"], decoded_value.windowCompareMode, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceCubicWeightsFeaturesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["selectableCubicWeights"] = static_cast<bool>(decoded_value.selectableCubicWeights);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerCubicWeightsCreateInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSamplerCubicWeightsCreateInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkSamplerCubicWeightsCreateInfoQCOM& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["cubicWeights"], decoded_value.cubicWeights, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBlitImageCubicWeightsInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkBlitImageCubicWeightsInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkBlitImageCubicWeightsInfoQCOM& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["cubicWeights"], decoded_value.cubicWeights, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceYcbcrDegammaFeaturesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["ycbcrDegamma"] = static_cast<bool>(decoded_value.ycbcrDegamma);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["enableYDegamma"] = static_cast<bool>(decoded_value.enableYDegamma);
+        jdata["enableCbCrDegamma"] = static_cast<bool>(decoded_value.enableCbCrDegamma);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceCubicClampFeaturesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["cubicRangeClamp"] = static_cast<bool>(decoded_value.cubicRangeClamp);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13343,6 +13487,30 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAt
         const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT& meta_struct = *data;
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["attachmentFeedbackLoopDynamicState"] = static_cast<bool>(decoded_value.attachmentFeedbackLoopDynamicState);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceLayeredDriverPropertiesMSFT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["underlyingAPI"], decoded_value.underlyingAPI, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["descriptorPoolOverallocation"] = static_cast<bool>(decoded_value.descriptorPoolOverallocation);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -16555,6 +16723,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                break;
             }
             
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkFrameBoundaryEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(data->GetMetaStructPointer());
@@ -17052,9 +17234,86 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                break;
             }
             
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkSamplerCubicWeightsCreateInfoQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkBlitImageCubicWeightsInfoQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(data->GetMetaStructPointer());
                FieldToJson(jdata, pnext, options);
                break;
             }
