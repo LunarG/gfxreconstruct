@@ -1153,6 +1153,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLegacyDitheri
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineProtectedAccessFeaturesEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExternalFormatResolvePropertiesANDROID& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkAndroidHardwareBufferFormatResolvePropertiesANDROID& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderObjectFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderObjectPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkShaderCreateInfoEXT& value);

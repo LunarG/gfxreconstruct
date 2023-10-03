@@ -68,18 +68,17 @@ const std::unordered_set<std::string> kProvidedDeviceFunctions = { "vkCmdDebugMa
 /// An alphabetical list of device extensions which we do not report upstream if
 /// other layers or ICDs expose them to us.
 const char* const kUnsupportedDeviceExtensions[] = {
-    // Supporting the CPU moving around descriptor set data directly has too many
-    // perf/robustness tradeoffs to be worth it.
-    VK_EXT_SHADER_MODULE_IDENTIFIER_EXTENSION_NAME,
-    VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
-    VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
-    VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
-    VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME,
-    VK_EXT_PIPELINE_PROPERTIES_EXTENSION_NAME,
+    VK_AMDX_SHADER_ENQUEUE_EXTENSION_NAME,
     VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
+    VK_EXT_PIPELINE_PROPERTIES_EXTENSION_NAME,
+    VK_EXT_SHADER_MODULE_IDENTIFIER_EXTENSION_NAME,
+    VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME,
+    VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
+    VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
     VK_NV_COPY_MEMORY_INDIRECT_EXTENSION_NAME,
+    VK_NV_LOW_LATENCY_2_EXTENSION_NAME,
     VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
-    VK_AMDX_SHADER_ENQUEUE_EXTENSION_NAME
+    VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
 };
 
 static void remove_extensions(std::vector<VkExtensionProperties>& extensionProps,

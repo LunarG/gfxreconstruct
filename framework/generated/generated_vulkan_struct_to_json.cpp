@@ -13159,6 +13159,44 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["externalFormatResolve"] = static_cast<bool>(decoded_value.externalFormatResolve);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceExternalFormatResolvePropertiesANDROID& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["nullColorAttachmentWithExternalFormatResolve"] = static_cast<bool>(decoded_value.nullColorAttachmentWithExternalFormatResolve);
+        FieldToJson(jdata["externalFormatResolveChromaOffsetX"], decoded_value.externalFormatResolveChromaOffsetX, options);
+        FieldToJson(jdata["externalFormatResolveChromaOffsetY"], decoded_value.externalFormatResolveChromaOffsetY, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkAndroidHardwareBufferFormatResolvePropertiesANDROID& decoded_value = *data->decoded_value;
+        const Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["colorAttachmentFormat"], decoded_value.colorAttachmentFormat, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -17132,6 +17170,27 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_PROPERTIES_ANDROID:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_RESOLVE_PROPERTIES_ANDROID:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID*>(data->GetMetaStructPointer());
                FieldToJson(jdata, pnext, options);
                break;
             }

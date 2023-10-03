@@ -178,6 +178,29 @@ struct VkAndroidHardwareBufferFormatProperties2ANDROID
     VkChromaLocation              suggestedYChromaOffset;
 };
 
+typedef struct VkPhysicalDeviceExternalFormatResolveFeaturesANDROID
+{
+    VkStructureType sType;
+    void*           pNext;
+    VkBool32        externalFormatResolve;
+} VkPhysicalDeviceExternalFormatResolveFeaturesANDROID;
+
+typedef struct VkPhysicalDeviceExternalFormatResolvePropertiesANDROID
+{
+    VkStructureType  sType;
+    void*            pNext;
+    VkBool32         nullColorAttachmentWithExternalFormatResolve;
+    VkChromaLocation externalFormatResolveChromaOffsetX;
+    VkChromaLocation externalFormatResolveChromaOffsetY;
+} VkPhysicalDeviceExternalFormatResolvePropertiesANDROID;
+
+typedef struct VkAndroidHardwareBufferFormatResolvePropertiesANDROID
+{
+    VkStructureType sType;
+    void*           pNext;
+    VkFormat        colorAttachmentFormat;
+} VkAndroidHardwareBufferFormatResolvePropertiesANDROID;
+
 extern "C"
 {
     typedef VkResult(VKAPI_PTR* PFN_vkCreateAndroidSurfaceKHR)(VkInstance                           instance,

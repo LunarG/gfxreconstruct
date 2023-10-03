@@ -2253,6 +2253,14 @@ struct Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT* wrapper);
 
+struct Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID;
+struct Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID;
+struct Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID* wrapper);
+
 struct Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT;
 struct Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT;
 struct Decoded_VkShaderCreateInfoEXT;
