@@ -8726,6 +8726,29 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineProte
     encoder->EncodeVkBool32Value(value.pipelineProtectedAccess);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.externalFormatResolve);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExternalFormatResolvePropertiesANDROID& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.nullColorAttachmentWithExternalFormatResolve);
+    encoder->EncodeEnumValue(value.externalFormatResolveChromaOffsetX);
+    encoder->EncodeEnumValue(value.externalFormatResolveChromaOffsetY);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAndroidHardwareBufferFormatResolvePropertiesANDROID& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.colorAttachmentFormat);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderObjectFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);

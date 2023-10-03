@@ -30,6 +30,8 @@
 
 #include "util/logging.h"
 
+#include "format/platform_types.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(feature_util)
@@ -3786,6 +3788,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature pipelineProtectedAccess %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDevicePipelineProtectedAccessFeaturesEXT*>(currentNext)->pipelineProtectedAccess =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID:
+            {
+                const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID* currentNext = reinterpret_cast<const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(next);
+                VkPhysicalDeviceExternalFormatResolveFeaturesANDROID query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->externalFormatResolve == VK_TRUE) && (query.externalFormatResolve == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature externalFormatResolve %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(currentNext)->externalFormatResolve =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;

@@ -63,21 +63,30 @@ _extensions = _features = []
 _emit_extensions = []
 
 # Exclude extensions from code generation.
+# Note this doesn't totally eliminate them. ToString and ToJson functions for enums
+# will always be generated but functions and structs can be screened out by editing
+# the blocklists files such as the vulkan default "vulkan_generators/blacklists.json".
 # Note, this doesn't hide them from the  application, but lets them bypass our
 # layer during capture, meaning we will not call any of their functions at
 # replay.
 # To screen an extension out from the list reported to the application it should
 # be added to the list kUnsupportedDeviceExtensions in trace_layer.cpp.
 _remove_extensions = [
-    "VK_FUCHSIA_buffer_collection",
-    "VK_NVX_binary_import", "VK_HUAWEI_subpass_shading",
-    "VK_EXT_pipeline_properties", "VK_EXT_metal_objects",
-    # @todo <https://github.com/LunarG/gfxreconstruct/issues/917>
+    "VK_AMDX_shader_enqueue",
+    ## @todo <https://github.com/LunarG/gfxreconstruct/issues/917>
     "VK_EXT_descriptor_buffer",
+    "VK_EXT_metal_objects",
+    "VK_EXT_pipeline_properties",
+    "VK_FUCHSIA_buffer_collection",
+    "VK_HUAWEI_subpass_shading", # Limited tile shader
+    "VK_NVX_binary_import",
     "VK_NV_copy_memory_indirect",
+    ## This extension was still baking despite being released to public in header
+    ## 1.3.262. It breaks codegen with its non-const pInfoXs.
+    ## @todo Check for pInfo ptrs changed to const in header updates.
+    "VK_NV_low_latency2",
     "VK_NV_memory_decompression",
     "VK_QNX_external_memory_screen_buffer",
-    "VK_AMDX_shader_enqueue"
 ]
 
 _supported_subsets = [

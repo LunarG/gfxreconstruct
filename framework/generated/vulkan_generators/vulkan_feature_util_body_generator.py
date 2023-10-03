@@ -80,6 +80,8 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         self.newline()
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
+        write('#include "format/platform_types.h"', file=self.outFile)
+        self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(feature_util)', file=self.outFile)

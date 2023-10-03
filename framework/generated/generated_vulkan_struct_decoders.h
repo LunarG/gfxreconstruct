@@ -9062,6 +9062,33 @@ struct Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID
+{
+    using struct_type = VkPhysicalDeviceExternalFormatResolveFeaturesANDROID;
+
+    VkPhysicalDeviceExternalFormatResolveFeaturesANDROID* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID
+{
+    using struct_type = VkPhysicalDeviceExternalFormatResolvePropertiesANDROID;
+
+    VkPhysicalDeviceExternalFormatResolvePropertiesANDROID* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID
+{
+    using struct_type = VkAndroidHardwareBufferFormatResolvePropertiesANDROID;
+
+    VkAndroidHardwareBufferFormatResolvePropertiesANDROID* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderObjectFeaturesEXT;
