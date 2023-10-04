@@ -751,6 +751,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--measurement-file DEVICE_FILE] [--quit-after-measurement-range]
                           [--flush-measurement-range] [-m MODE]
                           [--swapchain MODE] [--use-captured-swapchain-indices]
+                          [--colorspace-fallback]
                           [file]
 
 Launch the replay tool.
@@ -858,6 +859,10 @@ optional arguments:
                         If this is specified the replayer will flush and wait
                         for all current GPU work to finish at the start and end
                         of the measurement range. (forwarded to replay tool)
+  --colorspace-fallback
+                        Swap the swapchain color space if unsupported by replay device. 
+                        Check if color space is not supported by replay device and swap 
+                        to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR. (forwarded to replay tool).
 ```
 
 The command will force-stop an active replay process before starting the replay
