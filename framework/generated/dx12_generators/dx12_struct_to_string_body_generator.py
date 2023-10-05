@@ -27,11 +27,6 @@ from dx12_base_generator import Dx12BaseGenerator
 class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
     """TODO : Generates C++ functions responsible for Convert to texts."""
 
-    BITS_LIST = [
-        '_FLAGS', '_STATES', '_STATUS', 'D3D12_SHADER_MIN_PRECISION_SUPPORT',
-        'D3D12_FORMAT_SUPPORT1', 'D3D12_FORMAT_SUPPORT2'
-    ]
-
     def __init__(
         self,
         source_dict,
