@@ -155,7 +155,7 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
         VkCommandPoolCreateInfo cmd_pool_info = {};
         cmd_pool_info.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         cmd_pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        cmd_pool_info.queueFamilyIndex        = graphics_queue_family_;
+        cmd_pool_info.queueFamilyIndex        = staging_queue_family_;
 
         result = functions_.create_command_pool(device_, &cmd_pool_info, NULL, &cmd_pool_);
         assert(result == VK_SUCCESS);
