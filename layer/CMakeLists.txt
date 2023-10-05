@@ -76,6 +76,7 @@ GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
         $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
         ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
         $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json
+        "1.3.266"
         )
 
 if(UNIX)
