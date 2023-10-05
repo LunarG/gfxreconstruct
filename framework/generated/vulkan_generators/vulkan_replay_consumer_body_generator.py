@@ -80,7 +80,7 @@ class VulkanReplayConsumerBodyGenerator(
     SKIP_PNEXT_STRUCT_TYPES = [ 'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE', 'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE' ]
 
     NOT_SKIP_FUNCTIONS_OFFSCREEN = ['Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage', 'QueuePresent']
-    
+
     SKIP_FUNCTIONS_OFFSCREEN = ['Surface', 'Swapchain', 'Present']
 
     def __init__(
@@ -137,25 +137,21 @@ class VulkanReplayConsumerBodyGenerator(
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write('template <typename T>', file=self.outFile)
-        write('void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder);', file=self.outFile)
+        write('void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size);', file=self.outFile)
 
     def endFile(self):
         """Method override."""
         self.newline()
 
-        write('template <typename T>', file=self.outFile)
-        write('void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)', file=self.outFile)
+        write('void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size)', file=self.outFile)
         write('{', file=self.outFile)
-        write('    if(decoder->IsNull()) return;', file=self.outFile)
-        write('    size_t len = decoder->GetOutputLength();', file=self.outFile)
-        write('    auto input = decoder->GetPointer();', file=self.outFile)
-        write('    auto output = decoder->GetOutputPointer();', file=self.outFile)
-        write('    for( size_t i = 0 ; i < len; ++i )', file=self.outFile)
+        write('    if (!input || !output) return;', file=self.outFile)
+        write('', file=self.outFile)
+        write('    for (size_t i = 0 ; i < len; ++i)', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        const auto* in_pnext = reinterpret_cast<const VkBaseInStructure*>(input[i].pNext);', file=self.outFile)
-        write('        if( in_pnext == nullptr ) continue;', file=self.outFile)
-        write('        auto* output_struct = reinterpret_cast<VkBaseOutStructure*>(&output[i]);', file=self.outFile)
+        write('        const auto* in_pnext = reinterpret_cast<const VkBaseInStructure*>(static_cast<const uint8_t*>(input) + i * struct_type_size)->pNext;', file=self.outFile)
+        write('        if (in_pnext == nullptr) continue;', file=self.outFile)
+        write('        auto* output_struct = reinterpret_cast<VkBaseOutStructure*>(static_cast<uint8_t*>(output) + i * struct_type_size);', file=self.outFile)
         self.newline()
         write('        while(in_pnext)', file=self.outFile)
         write('        {', file=self.outFile)
@@ -176,12 +172,12 @@ class VulkanReplayConsumerBodyGenerator(
         write('                    break;', file=self.outFile)
         write('            }', file=self.outFile)
         write('            output_struct = output_struct->pNext;', file=self.outFile)
-        write('            output_struct->sType = in_pnext->sType;',file=self.outFile)        
+        write('            output_struct->sType = in_pnext->sType;',file=self.outFile)
         write('            in_pnext = in_pnext->pNext;', file=self.outFile)
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
-       
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -244,7 +240,7 @@ class VulkanReplayConsumerBodyGenerator(
         is_override = name in self.REPLAY_OVERRIDES
 
         is_skip_offscreen = True
-        
+
         for key in self.NOT_SKIP_FUNCTIONS_OFFSCREEN:
             if key in name:
                 is_skip_offscreen = False
@@ -707,7 +703,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     postexpr.append(
                                         'PostProcessExternalObject(VK_SUCCESS, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(value.name, arg_name, name=name)
-                                    )                                    
+                                    )
                             else:
                                 expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
                                     paramname=value.name
@@ -721,7 +717,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     postexpr.append(
                                         'PostProcessExternalObject(VK_SUCCESS, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(paramname=value.name, name=name)
-                                    )                                    
+                                    )
                         elif self.is_handle(value.base_type):
                             # Add mapping for the newly created handle
                             preexpr.append(
@@ -785,6 +781,7 @@ class VulkanReplayConsumerBodyGenerator(
                                         paramname=value.name
                                     )
                                     need_initialize_output_pnext_struct = value.name
+                                    output_pnext_struct = value.base_type
                                 else:
                                     expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
                                         paramname=value.name
@@ -899,7 +896,11 @@ class VulkanReplayConsumerBodyGenerator(
                 args.append(value.name)
 
             if len(need_initialize_output_pnext_struct) > 0:
-                preexpr.append('InitializeOutputStructPNext({});'.format(need_initialize_output_pnext_struct))
+                preexpr.append('InitializeOutputStructPNext({}->GetOutputLength(), {}->GetPointer(), {}->GetOutputPointer(), sizeof({}));'.format(
+                    need_initialize_output_pnext_struct,
+                    need_initialize_output_pnext_struct,
+                    need_initialize_output_pnext_struct,
+                    output_pnext_struct))
         return args, preexpr, postexpr
 
     def make_remove_handle_expression(self, name, values):
