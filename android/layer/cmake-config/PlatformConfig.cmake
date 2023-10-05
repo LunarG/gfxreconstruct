@@ -46,7 +46,7 @@ if (GIT_SHA1)
     endif()
 endif()
 
-configure_file("${GFXRECON_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
+configure_file("${GFXRECON_SOURCE_DIR}/project_version.h.in" "${GFXRECON_SOURCE_DIR}/project_version.h")
 
 add_library(platform_specific INTERFACE)
 target_compile_definitions(platform_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION VK_USE_PLATFORM_ANDROID_KHR)
