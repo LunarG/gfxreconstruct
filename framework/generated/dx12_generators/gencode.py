@@ -61,6 +61,8 @@ from dx12_struct_to_string_body_generator import Dx12StructToStringBodyGenerator
 from dx12_call_id_to_string_header_generator import Dx12CallIdToStringHeaderGenerator
 from dx12_struct_to_json_header_generator import Dx12StructToJsonHeaderGenerator
 from dx12_struct_to_json_body_generator import Dx12StructToJsonBodyGenerator
+from dx12_struct_decoders_to_json_header_generator import Dx12StructDecodersToJsonHeaderGenerator
+from dx12_struct_decoders_to_json_body_generator import Dx12StructDecodersToJsonBodyGenerator
 
 # JSON files for customizing code generation
 # @todo Review the file of blacklisted functions and determine if each generator
@@ -657,6 +659,38 @@ def make_gen_opts(args):
         Dx12StructToJsonBodyGenerator,
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_to_json.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_decoders_to_json_header_generator.py'
+    )
+    gen_opts['generated_dx12_struct_decoders_to_json.h'] = [
+        Dx12StructDecodersToJsonHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_decoders_to_json.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_decoders_to_json_body_generator.py'
+    )
+    gen_opts['generated_dx12_struct_decoders_to_json.cpp'] = [
+        Dx12StructDecodersToJsonBodyGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_decoders_to_json.cpp',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,
