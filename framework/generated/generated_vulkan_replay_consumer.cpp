@@ -37,12 +37,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size);
+static void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size);
 
 /// Template helper to throw away the type of the struct and pass on its size,
 /// and to make the callers look cleaner than if they called the non-template
 /// typeless function directly.
-template<typename T> void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)
+template<typename T> static void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)
 {
     if(decoder->IsNull()) return;
 
@@ -9212,7 +9212,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
     GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectCountEXT(in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
-void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size)
+static void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size)
 {
     if (!input || !output) return;
 

@@ -137,12 +137,12 @@ class VulkanReplayConsumerBodyGenerator(
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write('void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size);', file=self.outFile)
+        write('static void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size);', file=self.outFile)
         self.newline()
         write('/// Template helper to throw away the type of the struct and pass on its size,', file=self.outFile)
         write('/// and to make the callers look cleaner than if they called the non-template', file=self.outFile)
         write('/// typeless function directly.', file=self.outFile)
-        write('template<typename T> void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)', file=self.outFile)
+        write('template<typename T> static void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)', file=self.outFile)
         write('{', file=self.outFile)
         write('    if(decoder->IsNull()) return;', file=self.outFile)
         write('', file=self.outFile)
@@ -153,7 +153,7 @@ class VulkanReplayConsumerBodyGenerator(
         """Method override."""
         self.newline()
 
-        write('void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size)', file=self.outFile)
+        write('static void InitializeOutputStructPNext(size_t len, const void* input, void* output, size_t struct_type_size)', file=self.outFile)
         write('{', file=self.outFile)
         write('    if (!input || !output) return;', file=self.outFile)
         write('', file=self.outFile)
