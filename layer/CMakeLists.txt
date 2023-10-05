@@ -61,7 +61,7 @@ target_include_directories(VkLayer_gfxreconstruct
                                ${CMAKE_BINARY_DIR}
                                ${CMAKE_SOURCE_DIR})
 
-target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util Vulkan::Headers platform_specific)
+target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
 common_build_directives(VkLayer_gfxreconstruct)
 
@@ -76,7 +76,6 @@ GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
         $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
         ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
         $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json
-        "1.3.266"
         )
 
 if(UNIX)
