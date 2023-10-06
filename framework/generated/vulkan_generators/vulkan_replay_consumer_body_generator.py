@@ -142,11 +142,12 @@ class VulkanReplayConsumerBodyGenerator(
         write('/// Template helper to throw away the type of the struct and pass on its size,', file=self.outFile)
         write('/// and to make the callers look cleaner than if they called the non-template', file=self.outFile)
         write('/// typeless function directly.', file=self.outFile)
-        write('template<typename T> static void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)', file=self.outFile)
+        write('template<typename T>', file=self.outFile)
+        write('static void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)', file=self.outFile)
         write('{', file=self.outFile)
         write('    if(decoder->IsNull()) return;', file=self.outFile)
         write('', file=self.outFile)
-        write('    InitializeOutputStructPNext(decoder->GetOutputLength(), decoder->GetPointer(), decoder->GetOutputPointer(), sizeof(T));', file=self.outFile)
+        write('    InitializeOutputStructPNext(decoder->GetOutputLength(), decoder->GetPointer(), decoder->GetOutputPointer(), sizeof(typename T::struct_type));', file=self.outFile)
         write('}', file=self.outFile)
 
     def endFile(self):
@@ -160,8 +161,12 @@ class VulkanReplayConsumerBodyGenerator(
         write('    for (size_t i = 0 ; i < len; ++i)', file=self.outFile)
         write('    {', file=self.outFile)
         write('        const auto* in_pnext = reinterpret_cast<const VkBaseInStructure*>(static_cast<const uint8_t*>(input) + i * struct_type_size)->pNext;', file=self.outFile)
-        write('        if (in_pnext == nullptr) continue;', file=self.outFile)
         write('        auto* output_struct = reinterpret_cast<VkBaseOutStructure*>(static_cast<uint8_t*>(output) + i * struct_type_size);', file=self.outFile)
+        self.newline()
+        write('        if (in_pnext == nullptr) {', file=self.outFile)
+        write('            output_struct->pNext = nullptr;', file=self.outFile)
+        write('            continue;', file=self.outFile)
+        write('        }', file=self.outFile)
         self.newline()
         write('        while(in_pnext)', file=self.outFile)
         write('        {', file=self.outFile)
@@ -791,7 +796,6 @@ class VulkanReplayConsumerBodyGenerator(
                                         paramname=value.name
                                     )
                                     need_initialize_output_pnext_struct = value.name
-                                    output_pnext_struct = value.base_type
                                 else:
                                     expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
                                         paramname=value.name

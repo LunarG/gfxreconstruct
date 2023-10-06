@@ -42,11 +42,12 @@ static void InitializeOutputStructPNext(size_t len, const void* input, void* out
 /// Template helper to throw away the type of the struct and pass on its size,
 /// and to make the callers look cleaner than if they called the non-template
 /// typeless function directly.
-template<typename T> static void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)
+template<typename T>
+static void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)
 {
     if(decoder->IsNull()) return;
 
-    InitializeOutputStructPNext(decoder->GetOutputLength(), decoder->GetPointer(), decoder->GetOutputPointer(), sizeof(T));
+    InitializeOutputStructPNext(decoder->GetOutputLength(), decoder->GetPointer(), decoder->GetOutputPointer(), sizeof(typename T::struct_type));
 }
 
 void VulkanReplayConsumer::Process_vkCreateInstance(
@@ -9219,8 +9220,12 @@ static void InitializeOutputStructPNext(size_t len, const void* input, void* out
     for (size_t i = 0 ; i < len; ++i)
     {
         const auto* in_pnext = reinterpret_cast<const VkBaseInStructure*>(static_cast<const uint8_t*>(input) + i * struct_type_size)->pNext;
-        if (in_pnext == nullptr) continue;
         auto* output_struct = reinterpret_cast<VkBaseOutStructure*>(static_cast<uint8_t*>(output) + i * struct_type_size);
+
+        if (in_pnext == nullptr) {
+            output_struct->pNext = nullptr;
+            continue;
+        }
 
         while(in_pnext)
         {
