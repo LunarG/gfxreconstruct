@@ -6972,6 +6972,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderingFlagBits& value
         case VK_RENDERING_RESUMING_BIT:
             jdata = "VK_RENDERING_RESUMING_BIT";
             break;
+        case VK_RENDERING_CONTENTS_INLINE_BIT_EXT:
+            jdata = "VK_RENDERING_CONTENTS_INLINE_BIT_EXT";
+            break;
         case VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT:
             jdata = "VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT";
             break;
@@ -9965,6 +9968,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM:
             jdata = "VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT";
+            break;
         case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT:
             jdata = "VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT";
             break;
@@ -10099,6 +10108,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT";
@@ -10273,6 +10288,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSubpassContents& value, 
             break;
         case VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS:
             jdata = "VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS";
+            break;
+        case VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_EXT:
+            jdata = "VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -14144,6 +14162,8 @@ void FieldToJson(VkRenderingFlags_t, nlohmann::ordered_json& jdata, const VkFlag
                 return std::string("VK_RENDERING_SUSPENDING_BIT");
             case VK_RENDERING_RESUMING_BIT:
                 return std::string("VK_RENDERING_RESUMING_BIT");
+            case VK_RENDERING_CONTENTS_INLINE_BIT_EXT:
+                return std::string("VK_RENDERING_CONTENTS_INLINE_BIT_EXT");
             case VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT:
                 return std::string("VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT");
         }

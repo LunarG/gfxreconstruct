@@ -12787,6 +12787,32 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceNestedCommandBufferFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceNestedCommandBufferFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceNestedCommandBufferFeaturesEXT& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["nestedCommandBuffer"] = static_cast<bool>(decoded_value.nestedCommandBuffer);
+        jdata["nestedCommandBufferRendering"] = static_cast<bool>(decoded_value.nestedCommandBufferRendering);
+        jdata["nestedCommandBufferSimultaneousUse"] = static_cast<bool>(decoded_value.nestedCommandBufferSimultaneousUse);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceNestedCommandBufferPropertiesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceNestedCommandBufferPropertiesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceNestedCommandBufferPropertiesEXT& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["maxCommandBufferNestingLevel"], decoded_value.maxCommandBufferNestingLevel, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryAcquireUnmodifiedEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13328,6 +13354,32 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& meta_struct = *data;
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["rayTracingInvocationReorder"] = static_cast<bool>(decoded_value.rayTracingInvocationReorder);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["extendedSparseAddressSpace"] = static_cast<bool>(decoded_value.extendedSparseAddressSpace);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV& meta_struct = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["extendedSparseAddressSpaceSize"], decoded_value.extendedSparseAddressSpaceSize, options);
+        FieldToJson(VkImageUsageFlags_t(),jdata["extendedSparseImageUsageFlags"], decoded_value.extendedSparseImageUsageFlags, options);
+        FieldToJson(VkBufferUsageFlags_t(),jdata["extendedSparseBufferUsageFlags"], decoded_value.extendedSparseBufferUsageFlags, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -17055,6 +17107,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                break;
             }
             
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceNestedCommandBufferFeaturesEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceNestedCommandBufferPropertiesEXT*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
             case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkExternalMemoryAcquireUnmodifiedEXT*>(data->GetMetaStructPointer());
@@ -17247,6 +17313,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
             {
                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV*>(data->GetMetaStructPointer());
+               FieldToJson(jdata, pnext, options);
+               break;
+            }
+            
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
+            {
+               const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV*>(data->GetMetaStructPointer());
                FieldToJson(jdata, pnext, options);
                break;
             }

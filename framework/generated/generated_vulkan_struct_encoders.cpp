@@ -8484,6 +8484,22 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageProcessi
     EncodeStruct(encoder, value.maxBoxFilterBlockSize);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceNestedCommandBufferFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.nestedCommandBuffer);
+    encoder->EncodeVkBool32Value(value.nestedCommandBufferRendering);
+    encoder->EncodeVkBool32Value(value.nestedCommandBufferSimultaneousUse);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceNestedCommandBufferPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxCommandBufferNestingLevel);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkExternalMemoryAcquireUnmodifiedEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -8832,6 +8848,22 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInv
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVkBool32Value(value.rayTracingInvocationReorder);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.extendedSparseAddressSpace);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkDeviceSizeValue(value.extendedSparseAddressSpaceSize);
+    encoder->EncodeFlagsValue(value.extendedSparseImageUsageFlags);
+    encoder->EncodeFlagsValue(value.extendedSparseBufferUsageFlags);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM& value)
