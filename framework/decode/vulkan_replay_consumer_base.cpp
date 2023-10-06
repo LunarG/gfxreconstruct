@@ -3853,9 +3853,10 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         auto                                capture_id           = (*pMemory->GetPointer());
 
         // Check if this allocation was captured with an opaque address
-        bool                uses_address       = false;
-        bool                uses_import_memory = false;
-        uint64_t            opaque_address     = 0;
+        bool                uses_address           = false;
+        bool                address_override_found = false;
+        bool                uses_import_memory     = false;
+        uint64_t            opaque_address         = 0;
         VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
 
         size_t                                            host_pointer_size = 0;
@@ -3883,8 +3884,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 }
                 break;
             }
-
-            if (current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT)
+            else if (current_struct->sType == VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT)
             {
                 auto import_info = reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(current_struct);
 
@@ -3910,11 +3910,15 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
                 uses_import_memory = true;
             }
+            else if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO)
+            {
+                address_override_found = true;
+            }
 
             current_struct = current_struct->pNext;
         }
 
-        if (uses_address)
+        if (uses_address && !address_override_found)
         {
             // Insert VkMemoryOpaqueCaptureAddressAllocateInfo into front of pNext chain before allocating
 
