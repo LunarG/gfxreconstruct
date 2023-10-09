@@ -2730,6 +2730,17 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC2>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
+    virtual void Process_ID3D12Device12_GetResourceAllocationInfo3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
+        UINT visibleMask,
+        UINT numResourceDescs,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDescs,
+        PointerDecoder<UINT32>* pNumCastableFormats,
+        PointerDecoder<DXGI_FORMAT*>* ppCastableFormats,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1);
+
     virtual void Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2880,6 +2891,27 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         format::HandleId object_id,
         UINT FrontStencilRef,
         UINT BackStencilRef);
+
+    virtual void Process_ID3D12GraphicsCommandList9_RSSetDepthBias(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        FLOAT DepthBias,
+        FLOAT DepthBiasClamp,
+        FLOAT SlopeScaledDepthBias);
+
+    virtual void Process_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue);
+
+    virtual void Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pD3D12Device,
+        UINT NodeMask,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDSRDevice);
 
 /*
 ** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
@@ -3137,6 +3169,12 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         Decoded_GUID guid);
+
+    virtual void Process_ID3D12ManualWriteTrackingResource_TrackWrite(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT Subresource,
+        StructPointerDecoder<Decoded_D3D12_RANGE>* pWrittenRange);
 
     virtual void Process_ID3D12InfoQueue_SetMessageCountLimit(
         const ApiCallInfo& call_info,

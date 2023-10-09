@@ -3849,6 +3849,20 @@ void Dx12JsonConsumer::Process_ID3D12Device11_CreateSampler2(
     using namespace gfxrecon::util;
 }
 
+void Dx12JsonConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
+        UINT visibleMask,
+        UINT numResourceDescs,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDescs,
+        PointerDecoder<UINT32>* pNumCastableFormats,
+        PointerDecoder<DXGI_FORMAT*>* ppCastableFormats,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
+{
+    using namespace gfxrecon::util;
+}
+
 void Dx12JsonConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -4065,6 +4079,36 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList8_OMSetFrontAndBackStenc
         format::HandleId object_id,
         UINT FrontStencilRef,
         UINT BackStencilRef)
+{
+    using namespace gfxrecon::util;
+}
+
+void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList9_RSSetDepthBias(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        FLOAT DepthBias,
+        FLOAT DepthBiasClamp,
+        FLOAT SlopeScaledDepthBias)
+{
+    using namespace gfxrecon::util;
+}
+
+void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue)
+{
+    using namespace gfxrecon::util;
+}
+
+void Dx12JsonConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pD3D12Device,
+        UINT NodeMask,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDSRDevice)
 {
     using namespace gfxrecon::util;
 }
@@ -4442,6 +4486,15 @@ void Dx12JsonConsumer::Process_ID3D12SharingContract_EndCapturableWork(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         Decoded_GUID guid)
+{
+    using namespace gfxrecon::util;
+}
+
+void Dx12JsonConsumer::Process_ID3D12ManualWriteTrackingResource_TrackWrite(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT Subresource,
+        StructPointerDecoder<Decoded_D3D12_RANGE>* pWrittenRange)
 {
     using namespace gfxrecon::util;
 }

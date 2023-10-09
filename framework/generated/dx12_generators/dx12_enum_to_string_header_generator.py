@@ -27,6 +27,7 @@ from dx12_base_generator import Dx12BaseGenerator
 class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
     """TODO : Generates C++ functions responsible for Convert to texts."""
 
+    ## @todo deduplicate this and copies of it in other files
     BITS_LIST = [
         '_FLAGS', '_STATES', '_STATUS', 'D3D12_SHADER_MIN_PRECISION_SUPPORT',
         'D3D12_FORMAT_SUPPORT1', 'D3D12_FORMAT_SUPPORT2'
@@ -59,7 +60,7 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
         enum_dict = self.source_dict['enum_dict']
         for k, v in enum_dict.items():
             # Generate enum handler for all enums
-            body = 'std::string ToString(const {0}& value);'
+            body = 'std::string ToString({0} value);'
 
             # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:

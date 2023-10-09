@@ -59,7 +59,7 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
     def generate_feature(self):
         for k, v in self.source_dict['enum_dict'].items():
             # Generate enum handler for all enums
-            body = 'std::string ToString(const {0}& value)\n'
+            body = 'std::string ToString(const {0} value)\n'
             body += '{{\n'
             body += '    const char* ret = "Unhandled {0}";\n'
             body += '    switch (value) {{\n'
@@ -76,7 +76,7 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
             # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:
                 if k.find(bits) >= 0:
-                    body += '\nstd::string ToString_{0}(uint32_t flags)\n'
+                    body += '\nstd::string ToString_{0}(const uint32_t flags)\n'
                     body += '{{\n'
                     body += '    return BitmaskToString<{0}>(flags);\n'
                     body += '}}\n'

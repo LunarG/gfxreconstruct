@@ -9585,7 +9585,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
         writeApiCallToFileInfo, tab_count, tab_size,
-        [&](std::stringstream& str_strm)
+        [&](std::ostringstream& str_strm)
         {
             FieldToString(str_strm, true, "visibleMask", to_string_flags_, tab_count, tab_size, ToString(visibleMask, to_string_flags_, tab_count, tab_size));
             FieldToString(str_strm, false, "numResourceDescs", to_string_flags_, tab_count, tab_size, ToString(numResourceDescs, to_string_flags_, tab_count, tab_size));
@@ -10200,7 +10200,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList9_RSSetDepthBias(
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
         writeApiCallToFileInfo, tab_count, tab_size,
-        [&](std::stringstream& str_strm)
+        [&](std::ostringstream& str_strm)
         {
             FieldToString(str_strm, true, "DepthBias", to_string_flags_, tab_count, tab_size, ToString(DepthBias, to_string_flags_, tab_count, tab_size));
             FieldToString(str_strm, false, "DepthBiasClamp", to_string_flags_, tab_count, tab_size, ToString(DepthBiasClamp, to_string_flags_, tab_count, tab_size));
@@ -10225,7 +10225,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList9_IASetIndexBufferStrip
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
         writeApiCallToFileInfo, tab_count, tab_size,
-        [&](std::stringstream& str_strm)
+        [&](std::ostringstream& str_strm)
         {
             FieldToString(str_strm, true, "IBStripCutValue", to_string_flags_, tab_count, tab_size, Quote(ToString(IBStripCutValue)));
         }
@@ -10252,7 +10252,7 @@ void Dx12AsciiConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
         writeApiCallToFileInfo, tab_count, tab_size,
-        [&](std::stringstream& str_strm)
+        [&](std::ostringstream& str_strm)
         {
             FieldToString(str_strm, true, "pD3D12Device", to_string_flags_, tab_count, tab_size, HandleIdToString(pD3D12Device));
             FieldToString(str_strm, false, "NodeMask", to_string_flags_, tab_count, tab_size, ToString(NodeMask, to_string_flags_, tab_count, tab_size));
@@ -11284,7 +11284,7 @@ void Dx12AsciiConsumer::Process_ID3D12ManualWriteTrackingResource_TrackWrite(
     writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
     WriteApiCallToFile(
         writeApiCallToFileInfo, tab_count, tab_size,
-        [&](std::stringstream& str_strm)
+        [&](std::ostringstream& str_strm)
         {
             FieldToString(str_strm, true, "Subresource", to_string_flags_, tab_count, tab_size, ToString(Subresource, to_string_flags_, tab_count, tab_size));
             FieldToString(str_strm, false, "pWrittenRange", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pWrittenRange, to_string_flags_, tab_count, tab_size));

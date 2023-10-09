@@ -760,7 +760,7 @@ std::string ToString(const D3D12_RASTERIZER_DESC& obj, ToStringFlags toStringFla
 std::string ToString(const D3D12_RASTERIZER_DESC1& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "FillMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.FillMode)));
             FieldToString(strStrm, false, "CullMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.CullMode)));
@@ -780,7 +780,7 @@ std::string ToString(const D3D12_RASTERIZER_DESC1& obj, ToStringFlags toStringFl
 std::string ToString(const D3D12_RASTERIZER_DESC2& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "FillMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.FillMode)));
             FieldToString(strStrm, false, "CullMode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.CullMode)));
@@ -1296,7 +1296,7 @@ std::string ToString(const D3D12_FEATURE_DATA_D3D12_OPTIONS15& obj, ToStringFlag
 std::string ToString(const D3D12_FEATURE_DATA_D3D12_OPTIONS16& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "DynamicDepthBiasSupported", toStringFlags, tabCount, tabSize, ToString(obj.DynamicDepthBiasSupported, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "GPUUploadHeapSupported", toStringFlags, tabCount, tabSize, ToString(obj.GPUUploadHeapSupported, toStringFlags, tabCount, tabSize));
@@ -1307,7 +1307,7 @@ std::string ToString(const D3D12_FEATURE_DATA_D3D12_OPTIONS16& obj, ToStringFlag
 std::string ToString(const D3D12_FEATURE_DATA_D3D12_OPTIONS17& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "NonNormalizedCoordinateSamplersSupported", toStringFlags, tabCount, tabSize, ToString(obj.NonNormalizedCoordinateSamplersSupported, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "ManualWriteTrackingResourceSupported", toStringFlags, tabCount, tabSize, ToString(obj.ManualWriteTrackingResourceSupported, toStringFlags, tabCount, tabSize));
@@ -1318,7 +1318,7 @@ std::string ToString(const D3D12_FEATURE_DATA_D3D12_OPTIONS17& obj, ToStringFlag
 std::string ToString(const D3D12_FEATURE_DATA_D3D12_OPTIONS18& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "RenderPassesValid", toStringFlags, tabCount, tabSize, ToString(obj.RenderPassesValid, toStringFlags, tabCount, tabSize));
         }
@@ -1328,7 +1328,7 @@ std::string ToString(const D3D12_FEATURE_DATA_D3D12_OPTIONS18& obj, ToStringFlag
 std::string ToString(const D3D12_FEATURE_DATA_D3D12_OPTIONS19& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "MismatchingOutputDimensionsSupported", toStringFlags, tabCount, tabSize, ToString(obj.MismatchingOutputDimensionsSupported, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "SupportedSampleCountsWithNoOutputs", toStringFlags, tabCount, tabSize, ToString(obj.SupportedSampleCountsWithNoOutputs, toStringFlags, tabCount, tabSize));
@@ -2159,7 +2159,7 @@ std::string ToString(const D3D12_STATIC_SAMPLER_DESC& obj, ToStringFlags toStrin
 std::string ToString(const D3D12_STATIC_SAMPLER_DESC1& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "Filter", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Filter)));
             FieldToString(strStrm, false, "AddressU", toStringFlags, tabCount, tabSize, Quote(ToString(obj.AddressU)));
@@ -2248,7 +2248,7 @@ std::string ToString(const D3D12_ROOT_SIGNATURE_DESC1& obj, ToStringFlags toStri
 std::string ToString(const D3D12_ROOT_SIGNATURE_DESC2& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "NumParameters", toStringFlags, tabCount, tabSize, ToString(obj.NumParameters, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pParameters", toStringFlags, tabCount, tabSize, ArrayToString(obj.NumParameters, obj.pParameters, toStringFlags, tabCount, tabSize));
@@ -3027,7 +3027,7 @@ std::string ToString(const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS& 
 std::string ToString(const D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "AdditionalWidth", toStringFlags, tabCount, tabSize, ToString(obj.AdditionalWidth, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "AdditionalHeight", toStringFlags, tabCount, tabSize, ToString(obj.AdditionalHeight, toStringFlags, tabCount, tabSize));
@@ -3068,7 +3068,7 @@ std::string ToString(const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS& o
 std::string ToString(const D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
+        [&](std::ostringstream& strStrm)
         {
             FieldToString(strStrm, true, "AdditionalWidth", toStringFlags, tabCount, tabSize, ToString(obj.AdditionalWidth, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "AdditionalHeight", toStringFlags, tabCount, tabSize, ToString(obj.AdditionalHeight, toStringFlags, tabCount, tabSize));

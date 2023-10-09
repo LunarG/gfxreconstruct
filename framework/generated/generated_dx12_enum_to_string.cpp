@@ -30,7 +30,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-std::string ToString(const DXGI_RESIDENCY& value)
+std::string ToString(const DXGI_RESIDENCY value)
 {
     const char* ret = "Unhandled DXGI_RESIDENCY";
     switch (value) {
@@ -41,7 +41,7 @@ std::string ToString(const DXGI_RESIDENCY& value)
     return ret;
 }
 
-std::string ToString(const DXGI_SWAP_EFFECT& value)
+std::string ToString(const DXGI_SWAP_EFFECT value)
 {
     const char* ret = "Unhandled DXGI_SWAP_EFFECT";
     switch (value) {
@@ -53,7 +53,7 @@ std::string ToString(const DXGI_SWAP_EFFECT& value)
     return ret;
 }
 
-std::string ToString(const DXGI_SWAP_CHAIN_FLAG& value)
+std::string ToString(const DXGI_SWAP_CHAIN_FLAG value)
 {
     const char* ret = "Unhandled DXGI_SWAP_CHAIN_FLAG";
     switch (value) {
@@ -74,7 +74,7 @@ std::string ToString(const DXGI_SWAP_CHAIN_FLAG& value)
     return ret;
 }
 
-std::string ToString(const DXGI_ADAPTER_FLAG& value)
+std::string ToString(const DXGI_ADAPTER_FLAG value)
 {
     const char* ret = "Unhandled DXGI_ADAPTER_FLAG";
     switch (value) {
@@ -86,7 +86,7 @@ std::string ToString(const DXGI_ADAPTER_FLAG& value)
     return ret;
 }
 
-std::string ToString(const DXGI_OUTDUPL_POINTER_SHAPE_TYPE& value)
+std::string ToString(const DXGI_OUTDUPL_POINTER_SHAPE_TYPE value)
 {
     const char* ret = "Unhandled DXGI_OUTDUPL_POINTER_SHAPE_TYPE";
     switch (value) {
@@ -97,7 +97,7 @@ std::string ToString(const DXGI_OUTDUPL_POINTER_SHAPE_TYPE& value)
     return ret;
 }
 
-std::string ToString(const DXGI_ALPHA_MODE& value)
+std::string ToString(const DXGI_ALPHA_MODE value)
 {
     const char* ret = "Unhandled DXGI_ALPHA_MODE";
     switch (value) {
@@ -110,7 +110,7 @@ std::string ToString(const DXGI_ALPHA_MODE& value)
     return ret;
 }
 
-std::string ToString(const DXGI_OFFER_RESOURCE_PRIORITY& value)
+std::string ToString(const DXGI_OFFER_RESOURCE_PRIORITY value)
 {
     const char* ret = "Unhandled DXGI_OFFER_RESOURCE_PRIORITY";
     switch (value) {
@@ -121,7 +121,7 @@ std::string ToString(const DXGI_OFFER_RESOURCE_PRIORITY& value)
     return ret;
 }
 
-std::string ToString(const DXGI_SCALING& value)
+std::string ToString(const DXGI_SCALING value)
 {
     const char* ret = "Unhandled DXGI_SCALING";
     switch (value) {
@@ -132,7 +132,7 @@ std::string ToString(const DXGI_SCALING& value)
     return ret;
 }
 
-std::string ToString(const DXGI_GRAPHICS_PREEMPTION_GRANULARITY& value)
+std::string ToString(const DXGI_GRAPHICS_PREEMPTION_GRANULARITY value)
 {
     const char* ret = "Unhandled DXGI_GRAPHICS_PREEMPTION_GRANULARITY";
     switch (value) {
@@ -145,7 +145,7 @@ std::string ToString(const DXGI_GRAPHICS_PREEMPTION_GRANULARITY& value)
     return ret;
 }
 
-std::string ToString(const DXGI_COMPUTE_PREEMPTION_GRANULARITY& value)
+std::string ToString(const DXGI_COMPUTE_PREEMPTION_GRANULARITY value)
 {
     const char* ret = "Unhandled DXGI_COMPUTE_PREEMPTION_GRANULARITY";
     switch (value) {
@@ -158,7 +158,7 @@ std::string ToString(const DXGI_COMPUTE_PREEMPTION_GRANULARITY& value)
     return ret;
 }
 
-std::string ToString(const DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS& value)
+std::string ToString(const DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS value)
 {
     const char* ret = "Unhandled DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS";
     switch (value) {
@@ -169,12 +169,12 @@ std::string ToString(const DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS& value)
     return ret;
 }
 
-std::string ToString_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(uint32_t flags)
+std::string ToString_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS>(flags);
 }
 
-std::string ToString(const DXGI_FRAME_PRESENTATION_MODE& value)
+std::string ToString(const DXGI_FRAME_PRESENTATION_MODE value)
 {
     const char* ret = "Unhandled DXGI_FRAME_PRESENTATION_MODE";
     switch (value) {
@@ -186,7 +186,7 @@ std::string ToString(const DXGI_FRAME_PRESENTATION_MODE& value)
     return ret;
 }
 
-std::string ToString(const DXGI_OVERLAY_SUPPORT_FLAG& value)
+std::string ToString(const DXGI_OVERLAY_SUPPORT_FLAG value)
 {
     const char* ret = "Unhandled DXGI_OVERLAY_SUPPORT_FLAG";
     switch (value) {
@@ -196,7 +196,7 @@ std::string ToString(const DXGI_OVERLAY_SUPPORT_FLAG& value)
     return ret;
 }
 
-std::string ToString(const DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG& value)
+std::string ToString(const DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG value)
 {
     const char* ret = "Unhandled DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG";
     switch (value) {
@@ -206,7 +206,7 @@ std::string ToString(const DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG& value)
     return ret;
 }
 
-std::string ToString(const DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG& value)
+std::string ToString(const DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG value)
 {
     const char* ret = "Unhandled DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG";
     switch (value) {
@@ -215,7 +215,7 @@ std::string ToString(const DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG& value)
     return ret;
 }
 
-std::string ToString(const DXGI_MEMORY_SEGMENT_GROUP& value)
+std::string ToString(const DXGI_MEMORY_SEGMENT_GROUP value)
 {
     const char* ret = "Unhandled DXGI_MEMORY_SEGMENT_GROUP";
     switch (value) {
@@ -225,7 +225,7 @@ std::string ToString(const DXGI_MEMORY_SEGMENT_GROUP& value)
     return ret;
 }
 
-std::string ToString(const DXGI_OUTDUPL_FLAG& value)
+std::string ToString(const DXGI_OUTDUPL_FLAG value)
 {
     const char* ret = "Unhandled DXGI_OUTDUPL_FLAG";
     switch (value) {
@@ -234,7 +234,7 @@ std::string ToString(const DXGI_OUTDUPL_FLAG& value)
     return ret;
 }
 
-std::string ToString(const DXGI_HDR_METADATA_TYPE& value)
+std::string ToString(const DXGI_HDR_METADATA_TYPE value)
 {
     const char* ret = "Unhandled DXGI_HDR_METADATA_TYPE";
     switch (value) {
@@ -245,7 +245,7 @@ std::string ToString(const DXGI_HDR_METADATA_TYPE& value)
     return ret;
 }
 
-std::string ToString(const DXGI_OFFER_RESOURCE_FLAGS& value)
+std::string ToString(const DXGI_OFFER_RESOURCE_FLAGS value)
 {
     const char* ret = "Unhandled DXGI_OFFER_RESOURCE_FLAGS";
     switch (value) {
@@ -254,12 +254,12 @@ std::string ToString(const DXGI_OFFER_RESOURCE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_DXGI_OFFER_RESOURCE_FLAGS(uint32_t flags)
+std::string ToString_DXGI_OFFER_RESOURCE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<DXGI_OFFER_RESOURCE_FLAGS>(flags);
 }
 
-std::string ToString(const DXGI_RECLAIM_RESOURCE_RESULTS& value)
+std::string ToString(const DXGI_RECLAIM_RESOURCE_RESULTS value)
 {
     const char* ret = "Unhandled DXGI_RECLAIM_RESOURCE_RESULTS";
     switch (value) {
@@ -270,7 +270,7 @@ std::string ToString(const DXGI_RECLAIM_RESOURCE_RESULTS& value)
     return ret;
 }
 
-std::string ToString(const DXGI_FEATURE& value)
+std::string ToString(const DXGI_FEATURE value)
 {
     const char* ret = "Unhandled DXGI_FEATURE";
     switch (value) {
@@ -279,7 +279,7 @@ std::string ToString(const DXGI_FEATURE& value)
     return ret;
 }
 
-std::string ToString(const DXGI_ADAPTER_FLAG3& value)
+std::string ToString(const DXGI_ADAPTER_FLAG3 value)
 {
     const char* ret = "Unhandled DXGI_ADAPTER_FLAG3";
     switch (value) {
@@ -295,7 +295,7 @@ std::string ToString(const DXGI_ADAPTER_FLAG3& value)
     return ret;
 }
 
-std::string ToString(const DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS& value)
+std::string ToString(const DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS value)
 {
     const char* ret = "Unhandled DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS";
     switch (value) {
@@ -306,12 +306,12 @@ std::string ToString(const DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS& value)
     return ret;
 }
 
-std::string ToString_DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS(uint32_t flags)
+std::string ToString_DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS>(flags);
 }
 
-std::string ToString(const DXGI_GPU_PREFERENCE& value)
+std::string ToString(const DXGI_GPU_PREFERENCE value)
 {
     const char* ret = "Unhandled DXGI_GPU_PREFERENCE";
     switch (value) {
@@ -322,7 +322,7 @@ std::string ToString(const DXGI_GPU_PREFERENCE& value)
     return ret;
 }
 
-std::string ToString(const DXGI_COLOR_SPACE_TYPE& value)
+std::string ToString(const DXGI_COLOR_SPACE_TYPE value)
 {
     const char* ret = "Unhandled DXGI_COLOR_SPACE_TYPE";
     switch (value) {
@@ -356,7 +356,7 @@ std::string ToString(const DXGI_COLOR_SPACE_TYPE& value)
     return ret;
 }
 
-std::string ToString(const DXGI_FORMAT& value)
+std::string ToString(const DXGI_FORMAT value)
 {
     const char* ret = "Unhandled DXGI_FORMAT";
     switch (value) {
@@ -486,7 +486,7 @@ std::string ToString(const DXGI_FORMAT& value)
     return ret;
 }
 
-std::string ToString(const DXGI_MODE_SCANLINE_ORDER& value)
+std::string ToString(const DXGI_MODE_SCANLINE_ORDER value)
 {
     const char* ret = "Unhandled DXGI_MODE_SCANLINE_ORDER";
     switch (value) {
@@ -498,7 +498,7 @@ std::string ToString(const DXGI_MODE_SCANLINE_ORDER& value)
     return ret;
 }
 
-std::string ToString(const DXGI_MODE_SCALING& value)
+std::string ToString(const DXGI_MODE_SCALING value)
 {
     const char* ret = "Unhandled DXGI_MODE_SCALING";
     switch (value) {
@@ -509,7 +509,7 @@ std::string ToString(const DXGI_MODE_SCALING& value)
     return ret;
 }
 
-std::string ToString(const DXGI_MODE_ROTATION& value)
+std::string ToString(const DXGI_MODE_ROTATION value)
 {
     const char* ret = "Unhandled DXGI_MODE_ROTATION";
     switch (value) {
@@ -522,7 +522,7 @@ std::string ToString(const DXGI_MODE_ROTATION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_COMMAND_LIST_TYPE& value)
+std::string ToString(const D3D12_COMMAND_LIST_TYPE value)
 {
     const char* ret = "Unhandled D3D12_COMMAND_LIST_TYPE";
     switch (value) {
@@ -538,7 +538,7 @@ std::string ToString(const D3D12_COMMAND_LIST_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_COMMAND_QUEUE_FLAGS& value)
+std::string ToString(const D3D12_COMMAND_QUEUE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_COMMAND_QUEUE_FLAGS";
     switch (value) {
@@ -548,12 +548,12 @@ std::string ToString(const D3D12_COMMAND_QUEUE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_COMMAND_QUEUE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_COMMAND_QUEUE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_COMMAND_QUEUE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_COMMAND_QUEUE_PRIORITY& value)
+std::string ToString(const D3D12_COMMAND_QUEUE_PRIORITY value)
 {
     const char* ret = "Unhandled D3D12_COMMAND_QUEUE_PRIORITY";
     switch (value) {
@@ -564,7 +564,7 @@ std::string ToString(const D3D12_COMMAND_QUEUE_PRIORITY& value)
     return ret;
 }
 
-std::string ToString(const D3D12_PRIMITIVE_TOPOLOGY_TYPE& value)
+std::string ToString(const D3D12_PRIMITIVE_TOPOLOGY_TYPE value)
 {
     const char* ret = "Unhandled D3D12_PRIMITIVE_TOPOLOGY_TYPE";
     switch (value) {
@@ -577,7 +577,7 @@ std::string ToString(const D3D12_PRIMITIVE_TOPOLOGY_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_INPUT_CLASSIFICATION& value)
+std::string ToString(const D3D12_INPUT_CLASSIFICATION value)
 {
     const char* ret = "Unhandled D3D12_INPUT_CLASSIFICATION";
     switch (value) {
@@ -587,7 +587,7 @@ std::string ToString(const D3D12_INPUT_CLASSIFICATION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_FILL_MODE& value)
+std::string ToString(const D3D12_FILL_MODE value)
 {
     const char* ret = "Unhandled D3D12_FILL_MODE";
     switch (value) {
@@ -597,7 +597,7 @@ std::string ToString(const D3D12_FILL_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_CULL_MODE& value)
+std::string ToString(const D3D12_CULL_MODE value)
 {
     const char* ret = "Unhandled D3D12_CULL_MODE";
     switch (value) {
@@ -608,7 +608,7 @@ std::string ToString(const D3D12_CULL_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_COMPARISON_FUNC& value)
+std::string ToString(const D3D12_COMPARISON_FUNC value)
 {
     const char* ret = "Unhandled D3D12_COMPARISON_FUNC";
     switch (value) {
@@ -625,7 +625,7 @@ std::string ToString(const D3D12_COMPARISON_FUNC& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DEPTH_WRITE_MASK& value)
+std::string ToString(const D3D12_DEPTH_WRITE_MASK value)
 {
     const char* ret = "Unhandled D3D12_DEPTH_WRITE_MASK";
     switch (value) {
@@ -635,7 +635,7 @@ std::string ToString(const D3D12_DEPTH_WRITE_MASK& value)
     return ret;
 }
 
-std::string ToString(const D3D12_STENCIL_OP& value)
+std::string ToString(const D3D12_STENCIL_OP value)
 {
     const char* ret = "Unhandled D3D12_STENCIL_OP";
     switch (value) {
@@ -651,7 +651,7 @@ std::string ToString(const D3D12_STENCIL_OP& value)
     return ret;
 }
 
-std::string ToString(const D3D12_BLEND& value)
+std::string ToString(const D3D12_BLEND value)
 {
     const char* ret = "Unhandled D3D12_BLEND";
     switch (value) {
@@ -678,7 +678,7 @@ std::string ToString(const D3D12_BLEND& value)
     return ret;
 }
 
-std::string ToString(const D3D12_BLEND_OP& value)
+std::string ToString(const D3D12_BLEND_OP value)
 {
     const char* ret = "Unhandled D3D12_BLEND_OP";
     switch (value) {
@@ -691,7 +691,7 @@ std::string ToString(const D3D12_BLEND_OP& value)
     return ret;
 }
 
-std::string ToString(const D3D12_COLOR_WRITE_ENABLE& value)
+std::string ToString(const D3D12_COLOR_WRITE_ENABLE value)
 {
     const char* ret = "Unhandled D3D12_COLOR_WRITE_ENABLE";
     switch (value) {
@@ -704,7 +704,7 @@ std::string ToString(const D3D12_COLOR_WRITE_ENABLE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_LOGIC_OP& value)
+std::string ToString(const D3D12_LOGIC_OP value)
 {
     const char* ret = "Unhandled D3D12_LOGIC_OP";
     switch (value) {
@@ -728,7 +728,7 @@ std::string ToString(const D3D12_LOGIC_OP& value)
     return ret;
 }
 
-std::string ToString(const D3D12_CONSERVATIVE_RASTERIZATION_MODE& value)
+std::string ToString(const D3D12_CONSERVATIVE_RASTERIZATION_MODE value)
 {
     const char* ret = "Unhandled D3D12_CONSERVATIVE_RASTERIZATION_MODE";
     switch (value) {
@@ -738,7 +738,7 @@ std::string ToString(const D3D12_CONSERVATIVE_RASTERIZATION_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_LINE_RASTERIZATION_MODE& value)
+std::string ToString(const D3D12_LINE_RASTERIZATION_MODE value)
 {
     const char* ret = "Unhandled D3D12_LINE_RASTERIZATION_MODE";
     switch (value) {
@@ -750,7 +750,7 @@ std::string ToString(const D3D12_LINE_RASTERIZATION_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_INDEX_BUFFER_STRIP_CUT_VALUE& value)
+std::string ToString(const D3D12_INDEX_BUFFER_STRIP_CUT_VALUE value)
 {
     const char* ret = "Unhandled D3D12_INDEX_BUFFER_STRIP_CUT_VALUE";
     switch (value) {
@@ -761,7 +761,7 @@ std::string ToString(const D3D12_INDEX_BUFFER_STRIP_CUT_VALUE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_PIPELINE_STATE_FLAGS& value)
+std::string ToString(const D3D12_PIPELINE_STATE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_PIPELINE_STATE_FLAGS";
     switch (value) {
@@ -773,12 +773,12 @@ std::string ToString(const D3D12_PIPELINE_STATE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_PIPELINE_STATE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_PIPELINE_STATE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_PIPELINE_STATE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_PIPELINE_STATE_SUBOBJECT_TYPE& value)
+std::string ToString(const D3D12_PIPELINE_STATE_SUBOBJECT_TYPE value)
 {
     const char* ret = "Unhandled D3D12_PIPELINE_STATE_SUBOBJECT_TYPE";
     switch (value) {
@@ -815,7 +815,7 @@ std::string ToString(const D3D12_PIPELINE_STATE_SUBOBJECT_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_FEATURE& value)
+std::string ToString(const D3D12_FEATURE value)
 {
     const char* ret = "Unhandled D3D12_FEATURE";
     switch (value) {
@@ -862,7 +862,7 @@ std::string ToString(const D3D12_FEATURE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_SHADER_MIN_PRECISION_SUPPORT& value)
+std::string ToString(const D3D12_SHADER_MIN_PRECISION_SUPPORT value)
 {
     const char* ret = "Unhandled D3D12_SHADER_MIN_PRECISION_SUPPORT";
     switch (value) {
@@ -873,12 +873,12 @@ std::string ToString(const D3D12_SHADER_MIN_PRECISION_SUPPORT& value)
     return ret;
 }
 
-std::string ToString_D3D12_SHADER_MIN_PRECISION_SUPPORT(uint32_t flags)
+std::string ToString_D3D12_SHADER_MIN_PRECISION_SUPPORT(const uint32_t flags)
 {
     return BitmaskToString<D3D12_SHADER_MIN_PRECISION_SUPPORT>(flags);
 }
 
-std::string ToString(const D3D12_TILED_RESOURCES_TIER& value)
+std::string ToString(const D3D12_TILED_RESOURCES_TIER value)
 {
     const char* ret = "Unhandled D3D12_TILED_RESOURCES_TIER";
     switch (value) {
@@ -891,7 +891,7 @@ std::string ToString(const D3D12_TILED_RESOURCES_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RESOURCE_BINDING_TIER& value)
+std::string ToString(const D3D12_RESOURCE_BINDING_TIER value)
 {
     const char* ret = "Unhandled D3D12_RESOURCE_BINDING_TIER";
     switch (value) {
@@ -902,7 +902,7 @@ std::string ToString(const D3D12_RESOURCE_BINDING_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_CONSERVATIVE_RASTERIZATION_TIER& value)
+std::string ToString(const D3D12_CONSERVATIVE_RASTERIZATION_TIER value)
 {
     const char* ret = "Unhandled D3D12_CONSERVATIVE_RASTERIZATION_TIER";
     switch (value) {
@@ -914,7 +914,7 @@ std::string ToString(const D3D12_CONSERVATIVE_RASTERIZATION_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_FORMAT_SUPPORT1& value)
+std::string ToString(const D3D12_FORMAT_SUPPORT1 value)
 {
     const char* ret = "Unhandled D3D12_FORMAT_SUPPORT1";
     switch (value) {
@@ -952,12 +952,12 @@ std::string ToString(const D3D12_FORMAT_SUPPORT1& value)
     return ret;
 }
 
-std::string ToString_D3D12_FORMAT_SUPPORT1(uint32_t flags)
+std::string ToString_D3D12_FORMAT_SUPPORT1(const uint32_t flags)
 {
     return BitmaskToString<D3D12_FORMAT_SUPPORT1>(flags);
 }
 
-std::string ToString(const D3D12_FORMAT_SUPPORT2& value)
+std::string ToString(const D3D12_FORMAT_SUPPORT2 value)
 {
     const char* ret = "Unhandled D3D12_FORMAT_SUPPORT2";
     switch (value) {
@@ -978,12 +978,12 @@ std::string ToString(const D3D12_FORMAT_SUPPORT2& value)
     return ret;
 }
 
-std::string ToString_D3D12_FORMAT_SUPPORT2(uint32_t flags)
+std::string ToString_D3D12_FORMAT_SUPPORT2(const uint32_t flags)
 {
     return BitmaskToString<D3D12_FORMAT_SUPPORT2>(flags);
 }
 
-std::string ToString(const D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS& value)
+std::string ToString(const D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS";
     switch (value) {
@@ -993,12 +993,12 @@ std::string ToString(const D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS(uint32_t flags)
+std::string ToString_D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_CROSS_NODE_SHARING_TIER& value)
+std::string ToString(const D3D12_CROSS_NODE_SHARING_TIER value)
 {
     const char* ret = "Unhandled D3D12_CROSS_NODE_SHARING_TIER";
     switch (value) {
@@ -1011,7 +1011,7 @@ std::string ToString(const D3D12_CROSS_NODE_SHARING_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RESOURCE_HEAP_TIER& value)
+std::string ToString(const D3D12_RESOURCE_HEAP_TIER value)
 {
     const char* ret = "Unhandled D3D12_RESOURCE_HEAP_TIER";
     switch (value) {
@@ -1021,7 +1021,7 @@ std::string ToString(const D3D12_RESOURCE_HEAP_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER& value)
+std::string ToString(const D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER value)
 {
     const char* ret = "Unhandled D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER";
     switch (value) {
@@ -1032,7 +1032,7 @@ std::string ToString(const D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_VIEW_INSTANCING_TIER& value)
+std::string ToString(const D3D12_VIEW_INSTANCING_TIER value)
 {
     const char* ret = "Unhandled D3D12_VIEW_INSTANCING_TIER";
     switch (value) {
@@ -1044,7 +1044,7 @@ std::string ToString(const D3D12_VIEW_INSTANCING_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D_ROOT_SIGNATURE_VERSION& value)
+std::string ToString(const D3D_ROOT_SIGNATURE_VERSION value)
 {
     const char* ret = "Unhandled D3D_ROOT_SIGNATURE_VERSION";
     switch (value) {
@@ -1055,7 +1055,7 @@ std::string ToString(const D3D_ROOT_SIGNATURE_VERSION& value)
     return ret;
 }
 
-std::string ToString(const D3D_SHADER_MODEL& value)
+std::string ToString(const D3D_SHADER_MODEL value)
 {
     const char* ret = "Unhandled D3D_SHADER_MODEL";
     switch (value) {
@@ -1073,7 +1073,7 @@ std::string ToString(const D3D_SHADER_MODEL& value)
     return ret;
 }
 
-std::string ToString(const D3D12_SHADER_CACHE_SUPPORT_FLAGS& value)
+std::string ToString(const D3D12_SHADER_CACHE_SUPPORT_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_SHADER_CACHE_SUPPORT_FLAGS";
     switch (value) {
@@ -1089,12 +1089,12 @@ std::string ToString(const D3D12_SHADER_CACHE_SUPPORT_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_SHADER_CACHE_SUPPORT_FLAGS(uint32_t flags)
+std::string ToString_D3D12_SHADER_CACHE_SUPPORT_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_SHADER_CACHE_SUPPORT_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_COMMAND_LIST_SUPPORT_FLAGS& value)
+std::string ToString(const D3D12_COMMAND_LIST_SUPPORT_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_COMMAND_LIST_SUPPORT_FLAGS";
     switch (value) {
@@ -1110,12 +1110,12 @@ std::string ToString(const D3D12_COMMAND_LIST_SUPPORT_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_COMMAND_LIST_SUPPORT_FLAGS(uint32_t flags)
+std::string ToString_D3D12_COMMAND_LIST_SUPPORT_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_COMMAND_LIST_SUPPORT_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_SHARED_RESOURCE_COMPATIBILITY_TIER& value)
+std::string ToString(const D3D12_SHARED_RESOURCE_COMPATIBILITY_TIER value)
 {
     const char* ret = "Unhandled D3D12_SHARED_RESOURCE_COMPATIBILITY_TIER";
     switch (value) {
@@ -1126,7 +1126,7 @@ std::string ToString(const D3D12_SHARED_RESOURCE_COMPATIBILITY_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_HEAP_SERIALIZATION_TIER& value)
+std::string ToString(const D3D12_HEAP_SERIALIZATION_TIER value)
 {
     const char* ret = "Unhandled D3D12_HEAP_SERIALIZATION_TIER";
     switch (value) {
@@ -1136,7 +1136,7 @@ std::string ToString(const D3D12_HEAP_SERIALIZATION_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RENDER_PASS_TIER& value)
+std::string ToString(const D3D12_RENDER_PASS_TIER value)
 {
     const char* ret = "Unhandled D3D12_RENDER_PASS_TIER";
     switch (value) {
@@ -1147,7 +1147,7 @@ std::string ToString(const D3D12_RENDER_PASS_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RAYTRACING_TIER& value)
+std::string ToString(const D3D12_RAYTRACING_TIER value)
 {
     const char* ret = "Unhandled D3D12_RAYTRACING_TIER";
     switch (value) {
@@ -1158,7 +1158,7 @@ std::string ToString(const D3D12_RAYTRACING_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_VARIABLE_SHADING_RATE_TIER& value)
+std::string ToString(const D3D12_VARIABLE_SHADING_RATE_TIER value)
 {
     const char* ret = "Unhandled D3D12_VARIABLE_SHADING_RATE_TIER";
     switch (value) {
@@ -1169,7 +1169,7 @@ std::string ToString(const D3D12_VARIABLE_SHADING_RATE_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_MESH_SHADER_TIER& value)
+std::string ToString(const D3D12_MESH_SHADER_TIER value)
 {
     const char* ret = "Unhandled D3D12_MESH_SHADER_TIER";
     switch (value) {
@@ -1179,7 +1179,7 @@ std::string ToString(const D3D12_MESH_SHADER_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_SAMPLER_FEEDBACK_TIER& value)
+std::string ToString(const D3D12_SAMPLER_FEEDBACK_TIER value)
 {
     const char* ret = "Unhandled D3D12_SAMPLER_FEEDBACK_TIER";
     switch (value) {
@@ -1190,7 +1190,7 @@ std::string ToString(const D3D12_SAMPLER_FEEDBACK_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_WAVE_MMA_TIER& value)
+std::string ToString(const D3D12_WAVE_MMA_TIER value)
 {
     const char* ret = "Unhandled D3D12_WAVE_MMA_TIER";
     switch (value) {
@@ -1200,7 +1200,7 @@ std::string ToString(const D3D12_WAVE_MMA_TIER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_TRI_STATE& value)
+std::string ToString(const D3D12_TRI_STATE value)
 {
     const char* ret = "Unhandled D3D12_TRI_STATE";
     switch (value) {
@@ -1211,7 +1211,7 @@ std::string ToString(const D3D12_TRI_STATE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_HEAP_TYPE& value)
+std::string ToString(const D3D12_HEAP_TYPE value)
 {
     const char* ret = "Unhandled D3D12_HEAP_TYPE";
     switch (value) {
@@ -1224,7 +1224,7 @@ std::string ToString(const D3D12_HEAP_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_CPU_PAGE_PROPERTY& value)
+std::string ToString(const D3D12_CPU_PAGE_PROPERTY value)
 {
     const char* ret = "Unhandled D3D12_CPU_PAGE_PROPERTY";
     switch (value) {
@@ -1236,7 +1236,7 @@ std::string ToString(const D3D12_CPU_PAGE_PROPERTY& value)
     return ret;
 }
 
-std::string ToString(const D3D12_MEMORY_POOL& value)
+std::string ToString(const D3D12_MEMORY_POOL value)
 {
     const char* ret = "Unhandled D3D12_MEMORY_POOL";
     switch (value) {
@@ -1247,7 +1247,7 @@ std::string ToString(const D3D12_MEMORY_POOL& value)
     return ret;
 }
 
-std::string ToString(const D3D12_HEAP_FLAGS& value)
+std::string ToString(const D3D12_HEAP_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_HEAP_FLAGS";
     switch (value) {
@@ -1271,12 +1271,12 @@ std::string ToString(const D3D12_HEAP_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_HEAP_FLAGS(uint32_t flags)
+std::string ToString_D3D12_HEAP_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_HEAP_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_RESOURCE_DIMENSION& value)
+std::string ToString(const D3D12_RESOURCE_DIMENSION value)
 {
     const char* ret = "Unhandled D3D12_RESOURCE_DIMENSION";
     switch (value) {
@@ -1289,7 +1289,7 @@ std::string ToString(const D3D12_RESOURCE_DIMENSION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_TEXTURE_LAYOUT& value)
+std::string ToString(const D3D12_TEXTURE_LAYOUT value)
 {
     const char* ret = "Unhandled D3D12_TEXTURE_LAYOUT";
     switch (value) {
@@ -1301,7 +1301,7 @@ std::string ToString(const D3D12_TEXTURE_LAYOUT& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RESOURCE_FLAGS& value)
+std::string ToString(const D3D12_RESOURCE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RESOURCE_FLAGS";
     switch (value) {
@@ -1319,12 +1319,12 @@ std::string ToString(const D3D12_RESOURCE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_RESOURCE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RESOURCE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RESOURCE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_TILE_RANGE_FLAGS& value)
+std::string ToString(const D3D12_TILE_RANGE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_TILE_RANGE_FLAGS";
     switch (value) {
@@ -1336,12 +1336,12 @@ std::string ToString(const D3D12_TILE_RANGE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_TILE_RANGE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_TILE_RANGE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_TILE_RANGE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_TILE_MAPPING_FLAGS& value)
+std::string ToString(const D3D12_TILE_MAPPING_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_TILE_MAPPING_FLAGS";
     switch (value) {
@@ -1351,12 +1351,12 @@ std::string ToString(const D3D12_TILE_MAPPING_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_TILE_MAPPING_FLAGS(uint32_t flags)
+std::string ToString_D3D12_TILE_MAPPING_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_TILE_MAPPING_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_TILE_COPY_FLAGS& value)
+std::string ToString(const D3D12_TILE_COPY_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_TILE_COPY_FLAGS";
     switch (value) {
@@ -1368,12 +1368,12 @@ std::string ToString(const D3D12_TILE_COPY_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_TILE_COPY_FLAGS(uint32_t flags)
+std::string ToString_D3D12_TILE_COPY_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_TILE_COPY_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_RESOURCE_STATES& value)
+std::string ToString(const D3D12_RESOURCE_STATES value)
 {
     const char* ret = "Unhandled D3D12_RESOURCE_STATES";
     switch (value) {
@@ -1406,12 +1406,12 @@ std::string ToString(const D3D12_RESOURCE_STATES& value)
     return ret;
 }
 
-std::string ToString_D3D12_RESOURCE_STATES(uint32_t flags)
+std::string ToString_D3D12_RESOURCE_STATES(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RESOURCE_STATES>(flags);
 }
 
-std::string ToString(const D3D12_RESOURCE_BARRIER_TYPE& value)
+std::string ToString(const D3D12_RESOURCE_BARRIER_TYPE value)
 {
     const char* ret = "Unhandled D3D12_RESOURCE_BARRIER_TYPE";
     switch (value) {
@@ -1422,7 +1422,7 @@ std::string ToString(const D3D12_RESOURCE_BARRIER_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RESOURCE_BARRIER_FLAGS& value)
+std::string ToString(const D3D12_RESOURCE_BARRIER_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RESOURCE_BARRIER_FLAGS";
     switch (value) {
@@ -1433,12 +1433,12 @@ std::string ToString(const D3D12_RESOURCE_BARRIER_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_RESOURCE_BARRIER_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RESOURCE_BARRIER_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RESOURCE_BARRIER_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_TEXTURE_COPY_TYPE& value)
+std::string ToString(const D3D12_TEXTURE_COPY_TYPE value)
 {
     const char* ret = "Unhandled D3D12_TEXTURE_COPY_TYPE";
     switch (value) {
@@ -1448,7 +1448,7 @@ std::string ToString(const D3D12_TEXTURE_COPY_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RESOLVE_MODE& value)
+std::string ToString(const D3D12_RESOLVE_MODE value)
 {
     const char* ret = "Unhandled D3D12_RESOLVE_MODE";
     switch (value) {
@@ -1462,7 +1462,7 @@ std::string ToString(const D3D12_RESOLVE_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_VIEW_INSTANCING_FLAGS& value)
+std::string ToString(const D3D12_VIEW_INSTANCING_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_VIEW_INSTANCING_FLAGS";
     switch (value) {
@@ -1472,12 +1472,12 @@ std::string ToString(const D3D12_VIEW_INSTANCING_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_VIEW_INSTANCING_FLAGS(uint32_t flags)
+std::string ToString_D3D12_VIEW_INSTANCING_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_VIEW_INSTANCING_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_SHADER_COMPONENT_MAPPING& value)
+std::string ToString(const D3D12_SHADER_COMPONENT_MAPPING value)
 {
     const char* ret = "Unhandled D3D12_SHADER_COMPONENT_MAPPING";
     switch (value) {
@@ -1491,7 +1491,7 @@ std::string ToString(const D3D12_SHADER_COMPONENT_MAPPING& value)
     return ret;
 }
 
-std::string ToString(const D3D12_BUFFER_SRV_FLAGS& value)
+std::string ToString(const D3D12_BUFFER_SRV_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_BUFFER_SRV_FLAGS";
     switch (value) {
@@ -1501,12 +1501,12 @@ std::string ToString(const D3D12_BUFFER_SRV_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_BUFFER_SRV_FLAGS(uint32_t flags)
+std::string ToString_D3D12_BUFFER_SRV_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_BUFFER_SRV_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_SRV_DIMENSION& value)
+std::string ToString(const D3D12_SRV_DIMENSION value)
 {
     const char* ret = "Unhandled D3D12_SRV_DIMENSION";
     switch (value) {
@@ -1526,7 +1526,7 @@ std::string ToString(const D3D12_SRV_DIMENSION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_FILTER& value)
+std::string ToString(const D3D12_FILTER value)
 {
     const char* ret = "Unhandled D3D12_FILTER";
     switch (value) {
@@ -1574,7 +1574,7 @@ std::string ToString(const D3D12_FILTER& value)
     return ret;
 }
 
-std::string ToString(const D3D12_FILTER_TYPE& value)
+std::string ToString(const D3D12_FILTER_TYPE value)
 {
     const char* ret = "Unhandled D3D12_FILTER_TYPE";
     switch (value) {
@@ -1584,7 +1584,7 @@ std::string ToString(const D3D12_FILTER_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_FILTER_REDUCTION_TYPE& value)
+std::string ToString(const D3D12_FILTER_REDUCTION_TYPE value)
 {
     const char* ret = "Unhandled D3D12_FILTER_REDUCTION_TYPE";
     switch (value) {
@@ -1596,7 +1596,7 @@ std::string ToString(const D3D12_FILTER_REDUCTION_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_TEXTURE_ADDRESS_MODE& value)
+std::string ToString(const D3D12_TEXTURE_ADDRESS_MODE value)
 {
     const char* ret = "Unhandled D3D12_TEXTURE_ADDRESS_MODE";
     switch (value) {
@@ -1609,7 +1609,7 @@ std::string ToString(const D3D12_TEXTURE_ADDRESS_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_SAMPLER_FLAGS& value)
+std::string ToString(const D3D12_SAMPLER_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_SAMPLER_FLAGS";
     switch (value) {
@@ -1620,12 +1620,12 @@ std::string ToString(const D3D12_SAMPLER_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_SAMPLER_FLAGS(uint32_t flags)
+std::string ToString_D3D12_SAMPLER_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_SAMPLER_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_BUFFER_UAV_FLAGS& value)
+std::string ToString(const D3D12_BUFFER_UAV_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_BUFFER_UAV_FLAGS";
     switch (value) {
@@ -1635,12 +1635,12 @@ std::string ToString(const D3D12_BUFFER_UAV_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_BUFFER_UAV_FLAGS(uint32_t flags)
+std::string ToString_D3D12_BUFFER_UAV_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_BUFFER_UAV_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_UAV_DIMENSION& value)
+std::string ToString(const D3D12_UAV_DIMENSION value)
 {
     const char* ret = "Unhandled D3D12_UAV_DIMENSION";
     switch (value) {
@@ -1657,7 +1657,7 @@ std::string ToString(const D3D12_UAV_DIMENSION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RTV_DIMENSION& value)
+std::string ToString(const D3D12_RTV_DIMENSION value)
 {
     const char* ret = "Unhandled D3D12_RTV_DIMENSION";
     switch (value) {
@@ -1674,7 +1674,7 @@ std::string ToString(const D3D12_RTV_DIMENSION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DSV_FLAGS& value)
+std::string ToString(const D3D12_DSV_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_DSV_FLAGS";
     switch (value) {
@@ -1685,12 +1685,12 @@ std::string ToString(const D3D12_DSV_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_DSV_FLAGS(uint32_t flags)
+std::string ToString_D3D12_DSV_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_DSV_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_DSV_DIMENSION& value)
+std::string ToString(const D3D12_DSV_DIMENSION value)
 {
     const char* ret = "Unhandled D3D12_DSV_DIMENSION";
     switch (value) {
@@ -1705,7 +1705,7 @@ std::string ToString(const D3D12_DSV_DIMENSION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_CLEAR_FLAGS& value)
+std::string ToString(const D3D12_CLEAR_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_CLEAR_FLAGS";
     switch (value) {
@@ -1715,12 +1715,12 @@ std::string ToString(const D3D12_CLEAR_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_CLEAR_FLAGS(uint32_t flags)
+std::string ToString_D3D12_CLEAR_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_CLEAR_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_FENCE_FLAGS& value)
+std::string ToString(const D3D12_FENCE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_FENCE_FLAGS";
     switch (value) {
@@ -1732,12 +1732,12 @@ std::string ToString(const D3D12_FENCE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_FENCE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_FENCE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_FENCE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_DESCRIPTOR_HEAP_TYPE& value)
+std::string ToString(const D3D12_DESCRIPTOR_HEAP_TYPE value)
 {
     const char* ret = "Unhandled D3D12_DESCRIPTOR_HEAP_TYPE";
     switch (value) {
@@ -1750,7 +1750,7 @@ std::string ToString(const D3D12_DESCRIPTOR_HEAP_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DESCRIPTOR_HEAP_FLAGS& value)
+std::string ToString(const D3D12_DESCRIPTOR_HEAP_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_DESCRIPTOR_HEAP_FLAGS";
     switch (value) {
@@ -1760,12 +1760,12 @@ std::string ToString(const D3D12_DESCRIPTOR_HEAP_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_DESCRIPTOR_HEAP_FLAGS(uint32_t flags)
+std::string ToString_D3D12_DESCRIPTOR_HEAP_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_DESCRIPTOR_HEAP_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_DESCRIPTOR_RANGE_TYPE& value)
+std::string ToString(const D3D12_DESCRIPTOR_RANGE_TYPE value)
 {
     const char* ret = "Unhandled D3D12_DESCRIPTOR_RANGE_TYPE";
     switch (value) {
@@ -1777,7 +1777,7 @@ std::string ToString(const D3D12_DESCRIPTOR_RANGE_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_SHADER_VISIBILITY& value)
+std::string ToString(const D3D12_SHADER_VISIBILITY value)
 {
     const char* ret = "Unhandled D3D12_SHADER_VISIBILITY";
     switch (value) {
@@ -1793,7 +1793,7 @@ std::string ToString(const D3D12_SHADER_VISIBILITY& value)
     return ret;
 }
 
-std::string ToString(const D3D12_ROOT_PARAMETER_TYPE& value)
+std::string ToString(const D3D12_ROOT_PARAMETER_TYPE value)
 {
     const char* ret = "Unhandled D3D12_ROOT_PARAMETER_TYPE";
     switch (value) {
@@ -1806,7 +1806,7 @@ std::string ToString(const D3D12_ROOT_PARAMETER_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_ROOT_SIGNATURE_FLAGS& value)
+std::string ToString(const D3D12_ROOT_SIGNATURE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_ROOT_SIGNATURE_FLAGS";
     switch (value) {
@@ -1827,12 +1827,12 @@ std::string ToString(const D3D12_ROOT_SIGNATURE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_ROOT_SIGNATURE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_ROOT_SIGNATURE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_ROOT_SIGNATURE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_STATIC_BORDER_COLOR& value)
+std::string ToString(const D3D12_STATIC_BORDER_COLOR value)
 {
     const char* ret = "Unhandled D3D12_STATIC_BORDER_COLOR";
     switch (value) {
@@ -1845,7 +1845,7 @@ std::string ToString(const D3D12_STATIC_BORDER_COLOR& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DESCRIPTOR_RANGE_FLAGS& value)
+std::string ToString(const D3D12_DESCRIPTOR_RANGE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_DESCRIPTOR_RANGE_FLAGS";
     switch (value) {
@@ -1859,12 +1859,12 @@ std::string ToString(const D3D12_DESCRIPTOR_RANGE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_DESCRIPTOR_RANGE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_DESCRIPTOR_RANGE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_DESCRIPTOR_RANGE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_ROOT_DESCRIPTOR_FLAGS& value)
+std::string ToString(const D3D12_ROOT_DESCRIPTOR_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_ROOT_DESCRIPTOR_FLAGS";
     switch (value) {
@@ -1876,12 +1876,12 @@ std::string ToString(const D3D12_ROOT_DESCRIPTOR_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_ROOT_DESCRIPTOR_FLAGS(uint32_t flags)
+std::string ToString_D3D12_ROOT_DESCRIPTOR_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_ROOT_DESCRIPTOR_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_QUERY_HEAP_TYPE& value)
+std::string ToString(const D3D12_QUERY_HEAP_TYPE value)
 {
     const char* ret = "Unhandled D3D12_QUERY_HEAP_TYPE";
     switch (value) {
@@ -1896,7 +1896,7 @@ std::string ToString(const D3D12_QUERY_HEAP_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_QUERY_TYPE& value)
+std::string ToString(const D3D12_QUERY_TYPE value)
 {
     const char* ret = "Unhandled D3D12_QUERY_TYPE";
     switch (value) {
@@ -1914,7 +1914,7 @@ std::string ToString(const D3D12_QUERY_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_PREDICATION_OP& value)
+std::string ToString(const D3D12_PREDICATION_OP value)
 {
     const char* ret = "Unhandled D3D12_PREDICATION_OP";
     switch (value) {
@@ -1924,7 +1924,7 @@ std::string ToString(const D3D12_PREDICATION_OP& value)
     return ret;
 }
 
-std::string ToString(const D3D12_INDIRECT_ARGUMENT_TYPE& value)
+std::string ToString(const D3D12_INDIRECT_ARGUMENT_TYPE value)
 {
     const char* ret = "Unhandled D3D12_INDIRECT_ARGUMENT_TYPE";
     switch (value) {
@@ -1943,7 +1943,7 @@ std::string ToString(const D3D12_INDIRECT_ARGUMENT_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_WRITEBUFFERIMMEDIATE_MODE& value)
+std::string ToString(const D3D12_WRITEBUFFERIMMEDIATE_MODE value)
 {
     const char* ret = "Unhandled D3D12_WRITEBUFFERIMMEDIATE_MODE";
     switch (value) {
@@ -1954,7 +1954,7 @@ std::string ToString(const D3D12_WRITEBUFFERIMMEDIATE_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_MULTIPLE_FENCE_WAIT_FLAGS& value)
+std::string ToString(const D3D12_MULTIPLE_FENCE_WAIT_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_MULTIPLE_FENCE_WAIT_FLAGS";
     switch (value) {
@@ -1964,12 +1964,12 @@ std::string ToString(const D3D12_MULTIPLE_FENCE_WAIT_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_MULTIPLE_FENCE_WAIT_FLAGS(uint32_t flags)
+std::string ToString_D3D12_MULTIPLE_FENCE_WAIT_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_RESIDENCY_PRIORITY& value)
+std::string ToString(const D3D12_RESIDENCY_PRIORITY value)
 {
     const char* ret = "Unhandled D3D12_RESIDENCY_PRIORITY";
     switch (value) {
@@ -1982,7 +1982,7 @@ std::string ToString(const D3D12_RESIDENCY_PRIORITY& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RESIDENCY_FLAGS& value)
+std::string ToString(const D3D12_RESIDENCY_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RESIDENCY_FLAGS";
     switch (value) {
@@ -1992,12 +1992,12 @@ std::string ToString(const D3D12_RESIDENCY_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_RESIDENCY_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RESIDENCY_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RESIDENCY_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_COMMAND_LIST_FLAGS& value)
+std::string ToString(const D3D12_COMMAND_LIST_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_COMMAND_LIST_FLAGS";
     switch (value) {
@@ -2006,12 +2006,12 @@ std::string ToString(const D3D12_COMMAND_LIST_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_COMMAND_LIST_FLAGS(uint32_t flags)
+std::string ToString_D3D12_COMMAND_LIST_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_COMMAND_LIST_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_COMMAND_POOL_FLAGS& value)
+std::string ToString(const D3D12_COMMAND_POOL_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_COMMAND_POOL_FLAGS";
     switch (value) {
@@ -2020,12 +2020,12 @@ std::string ToString(const D3D12_COMMAND_POOL_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_COMMAND_POOL_FLAGS(uint32_t flags)
+std::string ToString_D3D12_COMMAND_POOL_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_COMMAND_POOL_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_COMMAND_RECORDER_FLAGS& value)
+std::string ToString(const D3D12_COMMAND_RECORDER_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_COMMAND_RECORDER_FLAGS";
     switch (value) {
@@ -2034,12 +2034,12 @@ std::string ToString(const D3D12_COMMAND_RECORDER_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_COMMAND_RECORDER_FLAGS(uint32_t flags)
+std::string ToString_D3D12_COMMAND_RECORDER_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_COMMAND_RECORDER_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_PROTECTED_SESSION_STATUS& value)
+std::string ToString(const D3D12_PROTECTED_SESSION_STATUS value)
 {
     const char* ret = "Unhandled D3D12_PROTECTED_SESSION_STATUS";
     switch (value) {
@@ -2049,12 +2049,12 @@ std::string ToString(const D3D12_PROTECTED_SESSION_STATUS& value)
     return ret;
 }
 
-std::string ToString_D3D12_PROTECTED_SESSION_STATUS(uint32_t flags)
+std::string ToString_D3D12_PROTECTED_SESSION_STATUS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_PROTECTED_SESSION_STATUS>(flags);
 }
 
-std::string ToString(const D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS& value)
+std::string ToString(const D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS";
     switch (value) {
@@ -2064,12 +2064,12 @@ std::string ToString(const D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS& value
     return ret;
 }
 
-std::string ToString_D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS(uint32_t flags)
+std::string ToString_D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_PROTECTED_RESOURCE_SESSION_FLAGS& value)
+std::string ToString(const D3D12_PROTECTED_RESOURCE_SESSION_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_PROTECTED_RESOURCE_SESSION_FLAGS";
     switch (value) {
@@ -2078,12 +2078,12 @@ std::string ToString(const D3D12_PROTECTED_RESOURCE_SESSION_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_PROTECTED_RESOURCE_SESSION_FLAGS(uint32_t flags)
+std::string ToString_D3D12_PROTECTED_RESOURCE_SESSION_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_PROTECTED_RESOURCE_SESSION_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_LIFETIME_STATE& value)
+std::string ToString(const D3D12_LIFETIME_STATE value)
 {
     const char* ret = "Unhandled D3D12_LIFETIME_STATE";
     switch (value) {
@@ -2093,7 +2093,7 @@ std::string ToString(const D3D12_LIFETIME_STATE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_META_COMMAND_PARAMETER_TYPE& value)
+std::string ToString(const D3D12_META_COMMAND_PARAMETER_TYPE value)
 {
     const char* ret = "Unhandled D3D12_META_COMMAND_PARAMETER_TYPE";
     switch (value) {
@@ -2106,7 +2106,7 @@ std::string ToString(const D3D12_META_COMMAND_PARAMETER_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_META_COMMAND_PARAMETER_FLAGS& value)
+std::string ToString(const D3D12_META_COMMAND_PARAMETER_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_META_COMMAND_PARAMETER_FLAGS";
     switch (value) {
@@ -2116,12 +2116,12 @@ std::string ToString(const D3D12_META_COMMAND_PARAMETER_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_META_COMMAND_PARAMETER_FLAGS(uint32_t flags)
+std::string ToString_D3D12_META_COMMAND_PARAMETER_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_META_COMMAND_PARAMETER_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_META_COMMAND_PARAMETER_STAGE& value)
+std::string ToString(const D3D12_META_COMMAND_PARAMETER_STAGE value)
 {
     const char* ret = "Unhandled D3D12_META_COMMAND_PARAMETER_STAGE";
     switch (value) {
@@ -2132,7 +2132,7 @@ std::string ToString(const D3D12_META_COMMAND_PARAMETER_STAGE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_GRAPHICS_STATES& value)
+std::string ToString(const D3D12_GRAPHICS_STATES value)
 {
     const char* ret = "Unhandled D3D12_GRAPHICS_STATES";
     switch (value) {
@@ -2158,12 +2158,12 @@ std::string ToString(const D3D12_GRAPHICS_STATES& value)
     return ret;
 }
 
-std::string ToString_D3D12_GRAPHICS_STATES(uint32_t flags)
+std::string ToString_D3D12_GRAPHICS_STATES(const uint32_t flags)
 {
     return BitmaskToString<D3D12_GRAPHICS_STATES>(flags);
 }
 
-std::string ToString(const D3D12_STATE_SUBOBJECT_TYPE& value)
+std::string ToString(const D3D12_STATE_SUBOBJECT_TYPE value)
 {
     const char* ret = "Unhandled D3D12_STATE_SUBOBJECT_TYPE";
     switch (value) {
@@ -2184,7 +2184,7 @@ std::string ToString(const D3D12_STATE_SUBOBJECT_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_STATE_OBJECT_FLAGS& value)
+std::string ToString(const D3D12_STATE_OBJECT_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_STATE_OBJECT_FLAGS";
     switch (value) {
@@ -2196,12 +2196,12 @@ std::string ToString(const D3D12_STATE_OBJECT_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_STATE_OBJECT_FLAGS(uint32_t flags)
+std::string ToString_D3D12_STATE_OBJECT_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_STATE_OBJECT_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_EXPORT_FLAGS& value)
+std::string ToString(const D3D12_EXPORT_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_EXPORT_FLAGS";
     switch (value) {
@@ -2210,12 +2210,12 @@ std::string ToString(const D3D12_EXPORT_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_EXPORT_FLAGS(uint32_t flags)
+std::string ToString_D3D12_EXPORT_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_EXPORT_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_HIT_GROUP_TYPE& value)
+std::string ToString(const D3D12_HIT_GROUP_TYPE value)
 {
     const char* ret = "Unhandled D3D12_HIT_GROUP_TYPE";
     switch (value) {
@@ -2225,7 +2225,7 @@ std::string ToString(const D3D12_HIT_GROUP_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RAYTRACING_PIPELINE_FLAGS& value)
+std::string ToString(const D3D12_RAYTRACING_PIPELINE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RAYTRACING_PIPELINE_FLAGS";
     switch (value) {
@@ -2236,12 +2236,12 @@ std::string ToString(const D3D12_RAYTRACING_PIPELINE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_RAYTRACING_PIPELINE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RAYTRACING_PIPELINE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RAYTRACING_PIPELINE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_STATE_OBJECT_TYPE& value)
+std::string ToString(const D3D12_STATE_OBJECT_TYPE value)
 {
     const char* ret = "Unhandled D3D12_STATE_OBJECT_TYPE";
     switch (value) {
@@ -2251,7 +2251,7 @@ std::string ToString(const D3D12_STATE_OBJECT_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RAYTRACING_GEOMETRY_FLAGS& value)
+std::string ToString(const D3D12_RAYTRACING_GEOMETRY_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RAYTRACING_GEOMETRY_FLAGS";
     switch (value) {
@@ -2262,12 +2262,12 @@ std::string ToString(const D3D12_RAYTRACING_GEOMETRY_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_RAYTRACING_GEOMETRY_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RAYTRACING_GEOMETRY_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RAYTRACING_GEOMETRY_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_RAYTRACING_GEOMETRY_TYPE& value)
+std::string ToString(const D3D12_RAYTRACING_GEOMETRY_TYPE value)
 {
     const char* ret = "Unhandled D3D12_RAYTRACING_GEOMETRY_TYPE";
     switch (value) {
@@ -2277,7 +2277,7 @@ std::string ToString(const D3D12_RAYTRACING_GEOMETRY_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RAYTRACING_INSTANCE_FLAGS& value)
+std::string ToString(const D3D12_RAYTRACING_INSTANCE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RAYTRACING_INSTANCE_FLAGS";
     switch (value) {
@@ -2290,12 +2290,12 @@ std::string ToString(const D3D12_RAYTRACING_INSTANCE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_RAYTRACING_INSTANCE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RAYTRACING_INSTANCE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RAYTRACING_INSTANCE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS& value)
+std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS";
     switch (value) {
@@ -2310,12 +2310,12 @@ std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS& 
     return ret;
 }
 
-std::string ToString_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE& value)
+std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE value)
 {
     const char* ret = "Unhandled D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE";
     switch (value) {
@@ -2328,7 +2328,7 @@ std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE& va
     return ret;
 }
 
-std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE& value)
+std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE value)
 {
     const char* ret = "Unhandled D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE";
     switch (value) {
@@ -2338,7 +2338,7 @@ std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_ELEMENTS_LAYOUT& value)
+std::string ToString(const D3D12_ELEMENTS_LAYOUT value)
 {
     const char* ret = "Unhandled D3D12_ELEMENTS_LAYOUT";
     switch (value) {
@@ -2348,7 +2348,7 @@ std::string ToString(const D3D12_ELEMENTS_LAYOUT& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TYPE& value)
+std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TYPE value)
 {
     const char* ret = "Unhandled D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TYPE";
     switch (value) {
@@ -2360,7 +2360,7 @@ std::string ToString(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INF
     return ret;
 }
 
-std::string ToString(const D3D12_SERIALIZED_DATA_TYPE& value)
+std::string ToString(const D3D12_SERIALIZED_DATA_TYPE value)
 {
     const char* ret = "Unhandled D3D12_SERIALIZED_DATA_TYPE";
     switch (value) {
@@ -2369,7 +2369,7 @@ std::string ToString(const D3D12_SERIALIZED_DATA_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS& value)
+std::string ToString(const D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS value)
 {
     const char* ret = "Unhandled D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS";
     switch (value) {
@@ -2382,12 +2382,12 @@ std::string ToString(const D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS& value)
     return ret;
 }
 
-std::string ToString_D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS(uint32_t flags)
+std::string ToString_D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS>(flags);
 }
 
-std::string ToString(const D3D12_RAY_FLAGS& value)
+std::string ToString(const D3D12_RAY_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RAY_FLAGS";
     switch (value) {
@@ -2406,12 +2406,12 @@ std::string ToString(const D3D12_RAY_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_RAY_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RAY_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RAY_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_HIT_KIND& value)
+std::string ToString(const D3D12_HIT_KIND value)
 {
     const char* ret = "Unhandled D3D12_HIT_KIND";
     switch (value) {
@@ -2421,7 +2421,7 @@ std::string ToString(const D3D12_HIT_KIND& value)
     return ret;
 }
 
-std::string ToString(const D3D12_AUTO_BREADCRUMB_OP& value)
+std::string ToString(const D3D12_AUTO_BREADCRUMB_OP value)
 {
     const char* ret = "Unhandled D3D12_AUTO_BREADCRUMB_OP";
     switch (value) {
@@ -2475,7 +2475,7 @@ std::string ToString(const D3D12_AUTO_BREADCRUMB_OP& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DRED_VERSION& value)
+std::string ToString(const D3D12_DRED_VERSION value)
 {
     const char* ret = "Unhandled D3D12_DRED_VERSION";
     switch (value) {
@@ -2487,7 +2487,7 @@ std::string ToString(const D3D12_DRED_VERSION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DRED_FLAGS& value)
+std::string ToString(const D3D12_DRED_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_DRED_FLAGS";
     switch (value) {
@@ -2498,12 +2498,12 @@ std::string ToString(const D3D12_DRED_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_DRED_FLAGS(uint32_t flags)
+std::string ToString_D3D12_DRED_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_DRED_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_DRED_ENABLEMENT& value)
+std::string ToString(const D3D12_DRED_ENABLEMENT value)
 {
     const char* ret = "Unhandled D3D12_DRED_ENABLEMENT";
     switch (value) {
@@ -2514,7 +2514,7 @@ std::string ToString(const D3D12_DRED_ENABLEMENT& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DRED_ALLOCATION_TYPE& value)
+std::string ToString(const D3D12_DRED_ALLOCATION_TYPE value)
 {
     const char* ret = "Unhandled D3D12_DRED_ALLOCATION_TYPE";
     switch (value) {
@@ -2551,7 +2551,7 @@ std::string ToString(const D3D12_DRED_ALLOCATION_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DRED_PAGE_FAULT_FLAGS& value)
+std::string ToString(const D3D12_DRED_PAGE_FAULT_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_DRED_PAGE_FAULT_FLAGS";
     switch (value) {
@@ -2560,12 +2560,12 @@ std::string ToString(const D3D12_DRED_PAGE_FAULT_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_DRED_PAGE_FAULT_FLAGS(uint32_t flags)
+std::string ToString_D3D12_DRED_PAGE_FAULT_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_DRED_PAGE_FAULT_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_DRED_DEVICE_STATE& value)
+std::string ToString(const D3D12_DRED_DEVICE_STATE value)
 {
     const char* ret = "Unhandled D3D12_DRED_DEVICE_STATE";
     switch (value) {
@@ -2577,7 +2577,7 @@ std::string ToString(const D3D12_DRED_DEVICE_STATE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_BACKGROUND_PROCESSING_MODE& value)
+std::string ToString(const D3D12_BACKGROUND_PROCESSING_MODE value)
 {
     const char* ret = "Unhandled D3D12_BACKGROUND_PROCESSING_MODE";
     switch (value) {
@@ -2589,7 +2589,7 @@ std::string ToString(const D3D12_BACKGROUND_PROCESSING_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_MEASUREMENTS_ACTION& value)
+std::string ToString(const D3D12_MEASUREMENTS_ACTION value)
 {
     const char* ret = "Unhandled D3D12_MEASUREMENTS_ACTION";
     switch (value) {
@@ -2601,7 +2601,7 @@ std::string ToString(const D3D12_MEASUREMENTS_ACTION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE& value)
+std::string ToString(const D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE value)
 {
     const char* ret = "Unhandled D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE";
     switch (value) {
@@ -2616,7 +2616,7 @@ std::string ToString(const D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RENDER_PASS_ENDING_ACCESS_TYPE& value)
+std::string ToString(const D3D12_RENDER_PASS_ENDING_ACCESS_TYPE value)
 {
     const char* ret = "Unhandled D3D12_RENDER_PASS_ENDING_ACCESS_TYPE";
     switch (value) {
@@ -2631,7 +2631,7 @@ std::string ToString(const D3D12_RENDER_PASS_ENDING_ACCESS_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_RENDER_PASS_FLAGS& value)
+std::string ToString(const D3D12_RENDER_PASS_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RENDER_PASS_FLAGS";
     switch (value) {
@@ -2645,12 +2645,12 @@ std::string ToString(const D3D12_RENDER_PASS_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_RENDER_PASS_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RENDER_PASS_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RENDER_PASS_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_SHADER_CACHE_MODE& value)
+std::string ToString(const D3D12_SHADER_CACHE_MODE value)
 {
     const char* ret = "Unhandled D3D12_SHADER_CACHE_MODE";
     switch (value) {
@@ -2660,7 +2660,7 @@ std::string ToString(const D3D12_SHADER_CACHE_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_SHADER_CACHE_FLAGS& value)
+std::string ToString(const D3D12_SHADER_CACHE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_SHADER_CACHE_FLAGS";
     switch (value) {
@@ -2671,12 +2671,12 @@ std::string ToString(const D3D12_SHADER_CACHE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_SHADER_CACHE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_SHADER_CACHE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_SHADER_CACHE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_BARRIER_LAYOUT& value)
+std::string ToString(const D3D12_BARRIER_LAYOUT value)
 {
     const char* ret = "Unhandled D3D12_BARRIER_LAYOUT";
     switch (value) {
@@ -2716,7 +2716,7 @@ std::string ToString(const D3D12_BARRIER_LAYOUT& value)
     return ret;
 }
 
-std::string ToString(const D3D12_BARRIER_SYNC& value)
+std::string ToString(const D3D12_BARRIER_SYNC value)
 {
     const char* ret = "Unhandled D3D12_BARRIER_SYNC";
     switch (value) {
@@ -2747,7 +2747,7 @@ std::string ToString(const D3D12_BARRIER_SYNC& value)
     return ret;
 }
 
-std::string ToString(const D3D12_BARRIER_ACCESS& value)
+std::string ToString(const D3D12_BARRIER_ACCESS value)
 {
     const char* ret = "Unhandled D3D12_BARRIER_ACCESS";
     switch (value) {
@@ -2780,7 +2780,7 @@ std::string ToString(const D3D12_BARRIER_ACCESS& value)
     return ret;
 }
 
-std::string ToString(const D3D12_BARRIER_TYPE& value)
+std::string ToString(const D3D12_BARRIER_TYPE value)
 {
     const char* ret = "Unhandled D3D12_BARRIER_TYPE";
     switch (value) {
@@ -2791,7 +2791,7 @@ std::string ToString(const D3D12_BARRIER_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_TEXTURE_BARRIER_FLAGS& value)
+std::string ToString(const D3D12_TEXTURE_BARRIER_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_TEXTURE_BARRIER_FLAGS";
     switch (value) {
@@ -2801,12 +2801,12 @@ std::string ToString(const D3D12_TEXTURE_BARRIER_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_TEXTURE_BARRIER_FLAGS(uint32_t flags)
+std::string ToString_D3D12_TEXTURE_BARRIER_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_TEXTURE_BARRIER_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_SHADER_CACHE_KIND_FLAGS& value)
+std::string ToString(const D3D12_SHADER_CACHE_KIND_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_SHADER_CACHE_KIND_FLAGS";
     switch (value) {
@@ -2818,12 +2818,12 @@ std::string ToString(const D3D12_SHADER_CACHE_KIND_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_SHADER_CACHE_KIND_FLAGS(uint32_t flags)
+std::string ToString_D3D12_SHADER_CACHE_KIND_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_SHADER_CACHE_KIND_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_SHADER_CACHE_CONTROL_FLAGS& value)
+std::string ToString(const D3D12_SHADER_CACHE_CONTROL_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_SHADER_CACHE_CONTROL_FLAGS";
     switch (value) {
@@ -2834,12 +2834,12 @@ std::string ToString(const D3D12_SHADER_CACHE_CONTROL_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_SHADER_CACHE_CONTROL_FLAGS(uint32_t flags)
+std::string ToString_D3D12_SHADER_CACHE_CONTROL_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_SHADER_CACHE_CONTROL_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_DEVICE_FACTORY_FLAGS& value)
+std::string ToString(const D3D12_DEVICE_FACTORY_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_DEVICE_FACTORY_FLAGS";
     switch (value) {
@@ -2851,12 +2851,12 @@ std::string ToString(const D3D12_DEVICE_FACTORY_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_DEVICE_FACTORY_FLAGS(uint32_t flags)
+std::string ToString_D3D12_DEVICE_FACTORY_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_DEVICE_FACTORY_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_DEVICE_FLAGS& value)
+std::string ToString(const D3D12_DEVICE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_DEVICE_FLAGS";
     switch (value) {
@@ -2876,12 +2876,12 @@ std::string ToString(const D3D12_DEVICE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_DEVICE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_DEVICE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_DEVICE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_AXIS_SHADING_RATE& value)
+std::string ToString(const D3D12_AXIS_SHADING_RATE value)
 {
     const char* ret = "Unhandled D3D12_AXIS_SHADING_RATE";
     switch (value) {
@@ -2892,7 +2892,7 @@ std::string ToString(const D3D12_AXIS_SHADING_RATE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_SHADING_RATE& value)
+std::string ToString(const D3D12_SHADING_RATE value)
 {
     const char* ret = "Unhandled D3D12_SHADING_RATE";
     switch (value) {
@@ -2907,7 +2907,7 @@ std::string ToString(const D3D12_SHADING_RATE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_SHADING_RATE_COMBINER& value)
+std::string ToString(const D3D12_SHADING_RATE_COMBINER value)
 {
     const char* ret = "Unhandled D3D12_SHADING_RATE_COMBINER";
     switch (value) {
@@ -2920,7 +2920,7 @@ std::string ToString(const D3D12_SHADING_RATE_COMBINER& value)
     return ret;
 }
 
-std::string ToString(const D3D_DRIVER_TYPE& value)
+std::string ToString(const D3D_DRIVER_TYPE value)
 {
     const char* ret = "Unhandled D3D_DRIVER_TYPE";
     switch (value) {
@@ -2934,7 +2934,7 @@ std::string ToString(const D3D_DRIVER_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D_FEATURE_LEVEL& value)
+std::string ToString(const D3D_FEATURE_LEVEL value)
 {
     const char* ret = "Unhandled D3D_FEATURE_LEVEL";
     switch (value) {
@@ -2953,7 +2953,7 @@ std::string ToString(const D3D_FEATURE_LEVEL& value)
     return ret;
 }
 
-std::string ToString(const D3D_PRIMITIVE_TOPOLOGY& value)
+std::string ToString(const D3D_PRIMITIVE_TOPOLOGY value)
 {
     const char* ret = "Unhandled D3D_PRIMITIVE_TOPOLOGY";
     switch (value) {
@@ -3004,7 +3004,7 @@ std::string ToString(const D3D_PRIMITIVE_TOPOLOGY& value)
     return ret;
 }
 
-std::string ToString(const D3D_PRIMITIVE& value)
+std::string ToString(const D3D_PRIMITIVE value)
 {
     const char* ret = "Unhandled D3D_PRIMITIVE";
     switch (value) {
@@ -3050,7 +3050,7 @@ std::string ToString(const D3D_PRIMITIVE& value)
     return ret;
 }
 
-std::string ToString(const D3D_SRV_DIMENSION& value)
+std::string ToString(const D3D_SRV_DIMENSION value)
 {
     const char* ret = "Unhandled D3D_SRV_DIMENSION";
     switch (value) {
@@ -3070,7 +3070,7 @@ std::string ToString(const D3D_SRV_DIMENSION& value)
     return ret;
 }
 
-std::string ToString(const D3D_INCLUDE_TYPE& value)
+std::string ToString(const D3D_INCLUDE_TYPE value)
 {
     const char* ret = "Unhandled D3D_INCLUDE_TYPE";
     switch (value) {
@@ -3081,7 +3081,7 @@ std::string ToString(const D3D_INCLUDE_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D_SHADER_VARIABLE_CLASS& value)
+std::string ToString(const D3D_SHADER_VARIABLE_CLASS value)
 {
     const char* ret = "Unhandled D3D_SHADER_VARIABLE_CLASS";
     switch (value) {
@@ -3098,7 +3098,7 @@ std::string ToString(const D3D_SHADER_VARIABLE_CLASS& value)
     return ret;
 }
 
-std::string ToString(const D3D_SHADER_VARIABLE_FLAGS& value)
+std::string ToString(const D3D_SHADER_VARIABLE_FLAGS value)
 {
     const char* ret = "Unhandled D3D_SHADER_VARIABLE_FLAGS";
     switch (value) {
@@ -3111,12 +3111,12 @@ std::string ToString(const D3D_SHADER_VARIABLE_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D_SHADER_VARIABLE_FLAGS(uint32_t flags)
+std::string ToString_D3D_SHADER_VARIABLE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D_SHADER_VARIABLE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D_SHADER_VARIABLE_TYPE& value)
+std::string ToString(const D3D_SHADER_VARIABLE_TYPE value)
 {
     const char* ret = "Unhandled D3D_SHADER_VARIABLE_TYPE";
     switch (value) {
@@ -3188,7 +3188,7 @@ std::string ToString(const D3D_SHADER_VARIABLE_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D_SHADER_INPUT_FLAGS& value)
+std::string ToString(const D3D_SHADER_INPUT_FLAGS value)
 {
     const char* ret = "Unhandled D3D_SHADER_INPUT_FLAGS";
     switch (value) {
@@ -3203,12 +3203,12 @@ std::string ToString(const D3D_SHADER_INPUT_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D_SHADER_INPUT_FLAGS(uint32_t flags)
+std::string ToString_D3D_SHADER_INPUT_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D_SHADER_INPUT_FLAGS>(flags);
 }
 
-std::string ToString(const D3D_SHADER_INPUT_TYPE& value)
+std::string ToString(const D3D_SHADER_INPUT_TYPE value)
 {
     const char* ret = "Unhandled D3D_SHADER_INPUT_TYPE";
     switch (value) {
@@ -3230,7 +3230,7 @@ std::string ToString(const D3D_SHADER_INPUT_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D_SHADER_CBUFFER_FLAGS& value)
+std::string ToString(const D3D_SHADER_CBUFFER_FLAGS value)
 {
     const char* ret = "Unhandled D3D_SHADER_CBUFFER_FLAGS";
     switch (value) {
@@ -3240,12 +3240,12 @@ std::string ToString(const D3D_SHADER_CBUFFER_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D_SHADER_CBUFFER_FLAGS(uint32_t flags)
+std::string ToString_D3D_SHADER_CBUFFER_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D_SHADER_CBUFFER_FLAGS>(flags);
 }
 
-std::string ToString(const D3D_CBUFFER_TYPE& value)
+std::string ToString(const D3D_CBUFFER_TYPE value)
 {
     const char* ret = "Unhandled D3D_CBUFFER_TYPE";
     switch (value) {
@@ -3257,7 +3257,7 @@ std::string ToString(const D3D_CBUFFER_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D_NAME& value)
+std::string ToString(const D3D_NAME value)
 {
     const char* ret = "Unhandled D3D_NAME";
     switch (value) {
@@ -3292,7 +3292,7 @@ std::string ToString(const D3D_NAME& value)
     return ret;
 }
 
-std::string ToString(const D3D_RESOURCE_RETURN_TYPE& value)
+std::string ToString(const D3D_RESOURCE_RETURN_TYPE value)
 {
     const char* ret = "Unhandled D3D_RESOURCE_RETURN_TYPE";
     switch (value) {
@@ -3308,7 +3308,7 @@ std::string ToString(const D3D_RESOURCE_RETURN_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D_REGISTER_COMPONENT_TYPE& value)
+std::string ToString(const D3D_REGISTER_COMPONENT_TYPE value)
 {
     const char* ret = "Unhandled D3D_REGISTER_COMPONENT_TYPE";
     switch (value) {
@@ -3320,7 +3320,7 @@ std::string ToString(const D3D_REGISTER_COMPONENT_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D_TESSELLATOR_DOMAIN& value)
+std::string ToString(const D3D_TESSELLATOR_DOMAIN value)
 {
     const char* ret = "Unhandled D3D_TESSELLATOR_DOMAIN";
     switch (value) {
@@ -3332,7 +3332,7 @@ std::string ToString(const D3D_TESSELLATOR_DOMAIN& value)
     return ret;
 }
 
-std::string ToString(const D3D_TESSELLATOR_PARTITIONING& value)
+std::string ToString(const D3D_TESSELLATOR_PARTITIONING value)
 {
     const char* ret = "Unhandled D3D_TESSELLATOR_PARTITIONING";
     switch (value) {
@@ -3345,7 +3345,7 @@ std::string ToString(const D3D_TESSELLATOR_PARTITIONING& value)
     return ret;
 }
 
-std::string ToString(const D3D_TESSELLATOR_OUTPUT_PRIMITIVE& value)
+std::string ToString(const D3D_TESSELLATOR_OUTPUT_PRIMITIVE value)
 {
     const char* ret = "Unhandled D3D_TESSELLATOR_OUTPUT_PRIMITIVE";
     switch (value) {
@@ -3358,7 +3358,7 @@ std::string ToString(const D3D_TESSELLATOR_OUTPUT_PRIMITIVE& value)
     return ret;
 }
 
-std::string ToString(const D3D_MIN_PRECISION& value)
+std::string ToString(const D3D_MIN_PRECISION value)
 {
     const char* ret = "Unhandled D3D_MIN_PRECISION";
     switch (value) {
@@ -3374,7 +3374,7 @@ std::string ToString(const D3D_MIN_PRECISION& value)
     return ret;
 }
 
-std::string ToString(const D3D_INTERPOLATION_MODE& value)
+std::string ToString(const D3D_INTERPOLATION_MODE value)
 {
     const char* ret = "Unhandled D3D_INTERPOLATION_MODE";
     switch (value) {
@@ -3390,7 +3390,7 @@ std::string ToString(const D3D_INTERPOLATION_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D_PARAMETER_FLAGS& value)
+std::string ToString(const D3D_PARAMETER_FLAGS value)
 {
     const char* ret = "Unhandled D3D_PARAMETER_FLAGS";
     switch (value) {
@@ -3402,12 +3402,12 @@ std::string ToString(const D3D_PARAMETER_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D_PARAMETER_FLAGS(uint32_t flags)
+std::string ToString_D3D_PARAMETER_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D_PARAMETER_FLAGS>(flags);
 }
 
-std::string ToString(const D3D_FORMAT_LAYOUT& value)
+std::string ToString(const D3D_FORMAT_LAYOUT value)
 {
     const char* ret = "Unhandled D3D_FORMAT_LAYOUT";
     switch (value) {
@@ -3417,7 +3417,7 @@ std::string ToString(const D3D_FORMAT_LAYOUT& value)
     return ret;
 }
 
-std::string ToString(const D3D_FORMAT_TYPE_LEVEL& value)
+std::string ToString(const D3D_FORMAT_TYPE_LEVEL value)
 {
     const char* ret = "Unhandled D3D_FORMAT_TYPE_LEVEL";
     switch (value) {
@@ -3428,7 +3428,7 @@ std::string ToString(const D3D_FORMAT_TYPE_LEVEL& value)
     return ret;
 }
 
-std::string ToString(const D3D_FORMAT_COMPONENT_NAME& value)
+std::string ToString(const D3D_FORMAT_COMPONENT_NAME value)
 {
     const char* ret = "Unhandled D3D_FORMAT_COMPONENT_NAME";
     switch (value) {
@@ -3443,7 +3443,7 @@ std::string ToString(const D3D_FORMAT_COMPONENT_NAME& value)
     return ret;
 }
 
-std::string ToString(const D3D_FORMAT_COMPONENT_INTERPRETATION& value)
+std::string ToString(const D3D_FORMAT_COMPONENT_INTERPRETATION value)
 {
     const char* ret = "Unhandled D3D_FORMAT_COMPONENT_INTERPRETATION";
     switch (value) {
@@ -3459,7 +3459,7 @@ std::string ToString(const D3D_FORMAT_COMPONENT_INTERPRETATION& value)
     return ret;
 }
 
-std::string ToString(const D3D12_GPU_BASED_VALIDATION_FLAGS& value)
+std::string ToString(const D3D12_GPU_BASED_VALIDATION_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_GPU_BASED_VALIDATION_FLAGS";
     switch (value) {
@@ -3469,12 +3469,12 @@ std::string ToString(const D3D12_GPU_BASED_VALIDATION_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_GPU_BASED_VALIDATION_FLAGS(uint32_t flags)
+std::string ToString_D3D12_GPU_BASED_VALIDATION_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_GPU_BASED_VALIDATION_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_RLDO_FLAGS& value)
+std::string ToString(const D3D12_RLDO_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_RLDO_FLAGS";
     switch (value) {
@@ -3486,12 +3486,12 @@ std::string ToString(const D3D12_RLDO_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_RLDO_FLAGS(uint32_t flags)
+std::string ToString_D3D12_RLDO_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_RLDO_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_DEBUG_DEVICE_PARAMETER_TYPE& value)
+std::string ToString(const D3D12_DEBUG_DEVICE_PARAMETER_TYPE value)
 {
     const char* ret = "Unhandled D3D12_DEBUG_DEVICE_PARAMETER_TYPE";
     switch (value) {
@@ -3502,7 +3502,7 @@ std::string ToString(const D3D12_DEBUG_DEVICE_PARAMETER_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_DEBUG_FEATURE& value)
+std::string ToString(const D3D12_DEBUG_FEATURE value)
 {
     const char* ret = "Unhandled D3D12_DEBUG_FEATURE";
     switch (value) {
@@ -3515,7 +3515,7 @@ std::string ToString(const D3D12_DEBUG_FEATURE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_GPU_BASED_VALIDATION_SHADER_PATCH_MODE& value)
+std::string ToString(const D3D12_GPU_BASED_VALIDATION_SHADER_PATCH_MODE value)
 {
     const char* ret = "Unhandled D3D12_GPU_BASED_VALIDATION_SHADER_PATCH_MODE";
     switch (value) {
@@ -3528,7 +3528,7 @@ std::string ToString(const D3D12_GPU_BASED_VALIDATION_SHADER_PATCH_MODE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS& value)
+std::string ToString(const D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS";
     switch (value) {
@@ -3541,12 +3541,12 @@ std::string ToString(const D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAG
     return ret;
 }
 
-std::string ToString_D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS(uint32_t flags)
+std::string ToString_D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS>(flags);
 }
 
-std::string ToString(const D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE& value)
+std::string ToString(const D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE value)
 {
     const char* ret = "Unhandled D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE";
     switch (value) {
@@ -3555,7 +3555,7 @@ std::string ToString(const D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE& value)
     return ret;
 }
 
-std::string ToString(const D3D12_MESSAGE_CATEGORY& value)
+std::string ToString(const D3D12_MESSAGE_CATEGORY value)
 {
     const char* ret = "Unhandled D3D12_MESSAGE_CATEGORY";
     switch (value) {
@@ -3574,7 +3574,7 @@ std::string ToString(const D3D12_MESSAGE_CATEGORY& value)
     return ret;
 }
 
-std::string ToString(const D3D12_MESSAGE_SEVERITY& value)
+std::string ToString(const D3D12_MESSAGE_SEVERITY value)
 {
     const char* ret = "Unhandled D3D12_MESSAGE_SEVERITY";
     switch (value) {
@@ -3587,7 +3587,7 @@ std::string ToString(const D3D12_MESSAGE_SEVERITY& value)
     return ret;
 }
 
-std::string ToString(const D3D12_MESSAGE_ID& value)
+std::string ToString(const D3D12_MESSAGE_ID value)
 {
     const char* ret = "Unhandled D3D12_MESSAGE_ID";
     switch (value) {
@@ -4536,7 +4536,7 @@ std::string ToString(const D3D12_MESSAGE_ID& value)
     return ret;
 }
 
-std::string ToString(const D3D12_MESSAGE_CALLBACK_FLAGS& value)
+std::string ToString(const D3D12_MESSAGE_CALLBACK_FLAGS value)
 {
     const char* ret = "Unhandled D3D12_MESSAGE_CALLBACK_FLAGS";
     switch (value) {
@@ -4546,7 +4546,7 @@ std::string ToString(const D3D12_MESSAGE_CALLBACK_FLAGS& value)
     return ret;
 }
 
-std::string ToString_D3D12_MESSAGE_CALLBACK_FLAGS(uint32_t flags)
+std::string ToString_D3D12_MESSAGE_CALLBACK_FLAGS(const uint32_t flags)
 {
     return BitmaskToString<D3D12_MESSAGE_CALLBACK_FLAGS>(flags);
 }

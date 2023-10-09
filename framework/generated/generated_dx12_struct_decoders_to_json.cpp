@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to
@@ -809,6 +809,47 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RASTERIZER_D
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RASTERIZER_DESC1* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_RASTERIZER_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RASTERIZER_DESC1& meta_struct = *data;
+        ; ///< @todo Generate for FillMode[None]: D3D12_FILL_MODE [is_enum]
+        ; ///< @todo Generate for CullMode[None]: D3D12_CULL_MODE [is_enum]
+        FieldToJson(jdata["FrontCounterClockwise"], decoded_value.FrontCounterClockwise, options); // base case
+        FieldToJson(jdata["DepthBias"], decoded_value.DepthBias, options); // base case
+        FieldToJson(jdata["DepthBiasClamp"], decoded_value.DepthBiasClamp, options); // base case
+        FieldToJson(jdata["SlopeScaledDepthBias"], decoded_value.SlopeScaledDepthBias, options); // base case
+        FieldToJson(jdata["DepthClipEnable"], decoded_value.DepthClipEnable, options); // base case
+        FieldToJson(jdata["MultisampleEnable"], decoded_value.MultisampleEnable, options); // base case
+        FieldToJson(jdata["AntialiasedLineEnable"], decoded_value.AntialiasedLineEnable, options); // base case
+        FieldToJson(jdata["ForcedSampleCount"], decoded_value.ForcedSampleCount, options); // base case
+        ; ///< @todo Generate for ConservativeRaster[None]: D3D12_CONSERVATIVE_RASTERIZATION_MODE [is_enum]
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RASTERIZER_DESC2* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_RASTERIZER_DESC2& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RASTERIZER_DESC2& meta_struct = *data;
+        ; ///< @todo Generate for FillMode[None]: D3D12_FILL_MODE [is_enum]
+        ; ///< @todo Generate for CullMode[None]: D3D12_CULL_MODE [is_enum]
+        FieldToJson(jdata["FrontCounterClockwise"], decoded_value.FrontCounterClockwise, options); // base case
+        FieldToJson(jdata["DepthBias"], decoded_value.DepthBias, options); // base case
+        FieldToJson(jdata["DepthBiasClamp"], decoded_value.DepthBiasClamp, options); // base case
+        FieldToJson(jdata["SlopeScaledDepthBias"], decoded_value.SlopeScaledDepthBias, options); // base case
+        FieldToJson(jdata["DepthClipEnable"], decoded_value.DepthClipEnable, options); // base case
+        ; ///< @todo Generate for LineRasterizationMode[None]: D3D12_LINE_RASTERIZATION_MODE [is_enum]
+        FieldToJson(jdata["ForcedSampleCount"], decoded_value.ForcedSampleCount, options); // base case
+        ; ///< @todo Generate for ConservativeRaster[None]: D3D12_CONSERVATIVE_RASTERIZATION_MODE [is_enum]
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SHADER_BYTECODE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1341,6 +1382,61 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS15& meta_struct = *data;
         FieldToJson(jdata["TriangleFanSupported"], decoded_value.TriangleFanSupported, options); // base case
         FieldToJson(jdata["DynamicIndexBufferStripCutSupported"], decoded_value.DynamicIndexBufferStripCutSupported, options); // base case
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS16* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_D3D12_OPTIONS16& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS16& meta_struct = *data;
+        FieldToJson(jdata["DynamicDepthBiasSupported"], decoded_value.DynamicDepthBiasSupported, options); // base case
+        FieldToJson(jdata["GPUUploadHeapSupported"], decoded_value.GPUUploadHeapSupported, options); // base case
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS17* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_D3D12_OPTIONS17& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS17& meta_struct = *data;
+        FieldToJson(jdata["NonNormalizedCoordinateSamplersSupported"], decoded_value.NonNormalizedCoordinateSamplersSupported, options); // base case
+        FieldToJson(jdata["ManualWriteTrackingResourceSupported"], decoded_value.ManualWriteTrackingResourceSupported, options); // base case
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS18* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_D3D12_OPTIONS18& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS18& meta_struct = *data;
+        FieldToJson(jdata["RenderPassesValid"], decoded_value.RenderPassesValid, options); // base case
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS19* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_D3D12_OPTIONS19& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS19& meta_struct = *data;
+        FieldToJson(jdata["MismatchingOutputDimensionsSupported"], decoded_value.MismatchingOutputDimensionsSupported, options); // base case
+        FieldToJson(jdata["SupportedSampleCountsWithNoOutputs"], decoded_value.SupportedSampleCountsWithNoOutputs, options); // base case
+        FieldToJson(jdata["PointSamplingAddressesNeverRoundUp"], decoded_value.PointSamplingAddressesNeverRoundUp, options); // base case
+        FieldToJson(jdata["RasterizerDesc2Supported"], decoded_value.RasterizerDesc2Supported, options); // base case
+        FieldToJson(jdata["NarrowQuadrilateralLinesSupported"], decoded_value.NarrowQuadrilateralLinesSupported, options); // base case
+        FieldToJson(jdata["AnisoFilterWithPointMipSupported"], decoded_value.AnisoFilterWithPointMipSupported, options); // base case
+        FieldToJson(jdata["MaxSamplerDescriptorHeapSize"], decoded_value.MaxSamplerDescriptorHeapSize, options); // base case
+        FieldToJson(jdata["MaxSamplerDescriptorHeapSizeWithStaticSamplers"], decoded_value.MaxSamplerDescriptorHeapSizeWithStaticSamplers, options); // base case
+        FieldToJson(jdata["MaxViewDescriptorHeapSize"], decoded_value.MaxViewDescriptorHeapSize, options); // base case
+        FieldToJson(jdata["ComputeOnlyCustomHeapSupported"], decoded_value.ComputeOnlyCustomHeapSupported, options); // base case
         /// @todo Follow the pNext chain, if any.
     }
 }
@@ -2223,6 +2319,30 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATIC_SAMPL
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATIC_SAMPLER_DESC1* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_STATIC_SAMPLER_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_STATIC_SAMPLER_DESC1& meta_struct = *data;
+        ; ///< @todo Generate for Filter[None]: D3D12_FILTER [is_enum]
+        ; ///< @todo Generate for AddressU[None]: D3D12_TEXTURE_ADDRESS_MODE [is_enum]
+        ; ///< @todo Generate for AddressV[None]: D3D12_TEXTURE_ADDRESS_MODE [is_enum]
+        ; ///< @todo Generate for AddressW[None]: D3D12_TEXTURE_ADDRESS_MODE [is_enum]
+        FieldToJson(jdata["MipLODBias"], decoded_value.MipLODBias, options); // base case
+        FieldToJson(jdata["MaxAnisotropy"], decoded_value.MaxAnisotropy, options); // base case
+        ; ///< @todo Generate for ComparisonFunc[None]: D3D12_COMPARISON_FUNC [is_enum]
+        ; ///< @todo Generate for BorderColor[None]: D3D12_STATIC_BORDER_COLOR [is_enum]
+        FieldToJson(jdata["MinLOD"], decoded_value.MinLOD, options); // base case
+        FieldToJson(jdata["MaxLOD"], decoded_value.MaxLOD, options); // base case
+        FieldToJson(jdata["ShaderRegister"], decoded_value.ShaderRegister, options); // base case
+        FieldToJson(jdata["RegisterSpace"], decoded_value.RegisterSpace, options); // base case
+        ; ///< @todo Generate for ShaderVisibility[None]: D3D12_SHADER_VISIBILITY [is_enum]
+        ; ///< @todo Generate for Flags[None]: D3D12_SAMPLER_FLAGS [is_enum]
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_SIGNATURE_DESC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2289,6 +2409,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_SIGNATU
         ; ///< @todo Generate for pParameters[NumParameters]: D3D12_ROOT_PARAMETER1 [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["NumStaticSamplers"], decoded_value.NumStaticSamplers, options); // base case
         ; ///< @todo Generate for pStaticSamplers[NumStaticSamplers]: D3D12_STATIC_SAMPLER_DESC [is_pointer] [is_array] [is_struct]
+        ; ///< @todo Generate for Flags[None]: D3D12_ROOT_SIGNATURE_FLAGS [is_enum]
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_SIGNATURE_DESC2* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_ROOT_SIGNATURE_DESC2& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_ROOT_SIGNATURE_DESC2& meta_struct = *data;
+        FieldToJson(jdata["NumParameters"], decoded_value.NumParameters, options); // base case
+        ; ///< @todo Generate for pParameters[NumParameters]: D3D12_ROOT_PARAMETER1 [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["NumStaticSamplers"], decoded_value.NumStaticSamplers, options); // base case
+        ; ///< @todo Generate for pStaticSamplers[NumStaticSamplers]: D3D12_STATIC_SAMPLER_DESC1 [is_pointer] [is_array] [is_struct]
         ; ///< @todo Generate for Flags[None]: D3D12_ROOT_SIGNATURE_FLAGS [is_enum]
         /// @todo Follow the pNext chain, if any.
     }
@@ -3121,6 +3256,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS& meta_struct = *data;
+        FieldToJson(jdata["AdditionalWidth"], decoded_value.AdditionalWidth, options); // base case
+        FieldToJson(jdata["AdditionalHeight"], decoded_value.AdditionalHeight, options); // base case
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3149,6 +3296,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
         ; ///< @todo Generate for Format[None]: DXGI_FORMAT [is_enum]
         ; ///< @todo Generate for ResolveMode[None]: D3D12_RESOLVE_MODE [is_enum]
         FieldToJson(jdata["PreserveResolveSource"], decoded_value.PreserveResolveSource, options); // base case
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS& meta_struct = *data;
+        FieldToJson(jdata["AdditionalWidth"], decoded_value.AdditionalWidth, options); // base case
+        FieldToJson(jdata["AdditionalHeight"], decoded_value.AdditionalHeight, options); // base case
         /// @todo Follow the pNext chain, if any.
     }
 }
