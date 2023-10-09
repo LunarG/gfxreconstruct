@@ -60,7 +60,8 @@ class DeviceSelectionException(Exception):
     pass
 
 def QueryAvailableDevices():
-    devices = subprocess.getoutput(adb_devices).splitlines()[1:]
+    result = subprocess.run(shlex.split(adb_devices, posix='win' not in sys.platform), capture_output=True, check=True)
+    devices = result.stdout.decode().strip().splitlines()[1:]
     return [device.split('\t')[0] for device in devices]
 
 def CheckDeviceSelection():
