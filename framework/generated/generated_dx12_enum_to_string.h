@@ -99,6 +99,7 @@ std::string ToString(const D3D12_BLEND_OP& value);
 std::string ToString(const D3D12_COLOR_WRITE_ENABLE& value);
 std::string ToString(const D3D12_LOGIC_OP& value);
 std::string ToString(const D3D12_CONSERVATIVE_RASTERIZATION_MODE& value);
+std::string ToString(const D3D12_LINE_RASTERIZATION_MODE& value);
 std::string ToString(const D3D12_INDEX_BUFFER_STRIP_CUT_VALUE& value);
 std::string ToString(const D3D12_PIPELINE_STATE_FLAGS& value);
 std::string ToString_D3D12_PIPELINE_STATE_FLAGS(uint32_t flags);

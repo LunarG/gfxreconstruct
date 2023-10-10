@@ -508,6 +508,12 @@ struct ID3D12DeviceFactoryInfo : public DxWrapperInfo
 struct ID3D12DeviceConfigurationInfo : public DxWrapperInfo
 {};
 
+struct ID3D12DSRDeviceFactoryInfo : public DxWrapperInfo
+{};
+
+struct ID3D12ManualWriteTrackingResourceInfo : public DxWrapperInfo
+{};
+
 struct AgsContextInfo : public DxWrapperInfo
 {};
 

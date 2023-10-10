@@ -7451,6 +7451,62 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList8_OMSetFrontAndBackSte
     }
 }
 
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList9_RSSetDepthBias(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    FLOAT                                       DepthBias,
+    FLOAT                                       DepthBiasClamp,
+    FLOAT                                       SlopeScaledDepthBias)
+{
+    auto replay_object = MapObject<ID3D12GraphicsCommandList9>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->RSSetDepthBias(DepthBias,
+                                      DepthBiasClamp,
+                                      SlopeScaledDepthBias);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    D3D12_INDEX_BUFFER_STRIP_CUT_VALUE          IBStripCutValue)
+{
+    auto replay_object = MapObject<ID3D12GraphicsCommandList9>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->IASetIndexBufferStripCutValue(IBStripCutValue);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pD3D12Device,
+    UINT                                        NodeMask,
+    Decoded_GUID                                riid,
+    HandlePointerDecoder<void*>*                ppvDSRDevice)
+{
+    auto replay_object = MapObject<ID3D12DSRDeviceFactory>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pD3D12Device = MapObject<ID3D12Device>(pD3D12Device);
+        if(!ppvDSRDevice->IsNull()) ppvDSRDevice->SetHandleLength(1);
+        auto out_p_ppvDSRDevice    = ppvDSRDevice->GetPointer();
+        auto out_hp_ppvDSRDevice   = ppvDSRDevice->GetHandlePointer();
+        auto replay_result = replay_object->CreateDSRDevice(in_pD3D12Device,
+                                                            NodeMask,
+                                                            *riid.decoded_value,
+                                                            out_hp_ppvDSRDevice);
+        if (SUCCEEDED(replay_result))
+        {
+            AddObject(out_p_ppvDSRDevice, out_hp_ppvDSRDevice, format::ApiCall_ID3D12DSRDeviceFactory_CreateDSRDevice);
+        }
+        CheckReplayResult("ID3D12DSRDeviceFactory_CreateDSRDevice", return_value, replay_result);
+    }
+}
+
 void Dx12ReplayConsumer::Process_ID3D10Blob_GetBufferPointer(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,
@@ -8037,6 +8093,20 @@ void Dx12ReplayConsumer::Process_ID3D12SharingContract_EndCapturableWork(
     if (replay_object != nullptr)
     {
         replay_object->EndCapturableWork(*guid.decoded_value);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12ManualWriteTrackingResource_TrackWrite(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    UINT                                        Subresource,
+    StructPointerDecoder<Decoded_D3D12_RANGE>*  pWrittenRange)
+{
+    auto replay_object = MapObject<ID3D12ManualWriteTrackingResource>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->TrackWrite(Subresource,
+                                  pWrittenRange->GetPointer());
     }
 }
 
