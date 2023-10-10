@@ -371,7 +371,7 @@ def Replay(replay_args):
 
         print('Executing:', adb_stop)
         subprocess.check_call(shlex.split(adb_stop, posix='win' not in sys.platform))
-        
+
         cmd = ' '.join([adb_start, '--es', '"args"', '"{}"'.format(extras)])
         if selection is not None:
             cmd = InsertDeviceSelectionArgument(cmd, selection)
