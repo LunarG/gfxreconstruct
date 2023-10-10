@@ -4551,7 +4551,6 @@ std::string ToString_D3D12_MESSAGE_CALLBACK_FLAGS(const uint32_t flags)
     return BitmaskToString<D3D12_MESSAGE_CALLBACK_FLAGS>(flags);
 }
 
-template <> std::string ToString<IID>(const IID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize) { return ToString(obj); }
 std::string ToString(const IID& iid)
 {
     if (iid == IID_IDXGIObject) return "\"IID_IDXGIObject\"";

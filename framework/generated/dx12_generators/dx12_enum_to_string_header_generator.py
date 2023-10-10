@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Valve Corporation
+# Copyright (c) 2021, 2023 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -20,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import sys
+import sys, inspect
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
 
@@ -70,19 +71,27 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
 
         # Generate REFIID handler
         body = 'std::string ToString(const IID& riid);'
-        body += '\ntemplate <> std::string ToString<IID>(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+        body += '\ninline std::string ToString(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize){ return ToString(obj); }'
         write(body, file=self.outFile)
 
     def write_include(self):
-        code = ''
-        header_dict = self.source_dict['header_dict']
-        for k, v in header_dict.items():
-            code += '#include <{}>\n'.format(k)
-
-        code += '#include "format/platform_types.h"\n'
-        code += '#include "util/defines.h"\n'
-        code += '#include "util/to_string.h"\n'
+        # We don't need everything in self.source_dict['header_dict']:
+        code = inspect.cleandoc('''
+            #include <dxgi.h>
+            #include <dxgi1_2.h>
+            #include <dxgi1_3.h>
+            #include <dxgi1_4.h>
+            #include <dxgi1_5.h>
+            #include <dxgi1_6.h>
+            #include <d3d12.h>
+            #include "util/defines.h"
+            #include "util/to_string.h"
+            #include "format/platform_types.h"
+            #include "util/defines.h"
+            #include "util/to_string.h"
+        ''')
         write(code, file=self.outFile)
+        self.newline()
 
     def endFile(self):
         """Method override."""

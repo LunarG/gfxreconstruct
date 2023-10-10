@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Valve Corporation
+# Copyright (c) 2021, 2023 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -90,8 +91,7 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
                     if 'DEFINE_GUID' in m['type']:
                         index = m['type'].find(',')
                         iids.append(m['type'][len('DEFINE_GUID ( '):index])
-        body = 'template <> std::string ToString<IID>(const IID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize) { return ToString(obj); }\n'
-        body += 'std::string ToString(const IID& iid)\n'
+        body = 'std::string ToString(const IID& iid)\n'
         body += '{\n'
         if not "IID_IUnknown" in iids:
             iids.append("IID_IUnknown")

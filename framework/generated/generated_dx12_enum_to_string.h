@@ -34,16 +34,9 @@
 #include <dxgi1_4.h>
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
-#include <dxgicommon.h>
-#include <dxgiformat.h>
-#include <dxgitype.h>
 #include <d3d12.h>
-#include <d3dcommon.h>
-#include <d3d12sdklayers.h>
-#include <Unknwnbase.h>
-#include <guiddef.h>
-#include <windef.h>
-#include <minwinbase.h>
+#include "util/defines.h"
+#include "util/to_string.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
 #include "util/to_string.h"
@@ -329,7 +322,7 @@ std::string ToString(D3D12_MESSAGE_ID value);
 std::string ToString(D3D12_MESSAGE_CALLBACK_FLAGS value);
 std::string ToString_D3D12_MESSAGE_CALLBACK_FLAGS(uint32_t flags);
 std::string ToString(const IID& riid);
-template <> std::string ToString<IID>(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+inline std::string ToString(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize){ return ToString(obj); }
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
