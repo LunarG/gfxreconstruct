@@ -1755,7 +1755,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             VkMemoryPropertyFlags memory_properties = 0;
             if (memory_wrapper != nullptr)
             {
-                GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
+                memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
             }
 
             bool is_transitioned = (wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
