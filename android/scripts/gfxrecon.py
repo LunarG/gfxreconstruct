@@ -53,22 +53,26 @@ adb_stop = 'adb shell am force-stop {}'.format(app_name)
 adb_push = 'adb push'
 adb_devices = 'adb devices'
 
-# List of available devices
-devices = []
-device_selection_insertion_index = len('adb') + 1
-selection_flag = '-s'
+# Environment variable for android serial number
+android_serial = 'ANDROID_SERIAL'
 
 class DeviceSelectionException(Exception):
     pass
 
 def QueryAvailableDevices():
     devices = subprocess.getoutput(adb_devices).splitlines()[1:]
-    for i in range(len(devices)):
-        devices[i] = devices[i].split('\t')[0]
-    return devices
+    return [device.split('\t')[0] for device in devices]
 
-def InsertDeviceSelectionArgument(cmd, device):
-        return cmd[:device_selection_insertion_index] + f'{selection_flag} {device} ' + cmd[device_selection_insertion_index:]
+def CheckDeviceSelection():
+    devices = QueryAvailableDevices()
+    if len(devices) <= 1:
+        return
+    
+    selection = os.getenv(android_serial)
+    if selection is None or selection == '':
+        raise DeviceSelectionException('Multiple devices detected - you must specify which one to use by setting ANDROID_SERIAL environment variable.')
+    if selection not in devices:
+        raise DeviceSelectionException(f'Selected ({selection}) device not present. Available devices: {devices}')
 
 def CreateCommandParser():
     parser = argparse.ArgumentParser(description='GFXReconstruct utility launcher for Android.')
@@ -139,7 +143,6 @@ def CreateReplayParser():
     parser.add_argument('--load-pipeline-cache', metavar='DEVICE_FILE', help='If set, loads data created by the `--save-pipeline-cache` option in DEVICE_FILE and uses it to create the pipelines instead of the pipeline caches saved at capture time. (forwarded to replay tool)')
     parser.add_argument('--add-new-pipeline-caches', action='store_true', default=False, help='If set, allows gfxreconstruct to create new vkPipelineCache objects when it encounters a pipeline created without cache. This option can be used in coordination with `--save-pipeline-cache` and `--load-pipeline-cache`. (forwarded to replay tool)')
     parser.add_argument('--quit-after-frame', metavar='FRAME', help='Specify a frame after which replay will terminate.')
-    parser.add_argument('-s', '--select', metavar='DEVICE_ID', help='Specify the destination device id. Needed if multiple devices are attached.')
 
     return parser
 
@@ -344,17 +347,9 @@ def InstallApk(install_args):
     sdk = int(subprocess.check_output(shlex.split(adb_sdk_version)).decode())
     force_queryable = ' --force-queryable' if sdk >= 30 else ''
     cmd = adb_install + force_queryable + ' ' + args.file
-    
-    if len(devices) > 1:
-        selection = None
-        if args.select:
-            selection = args.select
-            if selection not in devices:
-                raise DeviceSelectionException('Selected device not present.')
-            cmd = InsertDeviceSelectionArgument(cmd, selection)
-        else:
-            raise DeviceSelectionException('Multiple devices detected - you must specify which one to use.')
-            
+
+    CheckDeviceSelection()
+
     print('Executing:', cmd)
     subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 
@@ -364,15 +359,7 @@ def Replay(replay_args):
 
     extras = MakeExtrasString(args)
 
-    selection = None
-    if len(devices) > 1:
-        if args.select:
-            selection = args.select
-            if selection not in devices:
-                raise DeviceSelectionException('Selected device not present.')
-        else:
-            raise DeviceSelectionException('Multiple devices detected - you must specify which one to use.')
-
+    CheckDeviceSelection()
 
     if extras:
         if args.push_file:
@@ -382,11 +369,8 @@ def Replay(replay_args):
             print('Executing:', cmd)
             subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 
-        cmd = adb_stop
-        if selection is not None:
-            cmd = InsertDeviceSelectionArgument(cmd, selection)
-        print('Executing:', cmd)
-        subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
+        print('Executing:', adb_stop)
+        subprocess.check_call(shlex.split(adb_stop, posix='win' not in sys.platform))
         
         cmd = ' '.join([adb_start, '--es', '"args"', '"{}"'.format(extras)])
         if selection is not None:
