@@ -1212,6 +1212,13 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12DebugCommandList3_AssertResourceAccess                                          = MakeApiCallId(ApiFamily_D3D12, 0x1143),
     ApiCall_ID3D12DebugCommandList3_AssertTextureLayout                                           = MakeApiCallId(ApiFamily_D3D12, 0x1144),
 
+    // Agility SDK 1.610.5
+    ApiCall_ID3D12Device12_GetResourceAllocationInfo3                                             = MakeApiCallId(ApiFamily_D3D12, 0x1145),
+    ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias                                             = MakeApiCallId(ApiFamily_D3D12, 0x1146),
+    ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue                              = MakeApiCallId(ApiFamily_D3D12, 0x1147),
+    ApiCall_ID3D12DSRDeviceFactory_CreateDSRDevice                                                = MakeApiCallId(ApiFamily_D3D12, 0x1148),
+    ApiCall_ID3D12ManualWriteTrackingResource_TrackWrite                                          = MakeApiCallId(ApiFamily_D3D12, 0x1149),
+
     // AGS API
     // amd_ags.h
     ApiCall_Ags_agsInitialize_6_0_1                                                               = MakeApiCallId(ApiFamily_AGS, 0x1000),

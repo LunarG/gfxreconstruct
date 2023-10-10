@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to
@@ -95,6 +96,36 @@ void Encode_ID3D12Resource_WriteToSubresource(ID3D12Resource_Wrapper* wrapper,
         encoder->EncodeUInt32Value(SrcRowPitch);
         encoder->EncodeUInt32Value(SrcDepthPitch);
         encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D12Device12_GetResourceAllocationInfo3(ID3D12Device12_Wrapper*          wrapper,
+                                                      D3D12_RESOURCE_ALLOCATION_INFO   return_value,
+                                                      UINT                             visibleMask,
+                                                      UINT                             numResourceDescs,
+                                                      const D3D12_RESOURCE_DESC1*      pResourceDescs,
+                                                      const UINT32*                    pNumCastableFormats,
+                                                      const DXGI_FORMAT* const*        ppCastableFormats,
+                                                      D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
+        format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3, wrapper->GetCaptureId());
+    if (encoder)
+    {
+        encoder->EncodeUInt32Value(visibleMask);
+        encoder->EncodeUInt32Value(numResourceDescs);
+        EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
+        encoder->EncodeUInt32Array(pNumCastableFormats, numResourceDescs);
+        for (UINT i = 0; i < numResourceDescs; i++)
+        {
+            if (ppCastableFormats[i] != nullptr)
+            {
+                encoder->EncodeEnumValue(*ppCastableFormats[i]);
+            }
+        }
+        EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }

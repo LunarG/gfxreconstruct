@@ -2883,6 +2883,27 @@ class Dx12Consumer : public Dx12ConsumerBase
         UINT FrontStencilRef,
         UINT BackStencilRef){}
 
+    virtual void Process_ID3D12GraphicsCommandList9_RSSetDepthBias(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        FLOAT DepthBias,
+        FLOAT DepthBiasClamp,
+        FLOAT SlopeScaledDepthBias){}
+
+    virtual void Process_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue){}
+
+    virtual void Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pD3D12Device,
+        UINT NodeMask,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDSRDevice){}
+
 /*
 ** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
 **
@@ -3139,6 +3160,12 @@ class Dx12Consumer : public Dx12ConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         Decoded_GUID guid){}
+
+    virtual void Process_ID3D12ManualWriteTrackingResource_TrackWrite(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT Subresource,
+        StructPointerDecoder<Decoded_D3D12_RANGE>* pWrittenRange){}
 
     virtual void Process_ID3D12InfoQueue_SetMessageCountLimit(
         const ApiCallInfo& call_info,

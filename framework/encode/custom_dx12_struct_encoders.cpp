@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -691,6 +692,18 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
             break;
         case D3D12_FEATURE_D3D12_OPTIONS15:
             EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS15*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS16:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS16*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS17:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS17*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS18:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS18*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS19:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS19*>(feature_data));
             break;
         case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPE_COUNT:
             EncodeStructPtr(encoder,

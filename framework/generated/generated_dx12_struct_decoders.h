@@ -517,6 +517,20 @@ struct Decoded_D3D12_RASTERIZER_DESC
     D3D12_RASTERIZER_DESC* decoded_value{ nullptr };
 };
 
+struct Decoded_D3D12_RASTERIZER_DESC1
+{
+    using struct_type = D3D12_RASTERIZER_DESC1;
+
+    D3D12_RASTERIZER_DESC1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_RASTERIZER_DESC2
+{
+    using struct_type = D3D12_RASTERIZER_DESC2;
+
+    D3D12_RASTERIZER_DESC2* decoded_value{ nullptr };
+};
+
 struct Decoded_D3D12_SHADER_BYTECODE
 {
     using struct_type = D3D12_SHADER_BYTECODE;
@@ -824,6 +838,34 @@ struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS15
     using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS15;
 
     D3D12_FEATURE_DATA_D3D12_OPTIONS15* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS16
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS16;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS16* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS17
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS17;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS17* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS18
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS18;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS18* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS19
+{
+    using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS19;
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS19* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_RESOURCE_ALLOCATION_INFO
@@ -1312,6 +1354,13 @@ struct Decoded_D3D12_STATIC_SAMPLER_DESC
     D3D12_STATIC_SAMPLER_DESC* decoded_value{ nullptr };
 };
 
+struct Decoded_D3D12_STATIC_SAMPLER_DESC1
+{
+    using struct_type = D3D12_STATIC_SAMPLER_DESC1;
+
+    D3D12_STATIC_SAMPLER_DESC1* decoded_value{ nullptr };
+};
+
 struct Decoded_D3D12_ROOT_SIGNATURE_DESC
 {
     using struct_type = D3D12_ROOT_SIGNATURE_DESC;
@@ -1353,6 +1402,16 @@ struct Decoded_D3D12_ROOT_SIGNATURE_DESC1
 
     StructPointerDecoder<Decoded_D3D12_ROOT_PARAMETER1>* pParameters{ nullptr };
     StructPointerDecoder<Decoded_D3D12_STATIC_SAMPLER_DESC>* pStaticSamplers{ nullptr };
+};
+
+struct Decoded_D3D12_ROOT_SIGNATURE_DESC2
+{
+    using struct_type = D3D12_ROOT_SIGNATURE_DESC2;
+
+    D3D12_ROOT_SIGNATURE_DESC2* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D12_ROOT_PARAMETER1>* pParameters{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_STATIC_SAMPLER_DESC1>* pStaticSamplers{ nullptr };
 };
 
 struct Decoded_D3D12_GPU_DESCRIPTOR_HANDLE
@@ -1915,6 +1974,13 @@ struct Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS
     Decoded_D3D12_CLEAR_VALUE* ClearValue{ nullptr };
 };
 
+struct Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS
+{
+    using struct_type = D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS;
+
+    D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS* decoded_value{ nullptr };
+};
+
 struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS
 {
     using struct_type = D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS;
@@ -1933,6 +1999,13 @@ struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS
     format::HandleId pSrcResource{ format::kNullHandleId };
     format::HandleId pDstResource{ format::kNullHandleId };
     StructPointerDecoder<Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS>* pSubresourceParameters{ nullptr };
+};
+
+struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS
+{
+    using struct_type = D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS;
+
+    D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC
