@@ -31,12 +31,15 @@ GFXRECON_BEGIN_NAMESPACE(format)
 
 /// @defgroup JSONFieldNames The names of fields used in the top-level structure
 /// of the JSON representation of capture files
-
 /// @{
 constexpr const char* kNameMeta{ "meta" };
 constexpr const char* kNameState{ "state" };
 constexpr const char* kNameFrame{ "frame" };
 constexpr const char* kNameFunction{ "function" };
+constexpr const char* kNameMethod{ "method" };
+constexpr const char* kNameObject{ "object" };
+constexpr const char* kNameObjectType{ "type" };
+constexpr const char* kNameObjectHandle{ "handle" };
 constexpr const char* kNameName{ "name" };
 constexpr const char* kNameIndex{ "index" };
 constexpr const char* kNameThread{ "thread" };

@@ -168,6 +168,27 @@ nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo& call_in
     return function;
 }
 
+nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo&     call_info,
+                                                      const std::string_view object_type,
+                                                      format::HandleId       object_id,
+                                                      const std::string_view command_name)
+{
+    using namespace util;
+    auto& json_data = WriteBlockStart();
+
+    json_data[format::kNameIndex] = call_info.index;
+
+    nlohmann::ordered_json& method = json_data[format::kNameMethod];
+    method[format::kNameName]      = command_name;
+    method[format::kNameThread]    = call_info.thread_id;
+
+    nlohmann::ordered_json& object  = method[format::kNameObject];
+    object[format::kNameObjectType] = object_type;
+    FieldToJson(object[format::kNameObjectHandle], object_id, GetOptions());
+
+    return method;
+}
+
 void JsonWriter::ProcessAnnotation(uint64_t               block_index,
                                    format::AnnotationType type,
                                    const std::string&     label,
