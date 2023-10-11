@@ -54,15 +54,14 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
         code = inspect.cleandoc('''
             #include "generated_dx12_struct_decoders_to_json.h"
             #include "generated_dx12_struct_decoders.h"
-            
+
             #include "util/json_util.h"
-            
+
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
-            
+
             using util::JsonOptions;
         ''')
-        #code += '#include "decode/custom_dx12_to_string.h"\n'
         write(code, file=self.outFile)
         self.newline()
 
@@ -97,19 +96,19 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
 
                 # @todo BOOL type?  FieldToJson(jdata["RectsCoalesced"], obj.RectsCoalesced ???
                 field_to_json = '        ; ///< @todo Generate for {0}[{1}]: ' + str(value.base_type)
-                if not (value.is_pointer or value.is_array or self.is_handle(value.base_type) or self.is_struct(value.base_type) or self.is_enum(value.base_type)):
-                    field_to_json = '        FieldToJson(jdata["{0}"], decoded_value.{0}, options); // base case'
-                else:
-                    if value.is_pointer:
-                        field_to_json += " [is_pointer]"
-                    if value.is_array:
-                            field_to_json += " [is_array]"
-                    if self.is_handle(value.base_type):
-                        field_to_json += " [is_handle]"
-                    elif self.is_struct(value.base_type):
-                        field_to_json += " [is_struct]"
-                    elif self.is_enum(value.base_type):
-                        field_to_json += " [is_enum]"
+                if not (value.is_pointer or value.is_array or self.is_handle(value.base_type) or self.is_struct(value.base_type)):
+                    field_to_json = '        FieldToJson(jdata["{0}"], decoded_value.{0}, options); //'
+
+                if value.is_pointer:
+                    field_to_json += " [is_pointer]"
+                if value.is_array:
+                        field_to_json += " [is_array]"
+                if self.is_handle(value.base_type):
+                    field_to_json += " [is_handle]"
+                elif self.is_struct(value.base_type):
+                    field_to_json += " [is_struct]"
+                elif self.is_enum(value.base_type):
+                    field_to_json += " [is_enum]"
                 field_to_json = field_to_json.format(value.name, value.array_length)
                 body += field_to_json + '\n'
         return body

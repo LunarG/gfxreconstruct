@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021-2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to
@@ -214,6 +214,10 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_LOGIC_OP valu
     FieldToJson(jdata, ToString(value), options);
 }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_CONSERVATIVE_RASTERIZATION_MODE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_LINE_RASTERIZATION_MODE value, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, ToString(value), options);
 }

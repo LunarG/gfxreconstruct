@@ -52,31 +52,32 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
         self.STRUCT_BLACKLIST.append('GUID') # Generated with the enums.
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
-        code = ''
-        code += inspect.cleandoc('''
+        code = inspect.cleandoc('''
             /// @file Functions to convert decoded structs to JSON.
-            /// Note these Decoded_StructX versions have the pointer tree
-            /// linking the structs set-up.
-        ''')
-        code += "\n\n"        
-        code += '#include "generated/generated_dx12_struct_decoders_forward.h"\n'
-        code += '#include "util/defines.h"\n'
-        code += '#include "nlohmann/json.hpp"\n'
-        write(code, file=self.outFile)
-        
+            /// Note these Decoded_StructX versions have the pointer tree linking the
+            /// structs set-up during decode, unlike the raw structs, which is why they
+            /// should be used when dumping a JSON representation while following the
+            /// pointers.
 
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
-        write('struct JsonOptions;', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+            #include "generated/generated_dx12_struct_decoders_forward.h"
+            #include "generated_dx12_enum_to_json.h"
+            #include "util/defines.h"
+            #include "nlohmann/json.hpp"
+
+            GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+            GFXRECON_BEGIN_NAMESPACE(util)
+            struct JsonOptions;
+            GFXRECON_END_NAMESPACE(util)
+            GFXRECON_BEGIN_NAMESPACE(decode)
+        ''')
+        write(code, file=self.outFile)
         self.newline()
 
     def generate_feature(self):
         struct_dict = self.source_dict['struct_dict']
         for k, v in struct_dict.items():
             if not self.is_struct_black_listed(k):
-                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}& obj, const util::JsonOptions& options);'.format(k)
+                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* pObj, const util::JsonOptions& options);'.format(k)
                 write(body, file=self.outFile)
 
     def endFile(self):
