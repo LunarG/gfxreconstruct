@@ -1187,7 +1187,7 @@ std::string ToString(const D3D12_FEATURE_DATA_QUERY_META_COMMAND& obj, ToStringF
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::ostringstream& strStrm)
         {
-            FieldToString(strStrm, true, "CommandId", toStringFlags, tabCount, tabSize, ToString(obj.CommandId, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, true, "CommandId", toStringFlags, tabCount, tabSize, Quote(ToString(obj.CommandId, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "NodeMask", toStringFlags, tabCount, tabSize, ToString(obj.NodeMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "pQueryInputData", toStringFlags, tabCount, tabSize, HandleIdToString(obj.pQueryInputData));
             FieldToString(strStrm, false, "QueryInputDataSizeInBytes", toStringFlags, tabCount, tabSize, ToString(obj.QueryInputDataSizeInBytes, toStringFlags, tabCount, tabSize));
@@ -2478,7 +2478,7 @@ std::string ToString(const D3D12_META_COMMAND_DESC& obj, ToStringFlags toStringF
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::ostringstream& strStrm)
         {
-            FieldToString(strStrm, true, "Id", toStringFlags, tabCount, tabSize, ToString(obj.Id, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, true, "Id", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Id, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "Name", toStringFlags, tabCount, tabSize, (obj.Name ? ToString(*obj.Name, toStringFlags, tabCount, tabSize) : "null"));
             FieldToString(strStrm, false, "InitializationDirtyState", toStringFlags, tabCount, tabSize, Quote(ToString(obj.InitializationDirtyState)));
             FieldToString(strStrm, false, "ExecutionDirtyState", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ExecutionDirtyState)));
@@ -2742,7 +2742,7 @@ std::string ToString(const D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER& obj
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::ostringstream& strStrm)
         {
-            FieldToString(strStrm, true, "DriverOpaqueGUID", toStringFlags, tabCount, tabSize, ToString(obj.DriverOpaqueGUID, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, true, "DriverOpaqueGUID", toStringFlags, tabCount, tabSize, Quote(ToString(obj.DriverOpaqueGUID, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "DriverOpaqueVersioningData", toStringFlags, tabCount, tabSize, ArrayToString(16, obj.DriverOpaqueVersioningData, toStringFlags, tabCount, tabSize));
         }
     );
@@ -3009,7 +3009,7 @@ std::string ToString(const D3D12_PROTECTED_RESOURCE_SESSION_DESC1& obj, ToString
         {
             FieldToString(strStrm, true, "NodeMask", toStringFlags, tabCount, tabSize, ToString(obj.NodeMask, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Flags)));
-            FieldToString(strStrm, false, "ProtectionType", toStringFlags, tabCount, tabSize, ToString(obj.ProtectionType, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "ProtectionType", toStringFlags, tabCount, tabSize, Quote(ToString(obj.ProtectionType, toStringFlags, tabCount, tabSize)));
         }
     );
 }
@@ -3123,7 +3123,7 @@ std::string ToString(const D3D12_SHADER_CACHE_SESSION_DESC& obj, ToStringFlags t
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::ostringstream& strStrm)
         {
-            FieldToString(strStrm, true, "Identifier", toStringFlags, tabCount, tabSize, ToString(obj.Identifier, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, true, "Identifier", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Identifier, toStringFlags, tabCount, tabSize)));
             FieldToString(strStrm, false, "Mode", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Mode)));
             FieldToString(strStrm, false, "Flags", toStringFlags, tabCount, tabSize, Quote(ToString(obj.Flags)));
             FieldToString(strStrm, false, "MaximumInMemoryCacheSizeBytes", toStringFlags, tabCount, tabSize, ToString(obj.MaximumInMemoryCacheSizeBytes, toStringFlags, tabCount, tabSize));

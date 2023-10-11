@@ -160,6 +160,11 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             #   below without being handled the generated code will fail to compile
             to_string = 'static_assert(false, "Unhandled value in `dx12_ascii_consumer_body_generator.py`")'
 
+            # Report the small number of GUIDs that are not quoted:
+            # There is no point fixing this as the ASCII consumer is going away.
+            if value.base_type == 'GUID' and (value.is_pointer or value.is_array):
+                print("Non-quoted GUID: ", class_name, ".",  method_info['name'])
+
             # StringDecoder and WStringDecoder require custom handling
             if 'LPCSTR' in value.full_type or 'LPCWSTR' in value.full_type:
                 to_string = 'StringDecoderToString({0})'
@@ -207,7 +212,10 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     if self.is_handle(value.base_type):
                         to_string = 'static_assert(false, "Unhandled handle in `dx12_ascii_consumer_body_generator.py`")'
                     elif self.is_struct(value.base_type):
-                        to_string = 'ToString(*{0}.decoded_value, to_string_flags_, tab_count, tab_size)'
+                        if value.base_type == 'GUID':
+                            to_string = 'Quote(ToString(*{0}.decoded_value, to_string_flags_, tab_count, tab_size))'
+                        else:
+                            to_string = 'ToString(*{0}.decoded_value, to_string_flags_, tab_count, tab_size)'
                     elif self.is_enum(value.base_type):
                         to_string = 'Quote(ToString({0}))'
                     else:

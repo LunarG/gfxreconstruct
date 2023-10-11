@@ -96,8 +96,8 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
         if not "IID_IUnknown" in iids:
             iids.append("IID_IUnknown")
         for iid in iids:
-            body += '    if (iid == {0}) return "\\\"{0}\\\"";\n'.format(iid)
-        body += '    return "\\\"Invalid IID\\\"";\n'
+            body += '    if (iid == {0}) return "{0}";\n'.format(iid)
+        body += '    return "Invalid IID";\n'
         body += '}\n'
         write(body, file=self.outFile)
 

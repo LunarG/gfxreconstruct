@@ -88,6 +88,13 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
             for p in properties:
                 value = self.get_value_info(p)
 
+                # Report the small number of GUIDs that are not quoted:
+                # (just D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES)
+                # There is no point fixing this as the file this generates will go away
+                # when the json equivalent is done.
+                if value.base_type == 'GUID' and (value.is_pointer or value.is_array):
+                    print("Non-quoted GUID: ", name, ".",  value.name)
+
                 # Start with a static_assert() so that if any values make it through the logic
                 #   below without being handled the generated code will fail to compile
                 to_string = 'static_assert(false, "Unhandled value in `dx12_struct_to_string_body_generator.py`")'
@@ -134,7 +141,10 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
                         if self.is_handle(value.base_type):
                             to_string = 'static_assert(false, "Unhandled handle in `dx12_struct_to_string_body_generator.py`")'
                         elif self.is_struct(value.base_type):
-                            to_string = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
+                            if value.base_type == 'GUID':
+                                to_string = 'Quote(ToString(obj.{0}, toStringFlags, tabCount, tabSize))'
+                            else:
+                                to_string = 'ToString(obj.{0}, toStringFlags, tabCount, tabSize)'
                         elif self.is_enum(value.base_type):
                             to_string = 'Quote(ToString(obj.{0}))'
                         else:
