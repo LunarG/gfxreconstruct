@@ -56,6 +56,7 @@ from dx12_command_list_util_header_generator import Dx12CommandListUtilHeaderGen
 from dx12_command_list_util_body_generator import Dx12CommandListUtilBodyGenerator
 from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator
 from dx12_enum_to_string_body_generator import Dx12EnumToStringBodyGenerator
+from dx12_enum_to_json_header_generator import Dx12EnumToJsonHeaderGenerator
 from dx12_struct_to_string_header_generator import Dx12StructToStringHeaderGenerator
 from dx12_struct_to_string_body_generator import Dx12StructToStringBodyGenerator
 from dx12_call_id_to_string_header_generator import Dx12CallIdToStringHeaderGenerator
@@ -600,6 +601,21 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_enum_to_json_header_generator.py'
+    )
+    gen_opts['generated_dx12_enum_to_json.h'] = [
+        Dx12EnumToJsonHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_enum_to_json.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
             protect_feature=False
         )
     ]
