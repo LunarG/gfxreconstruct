@@ -579,6 +579,48 @@ size_t Dx12DecoderBase::Decode_ID3D12Resource_WriteToSubresource(format::HandleI
     return bytes_read;
 }
 
+size_t Dx12DecoderBase::Decode_ID3D12Device12_GetResourceAllocationInfo3(format::HandleId object_id,
+                                                                         const uint8_t*   parameter_buffer,
+                                                                         size_t           buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT                                                          visibleMask;
+    UINT                                                          numResourceDescs;
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>            pResourceDescs;
+    PointerDecoder<UINT>                                          pNumCastableFormats;
+    HandlePointerDecoder<DXGI_FORMAT*>                            ppCastableFormats;
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1> pResourceAllocationInfo1;
+    Decoded_D3D12_RESOURCE_ALLOCATION_INFO                        return_value;
+    D3D12_RESOURCE_ALLOCATION_INFO                                value_returned;
+
+    return_value.decoded_value = &value_returned;
+
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &visibleMask);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &numResourceDescs);
+    bytes_read += pResourceDescs.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pNumCastableFormats.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppCastableFormats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pResourceAllocationInfo1.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device12_GetResourceAllocationInfo3(object_id,
+                                                                    return_value,
+                                                                    visibleMask,
+                                                                    numResourceDescs,
+                                                                    &pResourceDescs,
+                                                                    &pNumCastableFormats,
+                                                                    &ppCastableFormats,
+                                                                    &pResourceAllocationInfo1);
+    }
+
+    return bytes_read;
+}
+
 void Dx12DecoderBase::DecodeMethodCall(format::ApiCallId  call_id,
                                        format::HandleId   object_id,
                                        const ApiCallInfo& call_options,
@@ -597,6 +639,9 @@ void Dx12DecoderBase::DecodeMethodCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource:
             Decode_ID3D12Resource_WriteToSubresource(object_id, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3:
+            Decode_ID3D12Device12_GetResourceAllocationInfo3(object_id, parameter_buffer, buffer_size);
             break;
         default:
             break;

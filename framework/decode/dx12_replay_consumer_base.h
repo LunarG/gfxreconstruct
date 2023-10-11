@@ -124,6 +124,16 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                            UINT                                     src_row_pitch,
                                                            UINT src_depth_pitch) override;
 
+	void Process_ID3D12Device12_GetResourceAllocationInfo3(
+        format::HandleId                                               object_id,
+        Decoded_D3D12_RESOURCE_ALLOCATION_INFO                         return_value,
+        UINT                                                           visibleMask,
+        UINT                                                           numResourceDescs,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>*            pResourceDescs,
+        PointerDecoder<UINT>*                                          pNumCastableFormats,
+        HandlePointerDecoder<DXGI_FORMAT*>*                            ppCastableFormats,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1) override;
+
     template <typename T>
     T* MapObject(const format::HandleId id)
     {
@@ -145,7 +155,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     IDXGIAdapter* GetAdapter();
 
-  protected:    
+  protected:
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
 
     void MapGpuDescriptorHandle(uint8_t* dst_handle_ptr, const uint8_t* src_handle_ptr);
