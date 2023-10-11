@@ -117,13 +117,18 @@ void Encode_ID3D12Device12_GetResourceAllocationInfo3(ID3D12Device12_Wrapper*   
         encoder->EncodeUInt32Value(numResourceDescs);
         EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
         encoder->EncodeUInt32Array(pNumCastableFormats, numResourceDescs);
+
         for (UINT i = 0; i < numResourceDescs; i++)
         {
-            if (ppCastableFormats[i] != nullptr)
+            if (pNumCastableFormats != nullptr)
             {
-                encoder->EncodeEnumValue(*ppCastableFormats[i]);
+                for (UINT j = 0; j < pNumCastableFormats[i]; j++)
+                {
+                    encoder->EncodeEnumValue(ppCastableFormats[i][j]);
+                }
             }
         }
+
         EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs);
         EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
