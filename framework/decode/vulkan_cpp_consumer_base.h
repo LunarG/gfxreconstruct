@@ -119,6 +119,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void SetMaxCommandLimit(uint32_t max) { m_max_command_limit = max; }
 
     uint32_t getNextId();
+    uint32_t getNextId(VkObjectType object_type);
 
     uint32_t GetCurrentApiCallNumber() { return m_apiCallNumber; }
 
@@ -292,47 +293,36 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                                format::HandleId                                             device,
                                                StructPointerDecoder<Decoded_VkDebugMarkerObjectTagInfoEXT>* pTagInfo);
 
-    virtual void Process_vkCreateDescriptorUpdateTemplate(
-        const ApiCallInfo&                                                  call_info,
+    void Generate_vkCreateDescriptorUpdateTemplate(
         VkResult                                                            returnValue,
         format::HandleId                                                    device,
         StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate) override;
-
-    virtual void Process_vkCreateDescriptorUpdateTemplateKHR(
-        const ApiCallInfo&                                                  call_info,
-        VkResult                                                            returnValue,
-        format::HandleId                                                    device,
-        StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate) override;
+        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate);
 
     void Generate_vkCreateDescriptorUpdateTemplateKHR(
         VkResult                                                            returnValue,
         format::HandleId                                                    device,
         StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate,
-        const std::string&                                                  cmdNameSuffix);
+        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate)
+    {
+        Generate_vkCreateDescriptorUpdateTemplate(
+            returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    }
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                           format::HandleId                 device,
-                                                           format::HandleId                 descriptorSet,
-                                                           format::HandleId                 descriptorUpdateTemplate,
-                                                           DescriptorUpdateTemplateDecoder* pData) override;
-
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
-                                                              format::HandleId                 device,
-                                                              format::HandleId                 descriptorSet,
-                                                              format::HandleId                 descriptorUpdateTemplate,
-                                                              DescriptorUpdateTemplateDecoder* pData) override;
+    void Generate_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+                                                    format::HandleId                 descriptorSet,
+                                                    format::HandleId                 descriptorUpdateTemplate,
+                                                    DescriptorUpdateTemplateDecoder* pData);
 
     void Generate_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
                                                        format::HandleId                 descriptorSet,
                                                        format::HandleId                 descriptorUpdateTemplate,
-                                                       DescriptorUpdateTemplateDecoder* pData,
-                                                       const std::string&               cmdNameSuffix);
+                                                       DescriptorUpdateTemplateDecoder* pData)
+    {
+        Generate_vkUpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData);
+    }
 
     virtual void
     ProcessSetDeviceMemoryPropertiesCommand(format::HandleId                             physical_device_id,
@@ -443,7 +433,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     void Post_APICall(format::ApiCallId callId);
 
-    uint32_t                                                    m_counter;
+    std::unordered_map<VkObjectType, uint32_t>                  m_counters;
     VulkanCppResourceTracker*                                   m_resourceTracker;
     VulkanCppLoaderGenerator                                    m_pfnLoader;
     std::map<format::HandleId, std::string>                     m_handleIdMap;

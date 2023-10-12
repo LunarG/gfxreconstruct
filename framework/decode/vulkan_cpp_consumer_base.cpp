@@ -44,9 +44,10 @@ const std::string      GfxTocppPlatformToString(GfxTocppPlatform platform);
 bool                   gfxTocppPlatformIsValid(const GfxTocppPlatform& platform);
 
 VulkanCppConsumerBase::VulkanCppConsumerBase() :
-    m_frameFile(nullptr), m_global_file(nullptr), m_header_file(nullptr), m_main_file(nullptr), m_pfnLoader(),
-    m_counter(0)
-{}
+    m_frameFile(nullptr), m_global_file(nullptr), m_header_file(nullptr), m_main_file(nullptr), m_pfnLoader()
+{
+    m_counters[VK_OBJECT_TYPE_UNKNOWN] = 0;
+}
 
 VulkanCppConsumerBase::~VulkanCppConsumerBase()
 {
@@ -146,6 +147,7 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
     }
 
     PrintToFile(GetHeaderFile(), "extern %s;\n", GfxToCppVariable::toStrVec(m_var_data));
+
     PrintToFile(GetHeaderFile(), "%s", m_func_data);
 
     if (m_needsDebugUtilCallback)
@@ -363,7 +365,7 @@ void VulkanCppConsumerBase::NewFrameFile(uint32_t frameNumber, uint32_t frameSpl
         exit(-1);
     }
 
-    fprintf(m_frameFile, "%s", sCommonFrameSourceHeader);
+    fprintf(m_frameFile, "%s\n", sCommonFrameSourceHeader);
 
     std::string frameFunctionName = "void " + newFrameFileName + "()";
     fprintf(m_frameFile, "%s {\n", frameFunctionName.c_str());
@@ -1048,6 +1050,7 @@ void VulkanCppConsumerBase::Generate_vkCreateInstance(VkResult                  
     std::string pInstanceName = "instance";
     AddKnownVariables("VkInstance", pInstanceName);
 
+    fprintf(file, "{\n");
     fprintf(file, "%s", instanceCreateInfoStr.str().c_str());
     fprintf(file,
             "VK_CALL_CHECK(vkCreateInstance(&%s, %s, &%s), %s);\n",
@@ -1057,6 +1060,7 @@ void VulkanCppConsumerBase::Generate_vkCreateInstance(VkResult                  
             util::ToString<VkResult>(returnValue).c_str());
 
     fprintf(file, "loadFunctions(%s);\n", pInstanceName.c_str());
+    fprintf(file, "}\n");
 
     if (returnValue == VK_SUCCESS)
     {
@@ -1423,47 +1427,20 @@ void VulkanCppConsumerBase::Generate_vkWaitForFences(VkResult                   
     fprintf(file, "}");
 }
 
-void VulkanCppConsumerBase::Process_vkCreateDescriptorUpdateTemplate(
-    const ApiCallInfo&                                                  call_info,
+void VulkanCppConsumerBase::Generate_vkCreateDescriptorUpdateTemplate(
     VkResult                                                            returnValue,
     format::HandleId                                                    device,
     StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate)
-{
-    Generate_vkCreateDescriptorUpdateTemplateKHR(
-        returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate, "");
-    Post_APICall(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate);
-}
-
-void VulkanCppConsumerBase::Process_vkCreateDescriptorUpdateTemplateKHR(
-    const ApiCallInfo&                                                  call_info,
-    VkResult                                                            returnValue,
-    format::HandleId                                                    device,
-    StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-    HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate)
-{
-    Generate_vkCreateDescriptorUpdateTemplateKHR(
-        returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate, "KHR");
-    Post_APICall(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR);
-}
-
-void VulkanCppConsumerBase::Generate_vkCreateDescriptorUpdateTemplateKHR(
-    VkResult                                                            returnValue,
-    format::HandleId                                                    device,
-    StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-    HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate,
-    const std::string&                                                  cmdNameSuffix)
 {
     FILE*             file = GetFrameFile();
     std::stringstream stream_pCreateInfo;
-    std::string       pCreateInfoStruct = GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(
-        stream_pCreateInfo, pCreateInfo->GetPointer(), pCreateInfo->GetMetaStructPointer(), *this, cmdNameSuffix);
+    std::string       pCreateInfoStruct = GenerateStruct_VkDescriptorUpdateTemplateCreateInfo(
+        stream_pCreateInfo, pCreateInfo->GetPointer(), pCreateInfo->GetMetaStructPointer(), *this);
     fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
     std::string pDescriptorUpdateTemplateName = "pDescriptorUpdateTemplate_" + std::to_string(this->getNextId());
-    AddKnownVariables("VkDescriptorUpdateTemplate" + cmdNameSuffix, pDescriptorUpdateTemplateName);
+    AddKnownVariables("VkDescriptorUpdateTemplate", pDescriptorUpdateTemplateName);
 
     VkDescriptorUpdateTemplateCreateInfo* templateCreateInfo = pCreateInfo->GetPointer();
     for (uint32_t idx = 0; idx < templateCreateInfo->descriptorUpdateEntryCount; idx++)
@@ -1477,43 +1454,23 @@ void VulkanCppConsumerBase::Generate_vkCreateDescriptorUpdateTemplateKHR(
         this->AddHandles(pDescriptorUpdateTemplateName, pDescriptorUpdateTemplate->GetPointer());
     }
 
-    m_pfnLoader.AddMethodName("vkCreateDescriptorUpdateTemplate" + cmdNameSuffix);
+    m_pfnLoader.AddMethodName("vkCreateDescriptorUpdateTemplate");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateDescriptorUpdateTemplate%s(%s, &%s, NULL, &%s), %s);\n",
-            cmdNameSuffix.c_str(),
+            "VK_CALL_CHECK(loaded_vkCreateDescriptorUpdateTemplate(%s, &%s, NULL, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             pDescriptorUpdateTemplateName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
 }
 
-void VulkanCppConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
-                                                                      format::HandleId   device,
-                                                                      format::HandleId   descriptorSet,
-                                                                      format::HandleId   descriptorUpdateTemplate,
-                                                                      DescriptorUpdateTemplateDecoder* pData)
-{
-    Generate_vkUpdateDescriptorSetWithTemplateKHR(device, descriptorSet, descriptorUpdateTemplate, pData, "");
-    Post_APICall(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
-}
-
-void VulkanCppConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
-                                                                         format::HandleId   device,
-                                                                         format::HandleId   descriptorSet,
-                                                                         format::HandleId   descriptorUpdateTemplate,
-                                                                         DescriptorUpdateTemplateDecoder* pData)
-{
-    Generate_vkUpdateDescriptorSetWithTemplateKHR(device, descriptorSet, descriptorUpdateTemplate, pData, "KHR");
-    Post_APICall(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
-}
-
-void VulkanCppConsumerBase::Generate_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
+void VulkanCppConsumerBase::Generate_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
                                                                           format::HandleId descriptorSet,
                                                                           format::HandleId descriptorUpdateTemplate,
-                                                                          DescriptorUpdateTemplateDecoder* pData,
-                                                                          const std::string& cmdNameSuffix)
+                                                                          DescriptorUpdateTemplateDecoder* pData)
 {
     FILE* file = GetFrameFile();
+
+    assert(m_descriptorUpdateTemplateEntryMap.find(descriptorUpdateTemplate) != m_descriptorUpdateTemplateEntryMap.end());
 
     // Generate template type
     const DescriptorUpdateTemplateEntries& templateEntries =
@@ -1612,10 +1569,9 @@ void VulkanCppConsumerBase::Generate_vkUpdateDescriptorSetWithTemplateKHR(format
     pDataStructStream << "};";
     fprintf(file, "%s\n", pDataStructStream.str().c_str());
 
-    m_pfnLoader.AddMethodName("vkUpdateDescriptorSetWithTemplate" + cmdNameSuffix);
+    m_pfnLoader.AddMethodName("vkUpdateDescriptorSetWithTemplate");
     fprintf(file,
             "loaded_vkUpdateDescriptorSetWithTemplate%s(%s, %s, %s, &%s);\n",
-            cmdNameSuffix.c_str(),
             GetHandle(device).c_str(),
             GetHandle(descriptorSet).c_str(),
             GetHandle(descriptorUpdateTemplate).c_str(),
@@ -1961,10 +1917,14 @@ bool gfxTocppPlatformIsValid(const GfxTocppPlatform& platform)
 
 std::string VulkanCppConsumerBase::GetExistingStruct(const std::stringstream& stream)
 {
+#if 0 // Brainpain
     const std::string str       = stream.str();
     uint64_t          hashValue = XXHash64::hash(str.c_str(), str.size(), 0);
 
     return m_structMap[hashValue];
+#else
+    return "";
+#endif
 }
 
 std::string VulkanCppConsumerBase::AddStruct(const std::stringstream& content, const std::string& varnamePrefix)
@@ -2053,7 +2013,15 @@ void VulkanCppConsumerBase::SetWindowSize(uint32_t width, uint32_t height)
 
 uint32_t VulkanCppConsumerBase::getNextId()
 {
-    return m_counter++;
+    return m_counters[VK_OBJECT_TYPE_UNKNOWN]++;
+}
+
+uint32_t VulkanCppConsumerBase::getNextId(VkObjectType object_type)
+{
+    if (m_counters.find(object_type) == m_counters.end()) {
+        m_counters[object_type] = 0;
+    }
+    return m_counters[object_type]++;
 }
 
 GFXRECON_END_NAMESPACE(decode)
