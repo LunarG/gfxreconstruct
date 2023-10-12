@@ -19,7 +19,7 @@ import re
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 from vulkan_cpp_consumer_body_generator import \
-    makeGen, makeGenVar, makeGenVarCall, makeGenCond, makeGenConditions, makeGenLoop, makeOutStructSet, printOutStream
+    makeGen, makeGenVar, makeGenVarCall, makeGenCond, makeGenConditions, makeGenLoop, makeObjectType, makeOutStructSet, printOutStream
 
 BasicStringConversionHandledTypes = [
     'char',
@@ -204,13 +204,8 @@ class VulkanCppStructGenerator(BaseGenerator):
             return True
         else:
             return False
-        
-    def NextIndex(self):
-        self.next_index += 1
-        return self.next_index
 
     def handlePNext(self, struct_prefix, indent, header, body):
-        #next_index = self.NextIndex()
         local_header = []
         local_body = []
         local_header.extend(header)
@@ -228,11 +223,16 @@ class VulkanCppStructGenerator(BaseGenerator):
         local_body.extend(body)
 
         if arg.is_pointer and arg.pointer_count > 1:
+
+            handleObjectType = None
+            if arg.base_type in self.handle_names:
+                handleObjectType = makeObjectType(arg.base_type)
+
             escapedStringArrayName = '{arg.name}Var'.format(**locals())
             header_data = [
-                makeGenVar(escapedStringArrayName, None, locals(), indent, useThis=False),
+                makeGenVar(escapedStringArrayName, None, locals(), handleObjectType, indent, useThis=False),
                 makeGenCond('{struct_prefix}{arg.array_length}',
-                            [makeGenVar(escapedStringArrayName, '{arg.name}', locals(), indent, addType=False, useThis=False),
+                            [makeGenVar(escapedStringArrayName, '{arg.name}', handleObjectType, locals(), indent, addType=False, useThis=False),
                             printOutStream(['"const char* "',
                                             escapedStringArrayName,
                                             '"[] = "',
@@ -258,10 +258,14 @@ class VulkanCppStructGenerator(BaseGenerator):
             lengths.append(f'{struct_prefix}num_ref_frames_in_pic_order_cnt_cycle')
             num_lengths = 1
 
+        handleObjectType = None
+        if arg.base_type in self.handle_names:
+            handleObjectType = makeObjectType(arg.base_type)
+
         this_header = [
-            makeGenVar('{arg.name}Array', None, locals(), indent, useThis=False),
+            makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False),
             makeGenCond('{struct_prefix}{arg.name} != NULL', [
-                makeGenVar('{arg.name}Array', '{arg.name}', locals(), indent + 4, addType=False, useThis=False),
+                makeGenVar('{arg.name}Array', '{arg.name}', handleObjectType, locals(), indent + 4, addType=False, useThis=False),
                 printOutStream(['"{arg.base_type} "', '{arg.name}Array << "[] = "',
                                 'VulkanCppConsumerBase::BuildValue({struct_prefix}{arg.name}, {lengths[0]})',
                                 '";"'], locals(), indent + 4)], [], locals(), indent)]
@@ -278,7 +282,11 @@ class VulkanCppStructGenerator(BaseGenerator):
         if arg.is_array:
             strArrayName = '{arg.name}Array'.format(**locals())
 
-            local_header.append(makeGenVar('{strArrayName}', '{strArrayName}', locals(), indent, addType=True, useThis=False)),
+            handleObjectType = None
+            if arg.base_type in self.handle_names:
+                handleObjectType = makeObjectType(arg.base_type)
+
+            local_header.append(makeGenVar('{strArrayName}', '{strArrayName}', handleObjectType, locals(), indent, addType=True, useThis=False)),
             local_header.append(makeGenCond('{lengths[0]} > 0', [
                 makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
                                 ['{struct_prefix}{arg.name}',
@@ -310,14 +318,18 @@ class VulkanCppStructGenerator(BaseGenerator):
                 # submitInfo.pWaitDstStageMask = waitStages;
                 arrayName = '{arg.name}Array'.format(arg=arg)
 
+                handleObjectType = None
+                if arg.base_type in self.handle_names:
+                    handleObjectType = makeObjectType(arg.base_type)
+
                 argHandler = [
                     makeGen('std::string {arg.name}Values;', locals(), indent),
-                    makeGenVar(arrayName, None, locals(), indent, useThis=False),
+                    makeGenVar(arrayName, None, handleObjectType, locals(), indent, useThis=False),
                     makeGenCond('{struct_prefix}{arg.name} != NULL', [
                         makeGenLoop('idx', '{lengths[0]}', [
                             makeGen('{arg.name}Values += util::ToString<{arg.base_type}>({struct_prefix}{arg.name}[idx]) + ", ";', locals(), indent + 8),
                         ], locals(), indent + 4),
-                        makeGenVar(arrayName, '{arg.name}', locals(), indent + 4, addType=False, useThis=False),
+                        makeGenVar(arrayName, '{arg.name}', handleObjectType, locals(), indent + 4, addType=False, useThis=False),
                         printOutStream(['"{arg.base_type} "', arrayName, '"[] = {{"', '{arg.name}Values', '"}};"'], locals(), indent + 4)
                     ], [], locals(), indent),
                 ]
@@ -341,9 +353,13 @@ class VulkanCppStructGenerator(BaseGenerator):
             # Generate an array of strings containing the handle id names
             strArrayName = arg.name + "Array"
 
-            local_header.append(makeGenVar('{strArrayName}', None, locals(), indent, useThis=False))
+            handleObjectType = None
+            if arg.base_type in self.handle_names:
+                handleObjectType = makeObjectType(arg.base_type)
+
+            local_header.append(makeGenVar('{strArrayName}', None, handleObjectType, locals(), indent, useThis=False))
             local_header.append(makeGenCond('metainfo->{arg.name}.GetPointer() != NULL && {lengths[0]} > 0', [
-                makeGenVar('{strArrayName}', '{strArrayName}', locals(), indent + 4, addType=False, useThis=False),
+                makeGenVar('{strArrayName}', '{strArrayName}', handleObjectType, locals(), indent + 4, addType=False, useThis=False),
                 makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
                                 ['metainfo->{arg.name}.GetPointer()',
                                 'metainfo->{arg.name}.GetPointer() + {lengths[0]}',
@@ -376,8 +392,12 @@ class VulkanCppStructGenerator(BaseGenerator):
             type_cast_prefix = 'reinterpret_cast<const uint8_t*>('
             type_cast_suffix = ')'
 
+        handleObjectType = None
+        if arg.base_type in self.handle_names:
+            handleObjectType = makeObjectType(arg.base_type)
+
         if num_lengths > 0:
-            structBuild += makeGenVar('{arg.name}Array', None, locals(), indent, useThis=False)
+            structBuild += makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False)
             space = (' ' * indent)
             
             # If pointer and not just static array
@@ -411,7 +431,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                 space = (' ' * indent)
                 structBuild += f'{space}}}\n'
 
-            structBuild += makeGenVar('{arg.name}Array', '{arg.name}', locals(), indent, addType=False, useThis=False)
+            structBuild += makeGenVar('{arg.name}Array', '{arg.name}', handleObjectType, locals(), indent, addType=False, useThis=False)
             structBuild += printOutStream(['"{arg.base_type} "', '{arg.name}Array', '"[] = {{"', '{arg.name}Values', '"}};"'], locals(), indent)
 
             if not self.isStaticArray(lengths[0]):
@@ -433,6 +453,10 @@ class VulkanCppStructGenerator(BaseGenerator):
         local_body = []
         local_header.extend(header)
         local_body.extend(body)
+
+        handleObjectType = None
+        if arg.base_type in self.handle_names:
+            handleObjectType = makeObjectType(arg.base_type)
 
         # TODO: is the output parameter okay here?
         if not arg.is_array:
@@ -475,24 +499,24 @@ class VulkanCppStructGenerator(BaseGenerator):
                     ]
 
                     if arg.array_capacity:
-                        arrayName = makeGenVar('{arg.name}Array', arg.name, locals(), indent, useThis=False)
+                        arrayName = makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent, useThis=False)
                         arrayProcess = ''.join(arrayBuilder)
                     else:
-                        arrayName = makeGenVar('{arg.name}Array', None, locals(), indent, useThis=False)
-                        arrayNameSet = makeGenVar('{arg.name}Array', arg.name, locals(), indent + 4, addType=False, useThis=False)
+                        arrayName = makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False)
+                        arrayNameSet = makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False)
                         arrayProcess = makeGenCond('{struct_prefix}{arg.name} != NULL', [arrayNameSet] + arrayBuilder, [], locals(), indent)
 
                     local_header.append(arrayName + arrayProcess)
                     local_body.append(makeOutStructSet('{arg.name}Array', locals(), is_last_arg, indent))
                 elif self.is_enum(arg.base_type) or self.is_flags(arg.base_type):
                     argHandler = [
-                        makeGenVar('{arg.name}Array', None, locals(), indent, useThis=False),
+                        makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False),
                         makeGenCond('{struct_prefix}{arg.name} != NULL', [
                             makeGen('std::string {arg.name}Values;', locals(), indent + 4),
                             makeGenLoop('idx', '{lengths[0]}', [
                                 makeGen('{arg.name}Values += util::ToString<{arg.base_type}>({struct_prefix}{arg.name}[idx]) + ", ";', locals(), indent + 8),
                             ], locals(), indent + 4),
-                            makeGenVar('{arg.name}Array', '{arg.name}', locals(), indent + 4, addType=False, useThis=False),
+                            makeGenVar('{arg.name}Array', '{arg.name}', handleObjectType, locals(), indent + 4, addType=False, useThis=False),
                             printOutStream(['"{arg.base_type} "', '{arg.name}Array', '"[] = {{"', '{arg.name}Values', '"}};"'], locals(), indent + 4)
                         ], [], locals(), indent),
                     ]
@@ -515,7 +539,7 @@ class VulkanCppStructGenerator(BaseGenerator):
         struct_prefix = 'structInfo->'
 
         if structName in self.overrideStructs:
-            body.append(makeGenVar('varname', 'override', locals(), indent, useThis=False))
+            body.append(makeGenVar('varname', 'override', None, locals(), indent, useThis=False))
             body.append(printOutStream(['"{structName} "', 'varname', '" {{}};"'], locals(), indent))
             body.append(printOutStream(['"Override{structName}(&"', 'varname', '", "', '"appdata"', '");"'], locals(), indent))
             body.append(makeGen('return varname;', locals(), indent))
@@ -531,6 +555,10 @@ class VulkanCppStructGenerator(BaseGenerator):
             elif arg.base_type in self.feature_union_aliases:
                 print(f'   {arg.name} was union base type {arg.base_type} but aliased to {self.feature_union_aliases[arg.base_type]}')
                 arg.base_type = self.feature_union_aliases[arg.base_type]
+
+            handleObjectType = None
+            if arg.base_type in self.handle_names:
+                handleObjectType = makeObjectType(arg.base_type)
 
             arg_name = struct_prefix + arg.name
 
@@ -598,7 +626,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                         body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isLastArg, indent))
                 else:
                     #if arg.base_type in ['VkClearColorValue', 'VkComponentMapping', 'VkOffset2D', 'VkExtent2D']:
-                    body.append(makeGenVar('tmp{arg.name}', '{arg.name}', locals(), indent, useThis=False))
+                    body.append(makeGenVar('tmp{arg.name}', '{arg.name}', handleObjectType, locals(), indent, useThis=False))
                     body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isLastArg, indent + 4))
             elif self.is_struct(arg.base_type) and arg.base_type not in self.LOCAL_STRUCT_BLACKLIST:
                 if not arg.is_pointer:
@@ -619,11 +647,11 @@ class VulkanCppStructGenerator(BaseGenerator):
                     if num_lengths > 0:
                         if num_lengths > 1:
                             indent = 4
-                            structBuild = makeGenVar('{arg.name}Array', None, locals(), indent, useThis=False)
+                            structBuild = makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False)
                             space = (' ' * indent)
                             structBuild += f'{space}if ({arg_name} != NULL) {{\n'
                             indent = 8
-                            structBuild += makeGenVar('{arg.name}Array', arg.name, locals(), indent, addType=False, useThis=False)
+                            structBuild += makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent, addType=False, useThis=False)
                             structBuild += makeGen('std::string {arg.name}Names;', locals(), indent)
 
                             member_prefix = '&('
@@ -672,9 +700,9 @@ class VulkanCppStructGenerator(BaseGenerator):
                             structBuild += f'{space}}}\n'
                         else:
                             structBuild = [
-                                makeGenVar('{arg.name}Array', None, locals(), indent, useThis=False),
+                                makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False),
                                 makeGenCond('{arg_name} != NULL', [
-                                    makeGenVar('{arg.name}Array', arg.name, locals(), indent + 4, addType=False, useThis=False),
+                                    makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False),
                                     makeGen('std::string {arg.name}Names;', locals(), indent + 4),
                                     makeGenLoop('idx', '{lengths[0]}', [
                                         makeGen('std::string varName = "NULL";', locals(), indent + 8),
@@ -699,7 +727,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                         prefixVar = "prefix_{arg.name}".format(**locals())
                         # Make sure if the sub struct pointer during capture processing does contain data and it is not a NULL value.
                         structBuild = [
-                            makeGenVar('{arg.name}Struct', None, locals(), indent, useThis=False),
+                            makeGenVar('{arg.name}Struct', None, handleObjectType, locals(), indent, useThis=False),
                             makeGenCond('{arg_name} != NULL', [
                                 makeGenVarCall(None,
                                                '{arg.name}Struct',

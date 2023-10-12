@@ -97,6 +97,10 @@ CPP_APICALL_GENERATE = [
     'vkSetDebugUtilsObjectTagEXT',
     'vkDebugMarkerSetObjectTagEXT',
     'vkDebugMarkerSetObjectNameEXT',
+    'vkCreateDescriptorUpdateTemplate',
+    'vkUpdateDescriptorSetWithTemplate',
+    'vkCreateDescriptorUpdateTemplateKHR',
+    'vkUpdateDescriptorSetWithTemplateKHR',
 ]
 
 CPP_APICALL_INTERCEPT_LIST = [
@@ -161,7 +165,7 @@ def makeGenVarCall(typeToUse, genName, method, methodArgs, arguments=None, inden
     return (' ' * indent) + ('%s%s(%s);\n' % (assignment, method, padded_args)).format(**arguments, **kwargs)
 
 
-def makeGenVar(genName, cppName, arguments=None, indent=4, addType=True, useThis=True):
+def makeGenVar(genName, cppName, handleObjectType=None, arguments=None, indent=4, addType=True, useThis=True):
     """
     Output a usable variable name into the CPP generator.
 
@@ -182,11 +186,14 @@ def makeGenVar(genName, cppName, arguments=None, indent=4, addType=True, useThis
     if addType:
         typeToUse = 'std::string ' # note the space!
     if cppName is None:
-        return '{}{}{} = "NULL";\n'.format(' ' * indent, typeToUse, genName, cppName).format(**arguments)
+        return '{}{}{} = "NULL";\n'.format(' ' * indent, typeToUse, genName).format(**arguments)
     if useThis:
         object = 'this->'
 
-    return '{}{}{} = "{}_" + std::to_string({}getNextId());\n'.format(' ' * indent, typeToUse, genName, cppName, object).format(**arguments)
+    if handleObjectType is None:
+        return '{}{}{} = "{}_" + std::to_string({}getNextId());\n'.format(' ' * indent, typeToUse, genName, cppName, object).format(**arguments)
+    else:
+        return '{}{}{} = "{}_" + std::to_string({}getNextId({}));\n'.format(' ' * indent, typeToUse, genName, cppName, object, handleObjectType).format(**arguments)
 
 
 def makeGenCastVar(cast_type, type_name, target_var_name, source_var_name, use_auto=False, indent=4):
@@ -359,6 +366,45 @@ def makeGenSwitch(condition, cases, case_contents, default_content, indent=4):
 
     return ''.join(switch)
 
+def makeObjectType(handle_value):
+    return_string='VK_OBJECT_TYPE_'
+    value=''
+
+    # Save the extension and get rid of it so we don't parse it out
+    extension = ''
+    if handle_value.endswith('KHR'):
+        extension = '_KHR'
+        value = handle_value[2:-3]
+    elif handle_value.endswith('EXT'):
+        extension = '_EXT'
+        value = handle_value[2:-3]
+    elif handle_value.endswith('AMD'):
+        extension = '_AMD'
+        value = handle_value[2:-3]
+    elif handle_value.endswith('NVX'):
+        extension = '_NVX'
+        value = handle_value[2:-3]
+    elif handle_value.endswith('NV'):
+        extension = '_NV'
+        value = handle_value[2:-2]
+    elif handle_value.endswith('INTEL'):
+        extension = '_INTEL'
+        value = handle_value[2:-5]
+    elif handle_value.endswith('FUCHSIA'):
+        extension = '_FUCHSIA'
+        value = handle_value[2:-7]
+    else:
+        value = handle_value[2:]
+
+    for index, cur_char in enumerate(value):
+        if index > 0 and cur_char.isupper():
+            return_string += '_'
+        return_string += cur_char
+
+    if len(extension) > 0:
+        return_string += extension
+
+    return return_string.upper()
 
 def makeOutStructSet(value, arguments=None, isLastArg=False, indent=4):
     """
@@ -402,45 +448,6 @@ def replacePointerInLength(inString):
         new_string = inString[0]
         next_index = 1
     return new_string + replacePointerInLength(inString[next_index:])
-
-def buildInputArray(arg, valueSuffix='', indent=0):
-    """
-    Build an array of values collection in the CPP consumer for a given argument.
-
-    :param arg: argumentum to read/process.
-    :param valueSuffix: suffix characters to use when building the value list (eg.: "UL")
-    :param indent: indentation.
-
-    :return: a tuple of (code to insert into CPP consumer, argument for the vk* method invocation, placeholder for fprintf).
-    """
-    arrayElementType = 'uint8_t' if arg.base_type == 'void' else arg.base_type
-
-    if '->' in arg.array_length:
-        new_array_length = replacePointerInLength(arg.array_length)
-        arg.array_length = new_array_length
-
-    to_string_type = 'current'
-    if arg.is_pointer and arg.pointer_count > 1:
-        to_string_type = 'reinterpret_cast<const VkDeviceSize>(current)'
-
-    output = [
-        makeGenVar('{arg.name}Array', arg.name, locals(), indent=indent),
-        makeGenCond('{arg.array_length} > 0', [
-                makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
-                               ['{arg.name}->GetPointer()', '{arg.name}->GetPointer() + {arg.array_length}',
-                                '[&](const auto current) {{ return std::to_string({to_string_type}) + "{valueSuffix}"; }}',
-                                '", "'], locals(), indent=indent+4),
-                makeCppArray('{arrayElementType}', '{arg.name}Array', '{arg.name}Values', locals(), indent=indent + 4)
-            ],
-            [makeGen('{arg.name}Array = "NULL";', locals(), indent=indent+4)],
-            locals(), indent=indent),
-    ]
-
-    callArg = '{arg.name}Array.c_str()'.format(arg=arg)
-    callTemplate = '%s'
-
-    return ''.join(output), callArg, callTemplate
-
 
 def makeParamList(cmdInfo, additionalParams):
     paramList = [param.name for param in cmdInfo[2]]
@@ -600,7 +607,14 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 cmddef += makeGen('Generate_{cmd}({paramList});', locals(), indent=4)
             else:
                 cmddef += makeGen("FILE* file = GetFrameFile();", indent=4)
+
+                #if cmd.startswith('vkCreate'):
+                cmddef += '    fprintf(file, "    {\\n");\n'
+
                 cmddef += self.makeConsumerFuncBody(return_type, cmd, values)
+
+                #if cmd.startswith('vkCreate'):
+                cmddef += '    fprintf(file, "    }\\n");\n'
 
             cmddef += makeGenCall('Post_APICall'.format(cmd), ['format::ApiCallId::ApiCall_' + cmd], locals(), indent=4)
 
@@ -608,6 +622,49 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
 
             write(cmddef, file=self.outFile)
             first = False
+
+    def buildInputArray(self, arg, valueSuffix='', indent=0):
+        """
+        Build an array of values collection in the CPP consumer for a given argument.
+
+        :param arg: argumentum to read/process.
+        :param valueSuffix: suffix characters to use when building the value list (eg.: "UL")
+        :param indent: indentation.
+
+        :return: a tuple of (code to insert into CPP consumer, argument for the vk* method invocation, placeholder for fprintf).
+        """
+        arrayElementType = 'uint8_t' if arg.base_type == 'void' else arg.base_type
+
+        if '->' in arg.array_length:
+            new_array_length = replacePointerInLength(arg.array_length)
+            arg.array_length = new_array_length
+
+        to_string_type = 'current'
+        if arg.is_pointer and arg.pointer_count > 1:
+            to_string_type = 'reinterpret_cast<const VkDeviceSize>(current)'
+
+        handleObjectType = None
+        if arg.base_type in self.handle_names:
+            handleObjectType = makeObjectType(arg.base_type)
+
+        output = [
+            makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent=indent),
+            makeGenCond('{arg.array_length} > 0', [
+                    makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
+                                ['{arg.name}->GetPointer()', '{arg.name}->GetPointer() + {arg.array_length}',
+                                    '[&](const auto current) {{ return std::to_string({to_string_type}) + "{valueSuffix}"; }}',
+                                    '", "'], locals(), indent=indent+4),
+                    makeCppArray('{arrayElementType}', '{arg.name}Array', '{arg.name}Values', locals(), indent=indent + 4)
+                ],
+                [makeGen('{arg.name}Array = "NULL";', locals(), indent=indent+4)],
+                locals(), indent=indent),
+        ]
+
+        callArg = '{arg.name}Array.c_str()'.format(arg=arg)
+        callTemplate = '%s'
+
+        return ''.join(output), callArg, callTemplate
+
 
     #
     # Return VulkanCppConsumer class member function definition.
@@ -650,6 +707,10 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             if arg.base_type in self.feature_struct_aliases:
                 arg.base_type = self.feature_struct_aliases[arg.base_type]
 
+            handleObjectType = None
+            if arg.base_type in self.handle_names:
+                handleObjectType = makeObjectType(arg.base_type)
+
             body += makeGen('/* {arg.name} */', locals(), indent=0)
 
             if arg.is_pointer and self.is_struct(arg.base_type) and self.is_input_pointer(arg):
@@ -663,7 +724,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
 
                 if arg.is_array:
                     #body += makeGen('std::string {arg.name}Names;', locals(), indent=4)
-                    body += makeGenVar('{arg.name}Array', None, locals(), indent=4)
+                    body += makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent=4)
 
                     pair_string = "pair.t1, pair.t2"
                     if arg.pointer_count > 1:
@@ -681,7 +742,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     body += makeGenConditions([
                                 ['{arg.array_length} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Names;', locals(), indent=8)]],
                                 ['{arg.array_length} > 1', [
-                                    makeGenVar('{arg.name}Array', arg.name, locals(), indent=8, addType=False), # generate the CPP name
+                                    makeGenVar('{arg.name}Array', arg.name, None, locals(), indent=8, addType=False), # generate the CPP name
                                     makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Names', locals(), indent=8)]],
                             ], locals(), indent=4)
 
@@ -704,7 +765,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 assert values.index(arg) == (len(values) - 1), "The handle output pointer should be the last argument"
 
                 varName = '{arg.name}Name'.format(arg=arg)
-                body += makeGenVar(varName, '{arg.name}', locals(), indent=4)
+                body += makeGenVar(varName, '{arg.name}', handleObjectType, locals(), indent=4)
                 if arg.is_array:
                     callTempl.append('%s')
                     arrayInfo = '[%d]'
@@ -739,7 +800,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 # TODO: do a double check on this:
                 #assert arg.base_type == 'void', 'The arg.base_type should be void'
 
-                body += makeGenVar('{arg.name}Name', '{arg.name}', locals(), indent=4)
+                body += makeGenVar('{arg.name}Name', '{arg.name}', handleObjectType, locals(), indent=4)
 
                 if originalBaseType in self.stype_values: # The output parameter has an sType value, generate the struct, just to be safe for now.
                     streamName = "stream_{arg.name}".format(**locals())
@@ -789,7 +850,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     # Generate an array of strings containing the handle id names
                     strArrayName = arg.name + "Array"
 
-                    body += makeGenVar(strArrayName, None, locals(), indent=4)
+                    body += makeGenVar(strArrayName, None, handleObjectType, locals(), indent=4)
                     body += makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
                                            ['{arg.name}->GetPointer()',
                                             '{arg.name}->GetPointer() + {arg.array_length}',
@@ -799,7 +860,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     body += makeGenConditions([
                                 ['{arg.array_length} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Values;', locals(), indent=8)]],
                                 ['{arg.array_length} > 1', [
-                                    makeGenVar(strArrayName, strArrayName, indent=8, addType=False), # generate the CPP name
+                                    makeGenVar(strArrayName, strArrayName, None, locals(), indent=8, addType=False), # generate the CPP name
                                     makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Values', locals(), indent=8)]],
                             ], locals(), indent=4)
 
@@ -811,7 +872,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             elif self.is_enum(arg.base_type) or self.is_flags(arg.base_type):
                 if arg.is_array:
                     strArrayName = arg.name + "Array"
-                    body += makeGenVar(strArrayName, None, locals(), indent=4)
+                    body += makeGenVar(strArrayName, None, handleObjectType, locals(), indent=4)
                     body += makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
                                            ['{arg.name}->GetPointer()',
                                             '{arg.name}->GetPointer() + {arg.array_length}',
@@ -823,7 +884,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                         body += makeGenConditions([
                                     ['{arg.array_length} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Values;', locals(), indent=8)]],
                                     ['{arg.array_length} > 1', [
-                                        makeGenVar(strArrayName, strArrayName, indent=8, addType=False), # generate the CPP name
+                                        makeGenVar(strArrayName, strArrayName, None, locals(), indent=8, addType=False), # generate the CPP name
                                         makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Values', locals(), indent=8)]],
                                 ], locals(), indent=4)
 
@@ -838,14 +899,14 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 valueSuffix = valueSuffixDict.get(arg.base_type, '')
 
                 if arg.is_array:
-                    newArray, callArg, callTemplate = buildInputArray(arg, valueSuffix=valueSuffix, indent=4)
+                    newArray, callArg, callTemplate = self.buildInputArray(arg, valueSuffix=valueSuffix, indent=4)
                     body += newArray
                 elif arg.base_type != 'void':
                     callArg = '{arg.name}->GetPointer()'
                     callTemplate = "%p"
                 else:
                     # encoding void* inputs is tricky at the moment, hope for the best
-                    body += makeGenVar('{arg.name}Name', '{arg.name}', locals(), indent=4)
+                    body += makeGenVar('{arg.name}Name', '{arg.name}', handleObjectType, locals(), indent=4)
                     body += makeGen('fprintf(file, "void* %s;\\n", {arg.name}Name.c_str());', locals(), indent=4)
 
                     callArg = '{arg.name}Name.c_str()'.format(arg=arg)
@@ -855,7 +916,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 callTempl.append(callTemplate)
             elif arg.is_pointer:
                 assert self.is_output_parameter(arg)
-                body += makeGenVar('{arg.name}Name', '{arg.name}', locals(), indent=4)
+                body += makeGenVar('{arg.name}Name', '{arg.name}', handleObjectType, locals(), indent=4)
                 body += makeGen('fprintf(file, "{arg.base_type} %s;\\n", {arg.name}Name.c_str());', locals(), indent=4)
 
                 callArgs.append('{arg.name}Name.c_str()'.format(arg=arg))

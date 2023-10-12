@@ -25,10 +25,13 @@ static const char* sCommonHeaderOutputHeaders = R"(
 #define GLOBAL_VAR_H
 
 #include <cstdio>
-#include <unistd.h>
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
+#include <unistd.h>
+#include <unordered_map>
+#include <vector>
+
 #include <vulkan/vulkan.h>
 )";
 

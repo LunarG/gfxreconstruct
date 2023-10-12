@@ -3353,7 +3353,7 @@ std::string GenerateStruct_VkSubmitInfo(std::ostream &out, const VkSubmitInfo* s
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pWaitSemaphoresArray = "NULL";
     if (metainfo->pWaitSemaphores.GetPointer() != NULL && structInfo->waitSemaphoreCount > 0) {
-        pWaitSemaphoresArray = "pWaitSemaphoresArray_" + std::to_string(consumer.getNextId());
+        pWaitSemaphoresArray = "pWaitSemaphoresArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_SEMAPHORE));
         std::string pWaitSemaphoresValues = toStringJoin(metainfo->pWaitSemaphores.GetPointer(),
                                                          metainfo->pWaitSemaphores.GetPointer() + structInfo->waitSemaphoreCount,
                                                          [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -3375,7 +3375,7 @@ std::string GenerateStruct_VkSubmitInfo(std::ostream &out, const VkSubmitInfo* s
     }
     std::string pCommandBuffersArray = "NULL";
     if (metainfo->pCommandBuffers.GetPointer() != NULL && structInfo->commandBufferCount > 0) {
-        pCommandBuffersArray = "pCommandBuffersArray_" + std::to_string(consumer.getNextId());
+        pCommandBuffersArray = "pCommandBuffersArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_COMMAND_BUFFER));
         std::string pCommandBuffersValues = toStringJoin(metainfo->pCommandBuffers.GetPointer(),
                                                          metainfo->pCommandBuffers.GetPointer() + structInfo->commandBufferCount,
                                                          [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -3388,7 +3388,7 @@ std::string GenerateStruct_VkSubmitInfo(std::ostream &out, const VkSubmitInfo* s
     }
     std::string pSignalSemaphoresArray = "NULL";
     if (metainfo->pSignalSemaphores.GetPointer() != NULL && structInfo->signalSemaphoreCount > 0) {
-        pSignalSemaphoresArray = "pSignalSemaphoresArray_" + std::to_string(consumer.getNextId());
+        pSignalSemaphoresArray = "pSignalSemaphoresArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_SEMAPHORE));
         std::string pSignalSemaphoresValues = toStringJoin(metainfo->pSignalSemaphores.GetPointer(),
                                                            metainfo->pSignalSemaphores.GetPointer() + structInfo->signalSemaphoreCount,
                                                            [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -3682,7 +3682,7 @@ std::string GenerateStruct_VkBindSparseInfo(std::ostream &out, const VkBindSpars
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pWaitSemaphoresArray = "NULL";
     if (metainfo->pWaitSemaphores.GetPointer() != NULL && structInfo->waitSemaphoreCount > 0) {
-        pWaitSemaphoresArray = "pWaitSemaphoresArray_" + std::to_string(consumer.getNextId());
+        pWaitSemaphoresArray = "pWaitSemaphoresArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_SEMAPHORE));
         std::string pWaitSemaphoresValues = toStringJoin(metainfo->pWaitSemaphores.GetPointer(),
                                                          metainfo->pWaitSemaphores.GetPointer() + structInfo->waitSemaphoreCount,
                                                          [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -3743,7 +3743,7 @@ std::string GenerateStruct_VkBindSparseInfo(std::ostream &out, const VkBindSpars
     }
     std::string pSignalSemaphoresArray = "NULL";
     if (metainfo->pSignalSemaphores.GetPointer() != NULL && structInfo->signalSemaphoreCount > 0) {
-        pSignalSemaphoresArray = "pSignalSemaphoresArray_" + std::to_string(consumer.getNextId());
+        pSignalSemaphoresArray = "pSignalSemaphoresArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_SEMAPHORE));
         std::string pSignalSemaphoresValues = toStringJoin(metainfo->pSignalSemaphores.GetPointer(),
                                                            metainfo->pSignalSemaphores.GetPointer() + structInfo->signalSemaphoreCount,
                                                            [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -4967,7 +4967,7 @@ std::string GenerateStruct_VkPipelineLayoutCreateInfo(std::ostream &out, const V
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pSetLayoutsArray = "NULL";
     if (metainfo->pSetLayouts.GetPointer() != NULL && structInfo->setLayoutCount > 0) {
-        pSetLayoutsArray = "pSetLayoutsArray_" + std::to_string(consumer.getNextId());
+        pSetLayoutsArray = "pSetLayoutsArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT));
         std::string pSetLayoutsValues = toStringJoin(metainfo->pSetLayouts.GetPointer(),
                                                      metainfo->pSetLayouts.GetPointer() + structInfo->setLayoutCount,
                                                      [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -5184,7 +5184,7 @@ std::string GenerateStruct_VkDescriptorSetAllocateInfo(std::ostream &out, const 
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pSetLayoutsArray = "NULL";
     if (metainfo->pSetLayouts.GetPointer() != NULL && structInfo->descriptorSetCount > 0) {
-        pSetLayoutsArray = "pSetLayoutsArray_" + std::to_string(consumer.getNextId());
+        pSetLayoutsArray = "pSetLayoutsArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT));
         std::string pSetLayoutsValues = toStringJoin(metainfo->pSetLayouts.GetPointer(),
                                                      metainfo->pSetLayouts.GetPointer() + structInfo->descriptorSetCount,
                                                      [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -5220,7 +5220,7 @@ std::string GenerateStruct_VkDescriptorSetLayoutBinding(std::ostream &out, const
     std::stringstream structBody;
     std::string pImmutableSamplersArray = "NULL";
     if (metainfo->pImmutableSamplers.GetPointer() != NULL && structInfo->descriptorCount > 0) {
-        pImmutableSamplersArray = "pImmutableSamplersArray_" + std::to_string(consumer.getNextId());
+        pImmutableSamplersArray = "pImmutableSamplersArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_SAMPLER));
         std::string pImmutableSamplersValues = toStringJoin(metainfo->pImmutableSamplers.GetPointer(),
                                                             metainfo->pImmutableSamplers.GetPointer() + structInfo->descriptorCount,
                                                             [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -5345,7 +5345,7 @@ std::string GenerateStruct_VkFramebufferCreateInfo(std::ostream &out, const VkFr
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pAttachmentsArray = "NULL";
     if (metainfo->pAttachments.GetPointer() != NULL && structInfo->attachmentCount > 0) {
-        pAttachmentsArray = "pAttachmentsArray_" + std::to_string(consumer.getNextId());
+        pAttachmentsArray = "pAttachmentsArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_IMAGE_VIEW));
         std::string pAttachmentsValues = toStringJoin(metainfo->pAttachments.GetPointer(),
                                                       metainfo->pAttachments.GetPointer() + structInfo->attachmentCount,
                                                       [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -6359,7 +6359,7 @@ std::string GenerateStruct_VkDeviceGroupDeviceCreateInfo(std::ostream &out, cons
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pPhysicalDevicesArray = "NULL";
     if (metainfo->pPhysicalDevices.GetPointer() != NULL && structInfo->physicalDeviceCount > 0) {
-        pPhysicalDevicesArray = "pPhysicalDevicesArray_" + std::to_string(consumer.getNextId());
+        pPhysicalDevicesArray = "pPhysicalDevicesArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_PHYSICAL_DEVICE));
         std::string pPhysicalDevicesValues = toStringJoin(metainfo->pPhysicalDevices.GetPointer(),
                                                           metainfo->pPhysicalDevices.GetPointer() + structInfo->physicalDeviceCount,
                                                           [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -8933,7 +8933,7 @@ std::string GenerateStruct_VkRenderPassAttachmentBeginInfo(std::ostream &out, co
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pAttachmentsArray = "NULL";
     if (metainfo->pAttachments.GetPointer() != NULL && structInfo->attachmentCount > 0) {
-        pAttachmentsArray = "pAttachmentsArray_" + std::to_string(consumer.getNextId());
+        pAttachmentsArray = "pAttachmentsArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_IMAGE_VIEW));
         std::string pAttachmentsValues = toStringJoin(metainfo->pAttachments.GetPointer(),
                                                       metainfo->pAttachments.GetPointer() + structInfo->attachmentCount,
                                                       [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -9202,7 +9202,7 @@ std::string GenerateStruct_VkSemaphoreWaitInfo(std::ostream &out, const VkSemaph
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pSemaphoresArray = "NULL";
     if (metainfo->pSemaphores.GetPointer() != NULL && structInfo->semaphoreCount > 0) {
-        pSemaphoresArray = "pSemaphoresArray_" + std::to_string(consumer.getNextId());
+        pSemaphoresArray = "pSemaphoresArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_SEMAPHORE));
         std::string pSemaphoresValues = toStringJoin(metainfo->pSemaphores.GetPointer(),
                                                      metainfo->pSemaphores.GetPointer() + structInfo->semaphoreCount,
                                                      [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -12907,7 +12907,7 @@ std::string GenerateStruct_VkWin32KeyedMutexAcquireReleaseInfoKHR(std::ostream &
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pAcquireSyncsArray = "NULL";
     if (metainfo->pAcquireSyncs.GetPointer() != NULL && structInfo->acquireCount > 0) {
-        pAcquireSyncsArray = "pAcquireSyncsArray_" + std::to_string(consumer.getNextId());
+        pAcquireSyncsArray = "pAcquireSyncsArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_DEVICE_MEMORY));
         std::string pAcquireSyncsValues = toStringJoin(metainfo->pAcquireSyncs.GetPointer(),
                                                        metainfo->pAcquireSyncs.GetPointer() + structInfo->acquireCount,
                                                        [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -12937,7 +12937,7 @@ std::string GenerateStruct_VkWin32KeyedMutexAcquireReleaseInfoKHR(std::ostream &
     }
     std::string pReleaseSyncsArray = "NULL";
     if (metainfo->pReleaseSyncs.GetPointer() != NULL && structInfo->releaseCount > 0) {
-        pReleaseSyncsArray = "pReleaseSyncsArray_" + std::to_string(consumer.getNextId());
+        pReleaseSyncsArray = "pReleaseSyncsArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_DEVICE_MEMORY));
         std::string pReleaseSyncsValues = toStringJoin(metainfo->pReleaseSyncs.GetPointer(),
                                                        metainfo->pReleaseSyncs.GetPointer() + structInfo->releaseCount,
                                                        [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -14606,7 +14606,7 @@ std::string GenerateStruct_VkPipelineLibraryCreateInfoKHR(std::ostream &out, con
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pLibrariesArray = "NULL";
     if (metainfo->pLibraries.GetPointer() != NULL && structInfo->libraryCount > 0) {
-        pLibrariesArray = "pLibrariesArray_" + std::to_string(consumer.getNextId());
+        pLibrariesArray = "pLibrariesArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_PIPELINE));
         std::string pLibrariesValues = toStringJoin(metainfo->pLibraries.GetPointer(),
                                                     metainfo->pLibraries.GetPointer() + structInfo->libraryCount,
                                                     [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -17159,7 +17159,7 @@ std::string GenerateStruct_VkWin32KeyedMutexAcquireReleaseInfoNV(std::ostream &o
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pAcquireSyncsArray = "NULL";
     if (metainfo->pAcquireSyncs.GetPointer() != NULL && structInfo->acquireCount > 0) {
-        pAcquireSyncsArray = "pAcquireSyncsArray_" + std::to_string(consumer.getNextId());
+        pAcquireSyncsArray = "pAcquireSyncsArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_DEVICE_MEMORY));
         std::string pAcquireSyncsValues = toStringJoin(metainfo->pAcquireSyncs.GetPointer(),
                                                        metainfo->pAcquireSyncs.GetPointer() + structInfo->acquireCount,
                                                        [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -17189,7 +17189,7 @@ std::string GenerateStruct_VkWin32KeyedMutexAcquireReleaseInfoNV(std::ostream &o
     }
     std::string pReleaseSyncsArray = "NULL";
     if (metainfo->pReleaseSyncs.GetPointer() != NULL && structInfo->releaseCount > 0) {
-        pReleaseSyncsArray = "pReleaseSyncsArray_" + std::to_string(consumer.getNextId());
+        pReleaseSyncsArray = "pReleaseSyncsArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_DEVICE_MEMORY));
         std::string pReleaseSyncsValues = toStringJoin(metainfo->pReleaseSyncs.GetPointer(),
                                                        metainfo->pReleaseSyncs.GetPointer() + structInfo->releaseCount,
                                                        [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -19742,7 +19742,7 @@ std::string GenerateStruct_VkWriteDescriptorSetAccelerationStructureNV(std::ostr
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pAccelerationStructuresArray = "NULL";
     if (metainfo->pAccelerationStructures.GetPointer() != NULL && structInfo->accelerationStructureCount > 0) {
-        pAccelerationStructuresArray = "pAccelerationStructuresArray_" + std::to_string(consumer.getNextId());
+        pAccelerationStructuresArray = "pAccelerationStructuresArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV));
         std::string pAccelerationStructuresValues = toStringJoin(metainfo->pAccelerationStructures.GetPointer(),
                                                                  metainfo->pAccelerationStructures.GetPointer() + structInfo->accelerationStructureCount,
                                                                  [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -22148,7 +22148,7 @@ std::string GenerateStruct_VkSwapchainPresentFenceInfoEXT(std::ostream &out, con
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pFencesArray = "NULL";
     if (metainfo->pFences.GetPointer() != NULL && structInfo->swapchainCount > 0) {
-        pFencesArray = "pFencesArray_" + std::to_string(consumer.getNextId());
+        pFencesArray = "pFencesArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_FENCE));
         std::string pFencesValues = toStringJoin(metainfo->pFences.GetPointer(),
                                                  metainfo->pFences.GetPointer() + structInfo->swapchainCount,
                                                  [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -22430,7 +22430,7 @@ std::string GenerateStruct_VkGraphicsPipelineShaderGroupsCreateInfoNV(std::ostre
     }
     std::string pPipelinesArray = "NULL";
     if (metainfo->pPipelines.GetPointer() != NULL && structInfo->pipelineCount > 0) {
-        pPipelinesArray = "pPipelinesArray_" + std::to_string(consumer.getNextId());
+        pPipelinesArray = "pPipelinesArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_PIPELINE));
         std::string pPipelinesValues = toStringJoin(metainfo->pPipelines.GetPointer(),
                                                     metainfo->pPipelines.GetPointer() + structInfo->pipelineCount,
                                                     [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -24520,7 +24520,7 @@ std::string GenerateStruct_VkFrameBoundaryEXT(std::ostream &out, const VkFrameBo
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pImagesArray = "NULL";
     if (metainfo->pImages.GetPointer() != NULL && structInfo->imageCount > 0) {
-        pImagesArray = "pImagesArray_" + std::to_string(consumer.getNextId());
+        pImagesArray = "pImagesArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_IMAGE));
         std::string pImagesValues = toStringJoin(metainfo->pImages.GetPointer(),
                                                  metainfo->pImages.GetPointer() + structInfo->imageCount,
                                                  [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -24533,7 +24533,7 @@ std::string GenerateStruct_VkFrameBoundaryEXT(std::ostream &out, const VkFrameBo
     }
     std::string pBuffersArray = "NULL";
     if (metainfo->pBuffers.GetPointer() != NULL && structInfo->bufferCount > 0) {
-        pBuffersArray = "pBuffersArray_" + std::to_string(consumer.getNextId());
+        pBuffersArray = "pBuffersArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_BUFFER));
         std::string pBuffersValues = toStringJoin(metainfo->pBuffers.GetPointer(),
                                                   metainfo->pBuffers.GetPointer() + structInfo->bufferCount,
                                                   [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -26867,7 +26867,7 @@ std::string GenerateStruct_VkShaderCreateInfoEXT(std::ostream &out, const VkShad
     }
     std::string pSetLayoutsArray = "NULL";
     if (metainfo->pSetLayouts.GetPointer() != NULL && structInfo->setLayoutCount > 0) {
-        pSetLayoutsArray = "pSetLayoutsArray_" + std::to_string(consumer.getNextId());
+        pSetLayoutsArray = "pSetLayoutsArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT));
         std::string pSetLayoutsValues = toStringJoin(metainfo->pSetLayouts.GetPointer(),
                                                      metainfo->pSetLayouts.GetPointer() + structInfo->setLayoutCount,
                                                      [&](const format::HandleId current) { return consumer.GetHandle(current); },
@@ -27726,7 +27726,7 @@ std::string GenerateStruct_VkWriteDescriptorSetAccelerationStructureKHR(std::ost
     std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
     std::string pAccelerationStructuresArray = "NULL";
     if (metainfo->pAccelerationStructures.GetPointer() != NULL && structInfo->accelerationStructureCount > 0) {
-        pAccelerationStructuresArray = "pAccelerationStructuresArray_" + std::to_string(consumer.getNextId());
+        pAccelerationStructuresArray = "pAccelerationStructuresArray_" + std::to_string(consumer.getNextId(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR));
         std::string pAccelerationStructuresValues = toStringJoin(metainfo->pAccelerationStructures.GetPointer(),
                                                                  metainfo->pAccelerationStructures.GetPointer() + structInfo->accelerationStructureCount,
                                                                  [&](const format::HandleId current) { return consumer.GetHandle(current); },
