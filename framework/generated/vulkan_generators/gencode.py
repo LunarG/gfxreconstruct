@@ -902,10 +902,12 @@ if __name__ == '__main__':
     # Apply any temporary patches to the xml to allow correct code generation
     # from it. These should be reviewed and removed when the xml is fixed upstream.
     start_timer(args.time)
+    # There are no current patches needed, but here is an example of how to patch the XML
+    # after parsing to add a missing single attribute:
     # Workaround 1.3.264 VkFrameBoundaryEXT.pTag lacking len field:
     # <https://github.com/KhronosGroup/Vulkan-Docs/pull/2240>
-    if ptag_member := tree.find('types/type[@name="VkFrameBoundaryEXT"]/member[name="pTag"]'):
-        ptag_member.set('len', 'tagSize')
+    # if ptag_member := tree.find('types/type[@name="VkFrameBoundaryEXT"]/member[name="pTag"]'):
+    #    ptag_member.set('len', 'tagSize')
     end_timer(args.time, '* Time to patch ElementTree =')
 
     # Extend the vk.xml tree with XML files from the config dir
