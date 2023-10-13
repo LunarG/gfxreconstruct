@@ -20,8 +20,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import sys, inspect
+import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_empty_lines
 
 
 class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions):
@@ -104,31 +105,25 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        includes = inspect.cleandoc(
-            '''
+        includes = format_cpp_code('''
             #include "util/defines.h"
             #include "generated/generated_vulkan_export_json_consumer.h"
             #include "decode/custom_vulkan_struct_to_json.h"
-            '''
-        )
+        ''')
         write(includes, file=self.outFile)
         self.includeVulkanHeaders(gen_opts)
-        namespace = inspect.cleandoc(
-            '''
+        namespace = remove_trailing_empty_lines(indent_cpp_code('''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
-            '''
-        )
+        '''))
         write(namespace, file=self.outFile)
 
     def endFile(self):
         """Method override."""
-        body = inspect.cleandoc(
-            '''
+        body = format_cpp_code('''
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            '''
-        )
+        ''')
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -153,22 +148,18 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
                 cmddef += self.make_consumer_func_decl(
                     return_type, 'VulkanExportJsonConsumer::Process_' + cmd, values
                 ) + '\n'
-                cmddef += inspect.cleandoc(
-                    '''
+                cmddef += format_cpp_code('''
                     {{
                         nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "{0}");
-                    '''.format(cmd)
-                )
+                '''.format(cmd))
                 cmddef += '\n'
                 cmddef += self.make_consumer_func_body(
                     return_type, cmd, values
                 )
-                cmddef += inspect.cleandoc(
-                    '''
+                cmddef += format_cpp_code('''
                         WriteBlockEnd();
                     }
-                    '''
-                )
+                ''', 1)
                 write(cmddef, file=self.outFile)
                 first = False
 
