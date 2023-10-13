@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -157,7 +158,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
                                                    const VulkanReplayOptions&                options) :
     loader_handle_(nullptr),
     get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), application_(application), options_(options),
-    loading_trim_state_(false), have_imported_semaphores_(false), fps_info_(nullptr)
+    loading_trim_state_(false), replaying_trimmed_capture_(false), have_imported_semaphores_(false), fps_info_(nullptr)
 {
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -244,6 +245,9 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 {
     GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = true;
+
+    // If a trace file has the state begin marker, it must be a trim trace file.
+    replaying_trimmed_capture_ = true;
 }
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
@@ -4308,6 +4312,17 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     bool                uses_address         = false;
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
+
+    if (replaying_trimmed_capture_)
+    {
+        // The GFXR trimmed capture process sets VK_BUFFER_USAGE_TRANSFER_SRC_BIT flag for buffer VkBufferCreateInfo.
+        // Since buffer memory requirements can differ when VK_BUFFER_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
+        // vkBindBufferMemory failures due to memory requirement mismatch during replay. So here we add
+        // VK_BUFFER_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
+        auto modified_create_info = const_cast<VkBufferCreateInfo*>(replay_create_info);
+        modified_create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    }
+
     if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
         if ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
@@ -4430,6 +4445,16 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     VulkanResourceAllocator::ResourceData allocator_data;
     auto                                  replay_image = pImage->GetHandlePointer();
     auto                                  capture_id   = (*pImage->GetPointer());
+
+    if (replaying_trimmed_capture_)
+    {
+        // The GFXR trimmed capture process sets VK_IMAGE_USAGE_TRANSFER_SRC_BIT flag for image VkImageCreateInfo.
+        // Since image memory requirements can differ when VK_IMAGE_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
+        // vkBindImageMemory failures due to memory requirement mismatch during replay. So here we add
+        // VK_IMAGE_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
+        auto modified_create_info = const_cast<VkImageCreateInfo*>(pCreateInfo->GetPointer());
+        modified_create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
 
     VkResult result = allocator->CreateImage(
         pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
