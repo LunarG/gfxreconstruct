@@ -59,51 +59,6 @@ static std::string GetAgsResultValueString(AGSReturnCode result)
     }
 }
 
-std::string InterfaceIdToString(const IID& iid)
-{
-    if (iid == IID_IDXGIDevice)
-        return "\"IID_IDXGIDevice\"";
-    if (iid == IID_IDXGIDevice1)
-        return "\"IID_IDXGIDevice1\"";
-    if (iid == IID_IDXGIDevice2)
-        return "\"IID_IDXGIDevice2\"";
-    if (iid == IID_IDXGIDevice3)
-        return "\"IID_IDXGIDevice3\"";
-    if (iid == IID_IDXGIDevice4)
-        return "\"IID_IDXGIDevice4\"";
-    if (iid == IID_ID3D12Device)
-        return "\"IID_ID3D12Device\"";
-    if (iid == IID_ID3D12Device1)
-        return "\"IID_ID3D12Device1\"";
-    if (iid == IID_ID3D12Device2)
-        return "\"IID_ID3D12Device2\"";
-    if (iid == IID_ID3D12Device3)
-        return "\"IID_ID3D12Device3\"";
-    if (iid == IID_ID3D12Device4)
-        return "\"IID_ID3D12Device4\"";
-    if (iid == IID_ID3D12Device5)
-        return "\"IID_ID3D12Device5\"";
-    if (iid == IID_ID3D12Device6)
-        return "\"IID_ID3D12Device6\"";
-    if (iid == IID_ID3D12Device7)
-        return "\"IID_ID3D12Device7\"";
-    if (iid == IID_ID3D12Device8)
-        return "\"IID_ID3D12Device8\"";
-    if (iid == IID_ID3D12Device9)
-        return "\"IID_ID3D12Device9\"";
-    if (iid == IID_ID3D12Device10)
-        return "\"IID_ID3D12Device10\"";
-    if (iid == IID_ID3D12Device11)
-        return "\"IID_ID3D12Device11\"";
-    if (iid == IID_ID3D12DebugDevice1)
-        return "\"IID_ID3D12DebugDevice1\"";
-    if (iid == IID_ID3D12DebugDevice)
-        return "\"IID_ID3D12DebugDevice\"";
-    if (iid == IID_ID3D12DebugDevice2)
-        return "\"IID_ID3D12DebugDevice2\"";
-    return "\"Invalid IID\"";
-}
-
 std::string FeatureLevelToString(const D3D_FEATURE_LEVEL& value)
 {
     switch (value)
