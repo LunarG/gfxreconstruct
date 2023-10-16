@@ -1,7 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
 ** Copyright (c) 2018 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -159,6 +158,7 @@ class FileProcessor
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
+    uint64_t                            api_call_index_;
     uint64_t                            block_limit_;
     bool                                capture_uses_frame_markers_;
     uint64_t                            first_frame_;

@@ -23,6 +23,7 @@
 #include "decode/custom_ags_struct_decoders.h"
 #include "custom_ags_ascii_consumer.h"
 #include "util/logging.h"
+#include "generated/generated_dx12_enum_to_string.h"
 
 #include <amd_ags.h>
 
@@ -292,7 +293,7 @@ void AgsAsciiConsumer::Process_agsDriverExtensionsDX12_CreateDevice(
                                         to_string_flags_,
                                         tab_count,
                                         tab_size,
-                                        InterfaceIdToString(creationParams->iid));
+                                        ToString(creationParams->iid, to_string_flags_, tab_count, tab_size));
                           FieldToString(strStrm,
                                         false,
                                         "FeatureLevel",
