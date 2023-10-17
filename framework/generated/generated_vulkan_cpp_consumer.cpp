@@ -15695,6 +15695,7 @@ void VulkanCppConsumer::Process_vkGetPipelineIndirectMemoryRequirementsNV(
 
 
 
+
 void VulkanCppConsumer::Process_vkCmdSetAlphaToCoverageEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -16813,6 +16814,7 @@ void VulkanCppConsumer::Process_vkGetFramebufferTilePropertiesQCOM(
     fprintf(file, "    }\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetFramebufferTilePropertiesQCOM);
 }
+
 
 
 

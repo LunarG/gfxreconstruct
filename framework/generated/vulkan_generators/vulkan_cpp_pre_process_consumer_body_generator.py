@@ -71,7 +71,7 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -79,9 +79,6 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
 
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
-
-    def newline(self):
-        write('', file=self.outFile)
 
     # Method override
     def beginFile(self, genOpts):

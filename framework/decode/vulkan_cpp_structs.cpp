@@ -52,14 +52,10 @@ std::string GenerateStruct_VkMemoryAllocateInfo(std::ostream&                 ou
     structBody << "\t"
                << "RecalculateMemoryTypeIndex(" << structInfo->memoryTypeIndex << ")"
                << ",";
-    std::string varname = consumer.GetExistingStruct(structBody);
-    if (!varname.length())
-    {
-        varname = consumer.AddStruct(structBody, "memoryAllocateInfo");
-        out << "VkMemoryAllocateInfo " << varname << " {" << std::endl;
-        out << structBody.str() << std::endl;
-        out << "};" << std::endl;
-    }
+    std::string varname = consumer.AddStruct(structBody, "memoryAllocateInfo");
+    out << "VkMemoryAllocateInfo " << varname << " {" << std::endl;
+    out << structBody.str() << std::endl;
+    out << "};" << std::endl;
     return varname;
 }
 
@@ -71,12 +67,8 @@ std::string GenerateStruct_VkClearColorValue(std::ostream&              out,
     std::stringstream structBody;
     structBody << VulkanCppConsumerBase::BuildValue(*structInfo);
 
-    std::string varname = consumer.GetExistingStruct(structBody);
-    if (!varname.length())
-    {
-        varname = consumer.AddStruct(structBody, "clearColorValue");
-        out << "VkClearColorValue " << varname << " = " << structBody.str() << ";" << std::endl;
-    }
+    std::string varname = consumer.AddStruct(structBody, "clearColorValue");
+    out << "VkClearColorValue " << varname << " = " << structBody.str() << ";" << std::endl;
 
     return varname;
 }
@@ -270,14 +262,10 @@ std::string GenerateStruct_VkPresentInfoKHR(std::ostream&             out,
     structBody << "NULL"
                << "," << std::endl; // Ignore results array from capture
 
-    std::string varname = consumer.GetExistingStruct(structBody);
-    if (!varname.length())
-    {
-        varname = consumer.AddStruct(structBody, "presentInfoKHR");
-        out << "VkPresentInfoKHR " << varname << " {" << std::endl;
-        out << structBody.str() << std::endl;
-        out << "};" << std::endl;
-    }
+    std::string varname = consumer.AddStruct(structBody, "presentInfoKHR");
+    out << "VkPresentInfoKHR " << varname << " {" << std::endl;
+    out << structBody.str() << std::endl;
+    out << "};" << std::endl;
     return varname;
 }
 
@@ -414,14 +402,12 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
     structBody << "\t" << consumer.GetHandle(metainfo->pipelineLayout) << "," << std::endl;
     /* set */
     structBody << "\t" << structInfo->set << "," << std::endl;
-    std::string varname = consumer.GetExistingStruct(structBody);
-    if (!varname.length())
-    {
-        varname = consumer.AddStruct(structBody, "descriptorUpdateTemplateCreateInfo");
-        out << "VkDescriptorUpdateTemplateCreateInfo" << structTypeSuffix << " " << varname << " {" << std::endl;
-        out << structBody.str() << std::endl;
-        out << "};" << std::endl;
-    }
+
+    std::string varname = consumer.AddStruct(structBody, "descriptorUpdateTemplateCreateInfo");
+    out << "VkDescriptorUpdateTemplateCreateInfo" << structTypeSuffix << " " << varname << " {" << std::endl;
+    out << structBody.str() << std::endl;
+    out << "};" << std::endl;
+
     return varname;
 }
 
@@ -452,14 +438,11 @@ std::string GenerateStruct_VkDescriptorImageInfo(std::ostream&                  
                    << "," << std::endl;
     }
 
-    std::string varName = consumer.GetExistingStruct(structBody);
-    if (!varName.length())
-    {
-        varName = consumer.AddStruct(structBody, "descriptorImageInfo");
-        out << "VkDescriptorImageInfo " << varName << " {" << std::endl;
-        out << structBody.str() << std::endl;
-        out << "};" << std::endl;
-    }
+    std::string varName = consumer.AddStruct(structBody, "descriptorImageInfo");
+    out << "VkDescriptorImageInfo " << varName << " {" << std::endl;
+    out << structBody.str() << std::endl;
+    out << "};" << std::endl;
+
     return varName;
 }
 
@@ -483,14 +466,12 @@ std::string GenerateStruct_VkDescriptorUpdateTemplateEntry(std::ostream&        
     structBody << "\t" << structInfo->offset << "," << std::endl;
     /* stride */
     structBody << "\t" << structInfo->stride << ",";
-    std::string varname = consumer.GetExistingStruct(structBody);
-    if (!varname.length())
-    {
-        varname = consumer.AddStruct(structBody, "descriptorUpdateTemplateEntry");
-        out << "VkDescriptorUpdateTemplateEntry " << varname << " {" << std::endl;
-        out << structBody.str() << std::endl;
-        out << "};" << std::endl;
-    }
+
+    std::string varname = consumer.AddStruct(structBody, "descriptorUpdateTemplateEntry");
+    out << "VkDescriptorUpdateTemplateEntry " << varname << " {" << std::endl;
+    out << structBody.str() << std::endl;
+    out << "};" << std::endl;
+
     return varname;
 }
 
@@ -513,14 +494,11 @@ GenerateStruct_VkAccelerationStructureMotionInstanceNV(std::ostream&            
                << "," << std::endl;
     /* data */
     structBody << "\t" << staticInstanceInfoVar << ",";
-    std::string varname = consumer.GetExistingStruct(structBody);
-    if (!varname.length())
-    {
-        varname = consumer.AddStruct(structBody, "accelerationStructureMotionInstanceNV");
-        out << "VkAccelerationStructureMotionInstanceNV " << varname << " {" << std::endl;
-        out << structBody.str() << std::endl;
-        out << "};" << std::endl;
-    }
+    std::string varname = consumer.AddStruct(structBody, "accelerationStructureMotionInstanceNV");
+    out << "VkAccelerationStructureMotionInstanceNV " << varname << " {" << std::endl;
+    out << structBody.str() << std::endl;
+    out << "};" << std::endl;
+
     return varname;
 }
 
@@ -554,14 +532,12 @@ std::string GenerateStruct_VkDebugUtilsMessengerCreateInfoEXT(std::ostream&     
     consumer.SetNeedsDebugUtilsCallback(true);
     /* pUserData */
     structBody << "\tnullptr," << std::endl;
-    std::string varname = consumer.GetExistingStruct(structBody);
-    if (!varname.length())
-    {
-        varname = consumer.AddStruct(structBody, "debugUtilsMessengerCreateInfoEXT");
-        out << "VkDebugUtilsMessengerCreateInfoEXT " << varname << " {" << std::endl;
-        out << structBody.str() << std::endl;
-        out << "};" << std::endl;
-    }
+
+    std::string varname = consumer.AddStruct(structBody, "debugUtilsMessengerCreateInfoEXT");
+    out << "VkDebugUtilsMessengerCreateInfoEXT " << varname << " {" << std::endl;
+    out << structBody.str() << std::endl;
+    out << "};" << std::endl;
+
     return varname;
 }
 GFXRECON_END_NAMESPACE(gfxrecon)

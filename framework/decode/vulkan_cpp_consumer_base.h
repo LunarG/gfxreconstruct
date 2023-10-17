@@ -101,7 +101,6 @@ class VulkanCppConsumerBase : public VulkanConsumer
         return m_resourceMemoryReqMap[resourceHandle];
     }
 
-    std::string GetExistingStruct(const std::stringstream& stream);
     std::string AddStruct(const std::stringstream& content, const std::string& varnamePrefix);
     std::string
          AddMemoryFilePath(const std::string& fileName, const std::string& outDir, const uint8_t* data, uint64_t size);

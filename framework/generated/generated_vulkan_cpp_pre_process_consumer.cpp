@@ -36,7 +36,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-
 void VulkanCppPreProcessConsumer::Process_vkAllocateCommandBuffers(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -2331,7 +2330,6 @@ void VulkanCppPreProcessConsumer::Process_vkWaitForFences(
                                       fenceCount);
     Post_APICall(format::ApiCallId::ApiCall_vkWaitForFences);
 }
-
 void VulkanCppPreProcessConsumer::Process_vkDestroySurfaceKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            instance,
@@ -2414,7 +2412,6 @@ void VulkanCppPreProcessConsumer::Process_vkGetPhysicalDeviceSurfaceSupportKHR(
                                       surface);
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR);
 }
-
 void VulkanCppPreProcessConsumer::Process_vkAcquireNextImage2KHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -2608,7 +2605,6 @@ void VulkanCppPreProcessConsumer::Process_vkQueuePresentKHR(
     }
     Post_APICall(format::ApiCallId::ApiCall_vkQueuePresentKHR);
 }
-
 void VulkanCppPreProcessConsumer::Process_vkCreateXcbSurfaceKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -2639,7 +2635,6 @@ void VulkanCppPreProcessConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupp
                                       physicalDevice);
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR);
 }
-
 void VulkanCppPreProcessConsumer::Process_vkCreateWaylandSurfaceKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -2669,7 +2664,6 @@ void VulkanCppPreProcessConsumer::Process_vkGetPhysicalDeviceWaylandPresentation
                                       physicalDevice);
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR);
 }
-
 void VulkanCppPreProcessConsumer::Process_vkCreateAndroidSurfaceKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -2687,8 +2681,6 @@ void VulkanCppPreProcessConsumer::Process_vkCreateAndroidSurfaceKHR(
                                       *pSurface->GetPointer());
     Post_APICall(format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR);
 }
-
-
 void VulkanCppPreProcessConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            physicalDevice,
@@ -2765,7 +2757,6 @@ void VulkanCppPreProcessConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPr
                                       physicalDevice);
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR);
 }
-
 void VulkanCppPreProcessConsumer::Process_vkTrimCommandPoolKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -2781,7 +2772,6 @@ void VulkanCppPreProcessConsumer::Process_vkTrimCommandPoolKHR(
                                       commandPool);
     Post_APICall(format::ApiCallId::ApiCall_vkTrimCommandPoolKHR);
 }
-
 void VulkanCppPreProcessConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -2826,7 +2816,6 @@ void VulkanCppPreProcessConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
                                       descriptorUpdateTemplate);
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR);
 }
-
 void VulkanCppPreProcessConsumer::Process_vkCmdBeginRenderPass2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -2888,8 +2877,6 @@ void VulkanCppPreProcessConsumer::Process_vkCreateRenderPass2KHR(
                                       *pRenderPass->GetPointer());
     Post_APICall(format::ApiCallId::ApiCall_vkCreateRenderPass2KHR);
 }
-
-
 void VulkanCppPreProcessConsumer::Process_vkGetBufferMemoryRequirements2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -2942,8 +2929,6 @@ void VulkanCppPreProcessConsumer::Process_vkGetImageSparseMemoryRequirements2KHR
     }
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR);
 }
-
-
 void VulkanCppPreProcessConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -2990,10 +2975,6 @@ void VulkanCppPreProcessConsumer::Process_vkCmdDrawIndirectCountKHR(
                                       countBuffer);
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR);
 }
-
-
-
-
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

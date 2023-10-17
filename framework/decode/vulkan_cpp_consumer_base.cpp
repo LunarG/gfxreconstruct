@@ -535,7 +535,7 @@ void VulkanCppConsumerBase::Generate_vkGetSwapchainImagesKHR(VkResult           
     if (pSwapchainImages->GetPointer() == NULL)
     {
         const std::string pSwapchainImageCountName = "pSwapchainImageCount_" + std::to_string(getNextId());
-        fprintf(file, "uint32_t %s;\n", pSwapchainImageCountName.c_str());
+        AddKnownVariables("uint32_t", pSwapchainImageCountName);
         m_ptrMap[pSwapchainImageCount] = pSwapchainImageCountName;
     }
     else
@@ -1913,18 +1913,6 @@ const std::string GfxTocppPlatformToString(GfxTocppPlatform platform)
 bool gfxTocppPlatformIsValid(const GfxTocppPlatform& platform)
 {
     return platform != GfxTocppPlatform::NONE;
-}
-
-std::string VulkanCppConsumerBase::GetExistingStruct(const std::stringstream& stream)
-{
-#if 0 // Brainpain
-    const std::string str       = stream.str();
-    uint64_t          hashValue = XXHash64::hash(str.c_str(), str.size(), 0);
-
-    return m_structMap[hashValue];
-#else
-    return "";
-#endif
 }
 
 std::string VulkanCppConsumerBase::AddStruct(const std::stringstream& content, const std::string& varnamePrefix)

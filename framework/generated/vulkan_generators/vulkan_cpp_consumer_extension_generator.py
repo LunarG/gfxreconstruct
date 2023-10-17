@@ -59,7 +59,7 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -67,9 +67,6 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
 
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
-
-    def newline(self):
-        write('', file=self.outFile)
 
     # Method override
     def beginFile(self, genOpts):
@@ -111,11 +108,13 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
                         makeGenCond('structInfo != nullptr && metaInfo != nullptr',
                                     [makeGenCastVar('reinterpret_cast', 'const VkBaseInStructure*',
                                                     'baseStruct', 'structInfo', indent=8),
+                                    makeGen('PNextNode* metaInfoPNext = reinterpret_cast<PNextNode*>(metaInfo);', indent=8),
                                     makeGenSwitch('baseStruct->sType', self.cases, self.caseBodies, defaultBody, indent=4)], [], locals(), indent=4),
                         makeGen('return pNextName;', indent=4),
                         makeGen('}}', indent=0)]
             body = ''.join(function)
             self.writeout(body)
+
 
         self.newline()
         self.writeout('GFXRECON_END_NAMESPACE(decode)')
@@ -143,10 +142,11 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
             sType = self.make_structure_type_enum(typeinfo, structName)
             if not sType:
                 continue
+
             self.cases.append(sType)
             caseBody = [
                 makeGenCastVar('reinterpret_cast', 'const %s*' % structName, 'castedStruct', 'structInfo', use_auto=True, indent=0),
-                makeGenCastVar('reinterpret_cast', 'Decoded_%s*' % structName, 'castedMetaInfo', 'metaInfo', use_auto=True, indent=0),
+                makeGenCastVar('reinterpret_cast', 'Decoded_%s*' % structName, 'castedMetaInfo', 'metaInfoPNext->GetMetaStructPointer()', use_auto=True, indent=0),
                 makeGen('pNextName = "&" + ' + makeGenCall('GenerateStruct_{structName}',
                                                             ['out',
                                                             'castedStruct',
