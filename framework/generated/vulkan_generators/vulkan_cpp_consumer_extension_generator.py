@@ -1,6 +1,8 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2021 Samsung
+# Copyright (c) 2023 Google
+# Copyright (c) 2023 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +22,38 @@ from base_generator import BaseGenerator, BaseGeneratorOptions, write
 from vulkan_cpp_consumer_body_generator import \
     makeGen, makeGenCall, makeGenCond, makeGenCastVar, makeGenSwitch
 
+# Copyright text prefixing all headers (list of strings).
+CPP_PREFIX_STRING = [
+    '/*',
+    '** Copyright (c) 2021 Samsung',
+    '** Copyright (c) 2023 Google',
+    '** Copyright (c) 2023 LunarG, Inc.',
+    '**',
+    '** Permission is hereby granted, free of charge, to any person obtaining a',
+    '** copy of this software and associated documentation files (the "Software"),',
+    '** to deal in the Software without restriction, including without limitation',
+    '** the rights to use, copy, modify, merge, publish, distribute, sublicense,',
+    '** and/or sell copies of the Software, and to permit persons to whom the',
+    '** Software is furnished to do so, subject to the following conditions:',
+    '**',
+    '** The above copyright notice and this permission notice shall be included in',
+    '** all copies or substantial portions of the Software.', '**',
+    '** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR',
+    '** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,',
+    '** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE',
+    '** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',
+    '** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING',
+    '** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER',
+    '** DEALINGS IN THE SOFTWARE.',
+    '*/',
+    '',
+    '/*',
+    '** This file is generated from the Khronos Vulkan XML API Registry.',
+    '**',
+    '*/',
+    ''
+]
+
 class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file to CPP structure generation"""
 
@@ -29,7 +63,7 @@ class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
         platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
         directory='.',
-        prefix_text='',
+        prefix_text=CPP_PREFIX_STRING,
         protect_file=False,
         protect_feature=True,
         extraVulkanHeaders=[]
@@ -40,7 +74,7 @@ class VulkanCppConsumerExtensionGeneratorOptions(BaseGeneratorOptions):
             platform_types,
             filename,
             directory,
-            prefix_text,
+            CPP_PREFIX_STRING,
             protect_file,
             protect_feature,
             extraVulkanHeaders=extraVulkanHeaders
@@ -71,6 +105,7 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
+
         self.is_header = genOpts.filename.endswith(".h")
 
         if self.is_header:

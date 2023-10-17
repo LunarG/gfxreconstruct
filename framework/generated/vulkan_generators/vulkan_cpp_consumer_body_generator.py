@@ -1,6 +1,7 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2020 Samsung
+# Copyright (c) 2023 Google
 # Copyright (c) 2023 LunarG
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +19,37 @@
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
+# Copyright text prefixing all headers (list of strings).
+CPP_PREFIX_STRING = [
+    '/*',
+    '** Copyright (c) 2020 Samsung',
+    '** Copyright (c) 2023 Google',
+    '** Copyright (c) 2023 LunarG, Inc.',
+    '**',
+    '** Permission is hereby granted, free of charge, to any person obtaining a',
+    '** copy of this software and associated documentation files (the "Software"),',
+    '** to deal in the Software without restriction, including without limitation',
+    '** the rights to use, copy, modify, merge, publish, distribute, sublicense,',
+    '** and/or sell copies of the Software, and to permit persons to whom the',
+    '** Software is furnished to do so, subject to the following conditions:',
+    '**',
+    '** The above copyright notice and this permission notice shall be included in',
+    '** all copies or substantial portions of the Software.', '**',
+    '** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR',
+    '** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,',
+    '** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE',
+    '** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',
+    '** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING',
+    '** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER',
+    '** DEALINGS IN THE SOFTWARE.',
+    '*/',
+    '',
+    '/*',
+    '** This file is generated from the Khronos Vulkan XML API Registry.',
+    '**',
+    '*/',
+    ''
+]
 
 # TODO: Copied from base_generator.py.
 def makeREstring(argList, defaultValue = None):
@@ -466,7 +498,7 @@ class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
         directory='.',
-        prefix_text='',
+        prefix_text=CPP_PREFIX_STRING,
         protect_file=False,
         protect_feature=True,
         extraVulkanHeaders=[]
@@ -477,7 +509,7 @@ class VulkanCppConsumerBodyGeneratorOptions(BaseGeneratorOptions):
             platform_types,
             filename,
             directory,
-            prefix_text,
+            CPP_PREFIX_STRING,
             protect_file,
             protect_feature,
             extraVulkanHeaders=extraVulkanHeaders
@@ -502,6 +534,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
+
         # The generation of these functions are suspended for a while.
         self.skippedApiFuncs = [
             'vkGetPipelineCacheData',
