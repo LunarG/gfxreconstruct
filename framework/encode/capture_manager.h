@@ -141,6 +141,8 @@ class CaptureManager
 
     void WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info);
 
+	void ForcedWriteAnnotation(const format::AnnotationType type, const char* label, const char* data);
+
     /// @brief Inject an Annotation block into the capture file.
     /// @param type Identifies the contents of data as plain, xml, or json text
     /// @param label The key or name of the annotation.
@@ -260,7 +262,6 @@ class CaptureManager
     bool        CreateCaptureFile(const std::string& base_filename);
     void        ActivateTrimming();
     void        DeactivateTrimming();
-    void        WriteNewCaptureAnnotation();
 
     void WriteFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
