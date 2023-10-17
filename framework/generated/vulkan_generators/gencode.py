@@ -464,7 +464,7 @@ def make_gen_opts(args):
 
     gen_opts['generated_vulkan_cpp_consumer_extension.h'] = [
         VulkanCppConsumerExtensionGenerator,
-        BaseGeneratorOptions(
+        VulkanCppConsumerExtensionGeneratorOptions(
             filename          = 'generated_vulkan_cpp_consumer_extension.h',
             directory         = directory,
             blacklists        = blacklists,
@@ -476,7 +476,7 @@ def make_gen_opts(args):
 
     gen_opts['generated_vulkan_cpp_consumer_extension.cpp'] = [
         VulkanCppConsumerExtensionGenerator,
-        BaseGeneratorOptions(
+        VulkanCppConsumerExtensionGeneratorOptions(
             filename          = 'generated_vulkan_cpp_consumer_extension.cpp',
             directory         = directory,
             blacklists        = blacklists,
