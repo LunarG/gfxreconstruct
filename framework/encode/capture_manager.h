@@ -141,7 +141,7 @@ class CaptureManager
 
     void WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info);
 
-	void ForcedWriteAnnotation(const format::AnnotationType type, const char* label, const char* data);
+    void ForcedWriteAnnotation(const format::AnnotationType type, const char* label, const char* data);
 
     /// @brief Inject an Annotation block into the capture file.
     /// @param type Identifies the contents of data as plain, xml, or json text
