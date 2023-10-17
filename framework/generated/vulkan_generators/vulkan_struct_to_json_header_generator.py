@@ -21,8 +21,9 @@
 # IN THE SOFTWARE.
 #
 
-import os, re, sys, inspect
+import sys
 from base_generator import *
+from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_empty_lines
 
 
 class VulkanStructToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -80,24 +81,27 @@ class VulkanStructToJsonHeaderGenerator(BaseGenerator):
     # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        body = inspect.cleandoc('''
+        body = format_cpp_code('''
             #include "decode/custom_vulkan_struct_to_json.h"
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
             ''')
+        body += "\n"
         write(body, file=self.outFile)
     # yapf: enable
 
     # Method override
     # yapf: disable
     def endFile(self):
-        body = inspect.cleandoc('''
+        body = remove_trailing_empty_lines(indent_cpp_code('''
+            /// Works out the type of the struct at the end of a pNext pointer and dispatches
+            /// recursively to the FieldToJson for that.
             void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options = JsonOptions());
 
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            ''')
+            '''))
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -118,9 +122,7 @@ class VulkanStructToJsonHeaderGenerator(BaseGenerator):
     def generate_feature(self):
         for struct in self.get_filtered_struct_names():
             if not struct in self.customImplementationRequired:
-                body = inspect.cleandoc('''
-                    void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options = JsonOptions());
-                    '''.format(struct))
+                body = "void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options = JsonOptions());".format(struct)
                 write(body, file=self.outFile)
     # yapf: enable
 

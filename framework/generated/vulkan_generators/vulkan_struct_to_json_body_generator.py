@@ -21,9 +21,9 @@
 # IN THE SOFTWARE.
 #
 
-import os, re, sys, inspect
+import sys
 from base_generator import *
-
+from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_empty_lines
 
 class VulkanStructToJsonBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for serializing Vulkan structures to JSON"""
@@ -100,43 +100,42 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
     # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        body = inspect.cleandoc('''
+        body = format_cpp_code('''
             #include "generated_vulkan_struct_to_json.h"
             #include "generated_vulkan_enum_to_json.h"
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
             ''')
+        body += "\n"
         write(body, file=self.outFile)
     # yapf: enable
 
     # Method override
     # yapf: disable
     def endFile(self):
-        body = "\n"
-        body += inspect.cleandoc('''
-                void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options)
+        body = '''
+            void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options)
+            {
+                if (data && data->GetPointer())
                 {
-                    if (data && data->GetPointer())
-                    {
-                        const auto s_type = reinterpret_cast<const VkBaseInStructure*>(data->GetPointer())->sType;
-                        switch (s_type)
-                        {
-            ''')
-        body += "\n"
+                    const auto s_type = reinterpret_cast<const VkBaseInStructure*>(data->GetPointer())->sType;
+                    switch (s_type)
+                    {'''
         body += self.make_pnext_body()
-        body += inspect.cleandoc('''
-                default:
-                                GFXRECON_LOG_WARNING("Unknown pnext node type: %u.", (unsigned) s_type);
+        body += '''
+                        default:
+                        {
+                            GFXRECON_LOG_WARNING("Unknown pnext node type: %u.", (unsigned) s_type);
                         }
                     }
                 }
-            ''')
-        body += "\n"
-        body += inspect.cleandoc('''
+            }
+
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            ''')
+        '''
+        body = remove_trailing_empty_lines(indent_cpp_code(body))
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -157,21 +156,21 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
     def generate_feature(self):
         for struct in self.get_filtered_struct_names():
             if not struct in self.customImplementationRequired:
-                body = inspect.cleandoc('''
+                body = '''
                     void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
                     {{
                         if (data && data->decoded_value)
                         {{
                             const {0}& decoded_value = *data->decoded_value;
                             const Decoded_{0}& meta_struct = *data;
-                    '''.format(struct))
-                body += '\n'
+
+                    '''.format(struct)
                 body += self.makeStructBody(struct, self.feature_struct_members[struct])
-                body += inspect.cleandoc('''
+                body += remove_leading_empty_lines('''
                         }
                     }
                     ''')
-                body += '\n'
+                body = remove_trailing_empty_lines(indent_cpp_code(body))
                 write(body, file=self.outFile)
     # yapf: enable
 
