@@ -836,26 +836,6 @@ std::string CaptureManager::CreateTrimFilename(const std::string& base_filename,
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
-void CaptureManager::WriteNewCaptureAnnotation()
-{
-    // Save parameters of the capture in an annotation.
-    std::string operation_annotation = "{\n"
-                                       "    \"tool\": \"capture\",\n"
-                                       "    \"timestamp\": \"";
-    operation_annotation += util::datetime::UtcNowString();
-    operation_annotation += "\",\n";
-    operation_annotation += "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
-                            "    \"vulkan-version\": \"";
-    operation_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
-    operation_annotation += '.';
-    operation_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
-    operation_annotation += '.';
-    operation_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-    operation_annotation += "\"\n}";
-
-    WriteAnnotation(format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
-}
-
 bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 {
     bool        success          = true;
@@ -877,7 +857,23 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
         gfxrecon::util::filepath::GetApplicationInfo(info);
         WriteExeFileInfo(info);
 
-        WriteNewCaptureAnnotation();
+        // Save parameters of the capture in an annotation.
+        std::string operation_annotation = "{\n"
+                                           "    \"tool\": \"capture\",\n"
+                                           "    \"timestamp\": \"";
+        operation_annotation += util::datetime::UtcNowString();
+        operation_annotation += "\",\n";
+        operation_annotation += "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
+                                "    \"vulkan-version\": \"";
+        operation_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
+        operation_annotation += '.';
+        operation_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
+        operation_annotation += '.';
+        operation_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+        operation_annotation += "\"\n}";
+
+        ForcedWriteAnnotation(
+            format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
     }
     else
     {
@@ -891,8 +887,6 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 void CaptureManager::ActivateTrimming()
 {
     capture_mode_ |= kModeWrite;
-
-    WriteNewCaptureAnnotation();
 
     auto thread_data = GetThreadData();
     assert(thread_data != nullptr);
@@ -974,23 +968,28 @@ void CaptureManager::WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& 
     WriteToFile(&exe_info_header, sizeof(exe_info_header));
 }
 
+void CaptureManager::ForcedWriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
+{
+    auto       thread_data  = GetThreadData();
+    const auto label_length = util::platform::StringLength(label);
+    const auto data_length  = util::platform::StringLength(data);
+
+    format::AnnotationHeader annotation;
+    annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
+    annotation.block_header.type = format::BlockType::kAnnotation;
+    annotation.annotation_type   = type;
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, label_length);
+    annotation.label_length = static_cast<uint32_t>(label_length);
+    annotation.data_length  = data_length;
+
+    CombineAndWriteToFile({ { &annotation, sizeof(annotation) }, { label, label_length }, { data, data_length } });
+}
+
 void CaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
 {
-    if (((capture_mode_ & kModeWrite) == kModeWrite) || ((capture_mode_ & kModeWriteAndTrack) == kModeWriteAndTrack))
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        auto       thread_data  = GetThreadData();
-        const auto label_length = util::platform::StringLength(label);
-        const auto data_length  = util::platform::StringLength(data);
-
-        format::AnnotationHeader annotation;
-        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-        annotation.block_header.type = format::BlockType::kAnnotation;
-        annotation.annotation_type   = type;
-        GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, label_length);
-        annotation.label_length = static_cast<uint32_t>(label_length);
-        annotation.data_length  = data_length;
-
-        CombineAndWriteToFile({ { &annotation, sizeof(annotation) }, { label, label_length }, { data, data_length } });
+        ForcedWriteAnnotation(type, label, data);
     }
 }
 
