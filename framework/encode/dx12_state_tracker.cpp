@@ -513,13 +513,20 @@ void Dx12StateTracker::TrackResizeBuffers(IDXGISwapChain_Wrapper*         swapch
 void Dx12StateTracker::TrackPrivateData(IUnknown_Wrapper* wrapper, REFGUID name, UINT data_size, const void* data)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
-    GFXRECON_ASSERT(data != nullptr);
+
     auto* info = GetWrapperInfo(wrapper);
     if (info)
     {
-        std::vector<uint8_t> private_data(data_size);
-        memcpy(private_data.data(), data, data_size);
-        info->private_datas[name] = std::move(private_data);
+        if (data != nullptr)
+        {
+            std::vector<uint8_t> private_data(data_size);
+            memcpy(private_data.data(), data, data_size);
+            info->private_datas[name] = std::move(private_data);
+        }
+        else
+        {
+            info->private_datas.erase(name);
+        }
     }
 }
 
