@@ -42,7 +42,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
     VulkanCppPreProcessConsumer() {}
 
     virtual ~VulkanCppPreProcessConsumer() override {}
-
     virtual void Process_vkCreateInstance(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -992,7 +991,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         format::HandleId                            commandBuffer,
         uint32_t                                    commandBufferCount,
         HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers) override;
-
     virtual void Process_vkDestroySurfaceKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            instance,
@@ -1029,7 +1027,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         format::HandleId                            surface,
         PointerDecoder<uint32_t>*                   pPresentModeCount,
         PointerDecoder<VkPresentModeKHR>*           pPresentModes) override;
-
     virtual void Process_vkCreateSwapchainKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -1095,7 +1092,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>* pAcquireInfo,
         PointerDecoder<uint32_t>*                   pImageIndex) override;
-
     virtual void Process_vkCreateXcbSurfaceKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -1111,7 +1107,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    connection,
         uint32_t                                    visual_id) override;
-
     virtual void Process_vkCreateWaylandSurfaceKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -1126,7 +1121,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    display) override;
-
     virtual void Process_vkCreateAndroidSurfaceKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -1134,8 +1128,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkSurfaceKHR>*         pSurface) override;
-
-
     virtual void Process_vkGetPhysicalDeviceFeatures2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            physicalDevice,
@@ -1176,13 +1168,11 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         StructPointerDecoder<Decoded_VkPhysicalDeviceSparseImageFormatInfo2>* pFormatInfo,
         PointerDecoder<uint32_t>*                   pPropertyCount,
         StructPointerDecoder<Decoded_VkSparseImageFormatProperties2>* pProperties) override;
-
     virtual void Process_vkTrimCommandPoolKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         format::HandleId                            commandPool,
         VkCommandPoolTrimFlags                      flags) override;
-
     virtual void Process_vkCreateDescriptorUpdateTemplateKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -1196,7 +1186,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         format::HandleId                            device,
         format::HandleId                            descriptorUpdateTemplate,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
-
     virtual void Process_vkCreateRenderPass2KHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -1221,8 +1210,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
-
-
     virtual void Process_vkGetImageMemoryRequirements2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -1241,8 +1228,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         StructPointerDecoder<Decoded_VkImageSparseMemoryRequirementsInfo2>* pInfo,
         PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
         StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements) override;
-
-
     virtual void Process_vkCmdDrawIndirectCountKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -1262,10 +1247,6 @@ class VulkanCppPreProcessConsumer : public VulkanCppPreProcessConsumerBase
         VkDeviceSize                                countBufferOffset,
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
-
-
-
-
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -75,7 +75,7 @@ class VulkanCppStructGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -175,7 +175,7 @@ class VulkanCppStructGenerator(BaseGenerator):
         return False
 
     def generate_feature(self):
-        structs = self.feature_struct_members # Brainpain self.get_filtered_struct_names()
+        structs = self.feature_struct_members
 
         # Insert the declaration of GenerateStruct functions.
         for structName in structs:
@@ -411,7 +411,6 @@ class VulkanCppStructGenerator(BaseGenerator):
             var_suffix = ''
             for count, cur_length in enumerate(lengths):
                 space = (' ' * indent)
-                structBuild += f'{space}// Brainpain - handleInputArray {arg.base_type} {arg.name} {num_lengths}\n'
                 structBuild += f'{space}for (uint32_t idx{count} = 0; idx{count} < {cur_length}; ++idx{count}) {{\n'
                 var_suffix = var_suffix + f'[idx{count}]'
                 indent = indent + 4
@@ -762,7 +761,6 @@ class VulkanCppStructGenerator(BaseGenerator):
 
         if structName in self.feature_struct_aliases:
             structName = self.feature_struct_aliases[structName]
-        body.append(makeGen('std::string varname = consumer.GetExistingStruct(structBody);', locals(), indent))
 
         var_list = []
 
@@ -785,12 +783,10 @@ class VulkanCppStructGenerator(BaseGenerator):
         structVarName = structVarName[0].lower() + structVarName[1:]
 
         # insert the header up front (where all the variables are defined)
-        body.append(makeGenCond('!varname.length()', [
-            makeGen('varname = consumer.AddStruct(structBody, "{structVarName}");', locals(), indent + 4),
-            printOutStream(var_list, locals(), indent + 4),
-            printOutStream(['structBody.str()'], locals(), indent + 4),
-            printOutStream(['"}};"'], locals(), indent + 4)
-        ], [], locals(), indent))
+        body.append(makeGen('std::string varname = consumer.AddStruct(structBody, "{structVarName}");', locals(), indent))
+        body.append(printOutStream(var_list, locals(), indent))
+        body.append(printOutStream(['structBody.str()'], locals(), indent))
+        body.append(printOutStream(['"}};"'], locals(), indent))
         body.append(makeGen('return varname;', locals(), indent))
 
         func = []

@@ -4010,6 +4010,7 @@ class VulkanConsumer : public VulkanConsumerBase
 
 
 
+
     virtual void Process_vkCmdSetTessellationDomainOriginEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -4276,6 +4277,7 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) {}
+
 
 
 
