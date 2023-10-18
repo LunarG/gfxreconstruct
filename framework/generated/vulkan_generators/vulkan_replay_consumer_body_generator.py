@@ -143,7 +143,33 @@ class VulkanReplayConsumerBodyGenerator(
     def endFile(self):
         """Method override."""
         self.newline()
+        write('static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOutStructure* output_struct)', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    while(in_pnext)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        switch(in_pnext->sType)', file=self.outFile)
+        write('        {', file=self.outFile)
+        for struct in self.stype_values:
+            struct_type = self.stype_values[struct]
+            if not struct_type in self.SKIP_PNEXT_STRUCT_TYPES:
+                write('            case {}:'.format(struct_type), file=self.outFile)
+                write('            {', file=self.outFile)
+                write('                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<{}>());'
+                    .format(struct),
+                    file=self.outFile
+                )
+                write('                break;', file=self.outFile)
+                write('            }', file=self.outFile)
+        write('            default:', file=self.outFile)
+        write('                break;', file=self.outFile)
+        write('        }', file=self.outFile)
+        write('        output_struct = output_struct->pNext;', file=self.outFile)
+        write('        output_struct->sType = in_pnext->sType;',file=self.outFile)
+        write('        in_pnext = in_pnext->pNext;', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
 
+        self.newline()
         write('template <typename T>', file=self.outFile)
         write('void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)', file=self.outFile)
         write('{', file=self.outFile)
@@ -156,29 +182,7 @@ class VulkanReplayConsumerBodyGenerator(
         write('        const auto* in_pnext = reinterpret_cast<const VkBaseInStructure*>(input[i].pNext);', file=self.outFile)
         write('        if( in_pnext == nullptr ) continue;', file=self.outFile)
         write('        auto* output_struct = reinterpret_cast<VkBaseOutStructure*>(&output[i]);', file=self.outFile)
-        self.newline()
-        write('        while(in_pnext)', file=self.outFile)
-        write('        {', file=self.outFile)
-        write('            switch(in_pnext->sType)', file=self.outFile)
-        write('            {', file=self.outFile)
-        for struct in self.stype_values:
-            struct_type = self.stype_values[struct]
-            if not struct_type in self.SKIP_PNEXT_STRUCT_TYPES:
-                write('                case {}:'.format(struct_type), file=self.outFile)
-                write('                {', file=self.outFile)
-                write('                    output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<{}>());'
-                    .format(struct),
-                    file=self.outFile
-                )
-                write('                    break;', file=self.outFile)
-                write('                }', file=self.outFile)
-        write('                default:', file=self.outFile)
-        write('                    break;', file=self.outFile)
-        write('            }', file=self.outFile)
-        write('            output_struct = output_struct->pNext;', file=self.outFile)
-        write('            output_struct->sType = in_pnext->sType;',file=self.outFile)        
-        write('            in_pnext = in_pnext->pNext;', file=self.outFile)
-        write('        }', file=self.outFile)
+        write('        InitializeOutputStructPNextImpl(in_pnext, output_struct);', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
        
