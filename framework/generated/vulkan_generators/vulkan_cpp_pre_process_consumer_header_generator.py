@@ -67,16 +67,10 @@ class VulkanCppPreProcessConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
                  directory = '.',
                  prefix_text = CPP_PREFIX_STRING,
                  protect_file = False,
-                 protect_feature = True,
-                 versions = CPP_CONSUMER_VULKAN_VERSION_PAT,
-                 add_extensions = CPP_CONSUMER_ADD_EXTENSION_PAT,
-                 remove_extensions  = CPP_CONSUMER_REMOVE_EXTENSION_PAT):
+                 protect_feature = True):
         BaseGeneratorOptions.__init__(self, blacklists=blacklists, platform_types=platform_types,
                                       filename=filename, directory=directory, prefix_text=CPP_PREFIX_STRING,
-                                      protect_file=protect_file, protect_feature=protect_feature,
-                                      versions=versions, default_extensions="dis",
-                                      add_extensions=add_extensions,
-                                      remove_extensions=remove_extensions)
+                                      protect_file=protect_file, protect_feature=protect_feature)
         self.is_override = is_override
 
 
@@ -97,6 +91,13 @@ class VulkanCppPreProcessConsumerHeaderGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
+
+        # TODO: Don't currently support Nvidia raytracing entrypoints
+        self.APICALL_BLACKLIST = [
+            'vkCmdBuildAccelerationStructureNV',
+            'vkCmdTraceRaysNV',
+            'vkCreateAccelerationStructureNV'
+            ]
 
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
@@ -138,7 +139,10 @@ class VulkanCppPreProcessConsumerHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         first = True
-        for cmd in self.get_filtered_cmd_names():
+        cmdnames = self.get_filtered_cmd_names()
+        cmdnames.sort()
+
+        for cmd in cmdnames:
             info = self.feature_cmd_params[cmd]
             returnType = info[0]
             values = info[2]

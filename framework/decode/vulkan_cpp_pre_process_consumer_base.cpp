@@ -30,10 +30,10 @@ VulkanCppPreProcessConsumerBase::~VulkanCppPreProcessConsumerBase() {}
 
 bool VulkanCppPreProcessConsumerBase::Initialize()
 {
-    m_frameNumber      = 0;
-    m_frameSplitNumber = 0;
+    m_frameNumber        = 0;
+    m_frameSplitNumber   = 0;
     m_frameApiCallNumber = 0;
-    m_apiCallNumber    = 0;
+    m_apiCallNumber      = 0;
 
     return true;
 }
@@ -44,7 +44,7 @@ void VulkanCppPreProcessConsumerBase::Post_APICall(format::ApiCallId callId)
     if (callId == format::ApiCallId::ApiCall_vkQueuePresentKHR)
     {
         m_frameApiCallNumber = 0;
-        m_frameSplitNumber = 0;
+        m_frameSplitNumber   = 0;
         m_frameNumber++;
     }
     else if (m_frameApiCallNumber != 0 && (m_frameApiCallNumber % m_max_command_limit == 0))
@@ -84,6 +84,20 @@ void VulkanCppPreProcessConsumerBase::Intercept_vkBindImageMemory(VkResult      
     m_memoryResourceMap[memory].emplace(std::make_pair(image, memoryOffset));
 }
 
+void VulkanCppPreProcessConsumerBase::Intercept_vkBindImageMemory2(
+    VkResult                                             returnValue,
+    format::HandleId                                     device,
+    uint32_t                                             bindInfoCount,
+    StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
+{
+    for (uint32_t index = 0; index < bindInfoCount; ++index)
+    {
+        const VkBindImageMemoryInfo* cur_image_memory = pBindInfos->GetPointer() + index;
+        m_memoryResourceMap[(format::HandleId)cur_image_memory->memory].emplace(
+            std::make_pair((format::HandleId)cur_image_memory->image, cur_image_memory->memoryOffset));
+    }
+}
+
 void VulkanCppPreProcessConsumerBase::Intercept_vkBindBufferMemory(VkResult         returnValue,
                                                                    format::HandleId device,
                                                                    format::HandleId buffer,
@@ -91,6 +105,20 @@ void VulkanCppPreProcessConsumerBase::Intercept_vkBindBufferMemory(VkResult     
                                                                    VkDeviceSize     memoryOffset)
 {
     m_memoryResourceMap[memory].emplace(std::make_pair(buffer, memoryOffset));
+}
+
+void VulkanCppPreProcessConsumerBase::Intercept_vkBindBufferMemory2(
+    VkResult                                              returnValue,
+    format::HandleId                                      device,
+    uint32_t                                              bindInfoCount,
+    StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
+{
+    for (uint32_t index = 0; index < bindInfoCount; ++index)
+    {
+        const VkBindBufferMemoryInfo* cur_buffer_memory = pBindInfos->GetPointer() + index;
+        m_memoryResourceMap[(format::HandleId)cur_buffer_memory->memory].emplace(
+            std::make_pair((format::HandleId)cur_buffer_memory->buffer, cur_buffer_memory->memoryOffset));
+    }
 }
 
 void VulkanCppPreProcessConsumerBase::AddHandles_vkUpdateDescriptorSets(
@@ -225,6 +253,13 @@ void VulkanCppPreProcessConsumerBase::Process_vkUpdateDescriptorSetWithTemplateK
 {
     AddHandles_vkUpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData);
     Post_APICall(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
+}
+
+// Meta data commands
+
+void VulkanCppPreProcessConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
+{
+    GFXRECON_LOG_INFO("ProcessDisplayMessageCommand: %s", message.c_str());
 }
 
 GFXRECON_END_NAMESPACE(decode)

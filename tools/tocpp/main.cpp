@@ -16,12 +16,17 @@
 */
 
 #include <fstream>
+#ifdef __ANDROID__
 #include <ftw.h>
+#else
+#include <filesystem>
+#endif
 #include <util/date_time.h>
 
 #include "project_version.h"
 
 #include "decode/file_processor.h"
+#include "decode/vulkan_cpp_utilities.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_cpp_consumer.h"
 #include "generated/generated_vulkan_cpp_pre_process_consumer.h"
@@ -36,10 +41,8 @@ const char kHelpShortOption[] = "-h";
 const char kHelpLongOption[]  = "--help";
 const char kVersionOption[]   = "--version";
 
-const char kCppTargetShortOption[]     = "-t";
-const char kCppTargetLongOption[]      = "--target";
-const char kCppTargetPlatformXcb[]     = "xcb";
-const char kCppTargetPlatformAndroid[] = "android";
+const char kCppTargetShortOption[] = "-t";
+const char kCppTargetLongOption[]  = "--target";
 
 const char kCppOutputShortOption[] = "-o";
 const char kCppOutputLongOption[]  = "--output";
@@ -55,8 +58,9 @@ const char kCppOutputMaxWindowHeightLongOption[] = "--max-height";
 
 const char kCppAndroidTemplateOption[] = "--android-template";
 
-const char kOptions[]   = "-h|--help,--version";
-const char kArguments[] = "-t|--target,-o|--output,--android-template,-c|--command-limit,-f|--frame-limit,--max-width,--max-height";
+const char kOptions[] = "-h|--help,--version";
+const char kArguments[] =
+    "-t|--target,-o|--output,--android-template,-c|--command-limit,-f|--frame-limit,--max-width,--max-height";
 
 #if defined(WIN32)
 const char kPathSep = '\\';
@@ -121,9 +125,30 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  -o <dir>\t\t\tPath to the directory where the outputs will be generated.");
     GFXRECON_WRITE_CONSOLE("  -t <platform>\t\t\tType of target platform to generate the Vulkan source.");
     GFXRECON_WRITE_CONSOLE("          \t\t\tAvailable platforms are:");
-    GFXRECON_WRITE_CONSOLE("          \t\t\t    %s\t\tGenerate for XCB. (default)", kCppTargetPlatformXcb);
-    GFXRECON_WRITE_CONSOLE("          \t\t\t    %s\tGenerate for Android.", kCppTargetPlatformAndroid);
+#ifdef __ANDROID__
+    GFXRECON_WRITE_CONSOLE("          \t\t\t    android\tGenerate for Android (default).");
+#else
+    GFXRECON_WRITE_CONSOLE("          \t\t\t    android\tGenerate for Android.");
+#endif
+#ifdef __APPLE__
+    GFXRECON_WRITE_CONSOLE("          \t\t\t    macos\tGenerate for MacOS (default).");
+#else
+    GFXRECON_WRITE_CONSOLE("          \t\t\t    macos\tGenerate for MacOS.");
+#endif
+    GFXRECON_WRITE_CONSOLE("          \t\t\t    wayland\tGenerate for Wayland.");
+#if defined(_WIN32) || defined(_WIN64) || defined(__MINGW32__) || defined(__MINGW64__)
+    GFXRECON_WRITE_CONSOLE("          \t\t\t    win32\tGenerate for Win32 (default).");
+#else
+    GFXRECON_WRITE_CONSOLE("          \t\t\t    win32\tGenerate for Win32.");
+#endif
+#ifdef __linux__
+    GFXRECON_WRITE_CONSOLE("          \t\t\t    xcb\t\tGenerate for XCB (default).");
+#else
+    GFXRECON_WRITE_CONSOLE("          \t\t\t    xcb\t\tGenerate for XCB.");
+#endif
+#ifdef __ANDROID__
     GFXRECON_WRITE_CONSOLE("  --android-template <dir>\tThe path of the android template directory.");
+#endif
     GFXRECON_WRITE_CONSOLE("          \t\t\t    Usually: 'external/Tocpp-Android-Template'.");
     GFXRECON_WRITE_CONSOLE("  -l <uint>\t\t\tThe maximum amount of frames to generate.");
     GFXRECON_WRITE_CONSOLE("  --max-width <uint>\t\tThe maximum window width the device's screen can handle.");
@@ -141,19 +166,43 @@ static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::Ar
     return false;
 }
 
-static std::string GetCppTargetPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
+static gfxrecon::decode::GfxTocppPlatform GetCppTargetPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     std::string platform = arg_parser.GetArgumentValue(kCppTargetShortOption);
 
-    // Choose the 'xcb' platform if the given value is missing or invalid.
-    if (gfxrecon::util::platform::StringCompare(kCppTargetPlatformXcb, platform.c_str()) != 0 &&
-        gfxrecon::util::platform::StringCompare(kCppTargetPlatformAndroid, platform.c_str()) != 0)
+    // Choose the appropriate platform
+    const uint32_t max_count = static_cast<uint32_t>(sizeof(gfxrecon::decode::kValidTargetPlatforms) /
+                                                     sizeof(gfxrecon::decode::PlatformTargets));
+    gfxrecon::decode::GfxTocppPlatform platform_enum = gfxrecon::decode::GfxTocppPlatform::PLATFORM_COUNT;
+    for (uint32_t ii = 0; ii < max_count; ++ii)
     {
-        GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to '%s'.", kCppTargetPlatformXcb);
-        return std::string(kCppTargetPlatformXcb);
+        if (gfxrecon::util::platform::StringCompare(gfxrecon::decode::kValidTargetPlatforms[ii].platformName,
+                                                    platform.c_str()) == 0)
+        {
+            platform_enum = gfxrecon::decode::kValidTargetPlatforms[ii].platformEnum;
+            break;
+        }
     }
 
-    return platform;
+    // If no platform was found, default to a given one for the platform
+    if (platform_enum >= gfxrecon::decode::GfxTocppPlatform::PLATFORM_COUNT)
+    {
+#if defined(_WIN32) || defined(_WIN64) || defined(__MINGW32__) || defined(__MINGW64__)
+        GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'win32'.");
+        platform_enum = gfxrecon::decode::GfxTocppPlatform::PLATFORM_WIN32;
+#elif defined(__APPLE__)
+        GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'macos'.");
+        platform_enum = gfxrecon::decode::GfxTocppPlatform::PLATFORM_MACOS;
+#elif defined(__ANDROID__)
+        GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'android'.");
+        platform_enum = gfxrecon::decode::GfxTocppPlatform::PLATFORM_ANDROID;
+#else
+        GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'xcb'.");
+        platform_enum = gfxrecon::decode::GfxTocppPlatform::PLATFORM_XCB;
+#endif
+    }
+
+    return platform_enum;
 }
 
 static bool outputDirectoryIsValid(std::string& out_dir)
@@ -225,6 +274,7 @@ static bool androidDirsAreExists(const std::string& android_dir)
     return true;
 }
 
+#ifdef __ANDROID__
 static int copy_file(const char* src_path, const struct stat* sb, int typeflag, struct FTW* ftwbuf)
 {
     // Don't copy the directory itself.
@@ -265,6 +315,7 @@ static int copy_file(const char* src_path, const struct stat* sb, int typeflag, 
 
     return 0;
 }
+#endif // __ANDROID__
 
 static std::string getOutputFilename(const std::string& capture_file)
 {
@@ -319,11 +370,11 @@ bool PreProcessCapture(gfxrecon::decode::VulkanCppPreProcessConsumer& cpp_consum
     return (file_processor.GetErrorState() == file_processor.kErrorNone);
 }
 
-bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer& cpp_consumer,
-                    const std::string&                   input_filename,
-                    const std::string&                   output_filename,
-                    const std::string&                   target_platform,
-                    const uint32_t                       frame_limit)
+bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
+                    const std::string&                        input_filename,
+                    const std::string&                        output_filename,
+                    const gfxrecon::decode::GfxTocppPlatform& target_platform,
+                    const uint32_t                            frame_limit)
 {
     gfxrecon::decode::FileProcessor file_processor;
     gfxrecon::decode::VulkanDecoder decoder;
@@ -362,28 +413,31 @@ int main(int argc, const char** argv)
 
     // --output
     output_dirname = arg_parser.GetArgumentValue(kCppOutputShortOption);
-    if (output_dirname.size() == 0) {
+    if (output_dirname.size() == 0)
+    {
         output_dirname = arg_parser.GetArgumentValue(kCppOutputLongOption);
     }
 
     // --target
-    std::string target_platform = GetCppTargetPlatform(arg_parser);
+    gfxrecon::decode::GfxTocppPlatform target_platform = GetCppTargetPlatform(arg_parser);
 
     // --android-template
     android_template_root = arg_parser.GetArgumentValue(kCppAndroidTemplateOption);
 
     // --command-limit
-    uint32_t command_limit = 0;
+    uint32_t    command_limit          = 0;
     std::string command_limit_argument = arg_parser.GetArgumentValue(kCppOutputCommandLimitShortOption);
     if (command_limit_argument.size() != 0)
     {
         command_limit_argument = arg_parser.GetArgumentValue(kCppOutputCommandLimitLongOption);
-        command_limit = validateAndConvertNumericArgument(command_limit_argument, "The given command limit is invalid!");
+        command_limit =
+            validateAndConvertNumericArgument(command_limit_argument, "The given command limit is invalid!");
     }
 
     // --frame-limit
     std::string frame_limit_argument = arg_parser.GetArgumentValue(kCppOutputFrameLimitShortOption);
-    if (frame_limit_argument.size() == 0) {
+    if (frame_limit_argument.size() == 0)
+    {
         frame_limit_argument = arg_parser.GetArgumentValue(kCppOutputFrameLimitLongOption);
     }
 
@@ -394,7 +448,8 @@ int main(int argc, const char** argv)
     std::string max_height_argument = arg_parser.GetArgumentValue(kCppOutputMaxWindowHeightLongOption);
 
     // Remove the consecutive path separators from the end of the path.
-    if (target_platform == "android") {
+    if (target_platform == gfxrecon::decode::GfxTocppPlatform::PLATFORM_ANDROID)
+    {
         while (android_template_root.back() == kPathSep)
         {
             android_template_root.pop_back();
@@ -417,7 +472,8 @@ int main(int argc, const char** argv)
         gfxrecon::util::Log::Release();
         exit(-1);
     }
-    else if (target_platform == "android" && !androidDirsAreExists(android_template_root))
+    else if (target_platform == gfxrecon::decode::GfxTocppPlatform::PLATFORM_ANDROID &&
+             !androidDirsAreExists(android_template_root))
     {
         GFXRECON_LOG_ERROR("The specified path to --android-template option is missing or wrong!");
         gfxrecon::util::Log::Release();
@@ -431,21 +487,34 @@ int main(int argc, const char** argv)
 
     // Determine the output files.
     std::string output_filename;
-    if (target_platform == "android")
+    if (target_platform == gfxrecon::decode::GfxTocppPlatform::PLATFORM_ANDROID)
     {
         // The maximum number of directories that nftw() will hold open simultaneously.
         const int max_open_fd = 20;
 
         // Copy the android template into the output dir.
+#ifdef __ANDROID__
         if (nftw(android_template_root.c_str(), copy_file, max_open_fd, 0) != 0)
         {
             GFXRECON_LOG_ERROR("Error during copying of android template files!");
         }
+#else
+        if (!gfxrecon::util::filepath::Exists(output_dirname))
+        {
+            GFXRECON_LOG_ERROR("Android template target directory was not found: %s", output_dirname.c_str());
+        }
+        else
+        {
+            const std::filesystem::copy_options copy_options =
+                std::filesystem::copy_options::update_existing | std::filesystem::copy_options::recursive;
+            std::filesystem::copy(android_template_root.c_str(), output_dirname, copy_options);
+        }
+#endif // __ANDROID__
 
         output_filename = gfxrecon::util::filepath::Join(output_dirname, path_vulkanmain + "VulkanMain.cpp");
         output_dirname  = gfxrecon::util::filepath::Join(output_dirname, path_assets);
     }
-    else // target_platform == "xcb"
+    else // target_platform == gfxrecon::decode::GfxTocppPlatform::PLATFORM_XCB
     {
         output_filename = getOutputFilename(input_filename);
     }
@@ -465,7 +534,8 @@ int main(int argc, const char** argv)
     cpp_consumer.AddResourceTracker(resource_tracker);
 
     // On non-Android platforms, let's not split frames if we can avoid it
-    if (command_limit > 0) {
+    if (command_limit > 0)
+    {
         cpp_consumer.SetMaxCommandLimit(command_limit);
         pre_process_cpp_consumer.SetMaxCommandLimit(command_limit);
     }

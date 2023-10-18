@@ -105,20 +105,25 @@ CPP_APICALL_GENERATE = [
     'vkAcquireNextImage2KHR',
     'vkAllocateMemory',
     'vkCreateAndroidSurfaceKHR',
+    'vkCreateMetalSurfaceEXT',
+    'vkCreateWaylandSurfaceKHR',
+    'vkCreateWin32SurfaceKHR',
+    'vkCreateXcbSurfaceKHR',
+    'vkCreateXlibSurfaceKHR',
     'vkCreateInstance',
     'vkCreatePipelineCache',
     'vkCreateShaderModule',
-    'vkCreateWaylandSurfaceKHR',
-    'vkCreateXcbSurfaceKHR',
     'vkEnumeratePhysicalDevices',
     'vkGetFenceStatus',
     'vkGetPhysicalDeviceQueueFamilyProperties',
     'vkGetPhysicalDeviceSurfaceFormatsKHR',
     'vkGetPhysicalDeviceSurfacePresentModesKHR',
     'vkGetBufferMemoryRequirements',
+    'vkGetBufferMemoryRequirements2',
     'vkGetBufferMemoryRequirements2KHR',
     'vkGetImageMemoryRequirements',
     'vkGetImageSparseMemoryRequirements',
+    'vkGetImageMemoryRequirements2',
     'vkGetImageMemoryRequirements2KHR',
     'vkGetSwapchainImagesKHR',
     'vkMapMemory',
@@ -130,9 +135,9 @@ CPP_APICALL_GENERATE = [
     'vkDebugMarkerSetObjectTagEXT',
     'vkDebugMarkerSetObjectNameEXT',
     'vkCreateDescriptorUpdateTemplate',
-    'vkUpdateDescriptorSetWithTemplate',
     'vkCreateDescriptorUpdateTemplateKHR',
-    'vkUpdateDescriptorSetWithTemplateKHR',
+    'vkCreateGraphicsPipelines',
+    'vkCreateComputePipelines',
 ]
 
 CPP_APICALL_INTERCEPT_LIST = [
@@ -144,10 +149,8 @@ CPP_APICALL_INTERCEPT_LIST = [
 
 CPP_CONSUMER_API_POST_CALL = [
     'vkGetBufferMemoryRequirements',
-    'vkGetBufferMemoryRequirements2KHR',
     'vkGetImageMemoryRequirements',
     'vkGetSparseImageMemoryRequirements',
-    'vkGetImageMemoryRequirements2KHR',
 ]
 
 # Disabled wrapping function call into the 'VK_CALL_CHECK' macro call
@@ -222,7 +225,7 @@ def makeGenVar(genName, cppName, handleObjectType=None, arguments=None, indent=4
     if useThis:
         object = 'this->'
 
-    if handleObjectType is None:
+    if handleObjectType is None or '_VIEW' in handleObjectType:
         return '{}{}{} = "{}_" + std::to_string({}getNextId());\n'.format(' ' * indent, typeToUse, genName, cppName, object).format(**arguments)
     else:
         return '{}{}{} = "{}_" + std::to_string({}getNextId({}));\n'.format(' ' * indent, typeToUse, genName, cppName, object, handleObjectType).format(**arguments)
@@ -270,7 +273,7 @@ def makeCppOutputStream(streamName, indent=4):
 
     :returns:
     """
-    return (' ' * indent) + 'fprintf(file, "\\n%s", {streamName}.str().c_str());\n'.format(streamName=streamName)
+    return (' ' * indent) + 'fprintf(file, "%s", {streamName}.str().c_str());\n'.format(streamName=streamName)
 
 
 def makeCppArray(type, name, values, arguments=None, indent=4):
@@ -288,7 +291,7 @@ def makeCppArray(type, name, values, arguments=None, indent=4):
     if not arguments:
         arguments = {}
     return (' ' * indent) + (
-        'fprintf(file, "{} %s[] = {{{{ %s }}}};\\n", {}.c_str(), {}.c_str());\n'.format(type, name, values).format(**arguments))
+        'fprintf(file, "\\t\\t{} %s[] = {{{{ %s }}}};\\n", {}.c_str(), {}.c_str());\n'.format(type, name, values).format(**arguments))
 
 
 def makeGenLoop(loopIdx, max_count, contents, arguments=None, indent=4):
@@ -438,7 +441,7 @@ def makeObjectType(handle_value):
 
     return return_string.upper()
 
-def makeOutStructSet(value, arguments=None, isLastArg=False, indent=4):
+def makeOutStructSet(value, arguments=None, isFirstArg=False, isLastArg=False, indent=4):
     """
     Create a structure element setting for the vulkan application.
 
@@ -451,8 +454,9 @@ def makeOutStructSet(value, arguments=None, isLastArg=False, indent=4):
     """
     if not arguments:
         arguments = {}
-    lineEnding = '' if isLastArg else '<< std::endl'
-    return ((' ' * indent) + 'structBody << "\\t" << %s << "," %s;\n'.format(**arguments) % (value, lineEnding)).format(**arguments)
+    lineEnding = '' if isLastArg else ' << std::endl'
+    tabs = '\\t' if isFirstArg else '\\t\\t\\t'
+    return ((' ' * indent) + 'structBody << "%s" << %s << ","%s;\n'.format(**arguments) % (tabs, value, lineEnding)).format(**arguments)
 
 
 def printOutStream(values, arguments=None, indent=4):
@@ -468,7 +472,7 @@ def printOutStream(values, arguments=None, indent=4):
     """
     if not arguments:
         arguments = {}
-    return (' ' * indent) + 'out << %s << std::endl;\n' % ' << '.join(values).format(**arguments)
+    return (' ' * indent) + 'out << "\\t\\t" << %s << std::endl;\n' % ' << '.join(values).format(**arguments)
 
 def replacePointerInLength(inString):
     if inString == '':
@@ -529,7 +533,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -538,6 +542,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         # The generation of these functions are suspended for a while.
         self.skippedApiFuncs = [
             'vkGetPipelineCacheData',
+            'vkGetPhysicalDeviceXcbPresentationSupportKHR',
         ]
 
         self.stype_values = dict()
@@ -613,6 +618,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         first = True
         cmdnames = self.get_filtered_cmd_names()
         cmdnames.sort()
+
         for cmd in cmdnames:
             info = self.feature_cmd_params[cmd]
             return_type = info[0]
@@ -642,12 +648,12 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 cmddef += makeGen("FILE* file = GetFrameFile();", indent=4)
 
                 #if cmd.startswith('vkCreate'):
-                cmddef += '    fprintf(file, "    {\\n");\n'
+                cmddef += '    fprintf(file, "\\t{\\n");\n'
 
                 cmddef += self.makeConsumerFuncBody(return_type, cmd, values)
 
                 #if cmd.startswith('vkCreate'):
-                cmddef += '    fprintf(file, "    }\\n");\n'
+                cmddef += '    fprintf(file, "\\t}\\n");\n'
 
             cmddef += makeGenCall('Post_APICall'.format(cmd), ['format::ApiCallId::ApiCall_' + cmd], locals(), indent=4)
 
@@ -680,9 +686,13 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         if arg.base_type in self.handle_names:
             handleObjectType = makeObjectType(arg.base_type)
 
+        conditional_arg = f'{arg.array_length} > 0'
+        if arg.is_optional:
+            conditional_arg += f' && {arg.name}->GetPointer() != nullptr'
+
         output = [
             makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent=indent),
-            makeGenCond('{arg.array_length} > 0', [
+            makeGenCond('{conditional_arg}', [
                     makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
                                 ['{arg.name}->GetPointer()', '{arg.name}->GetPointer() + {arg.array_length}',
                                     '[&](const auto current) {{ return std::to_string({to_string_type}) + "{valueSuffix}"; }}',
@@ -712,18 +722,20 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
 
         valueFormatDict = {
             'char': '%s',
+            'int16_t': '%d',
+            'uint16_t': '%u',
             'int': '%d',
             'int32_t': '%d',
+            'uint32_t': '%u',
+            'size_t': '%" PRId64 "',
+            'int64_t': '%" PRId64 "',
+            'uint64_t': '%" PRIu64 "',
             'float': '%f',
             'double': '%lf',
-            'size_t': '%lu',
-            'uint32_t': '%u',
-            'uint16_t': '%u',
-            'uint64_t': '%lu',
             'void': '',
             'VkBool32': '%u',
-            'VkDeviceSize': '%lu',
-            'VkDeviceAddress': '%lu',
+            'VkDeviceSize': '%" PRIu64 "',
+            'VkDeviceAddress': '%" PRIu64 "',
         }
         valueSuffixDict = {
             'VkDeviceSize': 'UL',
@@ -771,13 +783,15 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                                             '[&](auto pair) {{ return GenerateStruct_{arg.base_type}({streamName}, {pair_string}, *this); }}',
                                             '", "'], locals(), indent=4)
 
-                    body += makeCppOutputStream(streamName)
-                    body += makeGenConditions([
-                                ['{arg.array_length} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Names;', locals(), indent=8)]],
-                                ['{arg.array_length} > 1', [
-                                    makeGenVar('{arg.name}Array', arg.name, None, locals(), indent=8, addType=False), # generate the CPP name
-                                    makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Names', locals(), indent=8)]],
-                            ], locals(), indent=4)
+                    body += makeGenCond('{streamName}.str().length() > 0', [
+                                        makeCppOutputStream(streamName, indent=8),
+                                        makeGenConditions([
+                                                ['{arg.array_length} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Names;', locals(), indent=12)]],
+                                                ['{arg.array_length} > 1', [
+                                                    makeGenVar('{arg.name}Array', arg.name, None, locals(), indent=12, addType=False), # generate the CPP name
+                                                    makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Names', locals(), indent=12)]],
+                                        ], locals(), indent=8)
+                            ], [], locals(), indent=4)
 
                     callArgs.append('{arg.name}Array.c_str()'.format(arg=arg))
                     callTempl.append('%s')
@@ -854,7 +868,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     callTempl.append('%s')
                     arrayValue = ', {arg.array_length}'.format(arg=arg)
                     if arg.array_length_value.base_type == 'size_t':
-                        arrayInfo = '[%ld]'
+                        arrayInfo = '[%" PRId64 "]'
                     else:
                         arrayInfo = '[%d]'
 
@@ -862,7 +876,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                         if arg.array_length_value.base_type != 'size_t':
                             body += makeGen('const uint32_t* in_{arg.array_length_value.name} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
                         else:
-                            body += makeGen('long unsigned int* in_{arg.array_length_value.name} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
+                            body += makeGen('size_t* in_{arg.array_length_value.name} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
                         arrayValue = ', *in_{arg.array_length_value.name}'.format(arg=arg)
                     else:
                         arrayValue = ', {arg.array_length_value.name}'.format(arg=arg)
@@ -877,7 +891,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 varType = 'uint8_t' if arg.base_type == 'void' else arg.base_type
                 if arg.pointer_count > 1:
                     varType += '*' * (arg.pointer_count - 1)
-                body += makeGen('fprintf(file, "{varType} %s{arrayInfo};\\n", {arg.name}Name.c_str(){arrayValue});', locals(), indent=4)
+                body += makeGen('fprintf(file, "\\t\\t{varType} %s{arrayInfo};\\n", {arg.name}Name.c_str(){arrayValue});', locals(), indent=4)
             elif self.is_handle(arg.base_type):
                 if arg.is_array:
                     # Generate an array of strings containing the handle id names
@@ -891,7 +905,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                                             '", "'], locals(), indent=4)
 
                     body += makeGenConditions([
-                                ['{arg.array_length} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Values;', locals(), indent=8)]],
+                                ['{arg.array_length} == 1 && {arg.name}Values != "VK_NULL_HANDLE"', [makeGen('{arg.name}Array = "&" + {arg.name}Values;', locals(), indent=8)]],
                                 ['{arg.array_length} > 1', [
                                     makeGenVar(strArrayName, strArrayName, None, locals(), indent=8, addType=False), # generate the CPP name
                                     makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Values', locals(), indent=8)]],
@@ -940,7 +954,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 else:
                     # encoding void* inputs is tricky at the moment, hope for the best
                     body += makeGenVar('{arg.name}Name', '{arg.name}', handleObjectType, locals(), indent=4)
-                    body += makeGen('fprintf(file, "void* %s;\\n", {arg.name}Name.c_str());', locals(), indent=4)
+                    body += makeGen('fprintf(file, "\\t\\tvoid* %s;\\n", {arg.name}Name.c_str());', locals(), indent=4)
 
                     callArg = '{arg.name}Name.c_str()'.format(arg=arg)
                     callTemplate = '%s'
@@ -950,7 +964,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             elif arg.is_pointer:
                 assert self.is_output_parameter(arg)
                 body += makeGenVar('{arg.name}Name', '{arg.name}', handleObjectType, locals(), indent=4)
-                body += makeGen('fprintf(file, "{arg.base_type} %s;\\n", {arg.name}Name.c_str());', locals(), indent=4)
+                body += makeGen('fprintf(file, "\\t\\t{arg.base_type} %s;\\n", {arg.name}Name.c_str());', locals(), indent=4)
 
                 callArgs.append('{arg.name}Name.c_str()'.format(arg=arg))
                 callTempl.append('&%s')
@@ -979,7 +993,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
 
         fprintfArgs = [
             'file',
-            '"{};\\n"'.format(functionCall), # double quote is intended to make sure this is a string in the cpp
+            '"\\t\\t{};\\n"'.format(functionCall), # double quote is intended to make sure this is a string in the cpp
         ]
         fprintfArgs.extend(callArgs)
         body += makeGenCall('fprintf', fprintfArgs, locals(), indent=4)

@@ -180,6 +180,7 @@ class VulkanCppConsumerHeaderGenerator(BaseGenerator):
         first = True
         cmdnames = self.get_filtered_cmd_names()
         cmdnames.sort()
+
         for cmd in cmdnames:
             info = self.feature_cmd_params[cmd]
             returnType = info[0]

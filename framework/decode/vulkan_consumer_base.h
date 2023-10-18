@@ -135,11 +135,11 @@ class PointerPairContainer
     {
       public:
         using iterator_category = std::input_iterator_tag;
-        using value_type = PointerPair;
-        using difference_type = PointerPair;
-        using pointer = PointerPair*;
-        using reference = PointerPair&;
-    
+        using value_type        = PointerPair;
+        using difference_type   = PointerPair;
+        using pointer           = PointerPair*;
+        using reference         = PointerPair&;
+
         PointerPairIterator(T1 t1, T2 t2) : t1(t1), t2(t2) {}
 
         PointerPairIterator& operator++()

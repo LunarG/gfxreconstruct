@@ -145,7 +145,9 @@ class ValueInfo():
       array_dimension - Number of the array dimension
       platform_base_type - For platform specific type definitions, stores the original base_type declaration before platform to trace type substitution.
       platform_full_type - For platform specific type definitions, stores the original full_type declaration before platform to trace type substitution.
+      bitfield_width -
       is_pointer - True if the value is a pointer.
+      is_optional - True if the value is optional
       is_array - True if the member is an array.
       is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
       is_const - True if the member is a const.
@@ -165,6 +167,7 @@ class ValueInfo():
         platform_full_type=None,
         bitfield_width=None,
         is_const=False,
+        is_optional=False,
         is_com_outptr=False
     ):
         self.name = name
@@ -180,6 +183,7 @@ class ValueInfo():
         self.bitfield_width = bitfield_width
 
         self.is_pointer = True if pointer_count > 0 else False
+        self.is_optional = is_optional
         self.is_array = True if array_length else False
         self.is_dynamic = True if not array_capacity else False
         self.is_const = is_const
@@ -635,6 +639,7 @@ class BaseGenerator(OutputGenerator):
     def genCmd(self, cmdinfo, name, alias):
         """Method override. Command generation."""
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
+
         if self.process_cmds:
             # Create the declaration for the function prototype
             proto = cmdinfo.elem.find('proto')
@@ -687,6 +692,10 @@ class BaseGenerator(OutputGenerator):
                 )
                 base_type = type_info['baseType']
 
+            is_optional = False
+            if 'optional' in param.attrib:
+                is_optional = param.attrib.get('optional').lower() == 'true'
+
             # Get array length, always use altlen when available to avoid parsing latexmath
             if 'altlen' in param.attrib:
                 array_length = param.attrib.get('altlen')
@@ -722,7 +731,8 @@ class BaseGenerator(OutputGenerator):
                     array_dimension=array_dimension,
                     platform_base_type=platform_base_type,
                     platform_full_type=platform_full_type,
-                    bitfield_width=bitfield_width
+                    bitfield_width=bitfield_width,
+                    is_optional=is_optional
                 )
             )
 

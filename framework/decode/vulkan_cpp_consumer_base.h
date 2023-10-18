@@ -49,6 +49,7 @@ struct DescriptorUpdateTemplateEntries
     std::vector<VkDescriptorUpdateTemplateEntry> images;
     std::vector<VkDescriptorUpdateTemplateEntry> buffers;
     std::vector<VkDescriptorUpdateTemplateEntry> texels;
+    std::vector<VkDescriptorUpdateTemplateEntry> accelerations;
 };
 
 class VulkanCppConsumerBase : public VulkanConsumer
@@ -58,7 +59,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     virtual ~VulkanCppConsumerBase() override;
 
-    bool Initialize(const std::string& filename, const std::string& platform, const std::string& outputDir);
+    bool Initialize(const std::string& filename, const GfxTocppPlatform& platform, const std::string& outputDir);
 
     void Destroy();
 
@@ -94,13 +95,21 @@ class VulkanCppConsumerBase : public VulkanConsumer
         return "NULL";
     }
 
-    const std::string& GetResourceMemoryRequirements(format::HandleId memoryHandleId)
+    bool GetResourceMemoryRequirements(format::HandleId memoryHandleId, std::string& requirements)
     {
-        std::queue<std::pair<format::HandleId, VkDeviceSize>>& resourceHandles = m_memoryResourceMap[memoryHandleId];
-        format::HandleId                                       resourceHandle  = resourceHandles.front().first;
-        resourceHandles.pop();
+        auto found_resource = m_memoryResourceMap.find(memoryHandleId);
+        if (found_resource != m_memoryResourceMap.end())
+        {
+            std::queue<std::pair<format::HandleId, VkDeviceSize>>& resourceHandles =
+                m_memoryResourceMap[memoryHandleId];
 
-        return m_resourceMemoryReqMap[resourceHandle];
+            format::HandleId resourceHandle = resourceHandles.front().first;
+            resourceHandles.pop();
+
+            requirements = m_resourceMemoryReqMap[resourceHandle];
+            return true;
+        }
+        return false;
     }
 
     std::string AddStruct(const std::stringstream& content, const std::string& varnamePrefix);
@@ -153,6 +162,12 @@ class VulkanCppConsumerBase : public VulkanConsumer
         PointerDecoder<uint32_t>*                              pQueueFamilyPropertyCount,
         StructPointerDecoder<Decoded_VkQueueFamilyProperties>* pQueueFamilyProperties);
 
+    void Generate_vkGetPhysicalDeviceQueueFamilyProperties(VkResult         returnValue,
+                                                           format::HandleId physicalDevice,
+                                                           uint32_t         queueFamilyIndex,
+                                                           uint64_t         connection,
+                                                           uint32_t         visual_id);
+
     void Generate_vkGetImageMemoryRequirements(format::HandleId                                    device,
                                                format::HandleId                                    image,
                                                StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements);
@@ -169,27 +184,22 @@ class VulkanCppConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements>* pSparseMemoryRequirements);
 
     void
-         Generate_vkGetImageMemoryRequirements2KHR(format::HandleId                                              device,
-                                                   StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
-                                                   StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements);
-    void Post_vkGetImageMemoryRequirements2KHR(format::HandleId                                              device,
-                                               StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
-                                               StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements,
-                                               const std::string&                                   deviceName,
-                                               const std::string&                                   pInfoName,
-                                               const std::string& pMemoryRequirementsName);
+    Generate_vkGetImageMemoryRequirements2(format::HandleId                                              device,
+                                           StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
+                                           StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements);
+    void
+    Generate_vkGetImageMemoryRequirements2KHR(format::HandleId                                              device,
+                                              StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
+                                              StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements);
 
+    void
+         Generate_vkGetBufferMemoryRequirements2(format::HandleId                                               device,
+                                                 StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
+                                                 StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements);
     void Generate_vkGetBufferMemoryRequirements2KHR(
         format::HandleId                                               device,
         StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2>*           pMemoryRequirements);
-    void
-    Post_vkGetBufferMemoryRequirements2KHR(format::HandleId                                               device,
-                                           StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
-                                           StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements,
-                                           const std::string&                                   deviceName,
-                                           const std::string&                                   pInfoName,
-                                           const std::string& pMemoryRequirementsName);
 
     void Generate_vkGetFenceStatus(VkResult returnValue, format::HandleId device, format::HandleId fence);
 
@@ -232,11 +242,17 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                  void*                   pSurfaceCreateInfo,
                                  const format::HandleId* surface);
 
-    void Generate_vkCreateXcbSurfaceKHR(VkResult                                                 returnValue,
-                                        format::HandleId                                         instance,
-                                        StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>* pCreateInfo,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
-                                        HandlePointerDecoder<VkSurfaceKHR>*                      pSurface);
+    void Generate_vkCreateAndroidSurfaceKHR(VkResult                                                     returnValue,
+                                            format::HandleId                                             instance,
+                                            StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>* pCreateInfo,
+                                            StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
+                                            HandlePointerDecoder<VkSurfaceKHR>*                          pSurface);
+
+    void Generate_vkCreateMetalSurfaceEXT(VkResult                                                   returnValue,
+                                          format::HandleId                                           instance,
+                                          StructPointerDecoder<Decoded_VkMetalSurfaceCreateInfoEXT>* pCreateInfo,
+                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                          HandlePointerDecoder<VkSurfaceKHR>*                        pSurface);
 
     void Generate_vkCreateWaylandSurfaceKHR(VkResult                                                     returnValue,
                                             format::HandleId                                             instance,
@@ -244,11 +260,23 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                             StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
                                             HandlePointerDecoder<VkSurfaceKHR>*                          pSurface);
 
-    void Generate_vkCreateAndroidSurfaceKHR(VkResult                                                     returnValue,
-                                            format::HandleId                                             instance,
-                                            StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>* pCreateInfo,
-                                            StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
-                                            HandlePointerDecoder<VkSurfaceKHR>*                          pSurface);
+    void Generate_vkCreateWin32SurfaceKHR(VkResult                                                   returnValue,
+                                          format::HandleId                                           instance,
+                                          StructPointerDecoder<Decoded_VkWin32SurfaceCreateInfoKHR>* pCreateInfo,
+                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                          HandlePointerDecoder<VkSurfaceKHR>*                        pSurface);
+
+    void Generate_vkCreateXcbSurfaceKHR(VkResult                                                 returnValue,
+                                        format::HandleId                                         instance,
+                                        StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>* pCreateInfo,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
+                                        HandlePointerDecoder<VkSurfaceKHR>*                      pSurface);
+
+    void Generate_vkCreateXlibSurfaceKHR(VkResult                                                  returnValue,
+                                         format::HandleId                                          instance,
+                                         StructPointerDecoder<Decoded_VkXlibSurfaceCreateInfoKHR>* pCreateInfo,
+                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+                                         HandlePointerDecoder<VkSurfaceKHR>*                       pSurface);
 
     void Generate_vkAcquireNextImageKHR(VkResult                  returnValue,
                                         format::HandleId          device,
@@ -299,7 +327,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
         format::HandleId                                                    device,
         StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate);
+        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate,
+        const char*                                                         extension = "");
 
     void Generate_vkCreateDescriptorUpdateTemplateKHR(
         VkResult                                                            returnValue,
@@ -309,35 +338,46 @@ class VulkanCppConsumerBase : public VulkanConsumer
         HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate)
     {
         Generate_vkCreateDescriptorUpdateTemplate(
-            returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+            returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate, "KHR");
     }
 
     void Generate_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
                                                     format::HandleId                 descriptorSet,
                                                     format::HandleId                 descriptorUpdateTemplate,
-                                                    DescriptorUpdateTemplateDecoder* pData);
+                                                    DescriptorUpdateTemplateDecoder* pData,
+                                                    const char*                      extension = "");
 
     void Generate_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
                                                        format::HandleId                 descriptorSet,
                                                        format::HandleId                 descriptorUpdateTemplate,
                                                        DescriptorUpdateTemplateDecoder* pData)
     {
-        Generate_vkUpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData);
+        Generate_vkUpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData, "KHR");
     }
 
-    virtual void
-    ProcessSetDeviceMemoryPropertiesCommand(format::HandleId                             physical_device_id,
-                                            const std::vector<format::DeviceMemoryType>& memory_types,
-                                            const std::vector<format::DeviceMemoryHeap>& memory_heaps) override;
-    virtual void
-    ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
-
-    virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
-
-    virtual void ProcessResizeWindowCommand2(format::HandleId surface_id,
-                                             uint32_t         width,
-                                             uint32_t         height,
-                                             uint32_t         pre_transform) override;
+    void Generate_vkCreateGraphicsPipelines(VkResult                                                    returnValue,
+                                            format::HandleId                                            device,
+                                            format::HandleId                                            pipelineCache,
+                                            uint32_t                                                    createInfoCount,
+                                            StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+                                            StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
+                                            HandlePointerDecoder<VkPipeline>*                           pPipelines);
+    void Generate_vkCreateComputePipelines(VkResult                                                   returnValue,
+                                           format::HandleId                                           device,
+                                           format::HandleId                                           pipelineCache,
+                                           uint32_t                                                   createInfoCount,
+                                           StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+                                           StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                           HandlePointerDecoder<VkPipeline>*                          pPipelines);
+    void Generate_vkCreateRayTracingPipelinesKHR(
+        VkResult                                                         returnValue,
+        format::HandleId                                                 deferredOperation,
+        format::HandleId                                                 device,
+        format::HandleId                                                 pipelineCache,
+        uint32_t                                                         createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                pPipelines);
 
     void Intercept_vkCreateDevice(VkResult                                             returnValue,
                                   format::HandleId                                     physicalDevice,
@@ -360,6 +400,41 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void Intercept_vkCmdBeginRenderPass(format::HandleId                                     commandBuffer,
                                         StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
                                         VkSubpassContents                                    contents);
+
+    void Process_vkCreateRayTracingPipelinesKHR(
+        const ApiCallInfo&                                               call_info,
+        VkResult                                                         returnValue,
+        format::HandleId                                                 device,
+        format::HandleId                                                 deferredOperation,
+        format::HandleId                                                 pipelineCache,
+        uint32_t                                                         createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
+
+    void Process_vkDeferredOperationJoinKHR(const ApiCallInfo& call_info,
+                                            VkResult           returnValue,
+                                            format::HandleId   device,
+                                            format::HandleId   operation) override;
+
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                           format::HandleId                 device,
+                                                           format::HandleId                 descriptorSet,
+                                                           format::HandleId                 descriptorUpdateTemplate,
+                                                           DescriptorUpdateTemplateDecoder* pData) override;
+
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                               format::HandleId   commandBuffer,
+                                                               format::HandleId   descriptorUpdateTemplate,
+                                                               format::HandleId   layout,
+                                                               uint32_t           set,
+                                                               DescriptorUpdateTemplateDecoder* pData) override;
+
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
+                                                              format::HandleId                 device,
+                                                              format::HandleId                 descriptorSet,
+                                                              format::HandleId                 descriptorUpdateTemplate,
+                                                              DescriptorUpdateTemplateDecoder* pData) override;
 
     static std::string toEscape(const char* value);
     static std::string escapeStringArray(const char* const* layerNames, const uint32_t stringArrayLength);
@@ -421,6 +496,32 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     void SetNeedsDebugUtilsCallback(bool value) { m_needsDebugUtilCallback = value; }
 
+    // Meta data commands
+    virtual void
+    ProcessSetDeviceMemoryPropertiesCommand(format::HandleId                             physical_device_id,
+                                            const std::vector<format::DeviceMemoryType>& memory_types,
+                                            const std::vector<format::DeviceMemoryHeap>& memory_heaps) override;
+    virtual void
+    ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
+
+    virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
+
+    virtual void ProcessResizeWindowCommand2(format::HandleId surface_id,
+                                             uint32_t         width,
+                                             uint32_t         height,
+                                             uint32_t         pre_transform) override;
+    virtual void
+                 ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+                                                    uint64_t                                            buffer_id,
+                                                    uint32_t                                            format,
+                                                    uint32_t                                            width,
+                                                    uint32_t                                            height,
+                                                    uint32_t                                            stride,
+                                                    uint64_t                                            usage,
+                                                    uint32_t                                            layers,
+                                                    const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
+    virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) override;
+
   protected:
     FILE* GetFrameFile();
     FILE* GetHeaderFile() const { return m_header_file; };
@@ -434,12 +535,19 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     void Post_APICall(format::ApiCallId callId);
 
-    std::unordered_map<VkObjectType, uint32_t>                  m_counters;
-    VulkanCppResourceTracker*                                   m_resourceTracker;
-    VulkanCppLoaderGenerator                                    m_pfnLoader;
-    std::map<format::HandleId, std::string>                     m_handleIdMap;
-    std::vector<std::string>                                    m_func_data;
-    std::map<uint64_t, std::string>                             m_memoryIdMap;
+    std::unordered_map<VkObjectType, uint32_t> m_counters;
+    VulkanCppResourceTracker*                  m_resourceTracker;
+    VulkanCppLoaderGenerator                   m_pfnLoader;
+    std::map<format::HandleId, std::string>    m_handleIdMap;
+    std::vector<std::string>                   m_func_data;
+    std::map<uint64_t, std::string>            m_memoryIdMap;
+    struct VulkanCppAndroidBufferInfo
+    {
+        std::string name;
+        uint64_t    memory_id;
+    };
+    std::map<uint64_t, VulkanCppAndroidBufferInfo>              m_androidBufferIdMap;
+    std::map<uint64_t, std::string>                             m_androidMemoryIdMap;
     std::map<format::HandleId, std::queue<std::string>>         m_nextImageMap;
     std::map<void*, std::string>                                m_ptrMap;
     std::map<uint64_t, std::string>                             m_structMap; // hash -> name
@@ -455,8 +563,10 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void AddHandles(const std::string& outputName, const format::HandleId* ptrs, uint32_t count);
     void AddHandles(const std::string& outputName, const format::HandleId* ptrs);
 
-    void AddDescriptorUpdateTemplateEntry(format::HandleId                templateHandleId,
-                                          VkDescriptorUpdateTemplateEntry templateEntry);
+    void GenerateDescriptorUpdateTemplateData(DescriptorUpdateTemplateDecoder* decoder,
+                                              format::HandleId                 desc_update_template,
+                                              FILE*                            frame_file,
+                                              std::string&                     template_data_var_name);
 
     bool m_needsDebugUtilCallback = false;
 

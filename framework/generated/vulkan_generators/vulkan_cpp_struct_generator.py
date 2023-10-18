@@ -120,9 +120,12 @@ class VulkanCppStructGenerator(BaseGenerator):
         ]
 
         self.overrideStructs = [
-            'VkXcbSurfaceCreateInfoKHR',
-            'VkWaylandSurfaceCreateInfoKHR', #-> vkCreateWaylandSurfaceKHR
-            'VkAndroidSurfaceCreateInfoKHR'
+            'VkAndroidSurfaceCreateInfoKHR', # vkCreateAndroidSurfaceKHR, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
+            'VkMetalSurfaceCreateInfoEXT',   # vkCreateMetalSurfaceEXT, VK_EXT_METAL_SURFACE_EXTENSION_NAME
+            'VkWaylandSurfaceCreateInfoKHR', # vkCreateWaylandSurfaceKHR, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
+            'VkWin32SurfaceCreateInfoKHR',   # vkCreateWin32SurfaceKHR, VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+            'VkXcbSurfaceCreateInfoKHR',     # vkCreateXcbSurfaceKHR, VK_KHR_XCB_SURFACE_EXTENSION_NAME
+            'VkXlibSurfaceCreateInfoKHR',    # vkCreateXlibSurfaceKHR, VK_KHR_XLIB_SURFACE_EXTENSION_NAME
         ]
 
         self.CUSTOM_GENERATE_STRUCT = [
@@ -143,8 +146,6 @@ class VulkanCppStructGenerator(BaseGenerator):
         ]
 
         self.LOCAL_STRUCT_BLACKLIST = [
-            'VkBaseInStructure',
-            'VkBaseOutStructure',
             'SECURITY_ATTRIBUTES',
             'GUID'
         ]
@@ -207,10 +208,11 @@ class VulkanCppStructGenerator(BaseGenerator):
         return False
 
     def generate_feature(self):
-        structs = self.feature_struct_members
+        structnames = self.get_filtered_struct_names()
+        structnames.sort()
 
         # Insert the declaration of GenerateStruct functions.
-        for structName in structs:
+        for structName in structnames:
             if (structName in self.CUSTOM_GENERATE_STRUCT or structName in self.feature_struct_aliases or structName in self.feature_union_aliases):
                 continue
 
@@ -221,6 +223,8 @@ class VulkanCppStructGenerator(BaseGenerator):
     #
     # Generate the "GenerateStruct_" function for the given structure name
     def makeStructGenerateFunction(self, struct_type):
+        if struct_type in self.CUSTOM_GENERATE_STRUCT:
+            return
         body = f'std::string GenerateStruct_{struct_type}(std::ostream &out, const {struct_type}* structInfo, ' \
                         f'Decoded_{struct_type}* metainfo, VulkanCppConsumerBase &consumer)'
         if self.is_header:
@@ -237,18 +241,18 @@ class VulkanCppStructGenerator(BaseGenerator):
         else:
             return False
 
-    def handlePNext(self, struct_prefix, indent, header, body):
+    def handlePNext(self, struct_prefix, indent, header, body, isFirstArg, isLastArg):
         local_header = []
         local_body = []
         local_header.extend(header)
         local_body.extend(body)
 
         local_header.append(makeGen('std::string pNextName = GenerateExtension(out, {struct_prefix}pNext, metainfo->pNext, consumer);', locals(), indent))
-        local_body.append(makeOutStructSet('pNextName', locals(), False, indent))
+        local_body.append(makeOutStructSet('pNextName', locals(), isFirstArg, isLastArg, indent))
 
         return local_header, local_body
 
-    def handleChar(self, struct_prefix, arg, indent, header, body, is_last_arg):
+    def handleChar(self, struct_prefix, arg, indent, header, body, isFirstArg, isLastArg):
         local_header = []
         local_body = []
         local_header.extend(header)
@@ -271,12 +275,12 @@ class VulkanCppStructGenerator(BaseGenerator):
                                             'VulkanCppConsumerBase::escapeStringArray({struct_prefix}{arg.name}, {struct_prefix}{arg.array_length})',
                                             '";"'], locals(), indent)], [], locals(), indent)]
             local_header.append(''.join(header_data))
-            local_body.append(makeOutStructSet(escapedStringArrayName, locals(), is_last_arg, indent))
+            local_body.append(makeOutStructSet(escapedStringArrayName, locals(), isFirstArg, isLastArg, indent))
         else:
-            local_body.append(makeOutStructSet('VulkanCppConsumerBase::toEscape({struct_prefix}{arg.name})', locals(), is_last_arg, indent))
+            local_body.append(makeOutStructSet('VulkanCppConsumerBase::toEscape({struct_prefix}{arg.name})', locals(), isFirstArg, isLastArg, indent))
         return local_header, local_body
 
-    def handleBasicPointer(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, is_last_arg):
+    def handleBasicPointer(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
         local_header = []
         local_body = []
         local_header.extend(header)
@@ -302,10 +306,10 @@ class VulkanCppStructGenerator(BaseGenerator):
                                 'VulkanCppConsumerBase::BuildValue({struct_prefix}{arg.name}, {lengths[0]})',
                                 '";"'], locals(), indent + 4)], [], locals(), indent)]
         local_header.extend(this_header)
-        local_body.append(makeOutStructSet('{arg.name}Array', locals(), is_last_arg, indent))
+        local_body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
         return local_header, local_body
 
-    def handleLargeUint(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, is_last_arg):
+    def handleLargeUint(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
         local_header = []
         local_body = []
         local_header.extend(header)
@@ -331,13 +335,13 @@ class VulkanCppStructGenerator(BaseGenerator):
                     # No need for else case
                 ], locals(), indent + 4),
             ], [], locals(), indent))
-            local_body.append(makeOutStructSet('"{{ *" << {arg.name}Array << " }}"', locals(), is_last_arg, indent))
+            local_body.append(makeOutStructSet('"{{ *" << {arg.name}Array << " }}"', locals(), isFirstArg, isLastArg, indent))
         else:
-            local_body.append(makeOutStructSet('{struct_prefix}{arg.name} << "UL"', locals(), is_last_arg, indent))
+            local_body.append(makeOutStructSet('{struct_prefix}{arg.name} << "UL"', locals(), isFirstArg, isLastArg, indent))
 
         return local_header, local_body
 
-    def handleEnum(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, is_last_arg):
+    def handleEnum(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
         local_header = []
         local_body = []
         local_header.extend(header)
@@ -366,16 +370,16 @@ class VulkanCppStructGenerator(BaseGenerator):
                     ], [], locals(), indent),
                 ]
                 local_header.append(''.join(argHandler))
-                local_body.append(makeOutStructSet(arrayName, locals(), is_last_arg, indent))
+                local_body.append(makeOutStructSet(arrayName, locals(), isFirstArg, isLastArg, indent))
             else:
                 local_body.append(self.generateTodoFor(arg.name + '(Enum/flag pointer)', indent))
         else:
-            local_body.append(makeOutStructSet('"{arg.base_type}(" << {struct_prefix}{arg.name} << ")"', locals(), is_last_arg, indent))
+            local_body.append(makeOutStructSet('"{arg.base_type}(" << {struct_prefix}{arg.name} << ")"', locals(), isFirstArg, isLastArg, indent))
 
         return local_header, local_body
 
 
-    def handleHandle(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, is_last_arg):
+    def handleHandle(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
         local_header = []
         local_body = []
         local_header.extend(header)
@@ -404,13 +408,13 @@ class VulkanCppStructGenerator(BaseGenerator):
                 ], locals(), indent + 4),
             ], [], locals(), indent))
 
-            local_body.append(makeOutStructSet('{strArrayName}', locals(), is_last_arg, indent))
+            local_body.append(makeOutStructSet('{strArrayName}', locals(), isFirstArg, isLastArg, indent))
         else:
-            local_body.append(makeOutStructSet('consumer.GetHandle(metainfo->{arg.name})', locals(), is_last_arg, indent))
+            local_body.append(makeOutStructSet('consumer.GetHandle(metainfo->{arg.name})', locals(), isFirstArg, isLastArg, indent))
 
         return local_header, local_body
 
-    def handleInputArray(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, is_last_arg):
+    def handleInputArray(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
         local_header = []
         local_body = []
         local_header.extend(header)
@@ -471,7 +475,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                 structBuild += f'{space}}}\n'
 
             local_header.append(''.join(structBuild))
-            local_body.append(makeOutStructSet('{arg.name}Array', locals(), is_last_arg, indent))
+            local_body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
 
         else:
             local_body.append(self.generateTodoFor(arg.name + '(input pointer)', indent))
@@ -479,7 +483,7 @@ class VulkanCppStructGenerator(BaseGenerator):
         return local_header, local_body
     
 
-    def handleOutputParam(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, is_last_arg):
+    def handleOutputParam(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
         local_header = []
         local_body = []
         local_header.extend(header)
@@ -504,7 +508,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                 else:
                     struct_param = f'{struct_prefix}{arg.name}'
 
-                local_body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({struct_param}, {lengths[0]})', locals(), is_last_arg, indent))
+                local_body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({struct_param}, {lengths[0]})', locals(), isFirstArg, isLastArg, indent))
             else: # arg.array_length_value
                 if self.is_struct(arg.base_type):
                     innerIndent = indent + 4 if not arg.array_capacity else 4
@@ -530,15 +534,14 @@ class VulkanCppStructGenerator(BaseGenerator):
                     ]
 
                     if arg.array_capacity:
-                        arrayName = makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent, useThis=False)
-                        arrayProcess = ''.join(arrayBuilder)
+                        local_body.append('    structBody << "\\t\\t\\t{}," << std::endl;\n')
                     else:
                         arrayName = makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False)
                         arrayNameSet = makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False)
                         arrayProcess = makeGenCond('{struct_prefix}{arg.name} != NULL', [arrayNameSet] + arrayBuilder, [], locals(), indent)
 
-                    local_header.append(arrayName + arrayProcess)
-                    local_body.append(makeOutStructSet('{arg.name}Array', locals(), is_last_arg, indent))
+                        local_header.append(arrayName + arrayProcess)
+                        local_body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
                 elif self.is_enum(arg.base_type) or self.is_flags(arg.base_type):
                     argHandler = [
                         makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False),
@@ -552,7 +555,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                         ], [], locals(), indent),
                     ]
                     local_header.append(''.join(argHandler))
-                    local_body.append(makeOutStructSet('{arg.name}Array', locals(), is_last_arg, indent))
+                    local_body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
                 else:
                     local_body.append(self.generateTodoFor(arg.name + " (output with array length value?)", indent))
 
@@ -577,6 +580,9 @@ class VulkanCppStructGenerator(BaseGenerator):
             return body
 
         for arg in structMembers:
+            isFirstArg = (arg == structMembers[0])
+            isLastArg = (arg == structMembers[-1])
+
             if arg.base_type == 'VkDescriptorUpdateTemplateEntryKHR':
                 print(f'   {arg.name} was struct base type {arg.base_type} should have an alias')
 
@@ -594,7 +600,6 @@ class VulkanCppStructGenerator(BaseGenerator):
             arg_name = struct_prefix + arg.name
 
             body.append(makeGen('/* {arg.name} */', locals(), 0))
-            isLastArg = arg == structMembers[-1]
 
             lengths = []
             if arg.array_length_value is not None:
@@ -614,28 +619,30 @@ class VulkanCppStructGenerator(BaseGenerator):
             num_lengths = len(lengths)
 
             if arg.name == 'pNext':
-                header, body = self.handlePNext(struct_prefix, indent, header, body)
+                header, body = self.handlePNext(struct_prefix, indent, header, body, isFirstArg, isLastArg)
 
             elif arg.base_type == 'char':
-                header, body = self.handleChar(struct_prefix, arg, indent, header, body, isLastArg)
+                header, body = self.handleChar(struct_prefix, arg, indent, header, body, isFirstArg, isLastArg)
 
             elif arg.base_type in ['float', 'int32_t', 'uint32_t', 'VkClearValue', 'VkRect2D'] and arg.is_pointer:
-                header, body = self.handleBasicPointer(struct_prefix, arg, num_lengths, lengths, indent, header, body, isLastArg)
+                header, body = self.handleBasicPointer(struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg)
 
             elif arg.base_type in vkLUType:
-                header, body = self.handleLargeUint(struct_prefix, arg, num_lengths, lengths, indent, header, body, isLastArg)
+                header, body = self.handleLargeUint(struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg)
 
             elif self.is_output_parameter(arg):
-                header, body = self.handleOutputParam(struct_prefix, arg, num_lengths, lengths, indent, header, body, isLastArg)
+                header, body = self.handleOutputParam(struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg)
 
             elif self.is_union(arg.base_type):
                 if not arg.is_pointer:
-                    if arg.base_type in self.feature_union_members:
+                    if arg.base_type in ['VkClearColorValue', 'VkComponentMapping', 'VkOffset2D', 'VkExtent2D']:
+                        body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isFirstArg, isLastArg, indent))
+                    elif arg.base_type in self.feature_union_members:
                         union_members = self.feature_union_members[arg.base_type]
                         first_member = union_members[0]
 
                         if first_member.base_type in BasicStringConversionHandledTypes:
-                            body.append(makeOutStructSet('{arg_name}.{first_member.name}', locals(), isLastArg, indent))
+                            body.append(makeOutStructSet('{arg_name}.{first_member.name}', locals(), isFirstArg, isLastArg, indent))
                         elif self.is_struct(first_member.base_type):
 
                             argHandler = [
@@ -650,15 +657,15 @@ class VulkanCppStructGenerator(BaseGenerator):
                             ]
                             header.append(''.join(argHandler))
 
-                            body.append(makeOutStructSet('{first_member.name}InfoVar', locals(), isLastArg, indent))
+                            body.append(makeOutStructSet('{first_member.name}InfoVar', locals(), isFirstArg, isLastArg, indent))
                         else:
-                            body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name}.{first_member.name})', locals(), isLastArg, indent))
+                            body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name}.{first_member.name})', locals(), isFirstArg, isLastArg, indent))
                     else:
-                        body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isLastArg, indent))
+                        body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isFirstArg, isLastArg, indent))
                 else:
                     #if arg.base_type in ['VkClearColorValue', 'VkComponentMapping', 'VkOffset2D', 'VkExtent2D']:
                     body.append(makeGenVar('tmp{arg.name}', '{arg.name}', handleObjectType, locals(), indent, useThis=False))
-                    body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isLastArg, indent + 4))
+                    body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isFirstArg, isLastArg, indent + 4))
             elif self.is_struct(arg.base_type) and arg.base_type not in self.LOCAL_STRUCT_BLACKLIST:
                 if not arg.is_pointer:
                     argHandler = [
@@ -673,7 +680,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                     ]
                     header.append(''.join(argHandler))
 
-                    body.append(makeOutStructSet('{arg.name}InfoVar', locals(), isLastArg, indent))
+                    body.append(makeOutStructSet('{arg.name}InfoVar', locals(), isFirstArg, isLastArg, indent))
                 else:
                     if num_lengths > 0:
                         if num_lengths > 1:
@@ -753,7 +760,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                                 ], [], locals(), indent)
                             ]
                         header.append(''.join(structBuild))
-                        body.append(makeOutStructSet('{arg.name}Array', locals(), isLastArg, indent))
+                        body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
                     else:
                         prefixVar = "prefix_{arg.name}".format(**locals())
                         # Make sure if the sub struct pointer during capture processing does contain data and it is not a NULL value.
@@ -772,7 +779,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                             ], [], locals(), indent),
                         ]
                         header.append(''.join(structBuild))
-                        body.append(makeOutStructSet('{arg.name}Struct', locals(), isLastArg, indent))
+                        body.append(makeOutStructSet('{arg.name}Struct', locals(), isFirstArg, isLastArg, indent))
                 # TODO:
                 # structArguments = []
                 # for subArg in self.feature_struct_members[arg.base_type]:
@@ -780,16 +787,19 @@ class VulkanCppStructGenerator(BaseGenerator):
                 # body += '    out << varname << ".{argName} = {{ " << {structArgs}    << "}};" << std::endl;\n'.format(argName=arg.name, structArgs='    << "," << '.join(structArguments))
 
             elif self.is_enum(arg.base_type) or self.is_flags(arg.base_type):
-                header, body = self.handleEnum(struct_prefix, arg, num_lengths, lengths, indent, header, body, isLastArg)
+                header, body = self.handleEnum(struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg)
 
             elif self.is_handle(arg.base_type):
-                header, body = self.handleHandle(struct_prefix, arg, num_lengths, lengths, indent, header, body, isLastArg)
+                header, body = self.handleHandle(struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg)
 
             elif self.is_input_pointer(arg) and arg.is_array:
-                header, body = self.handleInputArray(struct_prefix, arg, num_lengths, lengths, indent, header, body, isLastArg)
+                header, body = self.handleInputArray(struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg)
 
             else:
-                body.append(makeOutStructSet('{arg_name}', locals(), isLastArg, indent))
+                struct_arg = arg_name
+                if 'int8_t' in arg.base_type:
+                    struct_arg = f'std::to_string({arg_name})'
+                body.append(makeOutStructSet('{struct_arg}', locals(), isFirstArg, isLastArg, indent))
 
         if structName in self.feature_struct_aliases:
             structName = self.feature_struct_aliases[structName]

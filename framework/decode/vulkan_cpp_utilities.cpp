@@ -16,6 +16,7 @@
 #include "vulkan_cpp_utilities.h"
 
 #include <algorithm>
+#include <iterator>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -39,32 +40,6 @@ std::vector<std::string> GfxToCppVariable::toStrVec(const std::vector<GfxToCppVa
                    std::back_inserter(varStrings),
                    [](const GfxToCppVariable& variable) { return variable.str(); });
     return varStrings;
-}
-
-const std::map<std::string, std::string>& GetWSIRemapInfo(GfxTocppPlatform platform)
-{
-    static const std::map<std::string, std::string> xcbExtensionReplacementMap = {
-        { VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME, VK_KHR_XCB_SURFACE_EXTENSION_NAME },
-        { VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, VK_KHR_XCB_SURFACE_EXTENSION_NAME },
-    };
-
-    static const std::map<std::string, std::string> androidExtensionReplacementMap = {
-        { VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME },
-        { VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME },
-    };
-
-    static const std::map<std::string, std::string> empty;
-
-    switch (platform)
-    {
-        case GfxTocppPlatform::XCB:
-            return xcbExtensionReplacementMap;
-        case GfxTocppPlatform::ANDROID:
-            return androidExtensionReplacementMap;
-        case GfxTocppPlatform::NONE:
-        default:
-            return empty;
-    }
 }
 
 void PrintToFile(FILE* file, const std::string& format, const std::vector<std::string>& data)

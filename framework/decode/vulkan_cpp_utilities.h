@@ -31,9 +31,29 @@ const uint32_t MAX_FRAME_CAPACITY = 1000;
 
 enum class GfxTocppPlatform
 {
-    ANDROID,
-    XCB,
-    NONE,
+    PLATFORM_ANDROID,
+    PLATFORM_MACOS,
+    PLATFORM_WAYLAND,
+    PLATFORM_WIN32,
+    PLATFORM_XCB,
+    PLATFORM_XLIB,
+    PLATFORM_COUNT // MUST BE LAST
+};
+
+struct PlatformTargets
+{
+    gfxrecon::decode::GfxTocppPlatform platformEnum;
+    char                               platformName[32];
+    char                               wsiSurfaceExtName[32];
+};
+
+const PlatformTargets kValidTargetPlatforms[] = {
+    { GfxTocppPlatform::PLATFORM_ANDROID, "android", VK_KHR_ANDROID_SURFACE_EXTENSION_NAME },
+    { GfxTocppPlatform::PLATFORM_MACOS, "macos", VK_EXT_METAL_SURFACE_EXTENSION_NAME },
+    { GfxTocppPlatform::PLATFORM_WAYLAND, "wayland", VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME },
+    { GfxTocppPlatform::PLATFORM_WIN32, "win32", VK_KHR_WIN32_SURFACE_EXTENSION_NAME },
+    { GfxTocppPlatform::PLATFORM_XCB, "xcb", VK_KHR_XCB_SURFACE_EXTENSION_NAME },
+    { GfxTocppPlatform::PLATFORM_XLIB, "xlib", VK_KHR_XLIB_SURFACE_EXTENSION_NAME }
 };
 
 struct GfxToCppVariable
@@ -45,8 +65,6 @@ struct GfxToCppVariable
     std::string                     str() const;
     static std::vector<std::string> toStrVec(const std::vector<GfxToCppVariable>& variables);
 };
-
-const std::map<std::string, std::string>& GetWSIRemapInfo(GfxTocppPlatform platform);
 
 void PrintToFile(FILE* file, const std::string& format, const std::vector<std::string>& data);
 

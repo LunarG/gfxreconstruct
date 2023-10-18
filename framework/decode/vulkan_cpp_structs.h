@@ -74,10 +74,17 @@ GenerateStruct_VkAccelerationStructureMotionInstanceNV(std::ostream&            
                                                        Decoded_VkAccelerationStructureMotionInstanceNV* metainfo,
                                                        VulkanCppConsumerBase&                           consumer);
 
+std::string GenerateStruct_VkAccelerationStructureGeometryKHR(std::ostream&                               out,
+                                                              const VkAccelerationStructureGeometryKHR*   structInfo,
+                                                              Decoded_VkAccelerationStructureGeometryKHR* metainfo,
+                                                              VulkanCppConsumerBase&                      consumer);
+
 std::string GenerateStruct_VkDebugUtilsMessengerCreateInfoEXT(std::ostream&                               out,
                                                               const VkDebugUtilsMessengerCreateInfoEXT*   structInfo,
                                                               Decoded_VkDebugUtilsMessengerCreateInfoEXT* metainfo,
                                                               VulkanCppConsumerBase&                      consumer);
+
+std::string GenerateStruct_VkPerformanceValueINTEL(std::ostream &out, const VkPerformanceValueINTEL* structInfo, Decoded_VkPerformanceValueINTEL* metainfo, VulkanCppConsumerBase &consumer);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
