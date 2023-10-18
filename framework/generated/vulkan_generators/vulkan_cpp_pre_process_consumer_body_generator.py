@@ -68,6 +68,10 @@ CPP_PRE_PROCESS_APICALL_INTERCEPT_LIST = [
     'vkCreateSwapchainKHR',
     'vkBindImageMemory',
     'vkBindBufferMemory',
+    'vkBindImageMemory2',
+    'vkBindBufferMemory2',
+    'vkBindImageMemory2KHR',
+    'vkBindBufferMemory2KHR',
 ]
 
 
@@ -81,16 +85,10 @@ class VulkanCppPreProcessConsumerBodyGeneratorOptions(BaseGeneratorOptions):
                  directory = '.',
                  prefix_text = CPP_PREFIX_STRING,
                  protect_file = False,
-                 protect_feature = True,
-                 versions = CPP_CONSUMER_VULKAN_VERSION_PAT,
-                 add_extensions = CPP_CONSUMER_ADD_EXTENSION_PAT,
-                 remove_extensions = CPP_CONSUMER_REMOVE_EXTENSION_PAT):
+                 protect_feature = True):
         BaseGeneratorOptions.__init__(self, blacklists=blacklists, platform_types=platform_types,
                                       filename=filename, directory=directory, prefix_text=CPP_PREFIX_STRING,
-                                      protect_file=protect_file, protect_feature=protect_feature,
-                                      versions=versions, default_extensions="dis",
-                                      add_extensions=add_extensions,
-                                      remove_extensions=remove_extensions)
+                                      protect_file=protect_file, protect_feature=protect_feature)
 
 
 # VulkanCppPreProcessConsumerBodyGenerator - subclass of BaseGenerator.
@@ -110,6 +108,13 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
+
+        # TODO: Don't currently support Nvidia raytracing entrypoints
+        self.APICALL_BLACKLIST = [
+            'vkCmdBuildAccelerationStructureNV',
+            'vkCmdTraceRaysNV',
+            'vkCreateAccelerationStructureNV'
+        ]
 
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
@@ -186,7 +191,12 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
 
         for arg in values:
             if self.is_struct(arg.base_type):
-                body.extend(self.makeAddStructHandleBody(arg))
+
+                array_len_arg = None
+                if arg.array_length is not None:
+                    array_len_arg = next((x for x in values if x.name == arg.array_length), None)
+
+                body.extend(self.makeAddStructHandleBody(arg, array_len_arg))
 
             if not self.is_handle(arg.base_type):
                 continue
@@ -209,8 +219,9 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
 
         return '\n'.join(body)
 
-    def makeAddStructHandleBody(self, arg, recursivePointerAccess='', recursionDepth=1):
+    def makeAddStructHandleBody(self, arg, array_len_arg, recursivePointerAccess='', recursionDepth=1):
         body = []
+
         members = self.feature_struct_members.get(arg.base_type)
         if not members:
             return body
@@ -218,13 +229,24 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
         for member in members:
             # If the struct member is a struct, recursively traverse it
             if self.is_struct(member.base_type):
+                member_array_len_arg = None
+                if member.array_length is not None:
+                    member_array_len_arg = next((x for x in members if x.name == member.array_length), None)
+
                 body.extend(self.makeAddStructHandleBody(member,
+                                                         member_array_len_arg,
                                                          recursivePointerAccess + arg.name + '->GetMetaStructPointer()->',
                                                          recursionDepth + 1))
             if self.is_handle(member.base_type):
                 # Resolve how the handle is accessed through pointers
                 pointerAccess = recursivePointerAccess + arg.name
                 if arg.is_array:
+                    #if member.array_length is not None:
+                    #    pointerAccess += '->GetMetaStructPointer()[idx1]'
+                    #    argument = '%s.%s.GetPointer()[idx2]' % (pointerAccess, member.name)
+                    #else:
+                    #    pointerAccess += '->GetMetaStructPointer()[idx]'
+                    #    argument = '%s.%s' % (pointerAccess, member.name)
                     pointerAccess += '->GetMetaStructPointer()[idx]'
                     argument = '%s.%s' % (pointerAccess, member.name)
                 elif not arg.is_pointer and arg.is_dynamic:
@@ -235,18 +257,33 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
 
                 arguments = ['GetCurrentFrameNumber()',
                              'GetCurrentFrameSplitNumber()',]
-                if member.is_pointer:
+                if member.is_pointer or member.is_array:
                     arguments.append(argument + '.GetPointer()')
                     if member.is_array:
                         arguments.append(argument + '.GetLength()')
-                elif not member.is_array and not member.is_pointer:
+                else: # elif not member.is_array and not member.is_pointer:
                     arguments.append(argument)
 
                 # If the parent is an array iterate through it
                 if arg.is_array:
                     forConditionAccess = reverseReplace(recursivePointerAccess, 'MetaStruct', '', 1)
-                    body.append(makeGenLoop('idx', '{forConditionAccess}{arg.array_length}',
-                                            [makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(),
+                    loop_counter1 = f'{forConditionAccess}{arg.array_length}'
+                    if array_len_arg is not None and array_len_arg.is_pointer:
+                        loop_counter1 = f'*({array_len_arg.name}->GetPointer())'
+                    #if member.array_length is not None:
+                    #    forConditionAccess = reverseReplace(pointerAccess, 'MetaStruct', '', 1)
+                    #    loop_counter2 = f'{forConditionAccess}.{member.array_length}'
+                    #
+                    #    body.append(makeGenLoop('idx1', '{loop_counter1}',
+                    #                            [makeGenLoop('idx2', '{loop_counter2}',
+                    #                                [makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(),
+                    #                                    indent=8 + recursionDepth * 4)], locals(), indent=8)], locals(), indent=4))
+                    #else:
+                    #    body.append(makeGenLoop('idx', '{loop_counter1}',
+                    #                            [makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(),
+                    #                                        indent=4 + recursionDepth * 4)], locals(), indent=4))
+                    body.append(makeGenLoop('idx', '{loop_counter1}',
+                                             [makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(),
                                                          indent=4 + recursionDepth * 4)], locals(), indent=4))
                 else:
                     body.append(makeGenCond('{pointerAccess} != nullptr',

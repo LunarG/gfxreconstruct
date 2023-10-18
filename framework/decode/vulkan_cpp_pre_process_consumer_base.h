@@ -43,7 +43,7 @@ class VulkanCppPreProcessConsumerBase : public VulkanConsumer
 
     bool Initialize();
 
-    void SetMaxCommandLimit(uint32_t max) {m_max_command_limit = max;}
+    void SetMaxCommandLimit(uint32_t max) { m_max_command_limit = max; }
 
     void AddResourceTracker(VulkanCppResourceTracker& resourceTracker) { m_resourceTracker = &resourceTracker; };
 
@@ -69,11 +69,37 @@ class VulkanCppPreProcessConsumerBase : public VulkanConsumer
                                      format::HandleId memory,
                                      VkDeviceSize     memoryOffset);
 
+    void Intercept_vkBindImageMemory2(VkResult                                             returnValue,
+                                      format::HandleId                                     device,
+                                      uint32_t                                             bindInfoCount,
+                                      StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos);
+
+    void Intercept_vkBindImageMemory2KHR(VkResult                                             returnValue,
+                                         format::HandleId                                     device,
+                                         uint32_t                                             bindInfoCount,
+                                         StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
+    {
+        Intercept_vkBindImageMemory2(returnValue, device, bindInfoCount, pBindInfos);
+    }
+
     void Intercept_vkBindBufferMemory(VkResult         returnValue,
                                       format::HandleId device,
                                       format::HandleId buffer,
                                       format::HandleId memory,
                                       VkDeviceSize     memoryOffset);
+
+    void Intercept_vkBindBufferMemory2(VkResult                                              returnValue,
+                                       format::HandleId                                      device,
+                                       uint32_t                                              bindInfoCount,
+                                       StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos);
+
+    void Intercept_vkBindBufferMemory2KHR(VkResult                                              returnValue,
+                                          format::HandleId                                      device,
+                                          uint32_t                                              bindInfoCount,
+                                          StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
+    {
+        Intercept_vkBindBufferMemory2(returnValue, device, bindInfoCount, pBindInfos);
+    }
 
     void AddHandles_vkEnumeratePhysicalDevices(VkResult                                returnValue,
                                                format::HandleId                        instance,
@@ -103,6 +129,9 @@ class VulkanCppPreProcessConsumerBase : public VulkanConsumer
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
+    // Meta data commands
+    virtual void ProcessDisplayMessageCommand(const std::string& message) override;
+
   protected:
     VulkanCppResourceTracker* m_resourceTracker;
     // VkDeviceMemory -> VkImage | VkBuffer
@@ -111,7 +140,7 @@ class VulkanCppPreProcessConsumerBase : public VulkanConsumer
     void     Post_APICall(format::ApiCallId callId);
     uint32_t GetCurrentFrameSplitNumber() { return m_frameSplitNumber; }
 
-    uint32_t m_max_command_limit{1000};
+    uint32_t m_max_command_limit{ 1000 };
 
   private:
     uint32_t m_captureWindowWidth;

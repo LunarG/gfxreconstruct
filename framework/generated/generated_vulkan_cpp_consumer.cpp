@@ -50,7 +50,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-
 void VulkanCppConsumer::Process_vkAllocateCommandBuffers(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -59,7 +58,7 @@ void VulkanCppConsumer::Process_vkAllocateCommandBuffers(
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pAllocateInfo */
     std::stringstream stream_pAllocateInfo;
@@ -67,7 +66,7 @@ void VulkanCppConsumer::Process_vkAllocateCommandBuffers(
                                                                      pAllocateInfo->GetPointer(),
                                                                      pAllocateInfo->GetMetaStructPointer(),
                                                                      *this);
-    fprintf(file, "\n%s", stream_pAllocateInfo.str().c_str());
+    fprintf(file, "%s", stream_pAllocateInfo.str().c_str());
 /* pCommandBuffers */
     std::string pCommandBuffersName = "pCommandBuffers_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_COMMAND_BUFFER));
     AddKnownVariables("VkCommandBuffer", pCommandBuffersName, pCommandBuffers->GetPointer(), pAllocateInfo->GetPointer()->commandBufferCount);
@@ -76,12 +75,12 @@ void VulkanCppConsumer::Process_vkAllocateCommandBuffers(
                          pCommandBuffers->GetPointer(), pAllocateInfo->GetPointer()->commandBufferCount);
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkAllocateCommandBuffers(%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkAllocateCommandBuffers(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pAllocateInfoStruct.c_str(),
             pCommandBuffersName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkAllocateCommandBuffers);
 }
 
@@ -93,7 +92,7 @@ void VulkanCppConsumer::Process_vkAllocateDescriptorSets(
     HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pAllocateInfo */
     std::stringstream stream_pAllocateInfo;
@@ -101,7 +100,7 @@ void VulkanCppConsumer::Process_vkAllocateDescriptorSets(
                                                                      pAllocateInfo->GetPointer(),
                                                                      pAllocateInfo->GetMetaStructPointer(),
                                                                      *this);
-    fprintf(file, "\n%s", stream_pAllocateInfo.str().c_str());
+    fprintf(file, "%s", stream_pAllocateInfo.str().c_str());
 /* pDescriptorSets */
     std::string pDescriptorSetsName = "pDescriptorSets_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_DESCRIPTOR_SET));
     AddKnownVariables("VkDescriptorSet", pDescriptorSetsName, pDescriptorSets->GetPointer(), pAllocateInfo->GetPointer()->descriptorSetCount);
@@ -110,12 +109,12 @@ void VulkanCppConsumer::Process_vkAllocateDescriptorSets(
                          pDescriptorSets->GetPointer(), pAllocateInfo->GetPointer()->descriptorSetCount);
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkAllocateDescriptorSets(%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkAllocateDescriptorSets(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pAllocateInfoStruct.c_str(),
             pDescriptorSetsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkAllocateDescriptorSets);
 }
 
@@ -138,7 +137,7 @@ void VulkanCppConsumer::Process_vkBeginCommandBuffer(
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pBeginInfo */
     std::stringstream stream_pBeginInfo;
@@ -146,13 +145,13 @@ void VulkanCppConsumer::Process_vkBeginCommandBuffer(
                                                                   pBeginInfo->GetPointer(),
                                                                   pBeginInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pBeginInfo.str().c_str());
+    fprintf(file, "%s", stream_pBeginInfo.str().c_str());
     fprintf(file,
-            "VK_CALL_CHECK(vkBeginCommandBuffer(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkBeginCommandBuffer(%s, &%s), %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pBeginInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBeginCommandBuffer);
 }
 
@@ -165,19 +164,19 @@ void VulkanCppConsumer::Process_vkBindBufferMemory(
     VkDeviceSize                                memoryOffset)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* buffer */
 /* memory */
 /* memoryOffset */
     fprintf(file,
-            "VK_CALL_CHECK(vkBindBufferMemory(%s, %s, %s, %luUL), %s);\n",
+            "\t\tVK_CALL_CHECK(vkBindBufferMemory(%s, %s, %s, %" PRIu64 "UL), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(buffer).c_str(),
             this->GetHandle(memory).c_str(),
             memoryOffset,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBindBufferMemory);
 }
 
@@ -190,19 +189,19 @@ void VulkanCppConsumer::Process_vkBindImageMemory(
     VkDeviceSize                                memoryOffset)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* image */
 /* memory */
 /* memoryOffset */
     fprintf(file,
-            "VK_CALL_CHECK(vkBindImageMemory(%s, %s, %s, %luUL), %s);\n",
+            "\t\tVK_CALL_CHECK(vkBindImageMemory(%s, %s, %s, %" PRIu64 "UL), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             this->GetHandle(memory).c_str(),
             memoryOffset,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBindImageMemory);
 }
 
@@ -214,18 +213,18 @@ void VulkanCppConsumer::Process_vkCmdBeginQuery(
     VkQueryControlFlags                         flags)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* queryPool */
 /* query */
 /* flags */
     fprintf(file,
-            "vkCmdBeginQuery(%s, %s, %u, %s);\n",
+            "\t\tvkCmdBeginQuery(%s, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(queryPool).c_str(),
             query,
             util::ToString<VkQueryControlFlags>(flags).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginQuery);
 }
 
@@ -237,7 +236,7 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderPass(
 {
     Intercept_vkCmdBeginRenderPass(commandBuffer, pRenderPassBegin, contents);
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pRenderPassBegin */
     std::stringstream stream_pRenderPassBegin;
@@ -245,14 +244,14 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderPass(
                                                                         pRenderPassBegin->GetPointer(),
                                                                         pRenderPassBegin->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pRenderPassBegin.str().c_str());
+    fprintf(file, "%s", stream_pRenderPassBegin.str().c_str());
 /* contents */
     fprintf(file,
-            "vkCmdBeginRenderPass(%s, &%s, %s);\n",
+            "\t\tvkCmdBeginRenderPass(%s, &%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pRenderPassBeginStruct.c_str(),
             util::ToString<VkSubpassContents>(contents).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginRenderPass);
 }
 
@@ -268,7 +267,7 @@ void VulkanCppConsumer::Process_vkCmdBindDescriptorSets(
     PointerDecoder<uint32_t>*                   pDynamicOffsets)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pipelineBindPoint */
 /* layout */
@@ -280,11 +279,11 @@ void VulkanCppConsumer::Process_vkCmdBindDescriptorSets(
                                                      pDescriptorSets->GetPointer() + descriptorSetCount,
                                                      [&](const format::HandleId current) { return this->GetHandle(current); },
                                                      ", ");
-    if (descriptorSetCount == 1) {
+    if (descriptorSetCount == 1 && pDescriptorSetsValues != "VK_NULL_HANDLE") {
         pDescriptorSetsArray = "&" + pDescriptorSetsValues;
     } else if (descriptorSetCount > 1) {
         pDescriptorSetsArray = "pDescriptorSetsArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkDescriptorSet %s[] = { %s };\n", pDescriptorSetsArray.c_str(), pDescriptorSetsValues.c_str());
+        fprintf(file, "\t\tVkDescriptorSet %s[] = { %s };\n", pDescriptorSetsArray.c_str(), pDescriptorSetsValues.c_str());
     }
 /* dynamicOffsetCount */
 /* pDynamicOffsets */
@@ -294,12 +293,12 @@ void VulkanCppConsumer::Process_vkCmdBindDescriptorSets(
                                                          pDynamicOffsets->GetPointer() + dynamicOffsetCount,
                                                          [&](const auto current) { return std::to_string(current) + ""; },
                                                          ", ");
-        fprintf(file, "uint32_t %s[] = { %s };\n", pDynamicOffsetsArray.c_str(), pDynamicOffsetsValues.c_str());
+        fprintf(file, "\t\tuint32_t %s[] = { %s };\n", pDynamicOffsetsArray.c_str(), pDynamicOffsetsValues.c_str());
     } else {
         pDynamicOffsetsArray = "NULL";
     }
     fprintf(file,
-            "vkCmdBindDescriptorSets(%s, %s, %s, %u, %u, %s, %u, %s);\n",
+            "\t\tvkCmdBindDescriptorSets(%s, %s, %s, %u, %u, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineBindPoint>(pipelineBindPoint).c_str(),
             this->GetHandle(layout).c_str(),
@@ -308,7 +307,7 @@ void VulkanCppConsumer::Process_vkCmdBindDescriptorSets(
             pDescriptorSetsArray.c_str(),
             dynamicOffsetCount,
             pDynamicOffsetsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindDescriptorSets);
 }
 
@@ -320,18 +319,18 @@ void VulkanCppConsumer::Process_vkCmdBindIndexBuffer(
     VkIndexType                                 indexType)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
 /* indexType */
     fprintf(file,
-            "vkCmdBindIndexBuffer(%s, %s, %luUL, %s);\n",
+            "\t\tvkCmdBindIndexBuffer(%s, %s, %" PRIu64 "UL, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
             util::ToString<VkIndexType>(indexType).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindIndexBuffer);
 }
 
@@ -342,16 +341,16 @@ void VulkanCppConsumer::Process_vkCmdBindPipeline(
     format::HandleId                            pipeline)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pipelineBindPoint */
 /* pipeline */
     fprintf(file,
-            "vkCmdBindPipeline(%s, %s, %s);\n",
+            "\t\tvkCmdBindPipeline(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineBindPoint>(pipelineBindPoint).c_str(),
             this->GetHandle(pipeline).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindPipeline);
 }
 
@@ -364,7 +363,7 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers(
     PointerDecoder<VkDeviceSize>*               pOffsets)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstBinding */
 /* bindingCount */
@@ -374,11 +373,11 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers(
                                               pBuffers->GetPointer() + bindingCount,
                                               [&](const format::HandleId current) { return this->GetHandle(current); },
                                               ", ");
-    if (bindingCount == 1) {
+    if (bindingCount == 1 && pBuffersValues != "VK_NULL_HANDLE") {
         pBuffersArray = "&" + pBuffersValues;
     } else if (bindingCount > 1) {
         pBuffersArray = "pBuffersArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBuffer %s[] = { %s };\n", pBuffersArray.c_str(), pBuffersValues.c_str());
+        fprintf(file, "\t\tVkBuffer %s[] = { %s };\n", pBuffersArray.c_str(), pBuffersValues.c_str());
     }
 /* pOffsets */
     std::string pOffsetsArray = "pOffsets_" + std::to_string(this->getNextId());
@@ -387,18 +386,18 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers(
                                                   pOffsets->GetPointer() + bindingCount,
                                                   [&](const auto current) { return std::to_string(current) + "UL"; },
                                                   ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pOffsetsArray.c_str(), pOffsetsValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pOffsetsArray.c_str(), pOffsetsValues.c_str());
     } else {
         pOffsetsArray = "NULL";
     }
     fprintf(file,
-            "vkCmdBindVertexBuffers(%s, %u, %u, %s, %s);\n",
+            "\t\tvkCmdBindVertexBuffers(%s, %u, %u, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstBinding,
             bindingCount,
             pBuffersArray.c_str(),
             pOffsetsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindVertexBuffers);
 }
 
@@ -414,7 +413,7 @@ void VulkanCppConsumer::Process_vkCmdBlitImage(
     VkFilter                                    filter)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* srcImage */
 /* srcImageLayout */
@@ -429,16 +428,18 @@ void VulkanCppConsumer::Process_vkCmdBlitImage(
                                              pRegionsPair.end(),
                                              [&](auto pair) { return GenerateStruct_VkImageBlit(stream_pRegions, pair.t1, pair.t2, *this); },
                                              ", ");
-    fprintf(file, "\n%s", stream_pRegions.str().c_str());
-    if (regionCount == 1) {
-        pRegionsArray = "&" + pRegionsNames;
-    } else if (regionCount > 1) {
-        pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
-        fprintf(file, "VkImageBlit %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+    if (stream_pRegions.str().length() > 0) {
+        fprintf(file, "%s", stream_pRegions.str().c_str());
+        if (regionCount == 1) {
+            pRegionsArray = "&" + pRegionsNames;
+        } else if (regionCount > 1) {
+            pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkImageBlit %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+        }
     }
 /* filter */
     fprintf(file,
-            "vkCmdBlitImage(%s, %s, %s, %s, %s, %u, %s, %s);\n",
+            "\t\tvkCmdBlitImage(%s, %s, %s, %s, %s, %u, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(srcImage).c_str(),
             util::ToString<VkImageLayout>(srcImageLayout).c_str(),
@@ -447,7 +448,7 @@ void VulkanCppConsumer::Process_vkCmdBlitImage(
             regionCount,
             pRegionsArray.c_str(),
             util::ToString<VkFilter>(filter).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBlitImage);
 }
 
@@ -460,7 +461,7 @@ void VulkanCppConsumer::Process_vkCmdClearAttachments(
     StructPointerDecoder<Decoded_VkClearRect>*  pRects)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* attachmentCount */
 /* pAttachments */
@@ -471,12 +472,14 @@ void VulkanCppConsumer::Process_vkCmdClearAttachments(
                                                  pAttachmentsPair.end(),
                                                  [&](auto pair) { return GenerateStruct_VkClearAttachment(stream_pAttachments, pair.t1, pair.t2, *this); },
                                                  ", ");
-    fprintf(file, "\n%s", stream_pAttachments.str().c_str());
-    if (attachmentCount == 1) {
-        pAttachmentsArray = "&" + pAttachmentsNames;
-    } else if (attachmentCount > 1) {
-        pAttachmentsArray = "pAttachments_" + std::to_string(this->getNextId());
-        fprintf(file, "VkClearAttachment %s[] = { %s };\n", pAttachmentsArray.c_str(), pAttachmentsNames.c_str());
+    if (stream_pAttachments.str().length() > 0) {
+        fprintf(file, "%s", stream_pAttachments.str().c_str());
+        if (attachmentCount == 1) {
+            pAttachmentsArray = "&" + pAttachmentsNames;
+        } else if (attachmentCount > 1) {
+            pAttachmentsArray = "pAttachments_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkClearAttachment %s[] = { %s };\n", pAttachmentsArray.c_str(), pAttachmentsNames.c_str());
+        }
     }
 /* rectCount */
 /* pRects */
@@ -487,21 +490,23 @@ void VulkanCppConsumer::Process_vkCmdClearAttachments(
                                            pRectsPair.end(),
                                            [&](auto pair) { return GenerateStruct_VkClearRect(stream_pRects, pair.t1, pair.t2, *this); },
                                            ", ");
-    fprintf(file, "\n%s", stream_pRects.str().c_str());
-    if (rectCount == 1) {
-        pRectsArray = "&" + pRectsNames;
-    } else if (rectCount > 1) {
-        pRectsArray = "pRects_" + std::to_string(this->getNextId());
-        fprintf(file, "VkClearRect %s[] = { %s };\n", pRectsArray.c_str(), pRectsNames.c_str());
+    if (stream_pRects.str().length() > 0) {
+        fprintf(file, "%s", stream_pRects.str().c_str());
+        if (rectCount == 1) {
+            pRectsArray = "&" + pRectsNames;
+        } else if (rectCount > 1) {
+            pRectsArray = "pRects_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkClearRect %s[] = { %s };\n", pRectsArray.c_str(), pRectsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdClearAttachments(%s, %u, %s, %u, %s);\n",
+            "\t\tvkCmdClearAttachments(%s, %u, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             attachmentCount,
             pAttachmentsArray.c_str(),
             rectCount,
             pRectsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdClearAttachments);
 }
 
@@ -515,7 +520,7 @@ void VulkanCppConsumer::Process_vkCmdClearColorImage(
     StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* image */
 /* imageLayout */
@@ -525,7 +530,7 @@ void VulkanCppConsumer::Process_vkCmdClearColorImage(
                                                               pColor->GetPointer(),
                                                               pColor->GetMetaStructPointer(),
                                                               *this);
-    fprintf(file, "\n%s", stream_pColor.str().c_str());
+    fprintf(file, "%s", stream_pColor.str().c_str());
 /* rangeCount */
 /* pRanges */
     std::stringstream stream_pRanges;
@@ -535,22 +540,24 @@ void VulkanCppConsumer::Process_vkCmdClearColorImage(
                                             pRangesPair.end(),
                                             [&](auto pair) { return GenerateStruct_VkImageSubresourceRange(stream_pRanges, pair.t1, pair.t2, *this); },
                                             ", ");
-    fprintf(file, "\n%s", stream_pRanges.str().c_str());
-    if (rangeCount == 1) {
-        pRangesArray = "&" + pRangesNames;
-    } else if (rangeCount > 1) {
-        pRangesArray = "pRanges_" + std::to_string(this->getNextId());
-        fprintf(file, "VkImageSubresourceRange %s[] = { %s };\n", pRangesArray.c_str(), pRangesNames.c_str());
+    if (stream_pRanges.str().length() > 0) {
+        fprintf(file, "%s", stream_pRanges.str().c_str());
+        if (rangeCount == 1) {
+            pRangesArray = "&" + pRangesNames;
+        } else if (rangeCount > 1) {
+            pRangesArray = "pRanges_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkImageSubresourceRange %s[] = { %s };\n", pRangesArray.c_str(), pRangesNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdClearColorImage(%s, %s, %s, &%s, %u, %s);\n",
+            "\t\tvkCmdClearColorImage(%s, %s, %s, &%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(image).c_str(),
             util::ToString<VkImageLayout>(imageLayout).c_str(),
             pColorStruct.c_str(),
             rangeCount,
             pRangesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdClearColorImage);
 }
 
@@ -564,7 +571,7 @@ void VulkanCppConsumer::Process_vkCmdClearDepthStencilImage(
     StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* image */
 /* imageLayout */
@@ -574,7 +581,7 @@ void VulkanCppConsumer::Process_vkCmdClearDepthStencilImage(
                                                                      pDepthStencil->GetPointer(),
                                                                      pDepthStencil->GetMetaStructPointer(),
                                                                      *this);
-    fprintf(file, "\n%s", stream_pDepthStencil.str().c_str());
+    fprintf(file, "%s", stream_pDepthStencil.str().c_str());
 /* rangeCount */
 /* pRanges */
     std::stringstream stream_pRanges;
@@ -584,22 +591,24 @@ void VulkanCppConsumer::Process_vkCmdClearDepthStencilImage(
                                             pRangesPair.end(),
                                             [&](auto pair) { return GenerateStruct_VkImageSubresourceRange(stream_pRanges, pair.t1, pair.t2, *this); },
                                             ", ");
-    fprintf(file, "\n%s", stream_pRanges.str().c_str());
-    if (rangeCount == 1) {
-        pRangesArray = "&" + pRangesNames;
-    } else if (rangeCount > 1) {
-        pRangesArray = "pRanges_" + std::to_string(this->getNextId());
-        fprintf(file, "VkImageSubresourceRange %s[] = { %s };\n", pRangesArray.c_str(), pRangesNames.c_str());
+    if (stream_pRanges.str().length() > 0) {
+        fprintf(file, "%s", stream_pRanges.str().c_str());
+        if (rangeCount == 1) {
+            pRangesArray = "&" + pRangesNames;
+        } else if (rangeCount > 1) {
+            pRangesArray = "pRanges_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkImageSubresourceRange %s[] = { %s };\n", pRangesArray.c_str(), pRangesNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdClearDepthStencilImage(%s, %s, %s, &%s, %u, %s);\n",
+            "\t\tvkCmdClearDepthStencilImage(%s, %s, %s, &%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(image).c_str(),
             util::ToString<VkImageLayout>(imageLayout).c_str(),
             pDepthStencilStruct.c_str(),
             rangeCount,
             pRangesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage);
 }
 
@@ -612,7 +621,7 @@ void VulkanCppConsumer::Process_vkCmdCopyBuffer(
     StructPointerDecoder<Decoded_VkBufferCopy>* pRegions)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* srcBuffer */
 /* dstBuffer */
@@ -625,21 +634,23 @@ void VulkanCppConsumer::Process_vkCmdCopyBuffer(
                                              pRegionsPair.end(),
                                              [&](auto pair) { return GenerateStruct_VkBufferCopy(stream_pRegions, pair.t1, pair.t2, *this); },
                                              ", ");
-    fprintf(file, "\n%s", stream_pRegions.str().c_str());
-    if (regionCount == 1) {
-        pRegionsArray = "&" + pRegionsNames;
-    } else if (regionCount > 1) {
-        pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBufferCopy %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+    if (stream_pRegions.str().length() > 0) {
+        fprintf(file, "%s", stream_pRegions.str().c_str());
+        if (regionCount == 1) {
+            pRegionsArray = "&" + pRegionsNames;
+        } else if (regionCount > 1) {
+            pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBufferCopy %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdCopyBuffer(%s, %s, %s, %u, %s);\n",
+            "\t\tvkCmdCopyBuffer(%s, %s, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(srcBuffer).c_str(),
             this->GetHandle(dstBuffer).c_str(),
             regionCount,
             pRegionsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyBuffer);
 }
 
@@ -653,7 +664,7 @@ void VulkanCppConsumer::Process_vkCmdCopyBufferToImage(
     StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* srcBuffer */
 /* dstImage */
@@ -667,22 +678,24 @@ void VulkanCppConsumer::Process_vkCmdCopyBufferToImage(
                                              pRegionsPair.end(),
                                              [&](auto pair) { return GenerateStruct_VkBufferImageCopy(stream_pRegions, pair.t1, pair.t2, *this); },
                                              ", ");
-    fprintf(file, "\n%s", stream_pRegions.str().c_str());
-    if (regionCount == 1) {
-        pRegionsArray = "&" + pRegionsNames;
-    } else if (regionCount > 1) {
-        pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBufferImageCopy %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+    if (stream_pRegions.str().length() > 0) {
+        fprintf(file, "%s", stream_pRegions.str().c_str());
+        if (regionCount == 1) {
+            pRegionsArray = "&" + pRegionsNames;
+        } else if (regionCount > 1) {
+            pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBufferImageCopy %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdCopyBufferToImage(%s, %s, %s, %s, %u, %s);\n",
+            "\t\tvkCmdCopyBufferToImage(%s, %s, %s, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(srcBuffer).c_str(),
             this->GetHandle(dstImage).c_str(),
             util::ToString<VkImageLayout>(dstImageLayout).c_str(),
             regionCount,
             pRegionsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage);
 }
 
@@ -697,7 +710,7 @@ void VulkanCppConsumer::Process_vkCmdCopyImage(
     StructPointerDecoder<Decoded_VkImageCopy>*  pRegions)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* srcImage */
 /* srcImageLayout */
@@ -712,15 +725,17 @@ void VulkanCppConsumer::Process_vkCmdCopyImage(
                                              pRegionsPair.end(),
                                              [&](auto pair) { return GenerateStruct_VkImageCopy(stream_pRegions, pair.t1, pair.t2, *this); },
                                              ", ");
-    fprintf(file, "\n%s", stream_pRegions.str().c_str());
-    if (regionCount == 1) {
-        pRegionsArray = "&" + pRegionsNames;
-    } else if (regionCount > 1) {
-        pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
-        fprintf(file, "VkImageCopy %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+    if (stream_pRegions.str().length() > 0) {
+        fprintf(file, "%s", stream_pRegions.str().c_str());
+        if (regionCount == 1) {
+            pRegionsArray = "&" + pRegionsNames;
+        } else if (regionCount > 1) {
+            pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkImageCopy %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdCopyImage(%s, %s, %s, %s, %s, %u, %s);\n",
+            "\t\tvkCmdCopyImage(%s, %s, %s, %s, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(srcImage).c_str(),
             util::ToString<VkImageLayout>(srcImageLayout).c_str(),
@@ -728,7 +743,7 @@ void VulkanCppConsumer::Process_vkCmdCopyImage(
             util::ToString<VkImageLayout>(dstImageLayout).c_str(),
             regionCount,
             pRegionsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyImage);
 }
 
@@ -742,7 +757,7 @@ void VulkanCppConsumer::Process_vkCmdCopyImageToBuffer(
     StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* srcImage */
 /* srcImageLayout */
@@ -756,22 +771,24 @@ void VulkanCppConsumer::Process_vkCmdCopyImageToBuffer(
                                              pRegionsPair.end(),
                                              [&](auto pair) { return GenerateStruct_VkBufferImageCopy(stream_pRegions, pair.t1, pair.t2, *this); },
                                              ", ");
-    fprintf(file, "\n%s", stream_pRegions.str().c_str());
-    if (regionCount == 1) {
-        pRegionsArray = "&" + pRegionsNames;
-    } else if (regionCount > 1) {
-        pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBufferImageCopy %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+    if (stream_pRegions.str().length() > 0) {
+        fprintf(file, "%s", stream_pRegions.str().c_str());
+        if (regionCount == 1) {
+            pRegionsArray = "&" + pRegionsNames;
+        } else if (regionCount > 1) {
+            pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBufferImageCopy %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdCopyImageToBuffer(%s, %s, %s, %s, %u, %s);\n",
+            "\t\tvkCmdCopyImageToBuffer(%s, %s, %s, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(srcImage).c_str(),
             util::ToString<VkImageLayout>(srcImageLayout).c_str(),
             this->GetHandle(dstBuffer).c_str(),
             regionCount,
             pRegionsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer);
 }
 
@@ -787,7 +804,7 @@ void VulkanCppConsumer::Process_vkCmdCopyQueryPoolResults(
     VkQueryResultFlags                          flags)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* queryPool */
 /* firstQuery */
@@ -797,7 +814,7 @@ void VulkanCppConsumer::Process_vkCmdCopyQueryPoolResults(
 /* stride */
 /* flags */
     fprintf(file,
-            "vkCmdCopyQueryPoolResults(%s, %s, %u, %u, %s, %luUL, %luUL, %s);\n",
+            "\t\tvkCmdCopyQueryPoolResults(%s, %s, %u, %u, %s, %" PRIu64 "UL, %" PRIu64 "UL, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(queryPool).c_str(),
             firstQuery,
@@ -806,7 +823,7 @@ void VulkanCppConsumer::Process_vkCmdCopyQueryPoolResults(
             dstOffset,
             stride,
             util::ToString<VkQueryResultFlags>(flags).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults);
 }
 
@@ -818,18 +835,18 @@ void VulkanCppConsumer::Process_vkCmdDispatch(
     uint32_t                                    groupCountZ)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* groupCountX */
 /* groupCountY */
 /* groupCountZ */
     fprintf(file,
-            "vkCmdDispatch(%s, %u, %u, %u);\n",
+            "\t\tvkCmdDispatch(%s, %u, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             groupCountX,
             groupCountY,
             groupCountZ);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDispatch);
 }
 
@@ -840,16 +857,16 @@ void VulkanCppConsumer::Process_vkCmdDispatchIndirect(
     VkDeviceSize                                offset)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
     fprintf(file,
-            "vkCmdDispatchIndirect(%s, %s, %luUL);\n",
+            "\t\tvkCmdDispatchIndirect(%s, %s, %" PRIu64 "UL);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDispatchIndirect);
 }
 
@@ -862,20 +879,20 @@ void VulkanCppConsumer::Process_vkCmdDraw(
     uint32_t                                    firstInstance)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* vertexCount */
 /* instanceCount */
 /* firstVertex */
 /* firstInstance */
     fprintf(file,
-            "vkCmdDraw(%s, %u, %u, %u, %u);\n",
+            "\t\tvkCmdDraw(%s, %u, %u, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             vertexCount,
             instanceCount,
             firstVertex,
             firstInstance);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDraw);
 }
 
@@ -889,7 +906,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexed(
     uint32_t                                    firstInstance)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* indexCount */
 /* instanceCount */
@@ -897,14 +914,14 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexed(
 /* vertexOffset */
 /* firstInstance */
     fprintf(file,
-            "vkCmdDrawIndexed(%s, %u, %u, %u, %d, %u);\n",
+            "\t\tvkCmdDrawIndexed(%s, %u, %u, %u, %d, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             indexCount,
             instanceCount,
             firstIndex,
             vertexOffset,
             firstInstance);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndexed);
 }
 
@@ -917,20 +934,20 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirect(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
 /* drawCount */
 /* stride */
     fprintf(file,
-            "vkCmdDrawIndexedIndirect(%s, %s, %luUL, %u, %u);\n",
+            "\t\tvkCmdDrawIndexedIndirect(%s, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
             drawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect);
 }
 
@@ -943,20 +960,20 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirect(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
 /* drawCount */
 /* stride */
     fprintf(file,
-            "vkCmdDrawIndirect(%s, %s, %luUL, %u, %u);\n",
+            "\t\tvkCmdDrawIndirect(%s, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
             drawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndirect);
 }
 
@@ -967,16 +984,16 @@ void VulkanCppConsumer::Process_vkCmdEndQuery(
     uint32_t                                    query)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* queryPool */
 /* query */
     fprintf(file,
-            "vkCmdEndQuery(%s, %s, %u);\n",
+            "\t\tvkCmdEndQuery(%s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(queryPool).c_str(),
             query);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndQuery);
 }
 
@@ -985,12 +1002,12 @@ void VulkanCppConsumer::Process_vkCmdEndRenderPass(
     format::HandleId                            commandBuffer)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
     fprintf(file,
-            "vkCmdEndRenderPass(%s);\n",
+            "\t\tvkCmdEndRenderPass(%s);\n",
             this->GetHandle(commandBuffer).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndRenderPass);
 }
 
@@ -1001,7 +1018,7 @@ void VulkanCppConsumer::Process_vkCmdExecuteCommands(
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* commandBufferCount */
 /* pCommandBuffers */
@@ -1010,18 +1027,18 @@ void VulkanCppConsumer::Process_vkCmdExecuteCommands(
                                                      pCommandBuffers->GetPointer() + commandBufferCount,
                                                      [&](const format::HandleId current) { return this->GetHandle(current); },
                                                      ", ");
-    if (commandBufferCount == 1) {
+    if (commandBufferCount == 1 && pCommandBuffersValues != "VK_NULL_HANDLE") {
         pCommandBuffersArray = "&" + pCommandBuffersValues;
     } else if (commandBufferCount > 1) {
         pCommandBuffersArray = "pCommandBuffersArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkCommandBuffer %s[] = { %s };\n", pCommandBuffersArray.c_str(), pCommandBuffersValues.c_str());
+        fprintf(file, "\t\tVkCommandBuffer %s[] = { %s };\n", pCommandBuffersArray.c_str(), pCommandBuffersValues.c_str());
     }
     fprintf(file,
-            "vkCmdExecuteCommands(%s, %u, %s);\n",
+            "\t\tvkCmdExecuteCommands(%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             commandBufferCount,
             pCommandBuffersArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdExecuteCommands);
 }
 
@@ -1034,20 +1051,20 @@ void VulkanCppConsumer::Process_vkCmdFillBuffer(
     uint32_t                                    data)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* dstBuffer */
 /* dstOffset */
 /* size */
 /* data */
     fprintf(file,
-            "vkCmdFillBuffer(%s, %s, %luUL, %luUL, %u);\n",
+            "\t\tvkCmdFillBuffer(%s, %s, %" PRIu64 "UL, %" PRIu64 "UL, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(dstBuffer).c_str(),
             dstOffset,
             size,
             data);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdFillBuffer);
 }
 
@@ -1057,14 +1074,14 @@ void VulkanCppConsumer::Process_vkCmdNextSubpass(
     VkSubpassContents                           contents)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* contents */
     fprintf(file,
-            "vkCmdNextSubpass(%s, %s);\n",
+            "\t\tvkCmdNextSubpass(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkSubpassContents>(contents).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdNextSubpass);
 }
 
@@ -1082,7 +1099,7 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier(
     StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* srcStageMask */
 /* dstStageMask */
@@ -1096,12 +1113,14 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier(
                                                     pMemoryBarriersPair.end(),
                                                     [&](auto pair) { return GenerateStruct_VkMemoryBarrier(stream_pMemoryBarriers, pair.t1, pair.t2, *this); },
                                                     ", ");
-    fprintf(file, "\n%s", stream_pMemoryBarriers.str().c_str());
-    if (memoryBarrierCount == 1) {
-        pMemoryBarriersArray = "&" + pMemoryBarriersNames;
-    } else if (memoryBarrierCount > 1) {
-        pMemoryBarriersArray = "pMemoryBarriers_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMemoryBarrier %s[] = { %s };\n", pMemoryBarriersArray.c_str(), pMemoryBarriersNames.c_str());
+    if (stream_pMemoryBarriers.str().length() > 0) {
+        fprintf(file, "%s", stream_pMemoryBarriers.str().c_str());
+        if (memoryBarrierCount == 1) {
+            pMemoryBarriersArray = "&" + pMemoryBarriersNames;
+        } else if (memoryBarrierCount > 1) {
+            pMemoryBarriersArray = "pMemoryBarriers_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkMemoryBarrier %s[] = { %s };\n", pMemoryBarriersArray.c_str(), pMemoryBarriersNames.c_str());
+        }
     }
 /* bufferMemoryBarrierCount */
 /* pBufferMemoryBarriers */
@@ -1112,12 +1131,14 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier(
                                                           pBufferMemoryBarriersPair.end(),
                                                           [&](auto pair) { return GenerateStruct_VkBufferMemoryBarrier(stream_pBufferMemoryBarriers, pair.t1, pair.t2, *this); },
                                                           ", ");
-    fprintf(file, "\n%s", stream_pBufferMemoryBarriers.str().c_str());
-    if (bufferMemoryBarrierCount == 1) {
-        pBufferMemoryBarriersArray = "&" + pBufferMemoryBarriersNames;
-    } else if (bufferMemoryBarrierCount > 1) {
-        pBufferMemoryBarriersArray = "pBufferMemoryBarriers_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBufferMemoryBarrier %s[] = { %s };\n", pBufferMemoryBarriersArray.c_str(), pBufferMemoryBarriersNames.c_str());
+    if (stream_pBufferMemoryBarriers.str().length() > 0) {
+        fprintf(file, "%s", stream_pBufferMemoryBarriers.str().c_str());
+        if (bufferMemoryBarrierCount == 1) {
+            pBufferMemoryBarriersArray = "&" + pBufferMemoryBarriersNames;
+        } else if (bufferMemoryBarrierCount > 1) {
+            pBufferMemoryBarriersArray = "pBufferMemoryBarriers_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBufferMemoryBarrier %s[] = { %s };\n", pBufferMemoryBarriersArray.c_str(), pBufferMemoryBarriersNames.c_str());
+        }
     }
 /* imageMemoryBarrierCount */
 /* pImageMemoryBarriers */
@@ -1128,15 +1149,17 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier(
                                                          pImageMemoryBarriersPair.end(),
                                                          [&](auto pair) { return GenerateStruct_VkImageMemoryBarrier(stream_pImageMemoryBarriers, pair.t1, pair.t2, *this); },
                                                          ", ");
-    fprintf(file, "\n%s", stream_pImageMemoryBarriers.str().c_str());
-    if (imageMemoryBarrierCount == 1) {
-        pImageMemoryBarriersArray = "&" + pImageMemoryBarriersNames;
-    } else if (imageMemoryBarrierCount > 1) {
-        pImageMemoryBarriersArray = "pImageMemoryBarriers_" + std::to_string(this->getNextId());
-        fprintf(file, "VkImageMemoryBarrier %s[] = { %s };\n", pImageMemoryBarriersArray.c_str(), pImageMemoryBarriersNames.c_str());
+    if (stream_pImageMemoryBarriers.str().length() > 0) {
+        fprintf(file, "%s", stream_pImageMemoryBarriers.str().c_str());
+        if (imageMemoryBarrierCount == 1) {
+            pImageMemoryBarriersArray = "&" + pImageMemoryBarriersNames;
+        } else if (imageMemoryBarrierCount > 1) {
+            pImageMemoryBarriersArray = "pImageMemoryBarriers_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkImageMemoryBarrier %s[] = { %s };\n", pImageMemoryBarriersArray.c_str(), pImageMemoryBarriersNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdPipelineBarrier(%s, %s, %s, %s, %u, %s, %u, %s, %u, %s);\n",
+            "\t\tvkCmdPipelineBarrier(%s, %s, %s, %s, %u, %s, %u, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineStageFlags>(srcStageMask).c_str(),
             util::ToString<VkPipelineStageFlags>(dstStageMask).c_str(),
@@ -1147,7 +1170,7 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier(
             pBufferMemoryBarriersArray.c_str(),
             imageMemoryBarrierCount,
             pImageMemoryBarriersArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
 }
 
@@ -1161,7 +1184,7 @@ void VulkanCppConsumer::Process_vkCmdPushConstants(
     PointerDecoder<uint8_t>*                    pValues)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* layout */
 /* stageFlags */
@@ -1174,19 +1197,19 @@ void VulkanCppConsumer::Process_vkCmdPushConstants(
                                                  pValues->GetPointer() + size,
                                                  [&](const auto current) { return std::to_string(current) + ""; },
                                                  ", ");
-        fprintf(file, "uint8_t %s[] = { %s };\n", pValuesArray.c_str(), pValuesValues.c_str());
+        fprintf(file, "\t\tuint8_t %s[] = { %s };\n", pValuesArray.c_str(), pValuesValues.c_str());
     } else {
         pValuesArray = "NULL";
     }
     fprintf(file,
-            "vkCmdPushConstants(%s, %s, %s, %u, %u, %s);\n",
+            "\t\tvkCmdPushConstants(%s, %s, %s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(layout).c_str(),
             util::ToString<VkShaderStageFlags>(stageFlags).c_str(),
             offset,
             size,
             pValuesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushConstants);
 }
 
@@ -1197,16 +1220,16 @@ void VulkanCppConsumer::Process_vkCmdResetEvent(
     VkPipelineStageFlags                        stageMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* event */
 /* stageMask */
     fprintf(file,
-            "vkCmdResetEvent(%s, %s, %s);\n",
+            "\t\tvkCmdResetEvent(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(event).c_str(),
             util::ToString<VkPipelineStageFlags>(stageMask).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdResetEvent);
 }
 
@@ -1218,18 +1241,18 @@ void VulkanCppConsumer::Process_vkCmdResetQueryPool(
     uint32_t                                    queryCount)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* queryPool */
 /* firstQuery */
 /* queryCount */
     fprintf(file,
-            "vkCmdResetQueryPool(%s, %s, %u, %u);\n",
+            "\t\tvkCmdResetQueryPool(%s, %s, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(queryPool).c_str(),
             firstQuery,
             queryCount);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdResetQueryPool);
 }
 
@@ -1244,7 +1267,7 @@ void VulkanCppConsumer::Process_vkCmdResolveImage(
     StructPointerDecoder<Decoded_VkImageResolve>* pRegions)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* srcImage */
 /* srcImageLayout */
@@ -1259,15 +1282,17 @@ void VulkanCppConsumer::Process_vkCmdResolveImage(
                                              pRegionsPair.end(),
                                              [&](auto pair) { return GenerateStruct_VkImageResolve(stream_pRegions, pair.t1, pair.t2, *this); },
                                              ", ");
-    fprintf(file, "\n%s", stream_pRegions.str().c_str());
-    if (regionCount == 1) {
-        pRegionsArray = "&" + pRegionsNames;
-    } else if (regionCount > 1) {
-        pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
-        fprintf(file, "VkImageResolve %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+    if (stream_pRegions.str().length() > 0) {
+        fprintf(file, "%s", stream_pRegions.str().c_str());
+        if (regionCount == 1) {
+            pRegionsArray = "&" + pRegionsNames;
+        } else if (regionCount > 1) {
+            pRegionsArray = "pRegions_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkImageResolve %s[] = { %s };\n", pRegionsArray.c_str(), pRegionsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdResolveImage(%s, %s, %s, %s, %s, %u, %s);\n",
+            "\t\tvkCmdResolveImage(%s, %s, %s, %s, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(srcImage).c_str(),
             util::ToString<VkImageLayout>(srcImageLayout).c_str(),
@@ -1275,7 +1300,7 @@ void VulkanCppConsumer::Process_vkCmdResolveImage(
             util::ToString<VkImageLayout>(dstImageLayout).c_str(),
             regionCount,
             pRegionsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdResolveImage);
 }
 
@@ -1285,7 +1310,7 @@ void VulkanCppConsumer::Process_vkCmdSetBlendConstants(
     PointerDecoder<float>*                      blendConstants)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* blendConstants */
     std::string blendConstantsArray = "blendConstants_" + std::to_string(this->getNextId());
@@ -1294,15 +1319,15 @@ void VulkanCppConsumer::Process_vkCmdSetBlendConstants(
                                                         blendConstants->GetPointer() + 4,
                                                         [&](const auto current) { return std::to_string(current) + ""; },
                                                         ", ");
-        fprintf(file, "float %s[] = { %s };\n", blendConstantsArray.c_str(), blendConstantsValues.c_str());
+        fprintf(file, "\t\tfloat %s[] = { %s };\n", blendConstantsArray.c_str(), blendConstantsValues.c_str());
     } else {
         blendConstantsArray = "NULL";
     }
     fprintf(file,
-            "vkCmdSetBlendConstants(%s, %s);\n",
+            "\t\tvkCmdSetBlendConstants(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             blendConstantsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetBlendConstants);
 }
 
@@ -1314,18 +1339,18 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBias(
     float                                       depthBiasSlopeFactor)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthBiasConstantFactor */
 /* depthBiasClamp */
 /* depthBiasSlopeFactor */
     fprintf(file,
-            "vkCmdSetDepthBias(%s, %f, %f, %f);\n",
+            "\t\tvkCmdSetDepthBias(%s, %f, %f, %f);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthBiasConstantFactor,
             depthBiasClamp,
             depthBiasSlopeFactor);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthBias);
 }
 
@@ -1336,16 +1361,16 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBounds(
     float                                       maxDepthBounds)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* minDepthBounds */
 /* maxDepthBounds */
     fprintf(file,
-            "vkCmdSetDepthBounds(%s, %f, %f);\n",
+            "\t\tvkCmdSetDepthBounds(%s, %f, %f);\n",
             this->GetHandle(commandBuffer).c_str(),
             minDepthBounds,
             maxDepthBounds);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthBounds);
 }
 
@@ -1356,16 +1381,16 @@ void VulkanCppConsumer::Process_vkCmdSetEvent(
     VkPipelineStageFlags                        stageMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* event */
 /* stageMask */
     fprintf(file,
-            "vkCmdSetEvent(%s, %s, %s);\n",
+            "\t\tvkCmdSetEvent(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(event).c_str(),
             util::ToString<VkPipelineStageFlags>(stageMask).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetEvent);
 }
 
@@ -1375,14 +1400,14 @@ void VulkanCppConsumer::Process_vkCmdSetLineWidth(
     float                                       lineWidth)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* lineWidth */
     fprintf(file,
-            "vkCmdSetLineWidth(%s, %f);\n",
+            "\t\tvkCmdSetLineWidth(%s, %f);\n",
             this->GetHandle(commandBuffer).c_str(),
             lineWidth);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetLineWidth);
 }
 
@@ -1394,7 +1419,7 @@ void VulkanCppConsumer::Process_vkCmdSetScissor(
     StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstScissor */
 /* scissorCount */
@@ -1406,20 +1431,22 @@ void VulkanCppConsumer::Process_vkCmdSetScissor(
                                               pScissorsPair.end(),
                                               [&](auto pair) { return GenerateStruct_VkRect2D(stream_pScissors, pair.t1, pair.t2, *this); },
                                               ", ");
-    fprintf(file, "\n%s", stream_pScissors.str().c_str());
-    if (scissorCount == 1) {
-        pScissorsArray = "&" + pScissorsNames;
-    } else if (scissorCount > 1) {
-        pScissorsArray = "pScissors_" + std::to_string(this->getNextId());
-        fprintf(file, "VkRect2D %s[] = { %s };\n", pScissorsArray.c_str(), pScissorsNames.c_str());
+    if (stream_pScissors.str().length() > 0) {
+        fprintf(file, "%s", stream_pScissors.str().c_str());
+        if (scissorCount == 1) {
+            pScissorsArray = "&" + pScissorsNames;
+        } else if (scissorCount > 1) {
+            pScissorsArray = "pScissors_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkRect2D %s[] = { %s };\n", pScissorsArray.c_str(), pScissorsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdSetScissor(%s, %u, %u, %s);\n",
+            "\t\tvkCmdSetScissor(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstScissor,
             scissorCount,
             pScissorsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetScissor);
 }
 
@@ -1430,16 +1457,16 @@ void VulkanCppConsumer::Process_vkCmdSetStencilCompareMask(
     uint32_t                                    compareMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* faceMask */
 /* compareMask */
     fprintf(file,
-            "vkCmdSetStencilCompareMask(%s, %s, %u);\n",
+            "\t\tvkCmdSetStencilCompareMask(%s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkStencilFaceFlags>(faceMask).c_str(),
             compareMask);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask);
 }
 
@@ -1450,16 +1477,16 @@ void VulkanCppConsumer::Process_vkCmdSetStencilReference(
     uint32_t                                    reference)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* faceMask */
 /* reference */
     fprintf(file,
-            "vkCmdSetStencilReference(%s, %s, %u);\n",
+            "\t\tvkCmdSetStencilReference(%s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkStencilFaceFlags>(faceMask).c_str(),
             reference);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetStencilReference);
 }
 
@@ -1470,16 +1497,16 @@ void VulkanCppConsumer::Process_vkCmdSetStencilWriteMask(
     uint32_t                                    writeMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* faceMask */
 /* writeMask */
     fprintf(file,
-            "vkCmdSetStencilWriteMask(%s, %s, %u);\n",
+            "\t\tvkCmdSetStencilWriteMask(%s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkStencilFaceFlags>(faceMask).c_str(),
             writeMask);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask);
 }
 
@@ -1491,7 +1518,7 @@ void VulkanCppConsumer::Process_vkCmdSetViewport(
     StructPointerDecoder<Decoded_VkViewport>*   pViewports)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstViewport */
 /* viewportCount */
@@ -1503,20 +1530,22 @@ void VulkanCppConsumer::Process_vkCmdSetViewport(
                                                pViewportsPair.end(),
                                                [&](auto pair) { return GenerateStruct_VkViewport(stream_pViewports, pair.t1, pair.t2, *this); },
                                                ", ");
-    fprintf(file, "\n%s", stream_pViewports.str().c_str());
-    if (viewportCount == 1) {
-        pViewportsArray = "&" + pViewportsNames;
-    } else if (viewportCount > 1) {
-        pViewportsArray = "pViewports_" + std::to_string(this->getNextId());
-        fprintf(file, "VkViewport %s[] = { %s };\n", pViewportsArray.c_str(), pViewportsNames.c_str());
+    if (stream_pViewports.str().length() > 0) {
+        fprintf(file, "%s", stream_pViewports.str().c_str());
+        if (viewportCount == 1) {
+            pViewportsArray = "&" + pViewportsNames;
+        } else if (viewportCount > 1) {
+            pViewportsArray = "pViewports_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkViewport %s[] = { %s };\n", pViewportsArray.c_str(), pViewportsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdSetViewport(%s, %u, %u, %s);\n",
+            "\t\tvkCmdSetViewport(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstViewport,
             viewportCount,
             pViewportsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetViewport);
 }
 
@@ -1529,7 +1558,7 @@ void VulkanCppConsumer::Process_vkCmdUpdateBuffer(
     PointerDecoder<uint8_t>*                    pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* dstBuffer */
 /* dstOffset */
@@ -1541,18 +1570,18 @@ void VulkanCppConsumer::Process_vkCmdUpdateBuffer(
                                                pData->GetPointer() + dataSize,
                                                [&](const auto current) { return std::to_string(current) + ""; },
                                                ", ");
-        fprintf(file, "uint8_t %s[] = { %s };\n", pDataArray.c_str(), pDataValues.c_str());
+        fprintf(file, "\t\tuint8_t %s[] = { %s };\n", pDataArray.c_str(), pDataValues.c_str());
     } else {
         pDataArray = "NULL";
     }
     fprintf(file,
-            "vkCmdUpdateBuffer(%s, %s, %luUL, %luUL, %s);\n",
+            "\t\tvkCmdUpdateBuffer(%s, %s, %" PRIu64 "UL, %" PRIu64 "UL, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(dstBuffer).c_str(),
             dstOffset,
             dataSize,
             pDataArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdUpdateBuffer);
 }
 
@@ -1571,7 +1600,7 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents(
     StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* eventCount */
 /* pEvents */
@@ -1580,11 +1609,11 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents(
                                              pEvents->GetPointer() + eventCount,
                                              [&](const format::HandleId current) { return this->GetHandle(current); },
                                              ", ");
-    if (eventCount == 1) {
+    if (eventCount == 1 && pEventsValues != "VK_NULL_HANDLE") {
         pEventsArray = "&" + pEventsValues;
     } else if (eventCount > 1) {
         pEventsArray = "pEventsArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkEvent %s[] = { %s };\n", pEventsArray.c_str(), pEventsValues.c_str());
+        fprintf(file, "\t\tVkEvent %s[] = { %s };\n", pEventsArray.c_str(), pEventsValues.c_str());
     }
 /* srcStageMask */
 /* dstStageMask */
@@ -1597,12 +1626,14 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents(
                                                     pMemoryBarriersPair.end(),
                                                     [&](auto pair) { return GenerateStruct_VkMemoryBarrier(stream_pMemoryBarriers, pair.t1, pair.t2, *this); },
                                                     ", ");
-    fprintf(file, "\n%s", stream_pMemoryBarriers.str().c_str());
-    if (memoryBarrierCount == 1) {
-        pMemoryBarriersArray = "&" + pMemoryBarriersNames;
-    } else if (memoryBarrierCount > 1) {
-        pMemoryBarriersArray = "pMemoryBarriers_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMemoryBarrier %s[] = { %s };\n", pMemoryBarriersArray.c_str(), pMemoryBarriersNames.c_str());
+    if (stream_pMemoryBarriers.str().length() > 0) {
+        fprintf(file, "%s", stream_pMemoryBarriers.str().c_str());
+        if (memoryBarrierCount == 1) {
+            pMemoryBarriersArray = "&" + pMemoryBarriersNames;
+        } else if (memoryBarrierCount > 1) {
+            pMemoryBarriersArray = "pMemoryBarriers_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkMemoryBarrier %s[] = { %s };\n", pMemoryBarriersArray.c_str(), pMemoryBarriersNames.c_str());
+        }
     }
 /* bufferMemoryBarrierCount */
 /* pBufferMemoryBarriers */
@@ -1613,12 +1644,14 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents(
                                                           pBufferMemoryBarriersPair.end(),
                                                           [&](auto pair) { return GenerateStruct_VkBufferMemoryBarrier(stream_pBufferMemoryBarriers, pair.t1, pair.t2, *this); },
                                                           ", ");
-    fprintf(file, "\n%s", stream_pBufferMemoryBarriers.str().c_str());
-    if (bufferMemoryBarrierCount == 1) {
-        pBufferMemoryBarriersArray = "&" + pBufferMemoryBarriersNames;
-    } else if (bufferMemoryBarrierCount > 1) {
-        pBufferMemoryBarriersArray = "pBufferMemoryBarriers_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBufferMemoryBarrier %s[] = { %s };\n", pBufferMemoryBarriersArray.c_str(), pBufferMemoryBarriersNames.c_str());
+    if (stream_pBufferMemoryBarriers.str().length() > 0) {
+        fprintf(file, "%s", stream_pBufferMemoryBarriers.str().c_str());
+        if (bufferMemoryBarrierCount == 1) {
+            pBufferMemoryBarriersArray = "&" + pBufferMemoryBarriersNames;
+        } else if (bufferMemoryBarrierCount > 1) {
+            pBufferMemoryBarriersArray = "pBufferMemoryBarriers_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBufferMemoryBarrier %s[] = { %s };\n", pBufferMemoryBarriersArray.c_str(), pBufferMemoryBarriersNames.c_str());
+        }
     }
 /* imageMemoryBarrierCount */
 /* pImageMemoryBarriers */
@@ -1629,15 +1662,17 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents(
                                                          pImageMemoryBarriersPair.end(),
                                                          [&](auto pair) { return GenerateStruct_VkImageMemoryBarrier(stream_pImageMemoryBarriers, pair.t1, pair.t2, *this); },
                                                          ", ");
-    fprintf(file, "\n%s", stream_pImageMemoryBarriers.str().c_str());
-    if (imageMemoryBarrierCount == 1) {
-        pImageMemoryBarriersArray = "&" + pImageMemoryBarriersNames;
-    } else if (imageMemoryBarrierCount > 1) {
-        pImageMemoryBarriersArray = "pImageMemoryBarriers_" + std::to_string(this->getNextId());
-        fprintf(file, "VkImageMemoryBarrier %s[] = { %s };\n", pImageMemoryBarriersArray.c_str(), pImageMemoryBarriersNames.c_str());
+    if (stream_pImageMemoryBarriers.str().length() > 0) {
+        fprintf(file, "%s", stream_pImageMemoryBarriers.str().c_str());
+        if (imageMemoryBarrierCount == 1) {
+            pImageMemoryBarriersArray = "&" + pImageMemoryBarriersNames;
+        } else if (imageMemoryBarrierCount > 1) {
+            pImageMemoryBarriersArray = "pImageMemoryBarriers_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkImageMemoryBarrier %s[] = { %s };\n", pImageMemoryBarriersArray.c_str(), pImageMemoryBarriersNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdWaitEvents(%s, %u, %s, %s, %s, %u, %s, %u, %s, %u, %s);\n",
+            "\t\tvkCmdWaitEvents(%s, %u, %s, %s, %s, %u, %s, %u, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             eventCount,
             pEventsArray.c_str(),
@@ -1649,7 +1684,7 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents(
             pBufferMemoryBarriersArray.c_str(),
             imageMemoryBarrierCount,
             pImageMemoryBarriersArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWaitEvents);
 }
 
@@ -1661,18 +1696,18 @@ void VulkanCppConsumer::Process_vkCmdWriteTimestamp(
     uint32_t                                    query)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pipelineStage */
 /* queryPool */
 /* query */
     fprintf(file,
-            "vkCmdWriteTimestamp(%s, %s, %s, %u);\n",
+            "\t\tvkCmdWriteTimestamp(%s, %s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineStageFlagBits>(pipelineStage).c_str(),
             this->GetHandle(queryPool).c_str(),
             query);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWriteTimestamp);
 }
 
@@ -1685,7 +1720,7 @@ void VulkanCppConsumer::Process_vkCreateBuffer(
     HandlePointerDecoder<VkBuffer>*             pBuffer)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -1693,7 +1728,7 @@ void VulkanCppConsumer::Process_vkCreateBuffer(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pBuffer */
     std::string pBufferName = "pBuffer_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_BUFFER));
@@ -1703,13 +1738,13 @@ void VulkanCppConsumer::Process_vkCreateBuffer(
                          pBuffer->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateBuffer(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateBuffer(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pBufferName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateBuffer);
 }
 
@@ -1722,7 +1757,7 @@ void VulkanCppConsumer::Process_vkCreateBufferView(
     HandlePointerDecoder<VkBufferView>*         pView)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -1730,23 +1765,23 @@ void VulkanCppConsumer::Process_vkCreateBufferView(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pView */
-    std::string pViewName = "pView_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_BUFFER_VIEW));
+    std::string pViewName = "pView_" + std::to_string(this->getNextId());
     AddKnownVariables("VkBufferView", pViewName, pView->GetPointer());
     if (returnValue == VK_SUCCESS) {
         this->AddHandles(pViewName,
                          pView->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateBufferView(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateBufferView(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pViewName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateBufferView);
 }
 
@@ -1759,7 +1794,7 @@ void VulkanCppConsumer::Process_vkCreateCommandPool(
     HandlePointerDecoder<VkCommandPool>*        pCommandPool)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -1767,7 +1802,7 @@ void VulkanCppConsumer::Process_vkCreateCommandPool(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pCommandPool */
     std::string pCommandPoolName = "pCommandPool_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_COMMAND_POOL));
@@ -1777,13 +1812,13 @@ void VulkanCppConsumer::Process_vkCreateCommandPool(
                          pCommandPool->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateCommandPool(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateCommandPool(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pCommandPoolName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateCommandPool);
 }
 
@@ -1797,44 +1832,7 @@ void VulkanCppConsumer::Process_vkCreateComputePipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
-/* device */
-/* pipelineCache */
-/* createInfoCount */
-/* pCreateInfos */
-    std::stringstream stream_pCreateInfos;
-    std::string pCreateInfosArray = "NULL";
-    PointerPairContainer<decltype(pCreateInfos->GetPointer()), decltype(pCreateInfos->GetMetaStructPointer())> pCreateInfosPair{ pCreateInfos->GetPointer(), pCreateInfos->GetMetaStructPointer(), createInfoCount };
-    std::string pCreateInfosNames = toStringJoin(pCreateInfosPair.begin(),
-                                                 pCreateInfosPair.end(),
-                                                 [&](auto pair) { return GenerateStruct_VkComputePipelineCreateInfo(stream_pCreateInfos, pair.t1, pair.t2, *this); },
-                                                 ", ");
-    fprintf(file, "\n%s", stream_pCreateInfos.str().c_str());
-    if (createInfoCount == 1) {
-        pCreateInfosArray = "&" + pCreateInfosNames;
-    } else if (createInfoCount > 1) {
-        pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkComputePipelineCreateInfo %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
-    }
-/* pAllocator */
-/* pPipelines */
-    std::string pPipelinesName = "pPipelines_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_PIPELINE));
-    AddKnownVariables("VkPipeline", pPipelinesName, pPipelines->GetPointer(), createInfoCount);
-    if (returnValue == VK_SUCCESS) {
-        this->AddHandles(pPipelinesName,
-                         pPipelines->GetPointer(), createInfoCount);
-    }
-    fprintf(file,
-            "VK_CALL_CHECK(vkCreateComputePipelines(%s, %s, %u, %s, %s, %s), %s);\n",
-            this->GetHandle(device).c_str(),
-            this->GetHandle(pipelineCache).c_str(),
-            createInfoCount,
-            pCreateInfosArray.c_str(),
-            "nullptr",
-            pPipelinesName.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    Generate_vkCreateComputePipelines(returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateComputePipelines);
 }
 
@@ -1847,7 +1845,7 @@ void VulkanCppConsumer::Process_vkCreateDescriptorPool(
     HandlePointerDecoder<VkDescriptorPool>*     pDescriptorPool)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -1855,7 +1853,7 @@ void VulkanCppConsumer::Process_vkCreateDescriptorPool(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pDescriptorPool */
     std::string pDescriptorPoolName = "pDescriptorPool_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_DESCRIPTOR_POOL));
@@ -1865,13 +1863,13 @@ void VulkanCppConsumer::Process_vkCreateDescriptorPool(
                          pDescriptorPool->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateDescriptorPool(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateDescriptorPool(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pDescriptorPoolName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDescriptorPool);
 }
 
@@ -1884,7 +1882,7 @@ void VulkanCppConsumer::Process_vkCreateDescriptorSetLayout(
     HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -1892,7 +1890,7 @@ void VulkanCppConsumer::Process_vkCreateDescriptorSetLayout(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSetLayout */
     std::string pSetLayoutName = "pSetLayout_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT));
@@ -1902,13 +1900,13 @@ void VulkanCppConsumer::Process_vkCreateDescriptorSetLayout(
                          pSetLayout->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateDescriptorSetLayout(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateDescriptorSetLayout(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSetLayoutName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout);
 }
 
@@ -1922,7 +1920,7 @@ void VulkanCppConsumer::Process_vkCreateDevice(
 {
     Intercept_vkCreateDevice(returnValue, physicalDevice, pCreateInfo, pAllocator, pDevice);
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -1930,7 +1928,7 @@ void VulkanCppConsumer::Process_vkCreateDevice(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pDevice */
     std::string pDeviceName = "pDevice_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_DEVICE));
@@ -1940,13 +1938,13 @@ void VulkanCppConsumer::Process_vkCreateDevice(
                          pDevice->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateDevice(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateDevice(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pDeviceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDevice);
 }
 
@@ -1959,7 +1957,7 @@ void VulkanCppConsumer::Process_vkCreateEvent(
     HandlePointerDecoder<VkEvent>*              pEvent)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -1967,7 +1965,7 @@ void VulkanCppConsumer::Process_vkCreateEvent(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pEvent */
     std::string pEventName = "pEvent_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_EVENT));
@@ -1977,13 +1975,13 @@ void VulkanCppConsumer::Process_vkCreateEvent(
                          pEvent->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateEvent(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateEvent(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pEventName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateEvent);
 }
 
@@ -1996,7 +1994,7 @@ void VulkanCppConsumer::Process_vkCreateFence(
     HandlePointerDecoder<VkFence>*              pFence)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -2004,7 +2002,7 @@ void VulkanCppConsumer::Process_vkCreateFence(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pFence */
     std::string pFenceName = "pFence_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_FENCE));
@@ -2014,13 +2012,13 @@ void VulkanCppConsumer::Process_vkCreateFence(
                          pFence->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateFence(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateFence(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pFenceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateFence);
 }
 
@@ -2034,7 +2032,7 @@ void VulkanCppConsumer::Process_vkCreateFramebuffer(
 {
     Intercept_vkCreateFramebuffer(returnValue, device, pCreateInfo, pAllocator, pFramebuffer);
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -2042,7 +2040,7 @@ void VulkanCppConsumer::Process_vkCreateFramebuffer(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pFramebuffer */
     std::string pFramebufferName = "pFramebuffer_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_FRAMEBUFFER));
@@ -2052,13 +2050,13 @@ void VulkanCppConsumer::Process_vkCreateFramebuffer(
                          pFramebuffer->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateFramebuffer(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateFramebuffer(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pFramebufferName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateFramebuffer);
 }
 
@@ -2072,44 +2070,7 @@ void VulkanCppConsumer::Process_vkCreateGraphicsPipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
-/* device */
-/* pipelineCache */
-/* createInfoCount */
-/* pCreateInfos */
-    std::stringstream stream_pCreateInfos;
-    std::string pCreateInfosArray = "NULL";
-    PointerPairContainer<decltype(pCreateInfos->GetPointer()), decltype(pCreateInfos->GetMetaStructPointer())> pCreateInfosPair{ pCreateInfos->GetPointer(), pCreateInfos->GetMetaStructPointer(), createInfoCount };
-    std::string pCreateInfosNames = toStringJoin(pCreateInfosPair.begin(),
-                                                 pCreateInfosPair.end(),
-                                                 [&](auto pair) { return GenerateStruct_VkGraphicsPipelineCreateInfo(stream_pCreateInfos, pair.t1, pair.t2, *this); },
-                                                 ", ");
-    fprintf(file, "\n%s", stream_pCreateInfos.str().c_str());
-    if (createInfoCount == 1) {
-        pCreateInfosArray = "&" + pCreateInfosNames;
-    } else if (createInfoCount > 1) {
-        pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkGraphicsPipelineCreateInfo %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
-    }
-/* pAllocator */
-/* pPipelines */
-    std::string pPipelinesName = "pPipelines_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_PIPELINE));
-    AddKnownVariables("VkPipeline", pPipelinesName, pPipelines->GetPointer(), createInfoCount);
-    if (returnValue == VK_SUCCESS) {
-        this->AddHandles(pPipelinesName,
-                         pPipelines->GetPointer(), createInfoCount);
-    }
-    fprintf(file,
-            "VK_CALL_CHECK(vkCreateGraphicsPipelines(%s, %s, %u, %s, %s, %s), %s);\n",
-            this->GetHandle(device).c_str(),
-            this->GetHandle(pipelineCache).c_str(),
-            createInfoCount,
-            pCreateInfosArray.c_str(),
-            "nullptr",
-            pPipelinesName.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    Generate_vkCreateGraphicsPipelines(returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateGraphicsPipelines);
 }
 
@@ -2122,7 +2083,7 @@ void VulkanCppConsumer::Process_vkCreateImage(
     HandlePointerDecoder<VkImage>*              pImage)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -2130,7 +2091,7 @@ void VulkanCppConsumer::Process_vkCreateImage(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pImage */
     std::string pImageName = "pImage_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_IMAGE));
@@ -2140,13 +2101,13 @@ void VulkanCppConsumer::Process_vkCreateImage(
                          pImage->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateImage(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateImage(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pImageName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateImage);
 }
 
@@ -2159,7 +2120,7 @@ void VulkanCppConsumer::Process_vkCreateImageView(
     HandlePointerDecoder<VkImageView>*          pView)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -2167,23 +2128,23 @@ void VulkanCppConsumer::Process_vkCreateImageView(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pView */
-    std::string pViewName = "pView_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_IMAGE_VIEW));
+    std::string pViewName = "pView_" + std::to_string(this->getNextId());
     AddKnownVariables("VkImageView", pViewName, pView->GetPointer());
     if (returnValue == VK_SUCCESS) {
         this->AddHandles(pViewName,
                          pView->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateImageView(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateImageView(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pViewName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateImageView);
 }
 
@@ -2219,7 +2180,7 @@ void VulkanCppConsumer::Process_vkCreatePipelineLayout(
     HandlePointerDecoder<VkPipelineLayout>*     pPipelineLayout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -2227,7 +2188,7 @@ void VulkanCppConsumer::Process_vkCreatePipelineLayout(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pPipelineLayout */
     std::string pPipelineLayoutName = "pPipelineLayout_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_PIPELINE_LAYOUT));
@@ -2237,13 +2198,13 @@ void VulkanCppConsumer::Process_vkCreatePipelineLayout(
                          pPipelineLayout->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreatePipelineLayout(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreatePipelineLayout(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pPipelineLayoutName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreatePipelineLayout);
 }
 
@@ -2256,7 +2217,7 @@ void VulkanCppConsumer::Process_vkCreateQueryPool(
     HandlePointerDecoder<VkQueryPool>*          pQueryPool)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -2264,7 +2225,7 @@ void VulkanCppConsumer::Process_vkCreateQueryPool(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pQueryPool */
     std::string pQueryPoolName = "pQueryPool_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_QUERY_POOL));
@@ -2274,13 +2235,13 @@ void VulkanCppConsumer::Process_vkCreateQueryPool(
                          pQueryPool->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateQueryPool(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateQueryPool(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pQueryPoolName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateQueryPool);
 }
 
@@ -2293,7 +2254,7 @@ void VulkanCppConsumer::Process_vkCreateRenderPass(
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -2301,7 +2262,7 @@ void VulkanCppConsumer::Process_vkCreateRenderPass(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pRenderPass */
     std::string pRenderPassName = "pRenderPass_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_RENDER_PASS));
@@ -2311,13 +2272,13 @@ void VulkanCppConsumer::Process_vkCreateRenderPass(
                          pRenderPass->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateRenderPass(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateRenderPass(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pRenderPassName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateRenderPass);
 }
 
@@ -2330,7 +2291,7 @@ void VulkanCppConsumer::Process_vkCreateSampler(
     HandlePointerDecoder<VkSampler>*            pSampler)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -2338,7 +2299,7 @@ void VulkanCppConsumer::Process_vkCreateSampler(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSampler */
     std::string pSamplerName = "pSampler_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SAMPLER));
@@ -2348,13 +2309,13 @@ void VulkanCppConsumer::Process_vkCreateSampler(
                          pSampler->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateSampler(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateSampler(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSamplerName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateSampler);
 }
 
@@ -2367,7 +2328,7 @@ void VulkanCppConsumer::Process_vkCreateSemaphore(
     HandlePointerDecoder<VkSemaphore>*          pSemaphore)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -2375,7 +2336,7 @@ void VulkanCppConsumer::Process_vkCreateSemaphore(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSemaphore */
     std::string pSemaphoreName = "pSemaphore_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SEMAPHORE));
@@ -2385,13 +2346,13 @@ void VulkanCppConsumer::Process_vkCreateSemaphore(
                          pSemaphore->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateSemaphore(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateSemaphore(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSemaphoreName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateSemaphore);
 }
 
@@ -2414,16 +2375,16 @@ void VulkanCppConsumer::Process_vkDestroyBuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* buffer */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyBuffer(%s, %s, %s);\n",
+            "\t\tvkDestroyBuffer(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(buffer).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyBuffer);
 }
 
@@ -2434,16 +2395,16 @@ void VulkanCppConsumer::Process_vkDestroyBufferView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* bufferView */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyBufferView(%s, %s, %s);\n",
+            "\t\tvkDestroyBufferView(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(bufferView).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyBufferView);
 }
 
@@ -2454,16 +2415,16 @@ void VulkanCppConsumer::Process_vkDestroyCommandPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* commandPool */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyCommandPool(%s, %s, %s);\n",
+            "\t\tvkDestroyCommandPool(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(commandPool).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyCommandPool);
 }
 
@@ -2474,16 +2435,16 @@ void VulkanCppConsumer::Process_vkDestroyDescriptorPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* descriptorPool */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyDescriptorPool(%s, %s, %s);\n",
+            "\t\tvkDestroyDescriptorPool(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(descriptorPool).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDescriptorPool);
 }
 
@@ -2494,16 +2455,16 @@ void VulkanCppConsumer::Process_vkDestroyDescriptorSetLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* descriptorSetLayout */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyDescriptorSetLayout(%s, %s, %s);\n",
+            "\t\tvkDestroyDescriptorSetLayout(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(descriptorSetLayout).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout);
 }
 
@@ -2513,14 +2474,14 @@ void VulkanCppConsumer::Process_vkDestroyDevice(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyDevice(%s, %s);\n",
+            "\t\tvkDestroyDevice(%s, %s);\n",
             this->GetHandle(device).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDevice);
 }
 
@@ -2531,16 +2492,16 @@ void VulkanCppConsumer::Process_vkDestroyEvent(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* event */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyEvent(%s, %s, %s);\n",
+            "\t\tvkDestroyEvent(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(event).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyEvent);
 }
 
@@ -2551,16 +2512,16 @@ void VulkanCppConsumer::Process_vkDestroyFence(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* fence */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyFence(%s, %s, %s);\n",
+            "\t\tvkDestroyFence(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(fence).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyFence);
 }
 
@@ -2571,16 +2532,16 @@ void VulkanCppConsumer::Process_vkDestroyFramebuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* framebuffer */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyFramebuffer(%s, %s, %s);\n",
+            "\t\tvkDestroyFramebuffer(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(framebuffer).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyFramebuffer);
 }
 
@@ -2591,16 +2552,16 @@ void VulkanCppConsumer::Process_vkDestroyImage(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* image */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyImage(%s, %s, %s);\n",
+            "\t\tvkDestroyImage(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyImage);
 }
 
@@ -2611,16 +2572,16 @@ void VulkanCppConsumer::Process_vkDestroyImageView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* imageView */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyImageView(%s, %s, %s);\n",
+            "\t\tvkDestroyImageView(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(imageView).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyImageView);
 }
 
@@ -2630,14 +2591,14 @@ void VulkanCppConsumer::Process_vkDestroyInstance(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyInstance(%s, %s);\n",
+            "\t\tvkDestroyInstance(%s, %s);\n",
             this->GetHandle(instance).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyInstance);
 }
 
@@ -2648,16 +2609,16 @@ void VulkanCppConsumer::Process_vkDestroyPipeline(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipeline */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyPipeline(%s, %s, %s);\n",
+            "\t\tvkDestroyPipeline(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyPipeline);
 }
 
@@ -2668,16 +2629,16 @@ void VulkanCppConsumer::Process_vkDestroyPipelineCache(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipelineCache */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyPipelineCache(%s, %s, %s);\n",
+            "\t\tvkDestroyPipelineCache(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipelineCache).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyPipelineCache);
 }
 
@@ -2688,16 +2649,16 @@ void VulkanCppConsumer::Process_vkDestroyPipelineLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipelineLayout */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyPipelineLayout(%s, %s, %s);\n",
+            "\t\tvkDestroyPipelineLayout(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipelineLayout).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyPipelineLayout);
 }
 
@@ -2708,16 +2669,16 @@ void VulkanCppConsumer::Process_vkDestroyQueryPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* queryPool */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyQueryPool(%s, %s, %s);\n",
+            "\t\tvkDestroyQueryPool(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(queryPool).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyQueryPool);
 }
 
@@ -2728,16 +2689,16 @@ void VulkanCppConsumer::Process_vkDestroyRenderPass(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* renderPass */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyRenderPass(%s, %s, %s);\n",
+            "\t\tvkDestroyRenderPass(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(renderPass).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyRenderPass);
 }
 
@@ -2748,16 +2709,16 @@ void VulkanCppConsumer::Process_vkDestroySampler(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* sampler */
 /* pAllocator */
     fprintf(file,
-            "vkDestroySampler(%s, %s, %s);\n",
+            "\t\tvkDestroySampler(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(sampler).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroySampler);
 }
 
@@ -2768,16 +2729,16 @@ void VulkanCppConsumer::Process_vkDestroySemaphore(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* semaphore */
 /* pAllocator */
     fprintf(file,
-            "vkDestroySemaphore(%s, %s, %s);\n",
+            "\t\tvkDestroySemaphore(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(semaphore).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroySemaphore);
 }
 
@@ -2788,16 +2749,16 @@ void VulkanCppConsumer::Process_vkDestroyShaderModule(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* shaderModule */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyShaderModule(%s, %s, %s);\n",
+            "\t\tvkDestroyShaderModule(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(shaderModule).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyShaderModule);
 }
 
@@ -2807,13 +2768,13 @@ void VulkanCppConsumer::Process_vkDeviceWaitIdle(
     format::HandleId                            device)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
     fprintf(file,
-            "VK_CALL_CHECK(vkDeviceWaitIdle(%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkDeviceWaitIdle(%s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDeviceWaitIdle);
 }
 
@@ -2823,13 +2784,13 @@ void VulkanCppConsumer::Process_vkEndCommandBuffer(
     format::HandleId                            commandBuffer)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
     fprintf(file,
-            "VK_CALL_CHECK(vkEndCommandBuffer(%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkEndCommandBuffer(%s), %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkEndCommandBuffer);
 }
 
@@ -2852,7 +2813,7 @@ void VulkanCppConsumer::Process_vkFlushMappedMemoryRanges(
     StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* memoryRangeCount */
 /* pMemoryRanges */
@@ -2863,20 +2824,22 @@ void VulkanCppConsumer::Process_vkFlushMappedMemoryRanges(
                                                   pMemoryRangesPair.end(),
                                                   [&](auto pair) { return GenerateStruct_VkMappedMemoryRange(stream_pMemoryRanges, pair.t1, pair.t2, *this); },
                                                   ", ");
-    fprintf(file, "\n%s", stream_pMemoryRanges.str().c_str());
-    if (memoryRangeCount == 1) {
-        pMemoryRangesArray = "&" + pMemoryRangesNames;
-    } else if (memoryRangeCount > 1) {
-        pMemoryRangesArray = "pMemoryRanges_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMappedMemoryRange %s[] = { %s };\n", pMemoryRangesArray.c_str(), pMemoryRangesNames.c_str());
+    if (stream_pMemoryRanges.str().length() > 0) {
+        fprintf(file, "%s", stream_pMemoryRanges.str().c_str());
+        if (memoryRangeCount == 1) {
+            pMemoryRangesArray = "&" + pMemoryRangesNames;
+        } else if (memoryRangeCount > 1) {
+            pMemoryRangesArray = "pMemoryRanges_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkMappedMemoryRange %s[] = { %s };\n", pMemoryRangesArray.c_str(), pMemoryRangesNames.c_str());
+        }
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkFlushMappedMemoryRanges(%s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkFlushMappedMemoryRanges(%s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             memoryRangeCount,
             pMemoryRangesArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges);
 }
 
@@ -2888,7 +2851,7 @@ void VulkanCppConsumer::Process_vkFreeCommandBuffers(
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* commandPool */
 /* commandBufferCount */
@@ -2898,19 +2861,19 @@ void VulkanCppConsumer::Process_vkFreeCommandBuffers(
                                                      pCommandBuffers->GetPointer() + commandBufferCount,
                                                      [&](const format::HandleId current) { return this->GetHandle(current); },
                                                      ", ");
-    if (commandBufferCount == 1) {
+    if (commandBufferCount == 1 && pCommandBuffersValues != "VK_NULL_HANDLE") {
         pCommandBuffersArray = "&" + pCommandBuffersValues;
     } else if (commandBufferCount > 1) {
         pCommandBuffersArray = "pCommandBuffersArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkCommandBuffer %s[] = { %s };\n", pCommandBuffersArray.c_str(), pCommandBuffersValues.c_str());
+        fprintf(file, "\t\tVkCommandBuffer %s[] = { %s };\n", pCommandBuffersArray.c_str(), pCommandBuffersValues.c_str());
     }
     fprintf(file,
-            "vkFreeCommandBuffers(%s, %s, %u, %s);\n",
+            "\t\tvkFreeCommandBuffers(%s, %s, %u, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(commandPool).c_str(),
             commandBufferCount,
             pCommandBuffersArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkFreeCommandBuffers);
 }
 
@@ -2923,7 +2886,7 @@ void VulkanCppConsumer::Process_vkFreeDescriptorSets(
     HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* descriptorPool */
 /* descriptorSetCount */
@@ -2933,20 +2896,20 @@ void VulkanCppConsumer::Process_vkFreeDescriptorSets(
                                                      pDescriptorSets->GetPointer() + descriptorSetCount,
                                                      [&](const format::HandleId current) { return this->GetHandle(current); },
                                                      ", ");
-    if (descriptorSetCount == 1) {
+    if (descriptorSetCount == 1 && pDescriptorSetsValues != "VK_NULL_HANDLE") {
         pDescriptorSetsArray = "&" + pDescriptorSetsValues;
     } else if (descriptorSetCount > 1) {
         pDescriptorSetsArray = "pDescriptorSetsArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkDescriptorSet %s[] = { %s };\n", pDescriptorSetsArray.c_str(), pDescriptorSetsValues.c_str());
+        fprintf(file, "\t\tVkDescriptorSet %s[] = { %s };\n", pDescriptorSetsArray.c_str(), pDescriptorSetsValues.c_str());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkFreeDescriptorSets(%s, %s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkFreeDescriptorSets(%s, %s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(descriptorPool).c_str(),
             descriptorSetCount,
             pDescriptorSetsArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkFreeDescriptorSets);
 }
 
@@ -2957,16 +2920,16 @@ void VulkanCppConsumer::Process_vkFreeMemory(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* memory */
 /* pAllocator */
     fprintf(file,
-            "vkFreeMemory(%s, %s, %s);\n",
+            "\t\tvkFreeMemory(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(memory).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkFreeMemory);
 }
 
@@ -2987,18 +2950,18 @@ void VulkanCppConsumer::Process_vkGetDeviceMemoryCommitment(
     PointerDecoder<VkDeviceSize>*               pCommittedMemoryInBytes)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* memory */
 /* pCommittedMemoryInBytes */
     std::string pCommittedMemoryInBytesName = "pCommittedMemoryInBytes_" + std::to_string(this->getNextId());
-    fprintf(file, "VkDeviceSize %s;\n", pCommittedMemoryInBytesName.c_str());
+    fprintf(file, "\t\tVkDeviceSize %s;\n", pCommittedMemoryInBytesName.c_str());
     fprintf(file,
-            "vkGetDeviceMemoryCommitment(%s, %s, &%s);\n",
+            "\t\tvkGetDeviceMemoryCommitment(%s, %s, &%s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(memory).c_str(),
             pCommittedMemoryInBytesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment);
 }
 
@@ -3010,7 +2973,7 @@ void VulkanCppConsumer::Process_vkGetDeviceQueue(
     HandlePointerDecoder<VkQueue>*              pQueue)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* queueFamilyIndex */
 /* queueIndex */
@@ -3020,12 +2983,12 @@ void VulkanCppConsumer::Process_vkGetDeviceQueue(
     this->AddHandles(pQueueName,
                      pQueue->GetPointer());
     fprintf(file,
-            "vkGetDeviceQueue(%s, %u, %u, &%s);\n",
+            "\t\tvkGetDeviceQueue(%s, %u, %u, &%s);\n",
             this->GetHandle(device).c_str(),
             queueFamilyIndex,
             queueIndex,
             pQueueName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceQueue);
 }
 
@@ -3036,15 +2999,15 @@ void VulkanCppConsumer::Process_vkGetEventStatus(
     format::HandleId                            event)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* event */
     fprintf(file,
-            "VK_CALL_CHECK(vkGetEventStatus(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkGetEventStatus(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(event).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetEventStatus);
 }
 
@@ -3087,7 +3050,7 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout(
     StructPointerDecoder<Decoded_VkSubresourceLayout>* pLayout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* image */
 /* pSubresource */
@@ -3096,17 +3059,17 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout(
                                                                     pSubresource->GetPointer(),
                                                                     pSubresource->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pSubresource.str().c_str());
+    fprintf(file, "%s", stream_pSubresource.str().c_str());
 /* pLayout */
     std::string pLayoutName = "pLayout_" + std::to_string(this->getNextId());
-    fprintf(file, "VkSubresourceLayout %s;\n", pLayoutName.c_str());
+    fprintf(file, "\t\tVkSubresourceLayout %s;\n", pLayoutName.c_str());
     fprintf(file,
-            "vkGetImageSubresourceLayout(%s, %s, &%s, &%s);\n",
+            "\t\tvkGetImageSubresourceLayout(%s, %s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             pSubresourceStruct.c_str(),
             pLayoutName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageSubresourceLayout);
 }
 
@@ -3116,16 +3079,16 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures(
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures>* pFeatures)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pFeatures */
     std::string pFeaturesName = "pFeatures_" + std::to_string(this->getNextId());
-    fprintf(file, "VkPhysicalDeviceFeatures %s;\n", pFeaturesName.c_str());
+    fprintf(file, "\t\tVkPhysicalDeviceFeatures %s;\n", pFeaturesName.c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceFeatures(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceFeatures(%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pFeaturesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures);
 }
 
@@ -3136,18 +3099,18 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties(
     StructPointerDecoder<Decoded_VkFormatProperties>* pFormatProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* format */
 /* pFormatProperties */
     std::string pFormatPropertiesName = "pFormatProperties_" + std::to_string(this->getNextId());
-    fprintf(file, "VkFormatProperties %s;\n", pFormatPropertiesName.c_str());
+    fprintf(file, "\t\tVkFormatProperties %s;\n", pFormatPropertiesName.c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceFormatProperties(%s, %s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceFormatProperties(%s, %s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             pFormatPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties);
 }
 
@@ -3163,7 +3126,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties(
     StructPointerDecoder<Decoded_VkImageFormatProperties>* pImageFormatProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* format */
 /* type */
@@ -3172,9 +3135,9 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties(
 /* flags */
 /* pImageFormatProperties */
     std::string pImageFormatPropertiesName = "pImageFormatProperties_" + std::to_string(this->getNextId());
-    fprintf(file, "VkImageFormatProperties %s;\n", pImageFormatPropertiesName.c_str());
+    fprintf(file, "\t\tVkImageFormatProperties %s;\n", pImageFormatPropertiesName.c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceImageFormatProperties(%s, %s, %s, %s, %s, %s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceImageFormatProperties(%s, %s, %s, %s, %s, %s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             util::ToString<VkImageType>(type).c_str(),
@@ -3182,7 +3145,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties(
             util::ToString<VkImageUsageFlags>(usage).c_str(),
             util::ToString<VkImageCreateFlags>(flags).c_str(),
             pImageFormatPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties);
 }
 
@@ -3192,16 +3155,16 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties(
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties>* pMemoryProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pMemoryProperties */
     std::string pMemoryPropertiesName = "pMemoryProperties_" + std::to_string(this->getNextId());
-    fprintf(file, "VkPhysicalDeviceMemoryProperties %s;\n", pMemoryPropertiesName.c_str());
+    fprintf(file, "\t\tVkPhysicalDeviceMemoryProperties %s;\n", pMemoryPropertiesName.c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceMemoryProperties(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceMemoryProperties(%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pMemoryPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties);
 }
 
@@ -3211,16 +3174,16 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties(
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
-    fprintf(file, "VkPhysicalDeviceProperties %s;\n", pPropertiesName.c_str());
+    fprintf(file, "\t\tVkPhysicalDeviceProperties %s;\n", pPropertiesName.c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceProperties(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceProperties(%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties);
 }
 
@@ -3246,7 +3209,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties(
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* format */
 /* type */
@@ -3255,13 +3218,13 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties(
 /* tiling */
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     const uint32_t* in_pPropertyCount = pPropertyCount->GetPointer();
-    fprintf(file, "VkSparseImageFormatProperties %s[%d];\n", pPropertiesName.c_str(), *in_pPropertyCount);
+    fprintf(file, "\t\tVkSparseImageFormatProperties %s[%d];\n", pPropertiesName.c_str(), *in_pPropertyCount);
     fprintf(file,
-            "vkGetPhysicalDeviceSparseImageFormatProperties(%s, %s, %s, %s, %s, %s, &%s, %s);\n",
+            "\t\tvkGetPhysicalDeviceSparseImageFormatProperties(%s, %s, %s, %s, %s, %s, &%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             util::ToString<VkImageType>(type).c_str(),
@@ -3270,7 +3233,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties(
             util::ToString<VkImageTiling>(tiling).c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties);
 }
 
@@ -3283,9 +3246,9 @@ void VulkanCppConsumer::Process_vkGetPipelineCacheData(
     PointerDecoder<uint8_t>*                    pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
     fprintf(file, "// TODO: Support vkGetPipelineCacheData function.\n");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPipelineCacheData);
 }
 
@@ -3312,18 +3275,18 @@ void VulkanCppConsumer::Process_vkGetRenderAreaGranularity(
     StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* renderPass */
 /* pGranularity */
     std::string pGranularityName = "pGranularity_" + std::to_string(this->getNextId());
-    fprintf(file, "VkExtent2D %s;\n", pGranularityName.c_str());
+    fprintf(file, "\t\tVkExtent2D %s;\n", pGranularityName.c_str());
     fprintf(file,
-            "vkGetRenderAreaGranularity(%s, %s, &%s);\n",
+            "\t\tvkGetRenderAreaGranularity(%s, %s, &%s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(renderPass).c_str(),
             pGranularityName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRenderAreaGranularity);
 }
 
@@ -3335,7 +3298,7 @@ void VulkanCppConsumer::Process_vkInvalidateMappedMemoryRanges(
     StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* memoryRangeCount */
 /* pMemoryRanges */
@@ -3346,20 +3309,22 @@ void VulkanCppConsumer::Process_vkInvalidateMappedMemoryRanges(
                                                   pMemoryRangesPair.end(),
                                                   [&](auto pair) { return GenerateStruct_VkMappedMemoryRange(stream_pMemoryRanges, pair.t1, pair.t2, *this); },
                                                   ", ");
-    fprintf(file, "\n%s", stream_pMemoryRanges.str().c_str());
-    if (memoryRangeCount == 1) {
-        pMemoryRangesArray = "&" + pMemoryRangesNames;
-    } else if (memoryRangeCount > 1) {
-        pMemoryRangesArray = "pMemoryRanges_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMappedMemoryRange %s[] = { %s };\n", pMemoryRangesArray.c_str(), pMemoryRangesNames.c_str());
+    if (stream_pMemoryRanges.str().length() > 0) {
+        fprintf(file, "%s", stream_pMemoryRanges.str().c_str());
+        if (memoryRangeCount == 1) {
+            pMemoryRangesArray = "&" + pMemoryRangesNames;
+        } else if (memoryRangeCount > 1) {
+            pMemoryRangesArray = "pMemoryRanges_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkMappedMemoryRange %s[] = { %s };\n", pMemoryRangesArray.c_str(), pMemoryRangesNames.c_str());
+        }
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkInvalidateMappedMemoryRanges(%s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkInvalidateMappedMemoryRanges(%s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             memoryRangeCount,
             pMemoryRangesArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges);
 }
 
@@ -3386,7 +3351,7 @@ void VulkanCppConsumer::Process_vkMergePipelineCaches(
     HandlePointerDecoder<VkPipelineCache>*      pSrcCaches)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* dstCache */
 /* srcCacheCount */
@@ -3396,20 +3361,20 @@ void VulkanCppConsumer::Process_vkMergePipelineCaches(
                                                 pSrcCaches->GetPointer() + srcCacheCount,
                                                 [&](const format::HandleId current) { return this->GetHandle(current); },
                                                 ", ");
-    if (srcCacheCount == 1) {
+    if (srcCacheCount == 1 && pSrcCachesValues != "VK_NULL_HANDLE") {
         pSrcCachesArray = "&" + pSrcCachesValues;
     } else if (srcCacheCount > 1) {
         pSrcCachesArray = "pSrcCachesArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkPipelineCache %s[] = { %s };\n", pSrcCachesArray.c_str(), pSrcCachesValues.c_str());
+        fprintf(file, "\t\tVkPipelineCache %s[] = { %s };\n", pSrcCachesArray.c_str(), pSrcCachesValues.c_str());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkMergePipelineCaches(%s, %s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkMergePipelineCaches(%s, %s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(dstCache).c_str(),
             srcCacheCount,
             pSrcCachesArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkMergePipelineCaches);
 }
 
@@ -3422,7 +3387,7 @@ void VulkanCppConsumer::Process_vkQueueBindSparse(
     format::HandleId                            fence)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* bindInfoCount */
 /* pBindInfo */
@@ -3433,22 +3398,24 @@ void VulkanCppConsumer::Process_vkQueueBindSparse(
                                               pBindInfoPair.end(),
                                               [&](auto pair) { return GenerateStruct_VkBindSparseInfo(stream_pBindInfo, pair.t1, pair.t2, *this); },
                                               ", ");
-    fprintf(file, "\n%s", stream_pBindInfo.str().c_str());
-    if (bindInfoCount == 1) {
-        pBindInfoArray = "&" + pBindInfoNames;
-    } else if (bindInfoCount > 1) {
-        pBindInfoArray = "pBindInfo_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBindSparseInfo %s[] = { %s };\n", pBindInfoArray.c_str(), pBindInfoNames.c_str());
+    if (stream_pBindInfo.str().length() > 0) {
+        fprintf(file, "%s", stream_pBindInfo.str().c_str());
+        if (bindInfoCount == 1) {
+            pBindInfoArray = "&" + pBindInfoNames;
+        } else if (bindInfoCount > 1) {
+            pBindInfoArray = "pBindInfo_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBindSparseInfo %s[] = { %s };\n", pBindInfoArray.c_str(), pBindInfoNames.c_str());
+        }
     }
 /* fence */
     fprintf(file,
-            "VK_CALL_CHECK(vkQueueBindSparse(%s, %u, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkQueueBindSparse(%s, %u, %s, %s), %s);\n",
             this->GetHandle(queue).c_str(),
             bindInfoCount,
             pBindInfoArray.c_str(),
             this->GetHandle(fence).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueueBindSparse);
 }
 
@@ -3461,7 +3428,7 @@ void VulkanCppConsumer::Process_vkQueueSubmit(
     format::HandleId                            fence)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* submitCount */
 /* pSubmits */
@@ -3472,22 +3439,24 @@ void VulkanCppConsumer::Process_vkQueueSubmit(
                                              pSubmitsPair.end(),
                                              [&](auto pair) { return GenerateStruct_VkSubmitInfo(stream_pSubmits, pair.t1, pair.t2, *this); },
                                              ", ");
-    fprintf(file, "\n%s", stream_pSubmits.str().c_str());
-    if (submitCount == 1) {
-        pSubmitsArray = "&" + pSubmitsNames;
-    } else if (submitCount > 1) {
-        pSubmitsArray = "pSubmits_" + std::to_string(this->getNextId());
-        fprintf(file, "VkSubmitInfo %s[] = { %s };\n", pSubmitsArray.c_str(), pSubmitsNames.c_str());
+    if (stream_pSubmits.str().length() > 0) {
+        fprintf(file, "%s", stream_pSubmits.str().c_str());
+        if (submitCount == 1) {
+            pSubmitsArray = "&" + pSubmitsNames;
+        } else if (submitCount > 1) {
+            pSubmitsArray = "pSubmits_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkSubmitInfo %s[] = { %s };\n", pSubmitsArray.c_str(), pSubmitsNames.c_str());
+        }
     }
 /* fence */
     fprintf(file,
-            "VK_CALL_CHECK(vkQueueSubmit(%s, %u, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkQueueSubmit(%s, %u, %s, %s), %s);\n",
             this->GetHandle(queue).c_str(),
             submitCount,
             pSubmitsArray.c_str(),
             this->GetHandle(fence).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSubmit);
 }
 
@@ -3497,13 +3466,13 @@ void VulkanCppConsumer::Process_vkQueueWaitIdle(
     format::HandleId                            queue)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
     fprintf(file,
-            "VK_CALL_CHECK(vkQueueWaitIdle(%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkQueueWaitIdle(%s), %s);\n",
             this->GetHandle(queue).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueueWaitIdle);
 }
 
@@ -3514,15 +3483,15 @@ void VulkanCppConsumer::Process_vkResetCommandBuffer(
     VkCommandBufferResetFlags                   flags)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* flags */
     fprintf(file,
-            "VK_CALL_CHECK(vkResetCommandBuffer(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkResetCommandBuffer(%s, %s), %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkCommandBufferResetFlags>(flags).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkResetCommandBuffer);
 }
 
@@ -3534,17 +3503,17 @@ void VulkanCppConsumer::Process_vkResetCommandPool(
     VkCommandPoolResetFlags                     flags)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* commandPool */
 /* flags */
     fprintf(file,
-            "VK_CALL_CHECK(vkResetCommandPool(%s, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkResetCommandPool(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(commandPool).c_str(),
             util::ToString<VkCommandPoolResetFlags>(flags).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkResetCommandPool);
 }
 
@@ -3556,17 +3525,17 @@ void VulkanCppConsumer::Process_vkResetDescriptorPool(
     VkDescriptorPoolResetFlags                  flags)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* descriptorPool */
 /* flags */
     fprintf(file,
-            "VK_CALL_CHECK(vkResetDescriptorPool(%s, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkResetDescriptorPool(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(descriptorPool).c_str(),
             util::ToString<VkDescriptorPoolResetFlags>(flags).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkResetDescriptorPool);
 }
 
@@ -3577,15 +3546,15 @@ void VulkanCppConsumer::Process_vkResetEvent(
     format::HandleId                            event)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* event */
     fprintf(file,
-            "VK_CALL_CHECK(vkResetEvent(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkResetEvent(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(event).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkResetEvent);
 }
 
@@ -3597,7 +3566,7 @@ void VulkanCppConsumer::Process_vkResetFences(
     HandlePointerDecoder<VkFence>*              pFences)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* fenceCount */
 /* pFences */
@@ -3606,19 +3575,19 @@ void VulkanCppConsumer::Process_vkResetFences(
                                              pFences->GetPointer() + fenceCount,
                                              [&](const format::HandleId current) { return this->GetHandle(current); },
                                              ", ");
-    if (fenceCount == 1) {
+    if (fenceCount == 1 && pFencesValues != "VK_NULL_HANDLE") {
         pFencesArray = "&" + pFencesValues;
     } else if (fenceCount > 1) {
         pFencesArray = "pFencesArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkFence %s[] = { %s };\n", pFencesArray.c_str(), pFencesValues.c_str());
+        fprintf(file, "\t\tVkFence %s[] = { %s };\n", pFencesArray.c_str(), pFencesValues.c_str());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkResetFences(%s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkResetFences(%s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             fenceCount,
             pFencesArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkResetFences);
 }
 
@@ -3629,15 +3598,15 @@ void VulkanCppConsumer::Process_vkSetEvent(
     format::HandleId                            event)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* event */
     fprintf(file,
-            "VK_CALL_CHECK(vkSetEvent(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkSetEvent(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(event).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSetEvent);
 }
 
@@ -3659,7 +3628,7 @@ void VulkanCppConsumer::Process_vkUpdateDescriptorSets(
     StructPointerDecoder<Decoded_VkCopyDescriptorSet>* pDescriptorCopies)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* descriptorWriteCount */
 /* pDescriptorWrites */
@@ -3670,12 +3639,14 @@ void VulkanCppConsumer::Process_vkUpdateDescriptorSets(
                                                       pDescriptorWritesPair.end(),
                                                       [&](auto pair) { return GenerateStruct_VkWriteDescriptorSet(stream_pDescriptorWrites, pair.t1, pair.t2, *this); },
                                                       ", ");
-    fprintf(file, "\n%s", stream_pDescriptorWrites.str().c_str());
-    if (descriptorWriteCount == 1) {
-        pDescriptorWritesArray = "&" + pDescriptorWritesNames;
-    } else if (descriptorWriteCount > 1) {
-        pDescriptorWritesArray = "pDescriptorWrites_" + std::to_string(this->getNextId());
-        fprintf(file, "VkWriteDescriptorSet %s[] = { %s };\n", pDescriptorWritesArray.c_str(), pDescriptorWritesNames.c_str());
+    if (stream_pDescriptorWrites.str().length() > 0) {
+        fprintf(file, "%s", stream_pDescriptorWrites.str().c_str());
+        if (descriptorWriteCount == 1) {
+            pDescriptorWritesArray = "&" + pDescriptorWritesNames;
+        } else if (descriptorWriteCount > 1) {
+            pDescriptorWritesArray = "pDescriptorWrites_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkWriteDescriptorSet %s[] = { %s };\n", pDescriptorWritesArray.c_str(), pDescriptorWritesNames.c_str());
+        }
     }
 /* descriptorCopyCount */
 /* pDescriptorCopies */
@@ -3686,21 +3657,23 @@ void VulkanCppConsumer::Process_vkUpdateDescriptorSets(
                                                       pDescriptorCopiesPair.end(),
                                                       [&](auto pair) { return GenerateStruct_VkCopyDescriptorSet(stream_pDescriptorCopies, pair.t1, pair.t2, *this); },
                                                       ", ");
-    fprintf(file, "\n%s", stream_pDescriptorCopies.str().c_str());
-    if (descriptorCopyCount == 1) {
-        pDescriptorCopiesArray = "&" + pDescriptorCopiesNames;
-    } else if (descriptorCopyCount > 1) {
-        pDescriptorCopiesArray = "pDescriptorCopies_" + std::to_string(this->getNextId());
-        fprintf(file, "VkCopyDescriptorSet %s[] = { %s };\n", pDescriptorCopiesArray.c_str(), pDescriptorCopiesNames.c_str());
+    if (stream_pDescriptorCopies.str().length() > 0) {
+        fprintf(file, "%s", stream_pDescriptorCopies.str().c_str());
+        if (descriptorCopyCount == 1) {
+            pDescriptorCopiesArray = "&" + pDescriptorCopiesNames;
+        } else if (descriptorCopyCount > 1) {
+            pDescriptorCopiesArray = "pDescriptorCopies_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkCopyDescriptorSet %s[] = { %s };\n", pDescriptorCopiesArray.c_str(), pDescriptorCopiesNames.c_str());
+        }
     }
     fprintf(file,
-            "vkUpdateDescriptorSets(%s, %u, %s, %u, %s);\n",
+            "\t\tvkUpdateDescriptorSets(%s, %u, %s, %u, %s);\n",
             this->GetHandle(device).c_str(),
             descriptorWriteCount,
             pDescriptorWritesArray.c_str(),
             descriptorCopyCount,
             pDescriptorCopiesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkUpdateDescriptorSets);
 }
 
@@ -3716,7 +3689,6 @@ void VulkanCppConsumer::Process_vkWaitForFences(
     Generate_vkWaitForFences(returnValue, device, fenceCount, pFences, waitAll, timeout);
     Post_APICall(format::ApiCallId::ApiCall_vkWaitForFences);
 }
-
 void VulkanCppConsumer::Process_vkBindBufferMemory2(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -3725,7 +3697,7 @@ void VulkanCppConsumer::Process_vkBindBufferMemory2(
     StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* bindInfoCount */
 /* pBindInfos */
@@ -3736,20 +3708,22 @@ void VulkanCppConsumer::Process_vkBindBufferMemory2(
                                                pBindInfosPair.end(),
                                                [&](auto pair) { return GenerateStruct_VkBindBufferMemoryInfo(stream_pBindInfos, pair.t1, pair.t2, *this); },
                                                ", ");
-    fprintf(file, "\n%s", stream_pBindInfos.str().c_str());
-    if (bindInfoCount == 1) {
-        pBindInfosArray = "&" + pBindInfosNames;
-    } else if (bindInfoCount > 1) {
-        pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBindBufferMemoryInfo %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+    if (stream_pBindInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pBindInfos.str().c_str());
+        if (bindInfoCount == 1) {
+            pBindInfosArray = "&" + pBindInfosNames;
+        } else if (bindInfoCount > 1) {
+            pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBindBufferMemoryInfo %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+        }
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkBindBufferMemory2(%s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkBindBufferMemory2(%s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             bindInfoCount,
             pBindInfosArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBindBufferMemory2);
 }
 
@@ -3761,7 +3735,7 @@ void VulkanCppConsumer::Process_vkBindImageMemory2(
     StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* bindInfoCount */
 /* pBindInfos */
@@ -3772,20 +3746,22 @@ void VulkanCppConsumer::Process_vkBindImageMemory2(
                                                pBindInfosPair.end(),
                                                [&](auto pair) { return GenerateStruct_VkBindImageMemoryInfo(stream_pBindInfos, pair.t1, pair.t2, *this); },
                                                ", ");
-    fprintf(file, "\n%s", stream_pBindInfos.str().c_str());
-    if (bindInfoCount == 1) {
-        pBindInfosArray = "&" + pBindInfosNames;
-    } else if (bindInfoCount > 1) {
-        pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBindImageMemoryInfo %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+    if (stream_pBindInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pBindInfos.str().c_str());
+        if (bindInfoCount == 1) {
+            pBindInfosArray = "&" + pBindInfosNames;
+        } else if (bindInfoCount > 1) {
+            pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBindImageMemoryInfo %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+        }
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkBindImageMemory2(%s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkBindImageMemory2(%s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             bindInfoCount,
             pBindInfosArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBindImageMemory2);
 }
 
@@ -3800,7 +3776,7 @@ void VulkanCppConsumer::Process_vkCmdDispatchBase(
     uint32_t                                    groupCountZ)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* baseGroupX */
 /* baseGroupY */
@@ -3809,7 +3785,7 @@ void VulkanCppConsumer::Process_vkCmdDispatchBase(
 /* groupCountY */
 /* groupCountZ */
     fprintf(file,
-            "vkCmdDispatchBase(%s, %u, %u, %u, %u, %u, %u);\n",
+            "\t\tvkCmdDispatchBase(%s, %u, %u, %u, %u, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             baseGroupX,
             baseGroupY,
@@ -3817,7 +3793,7 @@ void VulkanCppConsumer::Process_vkCmdDispatchBase(
             groupCountX,
             groupCountY,
             groupCountZ);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDispatchBase);
 }
 
@@ -3827,14 +3803,14 @@ void VulkanCppConsumer::Process_vkCmdSetDeviceMask(
     uint32_t                                    deviceMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* deviceMask */
     fprintf(file,
-            "vkCmdSetDeviceMask(%s, %u);\n",
+            "\t\tvkCmdSetDeviceMask(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             deviceMask);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDeviceMask);
 }
 
@@ -3859,7 +3835,7 @@ void VulkanCppConsumer::Process_vkCreateSamplerYcbcrConversion(
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -3867,7 +3843,7 @@ void VulkanCppConsumer::Process_vkCreateSamplerYcbcrConversion(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pYcbcrConversion */
     std::string pYcbcrConversionName = "pYcbcrConversion_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION));
@@ -3877,13 +3853,13 @@ void VulkanCppConsumer::Process_vkCreateSamplerYcbcrConversion(
                          pYcbcrConversion->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateSamplerYcbcrConversion(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateSamplerYcbcrConversion(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pYcbcrConversionName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion);
 }
 
@@ -3894,16 +3870,16 @@ void VulkanCppConsumer::Process_vkDestroyDescriptorUpdateTemplate(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* descriptorUpdateTemplate */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyDescriptorUpdateTemplate(%s, %s, %s);\n",
+            "\t\tvkDestroyDescriptorUpdateTemplate(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(descriptorUpdateTemplate).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate);
 }
 
@@ -3914,16 +3890,16 @@ void VulkanCppConsumer::Process_vkDestroySamplerYcbcrConversion(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* ycbcrConversion */
 /* pAllocator */
     fprintf(file,
-            "vkDestroySamplerYcbcrConversion(%s, %s, %s);\n",
+            "\t\tvkDestroySamplerYcbcrConversion(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(ycbcrConversion).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion);
 }
 
@@ -3935,11 +3911,11 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceGroups(
     StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pPhysicalDeviceGroupCount */
     std::string pPhysicalDeviceGroupCountName = "pPhysicalDeviceGroupCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPhysicalDeviceGroupCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPhysicalDeviceGroupCountName.c_str());
 /* pPhysicalDeviceGroupProperties */
     std::string pPhysicalDeviceGroupPropertiesName = "pPhysicalDeviceGroupProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pPhysicalDeviceGroupProperties;
@@ -3947,14 +3923,14 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceGroups(
                                                                         pPhysicalDeviceGroupProperties->GetPointer(),
                                                                         pPhysicalDeviceGroupProperties->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pPhysicalDeviceGroupProperties.str().c_str());
+    fprintf(file, "%s", stream_pPhysicalDeviceGroupProperties.str().c_str());
     fprintf(file,
-            "VK_CALL_CHECK(vkEnumeratePhysicalDeviceGroups(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkEnumeratePhysicalDeviceGroups(%s, &%s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pPhysicalDeviceGroupCountName.c_str(),
             pPhysicalDeviceGroupPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups);
 }
 
@@ -3964,30 +3940,7 @@ void VulkanCppConsumer::Process_vkGetBufferMemoryRequirements2(
     StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
-/* device */
-/* pInfo */
-    std::stringstream stream_pInfo;
-    std::string pInfoStruct = GenerateStruct_VkBufferMemoryRequirementsInfo2(stream_pInfo,
-                                                             pInfo->GetPointer(),
-                                                             pInfo->GetMetaStructPointer(),
-                                                             *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
-/* pMemoryRequirements */
-    std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
-    std::stringstream stream_pMemoryRequirements;
-    pMemoryRequirementsName = GenerateStruct_VkMemoryRequirements2(stream_pMemoryRequirements,
-                                                             pMemoryRequirements->GetPointer(),
-                                                             pMemoryRequirements->GetMetaStructPointer(),
-                                                             *this);
-    fprintf(file, "\n%s", stream_pMemoryRequirements.str().c_str());
-    fprintf(file,
-            "vkGetBufferMemoryRequirements2(%s, &%s, &%s);\n",
-            this->GetHandle(device).c_str(),
-            pInfoStruct.c_str(),
-            pMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    Generate_vkGetBufferMemoryRequirements2(device, pInfo, pMemoryRequirements);
     Post_APICall(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2);
 }
 
@@ -3998,7 +3951,7 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupport(
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport>* pSupport)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -4006,7 +3959,7 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupport(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pSupport */
     std::string pSupportName = "pSupport_" + std::to_string(this->getNextId());
     std::stringstream stream_pSupport;
@@ -4014,13 +3967,13 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupport(
                                                   pSupport->GetPointer(),
                                                   pSupport->GetMetaStructPointer(),
                                                   *this);
-    fprintf(file, "\n%s", stream_pSupport.str().c_str());
+    fprintf(file, "%s", stream_pSupport.str().c_str());
     fprintf(file,
-            "vkGetDescriptorSetLayoutSupport(%s, &%s, &%s);\n",
+            "\t\tvkGetDescriptorSetLayoutSupport(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             pSupportName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport);
 }
 
@@ -4033,22 +3986,22 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPeerMemoryFeatures(
     PointerDecoder<VkPeerMemoryFeatureFlags>*   pPeerMemoryFeatures)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* heapIndex */
 /* localDeviceIndex */
 /* remoteDeviceIndex */
 /* pPeerMemoryFeatures */
     std::string pPeerMemoryFeaturesName = "pPeerMemoryFeatures_" + std::to_string(this->getNextId());
-    fprintf(file, "VkPeerMemoryFeatureFlags %s;\n", pPeerMemoryFeaturesName.c_str());
+    fprintf(file, "\t\tVkPeerMemoryFeatureFlags %s;\n", pPeerMemoryFeaturesName.c_str());
     fprintf(file,
-            "vkGetDeviceGroupPeerMemoryFeatures(%s, %u, %u, %u, &%s);\n",
+            "\t\tvkGetDeviceGroupPeerMemoryFeatures(%s, %u, %u, %u, &%s);\n",
             this->GetHandle(device).c_str(),
             heapIndex,
             localDeviceIndex,
             remoteDeviceIndex,
             pPeerMemoryFeaturesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures);
 }
 
@@ -4059,7 +4012,7 @@ void VulkanCppConsumer::Process_vkGetDeviceQueue2(
     HandlePointerDecoder<VkQueue>*              pQueue)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pQueueInfo */
     std::stringstream stream_pQueueInfo;
@@ -4067,18 +4020,18 @@ void VulkanCppConsumer::Process_vkGetDeviceQueue2(
                                                                   pQueueInfo->GetPointer(),
                                                                   pQueueInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pQueueInfo.str().c_str());
+    fprintf(file, "%s", stream_pQueueInfo.str().c_str());
 /* pQueue */
     std::string pQueueName = "pQueue_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_QUEUE));
     AddKnownVariables("VkQueue", pQueueName, pQueue->GetPointer());
     this->AddHandles(pQueueName,
                      pQueue->GetPointer());
     fprintf(file,
-            "vkGetDeviceQueue2(%s, &%s, &%s);\n",
+            "\t\tvkGetDeviceQueue2(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pQueueInfoStruct.c_str(),
             pQueueName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceQueue2);
 }
 
@@ -4088,30 +4041,7 @@ void VulkanCppConsumer::Process_vkGetImageMemoryRequirements2(
     StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
-/* device */
-/* pInfo */
-    std::stringstream stream_pInfo;
-    std::string pInfoStruct = GenerateStruct_VkImageMemoryRequirementsInfo2(stream_pInfo,
-                                                             pInfo->GetPointer(),
-                                                             pInfo->GetMetaStructPointer(),
-                                                             *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
-/* pMemoryRequirements */
-    std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
-    std::stringstream stream_pMemoryRequirements;
-    pMemoryRequirementsName = GenerateStruct_VkMemoryRequirements2(stream_pMemoryRequirements,
-                                                             pMemoryRequirements->GetPointer(),
-                                                             pMemoryRequirements->GetMetaStructPointer(),
-                                                             *this);
-    fprintf(file, "\n%s", stream_pMemoryRequirements.str().c_str());
-    fprintf(file,
-            "vkGetImageMemoryRequirements2(%s, &%s, &%s);\n",
-            this->GetHandle(device).c_str(),
-            pInfoStruct.c_str(),
-            pMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    Generate_vkGetImageMemoryRequirements2(device, pInfo, pMemoryRequirements);
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2);
 }
 
@@ -4123,7 +4053,7 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2(
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -4131,10 +4061,10 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pSparseMemoryRequirementCount */
     std::string pSparseMemoryRequirementCountName = "pSparseMemoryRequirementCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pSparseMemoryRequirementCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pSparseMemoryRequirementCountName.c_str());
 /* pSparseMemoryRequirements */
     std::string pSparseMemoryRequirementsName = "pSparseMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pSparseMemoryRequirements;
@@ -4142,14 +4072,14 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2(
                                                                    pSparseMemoryRequirements->GetPointer(),
                                                                    pSparseMemoryRequirements->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pSparseMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pSparseMemoryRequirements.str().c_str());
     fprintf(file,
-            "vkGetImageSparseMemoryRequirements2(%s, &%s, &%s, &%s);\n",
+            "\t\tvkGetImageSparseMemoryRequirements2(%s, &%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pSparseMemoryRequirementCountName.c_str(),
             pSparseMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2);
 }
 
@@ -4160,7 +4090,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
     StructPointerDecoder<Decoded_VkExternalBufferProperties>* pExternalBufferProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pExternalBufferInfo */
     std::stringstream stream_pExternalBufferInfo;
@@ -4168,7 +4098,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
                                                                            pExternalBufferInfo->GetPointer(),
                                                                            pExternalBufferInfo->GetMetaStructPointer(),
                                                                            *this);
-    fprintf(file, "\n%s", stream_pExternalBufferInfo.str().c_str());
+    fprintf(file, "%s", stream_pExternalBufferInfo.str().c_str());
 /* pExternalBufferProperties */
     std::string pExternalBufferPropertiesName = "pExternalBufferProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pExternalBufferProperties;
@@ -4176,13 +4106,13 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
                                                                    pExternalBufferProperties->GetPointer(),
                                                                    pExternalBufferProperties->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pExternalBufferProperties.str().c_str());
+    fprintf(file, "%s", stream_pExternalBufferProperties.str().c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceExternalBufferProperties(%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceExternalBufferProperties(%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pExternalBufferInfoStruct.c_str(),
             pExternalBufferPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties);
 }
 
@@ -4193,7 +4123,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFenceProperties(
     StructPointerDecoder<Decoded_VkExternalFenceProperties>* pExternalFenceProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pExternalFenceInfo */
     std::stringstream stream_pExternalFenceInfo;
@@ -4201,7 +4131,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFenceProperties(
                                                                           pExternalFenceInfo->GetPointer(),
                                                                           pExternalFenceInfo->GetMetaStructPointer(),
                                                                           *this);
-    fprintf(file, "\n%s", stream_pExternalFenceInfo.str().c_str());
+    fprintf(file, "%s", stream_pExternalFenceInfo.str().c_str());
 /* pExternalFenceProperties */
     std::string pExternalFencePropertiesName = "pExternalFenceProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pExternalFenceProperties;
@@ -4209,13 +4139,13 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFenceProperties(
                                                                   pExternalFenceProperties->GetPointer(),
                                                                   pExternalFenceProperties->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pExternalFenceProperties.str().c_str());
+    fprintf(file, "%s", stream_pExternalFenceProperties.str().c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceExternalFenceProperties(%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceExternalFenceProperties(%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pExternalFenceInfoStruct.c_str(),
             pExternalFencePropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties);
 }
 
@@ -4226,7 +4156,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphoreProperties(
     StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>* pExternalSemaphoreProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pExternalSemaphoreInfo */
     std::stringstream stream_pExternalSemaphoreInfo;
@@ -4234,7 +4164,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphoreProperties(
                                                                               pExternalSemaphoreInfo->GetPointer(),
                                                                               pExternalSemaphoreInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pExternalSemaphoreInfo.str().c_str());
+    fprintf(file, "%s", stream_pExternalSemaphoreInfo.str().c_str());
 /* pExternalSemaphoreProperties */
     std::string pExternalSemaphorePropertiesName = "pExternalSemaphoreProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pExternalSemaphoreProperties;
@@ -4242,13 +4172,13 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphoreProperties(
                                                                       pExternalSemaphoreProperties->GetPointer(),
                                                                       pExternalSemaphoreProperties->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pExternalSemaphoreProperties.str().c_str());
+    fprintf(file, "%s", stream_pExternalSemaphoreProperties.str().c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceExternalSemaphoreProperties(%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceExternalSemaphoreProperties(%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pExternalSemaphoreInfoStruct.c_str(),
             pExternalSemaphorePropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties);
 }
 
@@ -4258,7 +4188,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures2(
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>* pFeatures)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pFeatures */
     std::string pFeaturesName = "pFeatures_" + std::to_string(this->getNextId());
@@ -4267,12 +4197,12 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures2(
                                                    pFeatures->GetPointer(),
                                                    pFeatures->GetMetaStructPointer(),
                                                    *this);
-    fprintf(file, "\n%s", stream_pFeatures.str().c_str());
+    fprintf(file, "%s", stream_pFeatures.str().c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceFeatures2(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceFeatures2(%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pFeaturesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2);
 }
 
@@ -4283,7 +4213,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties2(
     StructPointerDecoder<Decoded_VkFormatProperties2>* pFormatProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* format */
 /* pFormatProperties */
@@ -4293,13 +4223,13 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties2(
                                                            pFormatProperties->GetPointer(),
                                                            pFormatProperties->GetMetaStructPointer(),
                                                            *this);
-    fprintf(file, "\n%s", stream_pFormatProperties.str().c_str());
+    fprintf(file, "%s", stream_pFormatProperties.str().c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceFormatProperties2(%s, %s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceFormatProperties2(%s, %s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             pFormatPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2);
 }
 
@@ -4311,7 +4241,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2(
     StructPointerDecoder<Decoded_VkImageFormatProperties2>* pImageFormatProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pImageFormatInfo */
     std::stringstream stream_pImageFormatInfo;
@@ -4319,7 +4249,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2(
                                                                         pImageFormatInfo->GetPointer(),
                                                                         pImageFormatInfo->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pImageFormatInfo.str().c_str());
+    fprintf(file, "%s", stream_pImageFormatInfo.str().c_str());
 /* pImageFormatProperties */
     std::string pImageFormatPropertiesName = "pImageFormatProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pImageFormatProperties;
@@ -4327,14 +4257,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2(
                                                                 pImageFormatProperties->GetPointer(),
                                                                 pImageFormatProperties->GetMetaStructPointer(),
                                                                 *this);
-    fprintf(file, "\n%s", stream_pImageFormatProperties.str().c_str());
+    fprintf(file, "%s", stream_pImageFormatProperties.str().c_str());
     fprintf(file,
-            "VK_CALL_CHECK(vkGetPhysicalDeviceImageFormatProperties2(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkGetPhysicalDeviceImageFormatProperties2(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pImageFormatInfoStruct.c_str(),
             pImageFormatPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2);
 }
 
@@ -4344,7 +4274,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties2(
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pMemoryProperties */
     std::string pMemoryPropertiesName = "pMemoryProperties_" + std::to_string(this->getNextId());
@@ -4353,12 +4283,12 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties2(
                                                            pMemoryProperties->GetPointer(),
                                                            pMemoryProperties->GetMetaStructPointer(),
                                                            *this);
-    fprintf(file, "\n%s", stream_pMemoryProperties.str().c_str());
+    fprintf(file, "%s", stream_pMemoryProperties.str().c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceMemoryProperties2(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceMemoryProperties2(%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pMemoryPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2);
 }
 
@@ -4368,7 +4298,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties2(
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
@@ -4377,12 +4307,12 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties2(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceProperties2(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceProperties2(%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2);
 }
 
@@ -4393,11 +4323,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2(
     StructPointerDecoder<Decoded_VkQueueFamilyProperties2>* pQueueFamilyProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pQueueFamilyPropertyCount */
     std::string pQueueFamilyPropertyCountName = "pQueueFamilyPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pQueueFamilyPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pQueueFamilyPropertyCountName.c_str());
 /* pQueueFamilyProperties */
     std::string pQueueFamilyPropertiesName = "pQueueFamilyProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pQueueFamilyProperties;
@@ -4405,13 +4335,13 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2(
                                                                 pQueueFamilyProperties->GetPointer(),
                                                                 pQueueFamilyProperties->GetMetaStructPointer(),
                                                                 *this);
-    fprintf(file, "\n%s", stream_pQueueFamilyProperties.str().c_str());
+    fprintf(file, "%s", stream_pQueueFamilyProperties.str().c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceQueueFamilyProperties2(%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceQueueFamilyProperties2(%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pQueueFamilyPropertyCountName.c_str(),
             pQueueFamilyPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2);
 }
 
@@ -4423,7 +4353,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2(
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties2>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pFormatInfo */
     std::stringstream stream_pFormatInfo;
@@ -4431,10 +4361,10 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2(
                                                                    pFormatInfo->GetPointer(),
                                                                    pFormatInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pFormatInfo.str().c_str());
+    fprintf(file, "%s", stream_pFormatInfo.str().c_str());
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -4442,14 +4372,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     fprintf(file,
-            "vkGetPhysicalDeviceSparseImageFormatProperties2(%s, &%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceSparseImageFormatProperties2(%s, &%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pFormatInfoStruct.c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2);
 }
 
@@ -4460,19 +4390,18 @@ void VulkanCppConsumer::Process_vkTrimCommandPool(
     VkCommandPoolTrimFlags                      flags)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* commandPool */
 /* flags */
     fprintf(file,
-            "vkTrimCommandPool(%s, %s, %s);\n",
+            "\t\tvkTrimCommandPool(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(commandPool).c_str(),
             util::ToString<VkCommandPoolTrimFlags>(flags).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkTrimCommandPool);
 }
-
 void VulkanCppConsumer::Process_vkCmdBeginRenderPass2(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -4480,7 +4409,7 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderPass2(
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pRenderPassBegin */
     std::stringstream stream_pRenderPassBegin;
@@ -4488,20 +4417,20 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderPass2(
                                                                         pRenderPassBegin->GetPointer(),
                                                                         pRenderPassBegin->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pRenderPassBegin.str().c_str());
+    fprintf(file, "%s", stream_pRenderPassBegin.str().c_str());
 /* pSubpassBeginInfo */
     std::stringstream stream_pSubpassBeginInfo;
     std::string pSubpassBeginInfoStruct = GenerateStruct_VkSubpassBeginInfo(stream_pSubpassBeginInfo,
                                                                          pSubpassBeginInfo->GetPointer(),
                                                                          pSubpassBeginInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pSubpassBeginInfo.str().c_str());
+    fprintf(file, "%s", stream_pSubpassBeginInfo.str().c_str());
     fprintf(file,
-            "vkCmdBeginRenderPass2(%s, &%s, &%s);\n",
+            "\t\tvkCmdBeginRenderPass2(%s, &%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pRenderPassBeginStruct.c_str(),
             pSubpassBeginInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginRenderPass2);
 }
 
@@ -4516,7 +4445,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCount(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -4525,7 +4454,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCount(
 /* maxDrawCount */
 /* stride */
     fprintf(file,
-            "vkCmdDrawIndexedIndirectCount(%s, %s, %luUL, %s, %luUL, %u, %u);\n",
+            "\t\tvkCmdDrawIndexedIndirectCount(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
@@ -4533,7 +4462,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCount(
             countBufferOffset,
             maxDrawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount);
 }
 
@@ -4548,7 +4477,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCount(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -4557,7 +4486,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCount(
 /* maxDrawCount */
 /* stride */
     fprintf(file,
-            "vkCmdDrawIndirectCount(%s, %s, %luUL, %s, %luUL, %u, %u);\n",
+            "\t\tvkCmdDrawIndirectCount(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
@@ -4565,7 +4494,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCount(
             countBufferOffset,
             maxDrawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndirectCount);
 }
 
@@ -4575,7 +4504,7 @@ void VulkanCppConsumer::Process_vkCmdEndRenderPass2(
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pSubpassEndInfo */
     std::stringstream stream_pSubpassEndInfo;
@@ -4583,12 +4512,12 @@ void VulkanCppConsumer::Process_vkCmdEndRenderPass2(
                                                                        pSubpassEndInfo->GetPointer(),
                                                                        pSubpassEndInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pSubpassEndInfo.str().c_str());
+    fprintf(file, "%s", stream_pSubpassEndInfo.str().c_str());
     fprintf(file,
-            "vkCmdEndRenderPass2(%s, &%s);\n",
+            "\t\tvkCmdEndRenderPass2(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pSubpassEndInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndRenderPass2);
 }
 
@@ -4599,7 +4528,7 @@ void VulkanCppConsumer::Process_vkCmdNextSubpass2(
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pSubpassBeginInfo */
     std::stringstream stream_pSubpassBeginInfo;
@@ -4607,20 +4536,20 @@ void VulkanCppConsumer::Process_vkCmdNextSubpass2(
                                                                          pSubpassBeginInfo->GetPointer(),
                                                                          pSubpassBeginInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pSubpassBeginInfo.str().c_str());
+    fprintf(file, "%s", stream_pSubpassBeginInfo.str().c_str());
 /* pSubpassEndInfo */
     std::stringstream stream_pSubpassEndInfo;
     std::string pSubpassEndInfoStruct = GenerateStruct_VkSubpassEndInfo(stream_pSubpassEndInfo,
                                                                        pSubpassEndInfo->GetPointer(),
                                                                        pSubpassEndInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pSubpassEndInfo.str().c_str());
+    fprintf(file, "%s", stream_pSubpassEndInfo.str().c_str());
     fprintf(file,
-            "vkCmdNextSubpass2(%s, &%s, &%s);\n",
+            "\t\tvkCmdNextSubpass2(%s, &%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pSubpassBeginInfoStruct.c_str(),
             pSubpassEndInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdNextSubpass2);
 }
 
@@ -4633,7 +4562,7 @@ void VulkanCppConsumer::Process_vkCreateRenderPass2(
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -4641,7 +4570,7 @@ void VulkanCppConsumer::Process_vkCreateRenderPass2(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pRenderPass */
     std::string pRenderPassName = "pRenderPass_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_RENDER_PASS));
@@ -4651,13 +4580,13 @@ void VulkanCppConsumer::Process_vkCreateRenderPass2(
                          pRenderPass->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreateRenderPass2(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreateRenderPass2(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pRenderPassName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateRenderPass2);
 }
 
@@ -4668,7 +4597,7 @@ void VulkanCppConsumer::Process_vkGetBufferDeviceAddress(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -4676,12 +4605,12 @@ void VulkanCppConsumer::Process_vkGetBufferDeviceAddress(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     fprintf(file,
-            "vkGetBufferDeviceAddress(%s, &%s);\n",
+            "\t\tvkGetBufferDeviceAddress(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetBufferDeviceAddress);
 }
 
@@ -4692,7 +4621,7 @@ void VulkanCppConsumer::Process_vkGetBufferOpaqueCaptureAddress(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -4700,12 +4629,12 @@ void VulkanCppConsumer::Process_vkGetBufferOpaqueCaptureAddress(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     fprintf(file,
-            "vkGetBufferOpaqueCaptureAddress(%s, &%s);\n",
+            "\t\tvkGetBufferOpaqueCaptureAddress(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress);
 }
 
@@ -4716,7 +4645,7 @@ void VulkanCppConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddress(
     StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -4724,12 +4653,12 @@ void VulkanCppConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddress(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     fprintf(file,
-            "vkGetDeviceMemoryOpaqueCaptureAddress(%s, &%s);\n",
+            "\t\tvkGetDeviceMemoryOpaqueCaptureAddress(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress);
 }
 
@@ -4741,19 +4670,19 @@ void VulkanCppConsumer::Process_vkGetSemaphoreCounterValue(
     PointerDecoder<uint64_t>*                   pValue)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* semaphore */
 /* pValue */
     std::string pValueName = "pValue_" + std::to_string(this->getNextId());
-    fprintf(file, "uint64_t %s;\n", pValueName.c_str());
+    fprintf(file, "\t\tuint64_t %s;\n", pValueName.c_str());
     fprintf(file,
-            "VK_CALL_CHECK(vkGetSemaphoreCounterValue(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkGetSemaphoreCounterValue(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(semaphore).c_str(),
             pValueName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue);
 }
 
@@ -4765,18 +4694,18 @@ void VulkanCppConsumer::Process_vkResetQueryPool(
     uint32_t                                    queryCount)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* queryPool */
 /* firstQuery */
 /* queryCount */
     fprintf(file,
-            "vkResetQueryPool(%s, %s, %u, %u);\n",
+            "\t\tvkResetQueryPool(%s, %s, %u, %u);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(queryPool).c_str(),
             firstQuery,
             queryCount);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkResetQueryPool);
 }
 
@@ -4787,7 +4716,7 @@ void VulkanCppConsumer::Process_vkSignalSemaphore(
     StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pSignalInfo */
     std::stringstream stream_pSignalInfo;
@@ -4795,13 +4724,13 @@ void VulkanCppConsumer::Process_vkSignalSemaphore(
                                                                    pSignalInfo->GetPointer(),
                                                                    pSignalInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pSignalInfo.str().c_str());
+    fprintf(file, "%s", stream_pSignalInfo.str().c_str());
     fprintf(file,
-            "VK_CALL_CHECK(vkSignalSemaphore(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkSignalSemaphore(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pSignalInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSignalSemaphore);
 }
 
@@ -4813,7 +4742,7 @@ void VulkanCppConsumer::Process_vkWaitSemaphores(
     uint64_t                                    timeout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pWaitInfo */
     std::stringstream stream_pWaitInfo;
@@ -4821,25 +4750,24 @@ void VulkanCppConsumer::Process_vkWaitSemaphores(
                                                                  pWaitInfo->GetPointer(),
                                                                  pWaitInfo->GetMetaStructPointer(),
                                                                  *this);
-    fprintf(file, "\n%s", stream_pWaitInfo.str().c_str());
+    fprintf(file, "%s", stream_pWaitInfo.str().c_str());
 /* timeout */
     fprintf(file,
-            "VK_CALL_CHECK(vkWaitSemaphores(%s, &%s, %luUL), %s);\n",
+            "\t\tVK_CALL_CHECK(vkWaitSemaphores(%s, &%s, %" PRIu64 "UL), %s);\n",
             this->GetHandle(device).c_str(),
             pWaitInfoStruct.c_str(),
             timeout,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkWaitSemaphores);
 }
-
 void VulkanCppConsumer::Process_vkCmdBeginRendering(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pRenderingInfo */
     std::stringstream stream_pRenderingInfo;
@@ -4847,12 +4775,12 @@ void VulkanCppConsumer::Process_vkCmdBeginRendering(
                                                                       pRenderingInfo->GetPointer(),
                                                                       pRenderingInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pRenderingInfo.str().c_str());
+    fprintf(file, "%s", stream_pRenderingInfo.str().c_str());
     fprintf(file,
-            "vkCmdBeginRendering(%s, &%s);\n",
+            "\t\tvkCmdBeginRendering(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pRenderingInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginRendering);
 }
 
@@ -4867,7 +4795,7 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2(
     PointerDecoder<VkDeviceSize>*               pStrides)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstBinding */
 /* bindingCount */
@@ -4877,11 +4805,11 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2(
                                               pBuffers->GetPointer() + bindingCount,
                                               [&](const format::HandleId current) { return this->GetHandle(current); },
                                               ", ");
-    if (bindingCount == 1) {
+    if (bindingCount == 1 && pBuffersValues != "VK_NULL_HANDLE") {
         pBuffersArray = "&" + pBuffersValues;
     } else if (bindingCount > 1) {
         pBuffersArray = "pBuffersArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBuffer %s[] = { %s };\n", pBuffersArray.c_str(), pBuffersValues.c_str());
+        fprintf(file, "\t\tVkBuffer %s[] = { %s };\n", pBuffersArray.c_str(), pBuffersValues.c_str());
     }
 /* pOffsets */
     std::string pOffsetsArray = "pOffsets_" + std::to_string(this->getNextId());
@@ -4890,34 +4818,34 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2(
                                                   pOffsets->GetPointer() + bindingCount,
                                                   [&](const auto current) { return std::to_string(current) + "UL"; },
                                                   ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pOffsetsArray.c_str(), pOffsetsValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pOffsetsArray.c_str(), pOffsetsValues.c_str());
     } else {
         pOffsetsArray = "NULL";
     }
 /* pSizes */
     std::string pSizesArray = "pSizes_" + std::to_string(this->getNextId());
-    if (bindingCount > 0) {
+    if (bindingCount > 0 && pSizes->GetPointer() != nullptr) {
         std::string pSizesValues = toStringJoin(pSizes->GetPointer(),
                                                 pSizes->GetPointer() + bindingCount,
                                                 [&](const auto current) { return std::to_string(current) + "UL"; },
                                                 ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pSizesArray.c_str(), pSizesValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pSizesArray.c_str(), pSizesValues.c_str());
     } else {
         pSizesArray = "NULL";
     }
 /* pStrides */
     std::string pStridesArray = "pStrides_" + std::to_string(this->getNextId());
-    if (bindingCount > 0) {
+    if (bindingCount > 0 && pStrides->GetPointer() != nullptr) {
         std::string pStridesValues = toStringJoin(pStrides->GetPointer(),
                                                   pStrides->GetPointer() + bindingCount,
                                                   [&](const auto current) { return std::to_string(current) + "UL"; },
                                                   ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pStridesArray.c_str(), pStridesValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pStridesArray.c_str(), pStridesValues.c_str());
     } else {
         pStridesArray = "NULL";
     }
     fprintf(file,
-            "vkCmdBindVertexBuffers2(%s, %u, %u, %s, %s, %s, %s);\n",
+            "\t\tvkCmdBindVertexBuffers2(%s, %u, %u, %s, %s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstBinding,
             bindingCount,
@@ -4925,7 +4853,7 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2(
             pOffsetsArray.c_str(),
             pSizesArray.c_str(),
             pStridesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2);
 }
 
@@ -4935,7 +4863,7 @@ void VulkanCppConsumer::Process_vkCmdBlitImage2(
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pBlitImageInfo */
     std::stringstream stream_pBlitImageInfo;
@@ -4943,12 +4871,12 @@ void VulkanCppConsumer::Process_vkCmdBlitImage2(
                                                                       pBlitImageInfo->GetPointer(),
                                                                       pBlitImageInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pBlitImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pBlitImageInfo.str().c_str());
     fprintf(file,
-            "vkCmdBlitImage2(%s, &%s);\n",
+            "\t\tvkCmdBlitImage2(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pBlitImageInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBlitImage2);
 }
 
@@ -4958,7 +4886,7 @@ void VulkanCppConsumer::Process_vkCmdCopyBuffer2(
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCopyBufferInfo */
     std::stringstream stream_pCopyBufferInfo;
@@ -4966,12 +4894,12 @@ void VulkanCppConsumer::Process_vkCmdCopyBuffer2(
                                                                        pCopyBufferInfo->GetPointer(),
                                                                        pCopyBufferInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pCopyBufferInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyBufferInfo.str().c_str());
     fprintf(file,
-            "vkCmdCopyBuffer2(%s, &%s);\n",
+            "\t\tvkCmdCopyBuffer2(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCopyBufferInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyBuffer2);
 }
 
@@ -4981,7 +4909,7 @@ void VulkanCppConsumer::Process_vkCmdCopyBufferToImage2(
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCopyBufferToImageInfo */
     std::stringstream stream_pCopyBufferToImageInfo;
@@ -4989,12 +4917,12 @@ void VulkanCppConsumer::Process_vkCmdCopyBufferToImage2(
                                                                               pCopyBufferToImageInfo->GetPointer(),
                                                                               pCopyBufferToImageInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pCopyBufferToImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyBufferToImageInfo.str().c_str());
     fprintf(file,
-            "vkCmdCopyBufferToImage2(%s, &%s);\n",
+            "\t\tvkCmdCopyBufferToImage2(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCopyBufferToImageInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2);
 }
 
@@ -5004,7 +4932,7 @@ void VulkanCppConsumer::Process_vkCmdCopyImage2(
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCopyImageInfo */
     std::stringstream stream_pCopyImageInfo;
@@ -5012,12 +4940,12 @@ void VulkanCppConsumer::Process_vkCmdCopyImage2(
                                                                       pCopyImageInfo->GetPointer(),
                                                                       pCopyImageInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pCopyImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyImageInfo.str().c_str());
     fprintf(file,
-            "vkCmdCopyImage2(%s, &%s);\n",
+            "\t\tvkCmdCopyImage2(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCopyImageInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyImage2);
 }
 
@@ -5027,7 +4955,7 @@ void VulkanCppConsumer::Process_vkCmdCopyImageToBuffer2(
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCopyImageToBufferInfo */
     std::stringstream stream_pCopyImageToBufferInfo;
@@ -5035,12 +4963,12 @@ void VulkanCppConsumer::Process_vkCmdCopyImageToBuffer2(
                                                                               pCopyImageToBufferInfo->GetPointer(),
                                                                               pCopyImageToBufferInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pCopyImageToBufferInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyImageToBufferInfo.str().c_str());
     fprintf(file,
-            "vkCmdCopyImageToBuffer2(%s, &%s);\n",
+            "\t\tvkCmdCopyImageToBuffer2(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCopyImageToBufferInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2);
 }
 
@@ -5049,12 +4977,12 @@ void VulkanCppConsumer::Process_vkCmdEndRendering(
     format::HandleId                            commandBuffer)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
     fprintf(file,
-            "vkCmdEndRendering(%s);\n",
+            "\t\tvkCmdEndRendering(%s);\n",
             this->GetHandle(commandBuffer).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndRendering);
 }
 
@@ -5064,7 +4992,7 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier2(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pDependencyInfo */
     std::stringstream stream_pDependencyInfo;
@@ -5072,12 +5000,12 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier2(
                                                                        pDependencyInfo->GetPointer(),
                                                                        pDependencyInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pDependencyInfo.str().c_str());
+    fprintf(file, "%s", stream_pDependencyInfo.str().c_str());
     fprintf(file,
-            "vkCmdPipelineBarrier2(%s, &%s);\n",
+            "\t\tvkCmdPipelineBarrier2(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pDependencyInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPipelineBarrier2);
 }
 
@@ -5088,16 +5016,16 @@ void VulkanCppConsumer::Process_vkCmdResetEvent2(
     VkPipelineStageFlags2                       stageMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* event */
 /* stageMask */
     fprintf(file,
-            "vkCmdResetEvent2(%s, %s, %s);\n",
+            "\t\tvkCmdResetEvent2(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(event).c_str(),
             util::ToString<VkPipelineStageFlags2>(stageMask).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdResetEvent2);
 }
 
@@ -5107,7 +5035,7 @@ void VulkanCppConsumer::Process_vkCmdResolveImage2(
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pResolveImageInfo */
     std::stringstream stream_pResolveImageInfo;
@@ -5115,12 +5043,12 @@ void VulkanCppConsumer::Process_vkCmdResolveImage2(
                                                                          pResolveImageInfo->GetPointer(),
                                                                          pResolveImageInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pResolveImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pResolveImageInfo.str().c_str());
     fprintf(file,
-            "vkCmdResolveImage2(%s, &%s);\n",
+            "\t\tvkCmdResolveImage2(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pResolveImageInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdResolveImage2);
 }
 
@@ -5130,14 +5058,14 @@ void VulkanCppConsumer::Process_vkCmdSetCullMode(
     VkCullModeFlags                             cullMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* cullMode */
     fprintf(file,
-            "vkCmdSetCullMode(%s, %s);\n",
+            "\t\tvkCmdSetCullMode(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkCullModeFlags>(cullMode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCullMode);
 }
 
@@ -5147,14 +5075,14 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBiasEnable(
     VkBool32                                    depthBiasEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthBiasEnable */
     fprintf(file,
-            "vkCmdSetDepthBiasEnable(%s, %u);\n",
+            "\t\tvkCmdSetDepthBiasEnable(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthBiasEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthBiasEnable);
 }
 
@@ -5164,14 +5092,14 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBoundsTestEnable(
     VkBool32                                    depthBoundsTestEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthBoundsTestEnable */
     fprintf(file,
-            "vkCmdSetDepthBoundsTestEnable(%s, %u);\n",
+            "\t\tvkCmdSetDepthBoundsTestEnable(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthBoundsTestEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnable);
 }
 
@@ -5181,14 +5109,14 @@ void VulkanCppConsumer::Process_vkCmdSetDepthCompareOp(
     VkCompareOp                                 depthCompareOp)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthCompareOp */
     fprintf(file,
-            "vkCmdSetDepthCompareOp(%s, %s);\n",
+            "\t\tvkCmdSetDepthCompareOp(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkCompareOp>(depthCompareOp).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthCompareOp);
 }
 
@@ -5198,14 +5126,14 @@ void VulkanCppConsumer::Process_vkCmdSetDepthTestEnable(
     VkBool32                                    depthTestEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthTestEnable */
     fprintf(file,
-            "vkCmdSetDepthTestEnable(%s, %u);\n",
+            "\t\tvkCmdSetDepthTestEnable(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthTestEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthTestEnable);
 }
 
@@ -5215,14 +5143,14 @@ void VulkanCppConsumer::Process_vkCmdSetDepthWriteEnable(
     VkBool32                                    depthWriteEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthWriteEnable */
     fprintf(file,
-            "vkCmdSetDepthWriteEnable(%s, %u);\n",
+            "\t\tvkCmdSetDepthWriteEnable(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthWriteEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnable);
 }
 
@@ -5233,7 +5161,7 @@ void VulkanCppConsumer::Process_vkCmdSetEvent2(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* event */
 /* pDependencyInfo */
@@ -5242,13 +5170,13 @@ void VulkanCppConsumer::Process_vkCmdSetEvent2(
                                                                        pDependencyInfo->GetPointer(),
                                                                        pDependencyInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pDependencyInfo.str().c_str());
+    fprintf(file, "%s", stream_pDependencyInfo.str().c_str());
     fprintf(file,
-            "vkCmdSetEvent2(%s, %s, &%s);\n",
+            "\t\tvkCmdSetEvent2(%s, %s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(event).c_str(),
             pDependencyInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetEvent2);
 }
 
@@ -5258,14 +5186,14 @@ void VulkanCppConsumer::Process_vkCmdSetFrontFace(
     VkFrontFace                                 frontFace)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* frontFace */
     fprintf(file,
-            "vkCmdSetFrontFace(%s, %s);\n",
+            "\t\tvkCmdSetFrontFace(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkFrontFace>(frontFace).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetFrontFace);
 }
 
@@ -5275,14 +5203,14 @@ void VulkanCppConsumer::Process_vkCmdSetPrimitiveRestartEnable(
     VkBool32                                    primitiveRestartEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* primitiveRestartEnable */
     fprintf(file,
-            "vkCmdSetPrimitiveRestartEnable(%s, %u);\n",
+            "\t\tvkCmdSetPrimitiveRestartEnable(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             primitiveRestartEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetPrimitiveRestartEnable);
 }
 
@@ -5292,14 +5220,14 @@ void VulkanCppConsumer::Process_vkCmdSetPrimitiveTopology(
     VkPrimitiveTopology                         primitiveTopology)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* primitiveTopology */
     fprintf(file,
-            "vkCmdSetPrimitiveTopology(%s, %s);\n",
+            "\t\tvkCmdSetPrimitiveTopology(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPrimitiveTopology>(primitiveTopology).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopology);
 }
 
@@ -5309,14 +5237,14 @@ void VulkanCppConsumer::Process_vkCmdSetRasterizerDiscardEnable(
     VkBool32                                    rasterizerDiscardEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* rasterizerDiscardEnable */
     fprintf(file,
-            "vkCmdSetRasterizerDiscardEnable(%s, %u);\n",
+            "\t\tvkCmdSetRasterizerDiscardEnable(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             rasterizerDiscardEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetRasterizerDiscardEnable);
 }
 
@@ -5327,7 +5255,7 @@ void VulkanCppConsumer::Process_vkCmdSetScissorWithCount(
     StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* scissorCount */
 /* pScissors */
@@ -5338,19 +5266,21 @@ void VulkanCppConsumer::Process_vkCmdSetScissorWithCount(
                                               pScissorsPair.end(),
                                               [&](auto pair) { return GenerateStruct_VkRect2D(stream_pScissors, pair.t1, pair.t2, *this); },
                                               ", ");
-    fprintf(file, "\n%s", stream_pScissors.str().c_str());
-    if (scissorCount == 1) {
-        pScissorsArray = "&" + pScissorsNames;
-    } else if (scissorCount > 1) {
-        pScissorsArray = "pScissors_" + std::to_string(this->getNextId());
-        fprintf(file, "VkRect2D %s[] = { %s };\n", pScissorsArray.c_str(), pScissorsNames.c_str());
+    if (stream_pScissors.str().length() > 0) {
+        fprintf(file, "%s", stream_pScissors.str().c_str());
+        if (scissorCount == 1) {
+            pScissorsArray = "&" + pScissorsNames;
+        } else if (scissorCount > 1) {
+            pScissorsArray = "pScissors_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkRect2D %s[] = { %s };\n", pScissorsArray.c_str(), pScissorsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdSetScissorWithCount(%s, %u, %s);\n",
+            "\t\tvkCmdSetScissorWithCount(%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             scissorCount,
             pScissorsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetScissorWithCount);
 }
 
@@ -5364,7 +5294,7 @@ void VulkanCppConsumer::Process_vkCmdSetStencilOp(
     VkCompareOp                                 compareOp)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* faceMask */
 /* failOp */
@@ -5372,14 +5302,14 @@ void VulkanCppConsumer::Process_vkCmdSetStencilOp(
 /* depthFailOp */
 /* compareOp */
     fprintf(file,
-            "vkCmdSetStencilOp(%s, %s, %s, %s, %s, %s);\n",
+            "\t\tvkCmdSetStencilOp(%s, %s, %s, %s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkStencilFaceFlags>(faceMask).c_str(),
             util::ToString<VkStencilOp>(failOp).c_str(),
             util::ToString<VkStencilOp>(passOp).c_str(),
             util::ToString<VkStencilOp>(depthFailOp).c_str(),
             util::ToString<VkCompareOp>(compareOp).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetStencilOp);
 }
 
@@ -5389,14 +5319,14 @@ void VulkanCppConsumer::Process_vkCmdSetStencilTestEnable(
     VkBool32                                    stencilTestEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* stencilTestEnable */
     fprintf(file,
-            "vkCmdSetStencilTestEnable(%s, %u);\n",
+            "\t\tvkCmdSetStencilTestEnable(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             stencilTestEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetStencilTestEnable);
 }
 
@@ -5407,7 +5337,7 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWithCount(
     StructPointerDecoder<Decoded_VkViewport>*   pViewports)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* viewportCount */
 /* pViewports */
@@ -5418,19 +5348,21 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWithCount(
                                                pViewportsPair.end(),
                                                [&](auto pair) { return GenerateStruct_VkViewport(stream_pViewports, pair.t1, pair.t2, *this); },
                                                ", ");
-    fprintf(file, "\n%s", stream_pViewports.str().c_str());
-    if (viewportCount == 1) {
-        pViewportsArray = "&" + pViewportsNames;
-    } else if (viewportCount > 1) {
-        pViewportsArray = "pViewports_" + std::to_string(this->getNextId());
-        fprintf(file, "VkViewport %s[] = { %s };\n", pViewportsArray.c_str(), pViewportsNames.c_str());
+    if (stream_pViewports.str().length() > 0) {
+        fprintf(file, "%s", stream_pViewports.str().c_str());
+        if (viewportCount == 1) {
+            pViewportsArray = "&" + pViewportsNames;
+        } else if (viewportCount > 1) {
+            pViewportsArray = "pViewports_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkViewport %s[] = { %s };\n", pViewportsArray.c_str(), pViewportsNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdSetViewportWithCount(%s, %u, %s);\n",
+            "\t\tvkCmdSetViewportWithCount(%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             viewportCount,
             pViewportsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetViewportWithCount);
 }
 
@@ -5442,7 +5374,7 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents2(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* eventCount */
 /* pEvents */
@@ -5451,11 +5383,11 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents2(
                                              pEvents->GetPointer() + eventCount,
                                              [&](const format::HandleId current) { return this->GetHandle(current); },
                                              ", ");
-    if (eventCount == 1) {
+    if (eventCount == 1 && pEventsValues != "VK_NULL_HANDLE") {
         pEventsArray = "&" + pEventsValues;
     } else if (eventCount > 1) {
         pEventsArray = "pEventsArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkEvent %s[] = { %s };\n", pEventsArray.c_str(), pEventsValues.c_str());
+        fprintf(file, "\t\tVkEvent %s[] = { %s };\n", pEventsArray.c_str(), pEventsValues.c_str());
     }
 /* pDependencyInfos */
     std::stringstream stream_pDependencyInfos;
@@ -5465,20 +5397,22 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents2(
                                                      pDependencyInfosPair.end(),
                                                      [&](auto pair) { return GenerateStruct_VkDependencyInfo(stream_pDependencyInfos, pair.t1, pair.t2, *this); },
                                                      ", ");
-    fprintf(file, "\n%s", stream_pDependencyInfos.str().c_str());
-    if (eventCount == 1) {
-        pDependencyInfosArray = "&" + pDependencyInfosNames;
-    } else if (eventCount > 1) {
-        pDependencyInfosArray = "pDependencyInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkDependencyInfo %s[] = { %s };\n", pDependencyInfosArray.c_str(), pDependencyInfosNames.c_str());
+    if (stream_pDependencyInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pDependencyInfos.str().c_str());
+        if (eventCount == 1) {
+            pDependencyInfosArray = "&" + pDependencyInfosNames;
+        } else if (eventCount > 1) {
+            pDependencyInfosArray = "pDependencyInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkDependencyInfo %s[] = { %s };\n", pDependencyInfosArray.c_str(), pDependencyInfosNames.c_str());
+        }
     }
     fprintf(file,
-            "vkCmdWaitEvents2(%s, %u, %s, %s);\n",
+            "\t\tvkCmdWaitEvents2(%s, %u, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             eventCount,
             pEventsArray.c_str(),
             pDependencyInfosArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWaitEvents2);
 }
 
@@ -5490,18 +5424,18 @@ void VulkanCppConsumer::Process_vkCmdWriteTimestamp2(
     uint32_t                                    query)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* stage */
 /* queryPool */
 /* query */
     fprintf(file,
-            "vkCmdWriteTimestamp2(%s, %s, %s, %u);\n",
+            "\t\tvkCmdWriteTimestamp2(%s, %s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineStageFlags2>(stage).c_str(),
             this->GetHandle(queryPool).c_str(),
             query);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWriteTimestamp2);
 }
 
@@ -5514,7 +5448,7 @@ void VulkanCppConsumer::Process_vkCreatePrivateDataSlot(
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -5522,7 +5456,7 @@ void VulkanCppConsumer::Process_vkCreatePrivateDataSlot(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pPrivateDataSlot */
     std::string pPrivateDataSlotName = "pPrivateDataSlot_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_PRIVATE_DATA_SLOT));
@@ -5532,13 +5466,13 @@ void VulkanCppConsumer::Process_vkCreatePrivateDataSlot(
                          pPrivateDataSlot->GetPointer());
     }
     fprintf(file,
-            "VK_CALL_CHECK(vkCreatePrivateDataSlot(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkCreatePrivateDataSlot(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pPrivateDataSlotName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreatePrivateDataSlot);
 }
 
@@ -5549,16 +5483,16 @@ void VulkanCppConsumer::Process_vkDestroyPrivateDataSlot(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* privateDataSlot */
 /* pAllocator */
     fprintf(file,
-            "vkDestroyPrivateDataSlot(%s, %s, %s);\n",
+            "\t\tvkDestroyPrivateDataSlot(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(privateDataSlot).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyPrivateDataSlot);
 }
 
@@ -5569,7 +5503,7 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirements(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -5577,7 +5511,7 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirements(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pMemoryRequirements */
     std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pMemoryRequirements;
@@ -5585,13 +5519,13 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirements(
                                                              pMemoryRequirements->GetPointer(),
                                                              pMemoryRequirements->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pMemoryRequirements.str().c_str());
     fprintf(file,
-            "vkGetDeviceBufferMemoryRequirements(%s, &%s, &%s);\n",
+            "\t\tvkGetDeviceBufferMemoryRequirements(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirements);
 }
 
@@ -5602,7 +5536,7 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirements(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -5610,7 +5544,7 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirements(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pMemoryRequirements */
     std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pMemoryRequirements;
@@ -5618,13 +5552,13 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirements(
                                                              pMemoryRequirements->GetPointer(),
                                                              pMemoryRequirements->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pMemoryRequirements.str().c_str());
     fprintf(file,
-            "vkGetDeviceImageMemoryRequirements(%s, &%s, &%s);\n",
+            "\t\tvkGetDeviceImageMemoryRequirements(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceImageMemoryRequirements);
 }
 
@@ -5636,7 +5570,7 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirements(
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -5644,10 +5578,10 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirements(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pSparseMemoryRequirementCount */
     std::string pSparseMemoryRequirementCountName = "pSparseMemoryRequirementCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pSparseMemoryRequirementCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pSparseMemoryRequirementCountName.c_str());
 /* pSparseMemoryRequirements */
     std::string pSparseMemoryRequirementsName = "pSparseMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pSparseMemoryRequirements;
@@ -5655,14 +5589,14 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirements(
                                                                    pSparseMemoryRequirements->GetPointer(),
                                                                    pSparseMemoryRequirements->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pSparseMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pSparseMemoryRequirements.str().c_str());
     fprintf(file,
-            "vkGetDeviceImageSparseMemoryRequirements(%s, &%s, &%s, &%s);\n",
+            "\t\tvkGetDeviceImageSparseMemoryRequirements(%s, &%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pSparseMemoryRequirementCountName.c_str(),
             pSparseMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirements);
 }
 
@@ -5674,11 +5608,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceToolProperties(
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pToolCount */
     std::string pToolCountName = "pToolCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pToolCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pToolCountName.c_str());
 /* pToolProperties */
     std::string pToolPropertiesName = "pToolProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pToolProperties;
@@ -5686,14 +5620,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceToolProperties(
                                                          pToolProperties->GetPointer(),
                                                          pToolProperties->GetMetaStructPointer(),
                                                          *this);
-    fprintf(file, "\n%s", stream_pToolProperties.str().c_str());
+    fprintf(file, "%s", stream_pToolProperties.str().c_str());
     fprintf(file,
-            "VK_CALL_CHECK(vkGetPhysicalDeviceToolProperties(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkGetPhysicalDeviceToolProperties(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pToolCountName.c_str(),
             pToolPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolProperties);
 }
 
@@ -5706,22 +5640,22 @@ void VulkanCppConsumer::Process_vkGetPrivateData(
     PointerDecoder<uint64_t>*                   pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* objectType */
 /* objectHandle */
 /* privateDataSlot */
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint64_t %s;\n", pDataName.c_str());
+    fprintf(file, "\t\tuint64_t %s;\n", pDataName.c_str());
     fprintf(file,
-            "vkGetPrivateData(%s, %s, %luUL, %s, &%s);\n",
+            "\t\tvkGetPrivateData(%s, %s, %" PRIu64 "UL, %s, &%s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkObjectType>(objectType).c_str(),
             objectHandle,
             this->GetHandle(privateDataSlot).c_str(),
             pDataName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPrivateData);
 }
 
@@ -5734,7 +5668,7 @@ void VulkanCppConsumer::Process_vkQueueSubmit2(
     format::HandleId                            fence)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* submitCount */
 /* pSubmits */
@@ -5745,22 +5679,24 @@ void VulkanCppConsumer::Process_vkQueueSubmit2(
                                              pSubmitsPair.end(),
                                              [&](auto pair) { return GenerateStruct_VkSubmitInfo2(stream_pSubmits, pair.t1, pair.t2, *this); },
                                              ", ");
-    fprintf(file, "\n%s", stream_pSubmits.str().c_str());
-    if (submitCount == 1) {
-        pSubmitsArray = "&" + pSubmitsNames;
-    } else if (submitCount > 1) {
-        pSubmitsArray = "pSubmits_" + std::to_string(this->getNextId());
-        fprintf(file, "VkSubmitInfo2 %s[] = { %s };\n", pSubmitsArray.c_str(), pSubmitsNames.c_str());
+    if (stream_pSubmits.str().length() > 0) {
+        fprintf(file, "%s", stream_pSubmits.str().c_str());
+        if (submitCount == 1) {
+            pSubmitsArray = "&" + pSubmitsNames;
+        } else if (submitCount > 1) {
+            pSubmitsArray = "pSubmits_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkSubmitInfo2 %s[] = { %s };\n", pSubmitsArray.c_str(), pSubmitsNames.c_str());
+        }
     }
 /* fence */
     fprintf(file,
-            "VK_CALL_CHECK(vkQueueSubmit2(%s, %u, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkQueueSubmit2(%s, %u, %s, %s), %s);\n",
             this->GetHandle(queue).c_str(),
             submitCount,
             pSubmitsArray.c_str(),
             this->GetHandle(fence).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSubmit2);
 }
 
@@ -5774,24 +5710,23 @@ void VulkanCppConsumer::Process_vkSetPrivateData(
     uint64_t                                    data)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* objectType */
 /* objectHandle */
 /* privateDataSlot */
 /* data */
     fprintf(file,
-            "VK_CALL_CHECK(vkSetPrivateData(%s, %s, %luUL, %s, %luUL), %s);\n",
+            "\t\tVK_CALL_CHECK(vkSetPrivateData(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkObjectType>(objectType).c_str(),
             objectHandle,
             this->GetHandle(privateDataSlot).c_str(),
             data,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSetPrivateData);
 }
-
 void VulkanCppConsumer::Process_vkDestroySurfaceKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            instance,
@@ -5799,17 +5734,17 @@ void VulkanCppConsumer::Process_vkDestroySurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* surface */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroySurfaceKHR");
     fprintf(file,
-            "loaded_vkDestroySurfaceKHR(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroySurfaceKHR(%s, %s, %s);\n",
             this->GetHandle(instance).c_str(),
             this->GetHandle(surface).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroySurfaceKHR);
 }
 
@@ -5821,20 +5756,20 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
     StructPointerDecoder<Decoded_VkSurfaceCapabilitiesKHR>* pSurfaceCapabilities)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* surface */
 /* pSurfaceCapabilities */
     std::string pSurfaceCapabilitiesName = "pSurfaceCapabilities_" + std::to_string(this->getNextId());
-    fprintf(file, "VkSurfaceCapabilitiesKHR %s;\n", pSurfaceCapabilitiesName.c_str());
+    fprintf(file, "\t\tVkSurfaceCapabilitiesKHR %s;\n", pSurfaceCapabilitiesName.c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(%s, %s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(surface).c_str(),
             pSurfaceCapabilitiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
 }
 
@@ -5871,25 +5806,24 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceSupportKHR(
     PointerDecoder<VkBool32>*                   pSupported)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* queueFamilyIndex */
 /* surface */
 /* pSupported */
     std::string pSupportedName = "pSupported_" + std::to_string(this->getNextId());
-    fprintf(file, "VkBool32 %s;\n", pSupportedName.c_str());
+    fprintf(file, "\t\tVkBool32 %s;\n", pSupportedName.c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceSurfaceSupportKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceSupportKHR(%s, %u, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceSupportKHR(%s, %u, %s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex,
             this->GetHandle(surface).c_str(),
             pSupportedName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR);
 }
-
 void VulkanCppConsumer::Process_vkAcquireNextImage2KHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -5925,7 +5859,7 @@ void VulkanCppConsumer::Process_vkCreateSwapchainKHR(
 {
     Intercept_vkCreateSwapchainKHR(returnValue, device, pCreateInfo, pAllocator, pSwapchain);
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -5933,7 +5867,7 @@ void VulkanCppConsumer::Process_vkCreateSwapchainKHR(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSwapchain */
     std::string pSwapchainName = "pSwapchain_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SWAPCHAIN_KHR));
@@ -5944,13 +5878,13 @@ void VulkanCppConsumer::Process_vkCreateSwapchainKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateSwapchainKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateSwapchainKHR(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateSwapchainKHR(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSwapchainName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateSwapchainKHR);
 }
 
@@ -5961,17 +5895,17 @@ void VulkanCppConsumer::Process_vkDestroySwapchainKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchain */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroySwapchainKHR");
     fprintf(file,
-            "loaded_vkDestroySwapchainKHR(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroySwapchainKHR(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroySwapchainKHR);
 }
 
@@ -5982,7 +5916,7 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPresentCapabilitiesKHR(
     StructPointerDecoder<Decoded_VkDeviceGroupPresentCapabilitiesKHR>* pDeviceGroupPresentCapabilities)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pDeviceGroupPresentCapabilities */
     std::string pDeviceGroupPresentCapabilitiesName = "pDeviceGroupPresentCapabilities_" + std::to_string(this->getNextId());
@@ -5991,14 +5925,14 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPresentCapabilitiesKHR(
                                                                          pDeviceGroupPresentCapabilities->GetPointer(),
                                                                          pDeviceGroupPresentCapabilities->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pDeviceGroupPresentCapabilities.str().c_str());
+    fprintf(file, "%s", stream_pDeviceGroupPresentCapabilities.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceGroupPresentCapabilitiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDeviceGroupPresentCapabilitiesKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceGroupPresentCapabilitiesKHR(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pDeviceGroupPresentCapabilitiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR);
 }
 
@@ -6010,20 +5944,20 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupSurfacePresentModesKHR(
     PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>* pModes)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* surface */
 /* pModes */
     std::string pModesName = "pModes_" + std::to_string(this->getNextId());
-    fprintf(file, "VkDeviceGroupPresentModeFlagsKHR %s;\n", pModesName.c_str());
+    fprintf(file, "\t\tVkDeviceGroupPresentModeFlagsKHR %s;\n", pModesName.c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceGroupSurfacePresentModesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDeviceGroupSurfacePresentModesKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceGroupSurfacePresentModesKHR(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(surface).c_str(),
             pModesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR);
 }
 
@@ -6036,25 +5970,25 @@ void VulkanCppConsumer::Process_vkGetPhysicalDevicePresentRectanglesKHR(
     StructPointerDecoder<Decoded_VkRect2D>*     pRects)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* surface */
 /* pRectCount */
     std::string pRectCountName = "pRectCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pRectCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pRectCountName.c_str());
 /* pRects */
     std::string pRectsName = "pRects_" + std::to_string(this->getNextId());
     const uint32_t* in_pRectCount = pRectCount->GetPointer();
-    fprintf(file, "VkRect2D %s[%d];\n", pRectsName.c_str(), *in_pRectCount);
+    fprintf(file, "\t\tVkRect2D %s[%d];\n", pRectsName.c_str(), *in_pRectCount);
     m_pfnLoader.AddMethodName("vkGetPhysicalDevicePresentRectanglesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDevicePresentRectanglesKHR(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDevicePresentRectanglesKHR(%s, %s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(surface).c_str(),
             pRectCountName.c_str(),
             pRectsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR);
 }
 
@@ -6077,7 +6011,7 @@ void VulkanCppConsumer::Process_vkQueuePresentKHR(
     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* pPresentInfo */
     std::stringstream stream_pPresentInfo;
@@ -6085,17 +6019,16 @@ void VulkanCppConsumer::Process_vkQueuePresentKHR(
                                                                     pPresentInfo->GetPointer(),
                                                                     pPresentInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pPresentInfo.str().c_str());
+    fprintf(file, "%s", stream_pPresentInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkQueuePresentKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkQueuePresentKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkQueuePresentKHR(%s, &%s), %s);\n",
             this->GetHandle(queue).c_str(),
             pPresentInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueuePresentKHR);
 }
-
 void VulkanCppConsumer::Process_vkCreateDisplayModeKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -6106,7 +6039,7 @@ void VulkanCppConsumer::Process_vkCreateDisplayModeKHR(
     HandlePointerDecoder<VkDisplayModeKHR>*     pMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* display */
 /* pCreateInfo */
@@ -6115,7 +6048,7 @@ void VulkanCppConsumer::Process_vkCreateDisplayModeKHR(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pMode */
     std::string pModeName = "pMode_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_DISPLAY_MODE_KHR));
@@ -6126,14 +6059,14 @@ void VulkanCppConsumer::Process_vkCreateDisplayModeKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateDisplayModeKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateDisplayModeKHR(%s, %s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateDisplayModeKHR(%s, %s, &%s, %s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(display).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pModeName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDisplayModeKHR);
 }
 
@@ -6146,7 +6079,7 @@ void VulkanCppConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -6154,7 +6087,7 @@ void VulkanCppConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSurface */
     std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
@@ -6165,13 +6098,13 @@ void VulkanCppConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateDisplayPlaneSurfaceKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateDisplayPlaneSurfaceKHR(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateDisplayPlaneSurfaceKHR(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSurfaceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR);
 }
 
@@ -6184,25 +6117,25 @@ void VulkanCppConsumer::Process_vkGetDisplayModePropertiesKHR(
     StructPointerDecoder<Decoded_VkDisplayModePropertiesKHR>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* display */
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     const uint32_t* in_pPropertyCount = pPropertyCount->GetPointer();
-    fprintf(file, "VkDisplayModePropertiesKHR %s[%d];\n", pPropertiesName.c_str(), *in_pPropertyCount);
+    fprintf(file, "\t\tVkDisplayModePropertiesKHR %s[%d];\n", pPropertiesName.c_str(), *in_pPropertyCount);
     m_pfnLoader.AddMethodName("vkGetDisplayModePropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDisplayModePropertiesKHR(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayModePropertiesKHR(%s, %s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(display).c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR);
 }
 
@@ -6215,22 +6148,22 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneCapabilitiesKHR(
     StructPointerDecoder<Decoded_VkDisplayPlaneCapabilitiesKHR>* pCapabilities)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* mode */
 /* planeIndex */
 /* pCapabilities */
     std::string pCapabilitiesName = "pCapabilities_" + std::to_string(this->getNextId());
-    fprintf(file, "VkDisplayPlaneCapabilitiesKHR %s;\n", pCapabilitiesName.c_str());
+    fprintf(file, "\t\tVkDisplayPlaneCapabilitiesKHR %s;\n", pCapabilitiesName.c_str());
     m_pfnLoader.AddMethodName("vkGetDisplayPlaneCapabilitiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDisplayPlaneCapabilitiesKHR(%s, %s, %u, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayPlaneCapabilitiesKHR(%s, %s, %u, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(mode).c_str(),
             planeIndex,
             pCapabilitiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR);
 }
 
@@ -6243,12 +6176,12 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
     HandlePointerDecoder<VkDisplayKHR>*         pDisplays)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* planeIndex */
 /* pDisplayCount */
     std::string pDisplayCountName = "pDisplayCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pDisplayCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pDisplayCountName.c_str());
 /* pDisplays */
     std::string pDisplaysName = "pDisplays_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_DISPLAY_KHR));
     AddKnownVariables("VkDisplayKHR", pDisplaysName, pDisplays->GetPointer(), *pDisplayCount->GetPointer());
@@ -6258,13 +6191,13 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
     }
     m_pfnLoader.AddMethodName("vkGetDisplayPlaneSupportedDisplaysKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDisplayPlaneSupportedDisplaysKHR(%s, %u, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayPlaneSupportedDisplaysKHR(%s, %u, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             planeIndex,
             pDisplayCountName.c_str(),
             pDisplaysName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR);
 }
 
@@ -6276,23 +6209,23 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
     StructPointerDecoder<Decoded_VkDisplayPlanePropertiesKHR>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     const uint32_t* in_pPropertyCount = pPropertyCount->GetPointer();
-    fprintf(file, "VkDisplayPlanePropertiesKHR %s[%d];\n", pPropertiesName.c_str(), *in_pPropertyCount);
+    fprintf(file, "\t\tVkDisplayPlanePropertiesKHR %s[%d];\n", pPropertiesName.c_str(), *in_pPropertyCount);
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceDisplayPlanePropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR);
 }
 
@@ -6304,26 +6237,25 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPropertiesKHR(
     StructPointerDecoder<Decoded_VkDisplayPropertiesKHR>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     const uint32_t* in_pPropertyCount = pPropertyCount->GetPointer();
-    fprintf(file, "VkDisplayPropertiesKHR %s[%d];\n", pPropertiesName.c_str(), *in_pPropertyCount);
+    fprintf(file, "\t\tVkDisplayPropertiesKHR %s[%d];\n", pPropertiesName.c_str(), *in_pPropertyCount);
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceDisplayPropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPropertiesKHR(%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPropertiesKHR(%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR);
 }
-
 void VulkanCppConsumer::Process_vkCreateSharedSwapchainsKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -6334,7 +6266,7 @@ void VulkanCppConsumer::Process_vkCreateSharedSwapchainsKHR(
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchainCount */
 /* pCreateInfos */
@@ -6345,12 +6277,14 @@ void VulkanCppConsumer::Process_vkCreateSharedSwapchainsKHR(
                                                  pCreateInfosPair.end(),
                                                  [&](auto pair) { return GenerateStruct_VkSwapchainCreateInfoKHR(stream_pCreateInfos, pair.t1, pair.t2, *this); },
                                                  ", ");
-    fprintf(file, "\n%s", stream_pCreateInfos.str().c_str());
-    if (swapchainCount == 1) {
-        pCreateInfosArray = "&" + pCreateInfosNames;
-    } else if (swapchainCount > 1) {
-        pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkSwapchainCreateInfoKHR %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
+    if (stream_pCreateInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pCreateInfos.str().c_str());
+        if (swapchainCount == 1) {
+            pCreateInfosArray = "&" + pCreateInfosNames;
+        } else if (swapchainCount > 1) {
+            pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkSwapchainCreateInfoKHR %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
+        }
     }
 /* pAllocator */
 /* pSwapchains */
@@ -6362,17 +6296,16 @@ void VulkanCppConsumer::Process_vkCreateSharedSwapchainsKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateSharedSwapchainsKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateSharedSwapchainsKHR(%s, %u, %s, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateSharedSwapchainsKHR(%s, %u, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             swapchainCount,
             pCreateInfosArray.c_str(),
             "nullptr",
             pSwapchainsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR);
 }
-
 void VulkanCppConsumer::Process_vkCreateXlibSurfaceKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -6381,33 +6314,7 @@ void VulkanCppConsumer::Process_vkCreateXlibSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
-/* instance */
-/* pCreateInfo */
-    std::stringstream stream_pCreateInfo;
-    std::string pCreateInfoStruct = GenerateStruct_VkXlibSurfaceCreateInfoKHR(stream_pCreateInfo,
-                                                                   pCreateInfo->GetPointer(),
-                                                                   pCreateInfo->GetMetaStructPointer(),
-                                                                   *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
-/* pAllocator */
-/* pSurface */
-    std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
-    AddKnownVariables("VkSurfaceKHR", pSurfaceName, pSurface->GetPointer());
-    if (returnValue == VK_SUCCESS) {
-        this->AddHandles(pSurfaceName,
-                         pSurface->GetPointer());
-    }
-    m_pfnLoader.AddMethodName("vkCreateXlibSurfaceKHR");
-    fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateXlibSurfaceKHR(%s, &%s, %s, &%s), %s);\n",
-            this->GetHandle(instance).c_str(),
-            pCreateInfoStruct.c_str(),
-            "nullptr",
-            pSurfaceName.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    Generate_vkCreateXlibSurfaceKHR(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR);
 }
 
@@ -6420,24 +6327,23 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(
     size_t                                      visualID)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* queueFamilyIndex */
 /* dpy */
     std::string dpyName = "dpy_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", dpyName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", dpyName.c_str());
 /* visualID */
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceXlibPresentationSupportKHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceXlibPresentationSupportKHR(%s, %u, %s, %lu);\n",
+            "\t\tloaded_vkGetPhysicalDeviceXlibPresentationSupportKHR(%s, %u, %s, %" PRId64 ");\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex,
             dpyName.c_str(),
             visualID);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR);
 }
-
 void VulkanCppConsumer::Process_vkCreateXcbSurfaceKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -6459,24 +6365,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
     uint32_t                                    visual_id)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
-/* physicalDevice */
-/* queueFamilyIndex */
-/* connection */
-    std::string connectionName = "connection_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", connectionName.c_str());
-/* visual_id */
-    m_pfnLoader.AddMethodName("vkGetPhysicalDeviceXcbPresentationSupportKHR");
-    fprintf(file,
-            "loaded_vkGetPhysicalDeviceXcbPresentationSupportKHR(%s, %u, %s, %u);\n",
-            this->GetHandle(physicalDevice).c_str(),
-            queueFamilyIndex,
-            connectionName.c_str(),
-            visual_id);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t{\n");
+    fprintf(file, "// TODO: Support vkGetPhysicalDeviceXcbPresentationSupportKHR function.\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR);
 }
-
 void VulkanCppConsumer::Process_vkCreateWaylandSurfaceKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -6497,22 +6390,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupportKHR
     uint64_t                                    display)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* queueFamilyIndex */
 /* display */
     std::string displayName = "display_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", displayName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", displayName.c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceWaylandPresentationSupportKHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceWaylandPresentationSupportKHR(%s, %u, %s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceWaylandPresentationSupportKHR(%s, %u, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex,
             displayName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR);
 }
-
 void VulkanCppConsumer::Process_vkCreateAndroidSurfaceKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -6524,7 +6416,6 @@ void VulkanCppConsumer::Process_vkCreateAndroidSurfaceKHR(
     Generate_vkCreateAndroidSurfaceKHR(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR);
 }
-
 void VulkanCppConsumer::Process_vkCreateWin32SurfaceKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -6533,33 +6424,7 @@ void VulkanCppConsumer::Process_vkCreateWin32SurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
-/* instance */
-/* pCreateInfo */
-    std::stringstream stream_pCreateInfo;
-    std::string pCreateInfoStruct = GenerateStruct_VkWin32SurfaceCreateInfoKHR(stream_pCreateInfo,
-                                                                   pCreateInfo->GetPointer(),
-                                                                   pCreateInfo->GetMetaStructPointer(),
-                                                                   *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
-/* pAllocator */
-/* pSurface */
-    std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
-    AddKnownVariables("VkSurfaceKHR", pSurfaceName, pSurface->GetPointer());
-    if (returnValue == VK_SUCCESS) {
-        this->AddHandles(pSurfaceName,
-                         pSurface->GetPointer());
-    }
-    m_pfnLoader.AddMethodName("vkCreateWin32SurfaceKHR");
-    fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateWin32SurfaceKHR(%s, &%s, %s, &%s), %s);\n",
-            this->GetHandle(instance).c_str(),
-            pCreateInfoStruct.c_str(),
-            "nullptr",
-            pSurfaceName.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    Generate_vkCreateWin32SurfaceKHR(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR);
 }
 
@@ -6570,19 +6435,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKHR(
     uint32_t                                    queueFamilyIndex)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* queueFamilyIndex */
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceWin32PresentationSupportKHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceWin32PresentationSupportKHR(%s, %u);\n",
+            "\t\tloaded_vkGetPhysicalDeviceWin32PresentationSupportKHR(%s, %u);\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkBindVideoSessionMemoryKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -6592,7 +6455,7 @@ void VulkanCppConsumer::Process_vkBindVideoSessionMemoryKHR(
     StructPointerDecoder<Decoded_VkBindVideoSessionMemoryInfoKHR>* pBindSessionMemoryInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* videoSession */
 /* bindSessionMemoryInfoCount */
@@ -6604,22 +6467,24 @@ void VulkanCppConsumer::Process_vkBindVideoSessionMemoryKHR(
                                                             pBindSessionMemoryInfosPair.end(),
                                                             [&](auto pair) { return GenerateStruct_VkBindVideoSessionMemoryInfoKHR(stream_pBindSessionMemoryInfos, pair.t1, pair.t2, *this); },
                                                             ", ");
-    fprintf(file, "\n%s", stream_pBindSessionMemoryInfos.str().c_str());
-    if (bindSessionMemoryInfoCount == 1) {
-        pBindSessionMemoryInfosArray = "&" + pBindSessionMemoryInfosNames;
-    } else if (bindSessionMemoryInfoCount > 1) {
-        pBindSessionMemoryInfosArray = "pBindSessionMemoryInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBindVideoSessionMemoryInfoKHR %s[] = { %s };\n", pBindSessionMemoryInfosArray.c_str(), pBindSessionMemoryInfosNames.c_str());
+    if (stream_pBindSessionMemoryInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pBindSessionMemoryInfos.str().c_str());
+        if (bindSessionMemoryInfoCount == 1) {
+            pBindSessionMemoryInfosArray = "&" + pBindSessionMemoryInfosNames;
+        } else if (bindSessionMemoryInfoCount > 1) {
+            pBindSessionMemoryInfosArray = "pBindSessionMemoryInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBindVideoSessionMemoryInfoKHR %s[] = { %s };\n", pBindSessionMemoryInfosArray.c_str(), pBindSessionMemoryInfosNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkBindVideoSessionMemoryKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkBindVideoSessionMemoryKHR(%s, %s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkBindVideoSessionMemoryKHR(%s, %s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(videoSession).c_str(),
             bindSessionMemoryInfoCount,
             pBindSessionMemoryInfosArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBindVideoSessionMemoryKHR);
 }
 
@@ -6629,7 +6494,7 @@ void VulkanCppConsumer::Process_vkCmdBeginVideoCodingKHR(
     StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pBeginInfo */
     std::stringstream stream_pBeginInfo;
@@ -6637,13 +6502,13 @@ void VulkanCppConsumer::Process_vkCmdBeginVideoCodingKHR(
                                                                   pBeginInfo->GetPointer(),
                                                                   pBeginInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pBeginInfo.str().c_str());
+    fprintf(file, "%s", stream_pBeginInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdBeginVideoCodingKHR");
     fprintf(file,
-            "loaded_vkCmdBeginVideoCodingKHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdBeginVideoCodingKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pBeginInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginVideoCodingKHR);
 }
 
@@ -6653,7 +6518,7 @@ void VulkanCppConsumer::Process_vkCmdControlVideoCodingKHR(
     StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR>* pCodingControlInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCodingControlInfo */
     std::stringstream stream_pCodingControlInfo;
@@ -6661,13 +6526,13 @@ void VulkanCppConsumer::Process_vkCmdControlVideoCodingKHR(
                                                                           pCodingControlInfo->GetPointer(),
                                                                           pCodingControlInfo->GetMetaStructPointer(),
                                                                           *this);
-    fprintf(file, "\n%s", stream_pCodingControlInfo.str().c_str());
+    fprintf(file, "%s", stream_pCodingControlInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdControlVideoCodingKHR");
     fprintf(file,
-            "loaded_vkCmdControlVideoCodingKHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdControlVideoCodingKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCodingControlInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdControlVideoCodingKHR);
 }
 
@@ -6677,7 +6542,7 @@ void VulkanCppConsumer::Process_vkCmdEndVideoCodingKHR(
     StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR>* pEndCodingInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pEndCodingInfo */
     std::stringstream stream_pEndCodingInfo;
@@ -6685,13 +6550,13 @@ void VulkanCppConsumer::Process_vkCmdEndVideoCodingKHR(
                                                                       pEndCodingInfo->GetPointer(),
                                                                       pEndCodingInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pEndCodingInfo.str().c_str());
+    fprintf(file, "%s", stream_pEndCodingInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdEndVideoCodingKHR");
     fprintf(file,
-            "loaded_vkCmdEndVideoCodingKHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdEndVideoCodingKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pEndCodingInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndVideoCodingKHR);
 }
 
@@ -6704,7 +6569,7 @@ void VulkanCppConsumer::Process_vkCreateVideoSessionKHR(
     HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -6712,7 +6577,7 @@ void VulkanCppConsumer::Process_vkCreateVideoSessionKHR(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pVideoSession */
     std::string pVideoSessionName = "pVideoSession_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_VIDEO_SESSION_KHR));
@@ -6723,13 +6588,13 @@ void VulkanCppConsumer::Process_vkCreateVideoSessionKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateVideoSessionKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateVideoSessionKHR(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateVideoSessionKHR(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pVideoSessionName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateVideoSessionKHR);
 }
 
@@ -6742,7 +6607,7 @@ void VulkanCppConsumer::Process_vkCreateVideoSessionParametersKHR(
     HandlePointerDecoder<VkVideoSessionParametersKHR>* pVideoSessionParameters)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -6750,7 +6615,7 @@ void VulkanCppConsumer::Process_vkCreateVideoSessionParametersKHR(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pVideoSessionParameters */
     std::string pVideoSessionParametersName = "pVideoSessionParameters_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR));
@@ -6761,13 +6626,13 @@ void VulkanCppConsumer::Process_vkCreateVideoSessionParametersKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateVideoSessionParametersKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateVideoSessionParametersKHR(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateVideoSessionParametersKHR(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pVideoSessionParametersName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateVideoSessionParametersKHR);
 }
 
@@ -6778,17 +6643,17 @@ void VulkanCppConsumer::Process_vkDestroyVideoSessionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* videoSession */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyVideoSessionKHR");
     fprintf(file,
-            "loaded_vkDestroyVideoSessionKHR(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyVideoSessionKHR(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(videoSession).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyVideoSessionKHR);
 }
 
@@ -6799,17 +6664,17 @@ void VulkanCppConsumer::Process_vkDestroyVideoSessionParametersKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* videoSessionParameters */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyVideoSessionParametersKHR");
     fprintf(file,
-            "loaded_vkDestroyVideoSessionParametersKHR(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyVideoSessionParametersKHR(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(videoSessionParameters).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyVideoSessionParametersKHR);
 }
 
@@ -6821,7 +6686,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
     StructPointerDecoder<Decoded_VkVideoCapabilitiesKHR>* pCapabilities)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pVideoProfile */
     std::stringstream stream_pVideoProfile;
@@ -6829,7 +6694,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
                                                                      pVideoProfile->GetPointer(),
                                                                      pVideoProfile->GetMetaStructPointer(),
                                                                      *this);
-    fprintf(file, "\n%s", stream_pVideoProfile.str().c_str());
+    fprintf(file, "%s", stream_pVideoProfile.str().c_str());
 /* pCapabilities */
     std::string pCapabilitiesName = "pCapabilities_" + std::to_string(this->getNextId());
     std::stringstream stream_pCapabilities;
@@ -6837,15 +6702,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
                                                        pCapabilities->GetPointer(),
                                                        pCapabilities->GetMetaStructPointer(),
                                                        *this);
-    fprintf(file, "\n%s", stream_pCapabilities.str().c_str());
+    fprintf(file, "%s", stream_pCapabilities.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceVideoCapabilitiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoCapabilitiesKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoCapabilitiesKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pVideoProfileStruct.c_str(),
             pCapabilitiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceVideoCapabilitiesKHR);
 }
 
@@ -6858,7 +6723,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
     StructPointerDecoder<Decoded_VkVideoFormatPropertiesKHR>* pVideoFormatProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pVideoFormatInfo */
     std::stringstream stream_pVideoFormatInfo;
@@ -6866,10 +6731,10 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
                                                                         pVideoFormatInfo->GetPointer(),
                                                                         pVideoFormatInfo->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pVideoFormatInfo.str().c_str());
+    fprintf(file, "%s", stream_pVideoFormatInfo.str().c_str());
 /* pVideoFormatPropertyCount */
     std::string pVideoFormatPropertyCountName = "pVideoFormatPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pVideoFormatPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pVideoFormatPropertyCountName.c_str());
 /* pVideoFormatProperties */
     std::string pVideoFormatPropertiesName = "pVideoFormatProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pVideoFormatProperties;
@@ -6877,16 +6742,16 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
                                                                 pVideoFormatProperties->GetPointer(),
                                                                 pVideoFormatProperties->GetMetaStructPointer(),
                                                                 *this);
-    fprintf(file, "\n%s", stream_pVideoFormatProperties.str().c_str());
+    fprintf(file, "%s", stream_pVideoFormatProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceVideoFormatPropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoFormatPropertiesKHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoFormatPropertiesKHR(%s, &%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pVideoFormatInfoStruct.c_str(),
             pVideoFormatPropertyCountName.c_str(),
             pVideoFormatPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceVideoFormatPropertiesKHR);
 }
 
@@ -6899,12 +6764,12 @@ void VulkanCppConsumer::Process_vkGetVideoSessionMemoryRequirementsKHR(
     StructPointerDecoder<Decoded_VkVideoSessionMemoryRequirementsKHR>* pMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* videoSession */
 /* pMemoryRequirementsCount */
     std::string pMemoryRequirementsCountName = "pMemoryRequirementsCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pMemoryRequirementsCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pMemoryRequirementsCountName.c_str());
 /* pMemoryRequirements */
     std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pMemoryRequirements;
@@ -6912,16 +6777,16 @@ void VulkanCppConsumer::Process_vkGetVideoSessionMemoryRequirementsKHR(
                                                              pMemoryRequirements->GetPointer(),
                                                              pMemoryRequirements->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pMemoryRequirements.str().c_str());
     m_pfnLoader.AddMethodName("vkGetVideoSessionMemoryRequirementsKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetVideoSessionMemoryRequirementsKHR(%s, %s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetVideoSessionMemoryRequirementsKHR(%s, %s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(videoSession).c_str(),
             pMemoryRequirementsCountName.c_str(),
             pMemoryRequirementsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetVideoSessionMemoryRequirementsKHR);
 }
 
@@ -6933,7 +6798,7 @@ void VulkanCppConsumer::Process_vkUpdateVideoSessionParametersKHR(
     StructPointerDecoder<Decoded_VkVideoSessionParametersUpdateInfoKHR>* pUpdateInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* videoSessionParameters */
 /* pUpdateInfo */
@@ -6942,25 +6807,24 @@ void VulkanCppConsumer::Process_vkUpdateVideoSessionParametersKHR(
                                                                    pUpdateInfo->GetPointer(),
                                                                    pUpdateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pUpdateInfo.str().c_str());
+    fprintf(file, "%s", stream_pUpdateInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkUpdateVideoSessionParametersKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkUpdateVideoSessionParametersKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkUpdateVideoSessionParametersKHR(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(videoSessionParameters).c_str(),
             pUpdateInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkUpdateVideoSessionParametersKHR);
 }
-
 void VulkanCppConsumer::Process_vkCmdDecodeVideoKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pDecodeInfo */
     std::stringstream stream_pDecodeInfo;
@@ -6968,24 +6832,22 @@ void VulkanCppConsumer::Process_vkCmdDecodeVideoKHR(
                                                                    pDecodeInfo->GetPointer(),
                                                                    pDecodeInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pDecodeInfo.str().c_str());
+    fprintf(file, "%s", stream_pDecodeInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdDecodeVideoKHR");
     fprintf(file,
-            "loaded_vkCmdDecodeVideoKHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdDecodeVideoKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pDecodeInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDecodeVideoKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkCmdBeginRenderingKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pRenderingInfo */
     std::stringstream stream_pRenderingInfo;
@@ -6993,13 +6855,13 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderingKHR(
                                                                       pRenderingInfo->GetPointer(),
                                                                       pRenderingInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pRenderingInfo.str().c_str());
+    fprintf(file, "%s", stream_pRenderingInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdBeginRenderingKHR");
     fprintf(file,
-            "loaded_vkCmdBeginRenderingKHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdBeginRenderingKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pRenderingInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginRenderingKHR);
 }
 
@@ -7008,24 +6870,22 @@ void VulkanCppConsumer::Process_vkCmdEndRenderingKHR(
     format::HandleId                            commandBuffer)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
     m_pfnLoader.AddMethodName("vkCmdEndRenderingKHR");
     fprintf(file,
-            "loaded_vkCmdEndRenderingKHR(%s);\n",
+            "\t\tloaded_vkCmdEndRenderingKHR(%s);\n",
             this->GetHandle(commandBuffer).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndRenderingKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>* pFeatures)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pFeatures */
     std::string pFeaturesName = "pFeatures_" + std::to_string(this->getNextId());
@@ -7034,13 +6894,13 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
                                                    pFeatures->GetPointer(),
                                                    pFeatures->GetMetaStructPointer(),
                                                    *this);
-    fprintf(file, "\n%s", stream_pFeatures.str().c_str());
+    fprintf(file, "%s", stream_pFeatures.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceFeatures2KHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceFeatures2KHR(%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceFeatures2KHR(%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pFeaturesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR);
 }
 
@@ -7051,7 +6911,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties2KHR(
     StructPointerDecoder<Decoded_VkFormatProperties2>* pFormatProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* format */
 /* pFormatProperties */
@@ -7061,14 +6921,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties2KHR(
                                                            pFormatProperties->GetPointer(),
                                                            pFormatProperties->GetMetaStructPointer(),
                                                            *this);
-    fprintf(file, "\n%s", stream_pFormatProperties.str().c_str());
+    fprintf(file, "%s", stream_pFormatProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceFormatProperties2KHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceFormatProperties2KHR(%s, %s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceFormatProperties2KHR(%s, %s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             pFormatPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR);
 }
 
@@ -7080,7 +6940,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2KHR(
     StructPointerDecoder<Decoded_VkImageFormatProperties2>* pImageFormatProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pImageFormatInfo */
     std::stringstream stream_pImageFormatInfo;
@@ -7088,7 +6948,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2KHR(
                                                                         pImageFormatInfo->GetPointer(),
                                                                         pImageFormatInfo->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pImageFormatInfo.str().c_str());
+    fprintf(file, "%s", stream_pImageFormatInfo.str().c_str());
 /* pImageFormatProperties */
     std::string pImageFormatPropertiesName = "pImageFormatProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pImageFormatProperties;
@@ -7096,15 +6956,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2KHR(
                                                                 pImageFormatProperties->GetPointer(),
                                                                 pImageFormatProperties->GetMetaStructPointer(),
                                                                 *this);
-    fprintf(file, "\n%s", stream_pImageFormatProperties.str().c_str());
+    fprintf(file, "%s", stream_pImageFormatProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceImageFormatProperties2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceImageFormatProperties2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceImageFormatProperties2KHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pImageFormatInfoStruct.c_str(),
             pImageFormatPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR);
 }
 
@@ -7114,7 +6974,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties2KHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pMemoryProperties */
     std::string pMemoryPropertiesName = "pMemoryProperties_" + std::to_string(this->getNextId());
@@ -7123,13 +6983,13 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties2KHR(
                                                            pMemoryProperties->GetPointer(),
                                                            pMemoryProperties->GetMetaStructPointer(),
                                                            *this);
-    fprintf(file, "\n%s", stream_pMemoryProperties.str().c_str());
+    fprintf(file, "%s", stream_pMemoryProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceMemoryProperties2KHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceMemoryProperties2KHR(%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceMemoryProperties2KHR(%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pMemoryPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR);
 }
 
@@ -7139,7 +6999,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
@@ -7148,13 +7008,13 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceProperties2KHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceProperties2KHR(%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceProperties2KHR(%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR);
 }
 
@@ -7165,11 +7025,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
     StructPointerDecoder<Decoded_VkQueueFamilyProperties2>* pQueueFamilyProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pQueueFamilyPropertyCount */
     std::string pQueueFamilyPropertyCountName = "pQueueFamilyPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pQueueFamilyPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pQueueFamilyPropertyCountName.c_str());
 /* pQueueFamilyProperties */
     std::string pQueueFamilyPropertiesName = "pQueueFamilyProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pQueueFamilyProperties;
@@ -7177,14 +7037,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
                                                                 pQueueFamilyProperties->GetPointer(),
                                                                 pQueueFamilyProperties->GetMetaStructPointer(),
                                                                 *this);
-    fprintf(file, "\n%s", stream_pQueueFamilyProperties.str().c_str());
+    fprintf(file, "%s", stream_pQueueFamilyProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceQueueFamilyProperties2KHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceQueueFamilyProperties2KHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceQueueFamilyProperties2KHR(%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pQueueFamilyPropertyCountName.c_str(),
             pQueueFamilyPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR);
 }
 
@@ -7196,7 +7056,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2K
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties2>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pFormatInfo */
     std::stringstream stream_pFormatInfo;
@@ -7204,10 +7064,10 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2K
                                                                    pFormatInfo->GetPointer(),
                                                                    pFormatInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pFormatInfo.str().c_str());
+    fprintf(file, "%s", stream_pFormatInfo.str().c_str());
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -7215,18 +7075,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2K
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceSparseImageFormatProperties2KHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(%s, &%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(%s, &%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pFormatInfoStruct.c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR);
 }
-
 void VulkanCppConsumer::Process_vkCmdDispatchBaseKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -7238,7 +7097,7 @@ void VulkanCppConsumer::Process_vkCmdDispatchBaseKHR(
     uint32_t                                    groupCountZ)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* baseGroupX */
 /* baseGroupY */
@@ -7248,7 +7107,7 @@ void VulkanCppConsumer::Process_vkCmdDispatchBaseKHR(
 /* groupCountZ */
     m_pfnLoader.AddMethodName("vkCmdDispatchBaseKHR");
     fprintf(file,
-            "loaded_vkCmdDispatchBaseKHR(%s, %u, %u, %u, %u, %u, %u);\n",
+            "\t\tloaded_vkCmdDispatchBaseKHR(%s, %u, %u, %u, %u, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             baseGroupX,
             baseGroupY,
@@ -7256,7 +7115,7 @@ void VulkanCppConsumer::Process_vkCmdDispatchBaseKHR(
             groupCountX,
             groupCountY,
             groupCountZ);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR);
 }
 
@@ -7266,15 +7125,15 @@ void VulkanCppConsumer::Process_vkCmdSetDeviceMaskKHR(
     uint32_t                                    deviceMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* deviceMask */
     m_pfnLoader.AddMethodName("vkCmdSetDeviceMaskKHR");
     fprintf(file,
-            "loaded_vkCmdSetDeviceMaskKHR(%s, %u);\n",
+            "\t\tloaded_vkCmdSetDeviceMaskKHR(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             deviceMask);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR);
 }
 
@@ -7287,27 +7146,25 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPeerMemoryFeaturesKHR(
     PointerDecoder<VkPeerMemoryFeatureFlags>*   pPeerMemoryFeatures)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* heapIndex */
 /* localDeviceIndex */
 /* remoteDeviceIndex */
 /* pPeerMemoryFeatures */
     std::string pPeerMemoryFeaturesName = "pPeerMemoryFeatures_" + std::to_string(this->getNextId());
-    fprintf(file, "VkPeerMemoryFeatureFlags %s;\n", pPeerMemoryFeaturesName.c_str());
+    fprintf(file, "\t\tVkPeerMemoryFeatureFlags %s;\n", pPeerMemoryFeaturesName.c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceGroupPeerMemoryFeaturesKHR");
     fprintf(file,
-            "loaded_vkGetDeviceGroupPeerMemoryFeaturesKHR(%s, %u, %u, %u, &%s);\n",
+            "\t\tloaded_vkGetDeviceGroupPeerMemoryFeaturesKHR(%s, %u, %u, %u, &%s);\n",
             this->GetHandle(device).c_str(),
             heapIndex,
             localDeviceIndex,
             remoteDeviceIndex,
             pPeerMemoryFeaturesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkTrimCommandPoolKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -7315,20 +7172,19 @@ void VulkanCppConsumer::Process_vkTrimCommandPoolKHR(
     VkCommandPoolTrimFlags                      flags)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* commandPool */
 /* flags */
     m_pfnLoader.AddMethodName("vkTrimCommandPoolKHR");
     fprintf(file,
-            "loaded_vkTrimCommandPoolKHR(%s, %s, %s);\n",
+            "\t\tloaded_vkTrimCommandPoolKHR(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(commandPool).c_str(),
             util::ToString<VkCommandPoolTrimFlags>(flags).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkTrimCommandPoolKHR);
 }
-
 void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceGroupsKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -7337,11 +7193,11 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceGroupsKHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pPhysicalDeviceGroupCount */
     std::string pPhysicalDeviceGroupCountName = "pPhysicalDeviceGroupCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPhysicalDeviceGroupCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPhysicalDeviceGroupCountName.c_str());
 /* pPhysicalDeviceGroupProperties */
     std::string pPhysicalDeviceGroupPropertiesName = "pPhysicalDeviceGroupProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pPhysicalDeviceGroupProperties;
@@ -7349,18 +7205,17 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceGroupsKHR(
                                                                         pPhysicalDeviceGroupProperties->GetPointer(),
                                                                         pPhysicalDeviceGroupProperties->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pPhysicalDeviceGroupProperties.str().c_str());
+    fprintf(file, "%s", stream_pPhysicalDeviceGroupProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkEnumeratePhysicalDeviceGroupsKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkEnumeratePhysicalDeviceGroupsKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkEnumeratePhysicalDeviceGroupsKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pPhysicalDeviceGroupCountName.c_str(),
             pPhysicalDeviceGroupPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR);
 }
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            physicalDevice,
@@ -7368,7 +7223,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR(
     StructPointerDecoder<Decoded_VkExternalBufferProperties>* pExternalBufferProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pExternalBufferInfo */
     std::stringstream stream_pExternalBufferInfo;
@@ -7376,7 +7231,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR(
                                                                            pExternalBufferInfo->GetPointer(),
                                                                            pExternalBufferInfo->GetMetaStructPointer(),
                                                                            *this);
-    fprintf(file, "\n%s", stream_pExternalBufferInfo.str().c_str());
+    fprintf(file, "%s", stream_pExternalBufferInfo.str().c_str());
 /* pExternalBufferProperties */
     std::string pExternalBufferPropertiesName = "pExternalBufferProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pExternalBufferProperties;
@@ -7384,18 +7239,16 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR(
                                                                    pExternalBufferProperties->GetPointer(),
                                                                    pExternalBufferProperties->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pExternalBufferProperties.str().c_str());
+    fprintf(file, "%s", stream_pExternalBufferProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceExternalBufferPropertiesKHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceExternalBufferPropertiesKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceExternalBufferPropertiesKHR(%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pExternalBufferInfoStruct.c_str(),
             pExternalBufferPropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetMemoryWin32HandleKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -7404,7 +7257,7 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandleKHR(
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pGetWin32HandleInfo */
     std::stringstream stream_pGetWin32HandleInfo;
@@ -7412,18 +7265,18 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandleKHR(
                                                                            pGetWin32HandleInfo->GetPointer(),
                                                                            pGetWin32HandleInfo->GetMetaStructPointer(),
                                                                            *this);
-    fprintf(file, "\n%s", stream_pGetWin32HandleInfo.str().c_str());
+    fprintf(file, "%s", stream_pGetWin32HandleInfo.str().c_str());
 /* pHandle */
     std::string pHandleName = "pHandle_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t* %s;\n", pHandleName.c_str());
+    fprintf(file, "\t\tuint8_t* %s;\n", pHandleName.c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryWin32HandleKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryWin32HandleKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryWin32HandleKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pGetWin32HandleInfoStruct.c_str(),
             pHandleName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR);
 }
 
@@ -7436,12 +7289,12 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>* pMemoryWin32HandleProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* handleType */
 /* handle */
     std::string handleName = "handle_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", handleName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", handleName.c_str());
 /* pMemoryWin32HandleProperties */
     std::string pMemoryWin32HandlePropertiesName = "pMemoryWin32HandleProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pMemoryWin32HandleProperties;
@@ -7449,19 +7302,18 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
                                                                       pMemoryWin32HandleProperties->GetPointer(),
                                                                       pMemoryWin32HandleProperties->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pMemoryWin32HandleProperties.str().c_str());
+    fprintf(file, "%s", stream_pMemoryWin32HandleProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryWin32HandlePropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryWin32HandlePropertiesKHR(%s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryWin32HandlePropertiesKHR(%s, %s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagBits>(handleType).c_str(),
             handleName.c_str(),
             pMemoryWin32HandlePropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR);
 }
-
 void VulkanCppConsumer::Process_vkGetMemoryFdKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -7470,7 +7322,7 @@ void VulkanCppConsumer::Process_vkGetMemoryFdKHR(
     PointerDecoder<int>*                        pFd)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pGetFdInfo */
     std::stringstream stream_pGetFdInfo;
@@ -7478,18 +7330,18 @@ void VulkanCppConsumer::Process_vkGetMemoryFdKHR(
                                                                   pGetFdInfo->GetPointer(),
                                                                   pGetFdInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pGetFdInfo.str().c_str());
+    fprintf(file, "%s", stream_pGetFdInfo.str().c_str());
 /* pFd */
     std::string pFdName = "pFd_" + std::to_string(this->getNextId());
-    fprintf(file, "int %s;\n", pFdName.c_str());
+    fprintf(file, "\t\tint %s;\n", pFdName.c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryFdKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryFdKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryFdKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pGetFdInfoStruct.c_str(),
             pFdName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryFdKHR);
 }
 
@@ -7502,7 +7354,7 @@ void VulkanCppConsumer::Process_vkGetMemoryFdPropertiesKHR(
     StructPointerDecoder<Decoded_VkMemoryFdPropertiesKHR>* pMemoryFdProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* handleType */
 /* fd */
@@ -7513,20 +7365,18 @@ void VulkanCppConsumer::Process_vkGetMemoryFdPropertiesKHR(
                                                              pMemoryFdProperties->GetPointer(),
                                                              pMemoryFdProperties->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pMemoryFdProperties.str().c_str());
+    fprintf(file, "%s", stream_pMemoryFdProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryFdPropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryFdPropertiesKHR(%s, %s, %d, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryFdPropertiesKHR(%s, %s, %d, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagBits>(handleType).c_str(),
             fd,
             pMemoryFdPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            physicalDevice,
@@ -7534,7 +7384,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePropertiesKH
     StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>* pExternalSemaphoreProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pExternalSemaphoreInfo */
     std::stringstream stream_pExternalSemaphoreInfo;
@@ -7542,7 +7392,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePropertiesKH
                                                                               pExternalSemaphoreInfo->GetPointer(),
                                                                               pExternalSemaphoreInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pExternalSemaphoreInfo.str().c_str());
+    fprintf(file, "%s", stream_pExternalSemaphoreInfo.str().c_str());
 /* pExternalSemaphoreProperties */
     std::string pExternalSemaphorePropertiesName = "pExternalSemaphoreProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pExternalSemaphoreProperties;
@@ -7550,18 +7400,16 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePropertiesKH
                                                                       pExternalSemaphoreProperties->GetPointer(),
                                                                       pExternalSemaphoreProperties->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pExternalSemaphoreProperties.str().c_str());
+    fprintf(file, "%s", stream_pExternalSemaphoreProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceExternalSemaphorePropertiesKHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pExternalSemaphoreInfoStruct.c_str(),
             pExternalSemaphorePropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetSemaphoreWin32HandleKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -7570,7 +7418,7 @@ void VulkanCppConsumer::Process_vkGetSemaphoreWin32HandleKHR(
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pGetWin32HandleInfo */
     std::stringstream stream_pGetWin32HandleInfo;
@@ -7578,18 +7426,18 @@ void VulkanCppConsumer::Process_vkGetSemaphoreWin32HandleKHR(
                                                                            pGetWin32HandleInfo->GetPointer(),
                                                                            pGetWin32HandleInfo->GetMetaStructPointer(),
                                                                            *this);
-    fprintf(file, "\n%s", stream_pGetWin32HandleInfo.str().c_str());
+    fprintf(file, "%s", stream_pGetWin32HandleInfo.str().c_str());
 /* pHandle */
     std::string pHandleName = "pHandle_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t* %s;\n", pHandleName.c_str());
+    fprintf(file, "\t\tuint8_t* %s;\n", pHandleName.c_str());
     m_pfnLoader.AddMethodName("vkGetSemaphoreWin32HandleKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetSemaphoreWin32HandleKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreWin32HandleKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pGetWin32HandleInfoStruct.c_str(),
             pHandleName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR);
 }
 
@@ -7600,7 +7448,7 @@ void VulkanCppConsumer::Process_vkImportSemaphoreWin32HandleKHR(
     StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>* pImportSemaphoreWin32HandleInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pImportSemaphoreWin32HandleInfo */
     std::stringstream stream_pImportSemaphoreWin32HandleInfo;
@@ -7608,17 +7456,16 @@ void VulkanCppConsumer::Process_vkImportSemaphoreWin32HandleKHR(
                                                                                        pImportSemaphoreWin32HandleInfo->GetPointer(),
                                                                                        pImportSemaphoreWin32HandleInfo->GetMetaStructPointer(),
                                                                                        *this);
-    fprintf(file, "\n%s", stream_pImportSemaphoreWin32HandleInfo.str().c_str());
+    fprintf(file, "%s", stream_pImportSemaphoreWin32HandleInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkImportSemaphoreWin32HandleKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkImportSemaphoreWin32HandleKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkImportSemaphoreWin32HandleKHR(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pImportSemaphoreWin32HandleInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR);
 }
-
 void VulkanCppConsumer::Process_vkGetSemaphoreFdKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -7627,7 +7474,7 @@ void VulkanCppConsumer::Process_vkGetSemaphoreFdKHR(
     PointerDecoder<int>*                        pFd)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pGetFdInfo */
     std::stringstream stream_pGetFdInfo;
@@ -7635,18 +7482,18 @@ void VulkanCppConsumer::Process_vkGetSemaphoreFdKHR(
                                                                   pGetFdInfo->GetPointer(),
                                                                   pGetFdInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pGetFdInfo.str().c_str());
+    fprintf(file, "%s", stream_pGetFdInfo.str().c_str());
 /* pFd */
     std::string pFdName = "pFd_" + std::to_string(this->getNextId());
-    fprintf(file, "int %s;\n", pFdName.c_str());
+    fprintf(file, "\t\tint %s;\n", pFdName.c_str());
     m_pfnLoader.AddMethodName("vkGetSemaphoreFdKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetSemaphoreFdKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreFdKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pGetFdInfoStruct.c_str(),
             pFdName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR);
 }
 
@@ -7657,7 +7504,7 @@ void VulkanCppConsumer::Process_vkImportSemaphoreFdKHR(
     StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>* pImportSemaphoreFdInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pImportSemaphoreFdInfo */
     std::stringstream stream_pImportSemaphoreFdInfo;
@@ -7665,17 +7512,16 @@ void VulkanCppConsumer::Process_vkImportSemaphoreFdKHR(
                                                                               pImportSemaphoreFdInfo->GetPointer(),
                                                                               pImportSemaphoreFdInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pImportSemaphoreFdInfo.str().c_str());
+    fprintf(file, "%s", stream_pImportSemaphoreFdInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkImportSemaphoreFdKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkImportSemaphoreFdKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkImportSemaphoreFdKHR(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pImportSemaphoreFdInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR);
 }
-
 void VulkanCppConsumer::Process_vkCmdPushDescriptorSetKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -7686,7 +7532,7 @@ void VulkanCppConsumer::Process_vkCmdPushDescriptorSetKHR(
     StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pipelineBindPoint */
 /* layout */
@@ -7700,29 +7546,27 @@ void VulkanCppConsumer::Process_vkCmdPushDescriptorSetKHR(
                                                       pDescriptorWritesPair.end(),
                                                       [&](auto pair) { return GenerateStruct_VkWriteDescriptorSet(stream_pDescriptorWrites, pair.t1, pair.t2, *this); },
                                                       ", ");
-    fprintf(file, "\n%s", stream_pDescriptorWrites.str().c_str());
-    if (descriptorWriteCount == 1) {
-        pDescriptorWritesArray = "&" + pDescriptorWritesNames;
-    } else if (descriptorWriteCount > 1) {
-        pDescriptorWritesArray = "pDescriptorWrites_" + std::to_string(this->getNextId());
-        fprintf(file, "VkWriteDescriptorSet %s[] = { %s };\n", pDescriptorWritesArray.c_str(), pDescriptorWritesNames.c_str());
+    if (stream_pDescriptorWrites.str().length() > 0) {
+        fprintf(file, "%s", stream_pDescriptorWrites.str().c_str());
+        if (descriptorWriteCount == 1) {
+            pDescriptorWritesArray = "&" + pDescriptorWritesNames;
+        } else if (descriptorWriteCount > 1) {
+            pDescriptorWritesArray = "pDescriptorWrites_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkWriteDescriptorSet %s[] = { %s };\n", pDescriptorWritesArray.c_str(), pDescriptorWritesNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdPushDescriptorSetKHR");
     fprintf(file,
-            "loaded_vkCmdPushDescriptorSetKHR(%s, %s, %s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdPushDescriptorSetKHR(%s, %s, %s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineBindPoint>(pipelineBindPoint).c_str(),
             this->GetHandle(layout).c_str(),
             set,
             descriptorWriteCount,
             pDescriptorWritesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR);
 }
-
-
-
-
 void VulkanCppConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -7742,21 +7586,19 @@ void VulkanCppConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* descriptorUpdateTemplate */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyDescriptorUpdateTemplateKHR");
     fprintf(file,
-            "loaded_vkDestroyDescriptorUpdateTemplateKHR(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyDescriptorUpdateTemplateKHR(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(descriptorUpdateTemplate).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkCmdBeginRenderPass2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -7764,7 +7606,7 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderPass2KHR(
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pRenderPassBegin */
     std::stringstream stream_pRenderPassBegin;
@@ -7772,21 +7614,21 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderPass2KHR(
                                                                         pRenderPassBegin->GetPointer(),
                                                                         pRenderPassBegin->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pRenderPassBegin.str().c_str());
+    fprintf(file, "%s", stream_pRenderPassBegin.str().c_str());
 /* pSubpassBeginInfo */
     std::stringstream stream_pSubpassBeginInfo;
     std::string pSubpassBeginInfoStruct = GenerateStruct_VkSubpassBeginInfo(stream_pSubpassBeginInfo,
                                                                          pSubpassBeginInfo->GetPointer(),
                                                                          pSubpassBeginInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pSubpassBeginInfo.str().c_str());
+    fprintf(file, "%s", stream_pSubpassBeginInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdBeginRenderPass2KHR");
     fprintf(file,
-            "loaded_vkCmdBeginRenderPass2KHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkCmdBeginRenderPass2KHR(%s, &%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pRenderPassBeginStruct.c_str(),
             pSubpassBeginInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR);
 }
 
@@ -7796,7 +7638,7 @@ void VulkanCppConsumer::Process_vkCmdEndRenderPass2KHR(
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pSubpassEndInfo */
     std::stringstream stream_pSubpassEndInfo;
@@ -7804,13 +7646,13 @@ void VulkanCppConsumer::Process_vkCmdEndRenderPass2KHR(
                                                                        pSubpassEndInfo->GetPointer(),
                                                                        pSubpassEndInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pSubpassEndInfo.str().c_str());
+    fprintf(file, "%s", stream_pSubpassEndInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdEndRenderPass2KHR");
     fprintf(file,
-            "loaded_vkCmdEndRenderPass2KHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdEndRenderPass2KHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pSubpassEndInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR);
 }
 
@@ -7821,7 +7663,7 @@ void VulkanCppConsumer::Process_vkCmdNextSubpass2KHR(
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pSubpassBeginInfo */
     std::stringstream stream_pSubpassBeginInfo;
@@ -7829,21 +7671,21 @@ void VulkanCppConsumer::Process_vkCmdNextSubpass2KHR(
                                                                          pSubpassBeginInfo->GetPointer(),
                                                                          pSubpassBeginInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pSubpassBeginInfo.str().c_str());
+    fprintf(file, "%s", stream_pSubpassBeginInfo.str().c_str());
 /* pSubpassEndInfo */
     std::stringstream stream_pSubpassEndInfo;
     std::string pSubpassEndInfoStruct = GenerateStruct_VkSubpassEndInfo(stream_pSubpassEndInfo,
                                                                        pSubpassEndInfo->GetPointer(),
                                                                        pSubpassEndInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pSubpassEndInfo.str().c_str());
+    fprintf(file, "%s", stream_pSubpassEndInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdNextSubpass2KHR");
     fprintf(file,
-            "loaded_vkCmdNextSubpass2KHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkCmdNextSubpass2KHR(%s, &%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pSubpassBeginInfoStruct.c_str(),
             pSubpassEndInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR);
 }
 
@@ -7856,7 +7698,7 @@ void VulkanCppConsumer::Process_vkCreateRenderPass2KHR(
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -7864,7 +7706,7 @@ void VulkanCppConsumer::Process_vkCreateRenderPass2KHR(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pRenderPass */
     std::string pRenderPassName = "pRenderPass_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_RENDER_PASS));
@@ -7875,16 +7717,15 @@ void VulkanCppConsumer::Process_vkCreateRenderPass2KHR(
     }
     m_pfnLoader.AddMethodName("vkCreateRenderPass2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateRenderPass2KHR(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateRenderPass2KHR(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pRenderPassName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateRenderPass2KHR);
 }
-
 void VulkanCppConsumer::Process_vkGetSwapchainStatusKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -7892,19 +7733,18 @@ void VulkanCppConsumer::Process_vkGetSwapchainStatusKHR(
     format::HandleId                            swapchain)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchain */
     m_pfnLoader.AddMethodName("vkGetSwapchainStatusKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetSwapchainStatusKHR(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetSwapchainStatusKHR(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR);
 }
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            physicalDevice,
@@ -7912,7 +7752,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(
     StructPointerDecoder<Decoded_VkExternalFenceProperties>* pExternalFenceProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pExternalFenceInfo */
     std::stringstream stream_pExternalFenceInfo;
@@ -7920,7 +7760,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(
                                                                           pExternalFenceInfo->GetPointer(),
                                                                           pExternalFenceInfo->GetMetaStructPointer(),
                                                                           *this);
-    fprintf(file, "\n%s", stream_pExternalFenceInfo.str().c_str());
+    fprintf(file, "%s", stream_pExternalFenceInfo.str().c_str());
 /* pExternalFenceProperties */
     std::string pExternalFencePropertiesName = "pExternalFenceProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pExternalFenceProperties;
@@ -7928,18 +7768,16 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(
                                                                   pExternalFenceProperties->GetPointer(),
                                                                   pExternalFenceProperties->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pExternalFenceProperties.str().c_str());
+    fprintf(file, "%s", stream_pExternalFenceProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceExternalFencePropertiesKHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceExternalFencePropertiesKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceExternalFencePropertiesKHR(%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pExternalFenceInfoStruct.c_str(),
             pExternalFencePropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetFenceWin32HandleKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -7948,7 +7786,7 @@ void VulkanCppConsumer::Process_vkGetFenceWin32HandleKHR(
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pGetWin32HandleInfo */
     std::stringstream stream_pGetWin32HandleInfo;
@@ -7956,18 +7794,18 @@ void VulkanCppConsumer::Process_vkGetFenceWin32HandleKHR(
                                                                            pGetWin32HandleInfo->GetPointer(),
                                                                            pGetWin32HandleInfo->GetMetaStructPointer(),
                                                                            *this);
-    fprintf(file, "\n%s", stream_pGetWin32HandleInfo.str().c_str());
+    fprintf(file, "%s", stream_pGetWin32HandleInfo.str().c_str());
 /* pHandle */
     std::string pHandleName = "pHandle_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t* %s;\n", pHandleName.c_str());
+    fprintf(file, "\t\tuint8_t* %s;\n", pHandleName.c_str());
     m_pfnLoader.AddMethodName("vkGetFenceWin32HandleKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetFenceWin32HandleKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetFenceWin32HandleKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pGetWin32HandleInfoStruct.c_str(),
             pHandleName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR);
 }
 
@@ -7978,7 +7816,7 @@ void VulkanCppConsumer::Process_vkImportFenceWin32HandleKHR(
     StructPointerDecoder<Decoded_VkImportFenceWin32HandleInfoKHR>* pImportFenceWin32HandleInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pImportFenceWin32HandleInfo */
     std::stringstream stream_pImportFenceWin32HandleInfo;
@@ -7986,17 +7824,16 @@ void VulkanCppConsumer::Process_vkImportFenceWin32HandleKHR(
                                                                                    pImportFenceWin32HandleInfo->GetPointer(),
                                                                                    pImportFenceWin32HandleInfo->GetMetaStructPointer(),
                                                                                    *this);
-    fprintf(file, "\n%s", stream_pImportFenceWin32HandleInfo.str().c_str());
+    fprintf(file, "%s", stream_pImportFenceWin32HandleInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkImportFenceWin32HandleKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkImportFenceWin32HandleKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkImportFenceWin32HandleKHR(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pImportFenceWin32HandleInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR);
 }
-
 void VulkanCppConsumer::Process_vkGetFenceFdKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8005,7 +7842,7 @@ void VulkanCppConsumer::Process_vkGetFenceFdKHR(
     PointerDecoder<int>*                        pFd)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pGetFdInfo */
     std::stringstream stream_pGetFdInfo;
@@ -8013,18 +7850,18 @@ void VulkanCppConsumer::Process_vkGetFenceFdKHR(
                                                                   pGetFdInfo->GetPointer(),
                                                                   pGetFdInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pGetFdInfo.str().c_str());
+    fprintf(file, "%s", stream_pGetFdInfo.str().c_str());
 /* pFd */
     std::string pFdName = "pFd_" + std::to_string(this->getNextId());
-    fprintf(file, "int %s;\n", pFdName.c_str());
+    fprintf(file, "\t\tint %s;\n", pFdName.c_str());
     m_pfnLoader.AddMethodName("vkGetFenceFdKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetFenceFdKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetFenceFdKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pGetFdInfoStruct.c_str(),
             pFdName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetFenceFdKHR);
 }
 
@@ -8035,7 +7872,7 @@ void VulkanCppConsumer::Process_vkImportFenceFdKHR(
     StructPointerDecoder<Decoded_VkImportFenceFdInfoKHR>* pImportFenceFdInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pImportFenceFdInfo */
     std::stringstream stream_pImportFenceFdInfo;
@@ -8043,17 +7880,16 @@ void VulkanCppConsumer::Process_vkImportFenceFdKHR(
                                                                           pImportFenceFdInfo->GetPointer(),
                                                                           pImportFenceFdInfo->GetMetaStructPointer(),
                                                                           *this);
-    fprintf(file, "\n%s", stream_pImportFenceFdInfo.str().c_str());
+    fprintf(file, "%s", stream_pImportFenceFdInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkImportFenceFdKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkImportFenceFdKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkImportFenceFdKHR(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pImportFenceFdInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkImportFenceFdKHR);
 }
-
 void VulkanCppConsumer::Process_vkAcquireProfilingLockKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8061,7 +7897,7 @@ void VulkanCppConsumer::Process_vkAcquireProfilingLockKHR(
     StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -8069,14 +7905,14 @@ void VulkanCppConsumer::Process_vkAcquireProfilingLockKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkAcquireProfilingLockKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkAcquireProfilingLockKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkAcquireProfilingLockKHR(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR);
 }
 
@@ -8090,12 +7926,12 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQ
     StructPointerDecoder<Decoded_VkPerformanceCounterDescriptionKHR>* pCounterDescriptions)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* queueFamilyIndex */
 /* pCounterCount */
     std::string pCounterCountName = "pCounterCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pCounterCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pCounterCountName.c_str());
 /* pCounters */
     std::string pCountersName = "pCounters_" + std::to_string(this->getNextId());
     std::stringstream stream_pCounters;
@@ -8103,7 +7939,7 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQ
                                                    pCounters->GetPointer(),
                                                    pCounters->GetMetaStructPointer(),
                                                    *this);
-    fprintf(file, "\n%s", stream_pCounters.str().c_str());
+    fprintf(file, "%s", stream_pCounters.str().c_str());
 /* pCounterDescriptions */
     std::string pCounterDescriptionsName = "pCounterDescriptions_" + std::to_string(this->getNextId());
     std::stringstream stream_pCounterDescriptions;
@@ -8111,17 +7947,17 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQ
                                                               pCounterDescriptions->GetPointer(),
                                                               pCounterDescriptions->GetMetaStructPointer(),
                                                               *this);
-    fprintf(file, "\n%s", stream_pCounterDescriptions.str().c_str());
+    fprintf(file, "%s", stream_pCounterDescriptions.str().c_str());
     m_pfnLoader.AddMethodName("vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(%s, %u, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(%s, %u, &%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex,
             pCounterCountName.c_str(),
             pCountersName.c_str(),
             pCounterDescriptionsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR);
 }
 
@@ -8132,7 +7968,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPa
     PointerDecoder<uint32_t>*                   pNumPasses)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pPerformanceQueryCreateInfo */
     std::stringstream stream_pPerformanceQueryCreateInfo;
@@ -8140,17 +7976,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPa
                                                                                    pPerformanceQueryCreateInfo->GetPointer(),
                                                                                    pPerformanceQueryCreateInfo->GetMetaStructPointer(),
                                                                                    *this);
-    fprintf(file, "\n%s", stream_pPerformanceQueryCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pPerformanceQueryCreateInfo.str().c_str());
 /* pNumPasses */
     std::string pNumPassesName = "pNumPasses_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pNumPassesName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pNumPassesName.c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(%s, &%s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPerformanceQueryCreateInfoStruct.c_str(),
             pNumPassesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR);
 }
 
@@ -8159,17 +7995,15 @@ void VulkanCppConsumer::Process_vkReleaseProfilingLockKHR(
     format::HandleId                            device)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
     m_pfnLoader.AddMethodName("vkReleaseProfilingLockKHR");
     fprintf(file,
-            "loaded_vkReleaseProfilingLockKHR(%s);\n",
+            "\t\tloaded_vkReleaseProfilingLockKHR(%s);\n",
             this->GetHandle(device).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8178,7 +8012,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
     StructPointerDecoder<Decoded_VkSurfaceCapabilities2KHR>* pSurfaceCapabilities)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pSurfaceInfo */
     std::stringstream stream_pSurfaceInfo;
@@ -8186,7 +8020,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
                                                                     pSurfaceInfo->GetPointer(),
                                                                     pSurfaceInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pSurfaceInfo.str().c_str());
+    fprintf(file, "%s", stream_pSurfaceInfo.str().c_str());
 /* pSurfaceCapabilities */
     std::string pSurfaceCapabilitiesName = "pSurfaceCapabilities_" + std::to_string(this->getNextId());
     std::stringstream stream_pSurfaceCapabilities;
@@ -8194,15 +8028,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
                                                               pSurfaceCapabilities->GetPointer(),
                                                               pSurfaceCapabilities->GetMetaStructPointer(),
                                                               *this);
-    fprintf(file, "\n%s", stream_pSurfaceCapabilities.str().c_str());
+    fprintf(file, "%s", stream_pSurfaceCapabilities.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceSurfaceCapabilities2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilities2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilities2KHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pSurfaceInfoStruct.c_str(),
             pSurfaceCapabilitiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR);
 }
 
@@ -8215,7 +8049,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
     StructPointerDecoder<Decoded_VkSurfaceFormat2KHR>* pSurfaceFormats)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pSurfaceInfo */
     std::stringstream stream_pSurfaceInfo;
@@ -8223,10 +8057,10 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
                                                                     pSurfaceInfo->GetPointer(),
                                                                     pSurfaceInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pSurfaceInfo.str().c_str());
+    fprintf(file, "%s", stream_pSurfaceInfo.str().c_str());
 /* pSurfaceFormatCount */
     std::string pSurfaceFormatCountName = "pSurfaceFormatCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pSurfaceFormatCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pSurfaceFormatCountName.c_str());
 /* pSurfaceFormats */
     std::string pSurfaceFormatsName = "pSurfaceFormats_" + std::to_string(this->getNextId());
     std::stringstream stream_pSurfaceFormats;
@@ -8234,20 +8068,18 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
                                                          pSurfaceFormats->GetPointer(),
                                                          pSurfaceFormats->GetMetaStructPointer(),
                                                          *this);
-    fprintf(file, "\n%s", stream_pSurfaceFormats.str().c_str());
+    fprintf(file, "%s", stream_pSurfaceFormats.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceSurfaceFormats2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceFormats2KHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceFormats2KHR(%s, &%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pSurfaceInfoStruct.c_str(),
             pSurfaceFormatCountName.c_str(),
             pSurfaceFormatsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetDisplayModeProperties2KHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8257,12 +8089,12 @@ void VulkanCppConsumer::Process_vkGetDisplayModeProperties2KHR(
     StructPointerDecoder<Decoded_VkDisplayModeProperties2KHR>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* display */
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -8270,16 +8102,16 @@ void VulkanCppConsumer::Process_vkGetDisplayModeProperties2KHR(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDisplayModeProperties2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDisplayModeProperties2KHR(%s, %s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayModeProperties2KHR(%s, %s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(display).c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR);
 }
 
@@ -8291,7 +8123,7 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneCapabilities2KHR(
     StructPointerDecoder<Decoded_VkDisplayPlaneCapabilities2KHR>* pCapabilities)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pDisplayPlaneInfo */
     std::stringstream stream_pDisplayPlaneInfo;
@@ -8299,7 +8131,7 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneCapabilities2KHR(
                                                                          pDisplayPlaneInfo->GetPointer(),
                                                                          pDisplayPlaneInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pDisplayPlaneInfo.str().c_str());
+    fprintf(file, "%s", stream_pDisplayPlaneInfo.str().c_str());
 /* pCapabilities */
     std::string pCapabilitiesName = "pCapabilities_" + std::to_string(this->getNextId());
     std::stringstream stream_pCapabilities;
@@ -8307,15 +8139,15 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneCapabilities2KHR(
                                                        pCapabilities->GetPointer(),
                                                        pCapabilities->GetMetaStructPointer(),
                                                        *this);
-    fprintf(file, "\n%s", stream_pCapabilities.str().c_str());
+    fprintf(file, "%s", stream_pCapabilities.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDisplayPlaneCapabilities2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDisplayPlaneCapabilities2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayPlaneCapabilities2KHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pDisplayPlaneInfoStruct.c_str(),
             pCapabilitiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR);
 }
 
@@ -8327,11 +8159,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
     StructPointerDecoder<Decoded_VkDisplayPlaneProperties2KHR>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -8339,15 +8171,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceDisplayPlaneProperties2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR);
 }
 
@@ -8359,11 +8191,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayProperties2KHR(
     StructPointerDecoder<Decoded_VkDisplayProperties2KHR>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -8371,21 +8203,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayProperties2KHR(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceDisplayProperties2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayProperties2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayProperties2KHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR);
 }
-
-
-
-
 void VulkanCppConsumer::Process_vkGetBufferMemoryRequirements2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -8414,7 +8242,7 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2KHR(
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -8422,10 +8250,10 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2KHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pSparseMemoryRequirementCount */
     std::string pSparseMemoryRequirementCountName = "pSparseMemoryRequirementCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pSparseMemoryRequirementCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pSparseMemoryRequirementCountName.c_str());
 /* pSparseMemoryRequirements */
     std::string pSparseMemoryRequirementsName = "pSparseMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pSparseMemoryRequirements;
@@ -8433,19 +8261,17 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2KHR(
                                                                    pSparseMemoryRequirements->GetPointer(),
                                                                    pSparseMemoryRequirements->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pSparseMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pSparseMemoryRequirements.str().c_str());
     m_pfnLoader.AddMethodName("vkGetImageSparseMemoryRequirements2KHR");
     fprintf(file,
-            "loaded_vkGetImageSparseMemoryRequirements2KHR(%s, &%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetImageSparseMemoryRequirements2KHR(%s, &%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pSparseMemoryRequirementCountName.c_str(),
             pSparseMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR);
 }
-
-
 void VulkanCppConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8455,7 +8281,7 @@ void VulkanCppConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -8463,7 +8289,7 @@ void VulkanCppConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pYcbcrConversion */
     std::string pYcbcrConversionName = "pYcbcrConversion_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION));
@@ -8474,13 +8300,13 @@ void VulkanCppConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateSamplerYcbcrConversionKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateSamplerYcbcrConversionKHR(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateSamplerYcbcrConversionKHR(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pYcbcrConversionName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR);
 }
 
@@ -8491,20 +8317,19 @@ void VulkanCppConsumer::Process_vkDestroySamplerYcbcrConversionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* ycbcrConversion */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroySamplerYcbcrConversionKHR");
     fprintf(file,
-            "loaded_vkDestroySamplerYcbcrConversionKHR(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroySamplerYcbcrConversionKHR(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(ycbcrConversion).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR);
 }
-
 void VulkanCppConsumer::Process_vkBindBufferMemory2KHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8513,7 +8338,7 @@ void VulkanCppConsumer::Process_vkBindBufferMemory2KHR(
     StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* bindInfoCount */
 /* pBindInfos */
@@ -8524,21 +8349,23 @@ void VulkanCppConsumer::Process_vkBindBufferMemory2KHR(
                                                pBindInfosPair.end(),
                                                [&](auto pair) { return GenerateStruct_VkBindBufferMemoryInfo(stream_pBindInfos, pair.t1, pair.t2, *this); },
                                                ", ");
-    fprintf(file, "\n%s", stream_pBindInfos.str().c_str());
-    if (bindInfoCount == 1) {
-        pBindInfosArray = "&" + pBindInfosNames;
-    } else if (bindInfoCount > 1) {
-        pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBindBufferMemoryInfo %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+    if (stream_pBindInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pBindInfos.str().c_str());
+        if (bindInfoCount == 1) {
+            pBindInfosArray = "&" + pBindInfosNames;
+        } else if (bindInfoCount > 1) {
+            pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBindBufferMemoryInfo %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkBindBufferMemory2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkBindBufferMemory2KHR(%s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkBindBufferMemory2KHR(%s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             bindInfoCount,
             pBindInfosArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBindBufferMemory2KHR);
 }
 
@@ -8550,7 +8377,7 @@ void VulkanCppConsumer::Process_vkBindImageMemory2KHR(
     StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* bindInfoCount */
 /* pBindInfos */
@@ -8561,25 +8388,25 @@ void VulkanCppConsumer::Process_vkBindImageMemory2KHR(
                                                pBindInfosPair.end(),
                                                [&](auto pair) { return GenerateStruct_VkBindImageMemoryInfo(stream_pBindInfos, pair.t1, pair.t2, *this); },
                                                ", ");
-    fprintf(file, "\n%s", stream_pBindInfos.str().c_str());
-    if (bindInfoCount == 1) {
-        pBindInfosArray = "&" + pBindInfosNames;
-    } else if (bindInfoCount > 1) {
-        pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBindImageMemoryInfo %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+    if (stream_pBindInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pBindInfos.str().c_str());
+        if (bindInfoCount == 1) {
+            pBindInfosArray = "&" + pBindInfosNames;
+        } else if (bindInfoCount > 1) {
+            pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBindImageMemoryInfo %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkBindImageMemory2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkBindImageMemory2KHR(%s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkBindImageMemory2KHR(%s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             bindInfoCount,
             pBindInfosArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBindImageMemory2KHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupportKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -8587,7 +8414,7 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupportKHR(
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport>* pSupport)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -8595,7 +8422,7 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupportKHR(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pSupport */
     std::string pSupportName = "pSupport_" + std::to_string(this->getNextId());
     std::stringstream stream_pSupport;
@@ -8603,17 +8430,16 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupportKHR(
                                                   pSupport->GetPointer(),
                                                   pSupport->GetMetaStructPointer(),
                                                   *this);
-    fprintf(file, "\n%s", stream_pSupport.str().c_str());
+    fprintf(file, "%s", stream_pSupport.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDescriptorSetLayoutSupportKHR");
     fprintf(file,
-            "loaded_vkGetDescriptorSetLayoutSupportKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDescriptorSetLayoutSupportKHR(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             pSupportName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR);
 }
-
 void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -8625,7 +8451,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -8635,7 +8461,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
 /* stride */
     m_pfnLoader.AddMethodName("vkCmdDrawIndexedIndirectCountKHR");
     fprintf(file,
-            "loaded_vkCmdDrawIndexedIndirectCountKHR(%s, %s, %luUL, %s, %luUL, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawIndexedIndirectCountKHR(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
@@ -8643,7 +8469,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
             countBufferOffset,
             maxDrawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR);
 }
 
@@ -8658,7 +8484,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCountKHR(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -8668,7 +8494,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCountKHR(
 /* stride */
     m_pfnLoader.AddMethodName("vkCmdDrawIndirectCountKHR");
     fprintf(file,
-            "loaded_vkCmdDrawIndirectCountKHR(%s, %s, %luUL, %s, %luUL, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawIndirectCountKHR(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
@@ -8676,20 +8502,9 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCountKHR(
             countBufferOffset,
             maxDrawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR);
 }
-
-
-
-
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkGetSemaphoreCounterValueKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8698,20 +8513,20 @@ void VulkanCppConsumer::Process_vkGetSemaphoreCounterValueKHR(
     PointerDecoder<uint64_t>*                   pValue)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* semaphore */
 /* pValue */
     std::string pValueName = "pValue_" + std::to_string(this->getNextId());
-    fprintf(file, "uint64_t %s;\n", pValueName.c_str());
+    fprintf(file, "\t\tuint64_t %s;\n", pValueName.c_str());
     m_pfnLoader.AddMethodName("vkGetSemaphoreCounterValueKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetSemaphoreCounterValueKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreCounterValueKHR(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(semaphore).c_str(),
             pValueName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR);
 }
 
@@ -8722,7 +8537,7 @@ void VulkanCppConsumer::Process_vkSignalSemaphoreKHR(
     StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pSignalInfo */
     std::stringstream stream_pSignalInfo;
@@ -8730,14 +8545,14 @@ void VulkanCppConsumer::Process_vkSignalSemaphoreKHR(
                                                                    pSignalInfo->GetPointer(),
                                                                    pSignalInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pSignalInfo.str().c_str());
+    fprintf(file, "%s", stream_pSignalInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkSignalSemaphoreKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkSignalSemaphoreKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkSignalSemaphoreKHR(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pSignalInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSignalSemaphoreKHR);
 }
 
@@ -8749,7 +8564,7 @@ void VulkanCppConsumer::Process_vkWaitSemaphoresKHR(
     uint64_t                                    timeout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pWaitInfo */
     std::stringstream stream_pWaitInfo;
@@ -8757,21 +8572,18 @@ void VulkanCppConsumer::Process_vkWaitSemaphoresKHR(
                                                                  pWaitInfo->GetPointer(),
                                                                  pWaitInfo->GetMetaStructPointer(),
                                                                  *this);
-    fprintf(file, "\n%s", stream_pWaitInfo.str().c_str());
+    fprintf(file, "%s", stream_pWaitInfo.str().c_str());
 /* timeout */
     m_pfnLoader.AddMethodName("vkWaitSemaphoresKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkWaitSemaphoresKHR(%s, &%s, %luUL), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkWaitSemaphoresKHR(%s, &%s, %" PRIu64 "UL), %s);\n",
             this->GetHandle(device).c_str(),
             pWaitInfoStruct.c_str(),
             timeout,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkWaitSemaphoresKHR);
 }
-
-
-
 void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -8779,7 +8591,7 @@ void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateKHR(
     PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pFragmentSize */
     std::stringstream stream_pFragmentSize;
@@ -8787,21 +8599,21 @@ void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateKHR(
                                                                      pFragmentSize->GetPointer(),
                                                                      pFragmentSize->GetMetaStructPointer(),
                                                                      *this);
-    fprintf(file, "\n%s", stream_pFragmentSize.str().c_str());
+    fprintf(file, "%s", stream_pFragmentSize.str().c_str());
 /* combinerOps */
     std::string combinerOpsArray = "NULL";
     std::string combinerOpsValues = toStringJoin(combinerOps->GetPointer(),
                                                  combinerOps->GetPointer() + 2,
                                                  [&](const format::HandleId current) { return this->GetHandle(current); },
                                                  ", ");
-    fprintf(file, "VkFragmentShadingRateCombinerOpKHR %s[] = { %s };\n", combinerOpsArray.c_str(), combinerOpsValues.c_str());
+    fprintf(file, "\t\tVkFragmentShadingRateCombinerOpKHR %s[] = { %s };\n", combinerOpsArray.c_str(), combinerOpsValues.c_str());
     m_pfnLoader.AddMethodName("vkCmdSetFragmentShadingRateKHR");
     fprintf(file,
-            "loaded_vkCmdSetFragmentShadingRateKHR(%s, &%s, %s);\n",
+            "\t\tloaded_vkCmdSetFragmentShadingRateKHR(%s, &%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pFragmentSizeStruct.c_str(),
             combinerOpsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR);
 }
 
@@ -8813,11 +8625,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceFragmentShadingRateKHR>* pFragmentShadingRates)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pFragmentShadingRateCount */
     std::string pFragmentShadingRateCountName = "pFragmentShadingRateCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pFragmentShadingRateCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pFragmentShadingRateCountName.c_str());
 /* pFragmentShadingRates */
     std::string pFragmentShadingRatesName = "pFragmentShadingRates_" + std::to_string(this->getNextId());
     std::stringstream stream_pFragmentShadingRates;
@@ -8825,21 +8637,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(
                                                                pFragmentShadingRates->GetPointer(),
                                                                pFragmentShadingRates->GetMetaStructPointer(),
                                                                *this);
-    fprintf(file, "\n%s", stream_pFragmentShadingRates.str().c_str());
+    fprintf(file, "%s", stream_pFragmentShadingRates.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceFragmentShadingRatesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceFragmentShadingRatesKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceFragmentShadingRatesKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pFragmentShadingRateCountName.c_str(),
             pFragmentShadingRatesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR);
 }
-
-
-
-
 void VulkanCppConsumer::Process_vkWaitForPresentKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8849,24 +8657,22 @@ void VulkanCppConsumer::Process_vkWaitForPresentKHR(
     uint64_t                                    timeout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchain */
 /* presentId */
 /* timeout */
     m_pfnLoader.AddMethodName("vkWaitForPresentKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkWaitForPresentKHR(%s, %s, %luUL, %luUL), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkWaitForPresentKHR(%s, %s, %" PRIu64 "UL, %" PRIu64 "UL), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             presentId,
             timeout,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkWaitForPresentKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetBufferDeviceAddressKHR(
     const ApiCallInfo&                          call_info,
     VkDeviceAddress                             returnValue,
@@ -8874,7 +8680,7 @@ void VulkanCppConsumer::Process_vkGetBufferDeviceAddressKHR(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -8882,13 +8688,13 @@ void VulkanCppConsumer::Process_vkGetBufferDeviceAddressKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetBufferDeviceAddressKHR");
     fprintf(file,
-            "loaded_vkGetBufferDeviceAddressKHR(%s, &%s);\n",
+            "\t\tloaded_vkGetBufferDeviceAddressKHR(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR);
 }
 
@@ -8899,7 +8705,7 @@ void VulkanCppConsumer::Process_vkGetBufferOpaqueCaptureAddressKHR(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -8907,13 +8713,13 @@ void VulkanCppConsumer::Process_vkGetBufferOpaqueCaptureAddressKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetBufferOpaqueCaptureAddressKHR");
     fprintf(file,
-            "loaded_vkGetBufferOpaqueCaptureAddressKHR(%s, &%s);\n",
+            "\t\tloaded_vkGetBufferOpaqueCaptureAddressKHR(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR);
 }
 
@@ -8924,7 +8730,7 @@ void VulkanCppConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddressKHR(
     StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -8932,16 +8738,15 @@ void VulkanCppConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddressKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceMemoryOpaqueCaptureAddressKHR");
     fprintf(file,
-            "loaded_vkGetDeviceMemoryOpaqueCaptureAddressKHR(%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceMemoryOpaqueCaptureAddressKHR(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR);
 }
-
 void VulkanCppConsumer::Process_vkCreateDeferredOperationKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8950,7 +8755,7 @@ void VulkanCppConsumer::Process_vkCreateDeferredOperationKHR(
     HandlePointerDecoder<VkDeferredOperationKHR>* pDeferredOperation)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pAllocator */
 /* pDeferredOperation */
@@ -8962,12 +8767,12 @@ void VulkanCppConsumer::Process_vkCreateDeferredOperationKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateDeferredOperationKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateDeferredOperationKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateDeferredOperationKHR(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             "nullptr",
             pDeferredOperationName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR);
 }
 
@@ -8978,16 +8783,16 @@ void VulkanCppConsumer::Process_vkDeferredOperationJoinKHR(
     format::HandleId                            operation)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* operation */
     m_pfnLoader.AddMethodName("vkDeferredOperationJoinKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkDeferredOperationJoinKHR(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkDeferredOperationJoinKHR(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(operation).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR);
 }
 
@@ -8998,17 +8803,17 @@ void VulkanCppConsumer::Process_vkDestroyDeferredOperationKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* operation */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyDeferredOperationKHR");
     fprintf(file,
-            "loaded_vkDestroyDeferredOperationKHR(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyDeferredOperationKHR(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(operation).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR);
 }
 
@@ -9019,15 +8824,15 @@ void VulkanCppConsumer::Process_vkGetDeferredOperationMaxConcurrencyKHR(
     format::HandleId                            operation)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* operation */
     m_pfnLoader.AddMethodName("vkGetDeferredOperationMaxConcurrencyKHR");
     fprintf(file,
-            "loaded_vkGetDeferredOperationMaxConcurrencyKHR(%s, %s);\n",
+            "\t\tloaded_vkGetDeferredOperationMaxConcurrencyKHR(%s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(operation).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR);
 }
 
@@ -9038,19 +8843,18 @@ void VulkanCppConsumer::Process_vkGetDeferredOperationResultKHR(
     format::HandleId                            operation)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* operation */
     m_pfnLoader.AddMethodName("vkGetDeferredOperationResultKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDeferredOperationResultKHR(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDeferredOperationResultKHR(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(operation).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR);
 }
-
 void VulkanCppConsumer::Process_vkGetPipelineExecutableInternalRepresentationsKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -9060,7 +8864,7 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableInternalRepresentationsKH
     StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>* pInternalRepresentations)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pExecutableInfo */
     std::stringstream stream_pExecutableInfo;
@@ -9068,10 +8872,10 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableInternalRepresentationsKH
                                                                        pExecutableInfo->GetPointer(),
                                                                        pExecutableInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pExecutableInfo.str().c_str());
+    fprintf(file, "%s", stream_pExecutableInfo.str().c_str());
 /* pInternalRepresentationCount */
     std::string pInternalRepresentationCountName = "pInternalRepresentationCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pInternalRepresentationCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pInternalRepresentationCountName.c_str());
 /* pInternalRepresentations */
     std::string pInternalRepresentationsName = "pInternalRepresentations_" + std::to_string(this->getNextId());
     std::stringstream stream_pInternalRepresentations;
@@ -9079,16 +8883,16 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableInternalRepresentationsKH
                                                                   pInternalRepresentations->GetPointer(),
                                                                   pInternalRepresentations->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pInternalRepresentations.str().c_str());
+    fprintf(file, "%s", stream_pInternalRepresentations.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPipelineExecutableInternalRepresentationsKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPipelineExecutableInternalRepresentationsKHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineExecutableInternalRepresentationsKHR(%s, &%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pExecutableInfoStruct.c_str(),
             pInternalRepresentationCountName.c_str(),
             pInternalRepresentationsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR);
 }
 
@@ -9101,7 +8905,7 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
     StructPointerDecoder<Decoded_VkPipelineExecutablePropertiesKHR>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pPipelineInfo */
     std::stringstream stream_pPipelineInfo;
@@ -9109,10 +8913,10 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
                                                                      pPipelineInfo->GetPointer(),
                                                                      pPipelineInfo->GetMetaStructPointer(),
                                                                      *this);
-    fprintf(file, "\n%s", stream_pPipelineInfo.str().c_str());
+    fprintf(file, "%s", stream_pPipelineInfo.str().c_str());
 /* pExecutableCount */
     std::string pExecutableCountName = "pExecutableCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pExecutableCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pExecutableCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -9120,16 +8924,16 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPipelineExecutablePropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPipelineExecutablePropertiesKHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineExecutablePropertiesKHR(%s, &%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pPipelineInfoStruct.c_str(),
             pExecutableCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR);
 }
 
@@ -9142,7 +8946,7 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableStatisticsKHR(
     StructPointerDecoder<Decoded_VkPipelineExecutableStatisticKHR>* pStatistics)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pExecutableInfo */
     std::stringstream stream_pExecutableInfo;
@@ -9150,10 +8954,10 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableStatisticsKHR(
                                                                        pExecutableInfo->GetPointer(),
                                                                        pExecutableInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pExecutableInfo.str().c_str());
+    fprintf(file, "%s", stream_pExecutableInfo.str().c_str());
 /* pStatisticCount */
     std::string pStatisticCountName = "pStatisticCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pStatisticCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pStatisticCountName.c_str());
 /* pStatistics */
     std::string pStatisticsName = "pStatistics_" + std::to_string(this->getNextId());
     std::stringstream stream_pStatistics;
@@ -9161,19 +8965,18 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableStatisticsKHR(
                                                      pStatistics->GetPointer(),
                                                      pStatistics->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pStatistics.str().c_str());
+    fprintf(file, "%s", stream_pStatistics.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPipelineExecutableStatisticsKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPipelineExecutableStatisticsKHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineExecutableStatisticsKHR(%s, &%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pExecutableInfoStruct.c_str(),
             pStatisticCountName.c_str(),
             pStatisticsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPipelineExecutableStatisticsKHR);
 }
-
 void VulkanCppConsumer::Process_vkMapMemory2KHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -9182,7 +8985,7 @@ void VulkanCppConsumer::Process_vkMapMemory2KHR(
     PointerDecoder<uint64_t, void*>*            ppData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pMemoryMapInfo */
     std::stringstream stream_pMemoryMapInfo;
@@ -9190,18 +8993,18 @@ void VulkanCppConsumer::Process_vkMapMemory2KHR(
                                                                       pMemoryMapInfo->GetPointer(),
                                                                       pMemoryMapInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pMemoryMapInfo.str().c_str());
+    fprintf(file, "%s", stream_pMemoryMapInfo.str().c_str());
 /* ppData */
     std::string ppDataName = "ppData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t* %s;\n", ppDataName.c_str());
+    fprintf(file, "\t\tuint8_t* %s;\n", ppDataName.c_str());
     m_pfnLoader.AddMethodName("vkMapMemory2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkMapMemory2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkMapMemory2KHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pMemoryMapInfoStruct.c_str(),
             ppDataName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkMapMemory2KHR);
 }
 
@@ -9212,7 +9015,7 @@ void VulkanCppConsumer::Process_vkUnmapMemory2KHR(
     StructPointerDecoder<Decoded_VkMemoryUnmapInfoKHR>* pMemoryUnmapInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pMemoryUnmapInfo */
     std::stringstream stream_pMemoryUnmapInfo;
@@ -9220,28 +9023,23 @@ void VulkanCppConsumer::Process_vkUnmapMemory2KHR(
                                                                         pMemoryUnmapInfo->GetPointer(),
                                                                         pMemoryUnmapInfo->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pMemoryUnmapInfo.str().c_str());
+    fprintf(file, "%s", stream_pMemoryUnmapInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkUnmapMemory2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkUnmapMemory2KHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkUnmapMemory2KHR(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pMemoryUnmapInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkUnmapMemory2KHR);
 }
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pEncodeInfo */
     std::stringstream stream_pEncodeInfo;
@@ -9249,13 +9047,13 @@ void VulkanCppConsumer::Process_vkCmdEncodeVideoKHR(
                                                                    pEncodeInfo->GetPointer(),
                                                                    pEncodeInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pEncodeInfo.str().c_str());
+    fprintf(file, "%s", stream_pEncodeInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdEncodeVideoKHR");
     fprintf(file,
-            "loaded_vkCmdEncodeVideoKHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdEncodeVideoKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pEncodeInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEncodeVideoKHR);
 }
 
@@ -9269,7 +9067,7 @@ void VulkanCppConsumer::Process_vkGetEncodedVideoSessionParametersKHR(
     PointerDecoder<uint8_t>*                    pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pVideoSessionParametersInfo */
     std::stringstream stream_pVideoSessionParametersInfo;
@@ -9277,7 +9075,7 @@ void VulkanCppConsumer::Process_vkGetEncodedVideoSessionParametersKHR(
                                                                                    pVideoSessionParametersInfo->GetPointer(),
                                                                                    pVideoSessionParametersInfo->GetMetaStructPointer(),
                                                                                    *this);
-    fprintf(file, "\n%s", stream_pVideoSessionParametersInfo.str().c_str());
+    fprintf(file, "%s", stream_pVideoSessionParametersInfo.str().c_str());
 /* pFeedbackInfo */
     std::string pFeedbackInfoName = "pFeedbackInfo_" + std::to_string(this->getNextId());
     std::stringstream stream_pFeedbackInfo;
@@ -9285,24 +9083,24 @@ void VulkanCppConsumer::Process_vkGetEncodedVideoSessionParametersKHR(
                                                        pFeedbackInfo->GetPointer(),
                                                        pFeedbackInfo->GetMetaStructPointer(),
                                                        *this);
-    fprintf(file, "\n%s", stream_pFeedbackInfo.str().c_str());
+    fprintf(file, "%s", stream_pFeedbackInfo.str().c_str());
 /* pDataSize */
     std::string pDataSizeName = "pDataSize_" + std::to_string(this->getNextId());
-    fprintf(file, "size_t %s;\n", pDataSizeName.c_str());
+    fprintf(file, "\t\tsize_t %s;\n", pDataSizeName.c_str());
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    long unsigned int* in_pDataSize = pDataSize->GetPointer();
-    fprintf(file, "uint8_t %s[%ld];\n", pDataName.c_str(), *in_pDataSize);
+    size_t* in_pDataSize = pDataSize->GetPointer();
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pDataName.c_str(), *in_pDataSize);
     m_pfnLoader.AddMethodName("vkGetEncodedVideoSessionParametersKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetEncodedVideoSessionParametersKHR(%s, &%s, &%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetEncodedVideoSessionParametersKHR(%s, &%s, &%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pVideoSessionParametersInfoStruct.c_str(),
             pFeedbackInfoName.c_str(),
             pDataSizeName.c_str(),
             pDataName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetEncodedVideoSessionParametersKHR);
 }
 
@@ -9314,7 +9112,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoEncodeQualityLevelProper
     StructPointerDecoder<Decoded_VkVideoEncodeQualityLevelPropertiesKHR>* pQualityLevelProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pQualityLevelInfo */
     std::stringstream stream_pQualityLevelInfo;
@@ -9322,7 +9120,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoEncodeQualityLevelProper
                                                                          pQualityLevelInfo->GetPointer(),
                                                                          pQualityLevelInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pQualityLevelInfo.str().c_str());
+    fprintf(file, "%s", stream_pQualityLevelInfo.str().c_str());
 /* pQualityLevelProperties */
     std::string pQualityLevelPropertiesName = "pQualityLevelProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pQualityLevelProperties;
@@ -9330,25 +9128,24 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoEncodeQualityLevelProper
                                                                  pQualityLevelProperties->GetPointer(),
                                                                  pQualityLevelProperties->GetMetaStructPointer(),
                                                                  *this);
-    fprintf(file, "\n%s", stream_pQualityLevelProperties.str().c_str());
+    fprintf(file, "%s", stream_pQualityLevelProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pQualityLevelInfoStruct.c_str(),
             pQualityLevelPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR);
 }
-
 void VulkanCppConsumer::Process_vkCmdPipelineBarrier2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pDependencyInfo */
     std::stringstream stream_pDependencyInfo;
@@ -9356,13 +9153,13 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier2KHR(
                                                                        pDependencyInfo->GetPointer(),
                                                                        pDependencyInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pDependencyInfo.str().c_str());
+    fprintf(file, "%s", stream_pDependencyInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdPipelineBarrier2KHR");
     fprintf(file,
-            "loaded_vkCmdPipelineBarrier2KHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdPipelineBarrier2KHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pDependencyInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPipelineBarrier2KHR);
 }
 
@@ -9373,17 +9170,17 @@ void VulkanCppConsumer::Process_vkCmdResetEvent2KHR(
     VkPipelineStageFlags2                       stageMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* event */
 /* stageMask */
     m_pfnLoader.AddMethodName("vkCmdResetEvent2KHR");
     fprintf(file,
-            "loaded_vkCmdResetEvent2KHR(%s, %s, %s);\n",
+            "\t\tloaded_vkCmdResetEvent2KHR(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(event).c_str(),
             util::ToString<VkPipelineStageFlags2>(stageMask).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdResetEvent2KHR);
 }
 
@@ -9394,7 +9191,7 @@ void VulkanCppConsumer::Process_vkCmdSetEvent2KHR(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* event */
 /* pDependencyInfo */
@@ -9403,14 +9200,14 @@ void VulkanCppConsumer::Process_vkCmdSetEvent2KHR(
                                                                        pDependencyInfo->GetPointer(),
                                                                        pDependencyInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pDependencyInfo.str().c_str());
+    fprintf(file, "%s", stream_pDependencyInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdSetEvent2KHR");
     fprintf(file,
-            "loaded_vkCmdSetEvent2KHR(%s, %s, &%s);\n",
+            "\t\tloaded_vkCmdSetEvent2KHR(%s, %s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(event).c_str(),
             pDependencyInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetEvent2KHR);
 }
 
@@ -9422,7 +9219,7 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents2KHR(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* eventCount */
 /* pEvents */
@@ -9431,11 +9228,11 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents2KHR(
                                              pEvents->GetPointer() + eventCount,
                                              [&](const format::HandleId current) { return this->GetHandle(current); },
                                              ", ");
-    if (eventCount == 1) {
+    if (eventCount == 1 && pEventsValues != "VK_NULL_HANDLE") {
         pEventsArray = "&" + pEventsValues;
     } else if (eventCount > 1) {
         pEventsArray = "pEventsArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkEvent %s[] = { %s };\n", pEventsArray.c_str(), pEventsValues.c_str());
+        fprintf(file, "\t\tVkEvent %s[] = { %s };\n", pEventsArray.c_str(), pEventsValues.c_str());
     }
 /* pDependencyInfos */
     std::stringstream stream_pDependencyInfos;
@@ -9445,21 +9242,23 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents2KHR(
                                                      pDependencyInfosPair.end(),
                                                      [&](auto pair) { return GenerateStruct_VkDependencyInfo(stream_pDependencyInfos, pair.t1, pair.t2, *this); },
                                                      ", ");
-    fprintf(file, "\n%s", stream_pDependencyInfos.str().c_str());
-    if (eventCount == 1) {
-        pDependencyInfosArray = "&" + pDependencyInfosNames;
-    } else if (eventCount > 1) {
-        pDependencyInfosArray = "pDependencyInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkDependencyInfo %s[] = { %s };\n", pDependencyInfosArray.c_str(), pDependencyInfosNames.c_str());
+    if (stream_pDependencyInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pDependencyInfos.str().c_str());
+        if (eventCount == 1) {
+            pDependencyInfosArray = "&" + pDependencyInfosNames;
+        } else if (eventCount > 1) {
+            pDependencyInfosArray = "pDependencyInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkDependencyInfo %s[] = { %s };\n", pDependencyInfosArray.c_str(), pDependencyInfosNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdWaitEvents2KHR");
     fprintf(file,
-            "loaded_vkCmdWaitEvents2KHR(%s, %u, %s, %s);\n",
+            "\t\tloaded_vkCmdWaitEvents2KHR(%s, %u, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             eventCount,
             pEventsArray.c_str(),
             pDependencyInfosArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWaitEvents2KHR);
 }
 
@@ -9472,7 +9271,7 @@ void VulkanCppConsumer::Process_vkCmdWriteBufferMarker2AMD(
     uint32_t                                    marker)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* stage */
 /* dstBuffer */
@@ -9480,13 +9279,13 @@ void VulkanCppConsumer::Process_vkCmdWriteBufferMarker2AMD(
 /* marker */
     m_pfnLoader.AddMethodName("vkCmdWriteBufferMarker2AMD");
     fprintf(file,
-            "loaded_vkCmdWriteBufferMarker2AMD(%s, %s, %s, %luUL, %u);\n",
+            "\t\tloaded_vkCmdWriteBufferMarker2AMD(%s, %s, %s, %" PRIu64 "UL, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineStageFlags2>(stage).c_str(),
             this->GetHandle(dstBuffer).c_str(),
             dstOffset,
             marker);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWriteBufferMarker2AMD);
 }
 
@@ -9498,19 +9297,19 @@ void VulkanCppConsumer::Process_vkCmdWriteTimestamp2KHR(
     uint32_t                                    query)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* stage */
 /* queryPool */
 /* query */
     m_pfnLoader.AddMethodName("vkCmdWriteTimestamp2KHR");
     fprintf(file,
-            "loaded_vkCmdWriteTimestamp2KHR(%s, %s, %s, %u);\n",
+            "\t\tloaded_vkCmdWriteTimestamp2KHR(%s, %s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineStageFlags2>(stage).c_str(),
             this->GetHandle(queryPool).c_str(),
             query);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWriteTimestamp2KHR);
 }
 
@@ -9521,11 +9320,11 @@ void VulkanCppConsumer::Process_vkGetQueueCheckpointData2NV(
     StructPointerDecoder<Decoded_VkCheckpointData2NV>* pCheckpointData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* pCheckpointDataCount */
     std::string pCheckpointDataCountName = "pCheckpointDataCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pCheckpointDataCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pCheckpointDataCountName.c_str());
 /* pCheckpointData */
     std::string pCheckpointDataName = "pCheckpointData_" + std::to_string(this->getNextId());
     std::stringstream stream_pCheckpointData;
@@ -9533,14 +9332,14 @@ void VulkanCppConsumer::Process_vkGetQueueCheckpointData2NV(
                                                          pCheckpointData->GetPointer(),
                                                          pCheckpointData->GetMetaStructPointer(),
                                                          *this);
-    fprintf(file, "\n%s", stream_pCheckpointData.str().c_str());
+    fprintf(file, "%s", stream_pCheckpointData.str().c_str());
     m_pfnLoader.AddMethodName("vkGetQueueCheckpointData2NV");
     fprintf(file,
-            "loaded_vkGetQueueCheckpointData2NV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetQueueCheckpointData2NV(%s, &%s, &%s);\n",
             this->GetHandle(queue).c_str(),
             pCheckpointDataCountName.c_str(),
             pCheckpointDataName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetQueueCheckpointData2NV);
 }
 
@@ -9553,7 +9352,7 @@ void VulkanCppConsumer::Process_vkQueueSubmit2KHR(
     format::HandleId                            fence)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* submitCount */
 /* pSubmits */
@@ -9564,37 +9363,34 @@ void VulkanCppConsumer::Process_vkQueueSubmit2KHR(
                                              pSubmitsPair.end(),
                                              [&](auto pair) { return GenerateStruct_VkSubmitInfo2(stream_pSubmits, pair.t1, pair.t2, *this); },
                                              ", ");
-    fprintf(file, "\n%s", stream_pSubmits.str().c_str());
-    if (submitCount == 1) {
-        pSubmitsArray = "&" + pSubmitsNames;
-    } else if (submitCount > 1) {
-        pSubmitsArray = "pSubmits_" + std::to_string(this->getNextId());
-        fprintf(file, "VkSubmitInfo2 %s[] = { %s };\n", pSubmitsArray.c_str(), pSubmitsNames.c_str());
+    if (stream_pSubmits.str().length() > 0) {
+        fprintf(file, "%s", stream_pSubmits.str().c_str());
+        if (submitCount == 1) {
+            pSubmitsArray = "&" + pSubmitsNames;
+        } else if (submitCount > 1) {
+            pSubmitsArray = "pSubmits_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkSubmitInfo2 %s[] = { %s };\n", pSubmitsArray.c_str(), pSubmitsNames.c_str());
+        }
     }
 /* fence */
     m_pfnLoader.AddMethodName("vkQueueSubmit2KHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkQueueSubmit2KHR(%s, %u, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkQueueSubmit2KHR(%s, %u, %s, %s), %s);\n",
             this->GetHandle(queue).c_str(),
             submitCount,
             pSubmitsArray.c_str(),
             this->GetHandle(fence).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSubmit2KHR);
 }
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdBlitImage2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pBlitImageInfo */
     std::stringstream stream_pBlitImageInfo;
@@ -9602,13 +9398,13 @@ void VulkanCppConsumer::Process_vkCmdBlitImage2KHR(
                                                                       pBlitImageInfo->GetPointer(),
                                                                       pBlitImageInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pBlitImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pBlitImageInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdBlitImage2KHR");
     fprintf(file,
-            "loaded_vkCmdBlitImage2KHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdBlitImage2KHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pBlitImageInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBlitImage2KHR);
 }
 
@@ -9618,7 +9414,7 @@ void VulkanCppConsumer::Process_vkCmdCopyBuffer2KHR(
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCopyBufferInfo */
     std::stringstream stream_pCopyBufferInfo;
@@ -9626,13 +9422,13 @@ void VulkanCppConsumer::Process_vkCmdCopyBuffer2KHR(
                                                                        pCopyBufferInfo->GetPointer(),
                                                                        pCopyBufferInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pCopyBufferInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyBufferInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyBuffer2KHR");
     fprintf(file,
-            "loaded_vkCmdCopyBuffer2KHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyBuffer2KHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCopyBufferInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR);
 }
 
@@ -9642,7 +9438,7 @@ void VulkanCppConsumer::Process_vkCmdCopyBufferToImage2KHR(
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCopyBufferToImageInfo */
     std::stringstream stream_pCopyBufferToImageInfo;
@@ -9650,13 +9446,13 @@ void VulkanCppConsumer::Process_vkCmdCopyBufferToImage2KHR(
                                                                               pCopyBufferToImageInfo->GetPointer(),
                                                                               pCopyBufferToImageInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pCopyBufferToImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyBufferToImageInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyBufferToImage2KHR");
     fprintf(file,
-            "loaded_vkCmdCopyBufferToImage2KHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyBufferToImage2KHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCopyBufferToImageInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR);
 }
 
@@ -9666,7 +9462,7 @@ void VulkanCppConsumer::Process_vkCmdCopyImage2KHR(
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCopyImageInfo */
     std::stringstream stream_pCopyImageInfo;
@@ -9674,13 +9470,13 @@ void VulkanCppConsumer::Process_vkCmdCopyImage2KHR(
                                                                       pCopyImageInfo->GetPointer(),
                                                                       pCopyImageInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pCopyImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyImageInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyImage2KHR");
     fprintf(file,
-            "loaded_vkCmdCopyImage2KHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyImage2KHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCopyImageInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyImage2KHR);
 }
 
@@ -9690,7 +9486,7 @@ void VulkanCppConsumer::Process_vkCmdCopyImageToBuffer2KHR(
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCopyImageToBufferInfo */
     std::stringstream stream_pCopyImageToBufferInfo;
@@ -9698,13 +9494,13 @@ void VulkanCppConsumer::Process_vkCmdCopyImageToBuffer2KHR(
                                                                               pCopyImageToBufferInfo->GetPointer(),
                                                                               pCopyImageToBufferInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pCopyImageToBufferInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyImageToBufferInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyImageToBuffer2KHR");
     fprintf(file,
-            "loaded_vkCmdCopyImageToBuffer2KHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyImageToBuffer2KHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCopyImageToBufferInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR);
 }
 
@@ -9714,7 +9510,7 @@ void VulkanCppConsumer::Process_vkCmdResolveImage2KHR(
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pResolveImageInfo */
     std::stringstream stream_pResolveImageInfo;
@@ -9722,36 +9518,32 @@ void VulkanCppConsumer::Process_vkCmdResolveImage2KHR(
                                                                          pResolveImageInfo->GetPointer(),
                                                                          pResolveImageInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pResolveImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pResolveImageInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdResolveImage2KHR");
     fprintf(file,
-            "loaded_vkCmdResolveImage2KHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdResolveImage2KHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pResolveImageInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdResolveImage2KHR);
 }
-
-
 void VulkanCppConsumer::Process_vkCmdTraceRaysIndirect2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkDeviceAddress                             indirectDeviceAddress)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* indirectDeviceAddress */
     m_pfnLoader.AddMethodName("vkCmdTraceRaysIndirect2KHR");
     fprintf(file,
-            "loaded_vkCmdTraceRaysIndirect2KHR(%s, %luUL);\n",
+            "\t\tloaded_vkCmdTraceRaysIndirect2KHR(%s, %" PRIu64 "UL);\n",
             this->GetHandle(commandBuffer).c_str(),
             indirectDeviceAddress);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdTraceRaysIndirect2KHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -9759,7 +9551,7 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -9767,7 +9559,7 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pMemoryRequirements */
     std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pMemoryRequirements;
@@ -9775,14 +9567,14 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
                                                              pMemoryRequirements->GetPointer(),
                                                              pMemoryRequirements->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pMemoryRequirements.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceBufferMemoryRequirementsKHR");
     fprintf(file,
-            "loaded_vkGetDeviceBufferMemoryRequirementsKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceBufferMemoryRequirementsKHR(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceBufferMemoryRequirementsKHR);
 }
 
@@ -9793,7 +9585,7 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirementsKHR(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -9801,7 +9593,7 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirementsKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pMemoryRequirements */
     std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pMemoryRequirements;
@@ -9809,14 +9601,14 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirementsKHR(
                                                              pMemoryRequirements->GetPointer(),
                                                              pMemoryRequirements->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pMemoryRequirements.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceImageMemoryRequirementsKHR");
     fprintf(file,
-            "loaded_vkGetDeviceImageMemoryRequirementsKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceImageMemoryRequirementsKHR(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceImageMemoryRequirementsKHR);
 }
 
@@ -9828,7 +9620,7 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -9836,10 +9628,10 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pSparseMemoryRequirementCount */
     std::string pSparseMemoryRequirementCountName = "pSparseMemoryRequirementCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pSparseMemoryRequirementCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pSparseMemoryRequirementCountName.c_str());
 /* pSparseMemoryRequirements */
     std::string pSparseMemoryRequirementsName = "pSparseMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pSparseMemoryRequirements;
@@ -9847,18 +9639,17 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
                                                                    pSparseMemoryRequirements->GetPointer(),
                                                                    pSparseMemoryRequirements->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pSparseMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pSparseMemoryRequirements.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceImageSparseMemoryRequirementsKHR");
     fprintf(file,
-            "loaded_vkGetDeviceImageSparseMemoryRequirementsKHR(%s, &%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceImageSparseMemoryRequirementsKHR(%s, &%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pSparseMemoryRequirementCountName.c_str(),
             pSparseMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceImageSparseMemoryRequirementsKHR);
 }
-
 void VulkanCppConsumer::Process_vkCmdBindIndexBuffer2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -9868,7 +9659,7 @@ void VulkanCppConsumer::Process_vkCmdBindIndexBuffer2KHR(
     VkIndexType                                 indexType)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -9876,13 +9667,13 @@ void VulkanCppConsumer::Process_vkCmdBindIndexBuffer2KHR(
 /* indexType */
     m_pfnLoader.AddMethodName("vkCmdBindIndexBuffer2KHR");
     fprintf(file,
-            "loaded_vkCmdBindIndexBuffer2KHR(%s, %s, %luUL, %luUL, %s);\n",
+            "\t\tloaded_vkCmdBindIndexBuffer2KHR(%s, %s, %" PRIu64 "UL, %" PRIu64 "UL, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
             size,
             util::ToString<VkIndexType>(indexType).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindIndexBuffer2KHR);
 }
 
@@ -9893,7 +9684,7 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSubresourceLayoutKHR(
     StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -9901,7 +9692,7 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSubresourceLayoutKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pLayout */
     std::string pLayoutName = "pLayout_" + std::to_string(this->getNextId());
     std::stringstream stream_pLayout;
@@ -9909,14 +9700,14 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSubresourceLayoutKHR(
                                                  pLayout->GetPointer(),
                                                  pLayout->GetMetaStructPointer(),
                                                  *this);
-    fprintf(file, "\n%s", stream_pLayout.str().c_str());
+    fprintf(file, "%s", stream_pLayout.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceImageSubresourceLayoutKHR");
     fprintf(file,
-            "loaded_vkGetDeviceImageSubresourceLayoutKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceImageSubresourceLayoutKHR(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pLayoutName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceImageSubresourceLayoutKHR);
 }
 
@@ -9928,7 +9719,7 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2KHR(
     StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* image */
 /* pSubresource */
@@ -9937,7 +9728,7 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2KHR(
                                                                     pSubresource->GetPointer(),
                                                                     pSubresource->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pSubresource.str().c_str());
+    fprintf(file, "%s", stream_pSubresource.str().c_str());
 /* pLayout */
     std::string pLayoutName = "pLayout_" + std::to_string(this->getNextId());
     std::stringstream stream_pLayout;
@@ -9945,15 +9736,15 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2KHR(
                                                  pLayout->GetPointer(),
                                                  pLayout->GetMetaStructPointer(),
                                                  *this);
-    fprintf(file, "\n%s", stream_pLayout.str().c_str());
+    fprintf(file, "%s", stream_pLayout.str().c_str());
     m_pfnLoader.AddMethodName("vkGetImageSubresourceLayout2KHR");
     fprintf(file,
-            "loaded_vkGetImageSubresourceLayout2KHR(%s, %s, &%s, &%s);\n",
+            "\t\tloaded_vkGetImageSubresourceLayout2KHR(%s, %s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             pSubresourceStruct.c_str(),
             pLayoutName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageSubresourceLayout2KHR);
 }
 
@@ -9964,7 +9755,7 @@ void VulkanCppConsumer::Process_vkGetRenderingAreaGranularityKHR(
     StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pRenderingAreaInfo */
     std::stringstream stream_pRenderingAreaInfo;
@@ -9972,21 +9763,19 @@ void VulkanCppConsumer::Process_vkGetRenderingAreaGranularityKHR(
                                                                           pRenderingAreaInfo->GetPointer(),
                                                                           pRenderingAreaInfo->GetMetaStructPointer(),
                                                                           *this);
-    fprintf(file, "\n%s", stream_pRenderingAreaInfo.str().c_str());
+    fprintf(file, "%s", stream_pRenderingAreaInfo.str().c_str());
 /* pGranularity */
     std::string pGranularityName = "pGranularity_" + std::to_string(this->getNextId());
-    fprintf(file, "VkExtent2D %s;\n", pGranularityName.c_str());
+    fprintf(file, "\t\tVkExtent2D %s;\n", pGranularityName.c_str());
     m_pfnLoader.AddMethodName("vkGetRenderingAreaGranularityKHR");
     fprintf(file,
-            "loaded_vkGetRenderingAreaGranularityKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetRenderingAreaGranularityKHR(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pRenderingAreaInfoStruct.c_str(),
             pGranularityName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRenderingAreaGranularityKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -9995,11 +9784,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKH
     StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -10007,18 +9796,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKH
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR);
 }
-
 void VulkanCppConsumer::Process_vkFrameBoundaryANDROID(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -10026,20 +9814,19 @@ void VulkanCppConsumer::Process_vkFrameBoundaryANDROID(
     format::HandleId                            image)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* semaphore */
 /* image */
     m_pfnLoader.AddMethodName("vkFrameBoundaryANDROID");
     fprintf(file,
-            "loaded_vkFrameBoundaryANDROID(%s, %s, %s);\n",
+            "\t\tloaded_vkFrameBoundaryANDROID(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(semaphore).c_str(),
             this->GetHandle(image).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkFrameBoundaryANDROID);
 }
-
 void VulkanCppConsumer::Process_vkCreateDebugReportCallbackEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10049,7 +9836,7 @@ void VulkanCppConsumer::Process_vkCreateDebugReportCallbackEXT(
     HandlePointerDecoder<VkDebugReportCallbackEXT>* pCallback)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -10057,7 +9844,7 @@ void VulkanCppConsumer::Process_vkCreateDebugReportCallbackEXT(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pCallback */
     std::string pCallbackName = "pCallback_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT));
@@ -10068,13 +9855,13 @@ void VulkanCppConsumer::Process_vkCreateDebugReportCallbackEXT(
     }
     m_pfnLoader.AddMethodName("vkCreateDebugReportCallbackEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateDebugReportCallbackEXT(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateDebugReportCallbackEXT(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pCallbackName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT);
 }
 
@@ -10090,7 +9877,7 @@ void VulkanCppConsumer::Process_vkDebugReportMessageEXT(
     StringDecoder*                              pMessage)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* flags */
 /* objectType */
@@ -10101,7 +9888,7 @@ void VulkanCppConsumer::Process_vkDebugReportMessageEXT(
 /* pMessage */
     m_pfnLoader.AddMethodName("vkDebugReportMessageEXT");
     fprintf(file,
-            "loaded_vkDebugReportMessageEXT(%s, %s, %s, %luUL, %lu, %d, %p, %p);\n",
+            "\t\tloaded_vkDebugReportMessageEXT(%s, %s, %s, %" PRIu64 "UL, %" PRId64 ", %d, %p, %p);\n",
             this->GetHandle(instance).c_str(),
             util::ToString<VkDebugReportFlagsEXT>(flags).c_str(),
             util::ToString<VkDebugReportObjectTypeEXT>(objectType).c_str(),
@@ -10110,7 +9897,7 @@ void VulkanCppConsumer::Process_vkDebugReportMessageEXT(
             messageCode,
             pMessage->GetPointer(),
             pMessage->GetPointer());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDebugReportMessageEXT);
 }
 
@@ -10121,33 +9908,26 @@ void VulkanCppConsumer::Process_vkDestroyDebugReportCallbackEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* callback */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyDebugReportCallbackEXT");
     fprintf(file,
-            "loaded_vkDestroyDebugReportCallbackEXT(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyDebugReportCallbackEXT(%s, %s, %s);\n",
             this->GetHandle(instance).c_str(),
             this->GetHandle(callback).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT);
 }
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pMarkerInfo */
     std::stringstream stream_pMarkerInfo;
@@ -10155,13 +9935,13 @@ void VulkanCppConsumer::Process_vkCmdDebugMarkerBeginEXT(
                                                                    pMarkerInfo->GetPointer(),
                                                                    pMarkerInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pMarkerInfo.str().c_str());
+    fprintf(file, "%s", stream_pMarkerInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdDebugMarkerBeginEXT");
     fprintf(file,
-            "loaded_vkCmdDebugMarkerBeginEXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdDebugMarkerBeginEXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pMarkerInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT);
 }
 
@@ -10170,13 +9950,13 @@ void VulkanCppConsumer::Process_vkCmdDebugMarkerEndEXT(
     format::HandleId                            commandBuffer)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
     m_pfnLoader.AddMethodName("vkCmdDebugMarkerEndEXT");
     fprintf(file,
-            "loaded_vkCmdDebugMarkerEndEXT(%s);\n",
+            "\t\tloaded_vkCmdDebugMarkerEndEXT(%s);\n",
             this->GetHandle(commandBuffer).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT);
 }
 
@@ -10186,7 +9966,7 @@ void VulkanCppConsumer::Process_vkCmdDebugMarkerInsertEXT(
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pMarkerInfo */
     std::stringstream stream_pMarkerInfo;
@@ -10194,13 +9974,13 @@ void VulkanCppConsumer::Process_vkCmdDebugMarkerInsertEXT(
                                                                    pMarkerInfo->GetPointer(),
                                                                    pMarkerInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pMarkerInfo.str().c_str());
+    fprintf(file, "%s", stream_pMarkerInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdDebugMarkerInsertEXT");
     fprintf(file,
-            "loaded_vkCmdDebugMarkerInsertEXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdDebugMarkerInsertEXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pMarkerInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT);
 }
 
@@ -10223,9 +10003,6 @@ void VulkanCppConsumer::Process_vkDebugMarkerSetObjectTagEXT(
     Generate_vkDebugMarkerSetObjectTagEXT(returnValue, device, pTagInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT);
 }
-
-
-
 void VulkanCppConsumer::Process_vkCmdBeginQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -10235,7 +10012,7 @@ void VulkanCppConsumer::Process_vkCmdBeginQueryIndexedEXT(
     uint32_t                                    index)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* queryPool */
 /* query */
@@ -10243,13 +10020,13 @@ void VulkanCppConsumer::Process_vkCmdBeginQueryIndexedEXT(
 /* index */
     m_pfnLoader.AddMethodName("vkCmdBeginQueryIndexedEXT");
     fprintf(file,
-            "loaded_vkCmdBeginQueryIndexedEXT(%s, %s, %u, %s, %u);\n",
+            "\t\tloaded_vkCmdBeginQueryIndexedEXT(%s, %s, %u, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(queryPool).c_str(),
             query,
             util::ToString<VkQueryControlFlags>(flags).c_str(),
             index);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT);
 }
 
@@ -10262,7 +10039,7 @@ void VulkanCppConsumer::Process_vkCmdBeginTransformFeedbackEXT(
     PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstCounterBuffer */
 /* counterBufferCount */
@@ -10272,32 +10049,32 @@ void VulkanCppConsumer::Process_vkCmdBeginTransformFeedbackEXT(
                                                      pCounterBuffers->GetPointer() + counterBufferCount,
                                                      [&](const format::HandleId current) { return this->GetHandle(current); },
                                                      ", ");
-    if (counterBufferCount == 1) {
+    if (counterBufferCount == 1 && pCounterBuffersValues != "VK_NULL_HANDLE") {
         pCounterBuffersArray = "&" + pCounterBuffersValues;
     } else if (counterBufferCount > 1) {
         pCounterBuffersArray = "pCounterBuffersArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBuffer %s[] = { %s };\n", pCounterBuffersArray.c_str(), pCounterBuffersValues.c_str());
+        fprintf(file, "\t\tVkBuffer %s[] = { %s };\n", pCounterBuffersArray.c_str(), pCounterBuffersValues.c_str());
     }
 /* pCounterBufferOffsets */
     std::string pCounterBufferOffsetsArray = "pCounterBufferOffsets_" + std::to_string(this->getNextId());
-    if (counterBufferCount > 0) {
+    if (counterBufferCount > 0 && pCounterBufferOffsets->GetPointer() != nullptr) {
         std::string pCounterBufferOffsetsValues = toStringJoin(pCounterBufferOffsets->GetPointer(),
                                                                pCounterBufferOffsets->GetPointer() + counterBufferCount,
                                                                [&](const auto current) { return std::to_string(current) + "UL"; },
                                                                ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pCounterBufferOffsetsArray.c_str(), pCounterBufferOffsetsValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pCounterBufferOffsetsArray.c_str(), pCounterBufferOffsetsValues.c_str());
     } else {
         pCounterBufferOffsetsArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdBeginTransformFeedbackEXT");
     fprintf(file,
-            "loaded_vkCmdBeginTransformFeedbackEXT(%s, %u, %u, %s, %s);\n",
+            "\t\tloaded_vkCmdBeginTransformFeedbackEXT(%s, %u, %u, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstCounterBuffer,
             counterBufferCount,
             pCounterBuffersArray.c_str(),
             pCounterBufferOffsetsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT);
 }
 
@@ -10311,7 +10088,7 @@ void VulkanCppConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     PointerDecoder<VkDeviceSize>*               pSizes)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstBinding */
 /* bindingCount */
@@ -10321,11 +10098,11 @@ void VulkanCppConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
                                               pBuffers->GetPointer() + bindingCount,
                                               [&](const format::HandleId current) { return this->GetHandle(current); },
                                               ", ");
-    if (bindingCount == 1) {
+    if (bindingCount == 1 && pBuffersValues != "VK_NULL_HANDLE") {
         pBuffersArray = "&" + pBuffersValues;
     } else if (bindingCount > 1) {
         pBuffersArray = "pBuffersArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBuffer %s[] = { %s };\n", pBuffersArray.c_str(), pBuffersValues.c_str());
+        fprintf(file, "\t\tVkBuffer %s[] = { %s };\n", pBuffersArray.c_str(), pBuffersValues.c_str());
     }
 /* pOffsets */
     std::string pOffsetsArray = "pOffsets_" + std::to_string(this->getNextId());
@@ -10334,31 +10111,31 @@ void VulkanCppConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
                                                   pOffsets->GetPointer() + bindingCount,
                                                   [&](const auto current) { return std::to_string(current) + "UL"; },
                                                   ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pOffsetsArray.c_str(), pOffsetsValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pOffsetsArray.c_str(), pOffsetsValues.c_str());
     } else {
         pOffsetsArray = "NULL";
     }
 /* pSizes */
     std::string pSizesArray = "pSizes_" + std::to_string(this->getNextId());
-    if (bindingCount > 0) {
+    if (bindingCount > 0 && pSizes->GetPointer() != nullptr) {
         std::string pSizesValues = toStringJoin(pSizes->GetPointer(),
                                                 pSizes->GetPointer() + bindingCount,
                                                 [&](const auto current) { return std::to_string(current) + "UL"; },
                                                 ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pSizesArray.c_str(), pSizesValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pSizesArray.c_str(), pSizesValues.c_str());
     } else {
         pSizesArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdBindTransformFeedbackBuffersEXT");
     fprintf(file,
-            "loaded_vkCmdBindTransformFeedbackBuffersEXT(%s, %u, %u, %s, %s, %s);\n",
+            "\t\tloaded_vkCmdBindTransformFeedbackBuffersEXT(%s, %u, %u, %s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstBinding,
             bindingCount,
             pBuffersArray.c_str(),
             pOffsetsArray.c_str(),
             pSizesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT);
 }
 
@@ -10373,7 +10150,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectByteCountEXT(
     uint32_t                                    vertexStride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* instanceCount */
 /* firstInstance */
@@ -10383,7 +10160,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectByteCountEXT(
 /* vertexStride */
     m_pfnLoader.AddMethodName("vkCmdDrawIndirectByteCountEXT");
     fprintf(file,
-            "loaded_vkCmdDrawIndirectByteCountEXT(%s, %u, %u, %s, %luUL, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawIndirectByteCountEXT(%s, %u, %u, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             instanceCount,
             firstInstance,
@@ -10391,7 +10168,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectByteCountEXT(
             counterBufferOffset,
             counterOffset,
             vertexStride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT);
 }
 
@@ -10403,19 +10180,19 @@ void VulkanCppConsumer::Process_vkCmdEndQueryIndexedEXT(
     uint32_t                                    index)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* queryPool */
 /* query */
 /* index */
     m_pfnLoader.AddMethodName("vkCmdEndQueryIndexedEXT");
     fprintf(file,
-            "loaded_vkCmdEndQueryIndexedEXT(%s, %s, %u, %u);\n",
+            "\t\tloaded_vkCmdEndQueryIndexedEXT(%s, %s, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(queryPool).c_str(),
             query,
             index);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT);
 }
 
@@ -10428,7 +10205,7 @@ void VulkanCppConsumer::Process_vkCmdEndTransformFeedbackEXT(
     PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstCounterBuffer */
 /* counterBufferCount */
@@ -10438,35 +10215,34 @@ void VulkanCppConsumer::Process_vkCmdEndTransformFeedbackEXT(
                                                      pCounterBuffers->GetPointer() + counterBufferCount,
                                                      [&](const format::HandleId current) { return this->GetHandle(current); },
                                                      ", ");
-    if (counterBufferCount == 1) {
+    if (counterBufferCount == 1 && pCounterBuffersValues != "VK_NULL_HANDLE") {
         pCounterBuffersArray = "&" + pCounterBuffersValues;
     } else if (counterBufferCount > 1) {
         pCounterBuffersArray = "pCounterBuffersArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBuffer %s[] = { %s };\n", pCounterBuffersArray.c_str(), pCounterBuffersValues.c_str());
+        fprintf(file, "\t\tVkBuffer %s[] = { %s };\n", pCounterBuffersArray.c_str(), pCounterBuffersValues.c_str());
     }
 /* pCounterBufferOffsets */
     std::string pCounterBufferOffsetsArray = "pCounterBufferOffsets_" + std::to_string(this->getNextId());
-    if (counterBufferCount > 0) {
+    if (counterBufferCount > 0 && pCounterBufferOffsets->GetPointer() != nullptr) {
         std::string pCounterBufferOffsetsValues = toStringJoin(pCounterBufferOffsets->GetPointer(),
                                                                pCounterBufferOffsets->GetPointer() + counterBufferCount,
                                                                [&](const auto current) { return std::to_string(current) + "UL"; },
                                                                ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pCounterBufferOffsetsArray.c_str(), pCounterBufferOffsetsValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pCounterBufferOffsetsArray.c_str(), pCounterBufferOffsetsValues.c_str());
     } else {
         pCounterBufferOffsetsArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdEndTransformFeedbackEXT");
     fprintf(file,
-            "loaded_vkCmdEndTransformFeedbackEXT(%s, %u, %u, %s, %s);\n",
+            "\t\tloaded_vkCmdEndTransformFeedbackEXT(%s, %u, %u, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstCounterBuffer,
             counterBufferCount,
             pCounterBuffersArray.c_str(),
             pCounterBufferOffsetsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT);
 }
-
 void VulkanCppConsumer::Process_vkGetImageViewAddressNVX(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10475,7 +10251,7 @@ void VulkanCppConsumer::Process_vkGetImageViewAddressNVX(
     StructPointerDecoder<Decoded_VkImageViewAddressPropertiesNVX>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* imageView */
 /* pProperties */
@@ -10485,15 +10261,15 @@ void VulkanCppConsumer::Process_vkGetImageViewAddressNVX(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetImageViewAddressNVX");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetImageViewAddressNVX(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetImageViewAddressNVX(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(imageView).c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageViewAddressNVX);
 }
 
@@ -10504,7 +10280,7 @@ void VulkanCppConsumer::Process_vkGetImageViewHandleNVX(
     StructPointerDecoder<Decoded_VkImageViewHandleInfoNVX>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -10512,16 +10288,15 @@ void VulkanCppConsumer::Process_vkGetImageViewHandleNVX(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetImageViewHandleNVX");
     fprintf(file,
-            "loaded_vkGetImageViewHandleNVX(%s, &%s);\n",
+            "\t\tloaded_vkGetImageViewHandleNVX(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageViewHandleNVX);
 }
-
 void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -10533,7 +10308,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -10543,7 +10318,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
 /* stride */
     m_pfnLoader.AddMethodName("vkCmdDrawIndexedIndirectCountAMD");
     fprintf(file,
-            "loaded_vkCmdDrawIndexedIndirectCountAMD(%s, %s, %luUL, %s, %luUL, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawIndexedIndirectCountAMD(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
@@ -10551,7 +10326,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
             countBufferOffset,
             maxDrawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD);
 }
 
@@ -10566,7 +10341,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCountAMD(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -10576,7 +10351,7 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCountAMD(
 /* stride */
     m_pfnLoader.AddMethodName("vkCmdDrawIndirectCountAMD");
     fprintf(file,
-            "loaded_vkCmdDrawIndirectCountAMD(%s, %s, %luUL, %s, %luUL, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawIndirectCountAMD(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
@@ -10584,16 +10359,9 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCountAMD(
             countBufferOffset,
             maxDrawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD);
 }
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkGetShaderInfoAMD(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10605,21 +10373,21 @@ void VulkanCppConsumer::Process_vkGetShaderInfoAMD(
     PointerDecoder<uint8_t>*                    pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipeline */
 /* shaderStage */
 /* infoType */
 /* pInfoSize */
     std::string pInfoSizeName = "pInfoSize_" + std::to_string(this->getNextId());
-    fprintf(file, "size_t %s;\n", pInfoSizeName.c_str());
+    fprintf(file, "\t\tsize_t %s;\n", pInfoSizeName.c_str());
 /* pInfo */
     std::string pInfoName = "pInfo_" + std::to_string(this->getNextId());
-    long unsigned int* in_pInfoSize = pInfoSize->GetPointer();
-    fprintf(file, "uint8_t %s[%ld];\n", pInfoName.c_str(), *in_pInfoSize);
+    size_t* in_pInfoSize = pInfoSize->GetPointer();
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pInfoName.c_str(), *in_pInfoSize);
     m_pfnLoader.AddMethodName("vkGetShaderInfoAMD");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetShaderInfoAMD(%s, %s, %s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetShaderInfoAMD(%s, %s, %s, %s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             util::ToString<VkShaderStageFlagBits>(shaderStage).c_str(),
@@ -10627,11 +10395,9 @@ void VulkanCppConsumer::Process_vkGetShaderInfoAMD(
             pInfoSizeName.c_str(),
             pInfoName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetShaderInfoAMD);
 }
-
-
 void VulkanCppConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10641,7 +10407,7 @@ void VulkanCppConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -10649,7 +10415,7 @@ void VulkanCppConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSurface */
     std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
@@ -10660,18 +10426,15 @@ void VulkanCppConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
     }
     m_pfnLoader.AddMethodName("vkCreateStreamDescriptorSurfaceGGP");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateStreamDescriptorSurfaceGGP(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateStreamDescriptorSurfaceGGP(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSurfaceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP);
 }
-
-
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10685,7 +10448,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalImageFormatProperties
     StructPointerDecoder<Decoded_VkExternalImageFormatPropertiesNV>* pExternalImageFormatProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* format */
 /* type */
@@ -10695,10 +10458,10 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalImageFormatProperties
 /* externalHandleType */
 /* pExternalImageFormatProperties */
     std::string pExternalImageFormatPropertiesName = "pExternalImageFormatProperties_" + std::to_string(this->getNextId());
-    fprintf(file, "VkExternalImageFormatPropertiesNV %s;\n", pExternalImageFormatPropertiesName.c_str());
+    fprintf(file, "\t\tVkExternalImageFormatPropertiesNV %s;\n", pExternalImageFormatPropertiesName.c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceExternalImageFormatPropertiesNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(%s, %s, %s, %s, %s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(%s, %s, %s, %s, %s, %s, %s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             util::ToString<VkImageType>(type).c_str(),
@@ -10708,11 +10471,9 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalImageFormatProperties
             util::ToString<VkExternalMemoryHandleTypeFlagsNV>(externalHandleType).c_str(),
             pExternalImageFormatPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV);
 }
-
-
 void VulkanCppConsumer::Process_vkGetMemoryWin32HandleNV(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10722,27 +10483,24 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandleNV(
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* memory */
 /* handleType */
 /* pHandle */
     std::string pHandleName = "pHandle_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t* %s;\n", pHandleName.c_str());
+    fprintf(file, "\t\tuint8_t* %s;\n", pHandleName.c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryWin32HandleNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryWin32HandleNV(%s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryWin32HandleNV(%s, %s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(memory).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagsNV>(handleType).c_str(),
             pHandleName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV);
 }
-
-
-
 void VulkanCppConsumer::Process_vkCreateViSurfaceNN(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10752,7 +10510,7 @@ void VulkanCppConsumer::Process_vkCreateViSurfaceNN(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -10760,7 +10518,7 @@ void VulkanCppConsumer::Process_vkCreateViSurfaceNN(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSurface */
     std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
@@ -10771,28 +10529,22 @@ void VulkanCppConsumer::Process_vkCreateViSurfaceNN(
     }
     m_pfnLoader.AddMethodName("vkCreateViSurfaceNN");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateViSurfaceNN(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateViSurfaceNN(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSurfaceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateViSurfaceNN);
 }
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdBeginConditionalRenderingEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>* pConditionalRenderingBegin)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pConditionalRenderingBegin */
     std::stringstream stream_pConditionalRenderingBegin;
@@ -10800,13 +10552,13 @@ void VulkanCppConsumer::Process_vkCmdBeginConditionalRenderingEXT(
                                                                                   pConditionalRenderingBegin->GetPointer(),
                                                                                   pConditionalRenderingBegin->GetMetaStructPointer(),
                                                                                   *this);
-    fprintf(file, "\n%s", stream_pConditionalRenderingBegin.str().c_str());
+    fprintf(file, "%s", stream_pConditionalRenderingBegin.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdBeginConditionalRenderingEXT");
     fprintf(file,
-            "loaded_vkCmdBeginConditionalRenderingEXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdBeginConditionalRenderingEXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pConditionalRenderingBeginStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT);
 }
 
@@ -10815,16 +10567,15 @@ void VulkanCppConsumer::Process_vkCmdEndConditionalRenderingEXT(
     format::HandleId                            commandBuffer)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
     m_pfnLoader.AddMethodName("vkCmdEndConditionalRenderingEXT");
     fprintf(file,
-            "loaded_vkCmdEndConditionalRenderingEXT(%s);\n",
+            "\t\tloaded_vkCmdEndConditionalRenderingEXT(%s);\n",
             this->GetHandle(commandBuffer).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT);
 }
-
 void VulkanCppConsumer::Process_vkCmdSetViewportWScalingNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -10833,7 +10584,7 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWScalingNV(
     StructPointerDecoder<Decoded_VkViewportWScalingNV>* pViewportWScalings)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstViewport */
 /* viewportCount */
@@ -10845,24 +10596,25 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWScalingNV(
                                                        pViewportWScalingsPair.end(),
                                                        [&](auto pair) { return GenerateStruct_VkViewportWScalingNV(stream_pViewportWScalings, pair.t1, pair.t2, *this); },
                                                        ", ");
-    fprintf(file, "\n%s", stream_pViewportWScalings.str().c_str());
-    if (viewportCount == 1) {
-        pViewportWScalingsArray = "&" + pViewportWScalingsNames;
-    } else if (viewportCount > 1) {
-        pViewportWScalingsArray = "pViewportWScalings_" + std::to_string(this->getNextId());
-        fprintf(file, "VkViewportWScalingNV %s[] = { %s };\n", pViewportWScalingsArray.c_str(), pViewportWScalingsNames.c_str());
+    if (stream_pViewportWScalings.str().length() > 0) {
+        fprintf(file, "%s", stream_pViewportWScalings.str().c_str());
+        if (viewportCount == 1) {
+            pViewportWScalingsArray = "&" + pViewportWScalingsNames;
+        } else if (viewportCount > 1) {
+            pViewportWScalingsArray = "pViewportWScalings_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkViewportWScalingNV %s[] = { %s };\n", pViewportWScalingsArray.c_str(), pViewportWScalingsNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetViewportWScalingNV");
     fprintf(file,
-            "loaded_vkCmdSetViewportWScalingNV(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetViewportWScalingNV(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstViewport,
             viewportCount,
             pViewportWScalingsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV);
 }
-
 void VulkanCppConsumer::Process_vkReleaseDisplayEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10870,19 +10622,18 @@ void VulkanCppConsumer::Process_vkReleaseDisplayEXT(
     format::HandleId                            display)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* display */
     m_pfnLoader.AddMethodName("vkReleaseDisplayEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkReleaseDisplayEXT(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkReleaseDisplayEXT(%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(display).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkReleaseDisplayEXT);
 }
-
 void VulkanCppConsumer::Process_vkAcquireXlibDisplayEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10891,20 +10642,20 @@ void VulkanCppConsumer::Process_vkAcquireXlibDisplayEXT(
     format::HandleId                            display)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* dpy */
     std::string dpyName = "dpy_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", dpyName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", dpyName.c_str());
 /* display */
     m_pfnLoader.AddMethodName("vkAcquireXlibDisplayEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkAcquireXlibDisplayEXT(%s, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkAcquireXlibDisplayEXT(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             dpyName.c_str(),
             this->GetHandle(display).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT);
 }
 
@@ -10917,11 +10668,11 @@ void VulkanCppConsumer::Process_vkGetRandROutputDisplayEXT(
     HandlePointerDecoder<VkDisplayKHR>*         pDisplay)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* dpy */
     std::string dpyName = "dpy_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", dpyName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", dpyName.c_str());
 /* rrOutput */
 /* pDisplay */
     std::string pDisplayName = "pDisplay_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_DISPLAY_KHR));
@@ -10932,16 +10683,15 @@ void VulkanCppConsumer::Process_vkGetRandROutputDisplayEXT(
     }
     m_pfnLoader.AddMethodName("vkGetRandROutputDisplayEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetRandROutputDisplayEXT(%s, %s, %lu, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRandROutputDisplayEXT(%s, %s, %" PRId64 ", &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             dpyName.c_str(),
             rrOutput,
             pDisplayName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT);
 }
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10950,7 +10700,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
     StructPointerDecoder<Decoded_VkSurfaceCapabilities2EXT>* pSurfaceCapabilities)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* surface */
 /* pSurfaceCapabilities */
@@ -10960,18 +10710,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
                                                               pSurfaceCapabilities->GetPointer(),
                                                               pSurfaceCapabilities->GetMetaStructPointer(),
                                                               *this);
-    fprintf(file, "\n%s", stream_pSurfaceCapabilities.str().c_str());
+    fprintf(file, "%s", stream_pSurfaceCapabilities.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceSurfaceCapabilities2EXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilities2EXT(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilities2EXT(%s, %s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(surface).c_str(),
             pSurfaceCapabilitiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT);
 }
-
 void VulkanCppConsumer::Process_vkDisplayPowerControlEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -10980,7 +10729,7 @@ void VulkanCppConsumer::Process_vkDisplayPowerControlEXT(
     StructPointerDecoder<Decoded_VkDisplayPowerInfoEXT>* pDisplayPowerInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* display */
 /* pDisplayPowerInfo */
@@ -10989,15 +10738,15 @@ void VulkanCppConsumer::Process_vkDisplayPowerControlEXT(
                                                                          pDisplayPowerInfo->GetPointer(),
                                                                          pDisplayPowerInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pDisplayPowerInfo.str().c_str());
+    fprintf(file, "%s", stream_pDisplayPowerInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkDisplayPowerControlEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkDisplayPowerControlEXT(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkDisplayPowerControlEXT(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(display).c_str(),
             pDisplayPowerInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDisplayPowerControlEXT);
 }
 
@@ -11010,22 +10759,22 @@ void VulkanCppConsumer::Process_vkGetSwapchainCounterEXT(
     PointerDecoder<uint64_t>*                   pCounterValue)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchain */
 /* counter */
 /* pCounterValue */
     std::string pCounterValueName = "pCounterValue_" + std::to_string(this->getNextId());
-    fprintf(file, "uint64_t %s;\n", pCounterValueName.c_str());
+    fprintf(file, "\t\tuint64_t %s;\n", pCounterValueName.c_str());
     m_pfnLoader.AddMethodName("vkGetSwapchainCounterEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetSwapchainCounterEXT(%s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetSwapchainCounterEXT(%s, %s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             util::ToString<VkSurfaceCounterFlagBitsEXT>(counter).c_str(),
             pCounterValueName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT);
 }
 
@@ -11038,7 +10787,7 @@ void VulkanCppConsumer::Process_vkRegisterDeviceEventEXT(
     HandlePointerDecoder<VkFence>*              pFence)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pDeviceEventInfo */
     std::stringstream stream_pDeviceEventInfo;
@@ -11046,7 +10795,7 @@ void VulkanCppConsumer::Process_vkRegisterDeviceEventEXT(
                                                                         pDeviceEventInfo->GetPointer(),
                                                                         pDeviceEventInfo->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "\n%s", stream_pDeviceEventInfo.str().c_str());
+    fprintf(file, "%s", stream_pDeviceEventInfo.str().c_str());
 /* pAllocator */
 /* pFence */
     std::string pFenceName = "pFence_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_FENCE));
@@ -11057,13 +10806,13 @@ void VulkanCppConsumer::Process_vkRegisterDeviceEventEXT(
     }
     m_pfnLoader.AddMethodName("vkRegisterDeviceEventEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkRegisterDeviceEventEXT(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkRegisterDeviceEventEXT(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pDeviceEventInfoStruct.c_str(),
             "nullptr",
             pFenceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT);
 }
 
@@ -11077,7 +10826,7 @@ void VulkanCppConsumer::Process_vkRegisterDisplayEventEXT(
     HandlePointerDecoder<VkFence>*              pFence)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* display */
 /* pDisplayEventInfo */
@@ -11086,7 +10835,7 @@ void VulkanCppConsumer::Process_vkRegisterDisplayEventEXT(
                                                                          pDisplayEventInfo->GetPointer(),
                                                                          pDisplayEventInfo->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pDisplayEventInfo.str().c_str());
+    fprintf(file, "%s", stream_pDisplayEventInfo.str().c_str());
 /* pAllocator */
 /* pFence */
     std::string pFenceName = "pFence_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_FENCE));
@@ -11097,17 +10846,16 @@ void VulkanCppConsumer::Process_vkRegisterDisplayEventEXT(
     }
     m_pfnLoader.AddMethodName("vkRegisterDisplayEventEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkRegisterDisplayEventEXT(%s, %s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkRegisterDisplayEventEXT(%s, %s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(display).c_str(),
             pDisplayEventInfoStruct.c_str(),
             "nullptr",
             pFenceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT);
 }
-
 void VulkanCppConsumer::Process_vkGetPastPresentationTimingGOOGLE(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -11117,25 +10865,25 @@ void VulkanCppConsumer::Process_vkGetPastPresentationTimingGOOGLE(
     StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>* pPresentationTimings)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchain */
 /* pPresentationTimingCount */
     std::string pPresentationTimingCountName = "pPresentationTimingCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPresentationTimingCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPresentationTimingCountName.c_str());
 /* pPresentationTimings */
     std::string pPresentationTimingsName = "pPresentationTimings_" + std::to_string(this->getNextId());
     const uint32_t* in_pPresentationTimingCount = pPresentationTimingCount->GetPointer();
-    fprintf(file, "VkPastPresentationTimingGOOGLE %s[%d];\n", pPresentationTimingsName.c_str(), *in_pPresentationTimingCount);
+    fprintf(file, "\t\tVkPastPresentationTimingGOOGLE %s[%d];\n", pPresentationTimingsName.c_str(), *in_pPresentationTimingCount);
     m_pfnLoader.AddMethodName("vkGetPastPresentationTimingGOOGLE");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPastPresentationTimingGOOGLE(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPastPresentationTimingGOOGLE(%s, %s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             pPresentationTimingCountName.c_str(),
             pPresentationTimingsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE);
 }
 
@@ -11147,28 +10895,22 @@ void VulkanCppConsumer::Process_vkGetRefreshCycleDurationGOOGLE(
     StructPointerDecoder<Decoded_VkRefreshCycleDurationGOOGLE>* pDisplayTimingProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchain */
 /* pDisplayTimingProperties */
     std::string pDisplayTimingPropertiesName = "pDisplayTimingProperties_" + std::to_string(this->getNextId());
-    fprintf(file, "VkRefreshCycleDurationGOOGLE %s;\n", pDisplayTimingPropertiesName.c_str());
+    fprintf(file, "\t\tVkRefreshCycleDurationGOOGLE %s;\n", pDisplayTimingPropertiesName.c_str());
     m_pfnLoader.AddMethodName("vkGetRefreshCycleDurationGOOGLE");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetRefreshCycleDurationGOOGLE(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRefreshCycleDurationGOOGLE(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             pDisplayTimingPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE);
 }
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdSetDiscardRectangleEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -11177,7 +10919,7 @@ void VulkanCppConsumer::Process_vkCmdSetDiscardRectangleEXT(
     StructPointerDecoder<Decoded_VkRect2D>*     pDiscardRectangles)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstDiscardRectangle */
 /* discardRectangleCount */
@@ -11189,21 +10931,23 @@ void VulkanCppConsumer::Process_vkCmdSetDiscardRectangleEXT(
                                                        pDiscardRectanglesPair.end(),
                                                        [&](auto pair) { return GenerateStruct_VkRect2D(stream_pDiscardRectangles, pair.t1, pair.t2, *this); },
                                                        ", ");
-    fprintf(file, "\n%s", stream_pDiscardRectangles.str().c_str());
-    if (discardRectangleCount == 1) {
-        pDiscardRectanglesArray = "&" + pDiscardRectanglesNames;
-    } else if (discardRectangleCount > 1) {
-        pDiscardRectanglesArray = "pDiscardRectangles_" + std::to_string(this->getNextId());
-        fprintf(file, "VkRect2D %s[] = { %s };\n", pDiscardRectanglesArray.c_str(), pDiscardRectanglesNames.c_str());
+    if (stream_pDiscardRectangles.str().length() > 0) {
+        fprintf(file, "%s", stream_pDiscardRectangles.str().c_str());
+        if (discardRectangleCount == 1) {
+            pDiscardRectanglesArray = "&" + pDiscardRectanglesNames;
+        } else if (discardRectangleCount > 1) {
+            pDiscardRectanglesArray = "pDiscardRectangles_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkRect2D %s[] = { %s };\n", pDiscardRectanglesArray.c_str(), pDiscardRectanglesNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetDiscardRectangleEXT");
     fprintf(file,
-            "loaded_vkCmdSetDiscardRectangleEXT(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetDiscardRectangleEXT(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstDiscardRectangle,
             discardRectangleCount,
             pDiscardRectanglesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT);
 }
 
@@ -11213,15 +10957,15 @@ void VulkanCppConsumer::Process_vkCmdSetDiscardRectangleEnableEXT(
     VkBool32                                    discardRectangleEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* discardRectangleEnable */
     m_pfnLoader.AddMethodName("vkCmdSetDiscardRectangleEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetDiscardRectangleEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetDiscardRectangleEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             discardRectangleEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEnableEXT);
 }
 
@@ -11231,21 +10975,17 @@ void VulkanCppConsumer::Process_vkCmdSetDiscardRectangleModeEXT(
     VkDiscardRectangleModeEXT                   discardRectangleMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* discardRectangleMode */
     m_pfnLoader.AddMethodName("vkCmdSetDiscardRectangleModeEXT");
     fprintf(file,
-            "loaded_vkCmdSetDiscardRectangleModeEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetDiscardRectangleModeEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkDiscardRectangleModeEXT>(discardRectangleMode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleModeEXT);
 }
-
-
-
-
 void VulkanCppConsumer::Process_vkSetHdrMetadataEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -11254,7 +10994,7 @@ void VulkanCppConsumer::Process_vkSetHdrMetadataEXT(
     StructPointerDecoder<Decoded_VkHdrMetadataEXT>* pMetadata)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchainCount */
 /* pSwapchains */
@@ -11263,11 +11003,11 @@ void VulkanCppConsumer::Process_vkSetHdrMetadataEXT(
                                                  pSwapchains->GetPointer() + swapchainCount,
                                                  [&](const format::HandleId current) { return this->GetHandle(current); },
                                                  ", ");
-    if (swapchainCount == 1) {
+    if (swapchainCount == 1 && pSwapchainsValues != "VK_NULL_HANDLE") {
         pSwapchainsArray = "&" + pSwapchainsValues;
     } else if (swapchainCount > 1) {
         pSwapchainsArray = "pSwapchainsArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkSwapchainKHR %s[] = { %s };\n", pSwapchainsArray.c_str(), pSwapchainsValues.c_str());
+        fprintf(file, "\t\tVkSwapchainKHR %s[] = { %s };\n", pSwapchainsArray.c_str(), pSwapchainsValues.c_str());
     }
 /* pMetadata */
     std::stringstream stream_pMetadata;
@@ -11277,24 +11017,25 @@ void VulkanCppConsumer::Process_vkSetHdrMetadataEXT(
                                               pMetadataPair.end(),
                                               [&](auto pair) { return GenerateStruct_VkHdrMetadataEXT(stream_pMetadata, pair.t1, pair.t2, *this); },
                                               ", ");
-    fprintf(file, "\n%s", stream_pMetadata.str().c_str());
-    if (swapchainCount == 1) {
-        pMetadataArray = "&" + pMetadataNames;
-    } else if (swapchainCount > 1) {
-        pMetadataArray = "pMetadata_" + std::to_string(this->getNextId());
-        fprintf(file, "VkHdrMetadataEXT %s[] = { %s };\n", pMetadataArray.c_str(), pMetadataNames.c_str());
+    if (stream_pMetadata.str().length() > 0) {
+        fprintf(file, "%s", stream_pMetadata.str().c_str());
+        if (swapchainCount == 1) {
+            pMetadataArray = "&" + pMetadataNames;
+        } else if (swapchainCount > 1) {
+            pMetadataArray = "pMetadata_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkHdrMetadataEXT %s[] = { %s };\n", pMetadataArray.c_str(), pMetadataNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkSetHdrMetadataEXT");
     fprintf(file,
-            "loaded_vkSetHdrMetadataEXT(%s, %u, %s, %s);\n",
+            "\t\tloaded_vkSetHdrMetadataEXT(%s, %u, %s, %s);\n",
             this->GetHandle(device).c_str(),
             swapchainCount,
             pSwapchainsArray.c_str(),
             pMetadataArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSetHdrMetadataEXT);
 }
-
 void VulkanCppConsumer::Process_vkCreateIOSSurfaceMVK(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -11304,7 +11045,7 @@ void VulkanCppConsumer::Process_vkCreateIOSSurfaceMVK(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -11312,7 +11053,7 @@ void VulkanCppConsumer::Process_vkCreateIOSSurfaceMVK(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSurface */
     std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
@@ -11323,16 +11064,15 @@ void VulkanCppConsumer::Process_vkCreateIOSSurfaceMVK(
     }
     m_pfnLoader.AddMethodName("vkCreateIOSSurfaceMVK");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateIOSSurfaceMVK(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateIOSSurfaceMVK(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSurfaceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK);
 }
-
 void VulkanCppConsumer::Process_vkCreateMacOSSurfaceMVK(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -11342,7 +11082,7 @@ void VulkanCppConsumer::Process_vkCreateMacOSSurfaceMVK(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -11350,7 +11090,7 @@ void VulkanCppConsumer::Process_vkCreateMacOSSurfaceMVK(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSurface */
     std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
@@ -11361,25 +11101,22 @@ void VulkanCppConsumer::Process_vkCreateMacOSSurfaceMVK(
     }
     m_pfnLoader.AddMethodName("vkCreateMacOSSurfaceMVK");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateMacOSSurfaceMVK(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateMacOSSurfaceMVK(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSurfaceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK);
 }
-
-
-
 void VulkanCppConsumer::Process_vkCmdBeginDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pLabelInfo */
     std::stringstream stream_pLabelInfo;
@@ -11387,13 +11124,13 @@ void VulkanCppConsumer::Process_vkCmdBeginDebugUtilsLabelEXT(
                                                                   pLabelInfo->GetPointer(),
                                                                   pLabelInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pLabelInfo.str().c_str());
+    fprintf(file, "%s", stream_pLabelInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdBeginDebugUtilsLabelEXT");
     fprintf(file,
-            "loaded_vkCmdBeginDebugUtilsLabelEXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdBeginDebugUtilsLabelEXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pLabelInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT);
 }
 
@@ -11402,13 +11139,13 @@ void VulkanCppConsumer::Process_vkCmdEndDebugUtilsLabelEXT(
     format::HandleId                            commandBuffer)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
     m_pfnLoader.AddMethodName("vkCmdEndDebugUtilsLabelEXT");
     fprintf(file,
-            "loaded_vkCmdEndDebugUtilsLabelEXT(%s);\n",
+            "\t\tloaded_vkCmdEndDebugUtilsLabelEXT(%s);\n",
             this->GetHandle(commandBuffer).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT);
 }
 
@@ -11418,7 +11155,7 @@ void VulkanCppConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pLabelInfo */
     std::stringstream stream_pLabelInfo;
@@ -11426,13 +11163,13 @@ void VulkanCppConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
                                                                   pLabelInfo->GetPointer(),
                                                                   pLabelInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pLabelInfo.str().c_str());
+    fprintf(file, "%s", stream_pLabelInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdInsertDebugUtilsLabelEXT");
     fprintf(file,
-            "loaded_vkCmdInsertDebugUtilsLabelEXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdInsertDebugUtilsLabelEXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pLabelInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT);
 }
 
@@ -11445,7 +11182,7 @@ void VulkanCppConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     HandlePointerDecoder<VkDebugUtilsMessengerEXT>* pMessenger)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -11453,7 +11190,7 @@ void VulkanCppConsumer::Process_vkCreateDebugUtilsMessengerEXT(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pMessenger */
     std::string pMessengerName = "pMessenger_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT));
@@ -11464,13 +11201,13 @@ void VulkanCppConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     }
     m_pfnLoader.AddMethodName("vkCreateDebugUtilsMessengerEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateDebugUtilsMessengerEXT(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateDebugUtilsMessengerEXT(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pMessengerName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT);
 }
 
@@ -11481,17 +11218,17 @@ void VulkanCppConsumer::Process_vkDestroyDebugUtilsMessengerEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* messenger */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyDebugUtilsMessengerEXT");
     fprintf(file,
-            "loaded_vkDestroyDebugUtilsMessengerEXT(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyDebugUtilsMessengerEXT(%s, %s, %s);\n",
             this->GetHandle(instance).c_str(),
             this->GetHandle(messenger).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT);
 }
 
@@ -11501,7 +11238,7 @@ void VulkanCppConsumer::Process_vkQueueBeginDebugUtilsLabelEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* pLabelInfo */
     std::stringstream stream_pLabelInfo;
@@ -11509,13 +11246,13 @@ void VulkanCppConsumer::Process_vkQueueBeginDebugUtilsLabelEXT(
                                                                   pLabelInfo->GetPointer(),
                                                                   pLabelInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pLabelInfo.str().c_str());
+    fprintf(file, "%s", stream_pLabelInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkQueueBeginDebugUtilsLabelEXT");
     fprintf(file,
-            "loaded_vkQueueBeginDebugUtilsLabelEXT(%s, &%s);\n",
+            "\t\tloaded_vkQueueBeginDebugUtilsLabelEXT(%s, &%s);\n",
             this->GetHandle(queue).c_str(),
             pLabelInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT);
 }
 
@@ -11524,13 +11261,13 @@ void VulkanCppConsumer::Process_vkQueueEndDebugUtilsLabelEXT(
     format::HandleId                            queue)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
     m_pfnLoader.AddMethodName("vkQueueEndDebugUtilsLabelEXT");
     fprintf(file,
-            "loaded_vkQueueEndDebugUtilsLabelEXT(%s);\n",
+            "\t\tloaded_vkQueueEndDebugUtilsLabelEXT(%s);\n",
             this->GetHandle(queue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT);
 }
 
@@ -11540,7 +11277,7 @@ void VulkanCppConsumer::Process_vkQueueInsertDebugUtilsLabelEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* pLabelInfo */
     std::stringstream stream_pLabelInfo;
@@ -11548,13 +11285,13 @@ void VulkanCppConsumer::Process_vkQueueInsertDebugUtilsLabelEXT(
                                                                   pLabelInfo->GetPointer(),
                                                                   pLabelInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pLabelInfo.str().c_str());
+    fprintf(file, "%s", stream_pLabelInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkQueueInsertDebugUtilsLabelEXT");
     fprintf(file,
-            "loaded_vkQueueInsertDebugUtilsLabelEXT(%s, &%s);\n",
+            "\t\tloaded_vkQueueInsertDebugUtilsLabelEXT(%s, &%s);\n",
             this->GetHandle(queue).c_str(),
             pLabelInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT);
 }
 
@@ -11586,7 +11323,7 @@ void VulkanCppConsumer::Process_vkSubmitDebugUtilsMessageEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsMessengerCallbackDataEXT>* pCallbackData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* messageSeverity */
 /* messageTypes */
@@ -11596,18 +11333,17 @@ void VulkanCppConsumer::Process_vkSubmitDebugUtilsMessageEXT(
                                                                      pCallbackData->GetPointer(),
                                                                      pCallbackData->GetMetaStructPointer(),
                                                                      *this);
-    fprintf(file, "\n%s", stream_pCallbackData.str().c_str());
+    fprintf(file, "%s", stream_pCallbackData.str().c_str());
     m_pfnLoader.AddMethodName("vkSubmitDebugUtilsMessageEXT");
     fprintf(file,
-            "loaded_vkSubmitDebugUtilsMessageEXT(%s, %s, %s, &%s);\n",
+            "\t\tloaded_vkSubmitDebugUtilsMessageEXT(%s, %s, %s, &%s);\n",
             this->GetHandle(instance).c_str(),
             util::ToString<VkDebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity).c_str(),
             util::ToString<VkDebugUtilsMessageTypeFlagsEXT>(messageTypes).c_str(),
             pCallbackDataStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT);
 }
-
 void VulkanCppConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -11616,11 +11352,11 @@ void VulkanCppConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* buffer */
     std::string bufferName = "buffer_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", bufferName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", bufferName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -11628,15 +11364,15 @@ void VulkanCppConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetAndroidHardwareBufferPropertiesANDROID");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetAndroidHardwareBufferPropertiesANDROID(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetAndroidHardwareBufferPropertiesANDROID(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             bufferName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID);
 }
 
@@ -11648,7 +11384,7 @@ void VulkanCppConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     PointerDecoder<uint64_t, void*>*            pBuffer)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -11656,34 +11392,27 @@ void VulkanCppConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pBuffer */
     std::string pBufferName = "pBuffer_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t* %s;\n", pBufferName.c_str());
+    fprintf(file, "\t\tuint8_t* %s;\n", pBufferName.c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryAndroidHardwareBufferANDROID");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryAndroidHardwareBufferANDROID(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryAndroidHardwareBufferANDROID(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pBufferName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID);
 }
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkSampleLocationsInfoEXT>* pSampleLocationsInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pSampleLocationsInfo */
     std::stringstream stream_pSampleLocationsInfo;
@@ -11691,13 +11420,13 @@ void VulkanCppConsumer::Process_vkCmdSetSampleLocationsEXT(
                                                                             pSampleLocationsInfo->GetPointer(),
                                                                             pSampleLocationsInfo->GetMetaStructPointer(),
                                                                             *this);
-    fprintf(file, "\n%s", stream_pSampleLocationsInfo.str().c_str());
+    fprintf(file, "%s", stream_pSampleLocationsInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdSetSampleLocationsEXT");
     fprintf(file,
-            "loaded_vkCmdSetSampleLocationsEXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdSetSampleLocationsEXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pSampleLocationsInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT);
 }
 
@@ -11708,7 +11437,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMultisamplePropertiesEXT(
     StructPointerDecoder<Decoded_VkMultisamplePropertiesEXT>* pMultisampleProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* samples */
 /* pMultisampleProperties */
@@ -11718,23 +11447,16 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMultisamplePropertiesEXT(
                                                                 pMultisampleProperties->GetPointer(),
                                                                 pMultisampleProperties->GetMetaStructPointer(),
                                                                 *this);
-    fprintf(file, "\n%s", stream_pMultisampleProperties.str().c_str());
+    fprintf(file, "%s", stream_pMultisampleProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceMultisamplePropertiesEXT");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceMultisamplePropertiesEXT(%s, %s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceMultisamplePropertiesEXT(%s, %s, &%s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkSampleCountFlagBits>(samples).c_str(),
             pMultisamplePropertiesName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT);
 }
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkGetImageDrmFormatModifierPropertiesEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -11743,7 +11465,7 @@ void VulkanCppConsumer::Process_vkGetImageDrmFormatModifierPropertiesEXT(
     StructPointerDecoder<Decoded_VkImageDrmFormatModifierPropertiesEXT>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* image */
 /* pProperties */
@@ -11753,18 +11475,17 @@ void VulkanCppConsumer::Process_vkGetImageDrmFormatModifierPropertiesEXT(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetImageDrmFormatModifierPropertiesEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetImageDrmFormatModifierPropertiesEXT(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetImageDrmFormatModifierPropertiesEXT(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT);
 }
-
 void VulkanCppConsumer::Process_vkCreateValidationCacheEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -11774,7 +11495,7 @@ void VulkanCppConsumer::Process_vkCreateValidationCacheEXT(
     HandlePointerDecoder<VkValidationCacheEXT>* pValidationCache)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -11782,7 +11503,7 @@ void VulkanCppConsumer::Process_vkCreateValidationCacheEXT(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pValidationCache */
     std::string pValidationCacheName = "pValidationCache_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_VALIDATION_CACHE_EXT));
@@ -11793,13 +11514,13 @@ void VulkanCppConsumer::Process_vkCreateValidationCacheEXT(
     }
     m_pfnLoader.AddMethodName("vkCreateValidationCacheEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateValidationCacheEXT(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateValidationCacheEXT(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pValidationCacheName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateValidationCacheEXT);
 }
 
@@ -11810,17 +11531,17 @@ void VulkanCppConsumer::Process_vkDestroyValidationCacheEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* validationCache */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyValidationCacheEXT");
     fprintf(file,
-            "loaded_vkDestroyValidationCacheEXT(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyValidationCacheEXT(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(validationCache).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT);
 }
 
@@ -11833,25 +11554,25 @@ void VulkanCppConsumer::Process_vkGetValidationCacheDataEXT(
     PointerDecoder<uint8_t>*                    pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* validationCache */
 /* pDataSize */
     std::string pDataSizeName = "pDataSize_" + std::to_string(this->getNextId());
-    fprintf(file, "size_t %s;\n", pDataSizeName.c_str());
+    fprintf(file, "\t\tsize_t %s;\n", pDataSizeName.c_str());
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    long unsigned int* in_pDataSize = pDataSize->GetPointer();
-    fprintf(file, "uint8_t %s[%ld];\n", pDataName.c_str(), *in_pDataSize);
+    size_t* in_pDataSize = pDataSize->GetPointer();
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pDataName.c_str(), *in_pDataSize);
     m_pfnLoader.AddMethodName("vkGetValidationCacheDataEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetValidationCacheDataEXT(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetValidationCacheDataEXT(%s, %s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(validationCache).c_str(),
             pDataSizeName.c_str(),
             pDataName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT);
 }
 
@@ -11864,7 +11585,7 @@ void VulkanCppConsumer::Process_vkMergeValidationCachesEXT(
     HandlePointerDecoder<VkValidationCacheEXT>* pSrcCaches)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* dstCache */
 /* srcCacheCount */
@@ -11874,26 +11595,23 @@ void VulkanCppConsumer::Process_vkMergeValidationCachesEXT(
                                                 pSrcCaches->GetPointer() + srcCacheCount,
                                                 [&](const format::HandleId current) { return this->GetHandle(current); },
                                                 ", ");
-    if (srcCacheCount == 1) {
+    if (srcCacheCount == 1 && pSrcCachesValues != "VK_NULL_HANDLE") {
         pSrcCachesArray = "&" + pSrcCachesValues;
     } else if (srcCacheCount > 1) {
         pSrcCachesArray = "pSrcCachesArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkValidationCacheEXT %s[] = { %s };\n", pSrcCachesArray.c_str(), pSrcCachesValues.c_str());
+        fprintf(file, "\t\tVkValidationCacheEXT %s[] = { %s };\n", pSrcCachesArray.c_str(), pSrcCachesValues.c_str());
     }
     m_pfnLoader.AddMethodName("vkMergeValidationCachesEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkMergeValidationCachesEXT(%s, %s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkMergeValidationCachesEXT(%s, %s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(dstCache).c_str(),
             srcCacheCount,
             pSrcCachesArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkMergeValidationCachesEXT);
 }
-
-
-
 void VulkanCppConsumer::Process_vkCmdBindShadingRateImageNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -11901,17 +11619,17 @@ void VulkanCppConsumer::Process_vkCmdBindShadingRateImageNV(
     VkImageLayout                               imageLayout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* imageView */
 /* imageLayout */
     m_pfnLoader.AddMethodName("vkCmdBindShadingRateImageNV");
     fprintf(file,
-            "loaded_vkCmdBindShadingRateImageNV(%s, %s, %s);\n",
+            "\t\tloaded_vkCmdBindShadingRateImageNV(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(imageView).c_str(),
             util::ToString<VkImageLayout>(imageLayout).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV);
 }
 
@@ -11923,7 +11641,7 @@ void VulkanCppConsumer::Process_vkCmdSetCoarseSampleOrderNV(
     StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>* pCustomSampleOrders)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* sampleOrderType */
 /* customSampleOrderCount */
@@ -11935,21 +11653,23 @@ void VulkanCppConsumer::Process_vkCmdSetCoarseSampleOrderNV(
                                                         pCustomSampleOrdersPair.end(),
                                                         [&](auto pair) { return GenerateStruct_VkCoarseSampleOrderCustomNV(stream_pCustomSampleOrders, pair.t1, pair.t2, *this); },
                                                         ", ");
-    fprintf(file, "\n%s", stream_pCustomSampleOrders.str().c_str());
-    if (customSampleOrderCount == 1) {
-        pCustomSampleOrdersArray = "&" + pCustomSampleOrdersNames;
-    } else if (customSampleOrderCount > 1) {
-        pCustomSampleOrdersArray = "pCustomSampleOrders_" + std::to_string(this->getNextId());
-        fprintf(file, "VkCoarseSampleOrderCustomNV %s[] = { %s };\n", pCustomSampleOrdersArray.c_str(), pCustomSampleOrdersNames.c_str());
+    if (stream_pCustomSampleOrders.str().length() > 0) {
+        fprintf(file, "%s", stream_pCustomSampleOrders.str().c_str());
+        if (customSampleOrderCount == 1) {
+            pCustomSampleOrdersArray = "&" + pCustomSampleOrdersNames;
+        } else if (customSampleOrderCount > 1) {
+            pCustomSampleOrdersArray = "pCustomSampleOrders_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkCoarseSampleOrderCustomNV %s[] = { %s };\n", pCustomSampleOrdersArray.c_str(), pCustomSampleOrdersNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetCoarseSampleOrderNV");
     fprintf(file,
-            "loaded_vkCmdSetCoarseSampleOrderNV(%s, %s, %u, %s);\n",
+            "\t\tloaded_vkCmdSetCoarseSampleOrderNV(%s, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkCoarseSampleOrderTypeNV>(sampleOrderType).c_str(),
             customSampleOrderCount,
             pCustomSampleOrdersArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV);
 }
 
@@ -11961,7 +11681,7 @@ void VulkanCppConsumer::Process_vkCmdSetViewportShadingRatePaletteNV(
     StructPointerDecoder<Decoded_VkShadingRatePaletteNV>* pShadingRatePalettes)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstViewport */
 /* viewportCount */
@@ -11973,24 +11693,25 @@ void VulkanCppConsumer::Process_vkCmdSetViewportShadingRatePaletteNV(
                                                          pShadingRatePalettesPair.end(),
                                                          [&](auto pair) { return GenerateStruct_VkShadingRatePaletteNV(stream_pShadingRatePalettes, pair.t1, pair.t2, *this); },
                                                          ", ");
-    fprintf(file, "\n%s", stream_pShadingRatePalettes.str().c_str());
-    if (viewportCount == 1) {
-        pShadingRatePalettesArray = "&" + pShadingRatePalettesNames;
-    } else if (viewportCount > 1) {
-        pShadingRatePalettesArray = "pShadingRatePalettes_" + std::to_string(this->getNextId());
-        fprintf(file, "VkShadingRatePaletteNV %s[] = { %s };\n", pShadingRatePalettesArray.c_str(), pShadingRatePalettesNames.c_str());
+    if (stream_pShadingRatePalettes.str().length() > 0) {
+        fprintf(file, "%s", stream_pShadingRatePalettes.str().c_str());
+        if (viewportCount == 1) {
+            pShadingRatePalettesArray = "&" + pShadingRatePalettesNames;
+        } else if (viewportCount > 1) {
+            pShadingRatePalettesArray = "pShadingRatePalettes_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkShadingRatePaletteNV %s[] = { %s };\n", pShadingRatePalettesArray.c_str(), pShadingRatePalettesNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetViewportShadingRatePaletteNV");
     fprintf(file,
-            "loaded_vkCmdSetViewportShadingRatePaletteNV(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetViewportShadingRatePaletteNV(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstViewport,
             viewportCount,
             pShadingRatePalettesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV);
 }
-
 void VulkanCppConsumer::Process_vkBindAccelerationStructureMemoryNV(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -11999,7 +11720,7 @@ void VulkanCppConsumer::Process_vkBindAccelerationStructureMemoryNV(
     StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>* pBindInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* bindInfoCount */
 /* pBindInfos */
@@ -12010,21 +11731,23 @@ void VulkanCppConsumer::Process_vkBindAccelerationStructureMemoryNV(
                                                pBindInfosPair.end(),
                                                [&](auto pair) { return GenerateStruct_VkBindAccelerationStructureMemoryInfoNV(stream_pBindInfos, pair.t1, pair.t2, *this); },
                                                ", ");
-    fprintf(file, "\n%s", stream_pBindInfos.str().c_str());
-    if (bindInfoCount == 1) {
-        pBindInfosArray = "&" + pBindInfosNames;
-    } else if (bindInfoCount > 1) {
-        pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBindAccelerationStructureMemoryInfoNV %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+    if (stream_pBindInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pBindInfos.str().c_str());
+        if (bindInfoCount == 1) {
+            pBindInfosArray = "&" + pBindInfosNames;
+        } else if (bindInfoCount > 1) {
+            pBindInfosArray = "pBindInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkBindAccelerationStructureMemoryInfoNV %s[] = { %s };\n", pBindInfosArray.c_str(), pBindInfosNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkBindAccelerationStructureMemoryNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkBindAccelerationStructureMemoryNV(%s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkBindAccelerationStructureMemoryNV(%s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             bindInfoCount,
             pBindInfosArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV);
 }
 
@@ -12041,7 +11764,7 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructureNV(
     VkDeviceSize                                scratchOffset)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -12049,7 +11772,7 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructureNV(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* instanceData */
 /* instanceOffset */
 /* update */
@@ -12059,7 +11782,7 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructureNV(
 /* scratchOffset */
     m_pfnLoader.AddMethodName("vkCmdBuildAccelerationStructureNV");
     fprintf(file,
-            "loaded_vkCmdBuildAccelerationStructureNV(%s, &%s, %s, %luUL, %u, %s, %s, %s, %luUL);\n",
+            "\t\tloaded_vkCmdBuildAccelerationStructureNV(%s, &%s, %s, %" PRIu64 "UL, %u, %s, %s, %s, %" PRIu64 "UL);\n",
             this->GetHandle(commandBuffer).c_str(),
             pInfoStruct.c_str(),
             this->GetHandle(instanceData).c_str(),
@@ -12069,7 +11792,7 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructureNV(
             this->GetHandle(src).c_str(),
             this->GetHandle(scratch).c_str(),
             scratchOffset);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV);
 }
 
@@ -12081,19 +11804,19 @@ void VulkanCppConsumer::Process_vkCmdCopyAccelerationStructureNV(
     VkCopyAccelerationStructureModeKHR          mode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* dst */
 /* src */
 /* mode */
     m_pfnLoader.AddMethodName("vkCmdCopyAccelerationStructureNV");
     fprintf(file,
-            "loaded_vkCmdCopyAccelerationStructureNV(%s, %s, %s, %s);\n",
+            "\t\tloaded_vkCmdCopyAccelerationStructureNV(%s, %s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(dst).c_str(),
             this->GetHandle(src).c_str(),
             util::ToString<VkCopyAccelerationStructureModeKHR>(mode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV);
 }
 
@@ -12116,7 +11839,7 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysNV(
     uint32_t                                    depth)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* raygenShaderBindingTableBuffer */
 /* raygenShaderBindingOffset */
@@ -12134,7 +11857,7 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysNV(
 /* depth */
     m_pfnLoader.AddMethodName("vkCmdTraceRaysNV");
     fprintf(file,
-            "loaded_vkCmdTraceRaysNV(%s, %s, %luUL, %s, %luUL, %luUL, %s, %luUL, %luUL, %s, %luUL, %luUL, %u, %u, %u);\n",
+            "\t\tloaded_vkCmdTraceRaysNV(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL, %" PRIu64 "UL, %s, %" PRIu64 "UL, %" PRIu64 "UL, %s, %" PRIu64 "UL, %" PRIu64 "UL, %u, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(raygenShaderBindingTableBuffer).c_str(),
             raygenShaderBindingOffset,
@@ -12150,7 +11873,7 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysNV(
             width,
             height,
             depth);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdTraceRaysNV);
 }
 
@@ -12164,7 +11887,7 @@ void VulkanCppConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     uint32_t                                    firstQuery)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* accelerationStructureCount */
 /* pAccelerationStructures */
@@ -12173,25 +11896,25 @@ void VulkanCppConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
                                                              pAccelerationStructures->GetPointer() + accelerationStructureCount,
                                                              [&](const format::HandleId current) { return this->GetHandle(current); },
                                                              ", ");
-    if (accelerationStructureCount == 1) {
+    if (accelerationStructureCount == 1 && pAccelerationStructuresValues != "VK_NULL_HANDLE") {
         pAccelerationStructuresArray = "&" + pAccelerationStructuresValues;
     } else if (accelerationStructureCount > 1) {
         pAccelerationStructuresArray = "pAccelerationStructuresArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkAccelerationStructureNV %s[] = { %s };\n", pAccelerationStructuresArray.c_str(), pAccelerationStructuresValues.c_str());
+        fprintf(file, "\t\tVkAccelerationStructureNV %s[] = { %s };\n", pAccelerationStructuresArray.c_str(), pAccelerationStructuresValues.c_str());
     }
 /* queryType */
 /* queryPool */
 /* firstQuery */
     m_pfnLoader.AddMethodName("vkCmdWriteAccelerationStructuresPropertiesNV");
     fprintf(file,
-            "loaded_vkCmdWriteAccelerationStructuresPropertiesNV(%s, %u, %s, %s, %s, %u);\n",
+            "\t\tloaded_vkCmdWriteAccelerationStructuresPropertiesNV(%s, %u, %s, %s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             accelerationStructureCount,
             pAccelerationStructuresArray.c_str(),
             util::ToString<VkQueryType>(queryType).c_str(),
             this->GetHandle(queryPool).c_str(),
             firstQuery);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV);
 }
 
@@ -12203,18 +11926,18 @@ void VulkanCppConsumer::Process_vkCompileDeferredNV(
     uint32_t                                    shader)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipeline */
 /* shader */
     m_pfnLoader.AddMethodName("vkCompileDeferredNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCompileDeferredNV(%s, %s, %u), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCompileDeferredNV(%s, %s, %u), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             shader,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCompileDeferredNV);
 }
 
@@ -12227,7 +11950,7 @@ void VulkanCppConsumer::Process_vkCreateAccelerationStructureNV(
     HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructure)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -12235,7 +11958,7 @@ void VulkanCppConsumer::Process_vkCreateAccelerationStructureNV(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pAccelerationStructure */
     std::string pAccelerationStructureName = "pAccelerationStructure_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV));
@@ -12246,13 +11969,13 @@ void VulkanCppConsumer::Process_vkCreateAccelerationStructureNV(
     }
     m_pfnLoader.AddMethodName("vkCreateAccelerationStructureNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateAccelerationStructureNV(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateAccelerationStructureNV(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pAccelerationStructureName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV);
 }
 
@@ -12267,7 +11990,7 @@ void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesNV(
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipelineCache */
 /* createInfoCount */
@@ -12279,12 +12002,14 @@ void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesNV(
                                                  pCreateInfosPair.end(),
                                                  [&](auto pair) { return GenerateStruct_VkRayTracingPipelineCreateInfoNV(stream_pCreateInfos, pair.t1, pair.t2, *this); },
                                                  ", ");
-    fprintf(file, "\n%s", stream_pCreateInfos.str().c_str());
-    if (createInfoCount == 1) {
-        pCreateInfosArray = "&" + pCreateInfosNames;
-    } else if (createInfoCount > 1) {
-        pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkRayTracingPipelineCreateInfoNV %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
+    if (stream_pCreateInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pCreateInfos.str().c_str());
+        if (createInfoCount == 1) {
+            pCreateInfosArray = "&" + pCreateInfosNames;
+        } else if (createInfoCount > 1) {
+            pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkRayTracingPipelineCreateInfoNV %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
+        }
     }
 /* pAllocator */
 /* pPipelines */
@@ -12296,7 +12021,7 @@ void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesNV(
     }
     m_pfnLoader.AddMethodName("vkCreateRayTracingPipelinesNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateRayTracingPipelinesNV(%s, %s, %u, %s, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateRayTracingPipelinesNV(%s, %s, %u, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipelineCache).c_str(),
             createInfoCount,
@@ -12304,7 +12029,7 @@ void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesNV(
             "nullptr",
             pPipelinesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV);
 }
 
@@ -12315,17 +12040,17 @@ void VulkanCppConsumer::Process_vkDestroyAccelerationStructureNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* accelerationStructure */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyAccelerationStructureNV");
     fprintf(file,
-            "loaded_vkDestroyAccelerationStructureNV(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyAccelerationStructureNV(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(accelerationStructure).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV);
 }
 
@@ -12338,22 +12063,22 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureHandleNV(
     PointerDecoder<uint8_t>*                    pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* accelerationStructure */
 /* dataSize */
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t %s[%ld];\n", pDataName.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pDataName.c_str(), dataSize);
     m_pfnLoader.AddMethodName("vkGetAccelerationStructureHandleNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetAccelerationStructureHandleNV(%s, %s, %lu, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetAccelerationStructureHandleNV(%s, %s, %" PRId64 ", %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(accelerationStructure).c_str(),
             dataSize,
             pDataName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV);
 }
 
@@ -12364,7 +12089,7 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureMemoryRequirementsNV(
     StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -12372,17 +12097,17 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureMemoryRequirementsNV(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pMemoryRequirements */
     std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
-    fprintf(file, "VkMemoryRequirements2KHR %s;\n", pMemoryRequirementsName.c_str());
+    fprintf(file, "\t\tVkMemoryRequirements2KHR %s;\n", pMemoryRequirementsName.c_str());
     m_pfnLoader.AddMethodName("vkGetAccelerationStructureMemoryRequirementsNV");
     fprintf(file,
-            "loaded_vkGetAccelerationStructureMemoryRequirementsNV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetAccelerationStructureMemoryRequirementsNV(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV);
 }
 
@@ -12397,7 +12122,7 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(
     PointerDecoder<uint8_t>*                    pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipeline */
 /* firstGroup */
@@ -12405,10 +12130,10 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(
 /* dataSize */
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t %s[%ld];\n", pDataName.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pDataName.c_str(), dataSize);
     m_pfnLoader.AddMethodName("vkGetRayTracingShaderGroupHandlesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesKHR(%s, %s, %u, %u, %lu, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesKHR(%s, %s, %u, %u, %" PRId64 ", %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             firstGroup,
@@ -12416,7 +12141,7 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(
             dataSize,
             pDataName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR);
 }
 
@@ -12431,7 +12156,7 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesNV(
     PointerDecoder<uint8_t>*                    pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipeline */
 /* firstGroup */
@@ -12439,10 +12164,10 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesNV(
 /* dataSize */
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t %s[%ld];\n", pDataName.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pDataName.c_str(), dataSize);
     m_pfnLoader.AddMethodName("vkGetRayTracingShaderGroupHandlesNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesNV(%s, %s, %u, %u, %lu, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesNV(%s, %s, %u, %u, %" PRId64 ", %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             firstGroup,
@@ -12450,14 +12175,9 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesNV(
             dataSize,
             pDataName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV);
 }
-
-
-
-
-
 void VulkanCppConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -12467,12 +12187,12 @@ void VulkanCppConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
     StructPointerDecoder<Decoded_VkMemoryHostPointerPropertiesEXT>* pMemoryHostPointerProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* handleType */
 /* pHostPointer */
     std::string pHostPointerName = "pHostPointer_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", pHostPointerName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", pHostPointerName.c_str());
 /* pMemoryHostPointerProperties */
     std::string pMemoryHostPointerPropertiesName = "pMemoryHostPointerProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pMemoryHostPointerProperties;
@@ -12480,19 +12200,18 @@ void VulkanCppConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
                                                                       pMemoryHostPointerProperties->GetPointer(),
                                                                       pMemoryHostPointerProperties->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pMemoryHostPointerProperties.str().c_str());
+    fprintf(file, "%s", stream_pMemoryHostPointerProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryHostPointerPropertiesEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryHostPointerPropertiesEXT(%s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryHostPointerPropertiesEXT(%s, %s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagBits>(handleType).c_str(),
             pHostPointerName.c_str(),
             pMemoryHostPointerPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT);
 }
-
 void VulkanCppConsumer::Process_vkCmdWriteBufferMarkerAMD(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -12502,7 +12221,7 @@ void VulkanCppConsumer::Process_vkCmdWriteBufferMarkerAMD(
     uint32_t                                    marker)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pipelineStage */
 /* dstBuffer */
@@ -12510,17 +12229,15 @@ void VulkanCppConsumer::Process_vkCmdWriteBufferMarkerAMD(
 /* marker */
     m_pfnLoader.AddMethodName("vkCmdWriteBufferMarkerAMD");
     fprintf(file,
-            "loaded_vkCmdWriteBufferMarkerAMD(%s, %s, %s, %luUL, %u);\n",
+            "\t\tloaded_vkCmdWriteBufferMarkerAMD(%s, %s, %s, %" PRIu64 "UL, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineStageFlagBits>(pipelineStage).c_str(),
             this->GetHandle(dstBuffer).c_str(),
             dstOffset,
             marker);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD);
 }
-
-
 void VulkanCppConsumer::Process_vkGetCalibratedTimestampsEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -12531,7 +12248,7 @@ void VulkanCppConsumer::Process_vkGetCalibratedTimestampsEXT(
     PointerDecoder<uint64_t>*                   pMaxDeviation)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* timestampCount */
 /* pTimestampInfos */
@@ -12542,29 +12259,31 @@ void VulkanCppConsumer::Process_vkGetCalibratedTimestampsEXT(
                                                     pTimestampInfosPair.end(),
                                                     [&](auto pair) { return GenerateStruct_VkCalibratedTimestampInfoEXT(stream_pTimestampInfos, pair.t1, pair.t2, *this); },
                                                     ", ");
-    fprintf(file, "\n%s", stream_pTimestampInfos.str().c_str());
-    if (timestampCount == 1) {
-        pTimestampInfosArray = "&" + pTimestampInfosNames;
-    } else if (timestampCount > 1) {
-        pTimestampInfosArray = "pTimestampInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkCalibratedTimestampInfoEXT %s[] = { %s };\n", pTimestampInfosArray.c_str(), pTimestampInfosNames.c_str());
+    if (stream_pTimestampInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pTimestampInfos.str().c_str());
+        if (timestampCount == 1) {
+            pTimestampInfosArray = "&" + pTimestampInfosNames;
+        } else if (timestampCount > 1) {
+            pTimestampInfosArray = "pTimestampInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkCalibratedTimestampInfoEXT %s[] = { %s };\n", pTimestampInfosArray.c_str(), pTimestampInfosNames.c_str());
+        }
     }
 /* pTimestamps */
     std::string pTimestampsName = "pTimestamps_" + std::to_string(this->getNextId());
-    fprintf(file, "uint64_t %s[%d];\n", pTimestampsName.c_str(), timestampCount);
+    fprintf(file, "\t\tuint64_t %s[%d];\n", pTimestampsName.c_str(), timestampCount);
 /* pMaxDeviation */
     std::string pMaxDeviationName = "pMaxDeviation_" + std::to_string(this->getNextId());
-    fprintf(file, "uint64_t %s;\n", pMaxDeviationName.c_str());
+    fprintf(file, "\t\tuint64_t %s;\n", pMaxDeviationName.c_str());
     m_pfnLoader.AddMethodName("vkGetCalibratedTimestampsEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetCalibratedTimestampsEXT(%s, %u, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetCalibratedTimestampsEXT(%s, %u, %s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             timestampCount,
             pTimestampInfosArray.c_str(),
             pTimestampsName.c_str(),
             pMaxDeviationName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT);
 }
 
@@ -12576,33 +12295,25 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
     PointerDecoder<VkTimeDomainEXT>*            pTimeDomains)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pTimeDomainCount */
     std::string pTimeDomainCountName = "pTimeDomainCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pTimeDomainCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pTimeDomainCountName.c_str());
 /* pTimeDomains */
     std::string pTimeDomainsName = "pTimeDomains_" + std::to_string(this->getNextId());
     const uint32_t* in_pTimeDomainCount = pTimeDomainCount->GetPointer();
-    fprintf(file, "VkTimeDomainEXT %s[%d];\n", pTimeDomainsName.c_str(), *in_pTimeDomainCount);
+    fprintf(file, "\t\tVkTimeDomainEXT %s[%d];\n", pTimeDomainsName.c_str(), *in_pTimeDomainCount);
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceCalibrateableTimeDomainsEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pTimeDomainCountName.c_str(),
             pTimeDomainsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT);
 }
-
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -12614,7 +12325,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -12624,7 +12335,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
 /* stride */
     m_pfnLoader.AddMethodName("vkCmdDrawMeshTasksIndirectCountNV");
     fprintf(file,
-            "loaded_vkCmdDrawMeshTasksIndirectCountNV(%s, %s, %luUL, %s, %luUL, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawMeshTasksIndirectCountNV(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
@@ -12632,7 +12343,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
             countBufferOffset,
             maxDrawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV);
 }
 
@@ -12645,7 +12356,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -12653,13 +12364,13 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
 /* stride */
     m_pfnLoader.AddMethodName("vkCmdDrawMeshTasksIndirectNV");
     fprintf(file,
-            "loaded_vkCmdDrawMeshTasksIndirectNV(%s, %s, %luUL, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawMeshTasksIndirectNV(%s, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
             drawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV);
 }
 
@@ -12670,22 +12381,19 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksNV(
     uint32_t                                    firstTask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* taskCount */
 /* firstTask */
     m_pfnLoader.AddMethodName("vkCmdDrawMeshTasksNV");
     fprintf(file,
-            "loaded_vkCmdDrawMeshTasksNV(%s, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawMeshTasksNV(%s, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             taskCount,
             firstTask);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV);
 }
-
-
-
 void VulkanCppConsumer::Process_vkCmdSetExclusiveScissorEnableNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -12694,7 +12402,7 @@ void VulkanCppConsumer::Process_vkCmdSetExclusiveScissorEnableNV(
     PointerDecoder<VkBool32>*                   pExclusiveScissorEnables)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstExclusiveScissor */
 /* exclusiveScissorCount */
@@ -12705,18 +12413,18 @@ void VulkanCppConsumer::Process_vkCmdSetExclusiveScissorEnableNV(
                                                                   pExclusiveScissorEnables->GetPointer() + exclusiveScissorCount,
                                                                   [&](const auto current) { return std::to_string(current) + ""; },
                                                                   ", ");
-        fprintf(file, "VkBool32 %s[] = { %s };\n", pExclusiveScissorEnablesArray.c_str(), pExclusiveScissorEnablesValues.c_str());
+        fprintf(file, "\t\tVkBool32 %s[] = { %s };\n", pExclusiveScissorEnablesArray.c_str(), pExclusiveScissorEnablesValues.c_str());
     } else {
         pExclusiveScissorEnablesArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdSetExclusiveScissorEnableNV");
     fprintf(file,
-            "loaded_vkCmdSetExclusiveScissorEnableNV(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetExclusiveScissorEnableNV(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstExclusiveScissor,
             exclusiveScissorCount,
             pExclusiveScissorEnablesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorEnableNV);
 }
 
@@ -12728,7 +12436,7 @@ void VulkanCppConsumer::Process_vkCmdSetExclusiveScissorNV(
     StructPointerDecoder<Decoded_VkRect2D>*     pExclusiveScissors)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstExclusiveScissor */
 /* exclusiveScissorCount */
@@ -12740,41 +12448,42 @@ void VulkanCppConsumer::Process_vkCmdSetExclusiveScissorNV(
                                                        pExclusiveScissorsPair.end(),
                                                        [&](auto pair) { return GenerateStruct_VkRect2D(stream_pExclusiveScissors, pair.t1, pair.t2, *this); },
                                                        ", ");
-    fprintf(file, "\n%s", stream_pExclusiveScissors.str().c_str());
-    if (exclusiveScissorCount == 1) {
-        pExclusiveScissorsArray = "&" + pExclusiveScissorsNames;
-    } else if (exclusiveScissorCount > 1) {
-        pExclusiveScissorsArray = "pExclusiveScissors_" + std::to_string(this->getNextId());
-        fprintf(file, "VkRect2D %s[] = { %s };\n", pExclusiveScissorsArray.c_str(), pExclusiveScissorsNames.c_str());
+    if (stream_pExclusiveScissors.str().length() > 0) {
+        fprintf(file, "%s", stream_pExclusiveScissors.str().c_str());
+        if (exclusiveScissorCount == 1) {
+            pExclusiveScissorsArray = "&" + pExclusiveScissorsNames;
+        } else if (exclusiveScissorCount > 1) {
+            pExclusiveScissorsArray = "pExclusiveScissors_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkRect2D %s[] = { %s };\n", pExclusiveScissorsArray.c_str(), pExclusiveScissorsNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetExclusiveScissorNV");
     fprintf(file,
-            "loaded_vkCmdSetExclusiveScissorNV(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetExclusiveScissorNV(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstExclusiveScissor,
             exclusiveScissorCount,
             pExclusiveScissorsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV);
 }
-
 void VulkanCppConsumer::Process_vkCmdSetCheckpointNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint64_t                                    pCheckpointMarker)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pCheckpointMarker */
     std::string pCheckpointMarkerName = "pCheckpointMarker_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", pCheckpointMarkerName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", pCheckpointMarkerName.c_str());
     m_pfnLoader.AddMethodName("vkCmdSetCheckpointNV");
     fprintf(file,
-            "loaded_vkCmdSetCheckpointNV(%s, %s);\n",
+            "\t\tloaded_vkCmdSetCheckpointNV(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pCheckpointMarkerName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCheckpointNV);
 }
 
@@ -12785,11 +12494,11 @@ void VulkanCppConsumer::Process_vkGetQueueCheckpointDataNV(
     StructPointerDecoder<Decoded_VkCheckpointDataNV>* pCheckpointData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* pCheckpointDataCount */
     std::string pCheckpointDataCountName = "pCheckpointDataCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pCheckpointDataCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pCheckpointDataCountName.c_str());
 /* pCheckpointData */
     std::string pCheckpointDataName = "pCheckpointData_" + std::to_string(this->getNextId());
     std::stringstream stream_pCheckpointData;
@@ -12797,18 +12506,16 @@ void VulkanCppConsumer::Process_vkGetQueueCheckpointDataNV(
                                                          pCheckpointData->GetPointer(),
                                                          pCheckpointData->GetMetaStructPointer(),
                                                          *this);
-    fprintf(file, "\n%s", stream_pCheckpointData.str().c_str());
+    fprintf(file, "%s", stream_pCheckpointData.str().c_str());
     m_pfnLoader.AddMethodName("vkGetQueueCheckpointDataNV");
     fprintf(file,
-            "loaded_vkGetQueueCheckpointDataNV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetQueueCheckpointDataNV(%s, &%s, &%s);\n",
             this->GetHandle(queue).c_str(),
             pCheckpointDataCountName.c_str(),
             pCheckpointDataName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV);
 }
-
-
 void VulkanCppConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -12817,7 +12524,7 @@ void VulkanCppConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
     HandlePointerDecoder<VkPerformanceConfigurationINTEL>* pConfiguration)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pAcquireInfo */
     std::stringstream stream_pAcquireInfo;
@@ -12825,7 +12532,7 @@ void VulkanCppConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
                                                                     pAcquireInfo->GetPointer(),
                                                                     pAcquireInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pAcquireInfo.str().c_str());
+    fprintf(file, "%s", stream_pAcquireInfo.str().c_str());
 /* pConfiguration */
     std::string pConfigurationName = "pConfiguration_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL));
     AddKnownVariables("VkPerformanceConfigurationINTEL", pConfigurationName, pConfiguration->GetPointer());
@@ -12835,12 +12542,12 @@ void VulkanCppConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
     }
     m_pfnLoader.AddMethodName("vkAcquirePerformanceConfigurationINTEL");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkAcquirePerformanceConfigurationINTEL(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkAcquirePerformanceConfigurationINTEL(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pAcquireInfoStruct.c_str(),
             pConfigurationName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkAcquirePerformanceConfigurationINTEL);
 }
 
@@ -12851,7 +12558,7 @@ void VulkanCppConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
     StructPointerDecoder<Decoded_VkPerformanceMarkerInfoINTEL>* pMarkerInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pMarkerInfo */
     std::stringstream stream_pMarkerInfo;
@@ -12859,14 +12566,14 @@ void VulkanCppConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
                                                                    pMarkerInfo->GetPointer(),
                                                                    pMarkerInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pMarkerInfo.str().c_str());
+    fprintf(file, "%s", stream_pMarkerInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdSetPerformanceMarkerINTEL");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCmdSetPerformanceMarkerINTEL(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCmdSetPerformanceMarkerINTEL(%s, &%s), %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pMarkerInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetPerformanceMarkerINTEL);
 }
 
@@ -12877,7 +12584,7 @@ void VulkanCppConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
     StructPointerDecoder<Decoded_VkPerformanceOverrideInfoINTEL>* pOverrideInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pOverrideInfo */
     std::stringstream stream_pOverrideInfo;
@@ -12885,14 +12592,14 @@ void VulkanCppConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
                                                                      pOverrideInfo->GetPointer(),
                                                                      pOverrideInfo->GetMetaStructPointer(),
                                                                      *this);
-    fprintf(file, "\n%s", stream_pOverrideInfo.str().c_str());
+    fprintf(file, "%s", stream_pOverrideInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdSetPerformanceOverrideINTEL");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCmdSetPerformanceOverrideINTEL(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCmdSetPerformanceOverrideINTEL(%s, &%s), %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pOverrideInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetPerformanceOverrideINTEL);
 }
 
@@ -12903,7 +12610,7 @@ void VulkanCppConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
     StructPointerDecoder<Decoded_VkPerformanceStreamMarkerInfoINTEL>* pMarkerInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pMarkerInfo */
     std::stringstream stream_pMarkerInfo;
@@ -12911,14 +12618,14 @@ void VulkanCppConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
                                                                    pMarkerInfo->GetPointer(),
                                                                    pMarkerInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pMarkerInfo.str().c_str());
+    fprintf(file, "%s", stream_pMarkerInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdSetPerformanceStreamMarkerINTEL");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCmdSetPerformanceStreamMarkerINTEL(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCmdSetPerformanceStreamMarkerINTEL(%s, &%s), %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pMarkerInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL);
 }
 
@@ -12930,20 +12637,20 @@ void VulkanCppConsumer::Process_vkGetPerformanceParameterINTEL(
     StructPointerDecoder<Decoded_VkPerformanceValueINTEL>* pValue)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* parameter */
 /* pValue */
     std::string pValueName = "pValue_" + std::to_string(this->getNextId());
-    fprintf(file, "VkPerformanceValueINTEL %s;\n", pValueName.c_str());
+    fprintf(file, "\t\tVkPerformanceValueINTEL %s;\n", pValueName.c_str());
     m_pfnLoader.AddMethodName("vkGetPerformanceParameterINTEL");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPerformanceParameterINTEL(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPerformanceParameterINTEL(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkPerformanceParameterTypeINTEL>(parameter).c_str(),
             pValueName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPerformanceParameterINTEL);
 }
 
@@ -12954,7 +12661,7 @@ void VulkanCppConsumer::Process_vkInitializePerformanceApiINTEL(
     StructPointerDecoder<Decoded_VkInitializePerformanceApiInfoINTEL>* pInitializeInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInitializeInfo */
     std::stringstream stream_pInitializeInfo;
@@ -12962,14 +12669,14 @@ void VulkanCppConsumer::Process_vkInitializePerformanceApiINTEL(
                                                                        pInitializeInfo->GetPointer(),
                                                                        pInitializeInfo->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pInitializeInfo.str().c_str());
+    fprintf(file, "%s", stream_pInitializeInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkInitializePerformanceApiINTEL");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkInitializePerformanceApiINTEL(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkInitializePerformanceApiINTEL(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pInitializeInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL);
 }
 
@@ -12980,16 +12687,16 @@ void VulkanCppConsumer::Process_vkQueueSetPerformanceConfigurationINTEL(
     format::HandleId                            configuration)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* queue */
 /* configuration */
     m_pfnLoader.AddMethodName("vkQueueSetPerformanceConfigurationINTEL");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkQueueSetPerformanceConfigurationINTEL(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkQueueSetPerformanceConfigurationINTEL(%s, %s), %s);\n",
             this->GetHandle(queue).c_str(),
             this->GetHandle(configuration).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSetPerformanceConfigurationINTEL);
 }
 
@@ -13000,16 +12707,16 @@ void VulkanCppConsumer::Process_vkReleasePerformanceConfigurationINTEL(
     format::HandleId                            configuration)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* configuration */
     m_pfnLoader.AddMethodName("vkReleasePerformanceConfigurationINTEL");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkReleasePerformanceConfigurationINTEL(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkReleasePerformanceConfigurationINTEL(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(configuration).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL);
 }
 
@@ -13018,17 +12725,15 @@ void VulkanCppConsumer::Process_vkUninitializePerformanceApiINTEL(
     format::HandleId                            device)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
     m_pfnLoader.AddMethodName("vkUninitializePerformanceApiINTEL");
     fprintf(file,
-            "loaded_vkUninitializePerformanceApiINTEL(%s);\n",
+            "\t\tloaded_vkUninitializePerformanceApiINTEL(%s);\n",
             this->GetHandle(device).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL);
 }
-
-
 void VulkanCppConsumer::Process_vkSetLocalDimmingAMD(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -13036,20 +12741,19 @@ void VulkanCppConsumer::Process_vkSetLocalDimmingAMD(
     VkBool32                                    localDimmingEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapChain */
 /* localDimmingEnable */
     m_pfnLoader.AddMethodName("vkSetLocalDimmingAMD");
     fprintf(file,
-            "loaded_vkSetLocalDimmingAMD(%s, %s, %u);\n",
+            "\t\tloaded_vkSetLocalDimmingAMD(%s, %s, %u);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapChain).c_str(),
             localDimmingEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSetLocalDimmingAMD);
 }
-
 void VulkanCppConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13059,7 +12763,7 @@ void VulkanCppConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -13067,7 +12771,7 @@ void VulkanCppConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSurface */
     std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
@@ -13078,16 +12782,15 @@ void VulkanCppConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     }
     m_pfnLoader.AddMethodName("vkCreateImagePipeSurfaceFUCHSIA");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateImagePipeSurfaceFUCHSIA(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateImagePipeSurfaceFUCHSIA(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSurfaceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA);
 }
-
 void VulkanCppConsumer::Process_vkCreateMetalSurfaceEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13096,47 +12799,9 @@ void VulkanCppConsumer::Process_vkCreateMetalSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
-/* instance */
-/* pCreateInfo */
-    std::stringstream stream_pCreateInfo;
-    std::string pCreateInfoStruct = GenerateStruct_VkMetalSurfaceCreateInfoEXT(stream_pCreateInfo,
-                                                                   pCreateInfo->GetPointer(),
-                                                                   pCreateInfo->GetMetaStructPointer(),
-                                                                   *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
-/* pAllocator */
-/* pSurface */
-    std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
-    AddKnownVariables("VkSurfaceKHR", pSurfaceName, pSurface->GetPointer());
-    if (returnValue == VK_SUCCESS) {
-        this->AddHandles(pSurfaceName,
-                         pSurface->GetPointer());
-    }
-    m_pfnLoader.AddMethodName("vkCreateMetalSurfaceEXT");
-    fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateMetalSurfaceEXT(%s, &%s, %s, &%s), %s);\n",
-            this->GetHandle(instance).c_str(),
-            pCreateInfoStruct.c_str(),
-            "nullptr",
-            pSurfaceName.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    Generate_vkCreateMetalSurfaceEXT(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkGetBufferDeviceAddressEXT(
     const ApiCallInfo&                          call_info,
     VkDeviceAddress                             returnValue,
@@ -13144,7 +12809,7 @@ void VulkanCppConsumer::Process_vkGetBufferDeviceAddressEXT(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -13152,16 +12817,15 @@ void VulkanCppConsumer::Process_vkGetBufferDeviceAddressEXT(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetBufferDeviceAddressEXT");
     fprintf(file,
-            "loaded_vkGetBufferDeviceAddressEXT(%s, &%s);\n",
+            "\t\tloaded_vkGetBufferDeviceAddressEXT(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT);
 }
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13170,11 +12834,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pToolCount */
     std::string pToolCountName = "pToolCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pToolCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pToolCountName.c_str());
 /* pToolProperties */
     std::string pToolPropertiesName = "pToolProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pToolProperties;
@@ -13182,20 +12846,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(
                                                          pToolProperties->GetPointer(),
                                                          pToolProperties->GetMetaStructPointer(),
                                                          *this);
-    fprintf(file, "\n%s", stream_pToolProperties.str().c_str());
+    fprintf(file, "%s", stream_pToolProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceToolPropertiesEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceToolPropertiesEXT(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceToolPropertiesEXT(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pToolCountName.c_str(),
             pToolPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT);
 }
-
-
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13204,11 +12865,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV
     StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesNV>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pPropertyCount */
     std::string pPropertyCountName = "pPropertyCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertyCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertyCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -13216,18 +12877,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceCooperativeMatrixPropertiesNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pPropertyCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV);
 }
-
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13236,11 +12896,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamp
     StructPointerDecoder<Decoded_VkFramebufferMixedSamplesCombinationNV>* pCombinations)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pCombinationCount */
     std::string pCombinationCountName = "pCombinationCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pCombinationCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pCombinationCountName.c_str());
 /* pCombinations */
     std::string pCombinationsName = "pCombinations_" + std::to_string(this->getNextId());
     std::stringstream stream_pCombinations;
@@ -13248,21 +12908,17 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamp
                                                        pCombinations->GetPointer(),
                                                        pCombinations->GetMetaStructPointer(),
                                                        *this);
-    fprintf(file, "\n%s", stream_pCombinations.str().c_str());
+    fprintf(file, "%s", stream_pCombinations.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pCombinationCountName.c_str(),
             pCombinationsName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV);
 }
-
-
-
-
 void VulkanCppConsumer::Process_vkAcquireFullScreenExclusiveModeEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13270,16 +12926,16 @@ void VulkanCppConsumer::Process_vkAcquireFullScreenExclusiveModeEXT(
     format::HandleId                            swapchain)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchain */
     m_pfnLoader.AddMethodName("vkAcquireFullScreenExclusiveModeEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkAcquireFullScreenExclusiveModeEXT(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkAcquireFullScreenExclusiveModeEXT(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT);
 }
 
@@ -13291,7 +12947,7 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
     PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>* pModes)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pSurfaceInfo */
     std::stringstream stream_pSurfaceInfo;
@@ -13299,18 +12955,18 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
                                                                     pSurfaceInfo->GetPointer(),
                                                                     pSurfaceInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pSurfaceInfo.str().c_str());
+    fprintf(file, "%s", stream_pSurfaceInfo.str().c_str());
 /* pModes */
     std::string pModesName = "pModes_" + std::to_string(this->getNextId());
-    fprintf(file, "VkDeviceGroupPresentModeFlagsKHR %s;\n", pModesName.c_str());
+    fprintf(file, "\t\tVkDeviceGroupPresentModeFlagsKHR %s;\n", pModesName.c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceGroupSurfacePresentModes2EXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDeviceGroupSurfacePresentModes2EXT(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceGroupSurfacePresentModes2EXT(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pSurfaceInfoStruct.c_str(),
             pModesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT);
 }
 
@@ -13323,7 +12979,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
     PointerDecoder<VkPresentModeKHR>*           pPresentModes)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pSurfaceInfo */
     std::stringstream stream_pSurfaceInfo;
@@ -13331,23 +12987,23 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
                                                                     pSurfaceInfo->GetPointer(),
                                                                     pSurfaceInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pSurfaceInfo.str().c_str());
+    fprintf(file, "%s", stream_pSurfaceInfo.str().c_str());
 /* pPresentModeCount */
     std::string pPresentModeCountName = "pPresentModeCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPresentModeCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPresentModeCountName.c_str());
 /* pPresentModes */
     std::string pPresentModesName = "pPresentModes_" + std::to_string(this->getNextId());
     const uint32_t* in_pPresentModeCount = pPresentModeCount->GetPointer();
-    fprintf(file, "VkPresentModeKHR %s[%d];\n", pPresentModesName.c_str(), *in_pPresentModeCount);
+    fprintf(file, "\t\tVkPresentModeKHR %s[%d];\n", pPresentModesName.c_str(), *in_pPresentModeCount);
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceSurfacePresentModes2EXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfacePresentModes2EXT(%s, &%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfacePresentModes2EXT(%s, &%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pSurfaceInfoStruct.c_str(),
             pPresentModeCountName.c_str(),
             pPresentModesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT);
 }
 
@@ -13358,19 +13014,18 @@ void VulkanCppConsumer::Process_vkReleaseFullScreenExclusiveModeEXT(
     format::HandleId                            swapchain)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* swapchain */
     m_pfnLoader.AddMethodName("vkReleaseFullScreenExclusiveModeEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkReleaseFullScreenExclusiveModeEXT(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkReleaseFullScreenExclusiveModeEXT(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT);
 }
-
 void VulkanCppConsumer::Process_vkCreateHeadlessSurfaceEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13380,7 +13035,7 @@ void VulkanCppConsumer::Process_vkCreateHeadlessSurfaceEXT(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -13388,7 +13043,7 @@ void VulkanCppConsumer::Process_vkCreateHeadlessSurfaceEXT(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSurface */
     std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
@@ -13399,16 +13054,15 @@ void VulkanCppConsumer::Process_vkCreateHeadlessSurfaceEXT(
     }
     m_pfnLoader.AddMethodName("vkCreateHeadlessSurfaceEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateHeadlessSurfaceEXT(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateHeadlessSurfaceEXT(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSurfaceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT);
 }
-
 void VulkanCppConsumer::Process_vkCmdSetLineStippleEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -13416,21 +13070,19 @@ void VulkanCppConsumer::Process_vkCmdSetLineStippleEXT(
     uint16_t                                    lineStipplePattern)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* lineStippleFactor */
 /* lineStipplePattern */
     m_pfnLoader.AddMethodName("vkCmdSetLineStippleEXT");
     fprintf(file,
-            "loaded_vkCmdSetLineStippleEXT(%s, %u, %u);\n",
+            "\t\tloaded_vkCmdSetLineStippleEXT(%s, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             lineStippleFactor,
             lineStipplePattern);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT);
 }
-
-
 void VulkanCppConsumer::Process_vkResetQueryPoolEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -13439,23 +13091,21 @@ void VulkanCppConsumer::Process_vkResetQueryPoolEXT(
     uint32_t                                    queryCount)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* queryPool */
 /* firstQuery */
 /* queryCount */
     m_pfnLoader.AddMethodName("vkResetQueryPoolEXT");
     fprintf(file,
-            "loaded_vkResetQueryPoolEXT(%s, %s, %u, %u);\n",
+            "\t\tloaded_vkResetQueryPoolEXT(%s, %s, %u, %u);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(queryPool).c_str(),
             firstQuery,
             queryCount);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkResetQueryPoolEXT);
 }
-
-
 void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2EXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -13467,7 +13117,7 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2EXT(
     PointerDecoder<VkDeviceSize>*               pStrides)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstBinding */
 /* bindingCount */
@@ -13477,11 +13127,11 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2EXT(
                                               pBuffers->GetPointer() + bindingCount,
                                               [&](const format::HandleId current) { return this->GetHandle(current); },
                                               ", ");
-    if (bindingCount == 1) {
+    if (bindingCount == 1 && pBuffersValues != "VK_NULL_HANDLE") {
         pBuffersArray = "&" + pBuffersValues;
     } else if (bindingCount > 1) {
         pBuffersArray = "pBuffersArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkBuffer %s[] = { %s };\n", pBuffersArray.c_str(), pBuffersValues.c_str());
+        fprintf(file, "\t\tVkBuffer %s[] = { %s };\n", pBuffersArray.c_str(), pBuffersValues.c_str());
     }
 /* pOffsets */
     std::string pOffsetsArray = "pOffsets_" + std::to_string(this->getNextId());
@@ -13490,35 +13140,35 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2EXT(
                                                   pOffsets->GetPointer() + bindingCount,
                                                   [&](const auto current) { return std::to_string(current) + "UL"; },
                                                   ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pOffsetsArray.c_str(), pOffsetsValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pOffsetsArray.c_str(), pOffsetsValues.c_str());
     } else {
         pOffsetsArray = "NULL";
     }
 /* pSizes */
     std::string pSizesArray = "pSizes_" + std::to_string(this->getNextId());
-    if (bindingCount > 0) {
+    if (bindingCount > 0 && pSizes->GetPointer() != nullptr) {
         std::string pSizesValues = toStringJoin(pSizes->GetPointer(),
                                                 pSizes->GetPointer() + bindingCount,
                                                 [&](const auto current) { return std::to_string(current) + "UL"; },
                                                 ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pSizesArray.c_str(), pSizesValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pSizesArray.c_str(), pSizesValues.c_str());
     } else {
         pSizesArray = "NULL";
     }
 /* pStrides */
     std::string pStridesArray = "pStrides_" + std::to_string(this->getNextId());
-    if (bindingCount > 0) {
+    if (bindingCount > 0 && pStrides->GetPointer() != nullptr) {
         std::string pStridesValues = toStringJoin(pStrides->GetPointer(),
                                                   pStrides->GetPointer() + bindingCount,
                                                   [&](const auto current) { return std::to_string(current) + "UL"; },
                                                   ", ");
-        fprintf(file, "VkDeviceSize %s[] = { %s };\n", pStridesArray.c_str(), pStridesValues.c_str());
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", pStridesArray.c_str(), pStridesValues.c_str());
     } else {
         pStridesArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdBindVertexBuffers2EXT");
     fprintf(file,
-            "loaded_vkCmdBindVertexBuffers2EXT(%s, %u, %u, %s, %s, %s, %s);\n",
+            "\t\tloaded_vkCmdBindVertexBuffers2EXT(%s, %u, %u, %s, %s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstBinding,
             bindingCount,
@@ -13526,7 +13176,7 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2EXT(
             pOffsetsArray.c_str(),
             pSizesArray.c_str(),
             pStridesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT);
 }
 
@@ -13536,15 +13186,15 @@ void VulkanCppConsumer::Process_vkCmdSetCullModeEXT(
     VkCullModeFlags                             cullMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* cullMode */
     m_pfnLoader.AddMethodName("vkCmdSetCullModeEXT");
     fprintf(file,
-            "loaded_vkCmdSetCullModeEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetCullModeEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkCullModeFlags>(cullMode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCullModeEXT);
 }
 
@@ -13554,15 +13204,15 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBoundsTestEnableEXT(
     VkBool32                                    depthBoundsTestEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthBoundsTestEnable */
     m_pfnLoader.AddMethodName("vkCmdSetDepthBoundsTestEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetDepthBoundsTestEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetDepthBoundsTestEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthBoundsTestEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT);
 }
 
@@ -13572,15 +13222,15 @@ void VulkanCppConsumer::Process_vkCmdSetDepthCompareOpEXT(
     VkCompareOp                                 depthCompareOp)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthCompareOp */
     m_pfnLoader.AddMethodName("vkCmdSetDepthCompareOpEXT");
     fprintf(file,
-            "loaded_vkCmdSetDepthCompareOpEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetDepthCompareOpEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkCompareOp>(depthCompareOp).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT);
 }
 
@@ -13590,15 +13240,15 @@ void VulkanCppConsumer::Process_vkCmdSetDepthTestEnableEXT(
     VkBool32                                    depthTestEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthTestEnable */
     m_pfnLoader.AddMethodName("vkCmdSetDepthTestEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetDepthTestEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetDepthTestEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthTestEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT);
 }
 
@@ -13608,15 +13258,15 @@ void VulkanCppConsumer::Process_vkCmdSetDepthWriteEnableEXT(
     VkBool32                                    depthWriteEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthWriteEnable */
     m_pfnLoader.AddMethodName("vkCmdSetDepthWriteEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetDepthWriteEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetDepthWriteEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthWriteEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT);
 }
 
@@ -13626,15 +13276,15 @@ void VulkanCppConsumer::Process_vkCmdSetFrontFaceEXT(
     VkFrontFace                                 frontFace)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* frontFace */
     m_pfnLoader.AddMethodName("vkCmdSetFrontFaceEXT");
     fprintf(file,
-            "loaded_vkCmdSetFrontFaceEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetFrontFaceEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkFrontFace>(frontFace).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT);
 }
 
@@ -13644,15 +13294,15 @@ void VulkanCppConsumer::Process_vkCmdSetPrimitiveTopologyEXT(
     VkPrimitiveTopology                         primitiveTopology)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* primitiveTopology */
     m_pfnLoader.AddMethodName("vkCmdSetPrimitiveTopologyEXT");
     fprintf(file,
-            "loaded_vkCmdSetPrimitiveTopologyEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetPrimitiveTopologyEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPrimitiveTopology>(primitiveTopology).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT);
 }
 
@@ -13663,7 +13313,7 @@ void VulkanCppConsumer::Process_vkCmdSetScissorWithCountEXT(
     StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* scissorCount */
 /* pScissors */
@@ -13674,20 +13324,22 @@ void VulkanCppConsumer::Process_vkCmdSetScissorWithCountEXT(
                                               pScissorsPair.end(),
                                               [&](auto pair) { return GenerateStruct_VkRect2D(stream_pScissors, pair.t1, pair.t2, *this); },
                                               ", ");
-    fprintf(file, "\n%s", stream_pScissors.str().c_str());
-    if (scissorCount == 1) {
-        pScissorsArray = "&" + pScissorsNames;
-    } else if (scissorCount > 1) {
-        pScissorsArray = "pScissors_" + std::to_string(this->getNextId());
-        fprintf(file, "VkRect2D %s[] = { %s };\n", pScissorsArray.c_str(), pScissorsNames.c_str());
+    if (stream_pScissors.str().length() > 0) {
+        fprintf(file, "%s", stream_pScissors.str().c_str());
+        if (scissorCount == 1) {
+            pScissorsArray = "&" + pScissorsNames;
+        } else if (scissorCount > 1) {
+            pScissorsArray = "pScissors_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkRect2D %s[] = { %s };\n", pScissorsArray.c_str(), pScissorsNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetScissorWithCountEXT");
     fprintf(file,
-            "loaded_vkCmdSetScissorWithCountEXT(%s, %u, %s);\n",
+            "\t\tloaded_vkCmdSetScissorWithCountEXT(%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             scissorCount,
             pScissorsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT);
 }
 
@@ -13701,7 +13353,7 @@ void VulkanCppConsumer::Process_vkCmdSetStencilOpEXT(
     VkCompareOp                                 compareOp)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* faceMask */
 /* failOp */
@@ -13710,14 +13362,14 @@ void VulkanCppConsumer::Process_vkCmdSetStencilOpEXT(
 /* compareOp */
     m_pfnLoader.AddMethodName("vkCmdSetStencilOpEXT");
     fprintf(file,
-            "loaded_vkCmdSetStencilOpEXT(%s, %s, %s, %s, %s, %s);\n",
+            "\t\tloaded_vkCmdSetStencilOpEXT(%s, %s, %s, %s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkStencilFaceFlags>(faceMask).c_str(),
             util::ToString<VkStencilOp>(failOp).c_str(),
             util::ToString<VkStencilOp>(passOp).c_str(),
             util::ToString<VkStencilOp>(depthFailOp).c_str(),
             util::ToString<VkCompareOp>(compareOp).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT);
 }
 
@@ -13727,15 +13379,15 @@ void VulkanCppConsumer::Process_vkCmdSetStencilTestEnableEXT(
     VkBool32                                    stencilTestEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* stencilTestEnable */
     m_pfnLoader.AddMethodName("vkCmdSetStencilTestEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetStencilTestEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetStencilTestEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             stencilTestEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT);
 }
 
@@ -13746,7 +13398,7 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWithCountEXT(
     StructPointerDecoder<Decoded_VkViewport>*   pViewports)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* viewportCount */
 /* pViewports */
@@ -13757,23 +13409,24 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWithCountEXT(
                                                pViewportsPair.end(),
                                                [&](auto pair) { return GenerateStruct_VkViewport(stream_pViewports, pair.t1, pair.t2, *this); },
                                                ", ");
-    fprintf(file, "\n%s", stream_pViewports.str().c_str());
-    if (viewportCount == 1) {
-        pViewportsArray = "&" + pViewportsNames;
-    } else if (viewportCount > 1) {
-        pViewportsArray = "pViewports_" + std::to_string(this->getNextId());
-        fprintf(file, "VkViewport %s[] = { %s };\n", pViewportsArray.c_str(), pViewportsNames.c_str());
+    if (stream_pViewports.str().length() > 0) {
+        fprintf(file, "%s", stream_pViewports.str().c_str());
+        if (viewportCount == 1) {
+            pViewportsArray = "&" + pViewportsNames;
+        } else if (viewportCount > 1) {
+            pViewportsArray = "pViewports_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkViewport %s[] = { %s };\n", pViewportsArray.c_str(), pViewportsNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetViewportWithCountEXT");
     fprintf(file,
-            "loaded_vkCmdSetViewportWithCountEXT(%s, %u, %s);\n",
+            "\t\tloaded_vkCmdSetViewportWithCountEXT(%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             viewportCount,
             pViewportsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT);
 }
-
 void VulkanCppConsumer::Process_vkCopyImageToImageEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13781,7 +13434,7 @@ void VulkanCppConsumer::Process_vkCopyImageToImageEXT(
     StructPointerDecoder<Decoded_VkCopyImageToImageInfoEXT>* pCopyImageToImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCopyImageToImageInfo */
     std::stringstream stream_pCopyImageToImageInfo;
@@ -13789,14 +13442,14 @@ void VulkanCppConsumer::Process_vkCopyImageToImageEXT(
                                                                              pCopyImageToImageInfo->GetPointer(),
                                                                              pCopyImageToImageInfo->GetMetaStructPointer(),
                                                                              *this);
-    fprintf(file, "\n%s", stream_pCopyImageToImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyImageToImageInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCopyImageToImageEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCopyImageToImageEXT(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCopyImageToImageEXT(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCopyImageToImageInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCopyImageToImageEXT);
 }
 
@@ -13807,7 +13460,7 @@ void VulkanCppConsumer::Process_vkCopyImageToMemoryEXT(
     StructPointerDecoder<Decoded_VkCopyImageToMemoryInfoEXT>* pCopyImageToMemoryInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCopyImageToMemoryInfo */
     std::stringstream stream_pCopyImageToMemoryInfo;
@@ -13815,14 +13468,14 @@ void VulkanCppConsumer::Process_vkCopyImageToMemoryEXT(
                                                                               pCopyImageToMemoryInfo->GetPointer(),
                                                                               pCopyImageToMemoryInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pCopyImageToMemoryInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyImageToMemoryInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCopyImageToMemoryEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCopyImageToMemoryEXT(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCopyImageToMemoryEXT(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCopyImageToMemoryInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCopyImageToMemoryEXT);
 }
 
@@ -13833,7 +13486,7 @@ void VulkanCppConsumer::Process_vkCopyMemoryToImageEXT(
     StructPointerDecoder<Decoded_VkCopyMemoryToImageInfoEXT>* pCopyMemoryToImageInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCopyMemoryToImageInfo */
     std::stringstream stream_pCopyMemoryToImageInfo;
@@ -13841,14 +13494,14 @@ void VulkanCppConsumer::Process_vkCopyMemoryToImageEXT(
                                                                               pCopyMemoryToImageInfo->GetPointer(),
                                                                               pCopyMemoryToImageInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pCopyMemoryToImageInfo.str().c_str());
+    fprintf(file, "%s", stream_pCopyMemoryToImageInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCopyMemoryToImageEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCopyMemoryToImageEXT(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCopyMemoryToImageEXT(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCopyMemoryToImageInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCopyMemoryToImageEXT);
 }
 
@@ -13860,7 +13513,7 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2EXT(
     StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* image */
 /* pSubresource */
@@ -13869,7 +13522,7 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2EXT(
                                                                     pSubresource->GetPointer(),
                                                                     pSubresource->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pSubresource.str().c_str());
+    fprintf(file, "%s", stream_pSubresource.str().c_str());
 /* pLayout */
     std::string pLayoutName = "pLayout_" + std::to_string(this->getNextId());
     std::stringstream stream_pLayout;
@@ -13877,15 +13530,15 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2EXT(
                                                  pLayout->GetPointer(),
                                                  pLayout->GetMetaStructPointer(),
                                                  *this);
-    fprintf(file, "\n%s", stream_pLayout.str().c_str());
+    fprintf(file, "%s", stream_pLayout.str().c_str());
     m_pfnLoader.AddMethodName("vkGetImageSubresourceLayout2EXT");
     fprintf(file,
-            "loaded_vkGetImageSubresourceLayout2EXT(%s, %s, &%s, &%s);\n",
+            "\t\tloaded_vkGetImageSubresourceLayout2EXT(%s, %s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             pSubresourceStruct.c_str(),
             pLayoutName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageSubresourceLayout2EXT);
 }
 
@@ -13897,7 +13550,7 @@ void VulkanCppConsumer::Process_vkTransitionImageLayoutEXT(
     StructPointerDecoder<Decoded_VkHostImageLayoutTransitionInfoEXT>* pTransitions)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* transitionCount */
 /* pTransitions */
@@ -13908,26 +13561,25 @@ void VulkanCppConsumer::Process_vkTransitionImageLayoutEXT(
                                                  pTransitionsPair.end(),
                                                  [&](auto pair) { return GenerateStruct_VkHostImageLayoutTransitionInfoEXT(stream_pTransitions, pair.t1, pair.t2, *this); },
                                                  ", ");
-    fprintf(file, "\n%s", stream_pTransitions.str().c_str());
-    if (transitionCount == 1) {
-        pTransitionsArray = "&" + pTransitionsNames;
-    } else if (transitionCount > 1) {
-        pTransitionsArray = "pTransitions_" + std::to_string(this->getNextId());
-        fprintf(file, "VkHostImageLayoutTransitionInfoEXT %s[] = { %s };\n", pTransitionsArray.c_str(), pTransitionsNames.c_str());
+    if (stream_pTransitions.str().length() > 0) {
+        fprintf(file, "%s", stream_pTransitions.str().c_str());
+        if (transitionCount == 1) {
+            pTransitionsArray = "&" + pTransitionsNames;
+        } else if (transitionCount > 1) {
+            pTransitionsArray = "pTransitions_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkHostImageLayoutTransitionInfoEXT %s[] = { %s };\n", pTransitionsArray.c_str(), pTransitionsNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkTransitionImageLayoutEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkTransitionImageLayoutEXT(%s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkTransitionImageLayoutEXT(%s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             transitionCount,
             pTransitionsArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkTransitionImageLayoutEXT);
 }
-
-
-
 void VulkanCppConsumer::Process_vkReleaseSwapchainImagesEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13935,7 +13587,7 @@ void VulkanCppConsumer::Process_vkReleaseSwapchainImagesEXT(
     StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pReleaseInfo */
     std::stringstream stream_pReleaseInfo;
@@ -13943,18 +13595,16 @@ void VulkanCppConsumer::Process_vkReleaseSwapchainImagesEXT(
                                                                     pReleaseInfo->GetPointer(),
                                                                     pReleaseInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pReleaseInfo.str().c_str());
+    fprintf(file, "%s", stream_pReleaseInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkReleaseSwapchainImagesEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkReleaseSwapchainImagesEXT(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkReleaseSwapchainImagesEXT(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pReleaseInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkReleaseSwapchainImagesEXT);
 }
-
-
 void VulkanCppConsumer::Process_vkCmdBindPipelineShaderGroupNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -13963,19 +13613,19 @@ void VulkanCppConsumer::Process_vkCmdBindPipelineShaderGroupNV(
     uint32_t                                    groupIndex)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pipelineBindPoint */
 /* pipeline */
 /* groupIndex */
     m_pfnLoader.AddMethodName("vkCmdBindPipelineShaderGroupNV");
     fprintf(file,
-            "loaded_vkCmdBindPipelineShaderGroupNV(%s, %s, %s, %u);\n",
+            "\t\tloaded_vkCmdBindPipelineShaderGroupNV(%s, %s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineBindPoint>(pipelineBindPoint).c_str(),
             this->GetHandle(pipeline).c_str(),
             groupIndex);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV);
 }
 
@@ -13986,7 +13636,7 @@ void VulkanCppConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* isPreprocessed */
 /* pGeneratedCommandsInfo */
@@ -13995,14 +13645,14 @@ void VulkanCppConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
                                                                               pGeneratedCommandsInfo->GetPointer(),
                                                                               pGeneratedCommandsInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pGeneratedCommandsInfo.str().c_str());
+    fprintf(file, "%s", stream_pGeneratedCommandsInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdExecuteGeneratedCommandsNV");
     fprintf(file,
-            "loaded_vkCmdExecuteGeneratedCommandsNV(%s, %u, &%s);\n",
+            "\t\tloaded_vkCmdExecuteGeneratedCommandsNV(%s, %u, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             isPreprocessed,
             pGeneratedCommandsInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV);
 }
 
@@ -14012,7 +13662,7 @@ void VulkanCppConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pGeneratedCommandsInfo */
     std::stringstream stream_pGeneratedCommandsInfo;
@@ -14020,13 +13670,13 @@ void VulkanCppConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
                                                                               pGeneratedCommandsInfo->GetPointer(),
                                                                               pGeneratedCommandsInfo->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pGeneratedCommandsInfo.str().c_str());
+    fprintf(file, "%s", stream_pGeneratedCommandsInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdPreprocessGeneratedCommandsNV");
     fprintf(file,
-            "loaded_vkCmdPreprocessGeneratedCommandsNV(%s, &%s);\n",
+            "\t\tloaded_vkCmdPreprocessGeneratedCommandsNV(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pGeneratedCommandsInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV);
 }
 
@@ -14039,7 +13689,7 @@ void VulkanCppConsumer::Process_vkCreateIndirectCommandsLayoutNV(
     HandlePointerDecoder<VkIndirectCommandsLayoutNV>* pIndirectCommandsLayout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -14047,7 +13697,7 @@ void VulkanCppConsumer::Process_vkCreateIndirectCommandsLayoutNV(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pIndirectCommandsLayout */
     std::string pIndirectCommandsLayoutName = "pIndirectCommandsLayout_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV));
@@ -14058,13 +13708,13 @@ void VulkanCppConsumer::Process_vkCreateIndirectCommandsLayoutNV(
     }
     m_pfnLoader.AddMethodName("vkCreateIndirectCommandsLayoutNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateIndirectCommandsLayoutNV(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateIndirectCommandsLayoutNV(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pIndirectCommandsLayoutName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV);
 }
 
@@ -14075,17 +13725,17 @@ void VulkanCppConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* indirectCommandsLayout */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyIndirectCommandsLayoutNV");
     fprintf(file,
-            "loaded_vkDestroyIndirectCommandsLayoutNV(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyIndirectCommandsLayoutNV(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(indirectCommandsLayout).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV);
 }
 
@@ -14096,7 +13746,7 @@ void VulkanCppConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsNV(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -14104,7 +13754,7 @@ void VulkanCppConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsNV(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
 /* pMemoryRequirements */
     std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pMemoryRequirements;
@@ -14112,27 +13762,23 @@ void VulkanCppConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsNV(
                                                              pMemoryRequirements->GetPointer(),
                                                              pMemoryRequirements->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pMemoryRequirements.str().c_str());
     m_pfnLoader.AddMethodName("vkGetGeneratedCommandsMemoryRequirementsNV");
     fprintf(file,
-            "loaded_vkGetGeneratedCommandsMemoryRequirementsNV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetGeneratedCommandsMemoryRequirementsNV(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str(),
             pMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV);
 }
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdSetDepthBias2EXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDepthBiasInfoEXT>* pDepthBiasInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pDepthBiasInfo */
     std::stringstream stream_pDepthBiasInfo;
@@ -14140,17 +13786,15 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBias2EXT(
                                                                       pDepthBiasInfo->GetPointer(),
                                                                       pDepthBiasInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pDepthBiasInfo.str().c_str());
+    fprintf(file, "%s", stream_pDepthBiasInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdSetDepthBias2EXT");
     fprintf(file,
-            "loaded_vkCmdSetDepthBias2EXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdSetDepthBias2EXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pDepthBiasInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthBias2EXT);
 }
-
-
 void VulkanCppConsumer::Process_vkAcquireDrmDisplayEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14159,18 +13803,18 @@ void VulkanCppConsumer::Process_vkAcquireDrmDisplayEXT(
     format::HandleId                            display)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* drmFd */
 /* display */
     m_pfnLoader.AddMethodName("vkAcquireDrmDisplayEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkAcquireDrmDisplayEXT(%s, %d, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkAcquireDrmDisplayEXT(%s, %d, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             drmFd,
             this->GetHandle(display).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkAcquireDrmDisplayEXT);
 }
 
@@ -14183,7 +13827,7 @@ void VulkanCppConsumer::Process_vkGetDrmDisplayEXT(
     HandlePointerDecoder<VkDisplayKHR>*         display)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* drmFd */
 /* connectorId */
@@ -14196,20 +13840,15 @@ void VulkanCppConsumer::Process_vkGetDrmDisplayEXT(
     }
     m_pfnLoader.AddMethodName("vkGetDrmDisplayEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDrmDisplayEXT(%s, %d, %u, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDrmDisplayEXT(%s, %d, %u, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             drmFd,
             connectorId,
             displayName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDrmDisplayEXT);
 }
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCreatePrivateDataSlotEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14219,7 +13858,7 @@ void VulkanCppConsumer::Process_vkCreatePrivateDataSlotEXT(
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -14227,7 +13866,7 @@ void VulkanCppConsumer::Process_vkCreatePrivateDataSlotEXT(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pPrivateDataSlot */
     std::string pPrivateDataSlotName = "pPrivateDataSlot_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_PRIVATE_DATA_SLOT));
@@ -14238,13 +13877,13 @@ void VulkanCppConsumer::Process_vkCreatePrivateDataSlotEXT(
     }
     m_pfnLoader.AddMethodName("vkCreatePrivateDataSlotEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreatePrivateDataSlotEXT(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreatePrivateDataSlotEXT(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pPrivateDataSlotName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT);
 }
 
@@ -14255,17 +13894,17 @@ void VulkanCppConsumer::Process_vkDestroyPrivateDataSlotEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* privateDataSlot */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyPrivateDataSlotEXT");
     fprintf(file,
-            "loaded_vkDestroyPrivateDataSlotEXT(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyPrivateDataSlotEXT(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(privateDataSlot).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT);
 }
 
@@ -14278,23 +13917,23 @@ void VulkanCppConsumer::Process_vkGetPrivateDataEXT(
     PointerDecoder<uint64_t>*                   pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* objectType */
 /* objectHandle */
 /* privateDataSlot */
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint64_t %s;\n", pDataName.c_str());
+    fprintf(file, "\t\tuint64_t %s;\n", pDataName.c_str());
     m_pfnLoader.AddMethodName("vkGetPrivateDataEXT");
     fprintf(file,
-            "loaded_vkGetPrivateDataEXT(%s, %s, %luUL, %s, &%s);\n",
+            "\t\tloaded_vkGetPrivateDataEXT(%s, %s, %" PRIu64 "UL, %s, &%s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkObjectType>(objectType).c_str(),
             objectHandle,
             this->GetHandle(privateDataSlot).c_str(),
             pDataName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPrivateDataEXT);
 }
 
@@ -14308,7 +13947,7 @@ void VulkanCppConsumer::Process_vkSetPrivateDataEXT(
     uint64_t                                    data)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* objectType */
 /* objectHandle */
@@ -14316,23 +13955,16 @@ void VulkanCppConsumer::Process_vkSetPrivateDataEXT(
 /* data */
     m_pfnLoader.AddMethodName("vkSetPrivateDataEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkSetPrivateDataEXT(%s, %s, %luUL, %s, %luUL), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkSetPrivateDataEXT(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkObjectType>(objectType).c_str(),
             objectHandle,
             this->GetHandle(privateDataSlot).c_str(),
             data,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSetPrivateDataEXT);
 }
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -14340,7 +13972,7 @@ void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* shadingRate */
 /* combinerOps */
@@ -14349,25 +13981,16 @@ void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
                                                  combinerOps->GetPointer() + 2,
                                                  [&](const format::HandleId current) { return this->GetHandle(current); },
                                                  ", ");
-    fprintf(file, "VkFragmentShadingRateCombinerOpKHR %s[] = { %s };\n", combinerOpsArray.c_str(), combinerOpsValues.c_str());
+    fprintf(file, "\t\tVkFragmentShadingRateCombinerOpKHR %s[] = { %s };\n", combinerOpsArray.c_str(), combinerOpsValues.c_str());
     m_pfnLoader.AddMethodName("vkCmdSetFragmentShadingRateEnumNV");
     fprintf(file,
-            "loaded_vkCmdSetFragmentShadingRateEnumNV(%s, %s, %s);\n",
+            "\t\tloaded_vkCmdSetFragmentShadingRateEnumNV(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkFragmentShadingRateNV>(shadingRate).c_str(),
             combinerOpsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV);
 }
-
-
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkGetDeviceFaultInfoEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14376,7 +13999,7 @@ void VulkanCppConsumer::Process_vkGetDeviceFaultInfoEXT(
     StructPointerDecoder<Decoded_VkDeviceFaultInfoEXT>* pFaultInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pFaultCounts */
     std::string pFaultCountsName = "pFaultCounts_" + std::to_string(this->getNextId());
@@ -14385,7 +14008,7 @@ void VulkanCppConsumer::Process_vkGetDeviceFaultInfoEXT(
                                                       pFaultCounts->GetPointer(),
                                                       pFaultCounts->GetMetaStructPointer(),
                                                       *this);
-    fprintf(file, "\n%s", stream_pFaultCounts.str().c_str());
+    fprintf(file, "%s", stream_pFaultCounts.str().c_str());
 /* pFaultInfo */
     std::string pFaultInfoName = "pFaultInfo_" + std::to_string(this->getNextId());
     std::stringstream stream_pFaultInfo;
@@ -14393,20 +14016,17 @@ void VulkanCppConsumer::Process_vkGetDeviceFaultInfoEXT(
                                                     pFaultInfo->GetPointer(),
                                                     pFaultInfo->GetMetaStructPointer(),
                                                     *this);
-    fprintf(file, "\n%s", stream_pFaultInfo.str().c_str());
+    fprintf(file, "%s", stream_pFaultInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceFaultInfoEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDeviceFaultInfoEXT(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceFaultInfoEXT(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pFaultCountsName.c_str(),
             pFaultInfoName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceFaultInfoEXT);
 }
-
-
-
 void VulkanCppConsumer::Process_vkAcquireWinrtDisplayNV(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14414,16 +14034,16 @@ void VulkanCppConsumer::Process_vkAcquireWinrtDisplayNV(
     format::HandleId                            display)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* display */
     m_pfnLoader.AddMethodName("vkAcquireWinrtDisplayNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkAcquireWinrtDisplayNV(%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkAcquireWinrtDisplayNV(%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(display).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkAcquireWinrtDisplayNV);
 }
 
@@ -14435,7 +14055,7 @@ void VulkanCppConsumer::Process_vkGetWinrtDisplayNV(
     HandlePointerDecoder<VkDisplayKHR>*         pDisplay)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* deviceRelativeId */
 /* pDisplay */
@@ -14447,15 +14067,14 @@ void VulkanCppConsumer::Process_vkGetWinrtDisplayNV(
     }
     m_pfnLoader.AddMethodName("vkGetWinrtDisplayNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetWinrtDisplayNV(%s, %u, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetWinrtDisplayNV(%s, %u, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             deviceRelativeId,
             pDisplayName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetWinrtDisplayNV);
 }
-
 void VulkanCppConsumer::Process_vkCreateDirectFBSurfaceEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14465,7 +14084,7 @@ void VulkanCppConsumer::Process_vkCreateDirectFBSurfaceEXT(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -14473,7 +14092,7 @@ void VulkanCppConsumer::Process_vkCreateDirectFBSurfaceEXT(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSurface */
     std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
@@ -14484,13 +14103,13 @@ void VulkanCppConsumer::Process_vkCreateDirectFBSurfaceEXT(
     }
     m_pfnLoader.AddMethodName("vkCreateDirectFBSurfaceEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateDirectFBSurfaceEXT(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateDirectFBSurfaceEXT(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSurfaceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT);
 }
 
@@ -14502,23 +14121,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDirectFBPresentationSupportEX
     uint64_t                                    dfb)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* queueFamilyIndex */
 /* dfb */
     std::string dfbName = "dfb_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", dfbName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", dfbName.c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceDirectFBPresentationSupportEXT");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(%s, %u, %s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(%s, %u, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex,
             dfbName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT);
 }
-
-
 void VulkanCppConsumer::Process_vkCmdSetVertexInputEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -14528,7 +14145,7 @@ void VulkanCppConsumer::Process_vkCmdSetVertexInputEXT(
     StructPointerDecoder<Decoded_VkVertexInputAttributeDescription2EXT>* pVertexAttributeDescriptions)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* vertexBindingDescriptionCount */
 /* pVertexBindingDescriptions */
@@ -14539,12 +14156,14 @@ void VulkanCppConsumer::Process_vkCmdSetVertexInputEXT(
                                                                pVertexBindingDescriptionsPair.end(),
                                                                [&](auto pair) { return GenerateStruct_VkVertexInputBindingDescription2EXT(stream_pVertexBindingDescriptions, pair.t1, pair.t2, *this); },
                                                                ", ");
-    fprintf(file, "\n%s", stream_pVertexBindingDescriptions.str().c_str());
-    if (vertexBindingDescriptionCount == 1) {
-        pVertexBindingDescriptionsArray = "&" + pVertexBindingDescriptionsNames;
-    } else if (vertexBindingDescriptionCount > 1) {
-        pVertexBindingDescriptionsArray = "pVertexBindingDescriptions_" + std::to_string(this->getNextId());
-        fprintf(file, "VkVertexInputBindingDescription2EXT %s[] = { %s };\n", pVertexBindingDescriptionsArray.c_str(), pVertexBindingDescriptionsNames.c_str());
+    if (stream_pVertexBindingDescriptions.str().length() > 0) {
+        fprintf(file, "%s", stream_pVertexBindingDescriptions.str().c_str());
+        if (vertexBindingDescriptionCount == 1) {
+            pVertexBindingDescriptionsArray = "&" + pVertexBindingDescriptionsNames;
+        } else if (vertexBindingDescriptionCount > 1) {
+            pVertexBindingDescriptionsArray = "pVertexBindingDescriptions_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkVertexInputBindingDescription2EXT %s[] = { %s };\n", pVertexBindingDescriptionsArray.c_str(), pVertexBindingDescriptionsNames.c_str());
+        }
     }
 /* vertexAttributeDescriptionCount */
 /* pVertexAttributeDescriptions */
@@ -14555,29 +14174,26 @@ void VulkanCppConsumer::Process_vkCmdSetVertexInputEXT(
                                                                  pVertexAttributeDescriptionsPair.end(),
                                                                  [&](auto pair) { return GenerateStruct_VkVertexInputAttributeDescription2EXT(stream_pVertexAttributeDescriptions, pair.t1, pair.t2, *this); },
                                                                  ", ");
-    fprintf(file, "\n%s", stream_pVertexAttributeDescriptions.str().c_str());
-    if (vertexAttributeDescriptionCount == 1) {
-        pVertexAttributeDescriptionsArray = "&" + pVertexAttributeDescriptionsNames;
-    } else if (vertexAttributeDescriptionCount > 1) {
-        pVertexAttributeDescriptionsArray = "pVertexAttributeDescriptions_" + std::to_string(this->getNextId());
-        fprintf(file, "VkVertexInputAttributeDescription2EXT %s[] = { %s };\n", pVertexAttributeDescriptionsArray.c_str(), pVertexAttributeDescriptionsNames.c_str());
+    if (stream_pVertexAttributeDescriptions.str().length() > 0) {
+        fprintf(file, "%s", stream_pVertexAttributeDescriptions.str().c_str());
+        if (vertexAttributeDescriptionCount == 1) {
+            pVertexAttributeDescriptionsArray = "&" + pVertexAttributeDescriptionsNames;
+        } else if (vertexAttributeDescriptionCount > 1) {
+            pVertexAttributeDescriptionsArray = "pVertexAttributeDescriptions_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkVertexInputAttributeDescription2EXT %s[] = { %s };\n", pVertexAttributeDescriptionsArray.c_str(), pVertexAttributeDescriptionsNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetVertexInputEXT");
     fprintf(file,
-            "loaded_vkCmdSetVertexInputEXT(%s, %u, %s, %u, %s);\n",
+            "\t\tloaded_vkCmdSetVertexInputEXT(%s, %u, %s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             vertexBindingDescriptionCount,
             pVertexBindingDescriptionsArray.c_str(),
             vertexAttributeDescriptionCount,
             pVertexAttributeDescriptionsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetVertexInputEXT);
 }
-
-
-
-
-
 void VulkanCppConsumer::Process_vkGetMemoryZirconHandleFUCHSIA(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14586,7 +14202,7 @@ void VulkanCppConsumer::Process_vkGetMemoryZirconHandleFUCHSIA(
     PointerDecoder<uint32_t>*                   pZirconHandle)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pGetZirconHandleInfo */
     std::stringstream stream_pGetZirconHandleInfo;
@@ -14594,18 +14210,18 @@ void VulkanCppConsumer::Process_vkGetMemoryZirconHandleFUCHSIA(
                                                                             pGetZirconHandleInfo->GetPointer(),
                                                                             pGetZirconHandleInfo->GetMetaStructPointer(),
                                                                             *this);
-    fprintf(file, "\n%s", stream_pGetZirconHandleInfo.str().c_str());
+    fprintf(file, "%s", stream_pGetZirconHandleInfo.str().c_str());
 /* pZirconHandle */
     std::string pZirconHandleName = "pZirconHandle_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pZirconHandleName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pZirconHandleName.c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryZirconHandleFUCHSIA");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryZirconHandleFUCHSIA(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryZirconHandleFUCHSIA(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pGetZirconHandleInfoStruct.c_str(),
             pZirconHandleName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryZirconHandleFUCHSIA);
 }
 
@@ -14618,7 +14234,7 @@ void VulkanCppConsumer::Process_vkGetMemoryZirconHandlePropertiesFUCHSIA(
     StructPointerDecoder<Decoded_VkMemoryZirconHandlePropertiesFUCHSIA>* pMemoryZirconHandleProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* handleType */
 /* zirconHandle */
@@ -14629,19 +14245,18 @@ void VulkanCppConsumer::Process_vkGetMemoryZirconHandlePropertiesFUCHSIA(
                                                                        pMemoryZirconHandleProperties->GetPointer(),
                                                                        pMemoryZirconHandleProperties->GetMetaStructPointer(),
                                                                        *this);
-    fprintf(file, "\n%s", stream_pMemoryZirconHandleProperties.str().c_str());
+    fprintf(file, "%s", stream_pMemoryZirconHandleProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryZirconHandlePropertiesFUCHSIA");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryZirconHandlePropertiesFUCHSIA(%s, %s, %u, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryZirconHandlePropertiesFUCHSIA(%s, %s, %u, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagBits>(handleType).c_str(),
             zirconHandle,
             pMemoryZirconHandlePropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryZirconHandlePropertiesFUCHSIA);
 }
-
 void VulkanCppConsumer::Process_vkGetSemaphoreZirconHandleFUCHSIA(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14650,7 +14265,7 @@ void VulkanCppConsumer::Process_vkGetSemaphoreZirconHandleFUCHSIA(
     PointerDecoder<uint32_t>*                   pZirconHandle)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pGetZirconHandleInfo */
     std::stringstream stream_pGetZirconHandleInfo;
@@ -14658,18 +14273,18 @@ void VulkanCppConsumer::Process_vkGetSemaphoreZirconHandleFUCHSIA(
                                                                             pGetZirconHandleInfo->GetPointer(),
                                                                             pGetZirconHandleInfo->GetMetaStructPointer(),
                                                                             *this);
-    fprintf(file, "\n%s", stream_pGetZirconHandleInfo.str().c_str());
+    fprintf(file, "%s", stream_pGetZirconHandleInfo.str().c_str());
 /* pZirconHandle */
     std::string pZirconHandleName = "pZirconHandle_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pZirconHandleName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pZirconHandleName.c_str());
     m_pfnLoader.AddMethodName("vkGetSemaphoreZirconHandleFUCHSIA");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetSemaphoreZirconHandleFUCHSIA(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreZirconHandleFUCHSIA(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pGetZirconHandleInfoStruct.c_str(),
             pZirconHandleName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetSemaphoreZirconHandleFUCHSIA);
 }
 
@@ -14680,7 +14295,7 @@ void VulkanCppConsumer::Process_vkImportSemaphoreZirconHandleFUCHSIA(
     StructPointerDecoder<Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA>* pImportSemaphoreZirconHandleInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pImportSemaphoreZirconHandleInfo */
     std::stringstream stream_pImportSemaphoreZirconHandleInfo;
@@ -14688,17 +14303,16 @@ void VulkanCppConsumer::Process_vkImportSemaphoreZirconHandleFUCHSIA(
                                                                                         pImportSemaphoreZirconHandleInfo->GetPointer(),
                                                                                         pImportSemaphoreZirconHandleInfo->GetMetaStructPointer(),
                                                                                         *this);
-    fprintf(file, "\n%s", stream_pImportSemaphoreZirconHandleInfo.str().c_str());
+    fprintf(file, "%s", stream_pImportSemaphoreZirconHandleInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkImportSemaphoreZirconHandleFUCHSIA");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkImportSemaphoreZirconHandleFUCHSIA(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkImportSemaphoreZirconHandleFUCHSIA(%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pImportSemaphoreZirconHandleInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkImportSemaphoreZirconHandleFUCHSIA);
 }
-
 void VulkanCppConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -14706,20 +14320,19 @@ void VulkanCppConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
     VkImageLayout                               imageLayout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* imageView */
 /* imageLayout */
     m_pfnLoader.AddMethodName("vkCmdBindInvocationMaskHUAWEI");
     fprintf(file,
-            "loaded_vkCmdBindInvocationMaskHUAWEI(%s, %s, %s);\n",
+            "\t\tloaded_vkCmdBindInvocationMaskHUAWEI(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(imageView).c_str(),
             util::ToString<VkImageLayout>(imageLayout).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindInvocationMaskHUAWEI);
 }
-
 void VulkanCppConsumer::Process_vkGetMemoryRemoteAddressNV(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14728,7 +14341,7 @@ void VulkanCppConsumer::Process_vkGetMemoryRemoteAddressNV(
     PointerDecoder<uint64_t, void*>*            pAddress)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pMemoryGetRemoteAddressInfo */
     std::stringstream stream_pMemoryGetRemoteAddressInfo;
@@ -14736,38 +14349,35 @@ void VulkanCppConsumer::Process_vkGetMemoryRemoteAddressNV(
                                                                                    pMemoryGetRemoteAddressInfo->GetPointer(),
                                                                                    pMemoryGetRemoteAddressInfo->GetMetaStructPointer(),
                                                                                    *this);
-    fprintf(file, "\n%s", stream_pMemoryGetRemoteAddressInfo.str().c_str());
+    fprintf(file, "%s", stream_pMemoryGetRemoteAddressInfo.str().c_str());
 /* pAddress */
     std::string pAddressName = "pAddress_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t* %s;\n", pAddressName.c_str());
+    fprintf(file, "\t\tuint8_t* %s;\n", pAddressName.c_str());
     m_pfnLoader.AddMethodName("vkGetMemoryRemoteAddressNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetMemoryRemoteAddressNV(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryRemoteAddressNV(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pMemoryGetRemoteAddressInfoStruct.c_str(),
             pAddressName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV);
 }
-
-
-
 void VulkanCppConsumer::Process_vkCmdSetDepthBiasEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkBool32                                    depthBiasEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthBiasEnable */
     m_pfnLoader.AddMethodName("vkCmdSetDepthBiasEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetDepthBiasEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetDepthBiasEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthBiasEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthBiasEnableEXT);
 }
 
@@ -14777,15 +14387,15 @@ void VulkanCppConsumer::Process_vkCmdSetLogicOpEXT(
     VkLogicOp                                   logicOp)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* logicOp */
     m_pfnLoader.AddMethodName("vkCmdSetLogicOpEXT");
     fprintf(file,
-            "loaded_vkCmdSetLogicOpEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetLogicOpEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkLogicOp>(logicOp).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetLogicOpEXT);
 }
 
@@ -14795,15 +14405,15 @@ void VulkanCppConsumer::Process_vkCmdSetPatchControlPointsEXT(
     uint32_t                                    patchControlPoints)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* patchControlPoints */
     m_pfnLoader.AddMethodName("vkCmdSetPatchControlPointsEXT");
     fprintf(file,
-            "loaded_vkCmdSetPatchControlPointsEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetPatchControlPointsEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             patchControlPoints);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetPatchControlPointsEXT);
 }
 
@@ -14813,15 +14423,15 @@ void VulkanCppConsumer::Process_vkCmdSetPrimitiveRestartEnableEXT(
     VkBool32                                    primitiveRestartEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* primitiveRestartEnable */
     m_pfnLoader.AddMethodName("vkCmdSetPrimitiveRestartEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetPrimitiveRestartEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetPrimitiveRestartEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             primitiveRestartEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetPrimitiveRestartEnableEXT);
 }
 
@@ -14831,18 +14441,17 @@ void VulkanCppConsumer::Process_vkCmdSetRasterizerDiscardEnableEXT(
     VkBool32                                    rasterizerDiscardEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* rasterizerDiscardEnable */
     m_pfnLoader.AddMethodName("vkCmdSetRasterizerDiscardEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetRasterizerDiscardEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetRasterizerDiscardEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             rasterizerDiscardEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetRasterizerDiscardEnableEXT);
 }
-
 void VulkanCppConsumer::Process_vkCreateScreenSurfaceQNX(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14852,7 +14461,7 @@ void VulkanCppConsumer::Process_vkCreateScreenSurfaceQNX(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* instance */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -14860,7 +14469,7 @@ void VulkanCppConsumer::Process_vkCreateScreenSurfaceQNX(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSurface */
     std::string pSurfaceName = "pSurface_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_SURFACE_KHR));
@@ -14871,13 +14480,13 @@ void VulkanCppConsumer::Process_vkCreateScreenSurfaceQNX(
     }
     m_pfnLoader.AddMethodName("vkCreateScreenSurfaceQNX");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateScreenSurfaceQNX(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateScreenSurfaceQNX(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(instance).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSurfaceName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateScreenSurfaceQNX);
 }
 
@@ -14889,22 +14498,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceScreenPresentationSupportQNX(
     uint64_t                                    window)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* queueFamilyIndex */
 /* window */
     std::string windowName = "window_" + std::to_string(this->getNextId());
-    fprintf(file, "void* %s;\n", windowName.c_str());
+    fprintf(file, "\t\tvoid* %s;\n", windowName.c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceScreenPresentationSupportQNX");
     fprintf(file,
-            "loaded_vkGetPhysicalDeviceScreenPresentationSupportQNX(%s, %u, %s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceScreenPresentationSupportQNX(%s, %u, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex,
             windowName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceScreenPresentationSupportQNX);
 }
-
 void VulkanCppConsumer::Process_vkCmdSetColorWriteEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -14912,7 +14520,7 @@ void VulkanCppConsumer::Process_vkCmdSetColorWriteEnableEXT(
     PointerDecoder<VkBool32>*                   pColorWriteEnables)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* attachmentCount */
 /* pColorWriteEnables */
@@ -14922,23 +14530,19 @@ void VulkanCppConsumer::Process_vkCmdSetColorWriteEnableEXT(
                                                             pColorWriteEnables->GetPointer() + attachmentCount,
                                                             [&](const auto current) { return std::to_string(current) + ""; },
                                                             ", ");
-        fprintf(file, "VkBool32 %s[] = { %s };\n", pColorWriteEnablesArray.c_str(), pColorWriteEnablesValues.c_str());
+        fprintf(file, "\t\tVkBool32 %s[] = { %s };\n", pColorWriteEnablesArray.c_str(), pColorWriteEnablesValues.c_str());
     } else {
         pColorWriteEnablesArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdSetColorWriteEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetColorWriteEnableEXT(%s, %u, %s);\n",
+            "\t\tloaded_vkCmdSetColorWriteEnableEXT(%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             attachmentCount,
             pColorWriteEnablesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetColorWriteEnableEXT);
 }
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdDrawMultiEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -14949,7 +14553,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMultiEXT(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* drawCount */
 /* pVertexInfo */
@@ -14960,26 +14564,28 @@ void VulkanCppConsumer::Process_vkCmdDrawMultiEXT(
                                                 pVertexInfoPair.end(),
                                                 [&](auto pair) { return GenerateStruct_VkMultiDrawInfoEXT(stream_pVertexInfo, pair.t1, pair.t2, *this); },
                                                 ", ");
-    fprintf(file, "\n%s", stream_pVertexInfo.str().c_str());
-    if (drawCount == 1) {
-        pVertexInfoArray = "&" + pVertexInfoNames;
-    } else if (drawCount > 1) {
-        pVertexInfoArray = "pVertexInfo_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMultiDrawInfoEXT %s[] = { %s };\n", pVertexInfoArray.c_str(), pVertexInfoNames.c_str());
+    if (stream_pVertexInfo.str().length() > 0) {
+        fprintf(file, "%s", stream_pVertexInfo.str().c_str());
+        if (drawCount == 1) {
+            pVertexInfoArray = "&" + pVertexInfoNames;
+        } else if (drawCount > 1) {
+            pVertexInfoArray = "pVertexInfo_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkMultiDrawInfoEXT %s[] = { %s };\n", pVertexInfoArray.c_str(), pVertexInfoNames.c_str());
+        }
     }
 /* instanceCount */
 /* firstInstance */
 /* stride */
     m_pfnLoader.AddMethodName("vkCmdDrawMultiEXT");
     fprintf(file,
-            "loaded_vkCmdDrawMultiEXT(%s, %u, %s, %u, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawMultiEXT(%s, %u, %s, %u, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             drawCount,
             pVertexInfoArray.c_str(),
             instanceCount,
             firstInstance,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMultiEXT);
 }
 
@@ -14994,7 +14600,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMultiIndexedEXT(
     PointerDecoder<int32_t>*                    pVertexOffset)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* drawCount */
 /* pIndexInfo */
@@ -15005,12 +14611,14 @@ void VulkanCppConsumer::Process_vkCmdDrawMultiIndexedEXT(
                                                pIndexInfoPair.end(),
                                                [&](auto pair) { return GenerateStruct_VkMultiDrawIndexedInfoEXT(stream_pIndexInfo, pair.t1, pair.t2, *this); },
                                                ", ");
-    fprintf(file, "\n%s", stream_pIndexInfo.str().c_str());
-    if (drawCount == 1) {
-        pIndexInfoArray = "&" + pIndexInfoNames;
-    } else if (drawCount > 1) {
-        pIndexInfoArray = "pIndexInfo_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMultiDrawIndexedInfoEXT %s[] = { %s };\n", pIndexInfoArray.c_str(), pIndexInfoNames.c_str());
+    if (stream_pIndexInfo.str().length() > 0) {
+        fprintf(file, "%s", stream_pIndexInfo.str().c_str());
+        if (drawCount == 1) {
+            pIndexInfoArray = "&" + pIndexInfoNames;
+        } else if (drawCount > 1) {
+            pIndexInfoArray = "pIndexInfo_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkMultiDrawIndexedInfoEXT %s[] = { %s };\n", pIndexInfoArray.c_str(), pIndexInfoNames.c_str());
+        }
     }
 /* instanceCount */
 /* firstInstance */
@@ -15018,7 +14626,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMultiIndexedEXT(
 /* pVertexOffset */
     m_pfnLoader.AddMethodName("vkCmdDrawMultiIndexedEXT");
     fprintf(file,
-            "loaded_vkCmdDrawMultiIndexedEXT(%s, %u, %s, %u, %u, %u, %p);\n",
+            "\t\tloaded_vkCmdDrawMultiIndexedEXT(%s, %u, %s, %u, %u, %u, %p);\n",
             this->GetHandle(commandBuffer).c_str(),
             drawCount,
             pIndexInfoArray.c_str(),
@@ -15026,12 +14634,9 @@ void VulkanCppConsumer::Process_vkCmdDrawMultiIndexedEXT(
             firstInstance,
             stride,
             pVertexOffset->GetPointer());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT);
 }
-
-
-
 void VulkanCppConsumer::Process_vkBuildMicromapsEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -15041,7 +14646,7 @@ void VulkanCppConsumer::Process_vkBuildMicromapsEXT(
     StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* deferredOperation */
 /* infoCount */
@@ -15053,22 +14658,24 @@ void VulkanCppConsumer::Process_vkBuildMicromapsEXT(
                                            pInfosPair.end(),
                                            [&](auto pair) { return GenerateStruct_VkMicromapBuildInfoEXT(stream_pInfos, pair.t1, pair.t2, *this); },
                                            ", ");
-    fprintf(file, "\n%s", stream_pInfos.str().c_str());
-    if (infoCount == 1) {
-        pInfosArray = "&" + pInfosNames;
-    } else if (infoCount > 1) {
-        pInfosArray = "pInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMicromapBuildInfoEXT %s[] = { %s };\n", pInfosArray.c_str(), pInfosNames.c_str());
+    if (stream_pInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pInfos.str().c_str());
+        if (infoCount == 1) {
+            pInfosArray = "&" + pInfosNames;
+        } else if (infoCount > 1) {
+            pInfosArray = "pInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkMicromapBuildInfoEXT %s[] = { %s };\n", pInfosArray.c_str(), pInfosNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkBuildMicromapsEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkBuildMicromapsEXT(%s, %s, %u, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkBuildMicromapsEXT(%s, %s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(deferredOperation).c_str(),
             infoCount,
             pInfosArray.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBuildMicromapsEXT);
 }
 
@@ -15079,7 +14686,7 @@ void VulkanCppConsumer::Process_vkCmdBuildMicromapsEXT(
     StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* infoCount */
 /* pInfos */
@@ -15090,20 +14697,22 @@ void VulkanCppConsumer::Process_vkCmdBuildMicromapsEXT(
                                            pInfosPair.end(),
                                            [&](auto pair) { return GenerateStruct_VkMicromapBuildInfoEXT(stream_pInfos, pair.t1, pair.t2, *this); },
                                            ", ");
-    fprintf(file, "\n%s", stream_pInfos.str().c_str());
-    if (infoCount == 1) {
-        pInfosArray = "&" + pInfosNames;
-    } else if (infoCount > 1) {
-        pInfosArray = "pInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMicromapBuildInfoEXT %s[] = { %s };\n", pInfosArray.c_str(), pInfosNames.c_str());
+    if (stream_pInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pInfos.str().c_str());
+        if (infoCount == 1) {
+            pInfosArray = "&" + pInfosNames;
+        } else if (infoCount > 1) {
+            pInfosArray = "pInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkMicromapBuildInfoEXT %s[] = { %s };\n", pInfosArray.c_str(), pInfosNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdBuildMicromapsEXT");
     fprintf(file,
-            "loaded_vkCmdBuildMicromapsEXT(%s, %u, %s);\n",
+            "\t\tloaded_vkCmdBuildMicromapsEXT(%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             infoCount,
             pInfosArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBuildMicromapsEXT);
 }
 
@@ -15113,7 +14722,7 @@ void VulkanCppConsumer::Process_vkCmdCopyMemoryToMicromapEXT(
     StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -15121,13 +14730,13 @@ void VulkanCppConsumer::Process_vkCmdCopyMemoryToMicromapEXT(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyMemoryToMicromapEXT");
     fprintf(file,
-            "loaded_vkCmdCopyMemoryToMicromapEXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyMemoryToMicromapEXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyMemoryToMicromapEXT);
 }
 
@@ -15137,7 +14746,7 @@ void VulkanCppConsumer::Process_vkCmdCopyMicromapEXT(
     StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -15145,13 +14754,13 @@ void VulkanCppConsumer::Process_vkCmdCopyMicromapEXT(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyMicromapEXT");
     fprintf(file,
-            "loaded_vkCmdCopyMicromapEXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyMicromapEXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyMicromapEXT);
 }
 
@@ -15161,7 +14770,7 @@ void VulkanCppConsumer::Process_vkCmdCopyMicromapToMemoryEXT(
     StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -15169,13 +14778,13 @@ void VulkanCppConsumer::Process_vkCmdCopyMicromapToMemoryEXT(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyMicromapToMemoryEXT");
     fprintf(file,
-            "loaded_vkCmdCopyMicromapToMemoryEXT(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyMicromapToMemoryEXT(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyMicromapToMemoryEXT);
 }
 
@@ -15189,7 +14798,7 @@ void VulkanCppConsumer::Process_vkCmdWriteMicromapsPropertiesEXT(
     uint32_t                                    firstQuery)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* micromapCount */
 /* pMicromaps */
@@ -15198,25 +14807,25 @@ void VulkanCppConsumer::Process_vkCmdWriteMicromapsPropertiesEXT(
                                                 pMicromaps->GetPointer() + micromapCount,
                                                 [&](const format::HandleId current) { return this->GetHandle(current); },
                                                 ", ");
-    if (micromapCount == 1) {
+    if (micromapCount == 1 && pMicromapsValues != "VK_NULL_HANDLE") {
         pMicromapsArray = "&" + pMicromapsValues;
     } else if (micromapCount > 1) {
         pMicromapsArray = "pMicromapsArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMicromapEXT %s[] = { %s };\n", pMicromapsArray.c_str(), pMicromapsValues.c_str());
+        fprintf(file, "\t\tVkMicromapEXT %s[] = { %s };\n", pMicromapsArray.c_str(), pMicromapsValues.c_str());
     }
 /* queryType */
 /* queryPool */
 /* firstQuery */
     m_pfnLoader.AddMethodName("vkCmdWriteMicromapsPropertiesEXT");
     fprintf(file,
-            "loaded_vkCmdWriteMicromapsPropertiesEXT(%s, %u, %s, %s, %s, %u);\n",
+            "\t\tloaded_vkCmdWriteMicromapsPropertiesEXT(%s, %u, %s, %s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             micromapCount,
             pMicromapsArray.c_str(),
             util::ToString<VkQueryType>(queryType).c_str(),
             this->GetHandle(queryPool).c_str(),
             firstQuery);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWriteMicromapsPropertiesEXT);
 }
 
@@ -15228,7 +14837,7 @@ void VulkanCppConsumer::Process_vkCopyMemoryToMicromapEXT(
     StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* deferredOperation */
 /* pInfo */
@@ -15237,15 +14846,15 @@ void VulkanCppConsumer::Process_vkCopyMemoryToMicromapEXT(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCopyMemoryToMicromapEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCopyMemoryToMicromapEXT(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCopyMemoryToMicromapEXT(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(deferredOperation).c_str(),
             pInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCopyMemoryToMicromapEXT);
 }
 
@@ -15257,7 +14866,7 @@ void VulkanCppConsumer::Process_vkCopyMicromapEXT(
     StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* deferredOperation */
 /* pInfo */
@@ -15266,15 +14875,15 @@ void VulkanCppConsumer::Process_vkCopyMicromapEXT(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCopyMicromapEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCopyMicromapEXT(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCopyMicromapEXT(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(deferredOperation).c_str(),
             pInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCopyMicromapEXT);
 }
 
@@ -15286,7 +14895,7 @@ void VulkanCppConsumer::Process_vkCopyMicromapToMemoryEXT(
     StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* deferredOperation */
 /* pInfo */
@@ -15295,15 +14904,15 @@ void VulkanCppConsumer::Process_vkCopyMicromapToMemoryEXT(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCopyMicromapToMemoryEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCopyMicromapToMemoryEXT(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCopyMicromapToMemoryEXT(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(deferredOperation).c_str(),
             pInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCopyMicromapToMemoryEXT);
 }
 
@@ -15316,7 +14925,7 @@ void VulkanCppConsumer::Process_vkCreateMicromapEXT(
     HandlePointerDecoder<VkMicromapEXT>*        pMicromap)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -15324,7 +14933,7 @@ void VulkanCppConsumer::Process_vkCreateMicromapEXT(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pMicromap */
     std::string pMicromapName = "pMicromap_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_MICROMAP_EXT));
@@ -15335,13 +14944,13 @@ void VulkanCppConsumer::Process_vkCreateMicromapEXT(
     }
     m_pfnLoader.AddMethodName("vkCreateMicromapEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateMicromapEXT(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateMicromapEXT(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pMicromapName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateMicromapEXT);
 }
 
@@ -15352,17 +14961,17 @@ void VulkanCppConsumer::Process_vkDestroyMicromapEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* micromap */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyMicromapEXT");
     fprintf(file,
-            "loaded_vkDestroyMicromapEXT(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyMicromapEXT(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(micromap).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyMicromapEXT);
 }
 
@@ -15373,7 +14982,7 @@ void VulkanCppConsumer::Process_vkGetDeviceMicromapCompatibilityEXT(
     PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pVersionInfo */
     std::stringstream stream_pVersionInfo;
@@ -15381,17 +14990,17 @@ void VulkanCppConsumer::Process_vkGetDeviceMicromapCompatibilityEXT(
                                                                     pVersionInfo->GetPointer(),
                                                                     pVersionInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pVersionInfo.str().c_str());
+    fprintf(file, "%s", stream_pVersionInfo.str().c_str());
 /* pCompatibility */
     std::string pCompatibilityName = "pCompatibility_" + std::to_string(this->getNextId());
-    fprintf(file, "VkAccelerationStructureCompatibilityKHR %s;\n", pCompatibilityName.c_str());
+    fprintf(file, "\t\tVkAccelerationStructureCompatibilityKHR %s;\n", pCompatibilityName.c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceMicromapCompatibilityEXT");
     fprintf(file,
-            "loaded_vkGetDeviceMicromapCompatibilityEXT(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceMicromapCompatibilityEXT(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pVersionInfoStruct.c_str(),
             pCompatibilityName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceMicromapCompatibilityEXT);
 }
 
@@ -15403,7 +15012,7 @@ void VulkanCppConsumer::Process_vkGetMicromapBuildSizesEXT(
     StructPointerDecoder<Decoded_VkMicromapBuildSizesInfoEXT>* pSizeInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* buildType */
 /* pBuildInfo */
@@ -15412,7 +15021,7 @@ void VulkanCppConsumer::Process_vkGetMicromapBuildSizesEXT(
                                                                   pBuildInfo->GetPointer(),
                                                                   pBuildInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pBuildInfo.str().c_str());
+    fprintf(file, "%s", stream_pBuildInfo.str().c_str());
 /* pSizeInfo */
     std::string pSizeInfoName = "pSizeInfo_" + std::to_string(this->getNextId());
     std::stringstream stream_pSizeInfo;
@@ -15420,15 +15029,15 @@ void VulkanCppConsumer::Process_vkGetMicromapBuildSizesEXT(
                                                    pSizeInfo->GetPointer(),
                                                    pSizeInfo->GetMetaStructPointer(),
                                                    *this);
-    fprintf(file, "\n%s", stream_pSizeInfo.str().c_str());
+    fprintf(file, "%s", stream_pSizeInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetMicromapBuildSizesEXT");
     fprintf(file,
-            "loaded_vkGetMicromapBuildSizesEXT(%s, %s, &%s, &%s);\n",
+            "\t\tloaded_vkGetMicromapBuildSizesEXT(%s, %s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkAccelerationStructureBuildTypeKHR>(buildType).c_str(),
             pBuildInfoStruct.c_str(),
             pSizeInfoName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMicromapBuildSizesEXT);
 }
 
@@ -15444,7 +15053,7 @@ void VulkanCppConsumer::Process_vkWriteMicromapsPropertiesEXT(
     size_t                                      stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* micromapCount */
 /* pMicromaps */
@@ -15453,21 +15062,21 @@ void VulkanCppConsumer::Process_vkWriteMicromapsPropertiesEXT(
                                                 pMicromaps->GetPointer() + micromapCount,
                                                 [&](const format::HandleId current) { return this->GetHandle(current); },
                                                 ", ");
-    if (micromapCount == 1) {
+    if (micromapCount == 1 && pMicromapsValues != "VK_NULL_HANDLE") {
         pMicromapsArray = "&" + pMicromapsValues;
     } else if (micromapCount > 1) {
         pMicromapsArray = "pMicromapsArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkMicromapEXT %s[] = { %s };\n", pMicromapsArray.c_str(), pMicromapsValues.c_str());
+        fprintf(file, "\t\tVkMicromapEXT %s[] = { %s };\n", pMicromapsArray.c_str(), pMicromapsValues.c_str());
     }
 /* queryType */
 /* dataSize */
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t %s[%ld];\n", pDataName.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pDataName.c_str(), dataSize);
 /* stride */
     m_pfnLoader.AddMethodName("vkWriteMicromapsPropertiesEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkWriteMicromapsPropertiesEXT(%s, %u, %s, %s, %lu, %s, %lu), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkWriteMicromapsPropertiesEXT(%s, %u, %s, %s, %" PRId64 ", %s, %" PRId64 "), %s);\n",
             this->GetHandle(device).c_str(),
             micromapCount,
             pMicromapsArray.c_str(),
@@ -15476,12 +15085,9 @@ void VulkanCppConsumer::Process_vkWriteMicromapsPropertiesEXT(
             pDataName.c_str(),
             stride,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkWriteMicromapsPropertiesEXT);
 }
-
-
-
 void VulkanCppConsumer::Process_vkCmdDrawClusterHUAWEI(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -15490,19 +15096,19 @@ void VulkanCppConsumer::Process_vkCmdDrawClusterHUAWEI(
     uint32_t                                    groupCountZ)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* groupCountX */
 /* groupCountY */
 /* groupCountZ */
     m_pfnLoader.AddMethodName("vkCmdDrawClusterHUAWEI");
     fprintf(file,
-            "loaded_vkCmdDrawClusterHUAWEI(%s, %u, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawClusterHUAWEI(%s, %u, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             groupCountX,
             groupCountY,
             groupCountZ);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawClusterHUAWEI);
 }
 
@@ -15513,21 +15119,19 @@ void VulkanCppConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
     VkDeviceSize                                offset)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
     m_pfnLoader.AddMethodName("vkCmdDrawClusterIndirectHUAWEI");
     fprintf(file,
-            "loaded_vkCmdDrawClusterIndirectHUAWEI(%s, %s, %luUL);\n",
+            "\t\tloaded_vkCmdDrawClusterIndirectHUAWEI(%s, %s, %" PRIu64 "UL);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawClusterIndirectHUAWEI);
 }
-
-
 void VulkanCppConsumer::Process_vkSetDeviceMemoryPriorityEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -15535,22 +15139,19 @@ void VulkanCppConsumer::Process_vkSetDeviceMemoryPriorityEXT(
     float                                       priority)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* memory */
 /* priority */
     m_pfnLoader.AddMethodName("vkSetDeviceMemoryPriorityEXT");
     fprintf(file,
-            "loaded_vkSetDeviceMemoryPriorityEXT(%s, %s, %f);\n",
+            "\t\tloaded_vkSetDeviceMemoryPriorityEXT(%s, %s, %f);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(memory).c_str(),
             priority);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSetDeviceMemoryPriorityEXT);
 }
-
-
-
 void VulkanCppConsumer::Process_vkGetDescriptorSetHostMappingVALVE(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -15558,19 +15159,19 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetHostMappingVALVE(
     PointerDecoder<uint64_t, void*>*            ppData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* descriptorSet */
 /* ppData */
     std::string ppDataName = "ppData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t* %s;\n", ppDataName.c_str());
+    fprintf(file, "\t\tuint8_t* %s;\n", ppDataName.c_str());
     m_pfnLoader.AddMethodName("vkGetDescriptorSetHostMappingVALVE");
     fprintf(file,
-            "loaded_vkGetDescriptorSetHostMappingVALVE(%s, %s, &%s);\n",
+            "\t\tloaded_vkGetDescriptorSetHostMappingVALVE(%s, %s, &%s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(descriptorSet).c_str(),
             ppDataName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorSetHostMappingVALVE);
 }
 
@@ -15581,7 +15182,7 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE>* pHostMapping)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pBindingReference */
     std::stringstream stream_pBindingReference;
@@ -15589,7 +15190,7 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
                                                                          pBindingReference->GetPointer(),
                                                                          pBindingReference->GetMetaStructPointer(),
                                                                          *this);
-    fprintf(file, "\n%s", stream_pBindingReference.str().c_str());
+    fprintf(file, "%s", stream_pBindingReference.str().c_str());
 /* pHostMapping */
     std::string pHostMappingName = "pHostMapping_" + std::to_string(this->getNextId());
     std::stringstream stream_pHostMapping;
@@ -15597,20 +15198,16 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
                                                       pHostMapping->GetPointer(),
                                                       pHostMapping->GetMetaStructPointer(),
                                                       *this);
-    fprintf(file, "\n%s", stream_pHostMapping.str().c_str());
+    fprintf(file, "%s", stream_pHostMapping.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDescriptorSetLayoutHostMappingInfoVALVE");
     fprintf(file,
-            "loaded_vkGetDescriptorSetLayoutHostMappingInfoVALVE(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDescriptorSetLayoutHostMappingInfoVALVE(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pBindingReferenceStruct.c_str(),
             pHostMappingName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutHostMappingInfoVALVE);
 }
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -15618,17 +15215,17 @@ void VulkanCppConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
     format::HandleId                            pipeline)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pipelineBindPoint */
 /* pipeline */
     m_pfnLoader.AddMethodName("vkCmdUpdatePipelineIndirectBufferNV");
     fprintf(file,
-            "loaded_vkCmdUpdatePipelineIndirectBufferNV(%s, %s, %s);\n",
+            "\t\tloaded_vkCmdUpdatePipelineIndirectBufferNV(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPipelineBindPoint>(pipelineBindPoint).c_str(),
             this->GetHandle(pipeline).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdUpdatePipelineIndirectBufferNV);
 }
 
@@ -15639,7 +15236,7 @@ void VulkanCppConsumer::Process_vkGetPipelineIndirectDeviceAddressNV(
     StructPointerDecoder<Decoded_VkPipelineIndirectDeviceAddressInfoNV>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -15647,13 +15244,13 @@ void VulkanCppConsumer::Process_vkGetPipelineIndirectDeviceAddressNV(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPipelineIndirectDeviceAddressNV");
     fprintf(file,
-            "loaded_vkGetPipelineIndirectDeviceAddressNV(%s, &%s);\n",
+            "\t\tloaded_vkGetPipelineIndirectDeviceAddressNV(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPipelineIndirectDeviceAddressNV);
 }
 
@@ -15664,7 +15261,7 @@ void VulkanCppConsumer::Process_vkGetPipelineIndirectMemoryRequirementsNV(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -15672,7 +15269,7 @@ void VulkanCppConsumer::Process_vkGetPipelineIndirectMemoryRequirementsNV(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pMemoryRequirements */
     std::string pMemoryRequirementsName = "pMemoryRequirements_" + std::to_string(this->getNextId());
     std::stringstream stream_pMemoryRequirements;
@@ -15680,38 +15277,31 @@ void VulkanCppConsumer::Process_vkGetPipelineIndirectMemoryRequirementsNV(
                                                              pMemoryRequirements->GetPointer(),
                                                              pMemoryRequirements->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_pMemoryRequirements.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPipelineIndirectMemoryRequirementsNV");
     fprintf(file,
-            "loaded_vkGetPipelineIndirectMemoryRequirementsNV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPipelineIndirectMemoryRequirementsNV(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             pMemoryRequirementsName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPipelineIndirectMemoryRequirementsNV);
 }
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdSetAlphaToCoverageEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkBool32                                    alphaToCoverageEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* alphaToCoverageEnable */
     m_pfnLoader.AddMethodName("vkCmdSetAlphaToCoverageEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetAlphaToCoverageEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetAlphaToCoverageEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             alphaToCoverageEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetAlphaToCoverageEnableEXT);
 }
 
@@ -15721,15 +15311,15 @@ void VulkanCppConsumer::Process_vkCmdSetAlphaToOneEnableEXT(
     VkBool32                                    alphaToOneEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* alphaToOneEnable */
     m_pfnLoader.AddMethodName("vkCmdSetAlphaToOneEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetAlphaToOneEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetAlphaToOneEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             alphaToOneEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetAlphaToOneEnableEXT);
 }
 
@@ -15741,7 +15331,7 @@ void VulkanCppConsumer::Process_vkCmdSetColorBlendAdvancedEXT(
     StructPointerDecoder<Decoded_VkColorBlendAdvancedEXT>* pColorBlendAdvanced)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstAttachment */
 /* attachmentCount */
@@ -15753,21 +15343,23 @@ void VulkanCppConsumer::Process_vkCmdSetColorBlendAdvancedEXT(
                                                         pColorBlendAdvancedPair.end(),
                                                         [&](auto pair) { return GenerateStruct_VkColorBlendAdvancedEXT(stream_pColorBlendAdvanced, pair.t1, pair.t2, *this); },
                                                         ", ");
-    fprintf(file, "\n%s", stream_pColorBlendAdvanced.str().c_str());
-    if (attachmentCount == 1) {
-        pColorBlendAdvancedArray = "&" + pColorBlendAdvancedNames;
-    } else if (attachmentCount > 1) {
-        pColorBlendAdvancedArray = "pColorBlendAdvanced_" + std::to_string(this->getNextId());
-        fprintf(file, "VkColorBlendAdvancedEXT %s[] = { %s };\n", pColorBlendAdvancedArray.c_str(), pColorBlendAdvancedNames.c_str());
+    if (stream_pColorBlendAdvanced.str().length() > 0) {
+        fprintf(file, "%s", stream_pColorBlendAdvanced.str().c_str());
+        if (attachmentCount == 1) {
+            pColorBlendAdvancedArray = "&" + pColorBlendAdvancedNames;
+        } else if (attachmentCount > 1) {
+            pColorBlendAdvancedArray = "pColorBlendAdvanced_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkColorBlendAdvancedEXT %s[] = { %s };\n", pColorBlendAdvancedArray.c_str(), pColorBlendAdvancedNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetColorBlendAdvancedEXT");
     fprintf(file,
-            "loaded_vkCmdSetColorBlendAdvancedEXT(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetColorBlendAdvancedEXT(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstAttachment,
             attachmentCount,
             pColorBlendAdvancedArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetColorBlendAdvancedEXT);
 }
 
@@ -15779,7 +15371,7 @@ void VulkanCppConsumer::Process_vkCmdSetColorBlendEnableEXT(
     PointerDecoder<VkBool32>*                   pColorBlendEnables)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstAttachment */
 /* attachmentCount */
@@ -15790,18 +15382,18 @@ void VulkanCppConsumer::Process_vkCmdSetColorBlendEnableEXT(
                                                             pColorBlendEnables->GetPointer() + attachmentCount,
                                                             [&](const auto current) { return std::to_string(current) + ""; },
                                                             ", ");
-        fprintf(file, "VkBool32 %s[] = { %s };\n", pColorBlendEnablesArray.c_str(), pColorBlendEnablesValues.c_str());
+        fprintf(file, "\t\tVkBool32 %s[] = { %s };\n", pColorBlendEnablesArray.c_str(), pColorBlendEnablesValues.c_str());
     } else {
         pColorBlendEnablesArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdSetColorBlendEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetColorBlendEnableEXT(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetColorBlendEnableEXT(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstAttachment,
             attachmentCount,
             pColorBlendEnablesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetColorBlendEnableEXT);
 }
 
@@ -15813,7 +15405,7 @@ void VulkanCppConsumer::Process_vkCmdSetColorBlendEquationEXT(
     StructPointerDecoder<Decoded_VkColorBlendEquationEXT>* pColorBlendEquations)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstAttachment */
 /* attachmentCount */
@@ -15825,21 +15417,23 @@ void VulkanCppConsumer::Process_vkCmdSetColorBlendEquationEXT(
                                                          pColorBlendEquationsPair.end(),
                                                          [&](auto pair) { return GenerateStruct_VkColorBlendEquationEXT(stream_pColorBlendEquations, pair.t1, pair.t2, *this); },
                                                          ", ");
-    fprintf(file, "\n%s", stream_pColorBlendEquations.str().c_str());
-    if (attachmentCount == 1) {
-        pColorBlendEquationsArray = "&" + pColorBlendEquationsNames;
-    } else if (attachmentCount > 1) {
-        pColorBlendEquationsArray = "pColorBlendEquations_" + std::to_string(this->getNextId());
-        fprintf(file, "VkColorBlendEquationEXT %s[] = { %s };\n", pColorBlendEquationsArray.c_str(), pColorBlendEquationsNames.c_str());
+    if (stream_pColorBlendEquations.str().length() > 0) {
+        fprintf(file, "%s", stream_pColorBlendEquations.str().c_str());
+        if (attachmentCount == 1) {
+            pColorBlendEquationsArray = "&" + pColorBlendEquationsNames;
+        } else if (attachmentCount > 1) {
+            pColorBlendEquationsArray = "pColorBlendEquations_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkColorBlendEquationEXT %s[] = { %s };\n", pColorBlendEquationsArray.c_str(), pColorBlendEquationsNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetColorBlendEquationEXT");
     fprintf(file,
-            "loaded_vkCmdSetColorBlendEquationEXT(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetColorBlendEquationEXT(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstAttachment,
             attachmentCount,
             pColorBlendEquationsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetColorBlendEquationEXT);
 }
 
@@ -15851,7 +15445,7 @@ void VulkanCppConsumer::Process_vkCmdSetColorWriteMaskEXT(
     PointerDecoder<VkColorComponentFlags>*      pColorWriteMasks)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstAttachment */
 /* attachmentCount */
@@ -15865,16 +15459,16 @@ void VulkanCppConsumer::Process_vkCmdSetColorWriteMaskEXT(
         pColorWriteMasksArray = "&" + pColorWriteMasksValues;
     } else if (attachmentCount > 1) {
         pColorWriteMasksArray = "pColorWriteMasksArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkColorComponentFlags %s[] = { %s };\n", pColorWriteMasksArray.c_str(), pColorWriteMasksValues.c_str());
+        fprintf(file, "\t\tVkColorComponentFlags %s[] = { %s };\n", pColorWriteMasksArray.c_str(), pColorWriteMasksValues.c_str());
     }
     m_pfnLoader.AddMethodName("vkCmdSetColorWriteMaskEXT");
     fprintf(file,
-            "loaded_vkCmdSetColorWriteMaskEXT(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetColorWriteMaskEXT(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstAttachment,
             attachmentCount,
             pColorWriteMasksArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetColorWriteMaskEXT);
 }
 
@@ -15884,15 +15478,15 @@ void VulkanCppConsumer::Process_vkCmdSetConservativeRasterizationModeEXT(
     VkConservativeRasterizationModeEXT          conservativeRasterizationMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* conservativeRasterizationMode */
     m_pfnLoader.AddMethodName("vkCmdSetConservativeRasterizationModeEXT");
     fprintf(file,
-            "loaded_vkCmdSetConservativeRasterizationModeEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetConservativeRasterizationModeEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkConservativeRasterizationModeEXT>(conservativeRasterizationMode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetConservativeRasterizationModeEXT);
 }
 
@@ -15902,15 +15496,15 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageModulationModeNV(
     VkCoverageModulationModeNV                  coverageModulationMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* coverageModulationMode */
     m_pfnLoader.AddMethodName("vkCmdSetCoverageModulationModeNV");
     fprintf(file,
-            "loaded_vkCmdSetCoverageModulationModeNV(%s, %s);\n",
+            "\t\tloaded_vkCmdSetCoverageModulationModeNV(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkCoverageModulationModeNV>(coverageModulationMode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCoverageModulationModeNV);
 }
 
@@ -15920,15 +15514,15 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageModulationTableEnableNV(
     VkBool32                                    coverageModulationTableEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* coverageModulationTableEnable */
     m_pfnLoader.AddMethodName("vkCmdSetCoverageModulationTableEnableNV");
     fprintf(file,
-            "loaded_vkCmdSetCoverageModulationTableEnableNV(%s, %u);\n",
+            "\t\tloaded_vkCmdSetCoverageModulationTableEnableNV(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             coverageModulationTableEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCoverageModulationTableEnableNV);
 }
 
@@ -15939,7 +15533,7 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageModulationTableNV(
     PointerDecoder<float>*                      pCoverageModulationTable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* coverageModulationTableCount */
 /* pCoverageModulationTable */
@@ -15949,17 +15543,17 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageModulationTableNV(
                                                                   pCoverageModulationTable->GetPointer() + coverageModulationTableCount,
                                                                   [&](const auto current) { return std::to_string(current) + ""; },
                                                                   ", ");
-        fprintf(file, "float %s[] = { %s };\n", pCoverageModulationTableArray.c_str(), pCoverageModulationTableValues.c_str());
+        fprintf(file, "\t\tfloat %s[] = { %s };\n", pCoverageModulationTableArray.c_str(), pCoverageModulationTableValues.c_str());
     } else {
         pCoverageModulationTableArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdSetCoverageModulationTableNV");
     fprintf(file,
-            "loaded_vkCmdSetCoverageModulationTableNV(%s, %u, %s);\n",
+            "\t\tloaded_vkCmdSetCoverageModulationTableNV(%s, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             coverageModulationTableCount,
             pCoverageModulationTableArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCoverageModulationTableNV);
 }
 
@@ -15969,15 +15563,15 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageReductionModeNV(
     VkCoverageReductionModeNV                   coverageReductionMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* coverageReductionMode */
     m_pfnLoader.AddMethodName("vkCmdSetCoverageReductionModeNV");
     fprintf(file,
-            "loaded_vkCmdSetCoverageReductionModeNV(%s, %s);\n",
+            "\t\tloaded_vkCmdSetCoverageReductionModeNV(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkCoverageReductionModeNV>(coverageReductionMode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCoverageReductionModeNV);
 }
 
@@ -15987,15 +15581,15 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageToColorEnableNV(
     VkBool32                                    coverageToColorEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* coverageToColorEnable */
     m_pfnLoader.AddMethodName("vkCmdSetCoverageToColorEnableNV");
     fprintf(file,
-            "loaded_vkCmdSetCoverageToColorEnableNV(%s, %u);\n",
+            "\t\tloaded_vkCmdSetCoverageToColorEnableNV(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             coverageToColorEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCoverageToColorEnableNV);
 }
 
@@ -16005,15 +15599,15 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageToColorLocationNV(
     uint32_t                                    coverageToColorLocation)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* coverageToColorLocation */
     m_pfnLoader.AddMethodName("vkCmdSetCoverageToColorLocationNV");
     fprintf(file,
-            "loaded_vkCmdSetCoverageToColorLocationNV(%s, %u);\n",
+            "\t\tloaded_vkCmdSetCoverageToColorLocationNV(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             coverageToColorLocation);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetCoverageToColorLocationNV);
 }
 
@@ -16023,15 +15617,15 @@ void VulkanCppConsumer::Process_vkCmdSetDepthClampEnableEXT(
     VkBool32                                    depthClampEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthClampEnable */
     m_pfnLoader.AddMethodName("vkCmdSetDepthClampEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetDepthClampEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetDepthClampEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthClampEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthClampEnableEXT);
 }
 
@@ -16041,15 +15635,15 @@ void VulkanCppConsumer::Process_vkCmdSetDepthClipEnableEXT(
     VkBool32                                    depthClipEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* depthClipEnable */
     m_pfnLoader.AddMethodName("vkCmdSetDepthClipEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetDepthClipEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetDepthClipEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             depthClipEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthClipEnableEXT);
 }
 
@@ -16059,15 +15653,15 @@ void VulkanCppConsumer::Process_vkCmdSetDepthClipNegativeOneToOneEXT(
     VkBool32                                    negativeOneToOne)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* negativeOneToOne */
     m_pfnLoader.AddMethodName("vkCmdSetDepthClipNegativeOneToOneEXT");
     fprintf(file,
-            "loaded_vkCmdSetDepthClipNegativeOneToOneEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetDepthClipNegativeOneToOneEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             negativeOneToOne);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDepthClipNegativeOneToOneEXT);
 }
 
@@ -16077,15 +15671,15 @@ void VulkanCppConsumer::Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(
     float                                       extraPrimitiveOverestimationSize)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* extraPrimitiveOverestimationSize */
     m_pfnLoader.AddMethodName("vkCmdSetExtraPrimitiveOverestimationSizeEXT");
     fprintf(file,
-            "loaded_vkCmdSetExtraPrimitiveOverestimationSizeEXT(%s, %f);\n",
+            "\t\tloaded_vkCmdSetExtraPrimitiveOverestimationSizeEXT(%s, %f);\n",
             this->GetHandle(commandBuffer).c_str(),
             extraPrimitiveOverestimationSize);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetExtraPrimitiveOverestimationSizeEXT);
 }
 
@@ -16095,15 +15689,15 @@ void VulkanCppConsumer::Process_vkCmdSetLineRasterizationModeEXT(
     VkLineRasterizationModeEXT                  lineRasterizationMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* lineRasterizationMode */
     m_pfnLoader.AddMethodName("vkCmdSetLineRasterizationModeEXT");
     fprintf(file,
-            "loaded_vkCmdSetLineRasterizationModeEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetLineRasterizationModeEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkLineRasterizationModeEXT>(lineRasterizationMode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetLineRasterizationModeEXT);
 }
 
@@ -16113,15 +15707,15 @@ void VulkanCppConsumer::Process_vkCmdSetLineStippleEnableEXT(
     VkBool32                                    stippledLineEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* stippledLineEnable */
     m_pfnLoader.AddMethodName("vkCmdSetLineStippleEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetLineStippleEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetLineStippleEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             stippledLineEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetLineStippleEnableEXT);
 }
 
@@ -16131,15 +15725,15 @@ void VulkanCppConsumer::Process_vkCmdSetLogicOpEnableEXT(
     VkBool32                                    logicOpEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* logicOpEnable */
     m_pfnLoader.AddMethodName("vkCmdSetLogicOpEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetLogicOpEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetLogicOpEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             logicOpEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetLogicOpEnableEXT);
 }
 
@@ -16149,15 +15743,15 @@ void VulkanCppConsumer::Process_vkCmdSetPolygonModeEXT(
     VkPolygonMode                               polygonMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* polygonMode */
     m_pfnLoader.AddMethodName("vkCmdSetPolygonModeEXT");
     fprintf(file,
-            "loaded_vkCmdSetPolygonModeEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetPolygonModeEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkPolygonMode>(polygonMode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetPolygonModeEXT);
 }
 
@@ -16167,15 +15761,15 @@ void VulkanCppConsumer::Process_vkCmdSetProvokingVertexModeEXT(
     VkProvokingVertexModeEXT                    provokingVertexMode)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* provokingVertexMode */
     m_pfnLoader.AddMethodName("vkCmdSetProvokingVertexModeEXT");
     fprintf(file,
-            "loaded_vkCmdSetProvokingVertexModeEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetProvokingVertexModeEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkProvokingVertexModeEXT>(provokingVertexMode).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetProvokingVertexModeEXT);
 }
 
@@ -16185,15 +15779,15 @@ void VulkanCppConsumer::Process_vkCmdSetRasterizationSamplesEXT(
     VkSampleCountFlagBits                       rasterizationSamples)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* rasterizationSamples */
     m_pfnLoader.AddMethodName("vkCmdSetRasterizationSamplesEXT");
     fprintf(file,
-            "loaded_vkCmdSetRasterizationSamplesEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetRasterizationSamplesEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkSampleCountFlagBits>(rasterizationSamples).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetRasterizationSamplesEXT);
 }
 
@@ -16203,15 +15797,15 @@ void VulkanCppConsumer::Process_vkCmdSetRasterizationStreamEXT(
     uint32_t                                    rasterizationStream)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* rasterizationStream */
     m_pfnLoader.AddMethodName("vkCmdSetRasterizationStreamEXT");
     fprintf(file,
-            "loaded_vkCmdSetRasterizationStreamEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetRasterizationStreamEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             rasterizationStream);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetRasterizationStreamEXT);
 }
 
@@ -16221,15 +15815,15 @@ void VulkanCppConsumer::Process_vkCmdSetRepresentativeFragmentTestEnableNV(
     VkBool32                                    representativeFragmentTestEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* representativeFragmentTestEnable */
     m_pfnLoader.AddMethodName("vkCmdSetRepresentativeFragmentTestEnableNV");
     fprintf(file,
-            "loaded_vkCmdSetRepresentativeFragmentTestEnableNV(%s, %u);\n",
+            "\t\tloaded_vkCmdSetRepresentativeFragmentTestEnableNV(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             representativeFragmentTestEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetRepresentativeFragmentTestEnableNV);
 }
 
@@ -16239,15 +15833,15 @@ void VulkanCppConsumer::Process_vkCmdSetSampleLocationsEnableEXT(
     VkBool32                                    sampleLocationsEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* sampleLocationsEnable */
     m_pfnLoader.AddMethodName("vkCmdSetSampleLocationsEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetSampleLocationsEnableEXT(%s, %u);\n",
+            "\t\tloaded_vkCmdSetSampleLocationsEnableEXT(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             sampleLocationsEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEnableEXT);
 }
 
@@ -16258,7 +15852,7 @@ void VulkanCppConsumer::Process_vkCmdSetSampleMaskEXT(
     PointerDecoder<VkSampleMask>*               pSampleMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* samples */
 /* pSampleMask */
@@ -16268,17 +15862,17 @@ void VulkanCppConsumer::Process_vkCmdSetSampleMaskEXT(
                                                      pSampleMask->GetPointer() + (samples + 31) / 32,
                                                      [&](const auto current) { return std::to_string(current) + ""; },
                                                      ", ");
-        fprintf(file, "VkSampleMask %s[] = { %s };\n", pSampleMaskArray.c_str(), pSampleMaskValues.c_str());
+        fprintf(file, "\t\tVkSampleMask %s[] = { %s };\n", pSampleMaskArray.c_str(), pSampleMaskValues.c_str());
     } else {
         pSampleMaskArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdSetSampleMaskEXT");
     fprintf(file,
-            "loaded_vkCmdSetSampleMaskEXT(%s, %s, %s);\n",
+            "\t\tloaded_vkCmdSetSampleMaskEXT(%s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkSampleCountFlagBits>(samples).c_str(),
             pSampleMaskArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetSampleMaskEXT);
 }
 
@@ -16288,15 +15882,15 @@ void VulkanCppConsumer::Process_vkCmdSetShadingRateImageEnableNV(
     VkBool32                                    shadingRateImageEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* shadingRateImageEnable */
     m_pfnLoader.AddMethodName("vkCmdSetShadingRateImageEnableNV");
     fprintf(file,
-            "loaded_vkCmdSetShadingRateImageEnableNV(%s, %u);\n",
+            "\t\tloaded_vkCmdSetShadingRateImageEnableNV(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             shadingRateImageEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetShadingRateImageEnableNV);
 }
 
@@ -16306,15 +15900,15 @@ void VulkanCppConsumer::Process_vkCmdSetTessellationDomainOriginEXT(
     VkTessellationDomainOrigin                  domainOrigin)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* domainOrigin */
     m_pfnLoader.AddMethodName("vkCmdSetTessellationDomainOriginEXT");
     fprintf(file,
-            "loaded_vkCmdSetTessellationDomainOriginEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetTessellationDomainOriginEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkTessellationDomainOrigin>(domainOrigin).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetTessellationDomainOriginEXT);
 }
 
@@ -16326,7 +15920,7 @@ void VulkanCppConsumer::Process_vkCmdSetViewportSwizzleNV(
     StructPointerDecoder<Decoded_VkViewportSwizzleNV>* pViewportSwizzles)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* firstViewport */
 /* viewportCount */
@@ -16338,21 +15932,23 @@ void VulkanCppConsumer::Process_vkCmdSetViewportSwizzleNV(
                                                       pViewportSwizzlesPair.end(),
                                                       [&](auto pair) { return GenerateStruct_VkViewportSwizzleNV(stream_pViewportSwizzles, pair.t1, pair.t2, *this); },
                                                       ", ");
-    fprintf(file, "\n%s", stream_pViewportSwizzles.str().c_str());
-    if (viewportCount == 1) {
-        pViewportSwizzlesArray = "&" + pViewportSwizzlesNames;
-    } else if (viewportCount > 1) {
-        pViewportSwizzlesArray = "pViewportSwizzles_" + std::to_string(this->getNextId());
-        fprintf(file, "VkViewportSwizzleNV %s[] = { %s };\n", pViewportSwizzlesArray.c_str(), pViewportSwizzlesNames.c_str());
+    if (stream_pViewportSwizzles.str().length() > 0) {
+        fprintf(file, "%s", stream_pViewportSwizzles.str().c_str());
+        if (viewportCount == 1) {
+            pViewportSwizzlesArray = "&" + pViewportSwizzlesNames;
+        } else if (viewportCount > 1) {
+            pViewportSwizzlesArray = "pViewportSwizzles_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkViewportSwizzleNV %s[] = { %s };\n", pViewportSwizzlesArray.c_str(), pViewportSwizzlesNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdSetViewportSwizzleNV");
     fprintf(file,
-            "loaded_vkCmdSetViewportSwizzleNV(%s, %u, %u, %s);\n",
+            "\t\tloaded_vkCmdSetViewportSwizzleNV(%s, %u, %u, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             firstViewport,
             viewportCount,
             pViewportSwizzlesArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetViewportSwizzleNV);
 }
 
@@ -16362,20 +15958,17 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWScalingEnableNV(
     VkBool32                                    viewportWScalingEnable)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* viewportWScalingEnable */
     m_pfnLoader.AddMethodName("vkCmdSetViewportWScalingEnableNV");
     fprintf(file,
-            "loaded_vkCmdSetViewportWScalingEnableNV(%s, %u);\n",
+            "\t\tloaded_vkCmdSetViewportWScalingEnableNV(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             viewportWScalingEnable);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetViewportWScalingEnableNV);
 }
-
-
-
 void VulkanCppConsumer::Process_vkGetShaderModuleCreateInfoIdentifierEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -16383,7 +15976,7 @@ void VulkanCppConsumer::Process_vkGetShaderModuleCreateInfoIdentifierEXT(
     StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -16391,7 +15984,7 @@ void VulkanCppConsumer::Process_vkGetShaderModuleCreateInfoIdentifierEXT(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pIdentifier */
     std::string pIdentifierName = "pIdentifier_" + std::to_string(this->getNextId());
     std::stringstream stream_pIdentifier;
@@ -16399,14 +15992,14 @@ void VulkanCppConsumer::Process_vkGetShaderModuleCreateInfoIdentifierEXT(
                                                      pIdentifier->GetPointer(),
                                                      pIdentifier->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pIdentifier.str().c_str());
+    fprintf(file, "%s", stream_pIdentifier.str().c_str());
     m_pfnLoader.AddMethodName("vkGetShaderModuleCreateInfoIdentifierEXT");
     fprintf(file,
-            "loaded_vkGetShaderModuleCreateInfoIdentifierEXT(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetShaderModuleCreateInfoIdentifierEXT(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             pIdentifierName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetShaderModuleCreateInfoIdentifierEXT);
 }
 
@@ -16417,7 +16010,7 @@ void VulkanCppConsumer::Process_vkGetShaderModuleIdentifierEXT(
     StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* shaderModule */
 /* pIdentifier */
@@ -16427,18 +16020,16 @@ void VulkanCppConsumer::Process_vkGetShaderModuleIdentifierEXT(
                                                      pIdentifier->GetPointer(),
                                                      pIdentifier->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pIdentifier.str().c_str());
+    fprintf(file, "%s", stream_pIdentifier.str().c_str());
     m_pfnLoader.AddMethodName("vkGetShaderModuleIdentifierEXT");
     fprintf(file,
-            "loaded_vkGetShaderModuleIdentifierEXT(%s, %s, &%s);\n",
+            "\t\tloaded_vkGetShaderModuleIdentifierEXT(%s, %s, &%s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(shaderModule).c_str(),
             pIdentifierName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetShaderModuleIdentifierEXT);
 }
-
-
 void VulkanCppConsumer::Process_vkBindOpticalFlowSessionImageNV(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -16449,7 +16040,7 @@ void VulkanCppConsumer::Process_vkBindOpticalFlowSessionImageNV(
     VkImageLayout                               layout)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* session */
 /* bindingPoint */
@@ -16457,14 +16048,14 @@ void VulkanCppConsumer::Process_vkBindOpticalFlowSessionImageNV(
 /* layout */
     m_pfnLoader.AddMethodName("vkBindOpticalFlowSessionImageNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkBindOpticalFlowSessionImageNV(%s, %s, %s, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkBindOpticalFlowSessionImageNV(%s, %s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(session).c_str(),
             util::ToString<VkOpticalFlowSessionBindingPointNV>(bindingPoint).c_str(),
             this->GetHandle(view).c_str(),
             util::ToString<VkImageLayout>(layout).c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkBindOpticalFlowSessionImageNV);
 }
 
@@ -16475,7 +16066,7 @@ void VulkanCppConsumer::Process_vkCmdOpticalFlowExecuteNV(
     StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* session */
 /* pExecuteInfo */
@@ -16484,14 +16075,14 @@ void VulkanCppConsumer::Process_vkCmdOpticalFlowExecuteNV(
                                                                     pExecuteInfo->GetPointer(),
                                                                     pExecuteInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pExecuteInfo.str().c_str());
+    fprintf(file, "%s", stream_pExecuteInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdOpticalFlowExecuteNV");
     fprintf(file,
-            "loaded_vkCmdOpticalFlowExecuteNV(%s, %s, &%s);\n",
+            "\t\tloaded_vkCmdOpticalFlowExecuteNV(%s, %s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(session).c_str(),
             pExecuteInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdOpticalFlowExecuteNV);
 }
 
@@ -16504,7 +16095,7 @@ void VulkanCppConsumer::Process_vkCreateOpticalFlowSessionNV(
     HandlePointerDecoder<VkOpticalFlowSessionNV>* pSession)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -16512,7 +16103,7 @@ void VulkanCppConsumer::Process_vkCreateOpticalFlowSessionNV(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pSession */
     std::string pSessionName = "pSession_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV));
@@ -16523,13 +16114,13 @@ void VulkanCppConsumer::Process_vkCreateOpticalFlowSessionNV(
     }
     m_pfnLoader.AddMethodName("vkCreateOpticalFlowSessionNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateOpticalFlowSessionNV(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateOpticalFlowSessionNV(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pSessionName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateOpticalFlowSessionNV);
 }
 
@@ -16540,17 +16131,17 @@ void VulkanCppConsumer::Process_vkDestroyOpticalFlowSessionNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* session */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyOpticalFlowSessionNV");
     fprintf(file,
-            "loaded_vkDestroyOpticalFlowSessionNV(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyOpticalFlowSessionNV(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(session).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyOpticalFlowSessionNV);
 }
 
@@ -16563,7 +16154,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
     StructPointerDecoder<Decoded_VkOpticalFlowImageFormatPropertiesNV>* pImageFormatProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* physicalDevice */
 /* pOpticalFlowImageFormatInfo */
     std::stringstream stream_pOpticalFlowImageFormatInfo;
@@ -16571,10 +16162,10 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
                                                                                    pOpticalFlowImageFormatInfo->GetPointer(),
                                                                                    pOpticalFlowImageFormatInfo->GetMetaStructPointer(),
                                                                                    *this);
-    fprintf(file, "\n%s", stream_pOpticalFlowImageFormatInfo.str().c_str());
+    fprintf(file, "%s", stream_pOpticalFlowImageFormatInfo.str().c_str());
 /* pFormatCount */
     std::string pFormatCountName = "pFormatCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pFormatCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pFormatCountName.c_str());
 /* pImageFormatProperties */
     std::string pImageFormatPropertiesName = "pImageFormatProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pImageFormatProperties;
@@ -16582,22 +16173,18 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
                                                                 pImageFormatProperties->GetPointer(),
                                                                 pImageFormatProperties->GetMetaStructPointer(),
                                                                 *this);
-    fprintf(file, "\n%s", stream_pImageFormatProperties.str().c_str());
+    fprintf(file, "%s", stream_pImageFormatProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetPhysicalDeviceOpticalFlowImageFormatsNV");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(%s, &%s, &%s, &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pOpticalFlowImageFormatInfoStruct.c_str(),
             pFormatCountName.c_str(),
             pImageFormatPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceOpticalFlowImageFormatsNV);
 }
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdBindShadersEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -16606,7 +16193,7 @@ void VulkanCppConsumer::Process_vkCmdBindShadersEXT(
     HandlePointerDecoder<VkShaderEXT>*          pShaders)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* stageCount */
 /* pStages */
@@ -16619,7 +16206,7 @@ void VulkanCppConsumer::Process_vkCmdBindShadersEXT(
         pStagesArray = "&" + pStagesValues;
     } else if (stageCount > 1) {
         pStagesArray = "pStagesArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkShaderStageFlagBits %s[] = { %s };\n", pStagesArray.c_str(), pStagesValues.c_str());
+        fprintf(file, "\t\tVkShaderStageFlagBits %s[] = { %s };\n", pStagesArray.c_str(), pStagesValues.c_str());
     }
 /* pShaders */
     std::string pShadersArray = "NULL";
@@ -16627,20 +16214,20 @@ void VulkanCppConsumer::Process_vkCmdBindShadersEXT(
                                               pShaders->GetPointer() + stageCount,
                                               [&](const format::HandleId current) { return this->GetHandle(current); },
                                               ", ");
-    if (stageCount == 1) {
+    if (stageCount == 1 && pShadersValues != "VK_NULL_HANDLE") {
         pShadersArray = "&" + pShadersValues;
     } else if (stageCount > 1) {
         pShadersArray = "pShadersArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkShaderEXT %s[] = { %s };\n", pShadersArray.c_str(), pShadersValues.c_str());
+        fprintf(file, "\t\tVkShaderEXT %s[] = { %s };\n", pShadersArray.c_str(), pShadersValues.c_str());
     }
     m_pfnLoader.AddMethodName("vkCmdBindShadersEXT");
     fprintf(file,
-            "loaded_vkCmdBindShadersEXT(%s, %u, %s, %s);\n",
+            "\t\tloaded_vkCmdBindShadersEXT(%s, %u, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             stageCount,
             pStagesArray.c_str(),
             pShadersArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBindShadersEXT);
 }
 
@@ -16654,7 +16241,7 @@ void VulkanCppConsumer::Process_vkCreateShadersEXT(
     HandlePointerDecoder<VkShaderEXT>*          pShaders)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* createInfoCount */
 /* pCreateInfos */
@@ -16665,12 +16252,14 @@ void VulkanCppConsumer::Process_vkCreateShadersEXT(
                                                  pCreateInfosPair.end(),
                                                  [&](auto pair) { return GenerateStruct_VkShaderCreateInfoEXT(stream_pCreateInfos, pair.t1, pair.t2, *this); },
                                                  ", ");
-    fprintf(file, "\n%s", stream_pCreateInfos.str().c_str());
-    if (createInfoCount == 1) {
-        pCreateInfosArray = "&" + pCreateInfosNames;
-    } else if (createInfoCount > 1) {
-        pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkShaderCreateInfoEXT %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
+    if (stream_pCreateInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pCreateInfos.str().c_str());
+        if (createInfoCount == 1) {
+            pCreateInfosArray = "&" + pCreateInfosNames;
+        } else if (createInfoCount > 1) {
+            pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkShaderCreateInfoEXT %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
+        }
     }
 /* pAllocator */
 /* pShaders */
@@ -16682,14 +16271,14 @@ void VulkanCppConsumer::Process_vkCreateShadersEXT(
     }
     m_pfnLoader.AddMethodName("vkCreateShadersEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateShadersEXT(%s, %u, %s, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateShadersEXT(%s, %u, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             createInfoCount,
             pCreateInfosArray.c_str(),
             "nullptr",
             pShadersName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateShadersEXT);
 }
 
@@ -16700,17 +16289,17 @@ void VulkanCppConsumer::Process_vkDestroyShaderEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* shader */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyShaderEXT");
     fprintf(file,
-            "loaded_vkDestroyShaderEXT(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyShaderEXT(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(shader).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyShaderEXT);
 }
 
@@ -16723,28 +16312,27 @@ void VulkanCppConsumer::Process_vkGetShaderBinaryDataEXT(
     PointerDecoder<uint8_t>*                    pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* shader */
 /* pDataSize */
     std::string pDataSizeName = "pDataSize_" + std::to_string(this->getNextId());
-    fprintf(file, "size_t %s;\n", pDataSizeName.c_str());
+    fprintf(file, "\t\tsize_t %s;\n", pDataSizeName.c_str());
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    long unsigned int* in_pDataSize = pDataSize->GetPointer();
-    fprintf(file, "uint8_t %s[%ld];\n", pDataName.c_str(), *in_pDataSize);
+    size_t* in_pDataSize = pDataSize->GetPointer();
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pDataName.c_str(), *in_pDataSize);
     m_pfnLoader.AddMethodName("vkGetShaderBinaryDataEXT");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetShaderBinaryDataEXT(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetShaderBinaryDataEXT(%s, %s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(shader).c_str(),
             pDataSizeName.c_str(),
             pDataName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetShaderBinaryDataEXT);
 }
-
 void VulkanCppConsumer::Process_vkGetDynamicRenderingTilePropertiesQCOM(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -16753,7 +16341,7 @@ void VulkanCppConsumer::Process_vkGetDynamicRenderingTilePropertiesQCOM(
     StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pRenderingInfo */
     std::stringstream stream_pRenderingInfo;
@@ -16761,7 +16349,7 @@ void VulkanCppConsumer::Process_vkGetDynamicRenderingTilePropertiesQCOM(
                                                                       pRenderingInfo->GetPointer(),
                                                                       pRenderingInfo->GetMetaStructPointer(),
                                                                       *this);
-    fprintf(file, "\n%s", stream_pRenderingInfo.str().c_str());
+    fprintf(file, "%s", stream_pRenderingInfo.str().c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -16769,15 +16357,15 @@ void VulkanCppConsumer::Process_vkGetDynamicRenderingTilePropertiesQCOM(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetDynamicRenderingTilePropertiesQCOM");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetDynamicRenderingTilePropertiesQCOM(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDynamicRenderingTilePropertiesQCOM(%s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pRenderingInfoStruct.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDynamicRenderingTilePropertiesQCOM);
 }
 
@@ -16790,12 +16378,12 @@ void VulkanCppConsumer::Process_vkGetFramebufferTilePropertiesQCOM(
     StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* framebuffer */
 /* pPropertiesCount */
     std::string pPropertiesCountName = "pPropertiesCount_" + std::to_string(this->getNextId());
-    fprintf(file, "uint32_t %s;\n", pPropertiesCountName.c_str());
+    fprintf(file, "\t\tuint32_t %s;\n", pPropertiesCountName.c_str());
 /* pProperties */
     std::string pPropertiesName = "pProperties_" + std::to_string(this->getNextId());
     std::stringstream stream_pProperties;
@@ -16803,52 +16391,35 @@ void VulkanCppConsumer::Process_vkGetFramebufferTilePropertiesQCOM(
                                                      pProperties->GetPointer(),
                                                      pProperties->GetMetaStructPointer(),
                                                      *this);
-    fprintf(file, "\n%s", stream_pProperties.str().c_str());
+    fprintf(file, "%s", stream_pProperties.str().c_str());
     m_pfnLoader.AddMethodName("vkGetFramebufferTilePropertiesQCOM");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetFramebufferTilePropertiesQCOM(%s, %s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetFramebufferTilePropertiesQCOM(%s, %s, &%s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(framebuffer).c_str(),
             pPropertiesCountName.c_str(),
             pPropertiesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetFramebufferTilePropertiesQCOM);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void VulkanCppConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     VkImageAspectFlags                          aspectMask)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* aspectMask */
     m_pfnLoader.AddMethodName("vkCmdSetAttachmentFeedbackLoopEnableEXT");
     fprintf(file,
-            "loaded_vkCmdSetAttachmentFeedbackLoopEnableEXT(%s, %s);\n",
+            "\t\tloaded_vkCmdSetAttachmentFeedbackLoopEnableEXT(%s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             util::ToString<VkImageAspectFlags>(aspectMask).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT);
 }
-
-
-
 void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -16859,7 +16430,7 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* infoCount */
 /* pInfos */
@@ -16870,12 +16441,14 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
                                            pInfosPair.end(),
                                            [&](auto pair) { return GenerateStruct_VkAccelerationStructureBuildGeometryInfoKHR(stream_pInfos, pair.t1, pair.t2, *this); },
                                            ", ");
-    fprintf(file, "\n%s", stream_pInfos.str().c_str());
-    if (infoCount == 1) {
-        pInfosArray = "&" + pInfosNames;
-    } else if (infoCount > 1) {
-        pInfosArray = "pInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkAccelerationStructureBuildGeometryInfoKHR %s[] = { %s };\n", pInfosArray.c_str(), pInfosNames.c_str());
+    if (stream_pInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pInfos.str().c_str());
+        if (infoCount == 1) {
+            pInfosArray = "&" + pInfosNames;
+        } else if (infoCount > 1) {
+            pInfosArray = "pInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkAccelerationStructureBuildGeometryInfoKHR %s[] = { %s };\n", pInfosArray.c_str(), pInfosNames.c_str());
+        }
     }
 /* pIndirectDeviceAddresses */
     std::string pIndirectDeviceAddressesArray = "pIndirectDeviceAddresses_" + std::to_string(this->getNextId());
@@ -16884,7 +16457,7 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
                                                                   pIndirectDeviceAddresses->GetPointer() + infoCount,
                                                                   [&](const auto current) { return std::to_string(current) + "UL"; },
                                                                   ", ");
-        fprintf(file, "VkDeviceAddress %s[] = { %s };\n", pIndirectDeviceAddressesArray.c_str(), pIndirectDeviceAddressesValues.c_str());
+        fprintf(file, "\t\tVkDeviceAddress %s[] = { %s };\n", pIndirectDeviceAddressesArray.c_str(), pIndirectDeviceAddressesValues.c_str());
     } else {
         pIndirectDeviceAddressesArray = "NULL";
     }
@@ -16895,7 +16468,7 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
                                                           pIndirectStrides->GetPointer() + infoCount,
                                                           [&](const auto current) { return std::to_string(current) + ""; },
                                                           ", ");
-        fprintf(file, "uint32_t %s[] = { %s };\n", pIndirectStridesArray.c_str(), pIndirectStridesValues.c_str());
+        fprintf(file, "\t\tuint32_t %s[] = { %s };\n", pIndirectStridesArray.c_str(), pIndirectStridesValues.c_str());
     } else {
         pIndirectStridesArray = "NULL";
     }
@@ -16906,20 +16479,20 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
                                                               ppMaxPrimitiveCounts->GetPointer() + infoCount,
                                                               [&](const auto current) { return std::to_string(reinterpret_cast<const VkDeviceSize>(current)) + ""; },
                                                               ", ");
-        fprintf(file, "uint32_t %s[] = { %s };\n", ppMaxPrimitiveCountsArray.c_str(), ppMaxPrimitiveCountsValues.c_str());
+        fprintf(file, "\t\tuint32_t %s[] = { %s };\n", ppMaxPrimitiveCountsArray.c_str(), ppMaxPrimitiveCountsValues.c_str());
     } else {
         ppMaxPrimitiveCountsArray = "NULL";
     }
     m_pfnLoader.AddMethodName("vkCmdBuildAccelerationStructuresIndirectKHR");
     fprintf(file,
-            "loaded_vkCmdBuildAccelerationStructuresIndirectKHR(%s, %u, %s, %s, %s, %s);\n",
+            "\t\tloaded_vkCmdBuildAccelerationStructuresIndirectKHR(%s, %u, %s, %s, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             infoCount,
             pInfosArray.c_str(),
             pIndirectDeviceAddressesArray.c_str(),
             pIndirectStridesArray.c_str(),
             ppMaxPrimitiveCountsArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR);
 }
 
@@ -16931,7 +16504,7 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* infoCount */
 /* pInfos */
@@ -16942,12 +16515,14 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
                                            pInfosPair.end(),
                                            [&](auto pair) { return GenerateStruct_VkAccelerationStructureBuildGeometryInfoKHR(stream_pInfos, pair.t1, pair.t2, *this); },
                                            ", ");
-    fprintf(file, "\n%s", stream_pInfos.str().c_str());
-    if (infoCount == 1) {
-        pInfosArray = "&" + pInfosNames;
-    } else if (infoCount > 1) {
-        pInfosArray = "pInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkAccelerationStructureBuildGeometryInfoKHR %s[] = { %s };\n", pInfosArray.c_str(), pInfosNames.c_str());
+    if (stream_pInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pInfos.str().c_str());
+        if (infoCount == 1) {
+            pInfosArray = "&" + pInfosNames;
+        } else if (infoCount > 1) {
+            pInfosArray = "pInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkAccelerationStructureBuildGeometryInfoKHR %s[] = { %s };\n", pInfosArray.c_str(), pInfosNames.c_str());
+        }
     }
 /* ppBuildRangeInfos */
     std::stringstream stream_ppBuildRangeInfos;
@@ -16957,21 +16532,23 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
                                                       ppBuildRangeInfosPair.end(),
                                                       [&](auto pair) { return GenerateStruct_VkAccelerationStructureBuildRangeInfoKHR(stream_ppBuildRangeInfos, *pair.t1, *pair.t2, *this); },
                                                       ", ");
-    fprintf(file, "\n%s", stream_ppBuildRangeInfos.str().c_str());
-    if (infoCount == 1) {
-        ppBuildRangeInfosArray = "&" + ppBuildRangeInfosNames;
-    } else if (infoCount > 1) {
-        ppBuildRangeInfosArray = "ppBuildRangeInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkAccelerationStructureBuildRangeInfoKHR %s[] = { %s };\n", ppBuildRangeInfosArray.c_str(), ppBuildRangeInfosNames.c_str());
+    if (stream_ppBuildRangeInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_ppBuildRangeInfos.str().c_str());
+        if (infoCount == 1) {
+            ppBuildRangeInfosArray = "&" + ppBuildRangeInfosNames;
+        } else if (infoCount > 1) {
+            ppBuildRangeInfosArray = "ppBuildRangeInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkAccelerationStructureBuildRangeInfoKHR %s[] = { %s };\n", ppBuildRangeInfosArray.c_str(), ppBuildRangeInfosNames.c_str());
+        }
     }
     m_pfnLoader.AddMethodName("vkCmdBuildAccelerationStructuresKHR");
     fprintf(file,
-            "loaded_vkCmdBuildAccelerationStructuresKHR(%s, %u, %s, %s);\n",
+            "\t\tloaded_vkCmdBuildAccelerationStructuresKHR(%s, %u, %s, %s);\n",
             this->GetHandle(commandBuffer).c_str(),
             infoCount,
             pInfosArray.c_str(),
             ppBuildRangeInfosArray.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR);
 }
 
@@ -16981,7 +16558,7 @@ void VulkanCppConsumer::Process_vkCmdCopyAccelerationStructureKHR(
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -16989,13 +16566,13 @@ void VulkanCppConsumer::Process_vkCmdCopyAccelerationStructureKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyAccelerationStructureKHR");
     fprintf(file,
-            "loaded_vkCmdCopyAccelerationStructureKHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyAccelerationStructureKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR);
 }
 
@@ -17005,7 +16582,7 @@ void VulkanCppConsumer::Process_vkCmdCopyAccelerationStructureToMemoryKHR(
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -17013,13 +16590,13 @@ void VulkanCppConsumer::Process_vkCmdCopyAccelerationStructureToMemoryKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyAccelerationStructureToMemoryKHR");
     fprintf(file,
-            "loaded_vkCmdCopyAccelerationStructureToMemoryKHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyAccelerationStructureToMemoryKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR);
 }
 
@@ -17029,7 +16606,7 @@ void VulkanCppConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR(
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -17037,13 +16614,13 @@ void VulkanCppConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCmdCopyMemoryToAccelerationStructureKHR");
     fprintf(file,
-            "loaded_vkCmdCopyMemoryToAccelerationStructureKHR(%s, &%s);\n",
+            "\t\tloaded_vkCmdCopyMemoryToAccelerationStructureKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR);
 }
 
@@ -17057,7 +16634,7 @@ void VulkanCppConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
     uint32_t                                    firstQuery)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* accelerationStructureCount */
 /* pAccelerationStructures */
@@ -17066,25 +16643,25 @@ void VulkanCppConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
                                                              pAccelerationStructures->GetPointer() + accelerationStructureCount,
                                                              [&](const format::HandleId current) { return this->GetHandle(current); },
                                                              ", ");
-    if (accelerationStructureCount == 1) {
+    if (accelerationStructureCount == 1 && pAccelerationStructuresValues != "VK_NULL_HANDLE") {
         pAccelerationStructuresArray = "&" + pAccelerationStructuresValues;
     } else if (accelerationStructureCount > 1) {
         pAccelerationStructuresArray = "pAccelerationStructuresArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkAccelerationStructureKHR %s[] = { %s };\n", pAccelerationStructuresArray.c_str(), pAccelerationStructuresValues.c_str());
+        fprintf(file, "\t\tVkAccelerationStructureKHR %s[] = { %s };\n", pAccelerationStructuresArray.c_str(), pAccelerationStructuresValues.c_str());
     }
 /* queryType */
 /* queryPool */
 /* firstQuery */
     m_pfnLoader.AddMethodName("vkCmdWriteAccelerationStructuresPropertiesKHR");
     fprintf(file,
-            "loaded_vkCmdWriteAccelerationStructuresPropertiesKHR(%s, %u, %s, %s, %s, %u);\n",
+            "\t\tloaded_vkCmdWriteAccelerationStructuresPropertiesKHR(%s, %u, %s, %s, %s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             accelerationStructureCount,
             pAccelerationStructuresArray.c_str(),
             util::ToString<VkQueryType>(queryType).c_str(),
             this->GetHandle(queryPool).c_str(),
             firstQuery);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR);
 }
 
@@ -17096,7 +16673,7 @@ void VulkanCppConsumer::Process_vkCopyAccelerationStructureToMemoryKHR(
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* deferredOperation */
 /* pInfo */
@@ -17105,15 +16682,15 @@ void VulkanCppConsumer::Process_vkCopyAccelerationStructureToMemoryKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCopyAccelerationStructureToMemoryKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCopyAccelerationStructureToMemoryKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCopyAccelerationStructureToMemoryKHR(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(deferredOperation).c_str(),
             pInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR);
 }
 
@@ -17125,7 +16702,7 @@ void VulkanCppConsumer::Process_vkCopyMemoryToAccelerationStructureKHR(
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* deferredOperation */
 /* pInfo */
@@ -17134,15 +16711,15 @@ void VulkanCppConsumer::Process_vkCopyMemoryToAccelerationStructureKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkCopyMemoryToAccelerationStructureKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCopyMemoryToAccelerationStructureKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCopyMemoryToAccelerationStructureKHR(%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(deferredOperation).c_str(),
             pInfoStruct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR);
 }
 
@@ -17155,7 +16732,7 @@ void VulkanCppConsumer::Process_vkCreateAccelerationStructureKHR(
     HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructure)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pCreateInfo */
     std::stringstream stream_pCreateInfo;
@@ -17163,7 +16740,7 @@ void VulkanCppConsumer::Process_vkCreateAccelerationStructureKHR(
                                                                    pCreateInfo->GetPointer(),
                                                                    pCreateInfo->GetMetaStructPointer(),
                                                                    *this);
-    fprintf(file, "\n%s", stream_pCreateInfo.str().c_str());
+    fprintf(file, "%s", stream_pCreateInfo.str().c_str());
 /* pAllocator */
 /* pAccelerationStructure */
     std::string pAccelerationStructureName = "pAccelerationStructure_" + std::to_string(this->getNextId(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR));
@@ -17174,13 +16751,13 @@ void VulkanCppConsumer::Process_vkCreateAccelerationStructureKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateAccelerationStructureKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateAccelerationStructureKHR(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateAccelerationStructureKHR(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pCreateInfoStruct.c_str(),
             "nullptr",
             pAccelerationStructureName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR);
 }
 
@@ -17191,17 +16768,17 @@ void VulkanCppConsumer::Process_vkDestroyAccelerationStructureKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* accelerationStructure */
 /* pAllocator */
     m_pfnLoader.AddMethodName("vkDestroyAccelerationStructureKHR");
     fprintf(file,
-            "loaded_vkDestroyAccelerationStructureKHR(%s, %s, %s);\n",
+            "\t\tloaded_vkDestroyAccelerationStructureKHR(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(accelerationStructure).c_str(),
             "nullptr");
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR);
 }
 
@@ -17214,7 +16791,7 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureBuildSizesKHR(
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>* pSizeInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* buildType */
 /* pBuildInfo */
@@ -17223,15 +16800,15 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureBuildSizesKHR(
                                                                   pBuildInfo->GetPointer(),
                                                                   pBuildInfo->GetMetaStructPointer(),
                                                                   *this);
-    fprintf(file, "\n%s", stream_pBuildInfo.str().c_str());
+    fprintf(file, "%s", stream_pBuildInfo.str().c_str());
 /* pMaxPrimitiveCounts */
     std::string pMaxPrimitiveCountsArray = "pMaxPrimitiveCounts_" + std::to_string(this->getNextId());
-    if (pBuildInfo->GetPointer()->geometryCount > 0) {
+    if (pBuildInfo->GetPointer()->geometryCount > 0 && pMaxPrimitiveCounts->GetPointer() != nullptr) {
         std::string pMaxPrimitiveCountsValues = toStringJoin(pMaxPrimitiveCounts->GetPointer(),
                                                              pMaxPrimitiveCounts->GetPointer() + pBuildInfo->GetPointer()->geometryCount,
                                                              [&](const auto current) { return std::to_string(current) + ""; },
                                                              ", ");
-        fprintf(file, "uint32_t %s[] = { %s };\n", pMaxPrimitiveCountsArray.c_str(), pMaxPrimitiveCountsValues.c_str());
+        fprintf(file, "\t\tuint32_t %s[] = { %s };\n", pMaxPrimitiveCountsArray.c_str(), pMaxPrimitiveCountsValues.c_str());
     } else {
         pMaxPrimitiveCountsArray = "NULL";
     }
@@ -17242,16 +16819,16 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureBuildSizesKHR(
                                                    pSizeInfo->GetPointer(),
                                                    pSizeInfo->GetMetaStructPointer(),
                                                    *this);
-    fprintf(file, "\n%s", stream_pSizeInfo.str().c_str());
+    fprintf(file, "%s", stream_pSizeInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetAccelerationStructureBuildSizesKHR");
     fprintf(file,
-            "loaded_vkGetAccelerationStructureBuildSizesKHR(%s, %s, &%s, %s, &%s);\n",
+            "\t\tloaded_vkGetAccelerationStructureBuildSizesKHR(%s, %s, &%s, %s, &%s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkAccelerationStructureBuildTypeKHR>(buildType).c_str(),
             pBuildInfoStruct.c_str(),
             pMaxPrimitiveCountsArray.c_str(),
             pSizeInfoName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetAccelerationStructureBuildSizesKHR);
 }
 
@@ -17262,7 +16839,7 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureDeviceAddressKHR(
     StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pInfo */
     std::stringstream stream_pInfo;
@@ -17270,13 +16847,13 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureDeviceAddressKHR(
                                                              pInfo->GetPointer(),
                                                              pInfo->GetMetaStructPointer(),
                                                              *this);
-    fprintf(file, "\n%s", stream_pInfo.str().c_str());
+    fprintf(file, "%s", stream_pInfo.str().c_str());
     m_pfnLoader.AddMethodName("vkGetAccelerationStructureDeviceAddressKHR");
     fprintf(file,
-            "loaded_vkGetAccelerationStructureDeviceAddressKHR(%s, &%s);\n",
+            "\t\tloaded_vkGetAccelerationStructureDeviceAddressKHR(%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pInfoStruct.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR);
 }
 
@@ -17287,7 +16864,7 @@ void VulkanCppConsumer::Process_vkGetDeviceAccelerationStructureCompatibilityKHR
     PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pVersionInfo */
     std::stringstream stream_pVersionInfo;
@@ -17295,17 +16872,17 @@ void VulkanCppConsumer::Process_vkGetDeviceAccelerationStructureCompatibilityKHR
                                                                     pVersionInfo->GetPointer(),
                                                                     pVersionInfo->GetMetaStructPointer(),
                                                                     *this);
-    fprintf(file, "\n%s", stream_pVersionInfo.str().c_str());
+    fprintf(file, "%s", stream_pVersionInfo.str().c_str());
 /* pCompatibility */
     std::string pCompatibilityName = "pCompatibility_" + std::to_string(this->getNextId());
-    fprintf(file, "VkAccelerationStructureCompatibilityKHR %s;\n", pCompatibilityName.c_str());
+    fprintf(file, "\t\tVkAccelerationStructureCompatibilityKHR %s;\n", pCompatibilityName.c_str());
     m_pfnLoader.AddMethodName("vkGetDeviceAccelerationStructureCompatibilityKHR");
     fprintf(file,
-            "loaded_vkGetDeviceAccelerationStructureCompatibilityKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceAccelerationStructureCompatibilityKHR(%s, &%s, &%s);\n",
             this->GetHandle(device).c_str(),
             pVersionInfoStruct.c_str(),
             pCompatibilityName.c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR);
 }
 
@@ -17321,7 +16898,7 @@ void VulkanCppConsumer::Process_vkWriteAccelerationStructuresPropertiesKHR(
     size_t                                      stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* accelerationStructureCount */
 /* pAccelerationStructures */
@@ -17330,21 +16907,21 @@ void VulkanCppConsumer::Process_vkWriteAccelerationStructuresPropertiesKHR(
                                                              pAccelerationStructures->GetPointer() + accelerationStructureCount,
                                                              [&](const format::HandleId current) { return this->GetHandle(current); },
                                                              ", ");
-    if (accelerationStructureCount == 1) {
+    if (accelerationStructureCount == 1 && pAccelerationStructuresValues != "VK_NULL_HANDLE") {
         pAccelerationStructuresArray = "&" + pAccelerationStructuresValues;
     } else if (accelerationStructureCount > 1) {
         pAccelerationStructuresArray = "pAccelerationStructuresArray_" + std::to_string(this->getNextId());
-        fprintf(file, "VkAccelerationStructureKHR %s[] = { %s };\n", pAccelerationStructuresArray.c_str(), pAccelerationStructuresValues.c_str());
+        fprintf(file, "\t\tVkAccelerationStructureKHR %s[] = { %s };\n", pAccelerationStructuresArray.c_str(), pAccelerationStructuresValues.c_str());
     }
 /* queryType */
 /* dataSize */
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t %s[%ld];\n", pDataName.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pDataName.c_str(), dataSize);
 /* stride */
     m_pfnLoader.AddMethodName("vkWriteAccelerationStructuresPropertiesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkWriteAccelerationStructuresPropertiesKHR(%s, %u, %s, %s, %lu, %s, %lu), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkWriteAccelerationStructuresPropertiesKHR(%s, %u, %s, %s, %" PRId64 ", %s, %" PRId64 "), %s);\n",
             this->GetHandle(device).c_str(),
             accelerationStructureCount,
             pAccelerationStructuresArray.c_str(),
@@ -17353,25 +16930,24 @@ void VulkanCppConsumer::Process_vkWriteAccelerationStructuresPropertiesKHR(
             pDataName.c_str(),
             stride,
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR);
 }
-
 void VulkanCppConsumer::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     uint32_t                                    pipelineStackSize)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pipelineStackSize */
     m_pfnLoader.AddMethodName("vkCmdSetRayTracingPipelineStackSizeKHR");
     fprintf(file,
-            "loaded_vkCmdSetRayTracingPipelineStackSizeKHR(%s, %u);\n",
+            "\t\tloaded_vkCmdSetRayTracingPipelineStackSizeKHR(%s, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             pipelineStackSize);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR);
 }
 
@@ -17385,7 +16961,7 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysIndirectKHR(
     VkDeviceAddress                             indirectDeviceAddress)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pRaygenShaderBindingTable */
     std::stringstream stream_pRaygenShaderBindingTable;
@@ -17393,39 +16969,39 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysIndirectKHR(
                                                                                  pRaygenShaderBindingTable->GetPointer(),
                                                                                  pRaygenShaderBindingTable->GetMetaStructPointer(),
                                                                                  *this);
-    fprintf(file, "\n%s", stream_pRaygenShaderBindingTable.str().c_str());
+    fprintf(file, "%s", stream_pRaygenShaderBindingTable.str().c_str());
 /* pMissShaderBindingTable */
     std::stringstream stream_pMissShaderBindingTable;
     std::string pMissShaderBindingTableStruct = GenerateStruct_VkStridedDeviceAddressRegionKHR(stream_pMissShaderBindingTable,
                                                                                pMissShaderBindingTable->GetPointer(),
                                                                                pMissShaderBindingTable->GetMetaStructPointer(),
                                                                                *this);
-    fprintf(file, "\n%s", stream_pMissShaderBindingTable.str().c_str());
+    fprintf(file, "%s", stream_pMissShaderBindingTable.str().c_str());
 /* pHitShaderBindingTable */
     std::stringstream stream_pHitShaderBindingTable;
     std::string pHitShaderBindingTableStruct = GenerateStruct_VkStridedDeviceAddressRegionKHR(stream_pHitShaderBindingTable,
                                                                               pHitShaderBindingTable->GetPointer(),
                                                                               pHitShaderBindingTable->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pHitShaderBindingTable.str().c_str());
+    fprintf(file, "%s", stream_pHitShaderBindingTable.str().c_str());
 /* pCallableShaderBindingTable */
     std::stringstream stream_pCallableShaderBindingTable;
     std::string pCallableShaderBindingTableStruct = GenerateStruct_VkStridedDeviceAddressRegionKHR(stream_pCallableShaderBindingTable,
                                                                                    pCallableShaderBindingTable->GetPointer(),
                                                                                    pCallableShaderBindingTable->GetMetaStructPointer(),
                                                                                    *this);
-    fprintf(file, "\n%s", stream_pCallableShaderBindingTable.str().c_str());
+    fprintf(file, "%s", stream_pCallableShaderBindingTable.str().c_str());
 /* indirectDeviceAddress */
     m_pfnLoader.AddMethodName("vkCmdTraceRaysIndirectKHR");
     fprintf(file,
-            "loaded_vkCmdTraceRaysIndirectKHR(%s, &%s, &%s, &%s, &%s, %luUL);\n",
+            "\t\tloaded_vkCmdTraceRaysIndirectKHR(%s, &%s, &%s, &%s, &%s, %" PRIu64 "UL);\n",
             this->GetHandle(commandBuffer).c_str(),
             pRaygenShaderBindingTableStruct.c_str(),
             pMissShaderBindingTableStruct.c_str(),
             pHitShaderBindingTableStruct.c_str(),
             pCallableShaderBindingTableStruct.c_str(),
             indirectDeviceAddress);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR);
 }
 
@@ -17441,7 +17017,7 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysKHR(
     uint32_t                                    depth)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* pRaygenShaderBindingTable */
     std::stringstream stream_pRaygenShaderBindingTable;
@@ -17449,34 +17025,34 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysKHR(
                                                                                  pRaygenShaderBindingTable->GetPointer(),
                                                                                  pRaygenShaderBindingTable->GetMetaStructPointer(),
                                                                                  *this);
-    fprintf(file, "\n%s", stream_pRaygenShaderBindingTable.str().c_str());
+    fprintf(file, "%s", stream_pRaygenShaderBindingTable.str().c_str());
 /* pMissShaderBindingTable */
     std::stringstream stream_pMissShaderBindingTable;
     std::string pMissShaderBindingTableStruct = GenerateStruct_VkStridedDeviceAddressRegionKHR(stream_pMissShaderBindingTable,
                                                                                pMissShaderBindingTable->GetPointer(),
                                                                                pMissShaderBindingTable->GetMetaStructPointer(),
                                                                                *this);
-    fprintf(file, "\n%s", stream_pMissShaderBindingTable.str().c_str());
+    fprintf(file, "%s", stream_pMissShaderBindingTable.str().c_str());
 /* pHitShaderBindingTable */
     std::stringstream stream_pHitShaderBindingTable;
     std::string pHitShaderBindingTableStruct = GenerateStruct_VkStridedDeviceAddressRegionKHR(stream_pHitShaderBindingTable,
                                                                               pHitShaderBindingTable->GetPointer(),
                                                                               pHitShaderBindingTable->GetMetaStructPointer(),
                                                                               *this);
-    fprintf(file, "\n%s", stream_pHitShaderBindingTable.str().c_str());
+    fprintf(file, "%s", stream_pHitShaderBindingTable.str().c_str());
 /* pCallableShaderBindingTable */
     std::stringstream stream_pCallableShaderBindingTable;
     std::string pCallableShaderBindingTableStruct = GenerateStruct_VkStridedDeviceAddressRegionKHR(stream_pCallableShaderBindingTable,
                                                                                    pCallableShaderBindingTable->GetPointer(),
                                                                                    pCallableShaderBindingTable->GetMetaStructPointer(),
                                                                                    *this);
-    fprintf(file, "\n%s", stream_pCallableShaderBindingTable.str().c_str());
+    fprintf(file, "%s", stream_pCallableShaderBindingTable.str().c_str());
 /* width */
 /* height */
 /* depth */
     m_pfnLoader.AddMethodName("vkCmdTraceRaysKHR");
     fprintf(file,
-            "loaded_vkCmdTraceRaysKHR(%s, &%s, &%s, &%s, &%s, %u, %u, %u);\n",
+            "\t\tloaded_vkCmdTraceRaysKHR(%s, &%s, &%s, &%s, &%s, %u, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             pRaygenShaderBindingTableStruct.c_str(),
             pMissShaderBindingTableStruct.c_str(),
@@ -17485,7 +17061,7 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysKHR(
             width,
             height,
             depth);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdTraceRaysKHR);
 }
 
@@ -17501,7 +17077,7 @@ void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesKHR(
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* deferredOperation */
 /* pipelineCache */
@@ -17514,12 +17090,14 @@ void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesKHR(
                                                  pCreateInfosPair.end(),
                                                  [&](auto pair) { return GenerateStruct_VkRayTracingPipelineCreateInfoKHR(stream_pCreateInfos, pair.t1, pair.t2, *this); },
                                                  ", ");
-    fprintf(file, "\n%s", stream_pCreateInfos.str().c_str());
-    if (createInfoCount == 1) {
-        pCreateInfosArray = "&" + pCreateInfosNames;
-    } else if (createInfoCount > 1) {
-        pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
-        fprintf(file, "VkRayTracingPipelineCreateInfoKHR %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
+    if (stream_pCreateInfos.str().length() > 0) {
+        fprintf(file, "%s", stream_pCreateInfos.str().c_str());
+        if (createInfoCount == 1) {
+            pCreateInfosArray = "&" + pCreateInfosNames;
+        } else if (createInfoCount > 1) {
+            pCreateInfosArray = "pCreateInfos_" + std::to_string(this->getNextId());
+            fprintf(file, "\t\tVkRayTracingPipelineCreateInfoKHR %s[] = { %s };\n", pCreateInfosArray.c_str(), pCreateInfosNames.c_str());
+        }
     }
 /* pAllocator */
 /* pPipelines */
@@ -17531,7 +17109,7 @@ void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesKHR(
     }
     m_pfnLoader.AddMethodName("vkCreateRayTracingPipelinesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkCreateRayTracingPipelinesKHR(%s, %s, %s, %u, %s, %s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkCreateRayTracingPipelinesKHR(%s, %s, %s, %u, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(deferredOperation).c_str(),
             this->GetHandle(pipelineCache).c_str(),
@@ -17540,7 +17118,7 @@ void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesKHR(
             "nullptr",
             pPipelinesName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
 }
 
@@ -17555,7 +17133,7 @@ void VulkanCppConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKH
     PointerDecoder<uint8_t>*                    pData)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipeline */
 /* firstGroup */
@@ -17563,10 +17141,10 @@ void VulkanCppConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKH
 /* dataSize */
 /* pData */
     std::string pDataName = "pData_" + std::to_string(this->getNextId());
-    fprintf(file, "uint8_t %s[%ld];\n", pDataName.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pDataName.c_str(), dataSize);
     m_pfnLoader.AddMethodName("vkGetRayTracingCaptureReplayShaderGroupHandlesKHR");
     fprintf(file,
-            "VK_CALL_CHECK(loaded_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(%s, %s, %u, %u, %lu, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(%s, %s, %u, %u, %" PRId64 ", %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             firstGroup,
@@ -17574,7 +17152,7 @@ void VulkanCppConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKH
             dataSize,
             pDataName.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR);
 }
 
@@ -17587,23 +17165,21 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupStackSizeKHR(
     VkShaderGroupShaderKHR                      groupShader)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* device */
 /* pipeline */
 /* group */
 /* groupShader */
     m_pfnLoader.AddMethodName("vkGetRayTracingShaderGroupStackSizeKHR");
     fprintf(file,
-            "loaded_vkGetRayTracingShaderGroupStackSizeKHR(%s, %s, %u, %s);\n",
+            "\t\tloaded_vkGetRayTracingShaderGroupStackSizeKHR(%s, %s, %u, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             group,
             util::ToString<VkShaderGroupShaderKHR>(groupShader).c_str());
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupStackSizeKHR);
 }
-
-
 void VulkanCppConsumer::Process_vkCmdDrawMeshTasksEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -17612,19 +17188,19 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksEXT(
     uint32_t                                    groupCountZ)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* groupCountX */
 /* groupCountY */
 /* groupCountZ */
     m_pfnLoader.AddMethodName("vkCmdDrawMeshTasksEXT");
     fprintf(file,
-            "loaded_vkCmdDrawMeshTasksEXT(%s, %u, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawMeshTasksEXT(%s, %u, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             groupCountX,
             groupCountY,
             groupCountZ);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksEXT);
 }
 
@@ -17639,7 +17215,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -17649,7 +17225,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
 /* stride */
     m_pfnLoader.AddMethodName("vkCmdDrawMeshTasksIndirectCountEXT");
     fprintf(file,
-            "loaded_vkCmdDrawMeshTasksIndirectCountEXT(%s, %s, %luUL, %s, %luUL, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawMeshTasksIndirectCountEXT(%s, %s, %" PRIu64 "UL, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
@@ -17657,7 +17233,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
             countBufferOffset,
             maxDrawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountEXT);
 }
 
@@ -17670,7 +17246,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
     uint32_t                                    stride)
 {
     FILE* file = GetFrameFile();
-    fprintf(file, "    {\n");
+    fprintf(file, "\t{\n");
 /* commandBuffer */
 /* buffer */
 /* offset */
@@ -17678,13 +17254,13 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
 /* stride */
     m_pfnLoader.AddMethodName("vkCmdDrawMeshTasksIndirectEXT");
     fprintf(file,
-            "loaded_vkCmdDrawMeshTasksIndirectEXT(%s, %s, %luUL, %u, %u);\n",
+            "\t\tloaded_vkCmdDrawMeshTasksIndirectEXT(%s, %s, %" PRIu64 "UL, %u, %u);\n",
             this->GetHandle(commandBuffer).c_str(),
             this->GetHandle(buffer).c_str(),
             offset,
             drawCount,
             stride);
-    fprintf(file, "    }\n");
+    fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectEXT);
 }
 

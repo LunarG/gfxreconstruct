@@ -1,5 +1,7 @@
 /*
 ** Copyright (c) 2021 Samsung
+** Copyright (c) 2023 Google
+** Copyright (c) 2023 LunarG, Inc
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -53,14 +55,30 @@ void VulkanCppLoaderGenerator::WriteOutLoaderGenerator(const std::string& outDir
     if (resultSrc == 0 && resultHdr == 0)
     {
         fprintf(pfn_hdr_file, "%s\n", sLoaderHeader);
-        if (platform == GfxTocppPlatform::XCB)
+        switch (platform)
         {
-            fprintf(pfn_src_file, "#define VK_USE_PLATFORM_XCB_KHR\n");
+            case GfxTocppPlatform::PLATFORM_ANDROID:
+                fprintf(pfn_src_file, "#define VK_USE_PLATFORM_ANDROID_KHR\n");
+                break;
+            case GfxTocppPlatform::PLATFORM_MACOS:
+                fprintf(pfn_src_file, "#define VK_USE_PLATFORM_METAL_EXT\n");
+                break;
+            case GfxTocppPlatform::PLATFORM_WAYLAND:
+                fprintf(pfn_src_file, "#define VK_USE_PLATFORM_WAYLAND_KHR\n");
+                break;
+            case GfxTocppPlatform::PLATFORM_WIN32:
+                fprintf(pfn_src_file, "#define VK_USE_PLATFORM_WIN32_KHR\n");
+                break;
+            case GfxTocppPlatform::PLATFORM_XCB:
+                fprintf(pfn_src_file, "#define VK_USE_PLATFORM_XCB_KHR\n");
+                break;
+            case GfxTocppPlatform::PLATFORM_XLIB:
+                fprintf(pfn_src_file, "#define VK_USE_PLATFORM_XLIB_KHR\n");
+                break;
+            default:
+                break;
         }
-        else
-        {
-            fprintf(pfn_src_file, "#define VK_USE_PLATFORM_ANDROID_KHR\n");
-        }
+
         fprintf(pfn_src_file, "#include \"loader.h\"\n\n");
         fprintf(pfn_hdr_file, "%s", sLoadFunction);
         for (const auto& vulkanMethod : m_vulkanMethods)

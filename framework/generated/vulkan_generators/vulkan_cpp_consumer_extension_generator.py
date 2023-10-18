@@ -159,22 +159,24 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
         BaseGenerator.endFile(self)
 
     def need_feature_generation(self):
-        if 'VK_VERSION_' in self.featureName:
-            return False
-        return True
+        if self.struct_names:
+            return True
+        return False
 
     def generate_feature(self):
         structs = self.get_filtered_struct_names()
         structs.sort()
 
-        # Insert the declaration of GenerateStruct functions.
         for structName in structs:
-            if structName in self.feature_struct_aliases:
+            if (structName in self.feature_struct_aliases or structName in self.feature_union_aliases):
                 continue
 
-            typeinfo = self.registry.typedict[structName]
-
-            sType = self.make_structure_type_enum(typeinfo, structName)
+            sType = None
+            if structName in self.registry.typedict:
+                typeinfo = self.registry.typedict[structName]
+                parent_structs = typeinfo.elem.get('structextends')
+                if parent_structs:
+                    sType = self.make_structure_type_enum(typeinfo, structName)
             if not sType:
                 continue
 

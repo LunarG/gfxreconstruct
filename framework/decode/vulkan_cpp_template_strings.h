@@ -30,7 +30,6 @@ static const char* sCommonHeaderOutputHeaders = R"(
 #include <stdexcept>
 #include <unistd.h>
 #include <unordered_map>
-#include <vector>
 
 #include <vulkan/vulkan.h>
 )";
@@ -55,7 +54,6 @@ static const char* sCommonFrameSourceHeader = R"(
 #include "global_var.h"
 #include "loader.h"
 #include "vulkan/vulkan.h"
-#include <vector>
 )";
 
 static const char* sCommonFrameSourceFooter = R"(
@@ -70,11 +68,13 @@ void QueryPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice) {
 )";
 
 static const char* sCommonRecalculateAllocationSize = R"(
-uint32_t RecalculateAllocationSize(VkDeviceSize originalSize, VkMemoryRequirements memoryRequirements) {
+uint32_t RecalculateAllocationSize(VkDeviceSize originalSize,
+                                   VkMemoryRequirements memoryRequirements) {
     if (originalSize >= memoryRequirements.size) {
         return originalSize;
     }
-    printf("Warning: allocation size changed from %lu to %lu.\n", originalSize, memoryRequirements.size);
+    printf("Warning: allocation size changed from %lu to %lu.\n",
+           originalSize, memoryRequirements.size);
     return memoryRequirements.size;
 }
 )";
@@ -134,15 +134,22 @@ uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
 )";
 
 static const char* sCommonLogVkError = R"(
-void LogVkError(const char* function, VkResult returnValue, const char* fileName, int line, VkResult capturedReturnValue)
+void LogVkError(const char* function,
+                VkResult returnValue,
+                const char* fileName,
+                int line,
+                VkResult capturedReturnValue)
 {
     // hack: '&& returnValue != VK_SUBOPTIMAL_KHR'
-    if (returnValue != VK_SUCCESS && returnValue != VK_SUBOPTIMAL_KHR && returnValue != capturedReturnValue) {
-        int size = snprintf(NULL, 0, "Function %s returned a non VK_SUCCESS result: %d (0x%x) at %s:%d\n",
+    if (returnValue != VK_SUCCESS && returnValue != VK_SUBOPTIMAL_KHR &&
+        returnValue != capturedReturnValue) {
+        int size = snprintf(NULL, 0,
+                            "Function %s returned a non VK_SUCCESS result: %d (0x%x) at %s:%d\n",
                             function, returnValue, returnValue, fileName, line);
 
         char message[size + 2];
-        snprintf(message, size + 2, "Function %s returned a non VK_SUCCESS result: %d (0x%x) at %s:%d\n",
+        snprintf(message, size + 2,
+                 "Function %s returned a non VK_SUCCESS result: %d (0x%x) at %s:%d\n",
                  function, returnValue, returnValue, fileName, line);
 
         throw std::runtime_error(message);
@@ -169,7 +176,8 @@ static const char* sXcbOutputHeadersPlatform = R"(
 )";
 
 static const char* sXcbOutputHeader = R"(
-#define VK_CALL_CHECK(VK_CALL, VK_RESULT) LogVkError(#VK_CALL, (VK_CALL), __FILE__, __LINE__, VK_RESULT)
+#define VK_CALL_CHECK(VK_CALL, VK_RESULT) \
+    LogVkError(#VK_CALL, (VK_CALL), __FILE__, __LINE__, VK_RESULT)
 
 struct XCBApp {
     uint32_t width;
@@ -180,14 +188,28 @@ struct XCBApp {
 
 extern XCBApp appdata;
 
-extern void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo, struct XCBApp& appdata);
-extern void UpdateWindowSize(uint32_t width, uint32_t height, uint32_t pre_transform, struct XCBApp& appdata);
-extern void LogVkError(const char* function, VkResult returnValue, const char* file, int line, VkResult capturedReturnValue);
-extern size_t loadData(const char* filename, size_t file_offset, void* buffer, size_t offset, size_t data_size, struct XCBApp& appdata);
+extern void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
+                                              struct XCBApp& appdata);
+extern void UpdateWindowSize(uint32_t width,
+                             uint32_t height,
+                             uint32_t pre_transform,
+                             struct XCBApp& appdata);
+extern void LogVkError(const char* function,
+                       VkResult returnValue,
+                       const char* file,
+                       int line,
+                       VkResult capturedReturnValue);
+extern size_t loadData(const char* filename,
+                       size_t file_offset,
+                       void* buffer,
+                       size_t offset,
+                       size_t data_size,
+                       struct XCBApp& appdata);
 )";
 
 static const char* sXcbOutputOverrideMethod = R"(
-void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo, struct XCBApp& appdata) {
+void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
+                                       struct XCBApp& appdata) {
     /* Open the connection to the X server */
     xcb_connection_t *connection = xcb_connect(NULL, NULL);
 
@@ -230,20 +252,28 @@ void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo, st
     createInfo->window = window;
 }
 
-void UpdateWindowSize(uint32_t width, uint32_t height, uint32_t pretransform, struct XCBApp& appdata) {
+void UpdateWindowSize(uint32_t width,
+                      uint32_t height,
+                      uint32_t pretransform,
+                      struct XCBApp& appdata) {
     if (appdata.width == width && appdata.height == height) {
       return;
     }
 
     const uint32_t values[] = { width, height };
-    xcb_configure_window(appdata.connection, appdata.window, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+    xcb_configure_window(appdata.connection, appdata.window,
+                         XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
+                         values);
 
     // Wait until the window size has changed
     while (true) {
-      xcb_get_geometry_cookie_t geometryCookie = xcb_get_geometry(appdata.connection, appdata.window);
-      xcb_get_geometry_reply_t* geometry = xcb_get_geometry_reply(appdata.connection, geometryCookie, NULL);
+      xcb_get_geometry_cookie_t geometryCookie =
+          xcb_get_geometry(appdata.connection, appdata.window);
+      xcb_get_geometry_reply_t* geometry =
+          xcb_get_geometry_reply(appdata.connection, geometryCookie, NULL);
 
-      if (geometry != NULL && geometry->width != appdata.width || geometry->height != appdata.height) {
+      if (geometry != NULL && geometry->width != appdata.width ||
+          geometry->height != appdata.height) {
         break;
       }
       usleep(5000);
@@ -253,9 +283,15 @@ void UpdateWindowSize(uint32_t width, uint32_t height, uint32_t pretransform, st
     appdata.height = height;
 }
 
-size_t loadData(const char* filename, size_t file_offset, void* buffer, size_t offset, size_t data_size, struct XCBApp& appdata) {
-    FILE* fp = fopen(filename, "rb");
+size_t loadData(const char* filename,
+                size_t file_offset,
+                void* buffer,
+                size_t offset,
+                size_t data_size,
+                struct XCBApp& appdata) {
+    (void)appdata; // Unused
 
+    FILE* fp = fopen(filename, "rb");
     if (fp == nullptr) {
         throw std::runtime_error("Error while opening file: " + std::string(filename));
     }
@@ -282,9 +318,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/)
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB MAIN_FILE ${PROJECT_SOURCE_DIR}/*.cpp)
 add_executable(vulkan_app ${SRC_FILES} ${MAIN_FILE})
-target_compile_options(vulkan_app PRIVATE -fPIC -mcmodel=large)
 target_link_libraries(vulkan_app vulkan xcb)
-target_link_options(vulkan_app PRIVATE -mcmodel=large)
 )";
 // End of Xcb template strings
 
@@ -298,18 +332,26 @@ static const char* sAndroidOutputGlobalSource = R"(
 #include "ScreenOrientation.hpp"
 #include "VulkanMain.hpp"
 
+#include <algorithm>
 #include <string>
 #include <vulkan/vulkan.h>
 
-void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo, struct android_app* appdata) {
+void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo,
+                                           struct android_app* appdata) {
     createInfo->sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
     createInfo->pNext = nullptr;
     createInfo->flags = 0;
     createInfo->window = appdata->window;
 }
 
-void loadData(const char* filename, size_t file_offset, void* buffer, size_t offset, size_t data_size, android_app* app) {
-    AAsset* file = AAssetManager_open(app->activity->assetManager, filename, AASSET_MODE_STREAMING);
+void loadData(const char* filename,
+              size_t file_offset,
+              void* buffer,
+              size_t offset,
+              size_t data_size,
+              android_app* app) {
+    AAsset* file = AAssetManager_open(app->activity->assetManager, filename,
+                                      AASSET_MODE_STREAMING);
     if (!file) {
         throw std::runtime_error("Can't open file: " + std::string(filename));
     }
@@ -321,6 +363,96 @@ void loadData(const char* filename, size_t file_offset, void* buffer, size_t off
         throw std::runtime_error("Error while reading file: " + std::string(filename));
     }
     AAsset_close(file);
+}
+
+void copyImageSubresourceMemory(uint8_t*       dst,
+                                const uint8_t* src,
+                                size_t         offset,
+                                size_t         size,
+                                size_t         dst_row_pitch,
+                                size_t         src_row_pitch,
+                                uint32_t       height)
+{
+    if (src_row_pitch == dst_row_pitch)
+    {
+        // Determine the aligned size of the destination subresource as row_pitch * height to ensure that we don't write
+        // past the end of the resource in the case that the capture and replay resources had different slice pitches,
+        // and the data size matches the size of a capture resource with a larger slice pitch.
+        size_t subresource_size = height * dst_row_pitch;
+        size_t copy_size        = std::min(size, (subresource_size - offset));
+
+        // Copy entire range without adjustment.
+        memcpy(dst + offset, src, copy_size);
+    }
+    else
+    {
+        size_t copy_row_pitch = std::min(dst_row_pitch, src_row_pitch);
+
+        size_t current_row = offset / src_row_pitch;
+        size_t row_offset  = offset % src_row_pitch;
+
+        if (row_offset >= copy_row_pitch)
+        {
+            // When the dst row pitch is smaller than the src row pitch, and the offset points to
+            // padding at the end of the row, which is outside the bounds of the dst row pitch, we
+            // advance to the start of the next row.  If the write was only to the padding, we set
+            // row_offset to zero and advance to the next row without copying anything.
+            size -= std::min(src_row_pitch - row_offset, size);
+            row_offset = 0;
+            ++current_row;
+        }
+
+        const uint8_t* copy_src = src;
+        uint8_t*       copy_dst = reinterpret_cast<uint8_t*>(dst) + (current_row * dst_row_pitch) + row_offset;
+
+        // Process first partial row.
+        if (row_offset > 0)
+        {
+            // Handle row with both partial begin and end positions.
+            size_t copy_size = std::min(copy_row_pitch - row_offset, size);
+            memcpy(copy_dst, copy_src, copy_size);
+
+            copy_src += src_row_pitch - row_offset;
+            copy_dst += dst_row_pitch - row_offset;
+
+            size -= std::min(src_row_pitch - row_offset, size);
+
+            ++current_row;
+        }
+
+        // Process remaining rows.
+        if (size > 0)
+        {
+            size_t total_rows    = size / src_row_pitch;
+            size_t row_remainder = size % src_row_pitch;
+
+            // Ensure that we don't write past the end of the resource memory for aligned sizes that produce a
+            // total_rows value that is greater than the subresource height.
+            size_t subresource_rows = height - current_row;
+            if (total_rows >= subresource_rows)
+            {
+                total_rows    = subresource_rows;
+                row_remainder = 0;
+            }
+
+            // First process the complete rows.
+            for (size_t i = 0; i < total_rows; ++i)
+            {
+                size_t copy_size = copy_row_pitch;
+                memcpy(copy_dst, copy_src, copy_size);
+
+                copy_src += src_row_pitch;
+                copy_dst += dst_row_pitch;
+            }
+
+            // Process a partial end row.
+            if (row_remainder != 0)
+            {
+                size_t copy_size = std::min(copy_row_pitch, row_remainder);
+                memcpy(copy_dst, copy_src, copy_size);
+            }
+        }
+    }
 }
 
 AndroidScreen screen;
@@ -343,7 +475,8 @@ static const char* sAndroidOutputDrawFunctionEnd = R"(
 )";
 
 static const char* sAndroidOutputOverrideMethod = R"(
-void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo, struct android_app* appdata) {
+void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo,
+                                           struct android_app* appdata) {
     createInfo->sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
     createInfo->pNext = nullptr;
     createInfo->flags = 0;
@@ -354,15 +487,188 @@ void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* create
 static const char* sAndroidOutputHeader = R"(
 #include "ScreenOrientation.hpp"
 
-#define VK_CALL_CHECK(VK_CALL, VK_RESULT) LogVkError(#VK_CALL, (VK_CALL), __FILE__, __LINE__, VK_RESULT)
+#include <vector>
 
-extern void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo, struct android_app* appdata);
-extern void loadData(const char* filename, size_t file_offset, void* buffer, size_t offset, size_t data_size, android_app* app);
+#define VK_CALL_CHECK(VK_CALL, VK_RESULT) \
+    LogVkError(#VK_CALL, (VK_CALL), __FILE__, __LINE__, VK_RESULT)
+
+extern void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo,
+                                                  struct android_app* appdata);
+extern void loadData(const char* filename,
+                     size_t file_offset,
+                     void* buffer,
+                     size_t offset,
+                     size_t data_size,
+                     android_app* app);
+extern void copyImageSubresourceMemory(uint8_t*       dst,
+                                       const uint8_t* src,
+                                       size_t         offset,
+                                       size_t         size,
+                                       size_t         dst_row_pitch,
+                                       size_t         src_row_pitch,
+                                       uint32_t       height);
+
+struct HardwareBufferPlaneInfo
+{
+    uint64_t capture_offset;
+    uint64_t replay_offset;
+    uint32_t capture_row_pitch;
+    uint32_t replay_row_pitch;
+    uint32_t height;
+};
+
+struct HardwareBufferMemoryInfo
+{
+    AHardwareBuffer*                     hardware_buffer;
+    bool                                 compatible_strides;
+    std::vector<HardwareBufferPlaneInfo> plane_info;
+};
 
 extern AndroidScreen screen;
 extern android_app* appdata;
 )";
 // End of Android template strings
+
+// Beginning of Win32 template strings
+static const char* sWin32OutputMainStart = R"(
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
+#include "global_var.h"
+
+int main() {
+    glfwInit();
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+)";
+
+static const char* sWin32OutputMainEnd = R"(
+    glfwDestroyWindow(appdata.window);
+    glfwTerminate();
+
+    return 0;
+}
+)";
+
+static const char* sWin32OutputHeadersPlatform = R"(
+/* This file is a generated source, follow the instructions under tools/tocpp/README.md to build. */
+#define VK_USE_PLATFORM_WIN32_KHR
+)";
+
+static const char* sWin32OutputHeader = R"(
+#define VK_CALL_CHECK(VK_CALL, VK_RESULT) \
+    LogVkError(#VK_CALL, (VK_CALL), __FILE__, __LINE__, VK_RESULT)
+
+struct Win32App {
+    uint32_t width;
+    uint32_t height;
+    GLFWwindow* window;
+    HINSTANCE hInstance;
+    HWND hWnd;
+};
+
+extern Win32App appdata;
+
+extern void OverrideVkWin32SurfaceCreateInfoKHR(VkWin32SurfaceCreateInfoKHR* createInfo,
+                                                struct Win32App& appdata);
+extern void UpdateWindowSize(uint32_t width,
+                             uint32_t height,
+                             uint32_t pre_transform,
+                             struct Win32App& appdata);
+extern void LogVkError(const char* function,
+                       VkResult returnValue,
+                       const char* file,
+                       int line,
+                       VkResult capturedReturnValue);
+extern size_t loadData(const char* filename,
+                       size_t file_offset,
+                       void* buffer,
+                       size_t offset,
+                       size_t data_size,
+                       struct Win32App& appdata);
+)";
+
+static const char* sWin32OutputOverrideMethod = R"(
+void OverrideVkWin32SurfaceCreateInfoKHR(VkWin32SurfaceCreateInfoKHR* createInfo,
+                                         struct Win32App& appdata) {
+    appdata.window = glfwCreateWindow(appdata.width,
+                                      appdata.height,
+                                      "Vulkan",
+                                      nullptr,
+                                      nullptr);
+    appdata.hWnd = glfwGetWin32Window(appdata.window);
+    appdata.hInstance = GetModuleHandle(nullptr);
+
+    glfwMakeContextCurrent(appdata.window);
+
+    createInfo->sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    createInfo->hinstance = appdata.hInstance;
+    createInfo->hwnd = appdata.hWnd;
+}
+
+void UpdateWindowSize(uint32_t width,
+                      uint32_t height,
+                      uint32_t pretransform,
+                      struct Win32App& appdata) {
+    if (appdata.width == width && appdata.height == height) {
+      return;
+    }
+
+    // TODO: Implement Win32 resizing using GLFW
+
+    appdata.width = width;
+    appdata.height = height;
+}
+
+size_t loadData(const char* filename,
+                size_t file_offset,
+                void* buffer,
+                size_t offset,
+                size_t data_size,
+                struct Win32App& appdata) {
+    (void)appdata; // Unused
+
+    FILE* fp = fopen(filename, "rb");
+    if (fp == nullptr) {
+        throw std::runtime_error("Error while opening file: " + std::string(filename));
+    }
+
+    fseek(fp, file_offset, SEEK_SET);
+    size_t read_size = fread((uint8_t*)buffer + offset, sizeof(uint8_t), data_size, fp);
+    if (read_size != data_size) {
+        fclose(fp);
+        throw std::runtime_error("Error while reading file: " + std::string(filename));
+    }
+
+    fclose(fp);
+    return read_size;
+}
+
+Win32App appdata = { %d, %d };
+)";
+
+static const char* sWin32CMakeFile = R"(
+cmake_minimum_required(VERSION 3.3)
+project(vulkan_app)
+set (CMAKE_CXX_STANDARD 11)
+include_directories(${PROJECT_SOURCE_DIR}/src/)
+file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB MAIN_FILE ${PROJECT_SOURCE_DIR}/*.cpp)
+add_executable(vulkan_app ${SRC_FILES} ${MAIN_FILE})
+
+target_compile_definitions(vulkan_app PRIVATE
+    VK_USE_PLATFORM_WIN32_KHR
+    WIN32_LEAN_AND_MEAN
+    _CRT_SECURE_NO_WARNINGS
+    VK_NO_PROTOTYPES
+)
+target_link_libraries(vulkan_app vulkan)
+)";
+// End of Win32 template strings
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
