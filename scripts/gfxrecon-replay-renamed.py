@@ -53,14 +53,10 @@ def rename_replayer(encoded_app_executable):
     return replayer_name_renamed
 
 def run_command(command):
-    process = subprocess.Popen(command, 
-                                shell=True,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                universal_newlines=True)
-    while process.poll() is None:
-        line = process.stdout.readline()
-        print(line)
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        print ("subprocess returncode: ", e.returncode)
 
 # Run the replayer
 def run_replayer(replay_tool_path, args):
