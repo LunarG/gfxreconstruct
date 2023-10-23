@@ -153,7 +153,7 @@ def extend_xml(dest_tree, src_xml, debug=False):
                      'platform', 'spirvcapability', 'spirvextension', 'tag', 'type')
         for src_child in src:
             dest_child = dest.find(src_child.tag)
-            if (src_child.tag in leaf_tags) or (not dest_child):
+            if (src_child.tag in leaf_tags) or (dest_child is not None):
                 # stop descent and copy if the heirarchy diverges or we reach a leaf tag
                 dest.append(src_child)
             else:
