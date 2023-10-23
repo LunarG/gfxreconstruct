@@ -118,16 +118,15 @@ void Encode_ID3D12Device12_GetResourceAllocationInfo3(ID3D12Device12_Wrapper*   
         EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
         encoder->EncodeUInt32Array(pNumCastableFormats, numResourceDescs);
 
-        for (UINT i = 0; i < numResourceDescs; i++)
+        std::vector<size_t> size2d;
+        if (pNumCastableFormats != nullptr)
         {
-            if (pNumCastableFormats != nullptr)
+            for (UINT i = 0; i < numResourceDescs; ++i)
             {
-                for (UINT j = 0; j < pNumCastableFormats[i]; j++)
-                {
-                    encoder->EncodeEnumValue(ppCastableFormats[i][j]);
-                }
+                size2d.push_back(pNumCastableFormats[i]);
             }
         }
+        encoder->EncodeEnumArray2D(ppCastableFormats, size2d);
 
         EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs);
         EncodeStruct(encoder, return_value);

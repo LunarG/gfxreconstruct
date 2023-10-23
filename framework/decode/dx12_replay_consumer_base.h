@@ -131,7 +131,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         UINT                                                           numResourceDescs,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>*            pResourceDescs,
         PointerDecoder<UINT>*                                          pNumCastableFormats,
-        HandlePointerDecoder<DXGI_FORMAT*>*                            ppCastableFormats,
+        PointerDecoder<DXGI_FORMAT*>*                                  ppCastableFormats,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1) override;
 
     template <typename T>

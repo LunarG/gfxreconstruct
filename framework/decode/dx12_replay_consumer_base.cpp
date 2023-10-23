@@ -2971,26 +2971,26 @@ void Dx12ReplayConsumerBase::Process_ID3D12Device12_GetResourceAllocationInfo3(
     UINT                                                           numResourceDescs,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>*            pResourceDescs,
     PointerDecoder<UINT>*                                          pNumCastableFormats,
-    HandlePointerDecoder<DXGI_FORMAT*>*                            ppCastableFormats,
+    PointerDecoder<DXGI_FORMAT*>*                                  ppCastableFormats,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
 {
     auto replay_object = MapObject<ID3D12Device12>(object_id);
 
     if (replay_object != nullptr)
     {
-        UINT32* num_castable_formats = pNumCastableFormats->GetPointer();
-        DXGI_FORMAT* castable_formats = nullptr;
+        const UINT32*             num_castable_formats = pNumCastableFormats->GetPointer();
+        const DXGI_FORMAT* const* castable_formats     = nullptr;
 
         if (num_castable_formats != nullptr)
         {
-            castable_formats = reinterpret_cast<DXGI_FORMAT*>(ppCastableFormats->GetPointer()[0]);
+            castable_formats = ppCastableFormats->GetPointer();
         }
 
         auto replay_result = replay_object->GetResourceAllocationInfo3(visibleMask,
                                                                        numResourceDescs,
                                                                        pResourceDescs->GetPointer(),
                                                                        num_castable_formats,
-                                                                       &castable_formats,
+                                                                       castable_formats,
                                                                        pResourceAllocationInfo1->GetPointer());
     }
 }

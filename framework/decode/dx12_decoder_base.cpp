@@ -589,7 +589,7 @@ size_t Dx12DecoderBase::Decode_ID3D12Device12_GetResourceAllocationInfo3(format:
     UINT                                                          numResourceDescs;
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>            pResourceDescs;
     PointerDecoder<UINT>                                          pNumCastableFormats;
-    HandlePointerDecoder<DXGI_FORMAT*>                            ppCastableFormats;
+    PointerDecoder<DXGI_FORMAT*>                                  ppCastableFormats;
     StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1> pResourceAllocationInfo1;
     Decoded_D3D12_RESOURCE_ALLOCATION_INFO                        return_value;
     D3D12_RESOURCE_ALLOCATION_INFO                                value_returned;
@@ -602,7 +602,7 @@ size_t Dx12DecoderBase::Decode_ID3D12Device12_GetResourceAllocationInfo3(format:
         ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &numResourceDescs);
     bytes_read += pResourceDescs.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pNumCastableFormats.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppCastableFormats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppCastableFormats.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pResourceAllocationInfo1.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
