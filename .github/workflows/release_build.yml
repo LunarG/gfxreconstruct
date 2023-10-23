@@ -48,7 +48,7 @@ jobs:
         sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --skip-tests
+        python3 scripts/build.py --skip-check-code-style --skip-tests --parallel 0
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt build/linux/x64/output/bin/
@@ -82,7 +82,7 @@ jobs:
       uses: actions/checkout@v1
     - name: Run build script
       run: |
-        python scripts\build.py --skip-check-code-style --skip-tests
+        python scripts\build.py --skip-check-code-style --skip-tests --parallel 0
     - name: Prepare artifacts
       run: |
         copy LICENSE.txt build\windows\x64\output\bin\
