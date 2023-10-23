@@ -562,7 +562,8 @@ class ParameterEncoder
     typename std::enable_if<sizeof(SrcT) != sizeof(DstT), void>::type
     EncodeArray2DConverted(const SrcT* const* arr, SizeT size_2d, bool omit_data = false, bool omit_addr = false)
     {
-        static_assert(false, "Encoding 2D arrays that require type conversion is not implemented.");
+        static_assert(sizeof(SrcT) == sizeof(DstT),
+                      "Encoding 2D arrays that require type conversion is not implemented.");
     }
 
     // Overload for the case where the original type and the conversion type have matching sizes, where we can skip the
