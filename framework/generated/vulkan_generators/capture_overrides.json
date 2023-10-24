@@ -1,14 +1,14 @@
 {
-  "functions": {
-    "vkCreateInstance": "VulkanCaptureManager::OverrideCreateInstance",
-    "vkCreateDevice": "VulkanCaptureManager::Get()->OverrideCreateDevice",
-    "vkCreateBuffer": "VulkanCaptureManager::Get()->OverrideCreateBuffer",
-    "vkCreateImage": "VulkanCaptureManager::Get()->OverrideCreateImage",
-    "vkAllocateMemory": "VulkanCaptureManager::Get()->OverrideAllocateMemory",
-    "vkGetPhysicalDeviceToolPropertiesEXT": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceToolPropertiesEXT",
-    "vkCreateAccelerationStructureKHR": "VulkanCaptureManager::Get()->OverrideCreateAccelerationStructureKHR",
-    "vkGetPhysicalDeviceQueueFamilyProperties": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceQueueFamilyProperties",
-    "vkGetPhysicalDeviceQueueFamilyProperties2": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceQueueFamilyProperties2",
-    "vkGetPhysicalDeviceQueueFamilyProperties2KHR": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceQueueFamilyProperties2KHR"
-  }
+    "functions": {
+        "vkCreateInstance": "VulkanCaptureManager::OverrideCreateInstance",
+        "vkCreateDevice": "manager->OverrideCreateDevice",
+        "vkCreateBuffer": "manager->OverrideCreateBuffer",
+        "vkCreateImage": "manager->OverrideCreateImage",
+        "vkAllocateMemory": "manager->OverrideAllocateMemory",
+        "vkGetPhysicalDeviceToolPropertiesEXT": "manager->OverrideGetPhysicalDeviceToolPropertiesEXT",
+        "vkCreateAccelerationStructureKHR": "manager->OverrideCreateAccelerationStructureKHR",
+        "vkGetPhysicalDeviceQueueFamilyProperties": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties",
+        "vkGetPhysicalDeviceQueueFamilyProperties2": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2",
+        "vkGetPhysicalDeviceQueueFamilyProperties2KHR": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2KHR"
+    }
 }
