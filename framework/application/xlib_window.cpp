@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -44,9 +45,14 @@ XlibWindow::XlibWindow(XlibContext* xlib_context) :
 
 XlibWindow::~XlibWindow() {}
 
-bool XlibWindow::Create(
-    const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
+bool XlibWindow::Create(const std::string& title,
+                        const int32_t      xpos,
+                        const int32_t      ypos,
+                        const uint32_t     width,
+                        const uint32_t     height,
+                        bool               force_windowed)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(force_windowed);
     display_ = xlib_context_->OpenDisplay();
 
     const auto xlib   = xlib_context_->GetXlibFunctionTable();
@@ -323,13 +329,14 @@ XlibWindowFactory::XlibWindowFactory(XlibContext* context) : xlib_context_(conte
     assert(xlib_context_ != nullptr);
 }
 
-decode::Window* XlibWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* XlibWindowFactory::Create(
+    const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(xlib_context_);
     decode::Window* window      = new XlibWindow(xlib_context_);
     auto            application = xlib_context_->GetApplication();
     assert(application);
-    window->Create(application->GetName(), x, y, width, height);
+    window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }
 

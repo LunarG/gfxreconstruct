@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -5992,7 +5993,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
                                      application_.get(),
-                                     options_.surface_index);
+                                     options_.surface_index,
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(
@@ -6020,7 +6026,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
                                      application_.get(),
-                                     options_.surface_index);
+                                     options_.surface_index,
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSupportKHR(
@@ -6066,7 +6077,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
                                      application_.get(),
-                                     options_.surface_index);
+                                     options_.surface_index,
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSupportKHR(
@@ -6116,7 +6132,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
                                      application_.get(),
-                                     options_.surface_index);
+                                     options_.surface_index,
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupportKHR(
@@ -6166,7 +6187,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
                                      application_.get(),
-                                     options_.surface_index);
+                                     options_.surface_index,
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDisplayPlaneSurfaceKHR(
@@ -6194,7 +6220,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDisplayPlaneSurfaceKHR(
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
                                      application_.get(),
-                                     options_.surface_index);
+                                     options_.surface_index,
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateHeadlessSurfaceEXT(
@@ -6222,7 +6253,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateHeadlessSurfaceEXT(
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
                                      application_.get(),
-                                     options_.surface_index);
+                                     options_.surface_index,
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(

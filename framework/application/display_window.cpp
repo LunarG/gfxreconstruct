@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 Broadcom, Inc.
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -279,13 +280,14 @@ DisplayWindowFactory::DisplayWindowFactory(DisplayContext* display_context) : di
 
 DisplayWindowFactory::~DisplayWindowFactory() {}
 
-decode::Window*
-DisplayWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* DisplayWindowFactory::Create(
+    const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     GFXRECON_UNREFERENCED_PARAMETER(x);
     GFXRECON_UNREFERENCED_PARAMETER(y);
     GFXRECON_UNREFERENCED_PARAMETER(width);
     GFXRECON_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(force_windowed);
 
     // Display has a single "window" whose lifetime is managed by DisplayContext.
     return display_context_->GetWindow();
