@@ -54,6 +54,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
         code = inspect.cleandoc('''
             #include "generated_dx12_struct_decoders_to_json.h"
             #include "generated_dx12_struct_decoders.h"
+            #include "decode/custom_dx12_struct_decoders.h"
 
             #include "util/json_util.h"
 

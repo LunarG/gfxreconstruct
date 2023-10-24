@@ -27,6 +27,7 @@
 
 #include "generated_dx12_struct_decoders_to_json.h"
 #include "generated_dx12_struct_decoders.h"
+#include "decode/custom_dx12_struct_decoders.h"
 
 #include "util/json_util.h"
 
@@ -955,6 +956,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RT_FORMAT_AR
         const Decoded_D3D12_RT_FORMAT_ARRAY& meta_struct = *data;
         ; ///< @todo Generate for RTFormats[8]: DXGI_FORMAT [is_array] [is_enum]
         FieldToJson(jdata["NumRenderTargets"], decoded_value.NumRenderTargets, options); //
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_PIPELINE_STATE_STREAM_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_PIPELINE_STATE_STREAM_DESC& meta_struct = *data;
+        FieldToJson(jdata["SizeInBytes"], decoded_value.SizeInBytes, options); //
+        ; ///< @todo Generate for pPipelineStateSubobjectStream[None]: void [is_pointer]
         /// @todo Follow the pNext chain, if any.
     }
 }
@@ -2673,6 +2686,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_META_COMMAND
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATE_SUBOBJECT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_STATE_SUBOBJECT& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_STATE_SUBOBJECT& meta_struct = *data;
+        FieldToJson(jdata["Type"], decoded_value.Type, options); // [is_enum]
+        ; ///< @todo Generate for pDesc[None]: void [is_pointer]
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATE_OBJECT_CONFIG* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2756,6 +2781,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_EXISTING_COL
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& meta_struct = *data;
+        ; ///< @todo Generate for pSubobjectToAssociate[None]: D3D12_STATE_SUBOBJECT [is_pointer] [is_struct]
+        FieldToJson(jdata["NumExports"], decoded_value.NumExports, options); //
+        ; ///< @todo Generate for pExports[NumExports]: wchar_t [is_pointer] [is_array]
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_HIT_GROUP_DESC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2802,6 +2840,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_P
         const Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1& meta_struct = *data;
         FieldToJson(jdata["MaxTraceRecursionDepth"], decoded_value.MaxTraceRecursionDepth, options); //
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // [is_enum]
+        /// @todo Follow the pNext chain, if any.
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATE_OBJECT_DESC* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const D3D12_STATE_OBJECT_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_STATE_OBJECT_DESC& meta_struct = *data;
+        FieldToJson(jdata["Type"], decoded_value.Type, options); // [is_enum]
+        FieldToJson(jdata["NumSubobjects"], decoded_value.NumSubobjects, options); //
+        ; ///< @todo Generate for pSubobjects[NumSubobjects]: D3D12_STATE_SUBOBJECT [is_pointer] [is_array] [is_struct]
         /// @todo Follow the pNext chain, if any.
     }
 }

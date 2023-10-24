@@ -26,8 +26,8 @@
 */
 
 #include "generated_dx12_struct_to_json.h"
+#include "generated_dx12_enum_to_json.h"
 #include "decode/custom_dx12_to_string.h"
-#include "generated_dx12_enum_to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -112,6 +112,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const DXGI_ADAPTER_DESC1& obj, c
     FieldToJson(jdata["SharedSystemMemory"], obj.SharedSystemMemory, options); // base case
     ; ///< @todo Generate for AdapterLuid[None]: LUID
     FieldToJson(jdata["Flags"], obj.Flags, options); // base case
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const DXGI_DISPLAY_COLOR_SPACE& obj, const JsonOptions& options)
+{
+    ; ///< @todo Generate for PrimaryCoordinates[16]: FLOAT
+    ; ///< @todo Generate for WhitePoints[32]: FLOAT
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const DXGI_OUTDUPL_MOVE_RECT& obj, const JsonOptions& options)
@@ -600,6 +606,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RT_FORMAT_ARRAY& obj
 {
     ; ///< @todo Generate for RTFormats[8]: DXGI_FORMAT
     FieldToJson(jdata["NumRenderTargets"], obj.NumRenderTargets, options); // base case
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_PIPELINE_STATE_STREAM_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["SizeInBytes"], obj.SizeInBytes, options); // base case
+    ; ///< @todo Generate for pPipelineStateSubobjectStream[None]: void
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_FEATURE_DATA_D3D12_OPTIONS& obj, const JsonOptions& options)
@@ -1418,6 +1430,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_ROOT_SIGNATURE_DESC2
     FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_CPU_DESCRIPTOR_HANDLE& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["ptr"], obj.ptr, options); // base case
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_GPU_DESCRIPTOR_HANDLE& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["ptr"], obj.ptr, options); // base case
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DISCARD_REGION& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["NumRects"], obj.NumRects, options); // base case
@@ -1560,6 +1582,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_META_COMMAND_DESC& o
     FieldToJson(jdata["ExecutionDirtyState"], ToString(obj.ExecutionDirtyState), options); // enum
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_STATE_SUBOBJECT& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    ; ///< @todo Generate for pDesc[None]: void
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_STATE_OBJECT_CONFIG& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
@@ -1601,6 +1629,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_EXISTING_COLLECTION_
     ; ///< @todo Generate for pExports[NumExports]: D3D12_EXPORT_DESC
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& obj, const JsonOptions& options)
+{
+    ; ///< @todo Generate for pSubobjectToAssociate[None]: D3D12_STATE_SUBOBJECT
+    FieldToJson(jdata["NumExports"], obj.NumExports, options); // base case
+    ; ///< @todo Generate for pExports[NumExports]: wchar_t
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& obj, const JsonOptions& options)
+{
+    ; ///< @todo Generate for SubobjectToAssociate[None]: wchar_t
+    FieldToJson(jdata["NumExports"], obj.NumExports, options); // base case
+    ; ///< @todo Generate for pExports[NumExports]: wchar_t
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_HIT_GROUP_DESC& obj, const JsonOptions& options)
 {
     ; ///< @todo Generate for HitGroupExport[None]: wchar_t
@@ -1625,6 +1667,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_PIPELINE_
 {
     FieldToJson(jdata["MaxTraceRecursionDepth"], obj.MaxTraceRecursionDepth, options); // base case
     FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_STATE_OBJECT_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata["NumSubobjects"], obj.NumSubobjects, options); // base case
+    ; ///< @todo Generate for pSubobjects[NumSubobjects]: D3D12_STATE_SUBOBJECT
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE& obj, const JsonOptions& options)
@@ -1718,6 +1767,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SERIALIZED_RAYTRACIN
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["CurrentSizeInBytes"], obj.CurrentSizeInBytes, options); // base case
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_INSTANCE_DESC& obj, const JsonOptions& options)
+{
+    ; ///< @todo Generate for Transform[12]: FLOAT
+    FieldToJson(jdata["InstanceID"], obj.InstanceID, options); // base case
+    FieldToJson(jdata["InstanceMask"], obj.InstanceMask, options); // base case
+    FieldToJson(jdata["InstanceContributionToHitGroupIndex"], obj.InstanceContributionToHitGroupIndex, options); // base case
+    FieldToJson(jdata["Flags"], obj.Flags, options); // base case
+    FieldToJson(jdata["AccelerationStructure"], obj.AccelerationStructure, options); // base case
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& obj, const JsonOptions& options)
@@ -2076,6 +2135,167 @@ void FieldToJson(nlohmann::ordered_json& jdata, const tagPOINT& obj, const JsonO
     FieldToJson(jdata["y"], obj.y, options); // base case
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const _SECURITY_ATTRIBUTES& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["nLength"], obj.nLength, options); // base case
+    ; ///< @todo Generate for lpSecurityDescriptor[None]: void
+    FieldToJson(jdata["bInheritHandle"], obj.bInheritHandle, options); // base case
+}
+
+/// Put the custom implementations in the generator Python here rather than
+/// creating a whole new compilation unit for them.
+/// @note, not all of these may be needed for the convert tool if it uses the decoded struct
+/// equivalents so complete the ones with todos as needed on-demand.
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_CLEAR_VALUE& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RESOURCE_BARRIER& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_TEXTURE_COPY_LOCATION& obj, const JsonOptions& options)
+{
+    ; ///< @todo Generate for pResource[None]: ID3D12Resource
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SHADER_RESOURCE_VIEW_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+    FieldToJson(jdata["ViewDimension"], ToString(obj.ViewDimension), options); // enum
+    FieldToJson(jdata["Shader4ComponentMapping"], obj.Shader4ComponentMapping, options); // base case
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SAMPLER_DESC2& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Filter"], ToString(obj.Filter), options); // enum
+    FieldToJson(jdata["AddressU"], ToString(obj.AddressU), options); // enum
+    FieldToJson(jdata["AddressV"], ToString(obj.AddressV), options); // enum
+    FieldToJson(jdata["AddressW"], ToString(obj.AddressW), options); // enum
+    FieldToJson(jdata["MipLODBias"], obj.MipLODBias, options); // base case
+    FieldToJson(jdata["MaxAnisotropy"], obj.MaxAnisotropy, options); // base case
+    FieldToJson(jdata["ComparisonFunc"], ToString(obj.ComparisonFunc), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    FieldToJson(jdata["MinLOD"], obj.MinLOD, options); // base case
+    FieldToJson(jdata["MaxLOD"], obj.MaxLOD, options); // base case
+    FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_UNORDERED_ACCESS_VIEW_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+    FieldToJson(jdata["ViewDimension"], ToString(obj.ViewDimension), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_TARGET_VIEW_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+    FieldToJson(jdata["ViewDimension"], ToString(obj.ViewDimension), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEPTH_STENCIL_VIEW_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+    FieldToJson(jdata["ViewDimension"], ToString(obj.ViewDimension), options); // enum
+    FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_ROOT_PARAMETER& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["ParameterType"], ToString(obj.ParameterType), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    FieldToJson(jdata["ShaderVisibility"], ToString(obj.ShaderVisibility), options); // enum
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_ROOT_PARAMETER1& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["ParameterType"], ToString(obj.ParameterType), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    FieldToJson(jdata["ShaderVisibility"], ToString(obj.ShaderVisibility), options); // enum
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Version"], ToString(obj.Version), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_INDIRECT_ARGUMENT_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_GEOMETRY_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+    FieldToJson(jdata["NumDescs"], obj.NumDescs, options); // base case
+    FieldToJson(jdata["DescsLayout"], ToString(obj.DescsLayout), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Version"], ToString(obj.Version), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_BEGINNING_ACCESS& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_ENDING_ACCESS& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_BARRIER_GROUP& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata["NumBarriers"], obj.NumBarriers, options); // base case
+    /// @todo FieldToJson(jdata[""], obj., options); // base case
+    GFXRECON_LOG_ERROR("Partially implemented FieldToJson() called: \"" __FUNCTION__ "\"");
+}
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

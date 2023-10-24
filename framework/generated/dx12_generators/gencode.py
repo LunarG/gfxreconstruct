@@ -97,6 +97,11 @@ def make_gen_opts(args):
     capture_overrides = os.path.join(args.configs, default_capture_overrides)
     ascii_overrides = os.path.join(args.configs, default_ascii_overrides)
     json_overrides = os.path.join(args.configs, default_json_overrides)
+    # Structs, functions etc. to exclude from codegen for conversion to JSON features.
+    json_blocklists = os.path.join(args.configs, "json_blocklists.json")
+    # Structs, functions etc. to exclude from codegen of the header files for conversion to JSON.
+    # (we can codegen a lot more header content than body as the function signatures are not tricky)
+    json_headers_blocklists = os.path.join(args.configs, "json_headers_blocklists.json")
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
@@ -331,7 +336,9 @@ def make_gen_opts(args):
         Dx12ConsumerHeaderGeneratorOptions(
             filename='generated_dx12_json_consumer.h',
             directory=directory,
-            blacklists=blacklists,
+            # blacklists=blacklists,
+            blacklists=json_blocklists,
+            # ToDo: json_headers_blocklists
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
@@ -348,7 +355,8 @@ def make_gen_opts(args):
             filename='generated_dx12_json_consumer.cpp',
             directory=directory,
             constructor_args='',
-            blacklists=blacklists,
+            #blacklists=blacklists,
+            blacklists=json_blocklists,
             platform_types=platform_types,
             json_overrides=json_overrides,
             prefix_text=prefix_strings + py_prefix_strings,
@@ -613,6 +621,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_enum_to_json.h',
             directory=directory,
+            blacklists=json_headers_blocklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
@@ -660,7 +669,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_to_json.h',
             directory=directory,
-            blacklists=blacklists,
+            blacklists=json_headers_blocklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
@@ -676,7 +685,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_to_json.cpp',
             directory=directory,
-            blacklists=blacklists,
+            blacklists=json_blocklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
@@ -692,7 +701,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_decoders_to_json.h',
             directory=directory,
-            blacklists=blacklists,
+            blacklists=json_headers_blocklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
@@ -708,7 +717,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_decoders_to_json.cpp',
             directory=directory,
-            blacklists=blacklists,
+            blacklists=json_blocklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,

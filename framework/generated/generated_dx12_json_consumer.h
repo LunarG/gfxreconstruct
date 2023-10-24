@@ -1806,14 +1806,6 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         format::HandleId object_id,
         UINT return_value);
 
-    virtual void Process_ID3D12Device_CreateCommandQueue(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* pDesc,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppCommandQueue);
-
     virtual void Process_ID3D12Device_CreateCommandAllocator(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

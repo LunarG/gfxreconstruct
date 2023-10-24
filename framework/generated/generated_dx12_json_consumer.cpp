@@ -2565,17 +2565,6 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetNodeCount(
     using namespace gfxrecon::util;
 }
 
-void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandQueue(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* pDesc,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppCommandQueue)
-{
-    using namespace gfxrecon::util;
-}
-
 void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandAllocator(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
