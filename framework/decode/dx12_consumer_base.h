@@ -26,7 +26,6 @@
 #include "decode/api_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
-#include "generated/generated_dx12_struct_decoders.h"
 
 #include <d3d12.h>
 #include <dxgi1_5.h>
@@ -172,17 +171,6 @@ class Dx12ConsumerBase
                                                            void*                                    pSrcData,
                                                            UINT                                     SrcRowPitch,
                                                            UINT                                     SrcDepthPitch)
-    {}
-
-    virtual void Process_ID3D12Device12_GetResourceAllocationInfo3(
-        format::HandleId                                               object_id,
-        Decoded_D3D12_RESOURCE_ALLOCATION_INFO                         return_value,
-        UINT                                                           visibleMask,
-        UINT                                                           numResourceDescs,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>*            pResourceDescs,
-        PointerDecoder<UINT>*                                          pNumCastableFormats,
-        PointerDecoder<DXGI_FORMAT*>*                                  ppCastableFormats,
-        StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
     {}
 
     void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; };

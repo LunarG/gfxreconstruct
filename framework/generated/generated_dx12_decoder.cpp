@@ -1183,6 +1183,9 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12Device11_CreateSampler2:
         Decode_ID3D12Device11_CreateSampler2(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3:
+        Decode_ID3D12Device12_GetResourceAllocationInfo3(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost:
         Decode_ID3D12VirtualizationGuestDevice_ShareWithHost(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -9324,6 +9327,36 @@ size_t Dx12Decoder::Decode_ID3D12Device11_CreateSampler2(format::HandleId object
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12Device11_CreateSampler2(call_info, object_id, &pDesc, DestDescriptor);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12Device12_GetResourceAllocationInfo3(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    UINT visibleMask;
+    UINT numResourceDescs;
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1> pResourceDescs;
+    PointerDecoder<UINT32> pNumCastableFormats;
+    PointerDecoder<DXGI_FORMAT*> ppCastableFormats;
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1> pResourceAllocationInfo1;
+    Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value;
+    D3D12_RESOURCE_ALLOCATION_INFO value_returned;
+    return_value.decoded_value = &value_returned;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &visibleMask);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &numResourceDescs);
+    bytes_read += pResourceDescs.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pNumCastableFormats.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppCastableFormats.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pResourceAllocationInfo1.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Device12_GetResourceAllocationInfo3(call_info, object_id, return_value, visibleMask, numResourceDescs, &pResourceDescs, &pNumCastableFormats, &ppCastableFormats, &pResourceAllocationInfo1);
     }
 
     return bytes_read;

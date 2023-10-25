@@ -9563,6 +9563,40 @@ void Dx12AsciiConsumer::Process_ID3D12Device11_CreateSampler2(
     );
 }
 
+void Dx12AsciiConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
+        UINT visibleMask,
+        UINT numResourceDescs,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDescs,
+        PointerDecoder<UINT32>* pNumCastableFormats,
+        PointerDecoder<DXGI_FORMAT*>* ppCastableFormats,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
+{
+    using namespace gfxrecon::util;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device12";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "GetResourceAllocationInfo3";
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(
+        writeApiCallToFileInfo, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "visibleMask", to_string_flags_, tab_count, tab_size, ToString(visibleMask, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "numResourceDescs", to_string_flags_, tab_count, tab_size, ToString(numResourceDescs, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pResourceDescs", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(numResourceDescs, pResourceDescs, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pNumCastableFormats", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(numResourceDescs, pNumCastableFormats, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppCastableFormats", to_string_flags_, tab_count, tab_size, EnumPointerDecoderArrayToString(numResourceDescs, ppCastableFormats, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pResourceAllocationInfo1", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(numResourceDescs, pResourceAllocationInfo1, to_string_flags_, tab_count, tab_size));
+        }
+    );
+}
+
 void Dx12AsciiConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

@@ -2730,6 +2730,17 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC2>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
+    virtual void Process_ID3D12Device12_GetResourceAllocationInfo3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
+        UINT visibleMask,
+        UINT numResourceDescs,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDescs,
+        PointerDecoder<UINT32>* pNumCastableFormats,
+        PointerDecoder<DXGI_FORMAT*>* ppCastableFormats,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1);
+
     virtual void Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

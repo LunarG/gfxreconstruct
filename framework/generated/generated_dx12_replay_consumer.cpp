@@ -7049,6 +7049,29 @@ void Dx12ReplayConsumer::Process_ID3D12Device11_CreateSampler2(
     }
 }
 
+void Dx12ReplayConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    Decoded_D3D12_RESOURCE_ALLOCATION_INFO      return_value,
+    UINT                                        visibleMask,
+    UINT                                        numResourceDescs,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDescs,
+    PointerDecoder<UINT32>*                     pNumCastableFormats,
+    PointerDecoder<DXGI_FORMAT*>*               ppCastableFormats,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
+{
+    auto replay_object = MapObject<ID3D12Device12>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetResourceAllocationInfo3(visibleMask,
+                                                                       numResourceDescs,
+                                                                       pResourceDescs->GetPointer(),
+                                                                       pNumCastableFormats->GetPointer(),
+                                                                       ppCastableFormats->GetPointer(),
+                                                                       pResourceAllocationInfo1->GetPointer());
+    }
+}
+
 void Dx12ReplayConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,

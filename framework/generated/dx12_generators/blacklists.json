@@ -6,9 +6,6 @@
     "ID3D12Device": [
       "CheckFeatureSupport"
     ],
-    "ID3D12Device12": [
-      "GetResourceAllocationInfo3"
-    ],
     "IDXGIFactory5": [
       "CheckFeatureSupport"
     ],

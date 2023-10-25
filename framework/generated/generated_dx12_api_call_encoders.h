@@ -2892,6 +2892,16 @@ void Encode_ID3D12Device11_CreateSampler2(
     const D3D12_SAMPLER_DESC2* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
+void Encode_ID3D12Device12_GetResourceAllocationInfo3(
+    ID3D12Device12_Wrapper* wrapper,
+    D3D12_RESOURCE_ALLOCATION_INFO return_value,
+    UINT visibleMask,
+    UINT numResourceDescs,
+    const D3D12_RESOURCE_DESC1* pResourceDescs,
+    const UINT32* pNumCastableFormats,
+    const DXGI_FORMAT* const* ppCastableFormats,
+    D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1);
+
 void Encode_ID3D12VirtualizationGuestDevice_ShareWithHost(
     ID3D12VirtualizationGuestDevice_Wrapper* wrapper,
     HRESULT return_value,

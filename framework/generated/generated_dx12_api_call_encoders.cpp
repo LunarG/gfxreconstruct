@@ -27,6 +27,7 @@
 
 #include "generated/generated_dx12_api_call_encoders.h"
 #include "generated/generated_dx12_command_list_util.h"
+#include "encode/custom_dx12_array_size_2d.h"
 #include "encode/custom_dx12_struct_encoders.h"
 #include "encode/custom_dx12_command_list_util.h"
 
@@ -9314,6 +9315,30 @@ void Encode_ID3D12Device11_CreateSampler2(
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, DestDescriptor);
         D3D12CaptureManager::Get()->EndCreateDescriptorMethodCallCapture(DestDescriptor, wrapper);
+    }
+}
+
+void Encode_ID3D12Device12_GetResourceAllocationInfo3(
+    ID3D12Device12_Wrapper* wrapper,
+    D3D12_RESOURCE_ALLOCATION_INFO return_value,
+    UINT visibleMask,
+    UINT numResourceDescs,
+    const D3D12_RESOURCE_DESC1* pResourceDescs,
+    const UINT32* pNumCastableFormats,
+    const DXGI_FORMAT* const* ppCastableFormats,
+    D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeUInt32Value(visibleMask);
+        encoder->EncodeUInt32Value(numResourceDescs);
+        EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
+        encoder->EncodeUInt32Array(pNumCastableFormats, numResourceDescs);
+        encoder->EncodeEnumArray2D(ppCastableFormats, ArraySize2D<UINT, UINT, const D3D12_RESOURCE_DESC1 *, const UINT32 *, const DXGI_FORMAT * const *, D3D12_RESOURCE_ALLOCATION_INFO1 *>(visibleMask, numResourceDescs, pResourceDescs, pNumCastableFormats, ppCastableFormats, pResourceAllocationInfo1));
+        EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs);
+        EncodeStruct(encoder, return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 

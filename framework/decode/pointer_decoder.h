@@ -240,11 +240,16 @@ template <typename T>
 class PointerDecoder<T*> : public PointerDecoderBase
 {
   public:
-    PointerDecoder() : data_(nullptr) {}
+    PointerDecoder() : data_(nullptr), inner_lengths_(nullptr) {}
 
     T** GetPointer() { return data_; }
 
     const T** GetPointer() const { return data_; }
+
+    size_t GetInnerLength(size_t i) const
+    {
+        return ((i < GetLength()) && (inner_lengths_ != nullptr)) ? inner_lengths_[i] : 0;
+    }
 
     // clang-format off
     size_t DecodeInt32(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<int32_t>(buffer, buffer_size); }
@@ -301,7 +306,8 @@ class PointerDecoder<T*> : public PointerDecoderBase
         size_t bytes_read = 0;
         size_t len        = GetLength();
 
-        data_ = DecodeAllocator::Allocate<T*>(len, false);
+        data_          = DecodeAllocator::Allocate<T*>(len, false);
+        inner_lengths_ = DecodeAllocator::Allocate<size_t>(len);
 
         for (size_t i = 0; i < len; ++i)
         {
@@ -335,7 +341,8 @@ class PointerDecoder<T*> : public PointerDecoderBase
                 bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>(
                     (buffer + bytes_read), (buffer_size - bytes_read), inner_data, inner_len);
 
-                data_[i] = inner_data;
+                data_[i]          = inner_data;
+                inner_lengths_[i] = inner_len;
             }
             else
             {
@@ -347,7 +354,8 @@ class PointerDecoder<T*> : public PointerDecoderBase
     }
 
   private:
-    T** data_; ///< Memory to hold decoded data
+    T**     data_; ///< Memory to hold decoded data
+    size_t* inner_lengths_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

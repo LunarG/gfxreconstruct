@@ -2964,37 +2964,6 @@ void Dx12ReplayConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::H
     }
 }
 
-void Dx12ReplayConsumerBase::Process_ID3D12Device12_GetResourceAllocationInfo3(
-    format::HandleId                                               object_id,
-    Decoded_D3D12_RESOURCE_ALLOCATION_INFO                         return_value,
-    UINT                                                           visibleMask,
-    UINT                                                           numResourceDescs,
-    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>*            pResourceDescs,
-    PointerDecoder<UINT>*                                          pNumCastableFormats,
-    PointerDecoder<DXGI_FORMAT*>*                                  ppCastableFormats,
-    StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
-{
-    auto replay_object = MapObject<ID3D12Device12>(object_id);
-
-    if (replay_object != nullptr)
-    {
-        const UINT32*             num_castable_formats = pNumCastableFormats->GetPointer();
-        const DXGI_FORMAT* const* castable_formats     = nullptr;
-
-        if (num_castable_formats != nullptr)
-        {
-            castable_formats = ppCastableFormats->GetPointer();
-        }
-
-        auto replay_result = replay_object->GetResourceAllocationInfo3(visibleMask,
-                                                                       numResourceDescs,
-                                                                       pResourceDescs->GetPointer(),
-                                                                       num_castable_formats,
-                                                                       castable_formats,
-                                                                       pResourceAllocationInfo1->GetPointer());
-    }
-}
-
 IDXGIAdapter* Dx12ReplayConsumerBase::GetAdapter()
 {
     IDXGIAdapter* adapter_found = render_adapter_;
