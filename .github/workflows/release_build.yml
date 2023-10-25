@@ -46,6 +46,9 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+    - uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: 3.16.3
     - name: Run build script
       run: |
         python3 scripts/build.py --skip-check-code-style --skip-tests
@@ -80,6 +83,7 @@ jobs:
     steps:
     - name: Clone repository
       uses: actions/checkout@v1
+    - uses: lukka/get-cmake@latest
     - name: Run build script
       run: |
         python scripts\build.py --skip-check-code-style --skip-tests
