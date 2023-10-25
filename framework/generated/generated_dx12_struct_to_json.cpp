@@ -1151,6 +1151,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_ACCELERAT
     FieldToJson(jdata["Location"], obj.Location, options); // base case
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SHADER_RESOURCE_VIEW_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+    FieldToJson(jdata["ViewDimension"], ToString(obj.ViewDimension), options); // enum
+    FieldToJson(jdata["Shader4ComponentMapping"], obj.Shader4ComponentMapping, options); // base case
+    FieldToJson(jdata[""], obj., options); // base case
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_CONSTANT_BUFFER_VIEW_DESC& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["BufferLocation"], obj.BufferLocation, options); // base case
@@ -1169,6 +1177,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SAMPLER_DESC& obj, c
     ; ///< @todo Generate for BorderColor[4]: FLOAT
     FieldToJson(jdata["MinLOD"], obj.MinLOD, options); // base case
     FieldToJson(jdata["MaxLOD"], obj.MaxLOD, options); // base case
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SAMPLER_DESC2& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Filter"], ToString(obj.Filter), options); // enum
+    FieldToJson(jdata["AddressU"], ToString(obj.AddressU), options); // enum
+    FieldToJson(jdata["AddressV"], ToString(obj.AddressV), options); // enum
+    FieldToJson(jdata["AddressW"], ToString(obj.AddressW), options); // enum
+    FieldToJson(jdata["MipLODBias"], obj.MipLODBias, options); // base case
+    FieldToJson(jdata["MaxAnisotropy"], obj.MaxAnisotropy, options); // base case
+    FieldToJson(jdata["ComparisonFunc"], ToString(obj.ComparisonFunc), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
+    FieldToJson(jdata["MinLOD"], obj.MinLOD, options); // base case
+    FieldToJson(jdata["MaxLOD"], obj.MaxLOD, options); // base case
+    FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_BUFFER_UAV& obj, const JsonOptions& options)
@@ -1224,6 +1247,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_TEX3D_UAV& obj, cons
     FieldToJson(jdata["WSize"], obj.WSize, options); // base case
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_UNORDERED_ACCESS_VIEW_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+    FieldToJson(jdata["ViewDimension"], ToString(obj.ViewDimension), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_BUFFER_RTV& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["FirstElement"], obj.FirstElement, options); // base case
@@ -1274,6 +1304,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_TEX3D_RTV& obj, cons
     FieldToJson(jdata["WSize"], obj.WSize, options); // base case
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_TARGET_VIEW_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+    FieldToJson(jdata["ViewDimension"], ToString(obj.ViewDimension), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_TEX1D_DSV& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["MipSlice"], obj.MipSlice, options); // base case
@@ -1307,6 +1344,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_TEX2DMS_ARRAY_DSV& o
 {
     FieldToJson(jdata["FirstArraySlice"], obj.FirstArraySlice, options); // base case
     FieldToJson(jdata["ArraySize"], obj.ArraySize, options); // base case
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEPTH_STENCIL_VIEW_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+    FieldToJson(jdata["ViewDimension"], ToString(obj.ViewDimension), options); // enum
+    FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DESCRIPTOR_HEAP_DESC& obj, const JsonOptions& options)
@@ -1343,6 +1388,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_ROOT_DESCRIPTOR& obj
 {
     FieldToJson(jdata["ShaderRegister"], obj.ShaderRegister, options); // base case
     FieldToJson(jdata["RegisterSpace"], obj.RegisterSpace, options); // base case
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_ROOT_PARAMETER& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["ParameterType"], ToString(obj.ParameterType), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
+    FieldToJson(jdata["ShaderVisibility"], ToString(obj.ShaderVisibility), options); // enum
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_STATIC_SAMPLER_DESC& obj, const JsonOptions& options)
@@ -1412,6 +1464,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_ROOT_DESCRIPTOR1& ob
     FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_ROOT_PARAMETER1& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["ParameterType"], ToString(obj.ParameterType), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
+    FieldToJson(jdata["ShaderVisibility"], ToString(obj.ShaderVisibility), options); // enum
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_ROOT_SIGNATURE_DESC1& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["NumParameters"], obj.NumParameters, options); // base case
@@ -1428,6 +1487,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_ROOT_SIGNATURE_DESC2
     FieldToJson(jdata["NumStaticSamplers"], obj.NumStaticSamplers, options); // base case
     ; ///< @todo Generate for pStaticSamplers[NumStaticSamplers]: D3D12_STATIC_SAMPLER_DESC1
     FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Version"], ToString(obj.Version), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_CPU_DESCRIPTOR_HANDLE& obj, const JsonOptions& options)
@@ -1537,6 +1602,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_INDEX_BUFFER_VIEW& o
     FieldToJson(jdata["BufferLocation"], obj.BufferLocation, options); // base case
     FieldToJson(jdata["SizeInBytes"], obj.SizeInBytes, options); // base case
     FieldToJson(jdata["Format"], ToString(obj.Format), options); // enum
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_INDIRECT_ARGUMENT_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_COMMAND_SIGNATURE_DESC& obj, const JsonOptions& options)
@@ -1779,6 +1850,22 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_INSTANCE_
     FieldToJson(jdata["AccelerationStructure"], obj.AccelerationStructure, options); // base case
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_GEOMETRY_DESC& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata["Flags"], ToString(obj.Flags), options); // enum
+    FieldToJson(jdata["NumDescs"], obj.NumDescs, options); // base case
+    FieldToJson(jdata["DescsLayout"], ToString(obj.DescsLayout), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["DestAccelerationStructureData"], obj.DestAccelerationStructureData, options); // base case
@@ -1907,6 +1994,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEVICE_REMOVED_EXTEN
     FieldToJson(jdata["DeviceState"], ToString(obj.DeviceState), options); // enum
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Version"], ToString(obj.Version), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["NodeIndex"], obj.NodeIndex, options); // base case
@@ -1938,6 +2031,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_BEGINNIN
     FieldToJson(jdata["AdditionalHeight"], obj.AdditionalHeight, options); // base case
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_BEGINNING_ACCESS& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS& obj, const JsonOptions& options)
 {
     FieldToJson(jdata["SrcSubresource"], obj.SrcSubresource, options); // base case
@@ -1962,6 +2061,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_ENDING_A
 {
     FieldToJson(jdata["AdditionalWidth"], obj.AdditionalWidth, options); // base case
     FieldToJson(jdata["AdditionalHeight"], obj.AdditionalHeight, options); // base case
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_ENDING_ACCESS& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Type"], ToString(obj.Type), options); // enum
+    FieldToJson(jdata[""], obj., options); // base case
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_RENDER_TARGET_DESC& obj, const JsonOptions& options)
