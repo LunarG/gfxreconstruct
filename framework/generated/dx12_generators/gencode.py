@@ -102,6 +102,9 @@ def make_gen_opts(args):
     # Structs, functions etc. to exclude from codegen of the header files for conversion to JSON.
     # (we can codegen a lot more header content than body as the function signatures are not tricky)
     json_headers_blocklists = os.path.join(args.configs, "json_headers_blocklists.json")
+    # Raw DX12 structs to skip FieldToJson() codegen for, either because we have custom/manual
+    # implementations or because we don't need conversions for those particular structs.
+    json_raw_structs_blocklists = os.path.join(args.configs, "json_raw_structs_blocklists.json")
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
@@ -669,7 +672,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_to_json.h',
             directory=directory,
-            blacklists=json_headers_blocklists,
+            blacklists=json_raw_structs_blocklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
@@ -685,7 +688,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_to_json.cpp',
             directory=directory,
-            blacklists=json_blocklists,
+            blacklists=json_raw_structs_blocklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,

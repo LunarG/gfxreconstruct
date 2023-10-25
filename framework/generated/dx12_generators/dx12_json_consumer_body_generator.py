@@ -21,10 +21,12 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import json, inspect
+import json
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
 from dx12_json_consumer_header_generator import Dx12JsonConsumerHeaderGenerator, Dx12JsonConsumerHeaderGeneratorOptions
+from reformat_code import format_cpp_code, remove_leading_empty_lines
+
 
 class Dx12JsonBodyGeneratorOptions(Dx12JsonConsumerHeaderGeneratorOptions):
 
@@ -84,12 +86,16 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
             self.JSON_OVERRIDES = overrides
 
     def write_include(self):
-        write('#include "generated_dx12_json_consumer.h"', file=self.outFile)
-        write('#include "generated_dx12_enum_to_string.h"', file=self.outFile)
-        write('#include "generated_dx12_struct_to_string.h"', file=self.outFile)
-        write('#include "decode/dx12_enum_util.h"', file=self.outFile)
-        #write('#include "util/interception/injection.h"', file=self.outFile)
-        write('#include "util/to_string.h"', file=self.outFile)
+        write(format_cpp_code('''
+            #include "generated_dx12_json_consumer.h"
+            #include "generated_dx12_enum_to_json.h"
+            #include "generated_dx12_struct_decoders_to_json.h"
+            #include "decode/dx12_enum_util.h"
+            #include "decode/dx12_decode_json_util.h"
+            #include "decode/json_writer.h"
+            #include "util/to_string.h"
+            #include "format/format_json.h"
+        '''), file=self.outFile)
         self.newline()
 
     def generate_feature(self):
@@ -105,21 +111,84 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
 
     def get_consumer_function_body(self, class_name, method_info, return_type):
         class_method_name = method_info['name']
-        code = '\n'
-        code += inspect.cleandoc('''
-            {{
+        code = '''
+            {
                 using namespace gfxrecon::util;
-            '''.format(
-                '"' + class_name + '"' if class_name else 'nullptr',
-                'object_id' if class_name else '0', class_method_name,
-                'std::string()' if not 'void' in return_type else 'std::string()'))
-        code += '\n'
-        code += self.make_consumer_func_body(class_name, method_info, return_type)
-        code += inspect.cleandoc('''
-            }
-        ''')
+        '''
+        if(class_name == None or len(class_name) == 0):
+            code += self.make_consumer_func_body(method_info, return_type)
+        else:
+            code += self.make_consumer_method_body(class_name, method_info, return_type)
+
+        code += "\n}"
+        code = "\n" + format_cpp_code(code)
         return code
 
-    def make_consumer_func_body(self, class_name, method_info, return_type):
-        code = ''
+    def make_consumer_func_body(self, method_info, return_type):
+        if return_type != 'HRESULT WINAPI':
+            print ("Warning - Unexpected return type:", return_type)
+        code = '''
+            nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "{}");
+            const JsonOptions& options = writer_->GetOptions();
+
+            FieldToJson(function[format::kNameReturn], return_value, options);
+            nlohmann::ordered_json& args = function[format::kNameArgs];
+            {{
+        '''
+        # Generate a correct FieldToJson for each argument:
+        for parameter in method_info['parameters']:
+            value = self.get_value_info(parameter)
+            code += "    " + self.make_field_to_json("args", value, "options") + "\n"
+
+        code += remove_leading_empty_lines('''
+                }}
+            writer_->WriteBlockEnd();
+        ''')
+        code = code.format(method_info['name'])
         return code
+
+    def make_consumer_method_body(self, class_name, method_info, return_type):
+        code = '''
+            nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "{0}", object_id, "{1}");
+            const JsonOptions& options = writer_->GetOptions();
+        '''
+        if not "void" in return_type:
+            #if method_info.returns_pointer:
+            #    code += "FieldToJson(method[format::kNameReturn], return_value, options);"
+            #else:
+            code += "FieldToJson(method[format::kNameReturn], return_value, options);\n"
+        else:
+            code += "// Nothing returned from method.\n"
+        if len(method_info['parameters']) > 0:
+            code += '''nlohmann::ordered_json& args = method[format::kNameArgs];
+                {{
+            '''
+            # Generate a correct FieldToJson for each argument:
+            for parameter in method_info['parameters']:
+                value = self.get_value_info(parameter)
+                code += "    " + self.make_field_to_json("args", value, "options") + "\n"
+            code += "}}\n"
+
+        code += "writer_->WriteBlockEnd();"
+        code = code.format(class_name, method_info['name'])
+        return code
+
+    ## @todo Move this to a common base class shared with Dx12StructDecodersToJsonBodyGenerator
+    ## if the types used for arguments and struct properties are compatible.
+    def make_field_to_json(self, parent_name, value, options_name):
+        field_to_json = "/// @todo FieldToJson({0}, {1}, {2})".format(parent_name, value.name, options_name)
+        if value.is_pointer:
+            if value.is_array:
+                pass
+            else:
+                pass
+        else:
+            if value.is_array:
+                pass
+            else:
+                if self.is_handle(value.base_type):
+                    field_to_json = 'static_assert(false, "Unhandled handle.")'
+                else:
+                    field_to_json = "FieldToJson({0}, {1}, {2});".format(parent_name, value.name, options_name)
+            
+        return field_to_json

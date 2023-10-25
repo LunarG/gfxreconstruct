@@ -46,7 +46,6 @@ class Dx12JsonConsumerBase : public Dx12Consumer
     bool IsValid() const;
 
   protected:
-  private:
     JsonWriter* writer_{ nullptr };
 };
 
