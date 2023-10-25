@@ -23,6 +23,7 @@
 import sys, inspect
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
+from reformat_code import format_cpp_code, remove_leading_empty_lines
 
 class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
     """Convert Struct Decoders to JSON."""
@@ -42,15 +43,17 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Methond override."""
-        # @todo Unify this with the three other versions to avoid duplication.
-        self.STRUCT_BLACKLIST.append('DXGI_DISPLAY_COLOR_SPACE')
-        self.STRUCT_BLACKLIST.append('D3D12_RAYTRACING_INSTANCE_DESC')
-        self.STRUCT_BLACKLIST.append('D3D12_CPU_DESCRIPTOR_HANDLE')
-        self.STRUCT_BLACKLIST.append('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
-        self.STRUCT_BLACKLIST.append('D3D12_GPU_DESCRIPTOR_HANDLE')
-        self.STRUCT_BLACKLIST.append('_SECURITY_ATTRIBUTES')
-        self.STRUCT_BLACKLIST.append('GUID') # Generated with the enums.
         Dx12BaseGenerator.beginFile(self, gen_opts)
+        # These are added by the Base Generator from the blacklists.json used across
+        # dx12 generation so make sure we generate prototypes for them here even though
+        # their bodies will need custom implementations.
+        # self.STRUCT_BLACKLIST.remove('DXGI_DISPLAY_COLOR_SPACE')
+        # self.STRUCT_BLACKLIST.remove('D3D12_RAYTRACING_INSTANCE_DESC')
+        # self.STRUCT_BLACKLIST.remove('D3D12_CPU_DESCRIPTOR_HANDLE')
+        # self.STRUCT_BLACKLIST.remove('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
+        # self.STRUCT_BLACKLIST.remove('D3D12_GPU_DESCRIPTOR_HANDLE')
+        # self.STRUCT_BLACKLIST.remove('_SECURITY_ATTRIBUTES')
+        self.STRUCT_BLACKLIST.append('GUID') # Generated with the enums.
 
         code = inspect.cleandoc('''
             /// @file Functions to convert decoded structs to JSON.
@@ -75,13 +78,25 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
 
     def generate_feature(self):
         struct_dict = self.source_dict['struct_dict']
+        ref_wrappers = '\n// Reference versions of above which simply pipe through to the pointer versions.\n'
         for k, v in struct_dict.items():
             if not self.is_struct_black_listed(k):
                 body = 'void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* pObj, const util::JsonOptions& options);'.format(k)
+                ref_wrappers += 'inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}& obj, const util::JsonOptions& options){{ FieldToJson(jdata, &obj, options); }}\n'.format(k)
                 write(body, file=self.outFile)
+        write(ref_wrappers, file=self.outFile)
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
+        custom_to_fields = '''
+        // Custom, manually written implementations:
+        // void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* pObj, const util::JsonOptions& options);
+        // inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+        // void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE* pObj, const util::JsonOptions& options);
+        // inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+        '''
+        custom_to_fields = format_cpp_code(custom_to_fields)
+        write(custom_to_fields, file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
