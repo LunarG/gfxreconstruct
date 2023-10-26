@@ -41,7 +41,7 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -82,7 +82,7 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
     - uses: lukka/get-cmake@latest
     - name: Run build script
       run: |
@@ -115,7 +115,7 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
     - name: Update submodules
       run: |
         git submodule update --init
@@ -148,7 +148,7 @@ jobs:
     needs: [ linux, windows, android ]
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
     - name: Get tag body
       id: get_tag_body
       run: |
