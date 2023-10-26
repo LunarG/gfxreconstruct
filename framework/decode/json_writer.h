@@ -78,7 +78,7 @@ class JsonWriter : public AnnotationHandler
     /// with return value if any and arguments.
     nlohmann::ordered_json& WriteApiCallStart(const ApiCallInfo&     call_info,
                                               const std::string_view object_type,
-                                              format::HandleId       object_id,
+                                              const format::HandleId object_id,
                                               const std::string_view command_name);
 
     /// Get the JSON object used to output the per-stream header
