@@ -124,23 +124,23 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
             if not enum in self.processedEnums and not enum in self.enumAliases:
                 self.processedEnums.add(enum)
                 if self.is_flags_enum_64bit(enum):
-                    # print(enum)
-                    # body = 'std::string {0}ToString(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
-                    # Since every caller needs to know exactly what it is calling, we may as well
-                    # dispense with the parameters that are always ignored:
                     body = 'std::string {0}ToString(const {0} value)\n'
                 else:
-                    body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
+                    body = 'std::string ToString(const {0}& value)\n'
                 body += '{{\n'
                 enumerants = self.enumEnumerants[enum]
+                body += '    std::string val;\n'
                 if len(enumerants):
                     body += '    switch (value) {{\n'
                     for enumerant in enumerants:
                         body += '    case {0}: return "{0}";\n'.format(
                             enumerant)
-                    body += '    default: break;\n'
+                    if self.is_flags_enum_64bit(enum):
+                        body += '    default: val = "Unhandled {0}: " + std::to_string(static_cast<uint64_t>(value));\n'
+                    else:
+                        body += '    default: val = "Unhandled {0}: " + std::to_string(static_cast<uint32_t>(value));\n'
                     body += '    }}\n'
-                body += '    return "Unhandled {0}";\n'
+                body += '    return val;\n'
                 body += '}}\n'
                 if 'Bits' in enum:
                     if self.is_flags_enum_64bit(enum):
@@ -168,13 +168,7 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
                         body += '    return str;\n'
                         body += '}}\n'
                     else:
-                        # Original version(these are never actually being called which is part of issue #620):
-                        body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)\n'
-                        # Simpler, non-template version that matches the 64 bit version above. Changing
-                        # to these signatures actually compiles fine, showing the originals were never
-                        # called anywhere. Leaving this commented-out but ready for the PR that fixes
-                        # issue #620 to use.
-                        # body += '\nstd::string {1}ToString(VkFlags vkFlags)\n'
+                        body += '\nstd::string {1}ToString(VkFlags vkFlags)\n'
                         body += '{{\n'
                         body += '    return BitmaskToString<{0}>(vkFlags);\n'
                         body += '}}\n'

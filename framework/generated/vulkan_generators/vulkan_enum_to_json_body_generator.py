@@ -88,33 +88,12 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, genOpts)
         body = format_cpp_code('''
             #include "generated_vulkan_enum_to_json.h"
+            #include "generated_vulkan_enum_to_string.h"
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
 
-            template<typename TFlags, typename ToStringFunctionType>
-            std::string ExpandFlags(TFlags flags, ToStringFunctionType toString)
-            {
-                if (flags == 0)
-                {
-                    return to_hex_fixed_width(flags);
-                }
-                uint32_t bit_number = 0;
-                bool first = true;
-                std::ostringstream ostr;
-                while (flags != 0)
-                {
-                    if (flags & 1)
-                    {
-                        if (!first) ostr << "|";
-                        ostr << toString((flags & 1) << bit_number);
-                        first = false;
-                    }
-                    bit_number++;
-                    flags = flags >> 1;
-                }
-                return ostr.str();
-            }
+
         ''')
         write(body, file=self.outFile)
     # yapf: enable
@@ -174,52 +153,18 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
                 else:
                     body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
                 body += '{{\n'
-                if len(self.enumEnumerants[enum]):
-                    body += '    switch (value) {{\n'
-                    for enumerant in self.enumEnumerants[enum]:
-                        body += textwrap.indent(prefix='        ', text=textwrap.dedent('''\
-                        case {0}:
-                            jdata = "{0}";
-                            break;
-                        '''.format(enumerant)))
-                    body += '        default:\n'
-                    body += '            jdata = to_hex_fixed_width(value);\n'
-                    body += '            break;\n'
-                    body += '    }}\n'
+                if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
+                    body += '    jdata = util::{0}ToString(static_cast<{0}>(value));\n'
                 else:
-                    body += '    jdata = to_hex_fixed_width(value);\n'
-
+                    body += '    jdata = util::ToString(value);\n'
                 body += '}}\n'
                 body = body.format(enum, bitwidth)
                 write(body, file=self.outFile)
 
         for enum in sorted(self.flagsType):
-            bittype = None
-            if enum in self.flagEnumBitsType:
-                bittype = self.flagEnumBitsType[enum]
             body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options)\n'
             body += '{{\n'
-            if bittype is not None and bittype in self.enum_names and len(self.enumEnumerants[bittype]):
-                body += "    if (!options.expand_flags)\n"
-                body += "    {{\n"
-                body += "        jdata = to_hex_fixed_width(flags);\n"
-                body += "        return;\n"
-                body += "    }}\n"
-                body += "    jdata = ExpandFlags(flags, []({1} flags)\n"
-                body += "    {{\n"
-                body += '        switch (flags)\n'
-                body += '        {{\n'
-                for enumerant in self.enumEnumerants[bittype]:
-                    body += textwrap.indent(prefix='            ', text=textwrap.dedent('''\
-                    case {0}:
-                        return std::string("{0}");
-                    '''.format(enumerant)))
-                body += '        }}\n'
-                body += '        return to_hex_fixed_width(flags);\n'
-                body += '    }});\n'
-            else:
-                body += '    jdata = to_hex_fixed_width(flags);\n'
-
+            body += '    jdata = util::ToString(static_cast<{0}>(flags));\n'
             body += '}}\n'
             write(body.format(enum, self.flags_types[enum]), file=self.outFile)
 
