@@ -69,6 +69,8 @@ from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedR
 from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator, VulkanStructHandleMappersHeaderGeneratorOptions
 from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMappersBodyGenerator, VulkanStructHandleMappersBodyGeneratorOptions
 from vulkan_feature_util_body_generator import VulkanFeatureUtilBodyGenerator, VulkanFeatureUtilBodyGeneratorOptions
+from vulkan_dr_command_buffer_util_body_generator import VulkanDRCommandBufferUtilBodyGenerator, VulkanDRCommandBufferUtilBodyGeneratorOptions
+from vulkan_dr_command_buffer_util_header_generator import VulkanDRCommandBufferUtilHeaderGenerator, VulkanDRCommandBufferUtilHeaderGeneratorOptions
 
 # API Call Encoders
 from vulkan_api_call_encoders_body_generator import VulkanApiCallEncodersBodyGenerator, VulkanApiCallEncodersBodyGeneratorOptions
@@ -549,6 +551,34 @@ def make_gen_opts(args):
             directory=directory,
             blacklists=blacklists,
             capture_overrides=capture_overrides,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_dr_command_buffer_util.h'] = [
+        VulkanDRCommandBufferUtilHeaderGenerator,
+        VulkanDRCommandBufferUtilHeaderGeneratorOptions(
+            filename='generated_vulkan_dr_command_buffer_util.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_dr_command_buffer_util.cpp'] = [
+        VulkanDRCommandBufferUtilBodyGenerator,
+        VulkanDRCommandBufferUtilBodyGeneratorOptions(
+            filename='generated_vulkan_dr_command_buffer_util.cpp',
+            directory=directory,
+            blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,

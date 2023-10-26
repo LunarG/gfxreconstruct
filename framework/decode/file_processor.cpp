@@ -35,6 +35,9 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+                    
+//void *g_parameter_buffer_data;    @@@DELETE ME
+//size_t g_parameter_buffer_size;   @@@DELETE ME
 
 // TODO GH #1195: frame numbering should be 1-based.
 const uint32_t kFirstFrame = 0;
@@ -575,6 +578,9 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
                 if (decoder->SupportsApiCall(call_id))
                 {
                     DecodeAllocator::Begin();
+                    call_info.parameter_buffer_data = parameter_buffer_.data();
+                    call_info.parameter_buffer_size = parameter_buffer_size;
+                    call_info.decoder = decoder;
                     decoder->DecodeFunctionCall(call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
                     DecodeAllocator::End();
                 }
