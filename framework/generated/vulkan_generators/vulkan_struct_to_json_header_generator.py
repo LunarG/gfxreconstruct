@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import *
-from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_empty_lines
+from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
 
 
 class VulkanStructToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -94,7 +94,7 @@ class VulkanStructToJsonHeaderGenerator(BaseGenerator):
     # Method override
     # yapf: disable
     def endFile(self):
-        body = remove_trailing_empty_lines(indent_cpp_code('''
+        body = remove_trailing_newlines(indent_cpp_code('''
             /// Works out the type of the struct at the end of a pNext pointer and dispatches
             /// recursively to the FieldToJson for that.
             void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const util::JsonOptions& options = util::JsonOptions());

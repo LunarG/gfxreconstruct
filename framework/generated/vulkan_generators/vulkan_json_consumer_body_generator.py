@@ -22,7 +22,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_empty_lines
+from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
 
 
 class VulkanExportJsonConsumerBodyGeneratorOptions(BaseGeneratorOptions):
@@ -112,7 +112,7 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
         ''')
         write(includes, file=self.outFile)
         self.includeVulkanHeaders(gen_opts)
-        namespace = remove_trailing_empty_lines(indent_cpp_code('''
+        namespace = remove_trailing_newlines(indent_cpp_code('''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
 

@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import *
-from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_empty_lines
+from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_newlines
 
 class VulkanStructToJsonBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for serializing Vulkan structures to JSON"""
@@ -139,7 +139,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
         '''
-        body = remove_trailing_empty_lines(indent_cpp_code(body))
+        body = remove_trailing_newlines(indent_cpp_code(body))
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -174,7 +174,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                         }
                     }
                     ''')
-                body = remove_trailing_empty_lines(indent_cpp_code(body))
+                body = remove_trailing_newlines(indent_cpp_code(body))
                 write(body, file=self.outFile)
     # yapf: enable
 
