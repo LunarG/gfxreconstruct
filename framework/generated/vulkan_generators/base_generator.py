@@ -1221,11 +1221,11 @@ class BaseGenerator(OutputGenerator):
                     self.is_dx12_class() and
                     (value.array_dimension and value.array_dimension == 1)
                 ) or (not self.is_dx12_class() and count > 1):
-                    type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
+                    type_name = 'StructPointerDecoder<Decoded_{}*>/*@@@EHI*/'.format(
                         type_name
                     )
                 else:
-                    type_name = 'StructPointerDecoder<Decoded_{}>'.format(
+                    type_name = 'StructPointerDecoder<Decoded_{}>/*@@@PLQ*/'.format(
                         type_name
                     )
             elif self.is_class(value):
