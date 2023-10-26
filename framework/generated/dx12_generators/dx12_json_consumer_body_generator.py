@@ -189,6 +189,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
                 if self.is_handle(value.base_type):
                     field_to_json = 'static_assert(false, "Unhandled handle.")'
                 else:
-                    field_to_json = "FieldToJson({0}, {1}, {2});".format(parent_name, value.name, options_name)
+                    field_to_json = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
             
         return field_to_json
