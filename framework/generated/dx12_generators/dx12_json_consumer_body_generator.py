@@ -57,8 +57,8 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
     JSON_OVERRIDES = {}
 
     def beginFile(self, genOpts):
-        # The following functions/methods require custom handling
-        # @todo Turn these back on and write the code to deal with them.
+        # The following functions/methods may require custom handling
+        # @todo Turn Evaluate each of these, turn them back on in a blocklists.json and write the code to deal with them.
         # -- self.APICALL_BLACKLIST.append('D3D12CreateRootSignatureDeserializer')
         # -- self.METHODCALL_BLACKLIST.append('ID3D12RootSignatureDeserializer_GetRootSignatureDesc')
         # -- self.METHODCALL_BLACKLIST.append('ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc')
@@ -87,11 +87,13 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
 
     def write_include(self):
         write(format_cpp_code('''
+            /// @todo Optimise this include list. Pos, only include most specific [util|decode]/x_json_util.h variant since we have the convention that they include each other.
             #include "generated_dx12_json_consumer.h"
             #include "generated_dx12_enum_to_json.h"
             #include "generated_dx12_struct_decoders_to_json.h"
             #include "decode/dx12_enum_util.h"
             #include "decode/dx12_decode_json_util.h"
+            #include "decode/decode_json_util.h"
             #include "decode/json_writer.h"
             #include "util/to_string.h"
             #include "format/format_json.h"
@@ -176,12 +178,12 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
     ## @todo Move this to a common base class shared with Dx12StructDecodersToJsonBodyGenerator
     ## if the types used for arguments and struct properties are compatible.
     def make_field_to_json(self, parent_name, value, options_name):
-        field_to_json = "/// @todo FieldToJson({0}, {1}, {2})".format(parent_name, value.name, options_name)
+        field_to_json = '/// @todo FieldToJson({0}["{1}"], {1}, {2})'.format(parent_name, value.name, options_name)
         if value.is_pointer:
             if value.is_array:
                 pass
             else:
-                pass
+                field_to_json = self.make_pointer_field_to_json(parent_name, value, options_name)
         else:
             if value.is_array:
                 pass
@@ -190,5 +192,12 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
                     field_to_json = 'static_assert(false, "Unhandled handle.")'
                 else:
                     field_to_json = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
-            
+
+        return field_to_json
+
+    # Generate a FieldToJson for a pointer to a non-array.
+    def make_pointer_field_to_json(self, parent_name, value, options_name):
+        # Pointer to POD, struct, enum, string all have same signature:
+        ## @todo BOOL?
+        field_to_json = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
         return field_to_json
