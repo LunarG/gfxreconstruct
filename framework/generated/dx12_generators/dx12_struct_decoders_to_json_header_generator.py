@@ -23,7 +23,7 @@
 import sys, inspect
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
-from reformat_code import format_cpp_code, remove_leading_empty_lines
+from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_empty_lines
 
 class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
     """Convert Struct Decoders to JSON."""
@@ -63,6 +63,7 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
             /// pointers.
 
             #include "generated/generated_dx12_struct_decoders_forward.h"
+            #include "decode/custom_dx12_struct_decoders_forward.h"
             #include "generated_dx12_enum_to_json.h"
             #include "util/defines.h"
             #include "nlohmann/json.hpp"
@@ -78,7 +79,10 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
 
     def generate_feature(self):
         struct_dict = self.source_dict['struct_dict']
-        ref_wrappers = '\n// Reference versions of above which simply pipe through to the pointer versions.\n'
+        ref_wrappers = remove_trailing_empty_lines(indent_cpp_code('''
+          // Reference versions of above which simply pipe through to the pointer versions.
+          /// @todo Take a look at the users and see if we can have either all references or all pointers.
+        '''))
         for k, v in struct_dict.items():
             if not self.is_struct_black_listed(k):
                 body = 'void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* pObj, const util::JsonOptions& options);'.format(k)
@@ -94,6 +98,10 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
         // inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
         // void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE* pObj, const util::JsonOptions& options);
         // inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+
+        /// <winnt.h> Named union type with two structs and a uint64_t inside.
+        void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* pObj, const util::JsonOptions& options);
+        inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
         '''
         custom_to_fields = format_cpp_code(custom_to_fields)
         write(custom_to_fields, file=self.outFile)

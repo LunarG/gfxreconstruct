@@ -69,3 +69,9 @@ def remove_leading_empty_lines(code):
 
 def remove_trailing_newlines(code):
     return code.rstrip('\n')
+
+def remove_trailing_empty_lines(code):
+    modified = code.rstrip('\n')
+    if(len(modified) > 0 and code[-1] == '\n'):
+        modified += '\n'
+    return modified

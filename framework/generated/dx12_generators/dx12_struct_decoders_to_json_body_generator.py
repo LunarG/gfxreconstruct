@@ -161,6 +161,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     field_to_json += " [is_struct]"
                 elif self.is_enum(value.base_type):
                     field_to_json += " [is_enum]"
+                ## @todo BOOL ???
 
                 field_to_json = field_to_json.format(value.name, value.array_length)
                 body += field_to_json + '\n'
@@ -172,6 +173,17 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
         custom_impls = format_cpp_code('''
             /// @todo Put the custom implementations in the generator Python here rather than
             /// creating a whole new compilation unit for them.
+
+            // Won't be generated as is a <winnt.h> struct.
+            void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* data, const JsonOptions& options)
+            {
+                using namespace util;
+                if (data && data->decoded_value)
+                {
+                    const LARGE_INTEGER& decoded_value = *data->decoded_value;
+                    FieldToJson(jdata, decoded_value.QuadPart, options);
+                }
+            }
 
             void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BARRIER_GROUP* data, const JsonOptions& options)
             {
