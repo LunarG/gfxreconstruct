@@ -116,10 +116,11 @@ void FieldToJson(nlohmann::ordered_json&                  jdata,
     }
 }
 
+// Similar to above but DecodedType is pointed-to
 template <typename DecodedType>
-void FieldToJson(nlohmann::ordered_json&             jdata,
-                 StructPointerDecoder<DecodedType*>* data,
-                 const util::JsonOptions&            options = util::JsonOptions())
+void FieldToJson(nlohmann::ordered_json&                   jdata,
+                 const StructPointerDecoder<DecodedType*>* data,
+                 const util::JsonOptions&                  options = util::JsonOptions())
 {
     if (data)
     {
