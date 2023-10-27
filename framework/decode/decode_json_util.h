@@ -166,6 +166,7 @@ void HandleToJson(nlohmann::ordered_json&              jdata,
 
 /// @brief Thunk to HandleToJson for manual conversion functions which forget to
 /// use that for the array form.
+/// @todo See whether codegen is cleaned up by using this form instead of HandleToJson.
 template <typename THandle>
 void FieldToJson(nlohmann::ordered_json&              jdata,
                  const HandlePointerDecoder<THandle>* data,
