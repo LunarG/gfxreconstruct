@@ -35,14 +35,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-/// Reach through the decoded GUID and pass the raw type to its JSON converter
-/// defined elsewhere.
-inline void FieldToJson(nlohmann::ordered_json&  jdata,
-                        const Decoded_GUID&      data,
-                        const util::JsonOptions& options = util::JsonOptions())
-{
-    FieldToJson(jdata, *data.decoded_value, options);
-}
+/// Manual FieldToJSON functions for DX12 types which which don't belong in struct or enum modules
+/// can go here.
+/// @todo Delete this file if none reveal themselves.
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

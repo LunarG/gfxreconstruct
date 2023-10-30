@@ -52,12 +52,13 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
         self.STRUCT_BLACKLIST.append('D3D12_GPU_DESCRIPTOR_HANDLE')
         self.STRUCT_BLACKLIST.append('_SECURITY_ATTRIBUTES')
         self.STRUCT_BLACKLIST.remove('D3D12_CPU_DESCRIPTOR_HANDLE')'''
+        # We can generate the header for the decoder version but the body needs the manual implementation at the end of this file.
         self.STRUCT_BLACKLIST.append('GUID')
 
         code = format_cpp_code('''
             #include "generated_dx12_struct_decoders_to_json.h"
             #include "generated_dx12_struct_to_json.h"
-            #include "generated_dx12_struct_decoders.h"
+            #include "generated_dx12_enum_to_json.h"
             #include "decode/custom_dx12_struct_decoders.h"
             #include "decode/decode_json_util.h"
             #include "graphics/dx12_util.h"
@@ -171,6 +172,9 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
     def endFile(self):
         """Method override."""
         custom_impls = format_cpp_code('''
+            /// @defgroup custom_dx12_struct_decoders_to_json_body_generators Custom implementations
+            /// for troublesome structs.
+            /** @{*/
             /// @todo Put the custom implementations in the generator Python here rather than
             /// creating a whole new compilation unit for them.
 
@@ -184,6 +188,21 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     FieldToJson(jdata, decoded_value.QuadPart, options);
                 }
             }
+
+            // Generated version tries to read the struct members rather than doing the "fake enum" thing.
+            void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_GUID* data, const JsonOptions& options)
+            {
+                using namespace util;
+                if (data && data->decoded_value)
+                {
+                    const GUID& decoded_value = *data->decoded_value;
+                    FieldToJson(jdata, decoded_value, options);
+                }
+            }
+
+
+
+            /// @todo Pull out the structs below which only fail due to having a union member and use the union injection mechanism instead.
 
             void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BARRIER_GROUP* data, const JsonOptions& options)
             {
@@ -253,6 +272,8 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     /// @todo Implement this union: FieldToJson(jdata[""], decoded_value., options); //
                 }
             }
+
+            /** @} */
         ''') + '\n'
         write(custom_impls, file=self.outFile)
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)

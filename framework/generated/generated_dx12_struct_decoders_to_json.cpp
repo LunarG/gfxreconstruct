@@ -27,7 +27,7 @@
 
 #include "generated_dx12_struct_decoders_to_json.h"
 #include "generated_dx12_struct_to_json.h"
-#include "generated_dx12_struct_decoders.h"
+#include "generated_dx12_enum_to_json.h"
 #include "decode/custom_dx12_struct_decoders.h"
 #include "decode/decode_json_util.h"
 #include "graphics/dx12_util.h"
@@ -3946,6 +3946,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded__SECURITY_ATTRIBUT
     }
 }
 
+/// @defgroup custom_dx12_struct_decoders_to_json_body_generators Custom implementations
+/// for troublesome structs.
+/** @{*/
 /// @todo Put the custom implementations in the generator Python here rather than
 /// creating a whole new compilation unit for them.
 
@@ -3959,6 +3962,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* dat
         FieldToJson(jdata, decoded_value.QuadPart, options);
     }
 }
+
+// Generated version tries to read the struct members rather than doing the "fake enum" thing.
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_GUID* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const GUID& decoded_value = *data->decoded_value;
+        FieldToJson(jdata, decoded_value, options);
+    }
+}
+
+
+
+/// @todo Pull out the structs below which only fail due to having a union member and use the union injection mechanism instead.
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BARRIER_GROUP* data, const JsonOptions& options)
 {
@@ -4028,6 +4046,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_TEXTURE_COPY
         /// @todo Implement this union: FieldToJson(jdata[""], decoded_value., options); //
     }
 }
+
+/** @} */
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

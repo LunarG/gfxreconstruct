@@ -53,7 +53,7 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
         # self.STRUCT_BLACKLIST.remove('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
         # self.STRUCT_BLACKLIST.remove('D3D12_GPU_DESCRIPTOR_HANDLE')
         # self.STRUCT_BLACKLIST.remove('_SECURITY_ATTRIBUTES')
-        self.STRUCT_BLACKLIST.append('GUID') # Generated with the enums.
+        # self.STRUCT_BLACKLIST.append('GUID') # Generated with the enums.
 
         code = inspect.cleandoc('''
             /// @file Functions to convert decoded structs to JSON.
