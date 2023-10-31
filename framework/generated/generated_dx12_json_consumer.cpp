@@ -3935,7 +3935,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        /// @todo FieldToJson(args["BlendFactor"], BlendFactor, options) // [direct array]
+        FieldToJson(args["BlendFactor"], BlendFactor, options); // [direct array]
     }
     writer_->WriteBlockEnd();
 }
@@ -4428,7 +4428,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["RenderTargetView"], RenderTargetView, options); // [non-pointer, non-array, non-handle]
-        /// @todo FieldToJson(args["ColorRGBA"], ColorRGBA, options) // [direct array]
+        FieldToJson(args["ColorRGBA"], ColorRGBA, options); // [direct array]
         FieldToJson(args["NumRects"], NumRects, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["pRects"], pRects, options); // [pointer to array]
     }
@@ -4455,7 +4455,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVie
         FieldToJson(args["ViewGPUHandleInCurrentHeap"], ViewGPUHandleInCurrentHeap, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["ViewCPUHandle"], ViewCPUHandle, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["pResource"], pResource, options); // [pointer to single value]
-        /// @todo FieldToJson(args["Values"], Values, options) // [direct array]
+        FieldToJson(args["Values"], Values, options); // [direct array]
         FieldToJson(args["NumRects"], NumRects, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["pRects"], pRects, options); // [pointer to array]
     }
@@ -4482,7 +4482,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVie
         FieldToJson(args["ViewGPUHandleInCurrentHeap"], ViewGPUHandleInCurrentHeap, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["ViewCPUHandle"], ViewCPUHandle, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["pResource"], pResource, options); // [pointer to single value]
-        /// @todo FieldToJson(args["Values"], Values, options) // [direct array]
+        FieldToJson(args["Values"], Values, options); // [direct array]
         FieldToJson(args["NumRects"], NumRects, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["pRects"], pRects, options); // [pointer to array]
     }
