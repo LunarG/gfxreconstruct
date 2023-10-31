@@ -28,6 +28,7 @@
 #include "decode/swapchain_image_tracker.h"
 #include "decode/window.h"
 #include "util/defines.h"
+#include "decode/vulkan_replay_options.h"
 
 #include "application/application.h"
 
@@ -54,7 +55,7 @@ class VulkanSwapchain
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
                                    const encode::InstanceTable*        instance_table,
                                    application::Application*           application,
-                                   int32_t                             options_surface_index);
+                                   const VulkanReplayOptions&          replay_options);
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const InstanceInfo*          instance_info,

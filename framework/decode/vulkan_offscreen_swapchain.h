@@ -42,7 +42,7 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
                                    const encode::InstanceTable*        instance_table,
                                    application::Application*           application,
-                                   int32_t                             options_surface_index) override;
+                                   const VulkanReplayOptions&          replay_options) override;
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const InstanceInfo*          instance_info,
@@ -105,6 +105,11 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    uint32_t           signal_semaphore_count,
                                    const VkSemaphore* signal_semaphores,
                                    VkFence            fence);
+
+    bool               insert_frame_boundary_{ false };
+    VkCommandPool      command_pool_{ VK_NULL_HANDLE };
+    VkCommandBuffer    command_buffer_{ VK_NULL_HANDLE };
+    VkFrameBoundaryEXT frame_boundary_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
