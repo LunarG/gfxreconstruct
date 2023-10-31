@@ -177,27 +177,28 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
 
     ## @todo Move this to a common base class shared with Dx12StructDecodersToJsonBodyGenerator
     ## if the types used for arguments and struct properties are compatible.
+    ## @todo format::HandleId shows up tagged as a pointer but we output it as a decimal uint64_t. Make it a hex value?
     def make_field_to_json(self, parent_name, value, options_name):
         field_to_json = '/// @todo FieldToJson({0}["{1}"], {1}, {2})'.format(parent_name, value.name, options_name)
         if value.is_pointer:
+            # Pointer to POD, struct, enum, string, scalar or array can all have same signature:
+            ## @todo BOOL?
+            field_to_json = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
             if value.is_array:
-                pass
+                field_to_json += " // [pointer to array]"
+                if "*" in value.array_length:
+                    field_to_json += ' [value.array_length: "{}"]'.format(value.array_length)
             else:
-                field_to_json = self.make_pointer_field_to_json(parent_name, value, options_name)
+                field_to_json += " // [pointer to single value]"
         else:
             if value.is_array:
+                field_to_json += " // [direct array]"
                 pass
             else:
                 if self.is_handle(value.base_type):
                     field_to_json = 'static_assert(false, "Unhandled handle.")'
                 else:
                     field_to_json = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
+                    field_to_json += " // [non-pointer, non-array, non-handle]"
 
-        return field_to_json
-
-    # Generate a FieldToJson for a pointer to a non-array.
-    def make_pointer_field_to_json(self, parent_name, value, options_name):
-        # Pointer to POD, struct, enum, string all have same signature:
-        ## @todo BOOL?
-        field_to_json = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
         return field_to_json
