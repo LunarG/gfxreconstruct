@@ -2652,6 +2652,32 @@ bool VulkanCaptureManager::CheckCommandBufferWrapperForFrameBoundary(const Comma
     return false;
 }
 
+bool VulkanCaptureManager::CheckPNextChainForFrameBoundary(const VkBaseInStructure* current)
+{
+    if (current == nullptr)
+    {
+        return false;
+    }
+
+    while (current->sType != VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT && current->pNext != nullptr)
+    {
+        current = current->pNext;
+    }
+
+    if (current->sType == VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT)
+    {
+        const VkFrameBoundaryEXT* frame_boundary = reinterpret_cast<const VkFrameBoundaryEXT*>(current);
+
+        if (frame_boundary->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT)
+        {
+            EndFrame();
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void VulkanCaptureManager::PreProcess_vkBindBufferMemory(VkDevice       device,
                                                          VkBuffer       buffer,
                                                          VkDeviceMemory memory,
