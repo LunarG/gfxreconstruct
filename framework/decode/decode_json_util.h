@@ -39,21 +39,33 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void FieldToJson(nlohmann::ordered_json&   jdata,
-                 const StringArrayDecoder* data,
-                 const util::JsonOptions&  options = util::JsonOptions());
-
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const StringDecoder*     data,
-                 const util::JsonOptions& options = util::JsonOptions());
-
 void FieldToJson(nlohmann::ordered_json&  jdata,
                  const StringDecoder&     data,
                  const util::JsonOptions& options = util::JsonOptions());
 
 void FieldToJson(nlohmann::ordered_json&  jdata,
+                 const StringDecoder*     data,
+                 const util::JsonOptions& options = util::JsonOptions());
+
+void FieldToJson(nlohmann::ordered_json&   jdata,
+                 const StringArrayDecoder& data,
+                 const util::JsonOptions&  options = util::JsonOptions());
+
+void FieldToJson(nlohmann::ordered_json&   jdata,
+                 const StringArrayDecoder* data,
+                 const util::JsonOptions&  options = util::JsonOptions());
+
+void FieldToJson(nlohmann::ordered_json&  jdata,
+                 const WStringDecoder&    data,
+                 const util::JsonOptions& options = util::JsonOptions());
+
+void FieldToJson(nlohmann::ordered_json&  jdata,
                  const WStringDecoder*    data,
                  const util::JsonOptions& options = util::JsonOptions());
+
+void FieldToJson(nlohmann::ordered_json&    jdata,
+                 const WStringArrayDecoder& data,
+                 const util::JsonOptions&   options = util::JsonOptions());
 
 template <typename DecodedType, typename OutputDecodedType = DecodedType>
 void FieldToJson(nlohmann::ordered_json&                               jdata,

@@ -29,6 +29,24 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 using util::JsonOptions;
 
+void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder& data, const JsonOptions& options)
+{
+    const char* const decoded_data = data.GetPointer();
+    if (decoded_data)
+    {
+        jdata = std::string(decoded_data);
+        /// @todo try: jdata = decoded_data;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder* data, const JsonOptions& options)
+{
+    if (data)
+    {
+        FieldToJson(jdata, *data, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const StringArrayDecoder* data, const JsonOptions& options)
 {
     if (data && data->GetPointer())
@@ -41,26 +59,35 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StringArrayDecoder* data, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const WStringDecoder& data, const JsonOptions& options)
 {
-    if (data && data->GetPointer())
+    const wchar_t* const decoded_data = data.GetPointer();
+    if (decoded_data)
     {
-        const auto decoded_data = data->GetPointer();
-        jdata                   = std::string(decoded_data);
+        jdata = std::wstring(decoded_data);
+        /// @todo try: jdata = decoded_data;
     }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder& data, const JsonOptions& options)
-{
-    FieldToJson(jdata, &data, options);
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const WStringDecoder* data, const JsonOptions& options)
 {
-    if (data && data->GetPointer())
+    if (data)
     {
-        const auto decoded_data = data->GetPointer();
-        jdata                   = std::wstring(decoded_data);
+        FieldToJson(jdata, *data, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const WStringArrayDecoder& data, const JsonOptions& options)
+{
+    const auto decoded_data = data.GetPointer();
+    if (decoded_data)
+    {
+        for (size_t i = 0; i < data.GetLength(); ++i)
+        {
+            //FieldToJson(jdata[i], decoded_data[i], options);
+            // std::wstring(
+            jdata[i] = decoded_data[i];
+        }
     }
 }
 
