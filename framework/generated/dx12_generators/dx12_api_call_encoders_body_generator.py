@@ -75,6 +75,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         code = (
             "#include \"generated/generated_dx12_api_call_encoders.h\"\n"
             "#include \"generated/generated_dx12_command_list_util.h\"\n"
+            "#include \"encode/custom_dx12_array_size_2d.h\"\n"
             "#include \"encode/custom_dx12_struct_encoders.h\"\n"
             "#include \"encode/custom_dx12_command_list_util.h\"\n"
             "\n"
@@ -143,7 +144,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         return ''
 
     def get_encode_value(
-        self, value, function_name, function_value, is_generating_struct,
+        self, value, caller_values, function_name, function_value, is_generating_struct,
         is_result
     ):
         """Methond override."""
@@ -160,10 +161,17 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             omit_output_data = ', omit_output_data'
 
         if value.array_length and type(value.array_length) == str:
-            return 'encoder->Encode{}Array({}{}, {}{}{});'.format(
-                function_name, write_parameter_value, value.name,
-                write_parameter_value, value.array_length, omit_output_data
-            )
+            if value.pointer_count == 2:
+                method_call = 'Encode{}Array2D'.format(function_name)
+                make_array_2d = ', '.join(self.make_array2d_length_expression(value, caller_values))
+                return 'encoder->{}({}{}, {});'.format(
+                    method_call, write_parameter_value, value.name, make_array_2d
+                )
+            else:
+                return 'encoder->Encode{}Array({}{}, {}{}{});'.format(
+                    function_name, write_parameter_value, value.name,
+                    write_parameter_value, value.array_length, omit_output_data
+                )
 
         elif value.pointer_count == 1:
             if value.array_capacity == 0:
@@ -205,7 +213,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                     )
         return ''
 
-    def get_encode_parameter(self, value, is_generating_struct, is_result):
+    def get_encode_parameter(self, value, caller_values, is_generating_struct, is_result):
         rtn = ''
         omit_output_data = ''
         if is_result and self.is_output(value):
@@ -264,7 +272,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
 
             if encode_type:
                 rtn = self.get_encode_value(
-                    value, encode_type, function_value, is_generating_struct,
+                    value, caller_values, encode_type, function_value, is_generating_struct,
                     is_result
                 )
 
@@ -281,7 +289,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         for k, v in properties.items():
             for p in v:
                 value = self.get_value_info(p)
-                encode = self.get_encode_parameter(value, True, False)
+                encode = self.get_encode_parameter(value, [], True, False)
                 body += '    {}\n'.format(encode)
 
         body += '}'
@@ -412,13 +420,13 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                     '        }\n'
 
         for value in param_values:
-            encode = self.get_encode_parameter(value, False, is_result)
+            encode = self.get_encode_parameter(value, param_values, False, is_result)
             body += '        {}\n'.format(encode)
 
         rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
             value = self.get_return_value_info(rtn_type, class_method_name)
-            encode = self.get_encode_parameter(value, False, is_result)
+            encode = self.get_encode_parameter(value, [], False, is_result)
             body += '        {}\n'.format(encode)
 
         body += ('        D3D12CaptureManager::Get()->{};\n'.format(end_call))

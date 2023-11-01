@@ -27,6 +27,7 @@
 
 #include "generated/generated_dx12_api_call_encoders.h"
 #include "generated/generated_dx12_command_list_util.h"
+#include "encode/custom_dx12_array_size_2d.h"
 #include "encode/custom_dx12_struct_encoders.h"
 #include "encode/custom_dx12_command_list_util.h"
 
@@ -3803,6 +3804,35 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RASTERIZER_DESC& value)
     encoder->EncodeEnumValue(value.ConservativeRaster);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RASTERIZER_DESC1& value)
+{
+    encoder->EncodeEnumValue(value.FillMode);
+    encoder->EncodeEnumValue(value.CullMode);
+    encoder->EncodeInt32Value(value.FrontCounterClockwise);
+    encoder->EncodeFloatValue(value.DepthBias);
+    encoder->EncodeFloatValue(value.DepthBiasClamp);
+    encoder->EncodeFloatValue(value.SlopeScaledDepthBias);
+    encoder->EncodeInt32Value(value.DepthClipEnable);
+    encoder->EncodeInt32Value(value.MultisampleEnable);
+    encoder->EncodeInt32Value(value.AntialiasedLineEnable);
+    encoder->EncodeUInt32Value(value.ForcedSampleCount);
+    encoder->EncodeEnumValue(value.ConservativeRaster);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RASTERIZER_DESC2& value)
+{
+    encoder->EncodeEnumValue(value.FillMode);
+    encoder->EncodeEnumValue(value.CullMode);
+    encoder->EncodeInt32Value(value.FrontCounterClockwise);
+    encoder->EncodeFloatValue(value.DepthBias);
+    encoder->EncodeFloatValue(value.DepthBiasClamp);
+    encoder->EncodeFloatValue(value.SlopeScaledDepthBias);
+    encoder->EncodeInt32Value(value.DepthClipEnable);
+    encoder->EncodeEnumValue(value.LineRasterizationMode);
+    encoder->EncodeUInt32Value(value.ForcedSampleCount);
+    encoder->EncodeEnumValue(value.ConservativeRaster);
+}
+
 void Encode_ID3D12Object_GetPrivateData(
     ID3D12Object_Wrapper* wrapper,
     HRESULT return_value,
@@ -4210,6 +4240,37 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTI
 {
     encoder->EncodeInt32Value(value.TriangleFanSupported);
     encoder->EncodeInt32Value(value.DynamicIndexBufferStripCutSupported);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS16& value)
+{
+    encoder->EncodeInt32Value(value.DynamicDepthBiasSupported);
+    encoder->EncodeInt32Value(value.GPUUploadHeapSupported);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS17& value)
+{
+    encoder->EncodeInt32Value(value.NonNormalizedCoordinateSamplersSupported);
+    encoder->EncodeInt32Value(value.ManualWriteTrackingResourceSupported);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS18& value)
+{
+    encoder->EncodeInt32Value(value.RenderPassesValid);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS19& value)
+{
+    encoder->EncodeInt32Value(value.MismatchingOutputDimensionsSupported);
+    encoder->EncodeUInt32Value(value.SupportedSampleCountsWithNoOutputs);
+    encoder->EncodeInt32Value(value.PointSamplingAddressesNeverRoundUp);
+    encoder->EncodeInt32Value(value.RasterizerDesc2Supported);
+    encoder->EncodeInt32Value(value.NarrowQuadrilateralLinesSupported);
+    encoder->EncodeInt32Value(value.AnisoFilterWithPointMipSupported);
+    encoder->EncodeUInt32Value(value.MaxSamplerDescriptorHeapSize);
+    encoder->EncodeUInt32Value(value.MaxSamplerDescriptorHeapSizeWithStaticSamplers);
+    encoder->EncodeUInt32Value(value.MaxViewDescriptorHeapSize);
+    encoder->EncodeInt32Value(value.ComputeOnlyCustomHeapSupported);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_ALLOCATION_INFO& value)
@@ -4694,6 +4755,24 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATIC_SAMPLER_DESC& va
     encoder->EncodeEnumValue(value.ShaderVisibility);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATIC_SAMPLER_DESC1& value)
+{
+    encoder->EncodeEnumValue(value.Filter);
+    encoder->EncodeEnumValue(value.AddressU);
+    encoder->EncodeEnumValue(value.AddressV);
+    encoder->EncodeEnumValue(value.AddressW);
+    encoder->EncodeFloatValue(value.MipLODBias);
+    encoder->EncodeUInt32Value(value.MaxAnisotropy);
+    encoder->EncodeEnumValue(value.ComparisonFunc);
+    encoder->EncodeEnumValue(value.BorderColor);
+    encoder->EncodeFloatValue(value.MinLOD);
+    encoder->EncodeFloatValue(value.MaxLOD);
+    encoder->EncodeUInt32Value(value.ShaderRegister);
+    encoder->EncodeUInt32Value(value.RegisterSpace);
+    encoder->EncodeEnumValue(value.ShaderVisibility);
+    encoder->EncodeEnumValue(value.Flags);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC& value)
 {
     encoder->EncodeUInt32Value(value.NumParameters);
@@ -4727,6 +4806,15 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR1& value
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC1& value)
+{
+    encoder->EncodeUInt32Value(value.NumParameters);
+    EncodeStructArray(encoder, value.pParameters, value.NumParameters);
+    encoder->EncodeUInt32Value(value.NumStaticSamplers);
+    EncodeStructArray(encoder, value.pStaticSamplers, value.NumStaticSamplers);
+    encoder->EncodeEnumValue(value.Flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC2& value)
 {
     encoder->EncodeUInt32Value(value.NumParameters);
     EncodeStructArray(encoder, value.pParameters, value.NumParameters);
@@ -8710,6 +8798,12 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_A
     EncodeStruct(encoder, value.ClearValue);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS& value)
+{
+    encoder->EncodeUInt32Value(value.AdditionalWidth);
+    encoder->EncodeUInt32Value(value.AdditionalHeight);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS& value)
 {
     encoder->EncodeUInt32Value(value.SrcSubresource);
@@ -8728,6 +8822,12 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
     encoder->EncodeEnumValue(value.Format);
     encoder->EncodeEnumValue(value.ResolveMode);
     encoder->EncodeInt32Value(value.PreserveResolveSource);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS& value)
+{
+    encoder->EncodeUInt32Value(value.AdditionalWidth);
+    encoder->EncodeUInt32Value(value.AdditionalHeight);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_RENDER_TARGET_DESC& value)
@@ -9109,7 +9209,7 @@ void Encode_ID3D12Device10_CreateCommittedResource3(
     const D3D12_CLEAR_VALUE* pOptimizedClearValue,
     ID3D12ProtectedResourceSession* pProtectedSession,
     UINT32 NumCastableFormats,
-    DXGI_FORMAT* pCastableFormats,
+    const DXGI_FORMAT* pCastableFormats,
     REFIID riidResource,
     void** ppvResource)
 {
@@ -9145,7 +9245,7 @@ void Encode_ID3D12Device10_CreatePlacedResource2(
     D3D12_BARRIER_LAYOUT InitialLayout,
     const D3D12_CLEAR_VALUE* pOptimizedClearValue,
     UINT32 NumCastableFormats,
-    DXGI_FORMAT* pCastableFormats,
+    const DXGI_FORMAT* pCastableFormats,
     REFIID riid,
     void** ppvResource)
 {
@@ -9179,7 +9279,7 @@ void Encode_ID3D12Device10_CreateReservedResource2(
     const D3D12_CLEAR_VALUE* pOptimizedClearValue,
     ID3D12ProtectedResourceSession* pProtectedSession,
     UINT32 NumCastableFormats,
-    DXGI_FORMAT* pCastableFormats,
+    const DXGI_FORMAT* pCastableFormats,
     REFIID riid,
     void** ppvResource)
 {
@@ -9215,6 +9315,30 @@ void Encode_ID3D12Device11_CreateSampler2(
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, DestDescriptor);
         D3D12CaptureManager::Get()->EndCreateDescriptorMethodCallCapture(DestDescriptor, wrapper);
+    }
+}
+
+void Encode_ID3D12Device12_GetResourceAllocationInfo3(
+    ID3D12Device12_Wrapper* wrapper,
+    D3D12_RESOURCE_ALLOCATION_INFO return_value,
+    UINT visibleMask,
+    UINT numResourceDescs,
+    const D3D12_RESOURCE_DESC1* pResourceDescs,
+    const UINT32* pNumCastableFormats,
+    const DXGI_FORMAT* const* ppCastableFormats,
+    D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeUInt32Value(visibleMask);
+        encoder->EncodeUInt32Value(numResourceDescs);
+        EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
+        encoder->EncodeUInt32Array(pNumCastableFormats, numResourceDescs);
+        encoder->EncodeEnumArray2D(ppCastableFormats, ArraySize2D<UINT, UINT, const D3D12_RESOURCE_DESC1 *, const UINT32 *, const DXGI_FORMAT * const *, D3D12_RESOURCE_ALLOCATION_INFO1 *>(visibleMask, numResourceDescs, pResourceDescs, pNumCastableFormats, ppCastableFormats, pResourceAllocationInfo1));
+        EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs);
+        EncodeStruct(encoder, return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
@@ -9657,6 +9781,59 @@ void Encode_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef(
         encoder->EncodeUInt32Value(FrontStencilRef);
         encoder->EncodeUInt32Value(BackStencilRef);
         D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+    }
+}
+
+void Encode_ID3D12GraphicsCommandList9_RSSetDepthBias(
+    ID3D12GraphicsCommandList9_Wrapper* wrapper,
+    FLOAT DepthBias,
+    FLOAT DepthBiasClamp,
+    FLOAT SlopeScaledDepthBias)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeFloatValue(DepthBias);
+        encoder->EncodeFloatValue(DepthBiasClamp);
+        encoder->EncodeFloatValue(SlopeScaledDepthBias);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+    }
+}
+
+void Encode_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue(
+    ID3D12GraphicsCommandList9_Wrapper* wrapper,
+    D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeEnumValue(IBStripCutValue);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+    }
+}
+
+void Encode_ID3D12DSRDeviceFactory_CreateDSRDevice(
+    ID3D12DSRDeviceFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Device* pD3D12Device,
+    UINT NodeMask,
+    REFIID riid,
+    void** ppvDSRDevice)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DSRDeviceFactory_CreateDSRDevice, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pD3D12Device);
+        encoder->EncodeUInt32Value(NodeMask);
+        EncodeStruct(encoder, riid);
+        encoder->EncodeObjectPtr(ppvDSRDevice, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvDSRDevice, wrapper);
     }
 }
 
@@ -10339,6 +10516,20 @@ void Encode_ID3D12SharingContract_EndCapturableWork(
     if(encoder)
     {
         EncodeStruct(encoder, guid);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D12ManualWriteTrackingResource_TrackWrite(
+    ID3D12ManualWriteTrackingResource_Wrapper* wrapper,
+    UINT Subresource,
+    const D3D12_RANGE* pWrittenRange)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12ManualWriteTrackingResource_TrackWrite, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeUInt32Value(Subresource);
+        EncodeStructPtr(encoder, pWrittenRange);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }

@@ -9563,6 +9563,40 @@ void Dx12AsciiConsumer::Process_ID3D12Device11_CreateSampler2(
     );
 }
 
+void Dx12AsciiConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
+        UINT visibleMask,
+        UINT numResourceDescs,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDescs,
+        PointerDecoder<UINT32>* pNumCastableFormats,
+        PointerDecoder<DXGI_FORMAT*>* ppCastableFormats,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
+{
+    using namespace gfxrecon::util;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "ID3D12Device12";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "GetResourceAllocationInfo3";
+    std::string returnValue = DX12ReturnValueToString(return_value, to_string_flags_, tab_count, tab_size);
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(
+        writeApiCallToFileInfo, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "visibleMask", to_string_flags_, tab_count, tab_size, ToString(visibleMask, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "numResourceDescs", to_string_flags_, tab_count, tab_size, ToString(numResourceDescs, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pResourceDescs", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(numResourceDescs, pResourceDescs, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pNumCastableFormats", to_string_flags_, tab_count, tab_size, PointerDecoderArrayToString(numResourceDescs, pNumCastableFormats, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "ppCastableFormats", to_string_flags_, tab_count, tab_size, EnumPointerDecoderArrayToString(numResourceDescs, ppCastableFormats, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]pResourceAllocationInfo1", to_string_flags_, tab_count, tab_size, StructPointerDecoderArrayToString(numResourceDescs, pResourceAllocationInfo1, to_string_flags_, tab_count, tab_size));
+        }
+    );
+}
+
 void Dx12AsciiConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -10144,6 +10178,86 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList8_OMSetFrontAndBackSten
         {
             FieldToString(str_strm, true, "FrontStencilRef", to_string_flags_, tab_count, tab_size, ToString(FrontStencilRef, to_string_flags_, tab_count, tab_size));
             FieldToString(str_strm, false, "BackStencilRef", to_string_flags_, tab_count, tab_size, ToString(BackStencilRef, to_string_flags_, tab_count, tab_size));
+        }
+    );
+}
+
+void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList9_RSSetDepthBias(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        FLOAT DepthBias,
+        FLOAT DepthBiasClamp,
+        FLOAT SlopeScaledDepthBias)
+{
+    using namespace gfxrecon::util;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "ID3D12GraphicsCommandList9";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "RSSetDepthBias";
+    std::string returnValue = std::string();
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(
+        writeApiCallToFileInfo, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "DepthBias", to_string_flags_, tab_count, tab_size, ToString(DepthBias, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "DepthBiasClamp", to_string_flags_, tab_count, tab_size, ToString(DepthBiasClamp, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "SlopeScaledDepthBias", to_string_flags_, tab_count, tab_size, ToString(SlopeScaledDepthBias, to_string_flags_, tab_count, tab_size));
+        }
+    );
+}
+
+void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue)
+{
+    using namespace gfxrecon::util;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "ID3D12GraphicsCommandList9";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "IASetIndexBufferStripCutValue";
+    std::string returnValue = std::string();
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(
+        writeApiCallToFileInfo, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "IBStripCutValue", to_string_flags_, tab_count, tab_size, Quote(ToString(IBStripCutValue)));
+        }
+    );
+}
+
+void Dx12AsciiConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pD3D12Device,
+        UINT NodeMask,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDSRDevice)
+{
+    using namespace gfxrecon::util;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "ID3D12DSRDeviceFactory";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "CreateDSRDevice";
+    std::string returnValue = ToString(return_value);
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(
+        writeApiCallToFileInfo, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "pD3D12Device", to_string_flags_, tab_count, tab_size, HandleIdToString(pD3D12Device));
+            FieldToString(str_strm, false, "NodeMask", to_string_flags_, tab_count, tab_size, ToString(NodeMask, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "riid", to_string_flags_, tab_count, tab_size, ToString(*riid.decoded_value, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "[out]ppvDSRDevice", to_string_flags_, tab_count, tab_size, OutPtrDecoderToString(ppvDSRDevice));
         }
     );
 }
@@ -11149,6 +11263,31 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_EndCapturableWork(
         [&](std::stringstream& str_strm)
         {
             FieldToString(str_strm, true, "guid", to_string_flags_, tab_count, tab_size, ToString(*guid.decoded_value, to_string_flags_, tab_count, tab_size));
+        }
+    );
+}
+
+void Dx12AsciiConsumer::Process_ID3D12ManualWriteTrackingResource_TrackWrite(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT Subresource,
+        StructPointerDecoder<Decoded_D3D12_RANGE>* pWrittenRange)
+{
+    using namespace gfxrecon::util;
+    uint32_t tab_count = 0;
+    uint32_t tab_size = 4;
+    WriteApiCallToFileInfo writeApiCallToFileInfo{};
+    writeApiCallToFileInfo.pObjectTypeName = "ID3D12ManualWriteTrackingResource";
+    writeApiCallToFileInfo.handleId = object_id;
+    writeApiCallToFileInfo.pFunctionName = "TrackWrite";
+    std::string returnValue = std::string();
+    writeApiCallToFileInfo.pReturnValue = !returnValue.empty() ? returnValue.c_str() : nullptr;
+    WriteApiCallToFile(
+        writeApiCallToFileInfo, tab_count, tab_size,
+        [&](std::stringstream& str_strm)
+        {
+            FieldToString(str_strm, true, "Subresource", to_string_flags_, tab_count, tab_size, ToString(Subresource, to_string_flags_, tab_count, tab_size));
+            FieldToString(str_strm, false, "pWrittenRange", to_string_flags_, tab_count, tab_size, StructPointerDecoderToString(pWrittenRange, to_string_flags_, tab_count, tab_size));
         }
     );
 }

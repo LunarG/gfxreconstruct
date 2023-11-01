@@ -3003,7 +3003,7 @@ class ID3D12Device10_Wrapper : public ID3D12Device9_Wrapper
         const D3D12_CLEAR_VALUE* pOptimizedClearValue,
         ID3D12ProtectedResourceSession* pProtectedSession,
         UINT32 NumCastableFormats,
-        DXGI_FORMAT* pCastableFormats,
+        const DXGI_FORMAT* pCastableFormats,
         REFIID riidResource,
         void** ppvResource);
 
@@ -3014,7 +3014,7 @@ class ID3D12Device10_Wrapper : public ID3D12Device9_Wrapper
         D3D12_BARRIER_LAYOUT InitialLayout,
         const D3D12_CLEAR_VALUE* pOptimizedClearValue,
         UINT32 NumCastableFormats,
-        DXGI_FORMAT* pCastableFormats,
+        const DXGI_FORMAT* pCastableFormats,
         REFIID riid,
         void** ppvResource);
 
@@ -3024,7 +3024,7 @@ class ID3D12Device10_Wrapper : public ID3D12Device9_Wrapper
         const D3D12_CLEAR_VALUE* pOptimizedClearValue,
         ID3D12ProtectedResourceSession* pProtectedSession,
         UINT32 NumCastableFormats,
-        DXGI_FORMAT* pCastableFormats,
+        const DXGI_FORMAT* pCastableFormats,
         REFIID riid,
         void** ppvResource);
 
@@ -3038,6 +3038,21 @@ class ID3D12Device11_Wrapper : public ID3D12Device10_Wrapper
     virtual void STDMETHODCALLTYPE CreateSampler2(
         const D3D12_SAMPLER_DESC2* pDesc,
         D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+
+};
+
+class ID3D12Device12_Wrapper : public ID3D12Device11_Wrapper
+{
+  public:
+    ID3D12Device12_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device12_Wrapper*>(u); });
+
+    virtual D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE GetResourceAllocationInfo3(
+        UINT visibleMask,
+        UINT numResourceDescs,
+        const D3D12_RESOURCE_DESC1* pResourceDescs,
+        const UINT32* pNumCastableFormats,
+        const DXGI_FORMAT* const* ppCastableFormats,
+        D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1);
 
 };
 
@@ -3273,6 +3288,49 @@ class ID3D12GraphicsCommandList8_Wrapper : public ID3D12GraphicsCommandList7_Wra
         UINT FrontStencilRef,
         UINT BackStencilRef);
 
+};
+
+class ID3D12GraphicsCommandList9_Wrapper : public ID3D12GraphicsCommandList8_Wrapper
+{
+  public:
+    ID3D12GraphicsCommandList9_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList9_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE RSSetDepthBias(
+        FLOAT DepthBias,
+        FLOAT DepthBiasClamp,
+        FLOAT SlopeScaledDepthBias);
+
+    virtual void STDMETHODCALLTYPE IASetIndexBufferStripCutValue(
+        D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue);
+
+};
+
+class ID3D12DSRDeviceFactory_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12DSRDeviceFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DSRDeviceFactory_Wrapper*>(u); });
+
+    ~ID3D12DSRDeviceFactory_Wrapper();
+
+    static ID3D12DSRDeviceFactory_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12DSRDeviceFactoryInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12DSRDeviceFactoryInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE CreateDSRDevice(
+        ID3D12Device* pD3D12Device,
+        UINT NodeMask,
+        REFIID riid,
+        void** ppvDSRDevice);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12DSRDeviceFactory_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12DSRDeviceFactoryInfo> info_;
 };
 
 
@@ -3731,6 +3789,32 @@ class ID3D12SharingContract_Wrapper : public IUnknown_Wrapper
     static std::mutex object_map_lock_;
 
     std::shared_ptr<ID3D12SharingContractInfo> info_;
+};
+
+class ID3D12ManualWriteTrackingResource_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12ManualWriteTrackingResource_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ManualWriteTrackingResource_Wrapper*>(u); });
+
+    ~ID3D12ManualWriteTrackingResource_Wrapper();
+
+    static ID3D12ManualWriteTrackingResource_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12ManualWriteTrackingResourceInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12ManualWriteTrackingResourceInfo> GetObjectInfo() { return info_; }
+
+    virtual void STDMETHODCALLTYPE TrackWrite(
+        UINT Subresource,
+        const D3D12_RANGE* pWrittenRange);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12ManualWriteTrackingResource_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12ManualWriteTrackingResourceInfo> info_;
 };
 
 class ID3D12InfoQueue_Wrapper : public IUnknown_Wrapper

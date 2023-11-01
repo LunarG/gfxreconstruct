@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -423,6 +424,10 @@ size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId
             bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS5>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
+        case D3D12_FEATURE_DISPLAYABLE:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_DISPLAYABLE>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
         case D3D12_FEATURE_D3D12_OPTIONS6:
             bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS6>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -433,6 +438,15 @@ size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId
             break;
         case D3D12_FEATURE_D3D12_OPTIONS7:
             bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS7>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPE_COUNT:
+            bytes_read +=
+                DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT>(
+                    object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPES:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_D3D12_OPTIONS8:
@@ -467,13 +481,20 @@ size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId
             bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS15>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
-        case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPE_COUNT:
-            bytes_read +=
-                DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT>(
-                    object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+        case D3D12_FEATURE_D3D12_OPTIONS16:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS16>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
-        case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPES:
-            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES>(
+        case D3D12_FEATURE_D3D12_OPTIONS17:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS17>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS18:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS18>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS19:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS19>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         default:

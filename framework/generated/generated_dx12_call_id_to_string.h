@@ -1175,6 +1175,9 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12Device11_CreateSampler2:
         out = L"ID3D12Device11_CreateSampler2";
         break;
+    case format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3:
+        out = L"ID3D12Device12_GetResourceAllocationInfo3";
+        break;
     case format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost:
         out = L"ID3D12VirtualizationGuestDevice_ShareWithHost";
         break;
@@ -1243,6 +1246,15 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef:
         out = L"ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias:
+        out = L"ID3D12GraphicsCommandList9_RSSetDepthBias";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue:
+        out = L"ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DSRDeviceFactory_CreateDSRDevice:
+        out = L"ID3D12DSRDeviceFactory_CreateDSRDevice";
         break;
     case format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer:
         out = L"ID3D10Blob_GetBufferPointer";
@@ -1363,6 +1375,9 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12SharingContract_EndCapturableWork:
         out = L"ID3D12SharingContract_EndCapturableWork";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12ManualWriteTrackingResource_TrackWrite:
+        out = L"ID3D12ManualWriteTrackingResource_TrackWrite";
         break;
     case format::ApiCallId::ApiCall_ID3D12InfoQueue_SetMessageCountLimit:
         out = L"ID3D12InfoQueue_SetMessageCountLimit";

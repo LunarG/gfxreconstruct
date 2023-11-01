@@ -157,6 +157,8 @@ class ParameterEncoder
     // 2D Arrays
     template<typename SizeT>
     void EncodeUInt32Array2D(const uint32_t* const* arr, SizeT size_2d, bool omit_data = false, bool omit_addr = false) { EncodeArray2D(arr, size_2d, omit_data, omit_addr); }
+    template<typename T, typename SizeT>
+    void EncodeEnumArray2D(const T* const* arr, SizeT size_2d, bool omit_data = false, bool omit_addr = false) { EncodeArray2DConverted<format::EnumEncodeType>(arr, size_2d, omit_data, omit_addr); }
 
     template <size_t N, size_t M>
     void EncodeFloat2DMatrix(const float (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const float*>(arr), n * m, omit_data, omit_addr); }
@@ -554,6 +556,23 @@ class ParameterEncoder
                 }
             }
         }
+    }
+
+    template <typename DstT, typename SrcT, typename SizeT>
+    typename std::enable_if<sizeof(SrcT) != sizeof(DstT), void>::type
+    EncodeArray2DConverted(const SrcT* const* arr, SizeT size_2d, bool omit_data = false, bool omit_addr = false)
+    {
+        static_assert(sizeof(SrcT) == sizeof(DstT),
+                      "Encoding 2D arrays that require type conversion is not implemented.");
+    }
+
+    // Overload for the case where the original type and the conversion type have matching sizes, where we can skip the
+    // type conversion.
+    template <typename DstT, typename SrcT, typename SizeT>
+    typename std::enable_if<sizeof(SrcT) == sizeof(DstT), void>::type
+    EncodeArray2DConverted(const SrcT* const* arr, SizeT size_2d, bool omit_data = false, bool omit_addr = false)
+    {
+        EncodeArray2D(arr, size_2d, omit_data, omit_addr);
     }
 
     template <typename CharT, typename EncodeT>

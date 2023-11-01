@@ -150,6 +150,8 @@ void WrapID3D12DeviceConfiguration(REFIID riid, void** object, DxWrapperResource
 
 void WrapID3D12CommandList(REFIID riid, void** object, DxWrapperResources* resources);
 
+void WrapID3D12DSRDeviceFactory(REFIID riid, void** object, DxWrapperResources* resources);
+
 void WrapID3D10Blob(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3DDestructionNotifier(REFIID riid, void** object, DxWrapperResources* resources);
@@ -171,6 +173,8 @@ void WrapID3D12DebugCommandList1(REFIID riid, void** object, DxWrapperResources*
 void WrapID3D12DebugCommandList(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12SharingContract(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12ManualWriteTrackingResource(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12InfoQueue(REFIID riid, void** object, DxWrapperResources* resources);
 
@@ -262,6 +266,7 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12Device9, WrapID3D12Device },
     { IID_ID3D12Device10, WrapID3D12Device },
     { IID_ID3D12Device11, WrapID3D12Device },
+    { IID_ID3D12Device12, WrapID3D12Device },
     { IID_ID3D12VirtualizationGuestDevice, WrapID3D12VirtualizationGuestDevice },
     { IID_ID3D12Tools, WrapID3D12Tools },
     { IID_ID3D12SDKConfiguration, WrapID3D12SDKConfiguration },
@@ -278,6 +283,8 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12GraphicsCommandList6, WrapID3D12CommandList },
     { IID_ID3D12GraphicsCommandList7, WrapID3D12CommandList },
     { IID_ID3D12GraphicsCommandList8, WrapID3D12CommandList },
+    { IID_ID3D12GraphicsCommandList9, WrapID3D12CommandList },
+    { IID_ID3D12DSRDeviceFactory, WrapID3D12DSRDeviceFactory },
     { IID_ID3D10Blob, WrapID3D10Blob },
     { IID_ID3DDestructionNotifier, WrapID3DDestructionNotifier },
     { IID_ID3D12Debug1, WrapID3D12Debug1 },
@@ -301,6 +308,7 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12DebugCommandList2, WrapID3D12DebugCommandList },
     { IID_ID3D12DebugCommandList3, WrapID3D12DebugCommandList },
     { IID_ID3D12SharingContract, WrapID3D12SharingContract },
+    { IID_ID3D12ManualWriteTrackingResource, WrapID3D12ManualWriteTrackingResource },
     { IID_ID3D12InfoQueue, WrapID3D12InfoQueue },
     { IID_ID3D12InfoQueue1, WrapID3D12InfoQueue },
 };

@@ -211,9 +211,9 @@ inline std::string PointerDecoderArrayToString(const CountType&    countObj,
         [&](size_t i) { return ToString(pObjs->GetPointer()[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
-template <typename CountType, typename PointerDecoderType>
+template <typename CountType, typename T>
 inline std::string EnumPointerDecoderArrayToString(const CountType&    countObj,
-                                                   PointerDecoderType* pObjs,
+                                                   PointerDecoder<T>*  pObjs,
                                                    util::ToStringFlags toStringFlags = util::kToString_Default,
                                                    uint32_t            tabCount      = 0,
                                                    uint32_t            tabSize       = 4)
@@ -227,6 +227,24 @@ inline std::string EnumPointerDecoderArrayToString(const CountType&    countObj,
         tabSize,
         [&]() { return pObjs && !pObjs->IsNull(); },
         [&](size_t i) { return util::Quote(ToString(pObjs->GetPointer()[i])); });
+}
+
+template <typename CountType, typename T>
+inline std::string EnumPointerDecoderArrayToString(const CountType&    countObj,
+                                                   PointerDecoder<T*>* pObjs,
+                                                   util::ToStringFlags toStringFlags = util::kToString_Default,
+                                                   uint32_t            tabCount      = 0,
+                                                   uint32_t            tabSize       = 4)
+{
+    using namespace util;
+    return ArrayToString(
+        GetCount(countObj),
+        pObjs,
+        toStringFlags,
+        tabCount,
+        tabSize,
+        [&]() { return pObjs && !pObjs->IsNull(); },
+        [&](size_t i) { return util::Quote(ArrayToString(pObjs->GetInnerLength(i), pObjs->GetPointer()[i])); });
 }
 
 template <typename CountType, typename StructPointerDecoderType>

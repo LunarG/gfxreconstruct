@@ -147,6 +147,8 @@ ID3D12DeviceConfiguration_Wrapper::ObjectMap ID3D12DeviceConfiguration_Wrapper::
 std::mutex ID3D12DeviceConfiguration_Wrapper::object_map_lock_;
 ID3D12CommandList_Wrapper::ObjectMap ID3D12CommandList_Wrapper::object_map_;
 std::mutex ID3D12CommandList_Wrapper::object_map_lock_;
+ID3D12DSRDeviceFactory_Wrapper::ObjectMap ID3D12DSRDeviceFactory_Wrapper::object_map_;
+std::mutex ID3D12DSRDeviceFactory_Wrapper::object_map_lock_;
 ID3D10Blob_Wrapper::ObjectMap ID3D10Blob_Wrapper::object_map_;
 std::mutex ID3D10Blob_Wrapper::object_map_lock_;
 ID3DDestructionNotifier_Wrapper::ObjectMap ID3DDestructionNotifier_Wrapper::object_map_;
@@ -169,6 +171,8 @@ ID3D12DebugCommandList_Wrapper::ObjectMap ID3D12DebugCommandList_Wrapper::object
 std::mutex ID3D12DebugCommandList_Wrapper::object_map_lock_;
 ID3D12SharingContract_Wrapper::ObjectMap ID3D12SharingContract_Wrapper::object_map_;
 std::mutex ID3D12SharingContract_Wrapper::object_map_lock_;
+ID3D12ManualWriteTrackingResource_Wrapper::ObjectMap ID3D12ManualWriteTrackingResource_Wrapper::object_map_;
+std::mutex ID3D12ManualWriteTrackingResource_Wrapper::object_map_lock_;
 ID3D12InfoQueue_Wrapper::ObjectMap ID3D12InfoQueue_Wrapper::object_map_;
 std::mutex ID3D12InfoQueue_Wrapper::object_map_lock_;
 
@@ -23717,7 +23721,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateCommittedResource3(
     const D3D12_CLEAR_VALUE* pOptimizedClearValue,
     ID3D12ProtectedResourceSession* pProtectedSession,
     UINT32 NumCastableFormats,
-    DXGI_FORMAT* pCastableFormats,
+    const DXGI_FORMAT* pCastableFormats,
     REFIID riidResource,
     void** ppvResource)
 {
@@ -23827,7 +23831,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreatePlacedResource2(
     D3D12_BARRIER_LAYOUT InitialLayout,
     const D3D12_CLEAR_VALUE* pOptimizedClearValue,
     UINT32 NumCastableFormats,
-    DXGI_FORMAT* pCastableFormats,
+    const DXGI_FORMAT* pCastableFormats,
     REFIID riid,
     void** ppvResource)
 {
@@ -23931,7 +23935,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateReservedResource2(
     const D3D12_CLEAR_VALUE* pOptimizedClearValue,
     ID3D12ProtectedResourceSession* pProtectedSession,
     UINT32 NumCastableFormats,
-    DXGI_FORMAT* pCastableFormats,
+    const DXGI_FORMAT* pCastableFormats,
     REFIID riid,
     void** ppvResource)
 {
@@ -24080,6 +24084,92 @@ void STDMETHODCALLTYPE ID3D12Device11_Wrapper::CreateSampler2(
     }
 
     manager->DecrementCallScope();
+}
+
+ID3D12Device12_Wrapper::ID3D12Device12_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Device11_Wrapper(riid, object, resources, destructor)
+{
+}
+
+D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device12_Wrapper::GetResourceAllocationInfo3(
+    UINT visibleMask,
+    UINT numResourceDescs,
+    const D3D12_RESOURCE_DESC1* pResourceDescs,
+    const UINT32* pNumCastableFormats,
+    const DXGI_FORMAT* const* ppCastableFormats,
+    D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1)
+{
+    D3D12_RESOURCE_ALLOCATION_INFO result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3>::Dispatch(
+            manager,
+            this,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pNumCastableFormats,
+            ppCastableFormats,
+            pResourceAllocationInfo1);
+
+        result = GetWrappedObjectAs<ID3D12Device12>()->GetResourceAllocationInfo3(
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pNumCastableFormats,
+            ppCastableFormats,
+            pResourceAllocationInfo1);
+
+        Encode_ID3D12Device12_GetResourceAllocationInfo3(
+            this,
+            result,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pNumCastableFormats,
+            ppCastableFormats,
+            pResourceAllocationInfo1);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3>::Dispatch(
+            manager,
+            this,
+            result,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pNumCastableFormats,
+            ppCastableFormats,
+            pResourceAllocationInfo1);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12Device12>()->GetResourceAllocationInfo3(
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pNumCastableFormats,
+            ppCastableFormats,
+            pResourceAllocationInfo1);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
 }
 
 ID3D12VirtualizationGuestDevice_Wrapper::ID3D12VirtualizationGuestDevice_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
@@ -25502,6 +25592,209 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList8_Wrapper::OMSetFrontAndBackSten
     }
 
     manager->DecrementCallScope();
+}
+
+ID3D12GraphicsCommandList9_Wrapper::ID3D12GraphicsCommandList9_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12GraphicsCommandList8_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D12GraphicsCommandList9_Wrapper::RSSetDepthBias(
+    FLOAT DepthBias,
+    FLOAT DepthBiasClamp,
+    FLOAT SlopeScaledDepthBias)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias>::Dispatch(
+            manager,
+            this,
+            DepthBias,
+            DepthBiasClamp,
+            SlopeScaledDepthBias);
+
+        GetWrappedObjectAs<ID3D12GraphicsCommandList9>()->RSSetDepthBias(
+            DepthBias,
+            DepthBiasClamp,
+            SlopeScaledDepthBias);
+
+        Encode_ID3D12GraphicsCommandList9_RSSetDepthBias(
+            this,
+            DepthBias,
+            DepthBiasClamp,
+            SlopeScaledDepthBias);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias>::Dispatch(
+            manager,
+            this,
+            DepthBias,
+            DepthBiasClamp,
+            SlopeScaledDepthBias);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12GraphicsCommandList9>()->RSSetDepthBias(
+            DepthBias,
+            DepthBiasClamp,
+            SlopeScaledDepthBias);
+    }
+
+    manager->DecrementCallScope();
+}
+
+void STDMETHODCALLTYPE ID3D12GraphicsCommandList9_Wrapper::IASetIndexBufferStripCutValue(
+    D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue>::Dispatch(
+            manager,
+            this,
+            IBStripCutValue);
+
+        GetWrappedObjectAs<ID3D12GraphicsCommandList9>()->IASetIndexBufferStripCutValue(
+            IBStripCutValue);
+
+        Encode_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue(
+            this,
+            IBStripCutValue);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue>::Dispatch(
+            manager,
+            this,
+            IBStripCutValue);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12GraphicsCommandList9>()->IASetIndexBufferStripCutValue(
+            IBStripCutValue);
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D12DSRDeviceFactory_Wrapper::ID3D12DSRDeviceFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D12DSRDeviceFactoryInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D12DSRDeviceFactory_Wrapper::~ID3D12DSRDeviceFactory_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DSRDeviceFactory>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D12DSRDeviceFactory_Wrapper* ID3D12DSRDeviceFactory_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D12DSRDeviceFactory_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DSRDeviceFactory_Wrapper::CreateDSRDevice(
+    ID3D12Device* pD3D12Device,
+    UINT NodeMask,
+    REFIID riid,
+    void** ppvDSRDevice)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DSRDeviceFactory_CreateDSRDevice>::Dispatch(
+            manager,
+            this,
+            pD3D12Device,
+            NodeMask,
+            riid,
+            ppvDSRDevice);
+
+        result = GetWrappedObjectAs<ID3D12DSRDeviceFactory>()->CreateDSRDevice(
+            encode::GetWrappedObject<ID3D12Device>(pD3D12Device),
+            NodeMask,
+            riid,
+            ppvDSRDevice);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvDSRDevice, nullptr);
+        }
+
+        Encode_ID3D12DSRDeviceFactory_CreateDSRDevice(
+            this,
+            result,
+            pD3D12Device,
+            NodeMask,
+            riid,
+            ppvDSRDevice);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DSRDeviceFactory_CreateDSRDevice>::Dispatch(
+            manager,
+            this,
+            result,
+            pD3D12Device,
+            NodeMask,
+            riid,
+            ppvDSRDevice);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DSRDeviceFactory>()->CreateDSRDevice(
+            pD3D12Device,
+            NodeMask,
+            riid,
+            ppvDSRDevice);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
 }
 
 
@@ -27897,6 +28190,78 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::EndCapturableWork(
     {
         GetWrappedObjectAs<ID3D12SharingContract>()->EndCapturableWork(
             guid);
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D12ManualWriteTrackingResource_Wrapper::ID3D12ManualWriteTrackingResource_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D12ManualWriteTrackingResourceInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D12ManualWriteTrackingResource_Wrapper::~ID3D12ManualWriteTrackingResource_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12ManualWriteTrackingResource>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D12ManualWriteTrackingResource_Wrapper* ID3D12ManualWriteTrackingResource_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D12ManualWriteTrackingResource_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+void STDMETHODCALLTYPE ID3D12ManualWriteTrackingResource_Wrapper::TrackWrite(
+    UINT Subresource,
+    const D3D12_RANGE* pWrittenRange)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12ManualWriteTrackingResource_TrackWrite>::Dispatch(
+            manager,
+            this,
+            Subresource,
+            pWrittenRange);
+
+        GetWrappedObjectAs<ID3D12ManualWriteTrackingResource>()->TrackWrite(
+            Subresource,
+            pWrittenRange);
+
+        Encode_ID3D12ManualWriteTrackingResource_TrackWrite(
+            this,
+            Subresource,
+            pWrittenRange);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12ManualWriteTrackingResource_TrackWrite>::Dispatch(
+            manager,
+            this,
+            Subresource,
+            pWrittenRange);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D12ManualWriteTrackingResource>()->TrackWrite(
+            Subresource,
+            pWrittenRange);
     }
 
     manager->DecrementCallScope();
