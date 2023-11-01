@@ -1531,7 +1531,7 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
     std::map<std::wstring, format::HandleId>&              lrs_associations_map)
 {
     const auto* desc               = desc_decoder->GetPointer();
-    const auto* subobject_decoders = desc_decoder->GetMetaStructPointer()->subobjects;
+    const auto* subobject_decoders = desc_decoder->GetMetaStructPointer()->pSubobjects;
 
     for (UINT i = 0; i < desc->NumSubobjects; ++i)
     {
