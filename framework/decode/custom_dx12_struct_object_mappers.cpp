@@ -204,13 +204,13 @@ void MapStructObjects(Decoded_D3D12_STATE_OBJECT_DESC* wrapper,
 {
     if (wrapper != nullptr)
     {
-        auto length   = wrapper->subobjects->GetLength();
-        auto wrappers = wrapper->subobjects->GetMetaStructPointer();
+        auto length   = wrapper->pSubobjects->GetLength();
+        auto wrappers = wrapper->pSubobjects->GetMetaStructPointer();
 
         for (size_t i = 0; i < length; ++i)
         {
             MapStructObjects(
-                &wrappers[i], wrapper->subobjects, wrapper->subobject_stride, object_info_table, gpu_va_map);
+                &wrappers[i], wrapper->pSubobjects, wrapper->subobject_stride, object_info_table, gpu_va_map);
         }
     }
 }

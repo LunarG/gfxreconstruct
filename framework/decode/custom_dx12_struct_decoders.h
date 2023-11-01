@@ -238,7 +238,7 @@ struct Decoded_D3D12_STATE_OBJECT_DESC
     D3D12_STATE_OBJECT_DESC* decoded_value{ nullptr };
 
     size_t                                               subobject_stride{ 0 };
-    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* subobjects{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* pSubobjects{ nullptr };
 };
 
 struct Decoded_D3D12_STATE_SUBOBJECT

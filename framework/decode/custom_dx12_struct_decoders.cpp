@@ -996,9 +996,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STA
     bytes_read +=
         ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->subobject_stride));
 
-    wrapper->subobjects = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>>();
-    bytes_read += wrapper->subobjects->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSubobjects = wrapper->subobjects->GetPointer();
+    wrapper->pSubobjects = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>>();
+    bytes_read += wrapper->pSubobjects->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSubobjects = wrapper->pSubobjects->GetPointer();
 
     return bytes_read;
 }
