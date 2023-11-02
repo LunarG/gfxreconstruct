@@ -6405,10 +6405,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
         deferred_operation_info->record_modified_create_infos.clear();
         deferred_operation_info->record_modified_pgroups.clear();
         deferred_operation_info->replayPipelines.resize(createInfoCount);
-        deferred_operation_info->capturePipelines.resize(createInfoCount);
-        memcpy(deferred_operation_info->capturePipelines.data(),
-               pPipelines->GetPointer(),
-               createInfoCount * sizeof(VkPipeline));
+        deferred_operation_info->capturePipelines.clear();
+        deferred_operation_info->capturePipelines.insert(deferred_operation_info->capturePipelines.end(),
+                                                         &pPipelines->GetPointer()[0],
+                                                         &pPipelines->GetPointer()[createInfoCount]);
     }
 
     if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
@@ -6525,13 +6525,35 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                                 "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and "
                                 "replay. The replay device does not support this feature, so replay may fail.");
 
+        VkPipeline* created_pipelines = nullptr;
+
+        if (deferred_operation_info)
+        {
+            created_pipelines = deferred_operation_info->replayPipelines.data();
+        }
+        else
+        {
+            created_pipelines = out_pPipelines;
+        }
+
         result = device_table->CreateRayTracingPipelinesKHR(device,
                                                             in_deferredOperation,
                                                             in_pipelineCache,
                                                             createInfoCount,
                                                             in_pCreateInfos,
                                                             in_pAllocator,
-                                                            out_pPipelines);
+                                                            created_pipelines);
+
+        if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
+            (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
+        {
+
+            if (deferred_operation_info)
+            {
+                memcpy(out_pPipelines, created_pipelines, createInfoCount * sizeof(VkPipeline));
+                deferred_operation_info->pending_state = false;
+            }
+        }
     }
 
     return result;
