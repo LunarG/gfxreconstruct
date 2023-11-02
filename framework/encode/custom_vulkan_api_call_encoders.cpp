@@ -654,8 +654,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice            
     }
 
     auto device_wrapper = GetWrapper<DeviceWrapper>(device);
-    if ((result != VK_OPERATION_DEFERRED_KHR) ||
-        (!device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay))
+    if (result != VK_OPERATION_DEFERRED_KHR)
     {
         // If the operation is not deferred by driver. or the system doesn't support
         // rayTracingPipelineShaderGroupHandleCaptureReplay, we don't need to delay writing the block of
