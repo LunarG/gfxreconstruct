@@ -28,9 +28,17 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const float              data[4],
-                 const util::JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const float data[4], const util::JsonOptions& options)
+{
+    FieldToJson(jdata, data, 4, options);
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const uint32_t data[4], const util::JsonOptions& options)
+{
+    FieldToJson(jdata, data, 4, options);
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const uint64_t data[4], const util::JsonOptions& options)
 {
     FieldToJson(jdata, data, 4, options);
 }
