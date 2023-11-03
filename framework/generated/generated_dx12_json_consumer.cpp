@@ -7661,12 +7661,12 @@ void Dx12JsonConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args, visibleMask, options);
-        FieldToJson(args, numResourceDescs, options);
-        /// @todo FieldToJson(args, pResourceDescs, options)
-        /// @todo FieldToJson(args, pNumCastableFormats, options)
-        /// @todo FieldToJson(args, ppCastableFormats, options)
-        /// @todo FieldToJson(args, pResourceAllocationInfo1, options)
+        FieldToJson(args["visibleMask"], visibleMask, options); // [non-pointer, non-array, non-handle]
+        FieldToJson(args["numResourceDescs"], numResourceDescs, options); // [non-pointer, non-array, non-handle]
+        FieldToJson(args["pResourceDescs"], pResourceDescs, options); // [pointer to array]
+        FieldToJson(args["pNumCastableFormats"], pNumCastableFormats, options); // [pointer to array]
+        FieldToJson(args["ppCastableFormats"], ppCastableFormats, options); // [pointer to array]
+        FieldToJson(args["pResourceAllocationInfo1"], pResourceAllocationInfo1, options); // [pointer to array]
     }
     writer_->WriteBlockEnd();
 }
@@ -8114,9 +8114,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList9_RSSetDepthBias(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args, DepthBias, options);
-        FieldToJson(args, DepthBiasClamp, options);
-        FieldToJson(args, SlopeScaledDepthBias, options);
+        FieldToJson(args["DepthBias"], DepthBias, options); // [non-pointer, non-array, non-handle]
+        FieldToJson(args["DepthBiasClamp"], DepthBiasClamp, options); // [non-pointer, non-array, non-handle]
+        FieldToJson(args["SlopeScaledDepthBias"], SlopeScaledDepthBias, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -8133,7 +8133,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList9_IASetIndexBufferStripC
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args, IBStripCutValue, options);
+        FieldToJson(args["IBStripCutValue"], IBStripCutValue, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -8154,10 +8154,10 @@ void Dx12JsonConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        /// @todo FieldToJson(args, pD3D12Device, options)
-        FieldToJson(args, NodeMask, options);
-        FieldToJson(args, riid, options);
-        /// @todo FieldToJson(args, ppvDSRDevice, options)
+        FieldToJson(args["pD3D12Device"], pD3D12Device, options); // [pointer to single value]
+        FieldToJson(args["NodeMask"], NodeMask, options); // [non-pointer, non-array, non-handle]
+        FieldToJson(args["riid"], riid, options); // [non-pointer, non-array, non-handle]
+        FieldToJson(args["ppvDSRDevice"], ppvDSRDevice, options); // [pointer to single value]
     }
     writer_->WriteBlockEnd();
 }
@@ -8919,8 +8919,8 @@ void Dx12JsonConsumer::Process_ID3D12ManualWriteTrackingResource_TrackWrite(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args, Subresource, options);
-        /// @todo FieldToJson(args, pWrittenRange, options)
+        FieldToJson(args["Subresource"], Subresource, options); // [non-pointer, non-array, non-handle]
+        FieldToJson(args["pWrittenRange"], pWrittenRange, options); // [pointer to single value]
     }
     writer_->WriteBlockEnd();
 }
