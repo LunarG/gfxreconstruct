@@ -21,6 +21,10 @@
     "D3D12_CLEAR_VALUE",
     "D3D12_RESOURCE_BARRIER",
     "D3D12_TEXTURE_COPY_LOCATION",
+
+    "XX definitely need custom json conversion below",
+    "D3D12_PIPELINE_STATE_STREAM_DESC",
+    "D3D12_STATE_SUBOBJECT",
     "XXTERMINATORXX"
   ],
   "disabled_for_raw_struct_gen_structures": [
@@ -42,9 +46,7 @@
   ],
   "xxx_disabled_structures": [
     "D3D12_CPU_DESCRIPTOR_HANDLE",
-    "D3D12_PIPELINE_STATE_STREAM_DESC",
     "D3D12_STATE_OBJECT_DESC",
-    "D3D12_STATE_SUBOBJECT",
     "D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION",
     "XXTERMINATORXX"
   ]

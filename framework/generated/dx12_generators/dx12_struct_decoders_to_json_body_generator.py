@@ -148,7 +148,9 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     field_to_json = self.makeUnionFieldToJson(properties, name, union_index)
                     union_index += 1
                 elif not (value.is_pointer or value.is_array or self.is_handle(value.base_type) or self.is_struct(value.base_type)):
-                    field_to_json = '        FieldToJson(jdata["{0}"], decoded_value.{0}, options); //'
+                    field_to_json = '        FieldToJson(jdata["{0}"], decoded_value.{0}, options); // Basic data plumbs to raw struct'
+                else:
+                    field_to_json = '        FieldToJson(jdata["{0}"], meta_struct.{0}, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type'
 
                 # Append some type info to the generated comment to help working back from
                 # generated to code to change required here:
@@ -200,8 +202,37 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                 }
             }
 
+            // The decoded struct has a custom implementation.
+            void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* data, const JsonOptions& options)
+            {
+                using namespace util;
+                if (data && data->decoded_value)
+                {
+                    const D3D12_PIPELINE_STATE_STREAM_DESC& decoded_value = *data->decoded_value;
+                    const Decoded_D3D12_PIPELINE_STATE_STREAM_DESC& meta_struct = *data;
+                    FieldToJson(jdata["SizeInBytes"], decoded_value.SizeInBytes, options); // Basic data plumbs to raw struct.
+                    /// @todo This needs custom handling:
+                    FieldToJson(jdata["pPipelineStateSubobjectStream"], "ToDo: custom handler required.", options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+                }
+            }
+
+            // The decoded struct has a custom implementation.
+            void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATE_SUBOBJECT* data, const JsonOptions& options)
+            {
+                using namespace util;
+                if (data && data->decoded_value)
+                {
+                    const D3D12_STATE_SUBOBJECT& decoded_value = *data->decoded_value;
+                    const Decoded_D3D12_STATE_SUBOBJECT& meta_struct = *data;
+                    FieldToJson(jdata["Type"], decoded_value.Type, options); // Basic data plumbs to raw struct [is_enum]
+                    /// @todo This needs custom handling:
+                    FieldToJson(jdata["pDesc"], "ToDo: custom handler required.", options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+                }
+            }
 
 
+
+            //  ============================================================================================================================
             /// @todo Pull out the structs below which only fail due to having a union member and use the union injection mechanism instead.
 
             void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BARRIER_GROUP* data, const JsonOptions& options)
