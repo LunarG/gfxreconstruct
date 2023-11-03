@@ -21,10 +21,11 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import sys, inspect
+import sys
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
 from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator
+from reformat_code import format_cpp_code
 
 class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
     """Generates C++ functions which build JSON representations of enums."""
@@ -48,7 +49,7 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
         """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
-        code = inspect.cleandoc('''
+        code = format_cpp_code('''
             /// @file Functions to convert enums to JSON. While trivial these do tidy up
             /// the FieldToJsons of structs which use them and the JSON consumer too.
             /// They also mean that generators don't need separate cases for enums.
@@ -71,17 +72,21 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
         flag_prototypes = ''
         for k, v in enum_dict.items():
             # Generate enum handler for all enums
-            enum_prototypes += inspect.cleandoc('''inline void FieldToJson(nlohmann::ordered_json& jdata, const {0} value, const JsonOptions& options = JsonOptions())
+            enum_prototypes += format_cpp_code('''inline void FieldToJson(nlohmann::ordered_json& jdata, const {0} value, const JsonOptions& options = JsonOptions())
             {{
                 FieldToJson(jdata, ToString(value), options);
             }}
+            inline void FieldToJson(nlohmann::ordered_json& jdata, const {0}* pEnum, const JsonOptions& options = JsonOptions())
+            {{
+                FieldToJson(jdata, *pEnum, options);
+            }}
             '''.format(k))
-            enum_prototypes += '\n'
+            enum_prototypes += '\n\n'
 
             # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:
                 if k.find(bits) >= 0:
-                    flag_prototypes += inspect.cleandoc('''inline void FieldToJson_{0}(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+                    flag_prototypes += format_cpp_code('''inline void FieldToJson_{0}(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
                     {{
                         FieldToJson(jdata, ToString_{0}(flags), options);
                     }}
@@ -91,7 +96,7 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
         write(enum_prototypes, file=self.outFile)
         write(flag_prototypes, file=self.outFile)
 
-        write(inspect.cleandoc('''
+        write(format_cpp_code('''
         // IID struct-as-enum special case:
         inline void FieldToJson(nlohmann::ordered_json& jdata, const IID& value, const JsonOptions& options = JsonOptions())
         {
