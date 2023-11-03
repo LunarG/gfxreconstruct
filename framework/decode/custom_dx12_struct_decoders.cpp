@@ -91,8 +91,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RES
             wrapper->UAV->decoded_value = &(value->UAV);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->UAV);
             break;
-        default:
-            break;
     }
 
     return bytes_read;
@@ -120,8 +118,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX
             wrapper->PlacedFootprint = DecodeAllocator::Allocate<Decoded_D3D12_PLACED_SUBRESOURCE_FOOTPRINT>();
             wrapper->PlacedFootprint->decoded_value = &(value->PlacedFootprint);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->PlacedFootprint);
-            break;
-        default:
             break;
     }
 
@@ -200,8 +196,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SHA
             bytes_read += DecodeStruct(
                 (buffer + bytes_read), (buffer_size - bytes_read), wrapper->RaytracingAccelerationStructure);
             break;
-        default:
-            break;
     }
 
     return bytes_read;
@@ -249,8 +243,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_UNO
             wrapper->Texture3D                = DecodeAllocator::Allocate<Decoded_D3D12_TEX3D_UAV>();
             wrapper->Texture3D->decoded_value = &(value->Texture3D);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture3D);
-            break;
-        default:
             break;
     }
 
@@ -310,8 +302,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
             wrapper->Texture3D->decoded_value = &(value->Texture3D);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture3D);
             break;
-        default:
-            break;
     }
 
     return bytes_read;
@@ -361,8 +351,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEP
             wrapper->Texture2DMSArray->decoded_value = &(value->Texture2DMSArray);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMSArray);
             break;
-        default:
-            break;
     }
 
     return bytes_read;
@@ -396,8 +384,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_ROO
             wrapper->Descriptor                = DecodeAllocator::Allocate<Decoded_D3D12_ROOT_DESCRIPTOR>();
             wrapper->Descriptor->decoded_value = &(value->Descriptor);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Descriptor);
-            break;
-        default:
             break;
     }
 
@@ -436,8 +422,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_ROO
             wrapper->Descriptor->decoded_value = &(value->Descriptor);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Descriptor);
             break;
-        default:
-            break;
     }
 
     bytes_read +=
@@ -466,8 +450,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VER
             wrapper->Desc_1_1                = DecodeAllocator::Allocate<Decoded_D3D12_ROOT_SIGNATURE_DESC1>();
             wrapper->Desc_1_1->decoded_value = &(value->Desc_1_1);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Desc_1_1);
-            break;
-        default:
             break;
     }
 
@@ -514,8 +496,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
             wrapper->AABBs->decoded_value = &(value->AABBs);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AABBs);
             break;
-        default:
-            break;
     }
 
     return bytes_read;
@@ -558,11 +538,7 @@ size_t DecodeStruct(const uint8_t*                                              
                     bytes_read += wrapper->ppGeometryDescs->Decode((buffer + bytes_read), (buffer_size - bytes_read));
                     value->ppGeometryDescs = wrapper->ppGeometryDescs->GetPointer();
                     break;
-                default:
-                    break;
             }
-            break;
-        default:
             break;
     }
 
@@ -595,8 +571,6 @@ DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_
             wrapper->Dred_1_2                = DecodeAllocator::Allocate<Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2>();
             wrapper->Dred_1_2->decoded_value = &(value->Dred_1_2);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Dred_1_2);
-            break;
-        default:
             break;
     }
 
@@ -1088,8 +1062,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STA
             break;
         case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
             break;
-        default:
-            break;
     }
 
     return bytes_read;
@@ -1141,8 +1113,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BAR
             wrapper->buffer_barriers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_BUFFER_BARRIER>>();
             bytes_read += wrapper->buffer_barriers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
             value->pBufferBarriers = wrapper->buffer_barriers->GetPointer();
-            break;
-        default:
             break;
     }
 
