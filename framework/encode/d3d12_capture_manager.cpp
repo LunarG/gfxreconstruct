@@ -290,7 +290,6 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
                                                        D3D12_RESOURCE_DIMENSION dimension,
                                                        D3D12_TEXTURE_LAYOUT     layout,
                                                        UINT64                   width,
-                                                       UINT64                   size,
                                                        D3D12_HEAP_TYPE          heap_type,
                                                        D3D12_CPU_PAGE_PROPERTY  page_property,
                                                        D3D12_MEMORY_POOL        memory_pool,
@@ -309,7 +308,6 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     info->page_property   = page_property;
     info->memory_pool     = memory_pool;
     info->has_write_watch = has_write_watch;
-    info->size_in_bytes   = size;
     info->dimension       = dimension;
     info->layout          = layout;
     info->heap_offset     = heap_offset;
@@ -814,14 +812,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
-        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
-
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Layout,
                                      desc->Width,
-                                     total_size_in_bytes,
                                      heap_properties->Type,
                                      heap_properties->CPUPageProperty,
                                      heap_properties->MemoryPoolPreference,
@@ -856,14 +851,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
         auto heap_info        = heap_wrapper->GetObjectInfo();
         assert(heap_info != nullptr);
 
-        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
-
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Layout,
                                      desc->Width,
-                                     total_size_in_bytes,
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->memory_pool,
@@ -891,14 +883,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateReservedResource(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
-        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
-
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Layout,
                                      desc->Width,
-                                     total_size_in_bytes,
                                      D3D12_HEAP_TYPE_DEFAULT,
                                      D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
                                      D3D12_MEMORY_POOL_UNKNOWN,
@@ -928,14 +917,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateReservedResource1(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
-        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
-
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Layout,
                                      desc->Width,
-                                     total_size_in_bytes,
                                      D3D12_HEAP_TYPE_DEFAULT,
                                      D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
                                      D3D12_MEMORY_POOL_UNKNOWN,
@@ -1034,14 +1020,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
-        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
-
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Layout,
                                      desc->Width,
-                                     total_size_in_bytes,
                                      heap_properties->Type,
                                      heap_properties->CPUPageProperty,
                                      heap_properties->MemoryPoolPreference,
@@ -1075,14 +1058,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
-        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
-
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Layout,
                                      desc->Width,
-                                     total_size_in_bytes,
                                      heap_properties->Type,
                                      heap_properties->CPUPageProperty,
                                      heap_properties->MemoryPoolPreference,
@@ -1118,14 +1098,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
         auto heap_info        = heap_wrapper->GetObjectInfo();
         assert(heap_info != nullptr);
 
-        uint64_t total_size_in_bytes = GetResourceSizeInBytes(wrapper, desc);
-
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
                                      desc->Dimension,
                                      desc->Layout,
                                      desc->Width,
-                                     total_size_in_bytes,
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->memory_pool,

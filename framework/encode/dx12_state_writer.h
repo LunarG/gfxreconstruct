@@ -134,21 +134,12 @@ class Dx12StateWriter
 
     void WriteTileMappings(const Dx12StateTable& state_table, ID3D12ResourceInfo* resource_info);
 
-    void FlushStagingBuffersData(graphics::Dx12ResourceDataUtil*       resource_data_util,
-                                 std::vector<ID3D12Resource_Wrapper*>& submitted_resources);
-
     void
     WriteResourceSnapshots(const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots,
                            const std::unordered_map<format::HandleId, uint64_t>& max_resource_sizes);
 
-    void WriteMappableResource(graphics::Dx12ResourceDataUtil* resource_data_util,
+    void WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* resource_data_util,
                                const ResourceSnapshotInfo&     snapshot);
-
-    void WriteBufferData(ID3D12Resource_Wrapper* resource_wrapper);
-
-    void CreateStagingBuffer(graphics::Dx12ResourceDataUtil* resource_data_util,
-                             ID3D12Resource*                 target_resource,
-                             ID3D12ResourceInfo*             resource_info);
 
     // Sync to ensure all pending command queues are completed before processing state writing.
     void WaitForCommandQueues(const Dx12StateTable& state_table);
