@@ -368,7 +368,6 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
     D3D12_HEAP_TYPE                      heap_type{};
     D3D12_CPU_PAGE_PROPERTY              page_property{};
     D3D12_MEMORY_POOL                    memory_pool{};
-    uint64_t                             size_in_bytes{ 0 };
     D3D12_RESOURCE_DIMENSION             dimension{ D3D12_RESOURCE_DIMENSION_UNKNOWN };
     D3D12_TEXTURE_LAYOUT                 layout{ D3D12_TEXTURE_LAYOUT_UNKNOWN };
     //// State tracking data:
@@ -386,17 +385,6 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
 
     // Track acceleration structures that were built to this resource
     std::map<D3D12_GPU_VIRTUAL_ADDRESS, DxAccelerationStructureBuildInfo> acceleration_structure_builds;
-
-    graphics::dx12::ID3D12ResourceComPtr staging_buffer{ nullptr };
-    struct
-    {
-        size_t                                          subresource_count;
-        std::vector<uint64_t>                           subresource_offsets;
-        std::vector<uint64_t>                           subresource_sizes;
-        std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
-        uint64_t                                        required_data_size;
-        std::vector<BYTE>                               staging_buffer_data;
-    } staging_buffer_info;
 
     ID3D12Heap_Wrapper* heap_wrapper{ nullptr };
     uint64_t            heap_offset;
