@@ -25,7 +25,7 @@ GFXReconstruct build script
 '''
 
 import argparse
-import distutils.version
+import packaging.version
 import os
 import platform
 import re
@@ -46,10 +46,10 @@ DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(
     os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
 BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
-CMAKE_VERSION_3_13 = distutils.version.StrictVersion('3.13.0')
+CMAKE_VERSION_3_13 = packaging.version.Version('3.13.0')
 CONFIGURATIONS = ['release', 'debug']
 DEFAULT_CONFIGURATION = CONFIGURATIONS[0]
-VERSION = distutils.version.StrictVersion('0.0.0')
+VERSION = packaging.version.Version('0.0.0')
 
 
 class BuildError(Exception):
@@ -181,7 +181,7 @@ def cmake_version():
         r'cmake version (?P<version>[\d\.]+)', cmake_version_output)
     if match is None:
         raise BuildError('failed to get CMake version')
-    cmake_version = distutils.version.StrictVersion(match.group('version'))
+    cmake_version = packaging.version.Version(match.group('version'))
     return cmake_version
 
 
