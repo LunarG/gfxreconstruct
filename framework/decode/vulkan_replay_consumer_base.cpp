@@ -2300,7 +2300,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                     // Remove enabled extensions that are not available from the replay instance.
                     feature_util::RemoveUnsupportedExtensions(available_extensions, &filtered_extensions);
                 }
-                else if (options_.colorspace_fallback)
+                else if (options_.use_colorspace_fallback)
                 {
                     if (!feature_util::IsSupportedExtension(available_extensions,
                                                             VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME))
@@ -5075,7 +5075,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         if (colorspace_extension_used_unsupported)
         {
-            if (options_.colorspace_fallback)
+            if (options_.use_colorspace_fallback)
             {
                 modified_create_info.imageColorSpace = VkColorSpaceKHR::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
                 GFXRECON_LOG_INFO("Forcing supported color space for swapchain (ID = %" PRIu64 ")",

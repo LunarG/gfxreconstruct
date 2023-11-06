@@ -751,7 +751,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--measurement-file DEVICE_FILE] [--quit-after-measurement-range]
                           [--flush-measurement-range] [-m MODE]
                           [--swapchain MODE] [--use-captured-swapchain-indices]
-                          [--colorspace-fallback]
+                          [--use-colorspace-fallback]
                           [file]
 
 Launch the replay tool.
@@ -859,9 +859,9 @@ optional arguments:
                         If this is specified the replayer will flush and wait
                         for all current GPU work to finish at the start and end
                         of the measurement range. (forwarded to replay tool)
-  --colorspace-fallback
-                        Swap the swapchain color space if unsupported by replay device. 
-                        Check if color space is not supported by replay device and swap 
+  --use-colorspace-fallback
+                        Swap the swapchain color space if unsupported by replay device.
+                        Check if color space is not supported by replay device and swap
                         to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR. (forwarded to replay tool).
 ```
 
@@ -870,10 +870,10 @@ activity with the following:
 
 ```bash
 adb shell am force-stop com.lunarg.gfxreconstruct.replay
-adb shell am start -n "com.lunarg.gfxreconstruct.replay/android.app.NativeActivity" \ 
-                   -a android.intent.action.MAIN \ 
-                   -c android.intent.category.LAUNCHER \ 
-                   --es "args" \ 
+adb shell am start -n "com.lunarg.gfxreconstruct.replay/android.app.NativeActivity" \
+                   -a android.intent.action.MAIN \
+                   -c android.intent.category.LAUNCHER \
+                   --es "args" \
                    "<arg-list>"
 ```
 
