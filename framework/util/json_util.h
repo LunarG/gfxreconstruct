@@ -22,7 +22,8 @@
 */
 
 /// @file API-agnostic options and helpers for outputting JSON used by all
-/// the JSON-generating components such as the Consumers in.
+/// the JSON-generating components such as the Consumers that gfxrecon-convert
+/// is based on.
 
 #ifndef GFXRECON_UTIL_JSON_UTIL_H
 #define GFXRECON_UTIL_JSON_UTIL_H
