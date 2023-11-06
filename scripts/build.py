@@ -25,7 +25,6 @@ GFXReconstruct build script
 '''
 
 import argparse
-import distutils.version
 import os
 import platform
 import re
@@ -46,10 +45,10 @@ DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(
     os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
 BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
-CMAKE_VERSION_3_13 = distutils.version.StrictVersion('3.13.0')
+CMAKE_VERSION_3_13 = [3, 13, 0]
 CONFIGURATIONS = ['release', 'debug']
 DEFAULT_CONFIGURATION = CONFIGURATIONS[0]
-VERSION = distutils.version.StrictVersion('0.0.0')
+VERSION = '0.0.0'
 
 
 class BuildError(Exception):
@@ -66,7 +65,7 @@ def parse_args():
         description="gfxreconstruct build script",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     arg_parser.add_argument('--version', dest='version',
-                            action='version', version=str(VERSION))
+                            action='version', version=VERSION)
     arg_parser.add_argument('--build-dir', dest='build_dir',
                             metavar='PATH', action='store', default=None,
                             help='Directory for build files. When not specified, defaults to <build|dbuild>/<platform>/<architecture>/cmake_output')
@@ -181,7 +180,7 @@ def cmake_version():
         r'cmake version (?P<version>[\d\.]+)', cmake_version_output)
     if match is None:
         raise BuildError('failed to get CMake version')
-    cmake_version = distutils.version.StrictVersion(match.group('version'))
+    cmake_version = [int(x) for x in match.group('version').split('.')]
     return cmake_version
 
 
