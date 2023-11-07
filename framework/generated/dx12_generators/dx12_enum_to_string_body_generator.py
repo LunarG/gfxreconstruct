@@ -61,16 +61,16 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
             # Generate enum handler for all enums
             body = 'std::string ToString(const {0}& value)\n'
             body += '{{\n'
+            body += '    const char* ret = "Unhandled {0}";\n'
             body += '    switch (value) {{\n'
             processed_values = set()
             for value in v['values']:
                 if not value['value'] in processed_values:
-                    body += '    case {0}: return "{0}";\n'.format(value['name'])
+                    body += '        case {0}: ret = "{0}"; break;\n'.format(value['name'])
                     processed_values.add(value['name'])
                     processed_values.add(value['value'])
-            body += '    default: break;\n'
             body += '    }}\n'
-            body += '    return "Unhandled {0}";\n'
+            body += '    return ret;\n'
             body += '}}\n'
 
             # Generate flags handler for enums identified as bitmasks
