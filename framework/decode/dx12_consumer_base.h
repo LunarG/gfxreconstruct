@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_DX12_CONSUMER_BASE_H
 
 #include "decode/metadata_consumer_base.h"
+#include "decode/marker_consumer_base.h"
 #include "decode/api_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
@@ -35,9 +36,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-/// @todo Dx12ConsumerBase is very similar to VulkanConsumerBase. It might be possible to merge them into a shared class
-/// or to factor parts of them out into separate base classes that they can both derive from.
-class Dx12ConsumerBase : public MetadataConsumerBase /// @todo , public StateMarkerConsumerBase
+class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 {
   public:
     Dx12ConsumerBase() {}
@@ -48,12 +47,6 @@ class Dx12ConsumerBase : public MetadataConsumerBase /// @todo , public StateMar
     virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
 
     virtual bool IsComplete(uint64_t block_index) { return false; }
-
-    virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
-
-    virtual void ProcessStateEndMarker(uint64_t frame_number) {}
-
-    virtual void ProcessFrameEndMarker(uint64_t frame_number) {}
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
         const format::InitDx12AccelerationStructureCommandHeader&       command_header,

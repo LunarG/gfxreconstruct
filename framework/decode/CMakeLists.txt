@@ -88,6 +88,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/swapchain_image_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/value_decoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/marker_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/metadata_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_stats_consumer.h
