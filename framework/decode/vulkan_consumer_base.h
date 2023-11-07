@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 
 #include "decode/metadata_consumer_base.h"
+#include "decode/marker_consumer_base.h"
 #include "decode/api_decoder.h"
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/descriptor_update_template_decoder.h"
@@ -41,7 +42,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanConsumerBase : public MetadataConsumerBase /// @todo , public StateMarkerConsumerBase
+class VulkanConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 {
   public:
     VulkanConsumerBase() {}
@@ -53,12 +54,6 @@ class VulkanConsumerBase : public MetadataConsumerBase /// @todo , public StateM
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
     virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
-
-    virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
-
-    virtual void ProcessStateEndMarker(uint64_t frame_number) {}
-
-    virtual void ProcessFrameEndMarker(uint64_t frame_number) {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
                                                            format::HandleId                 device,
