@@ -81,6 +81,8 @@ class JsonWriter : public AnnotationHandler
                                               const format::HandleId object_id,
                                               const std::string_view command_name);
 
+    void WriteMarkerToFile(const char* name, const std::string& marker_type, uint64_t frame_number);
+
     /// Get the JSON object used to output the per-stream header
     /// Consumers can add their own fields to it.
     nlohmann::ordered_json& GetHeaderkJson() { return header_; }
@@ -104,7 +106,14 @@ class JsonWriter : public AnnotationHandler
     util::JsonOptions      json_options_;
     nlohmann::ordered_json json_data_;
     uint32_t               num_streams_{ 0 };
-    bool                   first_{ true };
+
+    // Account for markers being broadcast to all decoders, all consumers, unlike functions and metacommands which are
+    // tagged with an API family. A marker is only converted if it differs in one of these three attributes.
+    std::string last_marker_name_;
+    std::string last_marker_type_;
+    uint64_t    last_frame_number_{ 0 };
+
+    bool first_{ true };
 };
 
 GFXRECON_END_NAMESPACE(decode)

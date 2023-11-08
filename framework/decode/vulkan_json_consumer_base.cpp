@@ -76,21 +76,6 @@ bool VulkanExportJsonConsumerBase::WriteBinaryFile(const std::string& filename, 
     return false;
 }
 
-void VulkanExportJsonConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
-{
-    WriteStateMarkerToFile("BeginMarker", frame_number);
-}
-
-void VulkanExportJsonConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
-{
-    WriteStateMarkerToFile("EndMarker", frame_number);
-}
-
-void VulkanExportJsonConsumerBase::ProcessFrameEndMarker(uint64_t frame_number)
-{
-    WriteFrameMarkerToFile("EndMarker", frame_number);
-}
-
 void VulkanExportJsonConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
 {
     WriteMetaCommandToFile("DisplayMessageCommand",

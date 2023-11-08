@@ -52,12 +52,6 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
 
     bool IsValid() const { return writer_ && writer_->IsValid(); }
 
-    virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
-
-    virtual void ProcessStateEndMarker(uint64_t frame_number) override;
-
-    virtual void ProcessFrameEndMarker(uint64_t frame_number) override;
-
     virtual void ProcessDisplayMessageCommand(const std::string& message) override;
 
     virtual void
@@ -237,30 +231,6 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
         WriteBlockEnd();
     }
 
-    inline void WriteStateMarkerToFile(const std::string& marker_type, uint64_t frame_number)
-    {
-        using namespace util;
-        auto& json_data = WriteBlockStart();
-
-        nlohmann::ordered_json& state = json_data[NameState()];
-        state["marker_type"]          = marker_type;
-        state["frame_number"]         = frame_number;
-
-        WriteBlockEnd();
-    }
-
-    inline void WriteFrameMarkerToFile(const std::string& marker_type, uint64_t frame_number)
-    {
-        using namespace util;
-        auto& json_data = WriteBlockStart();
-
-        nlohmann::ordered_json& frame = json_data[NameFrame()];
-        frame["marker_type"]          = marker_type;
-        frame["frame_number"]         = frame_number;
-
-        WriteBlockEnd();
-    }
-
     std::string GenerateFilename(const std::string& filename);
     bool        WriteBinaryFile(const std::string& filename, uint64_t buffer_size, const uint8_t* data);
 
@@ -275,8 +245,9 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
     uint32_t                                       submit_index_{ 0 }; // index of submissions across the trace
     std::unordered_map<format::HandleId, uint32_t> rec_cmd_index_;
 
-  private:
     JsonWriter* writer_{ nullptr };
+
+  private:
     /// Number of side-files generated for dumping binary blobs etc.
     uint32_t num_files_{ 0 };
 };

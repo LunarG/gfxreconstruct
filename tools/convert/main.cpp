@@ -31,13 +31,17 @@
 #include "util/platform.h"
 
 #include "generated/generated_vulkan_json_consumer.h"
+#include "decode/marker_json_consumer.h"
 #if defined(CONVERT_EXPERIMENTAL_D3D12)
 #include "generated/generated_dx12_ascii_consumer.h"
 #include "generated/generated_dx12_json_consumer.h"
 #endif
 
 using gfxrecon::util::JsonFormat;
-
+using VulkanJsonConsumer = gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::VulkanExportJsonConsumer>;
+#if defined(CONVERT_EXPERIMENTAL_D3D12)
+using Dx12JsonConsumer = gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::Dx12JsonConsumer>;
+#endif
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 
 const char kArguments[] = "--output,--format";
@@ -243,10 +247,10 @@ int main(int argc, const char** argv)
         }
         else
         {
-            gfxrecon::util::FileNoLockOutputStream     out_stream{ out_file_handle, false };
-            gfxrecon::decode::VulkanExportJsonConsumer json_consumer;
-            gfxrecon::util::JsonOptions                json_options;
-            gfxrecon::decode::VulkanDecoder            decoder;
+            gfxrecon::util::FileNoLockOutputStream out_stream{ out_file_handle, false };
+            VulkanJsonConsumer                     json_consumer;
+            gfxrecon::util::JsonOptions            json_options;
+            gfxrecon::decode::VulkanDecoder        decoder;
             decoder.AddConsumer(&json_consumer);
             file_processor.AddDecoder(&decoder);
 
@@ -269,7 +273,7 @@ int main(int argc, const char** argv)
             // If CONVERT_EXPERIMENTAL_D3D12 was set, then add DX12 consumer/decoder
 #ifdef CONVERT_EXPERIMENTAL_D3D12
             gfxrecon::decode::Dx12AsciiConsumer dx12_ascii_consumer;
-            gfxrecon::decode::Dx12JsonConsumer  dx12_json_consumer;
+            Dx12JsonConsumer                    dx12_json_consumer;
             gfxrecon::decode::Dx12Decoder       dx12_decoder;
 
             dx12_decoder.AddConsumer(&dx12_ascii_consumer);

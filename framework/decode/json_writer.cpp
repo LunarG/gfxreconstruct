@@ -189,6 +189,28 @@ nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo&     cal
     return method;
 }
 
+void JsonWriter::WriteMarkerToFile(const char* const name, const std::string& marker_type, uint64_t frame_number)
+{
+    using namespace util;
+
+    // Markers are dispatched to all decoders and consumers so de-duplicate them for JSON
+    // output in case the build has multiple JSON consumers for different APIs enabled.
+    if (name != last_marker_name_ || marker_type != last_marker_type_ || frame_number != last_frame_number_)
+    {
+        auto& json_data = WriteBlockStart();
+
+        nlohmann::ordered_json& state = json_data[name];
+        state["marker_type"]          = marker_type;
+        state["frame_number"]         = frame_number;
+
+        WriteBlockEnd();
+
+        last_marker_name_  = name;
+        last_marker_type_  = marker_type;
+        last_frame_number_ = frame_number;
+    }
+}
+
 void JsonWriter::ProcessAnnotation(uint64_t               block_index,
                                    format::AnnotationType type,
                                    const std::string&     label,
