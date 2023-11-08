@@ -281,6 +281,8 @@ int main(int argc, const char** argv)
             else
             {
                 GFXRECON_LOG_ERROR("Could not detect graphics API. Aborting optimization.")
+                gfxrecon::util::Log::Release();
+                return -1;
             }
         }
         // Manual mode. Follow user instructions.
