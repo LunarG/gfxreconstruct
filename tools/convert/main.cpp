@@ -32,15 +32,18 @@
 
 #include "generated/generated_vulkan_json_consumer.h"
 #include "decode/marker_json_consumer.h"
+#include "decode/metadata_json_consumer.h"
 #if defined(CONVERT_EXPERIMENTAL_D3D12)
 #include "generated/generated_dx12_ascii_consumer.h"
 #include "generated/generated_dx12_json_consumer.h"
 #endif
 
 using gfxrecon::util::JsonFormat;
-using VulkanJsonConsumer = gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::VulkanExportJsonConsumer>;
+using VulkanJsonConsumer = gfxrecon::decode::MetadataJsonConsumer<
+    gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::VulkanExportJsonConsumer>>;
 #if defined(CONVERT_EXPERIMENTAL_D3D12)
-using Dx12JsonConsumer = gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::Dx12JsonConsumer>;
+using Dx12JsonConsumer =
+    gfxrecon::decode::MetadataJsonConsumer<gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::Dx12JsonConsumer>>;
 #endif
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 

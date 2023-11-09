@@ -23,6 +23,8 @@
 
 /// @file Common features for writing decoded items to a single json stream, be
 /// they from Vulkan, D3D12, metadata, annotations, or any other source.
+/// @todo Add block indexes to metacommands (virtual void SetCurrentBlockIndex(uint64_t block_index){}; is implemented
+/// for dx12 but not vulkan).
 
 #ifndef GFXRECON_DECODE_JSON_WRITER_H
 #define GFXRECON_DECODE_JSON_WRITER_H
@@ -31,6 +33,7 @@
 #include "util/json_util.h"
 #include "util/platform.h"
 #include "util/defines.h"
+#include "format/format_json.h"
 
 #include "nlohmann/json.hpp"
 
@@ -81,7 +84,24 @@ class JsonWriter : public AnnotationHandler
                                               const format::HandleId object_id,
                                               const std::string_view command_name);
 
-    void WriteMarkerToFile(const char* name, const std::string& marker_type, uint64_t frame_number);
+    void WriteMarker(const char* name, const std::string& marker_type, uint64_t frame_number);
+
+    /// @brief Output the boilerplate for representing a metacommand in JSON,
+    /// returning the root of the empty "args" JSON sub-tree for the caller to populate.
+    nlohmann::ordered_json& WriteMetaCommandStart(const std::string& command_name);
+
+    /// @brief Output the boilerplate for converting a metacommand to JSON but
+    /// defer internals to the function passed in.
+    /// @tparam ToJsonFunctionType A callable which fills out the body of the command.
+    /// @todo Make this a regular function with a callback or just have callers use WriteMetaCommandStart() and
+    /// WriteBlockEnd().
+    template <typename ToJsonFunctionType>
+    inline void WriteMetaCommand(const std::string& command_name, ToJsonFunctionType to_json_function)
+    {
+        nlohmann::ordered_json& args = WriteMetaCommandStart(command_name);
+        to_json_function(args);
+        WriteBlockEnd();
+    }
 
     /// Get the JSON object used to output the per-stream header
     /// Consumers can add their own fields to it.
@@ -100,12 +120,17 @@ class JsonWriter : public AnnotationHandler
                                    const std::string&     label,
                                    const std::string&     data) override;
 
+    std::string GenerateFilename(const std::string& filename);
+    bool        WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data);
+
   private:
     util::OutputStream*    os_;
     nlohmann::ordered_json header_;
     util::JsonOptions      json_options_;
     nlohmann::ordered_json json_data_;
     uint32_t               num_streams_{ 0 };
+    /// Number of side-files generated for dumping binary blobs etc.
+    uint32_t num_files_{ 0 };
 
     // Account for markers being broadcast to all decoders, all consumers, unlike functions and metacommands which are
     // tagged with an API family. A marker is only converted if it differs in one of these three attributes.

@@ -39,16 +39,16 @@ class MarkerJsonConsumer : public Base
   public:
     virtual void ProcessStateBeginMarker(uint64_t frame_number)
     {
-        this->writer_->WriteMarkerToFile(format::kNameState, "BeginMarker", frame_number);
+        this->writer_->WriteMarker(format::kNameState, "BeginMarker", frame_number);
     }
     virtual void ProcessStateEndMarker(uint64_t frame_number)
     {
-        this->writer_->WriteMarkerToFile(format::kNameState, "EndMarker", frame_number);
+        this->writer_->WriteMarker(format::kNameState, "EndMarker", frame_number);
     }
 
     virtual void ProcessFrameEndMarker(uint64_t frame_number)
     {
-        this->writer_->WriteMarkerToFile(format::kNameFrame, "EndMarker", frame_number);
+        this->writer_->WriteMarker(format::kNameFrame, "EndMarker", frame_number);
     }
 };
 

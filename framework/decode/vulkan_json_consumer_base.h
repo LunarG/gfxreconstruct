@@ -52,78 +52,6 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
 
     bool IsValid() const { return writer_ && writer_->IsValid(); }
 
-    virtual void ProcessDisplayMessageCommand(const std::string& message) override;
-
-    virtual void
-    ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
-
-    virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
-
-    virtual void ProcessResizeWindowCommand2(format::HandleId surface_id,
-                                             uint32_t         width,
-                                             uint32_t         height,
-                                             uint32_t         pre_transform) override;
-
-    virtual void
-    ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
-                                       uint64_t                                            buffer_id,
-                                       uint32_t                                            format,
-                                       uint32_t                                            width,
-                                       uint32_t                                            height,
-                                       uint32_t                                            stride,
-                                       uint64_t                                            usage,
-                                       uint32_t                                            layers,
-                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
-
-    virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) override;
-
-    virtual void ProcessSetDevicePropertiesCommand(format::HandleId   physical_device_id,
-                                                   uint32_t           api_version,
-                                                   uint32_t           driver_version,
-                                                   uint32_t           vendor_id,
-                                                   uint32_t           device_id,
-                                                   uint32_t           device_type,
-                                                   const uint8_t      pipeline_cache_uuid[format::kUuidSize],
-                                                   const std::string& device_name) override;
-
-    virtual void
-    ProcessSetDeviceMemoryPropertiesCommand(format::HandleId                             physical_device_id,
-                                            const std::vector<format::DeviceMemoryType>& memory_types,
-                                            const std::vector<format::DeviceMemoryHeap>& memory_heaps) override;
-
-    virtual void
-    ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address) override;
-
-    virtual void ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
-                                                               format::HandleId pipeline_id,
-                                                               size_t           data_size,
-                                                               const uint8_t*   data) override;
-
-    virtual void
-    ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
-                                         format::HandleId                                    swapchain_id,
-                                         uint32_t                                            last_presented_image,
-                                         const std::vector<format::SwapchainImageStateInfo>& image_state) override;
-
-    virtual void ProcessBeginResourceInitCommand(format::HandleId device_id,
-                                                 uint64_t         max_resource_size,
-                                                 uint64_t         max_copy_size) override;
-
-    virtual void ProcessEndResourceInitCommand(format::HandleId device_id) override;
-
-    virtual void ProcessInitBufferCommand(format::HandleId device_id,
-                                          format::HandleId buffer_id,
-                                          uint64_t         data_size,
-                                          const uint8_t*   data) override;
-
-    virtual void ProcessInitImageCommand(format::HandleId             device_id,
-                                         format::HandleId             image_id,
-                                         uint64_t                     data_size,
-                                         uint32_t                     aspect,
-                                         uint32_t                     layout,
-                                         const std::vector<uint64_t>& level_sizes,
-                                         const uint8_t*               data) override;
-
     void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
         const ApiCallInfo&                                                         call_info,
         format::HandleId                                                           commandBuffer,
@@ -180,8 +108,8 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
     // Wrappers for json field names allowing change without code gen and
     // leaving door open for switching output based on internal state.
     /// @todo Just use the constants directly: the requirement to be able to have
-    /// different versions of field names switchable at runtime seems to have
-    /// gone away.
+    /// different versions of field names switchable at runtime that I added these
+    /// as a first step towards during Export PR integration has gone away.
     constexpr const char* NameFunction() const { return format::kNameFunction; }
     constexpr const char* NameMeta() const { return format::kNameMeta; }
     constexpr const char* NameState() const { return format::kNameState; }
@@ -218,21 +146,8 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
         WriteBlockEnd();
     }
 
-    template <typename ToJsonFunctionType>
-    inline void WriteMetaCommandToFile(const std::string& command_name, ToJsonFunctionType to_json_function)
-    {
-        using namespace util;
-        auto& json_data = WriteBlockStart();
-
-        nlohmann::ordered_json& meta = json_data[NameMeta()];
-        meta[NameName()]             = command_name;
-        to_json_function(meta[NameArgs()]);
-
-        WriteBlockEnd();
-    }
-
     std::string GenerateFilename(const std::string& filename);
-    bool        WriteBinaryFile(const std::string& filename, uint64_t buffer_size, const uint8_t* data);
+    bool        WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data);
 
     uint32_t GetCommandBufferRecordIndex(format::HandleId command_buffer)
     {
@@ -246,10 +161,6 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
     std::unordered_map<format::HandleId, uint32_t> rec_cmd_index_;
 
     JsonWriter* writer_{ nullptr };
-
-  private:
-    /// Number of side-files generated for dumping binary blobs etc.
-    uint32_t num_files_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

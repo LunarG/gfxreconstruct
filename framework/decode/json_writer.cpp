@@ -28,7 +28,6 @@
 #include "util/output_stream.h"
 #include "util/logging.h"
 #include "decode/api_decoder.h"
-#include "format/format_json.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -189,7 +188,7 @@ nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo&     cal
     return method;
 }
 
-void JsonWriter::WriteMarkerToFile(const char* const name, const std::string& marker_type, uint64_t frame_number)
+void JsonWriter::WriteMarker(const char* const name, const std::string& marker_type, uint64_t frame_number)
 {
     using namespace util;
 
@@ -211,6 +210,16 @@ void JsonWriter::WriteMarkerToFile(const char* const name, const std::string& ma
     }
 }
 
+nlohmann::ordered_json& JsonWriter::WriteMetaCommandStart(const std::string& command_name)
+{
+    using namespace util;
+    auto& json_data = WriteBlockStart();
+
+    nlohmann::ordered_json& meta = json_data[format::kNameMeta];
+    meta[format::kNameName]      = command_name;
+    return meta[format::kNameArgs];
+}
+
 void JsonWriter::ProcessAnnotation(uint64_t               block_index,
                                    format::AnnotationType type,
                                    const std::string&     label,
@@ -223,6 +232,24 @@ void JsonWriter::ProcessAnnotation(uint64_t               block_index,
     annotation["label"] = label;
     annotation["data"]  = data;
     WriteBlockEnd();
+}
+
+std::string JsonWriter::GenerateFilename(const std::string& filename)
+{
+    num_files_++;
+    return std::to_string(num_files_) + "_" + filename;
+}
+
+bool JsonWriter::WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data)
+{
+    FILE* file_output = nullptr;
+    if (util::platform::FileOpen(&file_output, filename.c_str(), "wb") == 0)
+    {
+        util::platform::FileWrite(data, static_cast<size_t>(data_size), 1, file_output);
+        util::platform::FileClose(file_output);
+        return true;
+    }
+    return false;
 }
 
 GFXRECON_END_NAMESPACE(decode)
