@@ -61,6 +61,9 @@ class MetadataJsonConsumer : public Base
     inline void WriteBlockEnd() { this->writer_->WriteBlockEnd(); }
 
   public:
+
+    /// @defGroup ApiAgnosticMetaBlocks Metablocks used by both Vulkan and DX12.
+    /// @{
     virtual void ProcessDisplayMessageCommand(const std::string& message) override
     {
         auto& jdata = WriteMetaCommandStart("DisplayMessageCommand");
@@ -332,6 +335,7 @@ class MetadataJsonConsumer : public Base
             }
         });
     }
+    /// @}
 };
 
 GFXRECON_END_NAMESPACE(decode)

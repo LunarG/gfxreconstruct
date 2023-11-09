@@ -45,6 +45,17 @@ class Dx12JsonConsumerBase : public Dx12Consumer
 
     bool IsValid() const;
 
+    /// @defGroup ApiAgnosticMetaBlocksUsedOnlyByDx12 Metablocks used by only DX12.
+    /// @{
+    /// @todo kCreateHeapAllocationCommand
+    /// @todo kInitSubresourceCommand
+    /// @todo kInitDx12AccelerationStructureCommand
+    /// @todo kFillMemoryResourceValueCommand
+    /// @todo kDxgiAdapterInfoCommand
+    /// @todo kDriverInfoCommand
+    /// @todo kDx12RuntimeInfoCommand (only used by stats consumer)
+    /// @}
+
   protected:
     JsonWriter* writer_{ nullptr };
 };
