@@ -26,7 +26,6 @@
 */
 
 #include "generated_dx12_struct_decoders_to_json.h"
-#include "generated_dx12_struct_to_json.h"
 #include "generated_dx12_enum_to_json.h"
 #include "decode/custom_dx12_struct_decoders.h"
 #include "decode/decode_json_util.h"
@@ -3991,6 +3990,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BARRIER_GROU
     }
 }
 
+/// Manual raw struct functon to be used for Decoded_D3D12_CLEAR_VALUE conversion.
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEPTH_STENCIL_VALUE& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Depth"], obj.Depth, options);
+    FieldToJson(jdata["Stencil"], obj.Stencil, options);
+}
+
 // D3D12_CLEAR_VALUE contains a union so we need to output depending on the format.
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CLEAR_VALUE* data, const JsonOptions& options)
 {
@@ -4007,16 +4013,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CLEAR_VALUE*
         }
         else
         {
-            auto& color = jdata["Color"];
-            FieldToJson(color[0], decoded_value.Color[0], options);
-            FieldToJson(color[1], decoded_value.Color[1], options);
-            FieldToJson(color[2], decoded_value.Color[2], options);
-            FieldToJson(color[3], decoded_value.Color[3], options);
-            FieldToJson(color, &meta_struct.Color, options);
-            FieldToJson(color, decoded_value.Color, options);
-            FieldToJson(color, decoded_value.Color, 4, options);
-
-            /// @todo look at this in the debugger and choose one of the compact options.
+            FieldToJson(jdata["Color"], decoded_value.Color, options);
         }
     }
 }

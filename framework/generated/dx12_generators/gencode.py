@@ -60,8 +60,6 @@ from dx12_enum_to_json_header_generator import Dx12EnumToJsonHeaderGenerator
 from dx12_struct_to_string_header_generator import Dx12StructToStringHeaderGenerator
 from dx12_struct_to_string_body_generator import Dx12StructToStringBodyGenerator
 from dx12_call_id_to_string_header_generator import Dx12CallIdToStringHeaderGenerator
-from dx12_struct_to_json_header_generator import Dx12StructToJsonHeaderGenerator
-from dx12_struct_to_json_body_generator import Dx12StructToJsonBodyGenerator
 from dx12_struct_decoders_to_json_header_generator import Dx12StructDecodersToJsonHeaderGenerator
 from dx12_struct_decoders_to_json_body_generator import Dx12StructDecodersToJsonBodyGenerator
 
@@ -657,38 +655,6 @@ def make_gen_opts(args):
             filename='generated_dx12_struct_to_string.cpp',
             directory=directory,
             blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + py_prefix_strings,
-            protect_file=False,
-            protect_feature=False
-        )
-    ]
-
-    py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_struct_to_json_header_generator.py'
-    )
-    gen_opts['generated_dx12_struct_to_json.h'] = [
-        Dx12StructToJsonHeaderGenerator,
-        Dx12GeneratorOptions(
-            filename='generated_dx12_struct_to_json.h',
-            directory=directory,
-            blacklists=json_raw_structs_blocklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + py_prefix_strings,
-            protect_file=True,
-            protect_feature=False
-        )
-    ]
-
-    py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_struct_to_json_body_generator.py'
-    )
-    gen_opts['generated_dx12_struct_to_json.cpp'] = [
-        Dx12StructToJsonBodyGenerator,
-        Dx12GeneratorOptions(
-            filename='generated_dx12_struct_to_json.cpp',
-            directory=directory,
-            blacklists=json_raw_structs_blocklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
