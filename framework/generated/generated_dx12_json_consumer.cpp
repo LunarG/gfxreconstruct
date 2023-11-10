@@ -97,6 +97,7 @@ void Dx12JsonConsumer::Process_IDXGIObject_SetPrivateData(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "SetPrivateData");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -118,6 +119,7 @@ void Dx12JsonConsumer::Process_IDXGIObject_SetPrivateDataInterface(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "SetPrivateDataInterface");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -139,6 +141,7 @@ void Dx12JsonConsumer::Process_IDXGIObject_GetPrivateData(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "GetPrivateData");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -160,6 +163,7 @@ void Dx12JsonConsumer::Process_IDXGIObject_GetParent(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIObject", object_id, "GetParent");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -180,6 +184,7 @@ void Dx12JsonConsumer::Process_IDXGIDeviceSubObject_GetDevice(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDeviceSubObject", object_id, "GetDevice");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -199,6 +204,7 @@ void Dx12JsonConsumer::Process_IDXGIResource_GetSharedHandle(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "GetSharedHandle");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -217,6 +223,7 @@ void Dx12JsonConsumer::Process_IDXGIResource_GetUsage(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "GetUsage");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -235,6 +242,7 @@ void Dx12JsonConsumer::Process_IDXGIResource_SetEvictionPriority(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "SetEvictionPriority");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -253,6 +261,7 @@ void Dx12JsonConsumer::Process_IDXGIResource_GetEvictionPriority(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource", object_id, "GetEvictionPriority");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -272,6 +281,7 @@ void Dx12JsonConsumer::Process_IDXGIKeyedMutex_AcquireSync(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIKeyedMutex", object_id, "AcquireSync");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -291,6 +301,7 @@ void Dx12JsonConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIKeyedMutex", object_id, "ReleaseSync");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -309,6 +320,7 @@ void Dx12JsonConsumer::Process_IDXGISurface_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -328,6 +340,7 @@ void Dx12JsonConsumer::Process_IDXGISurface_Map(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface", object_id, "Map");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -346,6 +359,7 @@ void Dx12JsonConsumer::Process_IDXGISurface_Unmap(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface", object_id, "Unmap");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -361,10 +375,11 @@ void Dx12JsonConsumer::Process_IDXGISurface1_GetDC(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface1", object_id, "GetDC");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Discard"], Discard, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Discard"], Discard, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["phdc"], phdc, options); // [pointer to single value]
     }
     writer_->WriteBlockEnd();
@@ -380,6 +395,7 @@ void Dx12JsonConsumer::Process_IDXGISurface1_ReleaseDC(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface1", object_id, "ReleaseDC");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -399,6 +415,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter_EnumOutputs(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter", object_id, "EnumOutputs");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -418,6 +435,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -437,6 +455,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter", object_id, "CheckInterfaceSupport");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -456,6 +475,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -477,6 +497,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_GetDisplayModeList(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetDisplayModeList");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -500,6 +521,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "FindClosestMatchingMode");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -519,6 +541,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_WaitForVBlank(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "WaitForVBlank");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -534,11 +557,12 @@ void Dx12JsonConsumer::Process_IDXGIOutput_TakeOwnership(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "TakeOwnership");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDevice"], pDevice, options); // [pointer to single value]
-        FieldToJson(args["Exclusive"], Exclusive, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Exclusive"], Exclusive, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -565,6 +589,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetGammaControlCapabilities");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -583,6 +608,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_SetGammaControl(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "SetGammaControl");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -601,6 +627,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_GetGammaControl(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetGammaControl");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -619,6 +646,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_SetDisplaySurface(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "SetDisplaySurface");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -637,6 +665,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetDisplaySurfaceData");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -655,6 +684,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_GetFrameStatistics(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput", object_id, "GetFrameStatistics");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -674,6 +704,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_Present(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "Present");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -695,6 +726,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_GetBuffer(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetBuffer");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -716,10 +748,11 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_SetFullscreenState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "SetFullscreenState");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Fullscreen"], Fullscreen, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Fullscreen"], Fullscreen, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["pTarget"], pTarget, options); // [pointer to single value]
     }
     writer_->WriteBlockEnd();
@@ -736,10 +769,11 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_GetFullscreenState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetFullscreenState");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pFullscreen"], pFullscreen, options); // [pointer to single value]
+        Bool32ToJson(args["pFullscreen"], pFullscreen, options); // [pointer to single value]
         FieldToJson(args["ppTarget"], ppTarget, options); // [pointer to single value]
     }
     writer_->WriteBlockEnd();
@@ -755,6 +789,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -777,6 +812,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_ResizeBuffers(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "ResizeBuffers");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -799,6 +835,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_ResizeTarget(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "ResizeTarget");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -817,6 +854,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_GetContainingOutput(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetContainingOutput");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -835,6 +873,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_GetFrameStatistics(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetFrameStatistics");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -853,6 +892,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_GetLastPresentCount(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain", object_id, "GetLastPresentCount");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -872,6 +912,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory_EnumAdapters(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "EnumAdapters");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -892,6 +933,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory_MakeWindowAssociation(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "MakeWindowAssociation");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -911,6 +953,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory_GetWindowAssociation(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "GetWindowAssociation");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -931,6 +974,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory_CreateSwapChain(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "CreateSwapChain");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -952,6 +996,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory", object_id, "CreateSoftwareAdapter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -971,6 +1016,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice_GetAdapter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "GetAdapter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -993,6 +1039,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice_CreateSurface(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "CreateSurface");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1017,6 +1064,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice_QueryResourceResidency(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "QueryResourceResidency");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1037,6 +1085,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "SetGPUThreadPriority");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1055,6 +1104,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice", object_id, "GetGPUThreadPriority");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1074,6 +1124,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory1_EnumAdapters1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory1", object_id, "EnumAdapters1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1092,7 +1143,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory1_IsCurrent(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory1", object_id, "IsCurrent");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -1106,6 +1157,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter1_GetDesc1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter1", object_id, "GetDesc1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1124,6 +1176,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice1", object_id, "SetMaximumFrameLatency");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1142,6 +1195,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice1", object_id, "GetMaximumFrameLatency");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1163,7 +1217,7 @@ void Dx12JsonConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDisplayControl", object_id, "IsStereoEnabled");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -1179,7 +1233,7 @@ void Dx12JsonConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["enabled"], enabled, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["enabled"], enabled, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -1213,6 +1267,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "AcquireNextFrame");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1235,6 +1290,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetFrameDirtyRects");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1257,6 +1313,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetFrameMoveRects");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1280,6 +1337,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "GetFramePointerShape");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1301,6 +1359,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "MapDesktopSurface");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1318,6 +1377,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "UnMapDesktopSurface");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -1331,6 +1391,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutputDuplication", object_id, "ReleaseFrame");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -1347,6 +1408,7 @@ void Dx12JsonConsumer::Process_IDXGISurface2_GetResource(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISurface2", object_id, "GetResource");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1368,6 +1430,7 @@ void Dx12JsonConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource1", object_id, "CreateSubresourceSurface");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1390,6 +1453,7 @@ void Dx12JsonConsumer::Process_IDXGIResource1_CreateSharedHandle(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIResource1", object_id, "CreateSharedHandle");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1413,6 +1477,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice2_OfferResources(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice2", object_id, "OfferResources");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1435,12 +1500,13 @@ void Dx12JsonConsumer::Process_IDXGIDevice2_ReclaimResources(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice2", object_id, "ReclaimResources");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["NumResources"], NumResources, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["ppResources"], ppResources, options); // [pointer to array]
-        FieldToJson(args["pDiscarded"], pDiscarded, options); // [pointer to array]
+        Bool32ToJson(args["pDiscarded"], pDiscarded, options); // [pointer to array]
     }
     writer_->WriteBlockEnd();
 }
@@ -1455,6 +1521,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice2", object_id, "EnqueueSetEvent");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1473,6 +1540,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_GetDesc1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetDesc1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1491,6 +1559,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetFullscreenDesc");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1509,6 +1578,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_GetHwnd(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetHwnd");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1528,6 +1598,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_GetCoreWindow(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetCoreWindow");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1549,6 +1620,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_Present1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "Present1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1568,7 +1640,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "IsTemporaryMonoSupported");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -1582,6 +1654,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetRestrictToOutput");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1600,6 +1673,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "SetBackgroundColor");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1618,6 +1692,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetBackgroundColor");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1636,6 +1711,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_SetRotation(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "SetRotation");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1654,6 +1730,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_GetRotation(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain1", object_id, "GetRotation");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1671,7 +1748,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "IsWindowedStereoEnabled");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -1690,6 +1767,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "CreateSwapChainForHwnd");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1717,6 +1795,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "CreateSwapChainForCoreWindow");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1740,6 +1819,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "GetSharedResourceAdapterLuid");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1761,6 +1841,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterStereoStatusWindow");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1782,6 +1863,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterStereoStatusEvent");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1820,6 +1902,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterOcclusionStatusWindow");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1841,6 +1924,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "RegisterOcclusionStatusEvent");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1880,6 +1964,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "CreateSwapChainForComposition");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1901,6 +1986,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter2_GetDesc2(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter2", object_id, "GetDesc2");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1922,6 +2008,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "GetDisplayModeList1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1945,6 +2032,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "FindClosestMatchingMode1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1965,6 +2053,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "GetDisplaySurfaceData1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -1984,6 +2073,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_DuplicateOutput(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput1", object_id, "DuplicateOutput");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2066,6 +2156,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_SetSourceSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "SetSourceSize");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2086,6 +2177,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_GetSourceSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetSourceSize");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2105,6 +2197,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "SetMaximumFrameLatency");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2123,6 +2216,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetMaximumFrameLatency");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2140,6 +2234,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetFrameLatencyWaitableObject");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -2154,6 +2249,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "SetMatrixTransform");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2172,6 +2268,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetMatrixTransform");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2189,7 +2286,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput2_SupportsOverlays(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput2", object_id, "SupportsOverlays");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -2202,6 +2299,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory3_GetCreationFlags(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory3", object_id, "GetCreationFlags");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -2218,6 +2316,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "PresentBuffer");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2238,6 +2337,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetSourceRect");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2256,6 +2356,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetTargetRect");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2275,6 +2376,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetDestSize");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2294,6 +2396,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetSourceRect");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2312,6 +2415,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetTargetRect");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2331,6 +2435,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetDestSize");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2350,6 +2455,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "SetColorSpace");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2367,6 +2473,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetColorSpace");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -2385,6 +2492,7 @@ void Dx12JsonConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSu
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactoryMedia", object_id, "CreateSwapChainForCompositionSurfaceHandle");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2412,6 +2520,7 @@ void Dx12JsonConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForComposi
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactoryMedia", object_id, "CreateDecodeSwapChainForCompositionSurfaceHandle");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2435,6 +2544,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChainMedia", object_id, "GetFrameStatisticsMedia");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2453,6 +2563,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChainMedia", object_id, "SetPresentDuration");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2473,6 +2584,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChainMedia", object_id, "CheckPresentDurationSupport");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2495,6 +2607,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput3", object_id, "CheckOverlaySupport");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2518,6 +2631,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "GetCurrentBackBufferIndex");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -2533,6 +2647,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "CheckColorSpaceSupport");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2552,6 +2667,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain3_SetColorSpace1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "SetColorSpace1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2576,6 +2692,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "ResizeBuffers1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2603,6 +2720,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput4", object_id, "CheckOverlayColorSpaceSupport");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2626,6 +2744,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory4", object_id, "EnumAdapterByLuid");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2647,6 +2766,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory4", object_id, "EnumWarpAdapter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2667,6 +2787,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTe
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "RegisterHardwareContentProtectionTeardownStatusEvent");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2705,6 +2826,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "QueryVideoMemoryInfo");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2727,6 +2849,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "SetVideoMemoryReservation");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2748,6 +2871,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNoti
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "RegisterVideoMemoryBudgetChangeNotificationEvent");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2792,6 +2916,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput5_DuplicateOutput1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput5", object_id, "DuplicateOutput1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2816,6 +2941,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain4", object_id, "SetHDRMetaData");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2839,6 +2965,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice4_OfferResources1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice4", object_id, "OfferResources1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2862,6 +2989,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice4_ReclaimResources1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDevice4", object_id, "ReclaimResources1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2903,6 +3031,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter4_GetDesc3(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter4", object_id, "GetDesc3");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2921,6 +3050,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput6_GetDesc1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput6", object_id, "GetDesc1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2939,6 +3069,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIOutput6", object_id, "CheckHardwareCompositionSupport");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2960,6 +3091,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory6", object_id, "EnumAdapterByGpuPreference");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -2982,6 +3114,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory7", object_id, "RegisterAdaptersChangedEvent");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3001,6 +3134,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory7", object_id, "UnregisterAdaptersChangedEvent");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3217,6 +3351,7 @@ void Dx12JsonConsumer::Process_ID3D12Object_GetPrivateData(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Object", object_id, "GetPrivateData");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3239,6 +3374,7 @@ void Dx12JsonConsumer::Process_ID3D12Object_SetPrivateData(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Object", object_id, "SetPrivateData");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3260,6 +3396,7 @@ void Dx12JsonConsumer::Process_ID3D12Object_SetPrivateDataInterface(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Object", object_id, "SetPrivateDataInterface");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3279,6 +3416,7 @@ void Dx12JsonConsumer::Process_ID3D12Object_SetName(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Object", object_id, "SetName");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3298,6 +3436,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceChild_GetDevice(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceChild", object_id, "GetDevice");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3316,6 +3455,7 @@ void Dx12JsonConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureD
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12RootSignatureDeserializer", object_id, "GetRootSignatureDesc");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3331,6 +3471,7 @@ void Dx12JsonConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRootS
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12VersionedRootSignatureDeserializer", object_id, "GetRootSignatureDescAtVersion");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3349,6 +3490,7 @@ void Dx12JsonConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUncon
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12VersionedRootSignatureDeserializer", object_id, "GetUnconvertedRootSignatureDesc");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3362,6 +3504,7 @@ void Dx12JsonConsumer::Process_ID3D12Heap_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Heap", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3378,6 +3521,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_Map(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "Map");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3416,6 +3560,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3429,6 +3574,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "GetGPUVirtualAddress");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3447,6 +3593,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_ReadFromSubresource(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "ReadFromSubresource");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3470,6 +3617,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_GetHeapProperties(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "GetHeapProperties");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3488,6 +3636,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandAllocator_Reset(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandAllocator", object_id, "Reset");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3501,6 +3650,7 @@ void Dx12JsonConsumer::Process_ID3D12Fence_GetCompletedValue(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Fence", object_id, "GetCompletedValue");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3516,6 +3666,7 @@ void Dx12JsonConsumer::Process_ID3D12Fence_SetEventOnCompletion(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Fence", object_id, "SetEventOnCompletion");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3535,6 +3686,7 @@ void Dx12JsonConsumer::Process_ID3D12Fence_Signal(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Fence", object_id, "Signal");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3552,6 +3704,7 @@ void Dx12JsonConsumer::Process_ID3D12Fence1_GetCreationFlags(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Fence1", object_id, "GetCreationFlags");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3566,6 +3719,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineState_GetCachedBlob(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineState", object_id, "GetCachedBlob");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -3583,6 +3737,7 @@ void Dx12JsonConsumer::Process_ID3D12DescriptorHeap_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DescriptorHeap", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3596,6 +3751,7 @@ void Dx12JsonConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHea
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DescriptorHeap", object_id, "GetCPUDescriptorHandleForHeapStart");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3609,6 +3765,7 @@ void Dx12JsonConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHea
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DescriptorHeap", object_id, "GetGPUDescriptorHandleForHeapStart");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3622,6 +3779,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandList_GetType(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandList", object_id, "GetType");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3635,6 +3793,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_Close(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "Close");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3650,6 +3809,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_Reset(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "Reset");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -4379,7 +4539,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
     {
         FieldToJson(args["NumRenderTargetDescriptors"], NumRenderTargetDescriptors, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["pRenderTargetDescriptors"], pRenderTargetDescriptors, options); // [pointer to array]
-        FieldToJson(args["RTsSingleHandleToDescriptorRange"], RTsSingleHandleToDescriptorRange, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["RTsSingleHandleToDescriptorRange"], RTsSingleHandleToDescriptorRange, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["pDepthStencilDescriptor"], pDepthStencilDescriptor, options); // [pointer to single value]
     }
     writer_->WriteBlockEnd();
@@ -4994,6 +5154,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_Signal(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "Signal");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5014,6 +5175,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_Wait(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "Wait");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5033,6 +5195,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "GetTimestampFrequency");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5052,6 +5215,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "GetClockCalibration");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5070,6 +5234,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -5083,6 +5248,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetNodeCount(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetNodeCount");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -5099,6 +5265,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandQueue(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateCommandQueue");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5121,6 +5288,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandAllocator(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateCommandAllocator");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5143,6 +5311,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateGraphicsPipelineState");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5165,6 +5334,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateComputePipelineState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateComputePipelineState");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5190,6 +5360,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandList(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateCommandList");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5215,6 +5386,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateDescriptorHeap(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateDescriptorHeap");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5235,6 +5407,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetDescriptorHandleIncrementSize");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5257,6 +5430,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateRootSignature(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateRootSignature");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5457,6 +5631,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetResourceAllocationInfo");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5478,6 +5653,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetCustomHeapProperties(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetCustomHeapProperties");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5503,6 +5679,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommittedResource(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateCommittedResource");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5529,6 +5706,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateHeap(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateHeap");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5555,6 +5733,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreatePlacedResource(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreatePlacedResource");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5583,6 +5762,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateReservedResource(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateReservedResource");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5609,6 +5789,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateSharedHandle(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateSharedHandle");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5633,6 +5814,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_OpenSharedHandle(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "OpenSharedHandle");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5655,6 +5837,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_OpenSharedHandleByName(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "OpenSharedHandleByName");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5676,6 +5859,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_MakeResident(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "MakeResident");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5696,6 +5880,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_Evict(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "Evict");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5718,6 +5903,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateFence(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateFence");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5738,6 +5924,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetDeviceRemovedReason");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -5785,6 +5972,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateQueryHeap(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateQueryHeap");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5805,10 +5993,11 @@ void Dx12JsonConsumer::Process_ID3D12Device_SetStablePowerState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "SetStablePowerState");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -5826,6 +6015,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandSignature(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateCommandSignature");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5875,6 +6065,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetAdapterLuid(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetAdapterLuid");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -5890,6 +6081,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineLibrary", object_id, "StorePipeline");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5912,6 +6104,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineLibrary", object_id, "LoadGraphicsPipeline");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5936,6 +6129,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineLibrary", object_id, "LoadComputePipeline");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5956,6 +6150,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineLibrary", object_id, "GetSerializedSize");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -5971,6 +6166,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_Serialize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineLibrary", object_id, "Serialize");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5993,6 +6189,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineLibrary1", object_id, "LoadPipeline");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6017,6 +6214,7 @@ void Dx12JsonConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device1", object_id, "CreatePipelineLibrary");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6042,6 +6240,7 @@ void Dx12JsonConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device1", object_id, "SetEventOnMultipleFenceCompletion");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6066,6 +6265,7 @@ void Dx12JsonConsumer::Process_ID3D12Device1_SetResidencyPriority(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device1", object_id, "SetResidencyPriority");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6088,6 +6288,7 @@ void Dx12JsonConsumer::Process_ID3D12Device2_CreatePipelineState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device2", object_id, "CreatePipelineState");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6110,6 +6311,7 @@ void Dx12JsonConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device3", object_id, "OpenExistingHeapFromAddress");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6132,6 +6334,7 @@ void Dx12JsonConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device3", object_id, "OpenExistingHeapFromFileMapping");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6156,6 +6359,7 @@ void Dx12JsonConsumer::Process_ID3D12Device3_EnqueueMakeResident(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device3", object_id, "EnqueueMakeResident");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6179,6 +6383,7 @@ void Dx12JsonConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ProtectedSession", object_id, "GetStatusFence");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6197,6 +6402,7 @@ void Dx12JsonConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ProtectedSession", object_id, "GetSessionStatus");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6210,6 +6416,7 @@ void Dx12JsonConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ProtectedResourceSession", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6228,6 +6435,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateCommandList1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device4", object_id, "CreateCommandList1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6252,6 +6460,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device4", object_id, "CreateProtectedResourceSession");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6279,6 +6488,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateCommittedResource1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device4", object_id, "CreateCommittedResource1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6307,6 +6517,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateHeap1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device4", object_id, "CreateHeap1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6333,6 +6544,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateReservedResource1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device4", object_id, "CreateReservedResource1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6359,6 +6571,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device4", object_id, "GetResourceAllocationInfo1");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6396,6 +6609,7 @@ void Dx12JsonConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12SwapChainAssistant", object_id, "GetLUID");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6411,6 +6625,7 @@ void Dx12JsonConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12SwapChainAssistant", object_id, "GetSwapChainObject");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6433,6 +6648,7 @@ void Dx12JsonConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCom
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12SwapChainAssistant", object_id, "GetCurrentResourceAndCommandQueue");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6453,6 +6669,7 @@ void Dx12JsonConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12SwapChainAssistant", object_id, "InsertImplicitSync");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6467,6 +6684,7 @@ void Dx12JsonConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12LifetimeTracker", object_id, "DestroyOwnedObject");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6503,6 +6721,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties", object_id, "GetShaderStackSize");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6520,6 +6739,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties", object_id, "GetPipelineStackSize");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6553,6 +6773,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device5", object_id, "CreateLifetimeTracker");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6586,6 +6807,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device5", object_id, "EnumerateMetaCommands");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6609,6 +6831,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device5", object_id, "EnumerateMetaCommandParameters");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6636,6 +6859,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CreateMetaCommand(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device5", object_id, "CreateMetaCommand");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6661,6 +6885,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CreateStateObject(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device5", object_id, "CreateStateObject");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6701,6 +6926,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device5", object_id, "CheckDriverMatchingIdentifier");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6790,7 +7016,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings2_UseMarke
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["MarkersOnly"], MarkersOnly, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["MarkersOnly"], MarkersOnly, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -6805,6 +7031,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumb
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceRemovedExtendedData", object_id, "GetAutoBreadcrumbsOutput");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6823,6 +7050,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAlloc
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceRemovedExtendedData", object_id, "GetPageFaultAllocationOutput");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6841,6 +7069,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrum
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceRemovedExtendedData1", object_id, "GetAutoBreadcrumbsOutput1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6859,6 +7088,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllo
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceRemovedExtendedData1", object_id, "GetPageFaultAllocationOutput1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6877,6 +7107,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceRemovedExtendedData2_GetPageFaultAllo
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceRemovedExtendedData2", object_id, "GetPageFaultAllocationOutput2");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6894,6 +7125,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceRemovedExtendedData2_GetDeviceState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceRemovedExtendedData2", object_id, "GetDeviceState");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6911,13 +7143,14 @@ void Dx12JsonConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device6", object_id, "SetBackgroundProcessingMode");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["Mode"], Mode, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["MeasurementsAction"], MeasurementsAction, options); // [non-pointer, non-array, non-handle]
         FieldToJson(args["hEventToSignalUponCompletion"], hEventToSignalUponCompletion, options); // [pointer to single value]
-        FieldToJson(args["pbFurtherMeasurementsDesired"], pbFurtherMeasurementsDesired, options); // [pointer to single value]
+        Bool32ToJson(args["pbFurtherMeasurementsDesired"], pbFurtherMeasurementsDesired, options); // [pointer to single value]
     }
     writer_->WriteBlockEnd();
 }
@@ -6931,6 +7164,7 @@ void Dx12JsonConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ProtectedResourceSession1", object_id, "GetDesc1");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6948,6 +7182,7 @@ void Dx12JsonConsumer::Process_ID3D12Device7_AddToStateObject(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device7", object_id, "AddToStateObject");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6971,6 +7206,7 @@ void Dx12JsonConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device7", object_id, "CreateProtectedResourceSession1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6994,6 +7230,7 @@ void Dx12JsonConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device8", object_id, "GetResourceAllocationInfo2");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7022,6 +7259,7 @@ void Dx12JsonConsumer::Process_ID3D12Device8_CreateCommittedResource2(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device8", object_id, "CreateCommittedResource2");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7053,6 +7291,7 @@ void Dx12JsonConsumer::Process_ID3D12Device8_CreatePlacedResource1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device8", object_id, "CreatePlacedResource1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7130,6 +7369,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource1", object_id, "GetProtectedResourceSession");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7148,6 +7388,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource2_GetDesc1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource2", object_id, "GetDesc1");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7163,6 +7404,7 @@ void Dx12JsonConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Heap1", object_id, "GetProtectedResourceSession");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7200,6 +7442,7 @@ void Dx12JsonConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSiz
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12MetaCommand", object_id, "GetRequiredParameterResourceSize");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7396,6 +7639,7 @@ void Dx12JsonConsumer::Process_ID3D12ShaderCacheSession_FindValue(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ShaderCacheSession", object_id, "FindValue");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7420,6 +7664,7 @@ void Dx12JsonConsumer::Process_ID3D12ShaderCacheSession_StoreValue(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ShaderCacheSession", object_id, "StoreValue");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7452,6 +7697,7 @@ void Dx12JsonConsumer::Process_ID3D12ShaderCacheSession_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ShaderCacheSession", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7468,6 +7714,7 @@ void Dx12JsonConsumer::Process_ID3D12Device9_CreateShaderCacheSession(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device9", object_id, "CreateShaderCacheSession");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7489,6 +7736,7 @@ void Dx12JsonConsumer::Process_ID3D12Device9_ShaderCacheControl(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device9", object_id, "ShaderCacheControl");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7511,6 +7759,7 @@ void Dx12JsonConsumer::Process_ID3D12Device9_CreateCommandQueue1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device9", object_id, "CreateCommandQueue1");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7541,6 +7790,7 @@ void Dx12JsonConsumer::Process_ID3D12Device10_CreateCommittedResource3(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device10", object_id, "CreateCommittedResource3");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7576,6 +7826,7 @@ void Dx12JsonConsumer::Process_ID3D12Device10_CreatePlacedResource2(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device10", object_id, "CreatePlacedResource2");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7609,6 +7860,7 @@ void Dx12JsonConsumer::Process_ID3D12Device10_CreateReservedResource2(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device10", object_id, "CreateReservedResource2");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7658,6 +7910,7 @@ void Dx12JsonConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device12", object_id, "GetResourceAllocationInfo3");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7682,6 +7935,7 @@ void Dx12JsonConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12VirtualizationGuestDevice", object_id, "ShareWithHost");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7703,6 +7957,7 @@ void Dx12JsonConsumer::Process_ID3D12VirtualizationGuestDevice_CreateFenceFd(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12VirtualizationGuestDevice", object_id, "CreateFenceFd");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7725,7 +7980,7 @@ void Dx12JsonConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["bEnable"], bEnable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["bEnable"], bEnable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -7739,7 +7994,7 @@ void Dx12JsonConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Tools", object_id, "ShaderInstrumentationEnabled");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -7754,6 +8009,7 @@ void Dx12JsonConsumer::Process_ID3D12SDKConfiguration_SetSDKVersion(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12SDKConfiguration", object_id, "SetSDKVersion");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7776,6 +8032,7 @@ void Dx12JsonConsumer::Process_ID3D12SDKConfiguration1_CreateDeviceFactory(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12SDKConfiguration1", object_id, "CreateDeviceFactory");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7808,6 +8065,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_InitializeFromGlobalState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceFactory", object_id, "InitializeFromGlobalState");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7821,6 +8079,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_ApplyToGlobalState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceFactory", object_id, "ApplyToGlobalState");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7835,6 +8094,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_SetFlags(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceFactory", object_id, "SetFlags");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7852,6 +8112,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_GetFlags(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceFactory", object_id, "GetFlags");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7868,6 +8129,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_GetConfigurationInterface(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceFactory", object_id, "GetConfigurationInterface");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7891,6 +8153,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_EnableExperimentalFeatures(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceFactory", object_id, "EnableExperimentalFeatures");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7915,6 +8178,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_CreateDevice(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceFactory", object_id, "CreateDevice");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7935,6 +8199,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceConfiguration", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7950,6 +8215,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration_GetEnabledExperimentalF
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceConfiguration", object_id, "GetEnabledExperimentalFeatures");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7971,6 +8237,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration_SerializeVersionedRootS
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceConfiguration", object_id, "SerializeVersionedRootSignature");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7994,6 +8261,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration_CreateVersionedRootSign
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceConfiguration", object_id, "CreateVersionedRootSignatureDeserializer");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8151,6 +8419,7 @@ void Dx12JsonConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DSRDeviceFactory", object_id, "CreateDSRDevice");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8175,6 +8444,7 @@ void Dx12JsonConsumer::Process_ID3D10Blob_GetBufferPointer(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D10Blob", object_id, "GetBufferPointer");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -8188,6 +8458,7 @@ void Dx12JsonConsumer::Process_ID3D10Blob_GetBufferSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D10Blob", object_id, "GetBufferSize");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -8204,6 +8475,7 @@ void Dx12JsonConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallba
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3DDestructionNotifier", object_id, "RegisterDestructionCallback");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8224,6 +8496,7 @@ void Dx12JsonConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCall
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3DDestructionNotifier", object_id, "UnregisterDestructionCallback");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8272,7 +8545,7 @@ void Dx12JsonConsumer::Process_ID3D12Debug1_SetEnableGPUBasedValidation(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -8289,7 +8562,7 @@ void Dx12JsonConsumer::Process_ID3D12Debug1_SetEnableSynchronizedCommandQueueVal
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -8323,7 +8596,7 @@ void Dx12JsonConsumer::Process_ID3D12Debug3_SetEnableGPUBasedValidation(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -8340,7 +8613,7 @@ void Dx12JsonConsumer::Process_ID3D12Debug3_SetEnableSynchronizedCommandQueueVal
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -8386,7 +8659,7 @@ void Dx12JsonConsumer::Process_ID3D12Debug5_SetEnableAutoName(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -8403,7 +8676,7 @@ void Dx12JsonConsumer::Process_ID3D12Debug6_SetForceLegacyBarrierValidation(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["Enable"], Enable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -8420,6 +8693,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice1", object_id, "SetDebugParameter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8442,6 +8716,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice1", object_id, "GetDebugParameter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8462,6 +8737,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice1", object_id, "ReportLiveDeviceObjects");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8480,6 +8756,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice", object_id, "SetFeatureMask");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8497,6 +8774,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice", object_id, "GetFeatureMask");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -8511,6 +8789,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice", object_id, "ReportLiveDeviceObjects");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8531,6 +8810,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice2", object_id, "SetDebugParameter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8553,6 +8833,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice2", object_id, "GetDebugParameter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8575,7 +8856,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandQueue", object_id, "AssertResourceState");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pResource"], pResource, options); // [pointer to single value]
@@ -8639,7 +8920,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList1", object_id, "AssertResourceState");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pResource"], pResource, options); // [pointer to single value]
@@ -8661,6 +8942,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList1", object_id, "SetDebugParameter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8683,6 +8965,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList1", object_id, "GetDebugParameter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8705,7 +8988,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList", object_id, "AssertResourceState");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pResource"], pResource, options); // [pointer to single value]
@@ -8725,6 +9008,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList", object_id, "SetFeatureMask");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8742,6 +9026,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList", object_id, "GetFeatureMask");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -8758,6 +9043,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList2", object_id, "SetDebugParameter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8780,6 +9066,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList2", object_id, "GetDebugParameter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8935,6 +9222,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "SetMessageCountLimit");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8967,6 +9255,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetMessage(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetMessage");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -8986,6 +9275,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFil
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumMessagesAllowedByStorageFilter");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -8999,6 +9289,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilt
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumMessagesDeniedByStorageFilter");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9012,6 +9303,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumStoredMessages");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9025,6 +9317,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetr
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumStoredMessagesAllowedByRetrievalFilter");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9038,6 +9331,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageC
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumMessagesDiscardedByMessageCountLimit");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9051,6 +9345,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetMessageCountLimit");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9065,6 +9360,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "AddStorageFilterEntries");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9084,6 +9380,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetStorageFilter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9114,6 +9411,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "PushEmptyStorageFilter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9127,6 +9425,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "PushCopyOfStorageFilter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9141,6 +9440,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "PushStorageFilter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9170,6 +9470,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetStorageFilterStackSize");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9184,6 +9485,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "AddRetrievalFilterEntries");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9203,6 +9505,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetRetrievalFilter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9233,6 +9536,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "PushEmptyRetrievalFilter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9246,6 +9550,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "PushCopyOfRetrievalFilter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9260,6 +9565,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "PushRetrievalFilter");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9289,6 +9595,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetRetrievalFilterStackSize");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9306,6 +9613,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_AddMessage(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "AddMessage");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9328,6 +9636,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "AddApplicationMessage");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9348,11 +9657,12 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "SetBreakOnCategory");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["Category"], Category, options); // [non-pointer, non-array, non-handle]
-        FieldToJson(args["bEnable"], bEnable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["bEnable"], bEnable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -9368,11 +9678,12 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "SetBreakOnSeverity");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["Severity"], Severity, options); // [non-pointer, non-array, non-handle]
-        FieldToJson(args["bEnable"], bEnable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["bEnable"], bEnable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -9388,11 +9699,12 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "SetBreakOnID");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["ID"], ID, options); // [non-pointer, non-array, non-handle]
-        FieldToJson(args["bEnable"], bEnable, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["bEnable"], bEnable, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -9407,7 +9719,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetBreakOnCategory");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["Category"], Category, options); // [non-pointer, non-array, non-handle]
@@ -9425,7 +9737,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetBreakOnSeverity");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["Severity"], Severity, options); // [non-pointer, non-array, non-handle]
@@ -9443,7 +9755,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetBreakOnID");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["ID"], ID, options); // [non-pointer, non-array, non-handle]
@@ -9463,7 +9775,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_SetMuteDebugOutput(
     // Nothing returned from method.
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["bMute"], bMute, options); // [non-pointer, non-array, non-handle]
+        Bool32ToJson(args["bMute"], bMute, options); // [non-pointer, non-array, non-handle]
     }
     writer_->WriteBlockEnd();
 }
@@ -9477,7 +9789,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetMuteDebugOutput");
     const JsonOptions& options = writer_->GetOptions();
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -9494,6 +9806,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue1_RegisterMessageCallback(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue1", object_id, "RegisterMessageCallback");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9515,6 +9828,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue1_UnregisterMessageCallback(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue1", object_id, "UnregisterMessageCallback");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9538,6 +9852,7 @@ void Dx12JsonConsumer::Process_IUnknown_QueryInterface(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IUnknown", object_id, "QueryInterface");
     const JsonOptions& options = writer_->GetOptions();
+    /// @todo Need a human-readable conversion for HRESULTs.
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -9556,6 +9871,7 @@ void Dx12JsonConsumer::Process_IUnknown_AddRef(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IUnknown", object_id, "AddRef");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9569,6 +9885,7 @@ void Dx12JsonConsumer::Process_IUnknown_Release(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IUnknown", object_id, "Release");
     const JsonOptions& options = writer_->GetOptions();
+    // An unknown return type was seen in generation. Defaulting to the base converter signature should be fine.
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }

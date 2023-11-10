@@ -85,7 +85,8 @@ void FieldToJson(nlohmann::ordered_json&  jdata,
 void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options);
 
 /// @brief  Convert a bool represented as a 32 bit unsigned number like a
-/// VkBool32 to true or false.
+/// VkBool32 to true or false. It should be fine for the signed Windows type
+/// BOOL too.
 void Bool32ToJson(nlohmann::ordered_json&  jdata,
                   const uint32_t           data,
                   const util::JsonOptions& options = util::JsonOptions());

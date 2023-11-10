@@ -178,7 +178,6 @@ void HandleToJson(nlohmann::ordered_json&              jdata,
 
 /// @brief Thunk to HandleToJson for manual conversion functions which forget to
 /// use that for the array form.
-/// @todo See whether codegen is cleaned up by using this form instead of HandleToJson.
 template <typename THandle>
 void FieldToJson(nlohmann::ordered_json&              jdata,
                  const HandlePointerDecoder<THandle>* data,
@@ -227,11 +226,17 @@ FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<uint64_t, void*>*
     FieldToJsonAsHex<uint64_t, void*>(jdata, data, options);
 }
 
-// Convert arrays of and pointers to bools. Since VkBool32 is just a typedef of
-// uint32_t we can't use the standard function name and dispatch on the type.
+/// Convert arrays of and pointers to bools. Since VkBool32 is just a typedef of
+/// uint32_t we can't use the standard function name and dispatch on the type.
 void Bool32ToJson(nlohmann::ordered_json&                   jdata,
                   const PointerDecoder<uint32_t, uint32_t>* data,
                   const util::JsonOptions&                  options = util::JsonOptions());
+
+/// Convert arrays of and pointers to bools. Since the Windows BOOL is just a
+/// typedef of int we can't use the standard function name and dispatch on the type.
+void Bool32ToJson(nlohmann::ordered_json&         jdata,
+                  const PointerDecoder<int, int>* data,
+                  const util::JsonOptions&        options = util::JsonOptions());
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

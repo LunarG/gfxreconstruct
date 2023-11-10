@@ -154,11 +154,17 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
             nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "{0}", object_id, "{1}");
             const JsonOptions& options = writer_->GetOptions();
         '''
-        if not "void" in return_type:
-            #if method_info.returns_pointer:
-            #    code += "FieldToJson(method[format::kNameReturn], return_value, options);"
-            #else:
-            code += "FieldToJson(method[format::kNameReturn], return_value, options);\n"
+        default = "FieldToJson(method[format::kNameReturn], return_value, options);\n"
+        if "BOOL" in return_type:
+            code += "Bool32ToJson(method[format::kNameReturn], return_value, options);\n"
+        elif "HRESULT" in return_type:
+            code += "/// @todo Need a human-readable conversion for HRESULTs.\n"
+            code += default
+        elif not "void" in return_type:
+            msg = "An unknown return type was seen in generation. Defaulting to the base converter signature."
+            print("ALERT: " + msg + " (" + return_type + ")")
+            code += "// " + msg + "\n"
+            code += default
         else:
             code += "// Nothing returned from method.\n"
         if len(method_info['parameters']) > 0:
@@ -180,11 +186,13 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
     ## @todo format::HandleId shows up tagged as a pointer but we output it as a decimal uint64_t. Make it a hex value?
     ## @todo BOOL? Any other types which need special handling?
     def make_field_to_json(self, parent_name, value, options_name):
-        field_to_json = '/// @todo FieldToJson({0}["{1}"], {1}, {2})'.format(parent_name, value.name, options_name)
-        base_case = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
+        field_to_json = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
+        if "BOOL" in value.base_type:
+            field_to_json = 'Bool32ToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
+
+        # Comment the line with some type info:
         if value.is_pointer:
             # Pointer to POD, struct, enum, string, scalar or array can all have same signature:
-            field_to_json = base_case
             if value.is_array:
                 field_to_json += " // [pointer to array]"
                 if "*" in value.array_length:
@@ -193,7 +201,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
                 field_to_json += " // [pointer to single value]"
         else:
             if value.is_array:
-                field_to_json = base_case
                 field_to_json += " // [direct array]"
                 pass
             else:
@@ -201,7 +208,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
                     field_to_json = 'static_assert(false, "Unhandled handle.")'
                     field_to_json += " // [non-pointer, non-array, handle]"
                 else:
-                    field_to_json = base_case
                     field_to_json += " // [non-pointer, non-array, non-handle]"
 
         return field_to_json

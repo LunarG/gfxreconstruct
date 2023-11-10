@@ -47,8 +47,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATIST
         FieldToJson(jdata["PresentCount"], decoded_value.PresentCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["PresentRefreshCount"], decoded_value.PresentRefreshCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SyncRefreshCount"], decoded_value.SyncRefreshCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["SyncQPCTime"], meta_struct.SyncQPCTime, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["SyncGPUTime"], meta_struct.SyncGPUTime, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["SyncQPCTime"], meta_struct.SyncQPCTime, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["SyncGPUTime"], meta_struct.SyncGPUTime, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -60,7 +60,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MAPPED_RECT* 
         const DXGI_MAPPED_RECT& decoded_value = *data->decoded_value;
         const Decoded_DXGI_MAPPED_RECT& meta_struct = *data;
         FieldToJson(jdata["Pitch"], decoded_value.Pitch, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pBits"], meta_struct.pBits, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pBits"], meta_struct.pBits, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -83,7 +83,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC*
     {
         const DXGI_ADAPTER_DESC& decoded_value = *data->decoded_value;
         const Decoded_DXGI_ADAPTER_DESC& meta_struct = *data;
-        FieldToJson(jdata["Description"], meta_struct.Description, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["Description"], meta_struct.Description, options); // Complex types and handles plumb to the decoded struct [is_array]
         FieldToJson(jdata["VendorId"], decoded_value.VendorId, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options); // Basic data plumbs to raw struct
@@ -91,7 +91,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC*
         FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -102,11 +102,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTPUT_DESC* 
     {
         const DXGI_OUTPUT_DESC& decoded_value = *data->decoded_value;
         const Decoded_DXGI_OUTPUT_DESC& meta_struct = *data;
-        FieldToJson(jdata["DeviceName"], meta_struct.DeviceName, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["DesktopCoordinates"], meta_struct.DesktopCoordinates, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["AttachedToDesktop"], decoded_value.AttachedToDesktop, options); // Basic data plumbs to raw struct
+        FieldToJson(jdata["DeviceName"], meta_struct.DeviceName, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["DesktopCoordinates"], meta_struct.DesktopCoordinates, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        Bool32ToJson(jdata["AttachedToDesktop"], decoded_value.AttachedToDesktop, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["Rotation"], decoded_value.Rotation, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["Monitor"], meta_struct.Monitor, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["Monitor"], meta_struct.Monitor, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -117,7 +117,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SHARED_RESOUR
     {
         const DXGI_SHARED_RESOURCE& decoded_value = *data->decoded_value;
         const Decoded_DXGI_SHARED_RESOURCE& meta_struct = *data;
-        FieldToJson(jdata["Handle"], meta_struct.Handle, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["Handle"], meta_struct.Handle, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -131,7 +131,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SURFACE_DESC*
         FieldToJson(jdata["Width"], decoded_value.Width, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Height"], decoded_value.Height, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Format"], decoded_value.Format, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -142,12 +142,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SWAP_CHAIN_DE
     {
         const DXGI_SWAP_CHAIN_DESC& decoded_value = *data->decoded_value;
         const Decoded_DXGI_SWAP_CHAIN_DESC& meta_struct = *data;
-        FieldToJson(jdata["BufferDesc"], meta_struct.BufferDesc, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["BufferDesc"], meta_struct.BufferDesc, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["BufferUsage"], decoded_value.BufferUsage, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["BufferCount"], decoded_value.BufferCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["OutputWindow"], meta_struct.OutputWindow, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["Windowed"], decoded_value.Windowed, options); // Basic data plumbs to raw struct
+        FieldToJson(jdata["OutputWindow"], meta_struct.OutputWindow, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        Bool32ToJson(jdata["Windowed"], decoded_value.Windowed, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["SwapEffect"], decoded_value.SwapEffect, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct
     }
@@ -160,7 +160,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC1
     {
         const DXGI_ADAPTER_DESC1& decoded_value = *data->decoded_value;
         const Decoded_DXGI_ADAPTER_DESC1& meta_struct = *data;
-        FieldToJson(jdata["Description"], meta_struct.Description, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["Description"], meta_struct.Description, options); // Complex types and handles plumb to the decoded struct [is_array]
         FieldToJson(jdata["VendorId"], decoded_value.VendorId, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options); // Basic data plumbs to raw struct
@@ -168,7 +168,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC1
         FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct
     }
 }
@@ -180,8 +180,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR
     {
         const DXGI_DISPLAY_COLOR_SPACE& decoded_value = *data->decoded_value;
         const Decoded_DXGI_DISPLAY_COLOR_SPACE& meta_struct = *data;
-        FieldToJson(jdata["PrimaryCoordinates"], meta_struct.PrimaryCoordinates, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["WhitePoints"], meta_struct.WhitePoints, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["PrimaryCoordinates"], meta_struct.PrimaryCoordinates, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["WhitePoints"], meta_struct.WhitePoints, options); // Complex types and handles plumb to the decoded struct [is_array]
     }
 }
 
@@ -192,8 +192,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_MOVE_
     {
         const DXGI_OUTDUPL_MOVE_RECT& decoded_value = *data->decoded_value;
         const Decoded_DXGI_OUTDUPL_MOVE_RECT& meta_struct = *data;
-        FieldToJson(jdata["SourcePoint"], meta_struct.SourcePoint, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["DestinationRect"], meta_struct.DestinationRect, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["SourcePoint"], meta_struct.SourcePoint, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["DestinationRect"], meta_struct.DestinationRect, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -204,9 +204,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_DESC*
     {
         const DXGI_OUTDUPL_DESC& decoded_value = *data->decoded_value;
         const Decoded_DXGI_OUTDUPL_DESC& meta_struct = *data;
-        FieldToJson(jdata["ModeDesc"], meta_struct.ModeDesc, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["ModeDesc"], meta_struct.ModeDesc, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Rotation"], decoded_value.Rotation, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["DesktopImageInSystemMemory"], decoded_value.DesktopImageInSystemMemory, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DesktopImageInSystemMemory"], decoded_value.DesktopImageInSystemMemory, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -217,8 +217,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_POINT
     {
         const DXGI_OUTDUPL_POINTER_POSITION& decoded_value = *data->decoded_value;
         const Decoded_DXGI_OUTDUPL_POINTER_POSITION& meta_struct = *data;
-        FieldToJson(jdata["Position"], meta_struct.Position, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["Visible"], decoded_value.Visible, options); // Basic data plumbs to raw struct
+        FieldToJson(jdata["Position"], meta_struct.Position, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        Bool32ToJson(jdata["Visible"], decoded_value.Visible, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -233,7 +233,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_POINT
         FieldToJson(jdata["Width"], decoded_value.Width, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Height"], decoded_value.Height, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Pitch"], decoded_value.Pitch, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["HotSpot"], meta_struct.HotSpot, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["HotSpot"], meta_struct.HotSpot, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -244,12 +244,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_FRAME
     {
         const DXGI_OUTDUPL_FRAME_INFO& decoded_value = *data->decoded_value;
         const Decoded_DXGI_OUTDUPL_FRAME_INFO& meta_struct = *data;
-        FieldToJson(jdata["LastPresentTime"], meta_struct.LastPresentTime, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["LastMouseUpdateTime"], meta_struct.LastMouseUpdateTime, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["LastPresentTime"], meta_struct.LastPresentTime, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["LastMouseUpdateTime"], meta_struct.LastMouseUpdateTime, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["AccumulatedFrames"], decoded_value.AccumulatedFrames, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["RectsCoalesced"], decoded_value.RectsCoalesced, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["ProtectedContentMaskedOut"], decoded_value.ProtectedContentMaskedOut, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["PointerPosition"], meta_struct.PointerPosition, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        Bool32ToJson(jdata["RectsCoalesced"], decoded_value.RectsCoalesced, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["ProtectedContentMaskedOut"], decoded_value.ProtectedContentMaskedOut, options); // Basic data plumbs to raw struct [is_bool]
+        FieldToJson(jdata["PointerPosition"], meta_struct.PointerPosition, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["TotalMetadataBufferSize"], decoded_value.TotalMetadataBufferSize, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["PointerShapeBufferSize"], decoded_value.PointerShapeBufferSize, options); // Basic data plumbs to raw struct
     }
@@ -264,11 +264,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MODE_DESC1* d
         const Decoded_DXGI_MODE_DESC1& meta_struct = *data;
         FieldToJson(jdata["Width"], decoded_value.Width, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Height"], decoded_value.Height, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Format"], decoded_value.Format, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ScanlineOrdering"], decoded_value.ScanlineOrdering, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Scaling"], decoded_value.Scaling, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["Stereo"], decoded_value.Stereo, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["Stereo"], decoded_value.Stereo, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -282,8 +282,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SWAP_CHAIN_DE
         FieldToJson(jdata["Width"], decoded_value.Width, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Height"], decoded_value.Height, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Format"], decoded_value.Format, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["Stereo"], decoded_value.Stereo, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        Bool32ToJson(jdata["Stereo"], decoded_value.Stereo, options); // Basic data plumbs to raw struct [is_bool]
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["BufferUsage"], decoded_value.BufferUsage, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["BufferCount"], decoded_value.BufferCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Scaling"], decoded_value.Scaling, options); // Basic data plumbs to raw struct [is_enum]
@@ -300,10 +300,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SWAP_CHAIN_FU
     {
         const DXGI_SWAP_CHAIN_FULLSCREEN_DESC& decoded_value = *data->decoded_value;
         const Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC& meta_struct = *data;
-        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["ScanlineOrdering"], decoded_value.ScanlineOrdering, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Scaling"], decoded_value.Scaling, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["Windowed"], decoded_value.Windowed, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["Windowed"], decoded_value.Windowed, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -315,9 +315,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_PRESENT_PARAM
         const DXGI_PRESENT_PARAMETERS& decoded_value = *data->decoded_value;
         const Decoded_DXGI_PRESENT_PARAMETERS& meta_struct = *data;
         FieldToJson(jdata["DirtyRectsCount"], decoded_value.DirtyRectsCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pDirtyRects"], meta_struct.pDirtyRects, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
-        FieldToJson(jdata["pScrollRect"], meta_struct.pScrollRect, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
-        FieldToJson(jdata["pScrollOffset"], meta_struct.pScrollOffset, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pDirtyRects"], meta_struct.pDirtyRects, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pScrollRect"], meta_struct.pScrollRect, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
+        FieldToJson(jdata["pScrollOffset"], meta_struct.pScrollOffset, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
     }
 }
 
@@ -328,7 +328,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC2
     {
         const DXGI_ADAPTER_DESC2& decoded_value = *data->decoded_value;
         const Decoded_DXGI_ADAPTER_DESC2& meta_struct = *data;
-        FieldToJson(jdata["Description"], meta_struct.Description, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["Description"], meta_struct.Description, options); // Complex types and handles plumb to the decoded struct [is_array]
         FieldToJson(jdata["VendorId"], decoded_value.VendorId, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options); // Basic data plumbs to raw struct
@@ -336,7 +336,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC2
         FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["GraphicsPreemptionGranularity"], decoded_value.GraphicsPreemptionGranularity, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ComputePreemptionGranularity"], decoded_value.ComputePreemptionGranularity, options); // Basic data plumbs to raw struct [is_enum]
@@ -380,8 +380,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATIST
         FieldToJson(jdata["PresentCount"], decoded_value.PresentCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["PresentRefreshCount"], decoded_value.PresentRefreshCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SyncRefreshCount"], decoded_value.SyncRefreshCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["SyncQPCTime"], meta_struct.SyncQPCTime, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["SyncGPUTime"], meta_struct.SyncGPUTime, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["SyncQPCTime"], meta_struct.SyncQPCTime, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["SyncGPUTime"], meta_struct.SyncGPUTime, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["CompositionMode"], decoded_value.CompositionMode, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ApprovedPresentDuration"], decoded_value.ApprovedPresentDuration, options); // Basic data plumbs to raw struct
     }
@@ -408,10 +408,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_HDR_METADATA_
     {
         const DXGI_HDR_METADATA_HDR10& decoded_value = *data->decoded_value;
         const Decoded_DXGI_HDR_METADATA_HDR10& meta_struct = *data;
-        FieldToJson(jdata["RedPrimary"], meta_struct.RedPrimary, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["GreenPrimary"], meta_struct.GreenPrimary, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["BluePrimary"], meta_struct.BluePrimary, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["WhitePoint"], meta_struct.WhitePoint, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["RedPrimary"], meta_struct.RedPrimary, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["GreenPrimary"], meta_struct.GreenPrimary, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["BluePrimary"], meta_struct.BluePrimary, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["WhitePoint"], meta_struct.WhitePoint, options); // Complex types and handles plumb to the decoded struct [is_array]
         FieldToJson(jdata["MaxMasteringLuminance"], decoded_value.MaxMasteringLuminance, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MinMasteringLuminance"], decoded_value.MinMasteringLuminance, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MaxContentLightLevel"], decoded_value.MaxContentLightLevel, options); // Basic data plumbs to raw struct
@@ -426,7 +426,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_HDR_METADATA_
     {
         const DXGI_HDR_METADATA_HDR10PLUS& decoded_value = *data->decoded_value;
         const Decoded_DXGI_HDR_METADATA_HDR10PLUS& meta_struct = *data;
-        FieldToJson(jdata["Data"], meta_struct.Data, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["Data"], meta_struct.Data, options); // Complex types and handles plumb to the decoded struct [is_array]
     }
 }
 
@@ -437,7 +437,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC3
     {
         const DXGI_ADAPTER_DESC3& decoded_value = *data->decoded_value;
         const Decoded_DXGI_ADAPTER_DESC3& meta_struct = *data;
-        FieldToJson(jdata["Description"], meta_struct.Description, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["Description"], meta_struct.Description, options); // Complex types and handles plumb to the decoded struct [is_array]
         FieldToJson(jdata["VendorId"], decoded_value.VendorId, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options); // Basic data plumbs to raw struct
@@ -445,7 +445,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC3
         FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["GraphicsPreemptionGranularity"], decoded_value.GraphicsPreemptionGranularity, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ComputePreemptionGranularity"], decoded_value.ComputePreemptionGranularity, options); // Basic data plumbs to raw struct [is_enum]
@@ -459,17 +459,17 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTPUT_DESC1*
     {
         const DXGI_OUTPUT_DESC1& decoded_value = *data->decoded_value;
         const Decoded_DXGI_OUTPUT_DESC1& meta_struct = *data;
-        FieldToJson(jdata["DeviceName"], meta_struct.DeviceName, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["DesktopCoordinates"], meta_struct.DesktopCoordinates, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["AttachedToDesktop"], decoded_value.AttachedToDesktop, options); // Basic data plumbs to raw struct
+        FieldToJson(jdata["DeviceName"], meta_struct.DeviceName, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["DesktopCoordinates"], meta_struct.DesktopCoordinates, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        Bool32ToJson(jdata["AttachedToDesktop"], decoded_value.AttachedToDesktop, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["Rotation"], decoded_value.Rotation, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["Monitor"], meta_struct.Monitor, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["Monitor"], meta_struct.Monitor, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["BitsPerColor"], decoded_value.BitsPerColor, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["ColorSpace"], decoded_value.ColorSpace, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["RedPrimary"], meta_struct.RedPrimary, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["GreenPrimary"], meta_struct.GreenPrimary, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["BluePrimary"], meta_struct.BluePrimary, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["WhitePoint"], meta_struct.WhitePoint, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["RedPrimary"], meta_struct.RedPrimary, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["GreenPrimary"], meta_struct.GreenPrimary, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["BluePrimary"], meta_struct.BluePrimary, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["WhitePoint"], meta_struct.WhitePoint, options); // Complex types and handles plumb to the decoded struct [is_array]
         FieldToJson(jdata["MinLuminance"], decoded_value.MinLuminance, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MaxLuminance"], decoded_value.MaxLuminance, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MaxFullFrameLuminance"], decoded_value.MaxFullFrameLuminance, options); // Basic data plumbs to raw struct
@@ -534,9 +534,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_GAMMA_CONTROL
     {
         const DXGI_GAMMA_CONTROL& decoded_value = *data->decoded_value;
         const Decoded_DXGI_GAMMA_CONTROL& meta_struct = *data;
-        FieldToJson(jdata["Scale"], meta_struct.Scale, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["Offset"], meta_struct.Offset, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["GammaCurve"], meta_struct.GammaCurve, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array] [is_struct]
+        FieldToJson(jdata["Scale"], meta_struct.Scale, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["Offset"], meta_struct.Offset, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["GammaCurve"], meta_struct.GammaCurve, options); // Complex types and handles plumb to the decoded struct [is_array] [is_struct]
     }
 }
 
@@ -547,11 +547,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_GAMMA_CONTROL
     {
         const DXGI_GAMMA_CONTROL_CAPABILITIES& decoded_value = *data->decoded_value;
         const Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES& meta_struct = *data;
-        FieldToJson(jdata["ScaleAndOffsetSupported"], decoded_value.ScaleAndOffsetSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["ScaleAndOffsetSupported"], decoded_value.ScaleAndOffsetSupported, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["MaxConvertedValue"], decoded_value.MaxConvertedValue, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MinConvertedValue"], decoded_value.MinConvertedValue, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["NumGammaControlPoints"], decoded_value.NumGammaControlPoints, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["ControlPointPositions"], meta_struct.ControlPointPositions, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["ControlPointPositions"], meta_struct.ControlPointPositions, options); // Complex types and handles plumb to the decoded struct [is_array]
     }
 }
 
@@ -564,7 +564,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MODE_DESC* da
         const Decoded_DXGI_MODE_DESC& meta_struct = *data;
         FieldToJson(jdata["Width"], decoded_value.Width, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Height"], decoded_value.Height, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Format"], decoded_value.Format, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ScanlineOrdering"], decoded_value.ScanlineOrdering, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Scaling"], decoded_value.Scaling, options); // Basic data plumbs to raw struct [is_enum]
@@ -578,8 +578,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_DC_HUFFM
     {
         const DXGI_JPEG_DC_HUFFMAN_TABLE& decoded_value = *data->decoded_value;
         const Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE& meta_struct = *data;
-        FieldToJson(jdata["CodeCounts"], meta_struct.CodeCounts, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["CodeValues"], meta_struct.CodeValues, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["CodeCounts"], meta_struct.CodeCounts, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["CodeValues"], meta_struct.CodeValues, options); // Complex types and handles plumb to the decoded struct [is_array]
     }
 }
 
@@ -590,8 +590,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_AC_HUFFM
     {
         const DXGI_JPEG_AC_HUFFMAN_TABLE& decoded_value = *data->decoded_value;
         const Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE& meta_struct = *data;
-        FieldToJson(jdata["CodeCounts"], meta_struct.CodeCounts, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
-        FieldToJson(jdata["CodeValues"], meta_struct.CodeValues, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["CodeCounts"], meta_struct.CodeCounts, options); // Complex types and handles plumb to the decoded struct [is_array]
+        FieldToJson(jdata["CodeValues"], meta_struct.CodeValues, options); // Complex types and handles plumb to the decoded struct [is_array]
     }
 }
 
@@ -602,7 +602,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_QUANTIZA
     {
         const DXGI_JPEG_QUANTIZATION_TABLE& decoded_value = *data->decoded_value;
         const Decoded_DXGI_JPEG_QUANTIZATION_TABLE& meta_struct = *data;
-        FieldToJson(jdata["Elements"], meta_struct.Elements, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["Elements"], meta_struct.Elements, options); // Complex types and handles plumb to the decoded struct [is_array]
     }
 }
 
@@ -627,7 +627,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_INPUT_ELEMEN
     {
         const D3D12_INPUT_ELEMENT_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_INPUT_ELEMENT_DESC& meta_struct = *data;
-        FieldToJson(jdata["SemanticName"], meta_struct.SemanticName, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["SemanticName"], meta_struct.SemanticName, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["SemanticIndex"], decoded_value.SemanticIndex, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Format"], decoded_value.Format, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["InputSlot"], decoded_value.InputSlot, options); // Basic data plumbs to raw struct
@@ -645,7 +645,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SO_DECLARATI
         const D3D12_SO_DECLARATION_ENTRY& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SO_DECLARATION_ENTRY& meta_struct = *data;
         FieldToJson(jdata["Stream"], decoded_value.Stream, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["SemanticName"], meta_struct.SemanticName, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["SemanticName"], meta_struct.SemanticName, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["SemanticIndex"], decoded_value.SemanticIndex, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["StartComponent"], decoded_value.StartComponent, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["ComponentCount"], decoded_value.ComponentCount, options); // Basic data plumbs to raw struct
@@ -706,14 +706,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEPTH_STENCI
     {
         const D3D12_DEPTH_STENCIL_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DEPTH_STENCIL_DESC& meta_struct = *data;
-        FieldToJson(jdata["DepthEnable"], decoded_value.DepthEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DepthEnable"], decoded_value.DepthEnable, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["DepthWriteMask"], decoded_value.DepthWriteMask, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["DepthFunc"], decoded_value.DepthFunc, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["StencilEnable"], decoded_value.StencilEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["StencilEnable"], decoded_value.StencilEnable, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["StencilReadMask"], decoded_value.StencilReadMask, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["StencilWriteMask"], decoded_value.StencilWriteMask, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["FrontFace"], meta_struct.FrontFace, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["BackFace"], meta_struct.BackFace, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["FrontFace"], meta_struct.FrontFace, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["BackFace"], meta_struct.BackFace, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -724,15 +724,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEPTH_STENCI
     {
         const D3D12_DEPTH_STENCIL_DESC1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DEPTH_STENCIL_DESC1& meta_struct = *data;
-        FieldToJson(jdata["DepthEnable"], decoded_value.DepthEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DepthEnable"], decoded_value.DepthEnable, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["DepthWriteMask"], decoded_value.DepthWriteMask, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["DepthFunc"], decoded_value.DepthFunc, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["StencilEnable"], decoded_value.StencilEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["StencilEnable"], decoded_value.StencilEnable, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["StencilReadMask"], decoded_value.StencilReadMask, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["StencilWriteMask"], decoded_value.StencilWriteMask, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["FrontFace"], meta_struct.FrontFace, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["BackFace"], meta_struct.BackFace, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["DepthBoundsTestEnable"], decoded_value.DepthBoundsTestEnable, options); // Basic data plumbs to raw struct
+        FieldToJson(jdata["FrontFace"], meta_struct.FrontFace, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["BackFace"], meta_struct.BackFace, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        Bool32ToJson(jdata["DepthBoundsTestEnable"], decoded_value.DepthBoundsTestEnable, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -759,13 +759,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEPTH_STENCI
     {
         const D3D12_DEPTH_STENCIL_DESC2& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DEPTH_STENCIL_DESC2& meta_struct = *data;
-        FieldToJson(jdata["DepthEnable"], decoded_value.DepthEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DepthEnable"], decoded_value.DepthEnable, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["DepthWriteMask"], decoded_value.DepthWriteMask, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["DepthFunc"], decoded_value.DepthFunc, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["StencilEnable"], decoded_value.StencilEnable, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["FrontFace"], meta_struct.FrontFace, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["BackFace"], meta_struct.BackFace, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["DepthBoundsTestEnable"], decoded_value.DepthBoundsTestEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["StencilEnable"], decoded_value.StencilEnable, options); // Basic data plumbs to raw struct [is_bool]
+        FieldToJson(jdata["FrontFace"], meta_struct.FrontFace, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["BackFace"], meta_struct.BackFace, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        Bool32ToJson(jdata["DepthBoundsTestEnable"], decoded_value.DepthBoundsTestEnable, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -776,8 +776,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_TARGE
     {
         const D3D12_RENDER_TARGET_BLEND_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RENDER_TARGET_BLEND_DESC& meta_struct = *data;
-        FieldToJson(jdata["BlendEnable"], decoded_value.BlendEnable, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["LogicOpEnable"], decoded_value.LogicOpEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["BlendEnable"], decoded_value.BlendEnable, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["LogicOpEnable"], decoded_value.LogicOpEnable, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["SrcBlend"], decoded_value.SrcBlend, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["DestBlend"], decoded_value.DestBlend, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["BlendOp"], decoded_value.BlendOp, options); // Basic data plumbs to raw struct [is_enum]
@@ -796,9 +796,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BLEND_DESC* 
     {
         const D3D12_BLEND_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_BLEND_DESC& meta_struct = *data;
-        FieldToJson(jdata["AlphaToCoverageEnable"], decoded_value.AlphaToCoverageEnable, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["IndependentBlendEnable"], decoded_value.IndependentBlendEnable, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["RenderTarget"], meta_struct.RenderTarget, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array] [is_struct]
+        Bool32ToJson(jdata["AlphaToCoverageEnable"], decoded_value.AlphaToCoverageEnable, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["IndependentBlendEnable"], decoded_value.IndependentBlendEnable, options); // Basic data plumbs to raw struct [is_bool]
+        FieldToJson(jdata["RenderTarget"], meta_struct.RenderTarget, options); // Complex types and handles plumb to the decoded struct [is_array] [is_struct]
     }
 }
 
@@ -811,13 +811,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RASTERIZER_D
         const Decoded_D3D12_RASTERIZER_DESC& meta_struct = *data;
         FieldToJson(jdata["FillMode"], decoded_value.FillMode, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["CullMode"], decoded_value.CullMode, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["FrontCounterClockwise"], decoded_value.FrontCounterClockwise, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["FrontCounterClockwise"], decoded_value.FrontCounterClockwise, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["DepthBias"], decoded_value.DepthBias, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DepthBiasClamp"], decoded_value.DepthBiasClamp, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SlopeScaledDepthBias"], decoded_value.SlopeScaledDepthBias, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["DepthClipEnable"], decoded_value.DepthClipEnable, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["MultisampleEnable"], decoded_value.MultisampleEnable, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AntialiasedLineEnable"], decoded_value.AntialiasedLineEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DepthClipEnable"], decoded_value.DepthClipEnable, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["MultisampleEnable"], decoded_value.MultisampleEnable, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["AntialiasedLineEnable"], decoded_value.AntialiasedLineEnable, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["ForcedSampleCount"], decoded_value.ForcedSampleCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["ConservativeRaster"], decoded_value.ConservativeRaster, options); // Basic data plumbs to raw struct [is_enum]
     }
@@ -832,13 +832,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RASTERIZER_D
         const Decoded_D3D12_RASTERIZER_DESC1& meta_struct = *data;
         FieldToJson(jdata["FillMode"], decoded_value.FillMode, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["CullMode"], decoded_value.CullMode, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["FrontCounterClockwise"], decoded_value.FrontCounterClockwise, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["FrontCounterClockwise"], decoded_value.FrontCounterClockwise, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["DepthBias"], decoded_value.DepthBias, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DepthBiasClamp"], decoded_value.DepthBiasClamp, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SlopeScaledDepthBias"], decoded_value.SlopeScaledDepthBias, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["DepthClipEnable"], decoded_value.DepthClipEnable, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["MultisampleEnable"], decoded_value.MultisampleEnable, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AntialiasedLineEnable"], decoded_value.AntialiasedLineEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DepthClipEnable"], decoded_value.DepthClipEnable, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["MultisampleEnable"], decoded_value.MultisampleEnable, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["AntialiasedLineEnable"], decoded_value.AntialiasedLineEnable, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["ForcedSampleCount"], decoded_value.ForcedSampleCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["ConservativeRaster"], decoded_value.ConservativeRaster, options); // Basic data plumbs to raw struct [is_enum]
     }
@@ -853,11 +853,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RASTERIZER_D
         const Decoded_D3D12_RASTERIZER_DESC2& meta_struct = *data;
         FieldToJson(jdata["FillMode"], decoded_value.FillMode, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["CullMode"], decoded_value.CullMode, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["FrontCounterClockwise"], decoded_value.FrontCounterClockwise, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["FrontCounterClockwise"], decoded_value.FrontCounterClockwise, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["DepthBias"], decoded_value.DepthBias, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DepthBiasClamp"], decoded_value.DepthBiasClamp, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SlopeScaledDepthBias"], decoded_value.SlopeScaledDepthBias, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["DepthClipEnable"], decoded_value.DepthClipEnable, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DepthClipEnable"], decoded_value.DepthClipEnable, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["LineRasterizationMode"], decoded_value.LineRasterizationMode, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ForcedSampleCount"], decoded_value.ForcedSampleCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["ConservativeRaster"], decoded_value.ConservativeRaster, options); // Basic data plumbs to raw struct [is_enum]
@@ -871,7 +871,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SHADER_BYTEC
     {
         const D3D12_SHADER_BYTECODE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SHADER_BYTECODE& meta_struct = *data;
-        FieldToJson(jdata["pShaderBytecode"], meta_struct.pShaderBytecode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array]
+        FieldToJson(jdata["pShaderBytecode"], meta_struct.pShaderBytecode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array]
         FieldToJson(jdata["BytecodeLength"], decoded_value.BytecodeLength, options); // Basic data plumbs to raw struct
     }
 }
@@ -883,9 +883,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STREAM_OUTPU
     {
         const D3D12_STREAM_OUTPUT_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_STREAM_OUTPUT_DESC& meta_struct = *data;
-        FieldToJson(jdata["pSODeclaration"], meta_struct.pSODeclaration, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pSODeclaration"], meta_struct.pSODeclaration, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["NumEntries"], decoded_value.NumEntries, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pBufferStrides"], meta_struct.pBufferStrides, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array]
+        FieldToJson(jdata["pBufferStrides"], meta_struct.pBufferStrides, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array]
         FieldToJson(jdata["NumStrides"], decoded_value.NumStrides, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["RasterizedStream"], decoded_value.RasterizedStream, options); // Basic data plumbs to raw struct
     }
@@ -898,7 +898,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_INPUT_LAYOUT
     {
         const D3D12_INPUT_LAYOUT_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_INPUT_LAYOUT_DESC& meta_struct = *data;
-        FieldToJson(jdata["pInputElementDescs"], meta_struct.pInputElementDescs, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pInputElementDescs"], meta_struct.pInputElementDescs, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["NumElements"], decoded_value.NumElements, options); // Basic data plumbs to raw struct
     }
 }
@@ -910,7 +910,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CACHED_PIPEL
     {
         const D3D12_CACHED_PIPELINE_STATE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_CACHED_PIPELINE_STATE& meta_struct = *data;
-        FieldToJson(jdata["pCachedBlob"], meta_struct.pCachedBlob, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array]
+        FieldToJson(jdata["pCachedBlob"], meta_struct.pCachedBlob, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array]
         FieldToJson(jdata["CachedBlobSizeInBytes"], decoded_value.CachedBlobSizeInBytes, options); // Basic data plumbs to raw struct
     }
 }
@@ -922,26 +922,26 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_GRAPHICS_PIP
     {
         const D3D12_GRAPHICS_PIPELINE_STATE_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC& meta_struct = *data;
-        FieldToJson(jdata["pRootSignature"], meta_struct.pRootSignature, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["VS"], meta_struct.VS, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["PS"], meta_struct.PS, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["DS"], meta_struct.DS, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["HS"], meta_struct.HS, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["GS"], meta_struct.GS, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["StreamOutput"], meta_struct.StreamOutput, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["BlendState"], meta_struct.BlendState, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["pRootSignature"], meta_struct.pRootSignature, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["VS"], meta_struct.VS, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["PS"], meta_struct.PS, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["DS"], meta_struct.DS, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["HS"], meta_struct.HS, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["GS"], meta_struct.GS, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["StreamOutput"], meta_struct.StreamOutput, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["BlendState"], meta_struct.BlendState, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["SampleMask"], decoded_value.SampleMask, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["RasterizerState"], meta_struct.RasterizerState, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["DepthStencilState"], meta_struct.DepthStencilState, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["InputLayout"], meta_struct.InputLayout, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["RasterizerState"], meta_struct.RasterizerState, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["DepthStencilState"], meta_struct.DepthStencilState, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["InputLayout"], meta_struct.InputLayout, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["IBStripCutValue"], decoded_value.IBStripCutValue, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["PrimitiveTopologyType"], decoded_value.PrimitiveTopologyType, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["NumRenderTargets"], decoded_value.NumRenderTargets, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["RTVFormats"], meta_struct.RTVFormats, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array] [is_enum]
+        FieldToJson(jdata["RTVFormats"], meta_struct.RTVFormats, options); // Complex types and handles plumb to the decoded struct [is_array] [is_enum]
         FieldToJson(jdata["DSVFormat"], decoded_value.DSVFormat, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["NodeMask"], decoded_value.NodeMask, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["CachedPSO"], meta_struct.CachedPSO, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["CachedPSO"], meta_struct.CachedPSO, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -953,10 +953,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_COMPUTE_PIPE
     {
         const D3D12_COMPUTE_PIPELINE_STATE_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC& meta_struct = *data;
-        FieldToJson(jdata["pRootSignature"], meta_struct.pRootSignature, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["CS"], meta_struct.CS, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["pRootSignature"], meta_struct.pRootSignature, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["CS"], meta_struct.CS, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["NodeMask"], decoded_value.NodeMask, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["CachedPSO"], meta_struct.CachedPSO, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["CachedPSO"], meta_struct.CachedPSO, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -968,7 +968,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RT_FORMAT_AR
     {
         const D3D12_RT_FORMAT_ARRAY& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RT_FORMAT_ARRAY& meta_struct = *data;
-        FieldToJson(jdata["RTFormats"], meta_struct.RTFormats, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array] [is_enum]
+        FieldToJson(jdata["RTFormats"], meta_struct.RTFormats, options); // Complex types and handles plumb to the decoded struct [is_array] [is_enum]
         FieldToJson(jdata["NumRenderTargets"], decoded_value.NumRenderTargets, options); // Basic data plumbs to raw struct
     }
 }
@@ -980,20 +980,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS& meta_struct = *data;
-        FieldToJson(jdata["DoublePrecisionFloatShaderOps"], decoded_value.DoublePrecisionFloatShaderOps, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["OutputMergerLogicOp"], decoded_value.OutputMergerLogicOp, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DoublePrecisionFloatShaderOps"], decoded_value.DoublePrecisionFloatShaderOps, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["OutputMergerLogicOp"], decoded_value.OutputMergerLogicOp, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["MinPrecisionSupport"], decoded_value.MinPrecisionSupport, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["TiledResourcesTier"], decoded_value.TiledResourcesTier, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ResourceBindingTier"], decoded_value.ResourceBindingTier, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["PSSpecifiedStencilRefSupported"], decoded_value.PSSpecifiedStencilRefSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["TypedUAVLoadAdditionalFormats"], decoded_value.TypedUAVLoadAdditionalFormats, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["ROVsSupported"], decoded_value.ROVsSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["PSSpecifiedStencilRefSupported"], decoded_value.PSSpecifiedStencilRefSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["TypedUAVLoadAdditionalFormats"], decoded_value.TypedUAVLoadAdditionalFormats, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["ROVsSupported"], decoded_value.ROVsSupported, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["ConservativeRasterizationTier"], decoded_value.ConservativeRasterizationTier, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["MaxGPUVirtualAddressBitsPerResource"], decoded_value.MaxGPUVirtualAddressBitsPerResource, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["StandardSwizzle64KBSupported"], decoded_value.StandardSwizzle64KBSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["StandardSwizzle64KBSupported"], decoded_value.StandardSwizzle64KBSupported, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["CrossNodeSharingTier"], decoded_value.CrossNodeSharingTier, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["CrossAdapterRowMajorTextureSupported"], decoded_value.CrossAdapterRowMajorTextureSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation"], decoded_value.VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["CrossAdapterRowMajorTextureSupported"], decoded_value.CrossAdapterRowMajorTextureSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation"], decoded_value.VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["ResourceHeapTier"], decoded_value.ResourceHeapTier, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -1005,12 +1005,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS1& meta_struct = *data;
-        FieldToJson(jdata["WaveOps"], decoded_value.WaveOps, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["WaveOps"], decoded_value.WaveOps, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["WaveLaneCountMin"], decoded_value.WaveLaneCountMin, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["WaveLaneCountMax"], decoded_value.WaveLaneCountMax, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["TotalLaneCount"], decoded_value.TotalLaneCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["ExpandedComputeResourceStates"], decoded_value.ExpandedComputeResourceStates, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["Int64ShaderOps"], decoded_value.Int64ShaderOps, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["ExpandedComputeResourceStates"], decoded_value.ExpandedComputeResourceStates, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["Int64ShaderOps"], decoded_value.Int64ShaderOps, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1021,7 +1021,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS2& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS2& meta_struct = *data;
-        FieldToJson(jdata["DepthBoundsTestSupported"], decoded_value.DepthBoundsTestSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DepthBoundsTestSupported"], decoded_value.DepthBoundsTestSupported, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["ProgrammableSamplePositionsTier"], decoded_value.ProgrammableSamplePositionsTier, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -1045,9 +1045,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const D3D12_FEATURE_DATA_ARCHITECTURE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_ARCHITECTURE& meta_struct = *data;
         FieldToJson(jdata["NodeIndex"], decoded_value.NodeIndex, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["TileBasedRenderer"], decoded_value.TileBasedRenderer, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["UMA"], decoded_value.UMA, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["CacheCoherentUMA"], decoded_value.CacheCoherentUMA, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["TileBasedRenderer"], decoded_value.TileBasedRenderer, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["UMA"], decoded_value.UMA, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["CacheCoherentUMA"], decoded_value.CacheCoherentUMA, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1059,10 +1059,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const D3D12_FEATURE_DATA_ARCHITECTURE1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_ARCHITECTURE1& meta_struct = *data;
         FieldToJson(jdata["NodeIndex"], decoded_value.NodeIndex, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["TileBasedRenderer"], decoded_value.TileBasedRenderer, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["UMA"], decoded_value.UMA, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["CacheCoherentUMA"], decoded_value.CacheCoherentUMA, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["IsolatedMMU"], decoded_value.IsolatedMMU, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["TileBasedRenderer"], decoded_value.TileBasedRenderer, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["UMA"], decoded_value.UMA, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["CacheCoherentUMA"], decoded_value.CacheCoherentUMA, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["IsolatedMMU"], decoded_value.IsolatedMMU, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1074,7 +1074,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const D3D12_FEATURE_DATA_FEATURE_LEVELS& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_FEATURE_LEVELS& meta_struct = *data;
         FieldToJson(jdata["NumFeatureLevels"], decoded_value.NumFeatureLevels, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pFeatureLevelsRequested"], meta_struct.pFeatureLevelsRequested, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_enum]
+        FieldToJson(jdata["pFeatureLevelsRequested"], meta_struct.pFeatureLevelsRequested, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_enum]
         FieldToJson(jdata["MaxSupportedFeatureLevel"], decoded_value.MaxSupportedFeatureLevel, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -1161,7 +1161,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const Decoded_D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY& meta_struct = *data;
         FieldToJson(jdata["CommandListType"], decoded_value.CommandListType, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Priority"], decoded_value.Priority, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["PriorityForTypeIsSupported"], decoded_value.PriorityForTypeIsSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["PriorityForTypeIsSupported"], decoded_value.PriorityForTypeIsSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1172,11 +1172,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS3& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS3& meta_struct = *data;
-        FieldToJson(jdata["CopyQueueTimestampQueriesSupported"], decoded_value.CopyQueueTimestampQueriesSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["CastingFullyTypedFormatSupported"], decoded_value.CastingFullyTypedFormatSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["CopyQueueTimestampQueriesSupported"], decoded_value.CopyQueueTimestampQueriesSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["CastingFullyTypedFormatSupported"], decoded_value.CastingFullyTypedFormatSupported, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["WriteBufferImmediateSupportFlags"], decoded_value.WriteBufferImmediateSupportFlags, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ViewInstancingTier"], decoded_value.ViewInstancingTier, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["BarycentricsSupported"], decoded_value.BarycentricsSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["BarycentricsSupported"], decoded_value.BarycentricsSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1187,7 +1187,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_EXISTING_HEAPS& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS& meta_struct = *data;
-        FieldToJson(jdata["Supported"], decoded_value.Supported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["Supported"], decoded_value.Supported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1198,7 +1198,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_DISPLAYABLE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_DISPLAYABLE& meta_struct = *data;
-        FieldToJson(jdata["DisplayableTexture"], decoded_value.DisplayableTexture, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DisplayableTexture"], decoded_value.DisplayableTexture, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["SharedResourceCompatibilityTier"], decoded_value.SharedResourceCompatibilityTier, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -1210,9 +1210,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS4& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4& meta_struct = *data;
-        FieldToJson(jdata["MSAA64KBAlignedTextureSupported"], decoded_value.MSAA64KBAlignedTextureSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["MSAA64KBAlignedTextureSupported"], decoded_value.MSAA64KBAlignedTextureSupported, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["SharedResourceCompatibilityTier"], decoded_value.SharedResourceCompatibilityTier, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["Native16BitShaderOpsSupported"], decoded_value.Native16BitShaderOpsSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["Native16BitShaderOpsSupported"], decoded_value.Native16BitShaderOpsSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1236,7 +1236,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const D3D12_FEATURE_DATA_CROSS_NODE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_CROSS_NODE& meta_struct = *data;
         FieldToJson(jdata["SharingTier"], decoded_value.SharingTier, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["AtomicShaderInstructions"], decoded_value.AtomicShaderInstructions, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["AtomicShaderInstructions"], decoded_value.AtomicShaderInstructions, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1247,7 +1247,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS5& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS5& meta_struct = *data;
-        FieldToJson(jdata["SRVOnlyTiledResourceTier3"], decoded_value.SRVOnlyTiledResourceTier3, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["SRVOnlyTiledResourceTier3"], decoded_value.SRVOnlyTiledResourceTier3, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["RenderPassesTier"], decoded_value.RenderPassesTier, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["RaytracingTier"], decoded_value.RaytracingTier, options); // Basic data plumbs to raw struct [is_enum]
     }
@@ -1260,11 +1260,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS6& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS6& meta_struct = *data;
-        FieldToJson(jdata["AdditionalShadingRatesSupported"], decoded_value.AdditionalShadingRatesSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["PerPrimitiveShadingRateSupportedWithViewportIndexing"], decoded_value.PerPrimitiveShadingRateSupportedWithViewportIndexing, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["AdditionalShadingRatesSupported"], decoded_value.AdditionalShadingRatesSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["PerPrimitiveShadingRateSupportedWithViewportIndexing"], decoded_value.PerPrimitiveShadingRateSupportedWithViewportIndexing, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["VariableShadingRateTier"], decoded_value.VariableShadingRateTier, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ShadingRateImageTileSize"], decoded_value.ShadingRateImageTileSize, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["BackgroundProcessingSupported"], decoded_value.BackgroundProcessingSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["BackgroundProcessingSupported"], decoded_value.BackgroundProcessingSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1287,11 +1287,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_QUERY_META_COMMAND& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_QUERY_META_COMMAND& meta_struct = *data;
-        FieldToJson(jdata["CommandId"], meta_struct.CommandId, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["CommandId"], meta_struct.CommandId, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["NodeMask"], decoded_value.NodeMask, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pQueryInputData"], meta_struct.pQueryInputData, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array]
+        FieldToJson(jdata["pQueryInputData"], meta_struct.pQueryInputData, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array]
         FieldToJson(jdata["QueryInputDataSizeInBytes"], decoded_value.QueryInputDataSizeInBytes, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pQueryOutputData"], meta_struct.pQueryOutputData, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array]
+        FieldToJson(jdata["pQueryOutputData"], meta_struct.pQueryOutputData, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array]
         FieldToJson(jdata["QueryOutputDataSizeInBytes"], decoded_value.QueryOutputDataSizeInBytes, options); // Basic data plumbs to raw struct
     }
 }
@@ -1303,7 +1303,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS8& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS8& meta_struct = *data;
-        FieldToJson(jdata["UnalignedBlockTexturesSupported"], decoded_value.UnalignedBlockTexturesSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["UnalignedBlockTexturesSupported"], decoded_value.UnalignedBlockTexturesSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1314,11 +1314,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS9& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS9& meta_struct = *data;
-        FieldToJson(jdata["MeshShaderPipelineStatsSupported"], decoded_value.MeshShaderPipelineStatsSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["MeshShaderSupportsFullRangeRenderTargetArrayIndex"], decoded_value.MeshShaderSupportsFullRangeRenderTargetArrayIndex, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AtomicInt64OnTypedResourceSupported"], decoded_value.AtomicInt64OnTypedResourceSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AtomicInt64OnGroupSharedSupported"], decoded_value.AtomicInt64OnGroupSharedSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["DerivativesInMeshAndAmplificationShadersSupported"], decoded_value.DerivativesInMeshAndAmplificationShadersSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["MeshShaderPipelineStatsSupported"], decoded_value.MeshShaderPipelineStatsSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["MeshShaderSupportsFullRangeRenderTargetArrayIndex"], decoded_value.MeshShaderSupportsFullRangeRenderTargetArrayIndex, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["AtomicInt64OnTypedResourceSupported"], decoded_value.AtomicInt64OnTypedResourceSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["AtomicInt64OnGroupSharedSupported"], decoded_value.AtomicInt64OnGroupSharedSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["DerivativesInMeshAndAmplificationShadersSupported"], decoded_value.DerivativesInMeshAndAmplificationShadersSupported, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["WaveMMATier"], decoded_value.WaveMMATier, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -1330,8 +1330,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS10& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS10& meta_struct = *data;
-        FieldToJson(jdata["VariableRateShadingSumCombinerSupported"], decoded_value.VariableRateShadingSumCombinerSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["MeshShaderPerPrimitiveShadingRateSupported"], decoded_value.MeshShaderPerPrimitiveShadingRateSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["VariableRateShadingSumCombinerSupported"], decoded_value.VariableRateShadingSumCombinerSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["MeshShaderPerPrimitiveShadingRateSupported"], decoded_value.MeshShaderPerPrimitiveShadingRateSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1342,7 +1342,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS11& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS11& meta_struct = *data;
-        FieldToJson(jdata["AtomicInt64OnDescriptorHeapResourceSupported"], decoded_value.AtomicInt64OnDescriptorHeapResourceSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["AtomicInt64OnDescriptorHeapResourceSupported"], decoded_value.AtomicInt64OnDescriptorHeapResourceSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1354,8 +1354,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const D3D12_FEATURE_DATA_D3D12_OPTIONS12& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS12& meta_struct = *data;
         FieldToJson(jdata["MSPrimitivesPipelineStatisticIncludesCulledPrimitives"], decoded_value.MSPrimitivesPipelineStatisticIncludesCulledPrimitives, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["EnhancedBarriersSupported"], decoded_value.EnhancedBarriersSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["RelaxedFormatCastingSupported"], decoded_value.RelaxedFormatCastingSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["EnhancedBarriersSupported"], decoded_value.EnhancedBarriersSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["RelaxedFormatCastingSupported"], decoded_value.RelaxedFormatCastingSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1366,12 +1366,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS13& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS13& meta_struct = *data;
-        FieldToJson(jdata["UnrestrictedBufferTextureCopyPitchSupported"], decoded_value.UnrestrictedBufferTextureCopyPitchSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["UnrestrictedVertexElementAlignmentSupported"], decoded_value.UnrestrictedVertexElementAlignmentSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["InvertedViewportHeightFlipsYSupported"], decoded_value.InvertedViewportHeightFlipsYSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["InvertedViewportDepthFlipsZSupported"], decoded_value.InvertedViewportDepthFlipsZSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["TextureCopyBetweenDimensionsSupported"], decoded_value.TextureCopyBetweenDimensionsSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AlphaBlendFactorSupported"], decoded_value.AlphaBlendFactorSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["UnrestrictedBufferTextureCopyPitchSupported"], decoded_value.UnrestrictedBufferTextureCopyPitchSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["UnrestrictedVertexElementAlignmentSupported"], decoded_value.UnrestrictedVertexElementAlignmentSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["InvertedViewportHeightFlipsYSupported"], decoded_value.InvertedViewportHeightFlipsYSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["InvertedViewportDepthFlipsZSupported"], decoded_value.InvertedViewportDepthFlipsZSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["TextureCopyBetweenDimensionsSupported"], decoded_value.TextureCopyBetweenDimensionsSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["AlphaBlendFactorSupported"], decoded_value.AlphaBlendFactorSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1382,9 +1382,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS14& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS14& meta_struct = *data;
-        FieldToJson(jdata["AdvancedTextureOpsSupported"], decoded_value.AdvancedTextureOpsSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["WriteableMSAATexturesSupported"], decoded_value.WriteableMSAATexturesSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["IndependentFrontAndBackStencilRefMaskSupported"], decoded_value.IndependentFrontAndBackStencilRefMaskSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["AdvancedTextureOpsSupported"], decoded_value.AdvancedTextureOpsSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["WriteableMSAATexturesSupported"], decoded_value.WriteableMSAATexturesSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["IndependentFrontAndBackStencilRefMaskSupported"], decoded_value.IndependentFrontAndBackStencilRefMaskSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1395,8 +1395,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS15& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS15& meta_struct = *data;
-        FieldToJson(jdata["TriangleFanSupported"], decoded_value.TriangleFanSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["DynamicIndexBufferStripCutSupported"], decoded_value.DynamicIndexBufferStripCutSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["TriangleFanSupported"], decoded_value.TriangleFanSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["DynamicIndexBufferStripCutSupported"], decoded_value.DynamicIndexBufferStripCutSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1407,8 +1407,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS16& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS16& meta_struct = *data;
-        FieldToJson(jdata["DynamicDepthBiasSupported"], decoded_value.DynamicDepthBiasSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["GPUUploadHeapSupported"], decoded_value.GPUUploadHeapSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["DynamicDepthBiasSupported"], decoded_value.DynamicDepthBiasSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["GPUUploadHeapSupported"], decoded_value.GPUUploadHeapSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1419,8 +1419,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS17& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS17& meta_struct = *data;
-        FieldToJson(jdata["NonNormalizedCoordinateSamplersSupported"], decoded_value.NonNormalizedCoordinateSamplersSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["ManualWriteTrackingResourceSupported"], decoded_value.ManualWriteTrackingResourceSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["NonNormalizedCoordinateSamplersSupported"], decoded_value.NonNormalizedCoordinateSamplersSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["ManualWriteTrackingResourceSupported"], decoded_value.ManualWriteTrackingResourceSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1431,7 +1431,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS18& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS18& meta_struct = *data;
-        FieldToJson(jdata["RenderPassesValid"], decoded_value.RenderPassesValid, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["RenderPassesValid"], decoded_value.RenderPassesValid, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1442,16 +1442,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_D3D12_OPTIONS19& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS19& meta_struct = *data;
-        FieldToJson(jdata["MismatchingOutputDimensionsSupported"], decoded_value.MismatchingOutputDimensionsSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["MismatchingOutputDimensionsSupported"], decoded_value.MismatchingOutputDimensionsSupported, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["SupportedSampleCountsWithNoOutputs"], decoded_value.SupportedSampleCountsWithNoOutputs, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["PointSamplingAddressesNeverRoundUp"], decoded_value.PointSamplingAddressesNeverRoundUp, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["RasterizerDesc2Supported"], decoded_value.RasterizerDesc2Supported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["NarrowQuadrilateralLinesSupported"], decoded_value.NarrowQuadrilateralLinesSupported, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AnisoFilterWithPointMipSupported"], decoded_value.AnisoFilterWithPointMipSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["PointSamplingAddressesNeverRoundUp"], decoded_value.PointSamplingAddressesNeverRoundUp, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["RasterizerDesc2Supported"], decoded_value.RasterizerDesc2Supported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["NarrowQuadrilateralLinesSupported"], decoded_value.NarrowQuadrilateralLinesSupported, options); // Basic data plumbs to raw struct [is_bool]
+        Bool32ToJson(jdata["AnisoFilterWithPointMipSupported"], decoded_value.AnisoFilterWithPointMipSupported, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["MaxSamplerDescriptorHeapSize"], decoded_value.MaxSamplerDescriptorHeapSize, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MaxSamplerDescriptorHeapSizeWithStaticSamplers"], decoded_value.MaxSamplerDescriptorHeapSizeWithStaticSamplers, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MaxViewDescriptorHeapSize"], decoded_value.MaxViewDescriptorHeapSize, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["ComputeOnlyCustomHeapSupported"], decoded_value.ComputeOnlyCustomHeapSupported, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["ComputeOnlyCustomHeapSupported"], decoded_value.ComputeOnlyCustomHeapSupported, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -1503,7 +1503,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_HEAP_DESC* d
         const D3D12_HEAP_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_HEAP_DESC& meta_struct = *data;
         FieldToJson(jdata["SizeInBytes"], decoded_value.SizeInBytes, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["Properties"], meta_struct.Properties, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["Properties"], meta_struct.Properties, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Alignment"], decoded_value.Alignment, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
@@ -1536,7 +1536,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_DES
         FieldToJson(jdata["DepthOrArraySize"], decoded_value.DepthOrArraySize, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MipLevels"], decoded_value.MipLevels, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Format"], decoded_value.Format, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Layout"], decoded_value.Layout, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
@@ -1556,10 +1556,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_DES
         FieldToJson(jdata["DepthOrArraySize"], decoded_value.DepthOrArraySize, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MipLevels"], decoded_value.MipLevels, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Format"], decoded_value.Format, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Layout"], decoded_value.Layout, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["SamplerFeedbackMipRegion"], meta_struct.SamplerFeedbackMipRegion, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["SamplerFeedbackMipRegion"], meta_struct.SamplerFeedbackMipRegion, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -1607,7 +1607,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SUBRESOURCE_
         const D3D12_SUBRESOURCE_RANGE_UINT64& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SUBRESOURCE_RANGE_UINT64& meta_struct = *data;
         FieldToJson(jdata["Subresource"], decoded_value.Subresource, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["Range"], meta_struct.Range, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["Range"], meta_struct.Range, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -1646,7 +1646,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_TILE_REGION_
         const D3D12_TILE_REGION_SIZE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_TILE_REGION_SIZE& meta_struct = *data;
         FieldToJson(jdata["NumTiles"], decoded_value.NumTiles, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["UseBox"], decoded_value.UseBox, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["UseBox"], decoded_value.UseBox, options); // Basic data plumbs to raw struct [is_bool]
         FieldToJson(jdata["Width"], decoded_value.Width, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Height"], decoded_value.Height, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Depth"], decoded_value.Depth, options); // Basic data plumbs to raw struct
@@ -1701,7 +1701,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_TRA
     {
         const D3D12_RESOURCE_TRANSITION_BARRIER& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RESOURCE_TRANSITION_BARRIER& meta_struct = *data;
-        FieldToJson(jdata["pResource"], meta_struct.pResource, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pResource"], meta_struct.pResource, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["Subresource"], decoded_value.Subresource, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["StateBefore"], decoded_value.StateBefore, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["StateAfter"], decoded_value.StateAfter, options); // Basic data plumbs to raw struct [is_enum]
@@ -1715,8 +1715,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_ALI
     {
         const D3D12_RESOURCE_ALIASING_BARRIER& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RESOURCE_ALIASING_BARRIER& meta_struct = *data;
-        FieldToJson(jdata["pResourceBefore"], meta_struct.pResourceBefore, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pResourceAfter"], meta_struct.pResourceAfter, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pResourceBefore"], meta_struct.pResourceBefore, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pResourceAfter"], meta_struct.pResourceAfter, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -1727,7 +1727,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_UAV
     {
         const D3D12_RESOURCE_UAV_BARRIER& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RESOURCE_UAV_BARRIER& meta_struct = *data;
-        FieldToJson(jdata["pResource"], meta_struct.pResource, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pResource"], meta_struct.pResource, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -1754,7 +1754,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PLACED_SUBRE
         const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& decoded_value = *data->decoded_value;
         const Decoded_D3D12_PLACED_SUBRESOURCE_FOOTPRINT& meta_struct = *data;
         FieldToJson(jdata["Offset"], decoded_value.Offset, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["Footprint"], meta_struct.Footprint, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["Footprint"], meta_struct.Footprint, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -1790,7 +1790,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_VIEW_INSTANC
         const D3D12_VIEW_INSTANCING_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_VIEW_INSTANCING_DESC& meta_struct = *data;
         FieldToJson(jdata["ViewInstanceCount"], decoded_value.ViewInstanceCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pViewInstanceLocations"], meta_struct.pViewInstanceLocations, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pViewInstanceLocations"], meta_struct.pViewInstanceLocations, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -2039,7 +2039,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SAMPLER_DESC
         FieldToJson(jdata["MipLODBias"], decoded_value.MipLODBias, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MaxAnisotropy"], decoded_value.MaxAnisotropy, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["ComparisonFunc"], decoded_value.ComparisonFunc, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["BorderColor"], meta_struct.BorderColor, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["BorderColor"], meta_struct.BorderColor, options); // Complex types and handles plumb to the decoded struct [is_array]
         FieldToJson(jdata["MinLOD"], decoded_value.MinLOD, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["MaxLOD"], decoded_value.MaxLOD, options); // Basic data plumbs to raw struct
     }
@@ -2569,7 +2569,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_DESCRIP
         const D3D12_ROOT_DESCRIPTOR_TABLE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_ROOT_DESCRIPTOR_TABLE& meta_struct = *data;
         FieldToJson(jdata["NumDescriptorRanges"], decoded_value.NumDescriptorRanges, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pDescriptorRanges"], meta_struct.pDescriptorRanges, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pDescriptorRanges"], meta_struct.pDescriptorRanges, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
     }
 }
 
@@ -2685,9 +2685,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_SIGNATU
         const D3D12_ROOT_SIGNATURE_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_ROOT_SIGNATURE_DESC& meta_struct = *data;
         FieldToJson(jdata["NumParameters"], decoded_value.NumParameters, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pParameters"], meta_struct.pParameters, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pParameters"], meta_struct.pParameters, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["NumStaticSamplers"], decoded_value.NumStaticSamplers, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pStaticSamplers"], meta_struct.pStaticSamplers, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pStaticSamplers"], meta_struct.pStaticSamplers, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -2716,7 +2716,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_DESCRIP
         const D3D12_ROOT_DESCRIPTOR_TABLE1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_ROOT_DESCRIPTOR_TABLE1& meta_struct = *data;
         FieldToJson(jdata["NumDescriptorRanges"], decoded_value.NumDescriptorRanges, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pDescriptorRanges"], meta_struct.pDescriptorRanges, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pDescriptorRanges"], meta_struct.pDescriptorRanges, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
     }
 }
 
@@ -2779,9 +2779,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_SIGNATU
         const D3D12_ROOT_SIGNATURE_DESC1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_ROOT_SIGNATURE_DESC1& meta_struct = *data;
         FieldToJson(jdata["NumParameters"], decoded_value.NumParameters, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pParameters"], meta_struct.pParameters, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pParameters"], meta_struct.pParameters, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["NumStaticSamplers"], decoded_value.NumStaticSamplers, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pStaticSamplers"], meta_struct.pStaticSamplers, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pStaticSamplers"], meta_struct.pStaticSamplers, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -2794,9 +2794,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_SIGNATU
         const D3D12_ROOT_SIGNATURE_DESC2& decoded_value = *data->decoded_value;
         const Decoded_D3D12_ROOT_SIGNATURE_DESC2& meta_struct = *data;
         FieldToJson(jdata["NumParameters"], decoded_value.NumParameters, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pParameters"], meta_struct.pParameters, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pParameters"], meta_struct.pParameters, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["NumStaticSamplers"], decoded_value.NumStaticSamplers, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pStaticSamplers"], meta_struct.pStaticSamplers, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pStaticSamplers"], meta_struct.pStaticSamplers, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -2866,7 +2866,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DISCARD_REGI
         const D3D12_DISCARD_REGION& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DISCARD_REGION& meta_struct = *data;
         FieldToJson(jdata["NumRects"], decoded_value.NumRects, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pRects"], meta_struct.pRects, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pRects"], meta_struct.pRects, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["FirstSubresource"], decoded_value.FirstSubresource, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["NumSubresources"], decoded_value.NumSubresources, options); // Basic data plumbs to raw struct
     }
@@ -3102,7 +3102,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_COMMAND_SIGN
         const Decoded_D3D12_COMMAND_SIGNATURE_DESC& meta_struct = *data;
         FieldToJson(jdata["ByteStride"], decoded_value.ByteStride, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["NumArgumentDescs"], decoded_value.NumArgumentDescs, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pArgumentDescs"], meta_struct.pArgumentDescs, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pArgumentDescs"], meta_struct.pArgumentDescs, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["NodeMask"], decoded_value.NodeMask, options); // Basic data plumbs to raw struct
     }
 }
@@ -3150,7 +3150,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_META_COMMAND
     {
         const D3D12_META_COMMAND_PARAMETER_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_META_COMMAND_PARAMETER_DESC& meta_struct = *data;
-        FieldToJson(jdata["Name"], meta_struct.Name, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["Name"], meta_struct.Name, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["Type"], decoded_value.Type, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["RequiredResourceState"], decoded_value.RequiredResourceState, options); // Basic data plumbs to raw struct [is_enum]
@@ -3165,8 +3165,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_META_COMMAND
     {
         const D3D12_META_COMMAND_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_META_COMMAND_DESC& meta_struct = *data;
-        FieldToJson(jdata["Id"], meta_struct.Id, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["Name"], meta_struct.Name, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["Id"], meta_struct.Id, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["Name"], meta_struct.Name, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["InitializationDirtyState"], decoded_value.InitializationDirtyState, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ExecutionDirtyState"], decoded_value.ExecutionDirtyState, options); // Basic data plumbs to raw struct [is_enum]
     }
@@ -3190,7 +3190,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_GLOBAL_ROOT_
     {
         const D3D12_GLOBAL_ROOT_SIGNATURE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_GLOBAL_ROOT_SIGNATURE& meta_struct = *data;
-        FieldToJson(jdata["pGlobalRootSignature"], meta_struct.pGlobalRootSignature, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pGlobalRootSignature"], meta_struct.pGlobalRootSignature, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -3201,7 +3201,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_LOCAL_ROOT_S
     {
         const D3D12_LOCAL_ROOT_SIGNATURE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_LOCAL_ROOT_SIGNATURE& meta_struct = *data;
-        FieldToJson(jdata["pLocalRootSignature"], meta_struct.pLocalRootSignature, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pLocalRootSignature"], meta_struct.pLocalRootSignature, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -3223,8 +3223,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_EXPORT_DESC*
     {
         const D3D12_EXPORT_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_EXPORT_DESC& meta_struct = *data;
-        FieldToJson(jdata["Name"], meta_struct.Name, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["ExportToRename"], meta_struct.ExportToRename, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["Name"], meta_struct.Name, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["ExportToRename"], meta_struct.ExportToRename, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -3236,9 +3236,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DXIL_LIBRARY
     {
         const D3D12_DXIL_LIBRARY_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DXIL_LIBRARY_DESC& meta_struct = *data;
-        FieldToJson(jdata["DXILLibrary"], meta_struct.DXILLibrary, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["DXILLibrary"], meta_struct.DXILLibrary, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["NumExports"], decoded_value.NumExports, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pExports"], meta_struct.pExports, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pExports"], meta_struct.pExports, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
     }
 }
 
@@ -3249,9 +3249,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_EXISTING_COL
     {
         const D3D12_EXISTING_COLLECTION_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_EXISTING_COLLECTION_DESC& meta_struct = *data;
-        FieldToJson(jdata["pExistingCollection"], meta_struct.pExistingCollection, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pExistingCollection"], meta_struct.pExistingCollection, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["NumExports"], decoded_value.NumExports, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pExports"], meta_struct.pExports, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pExports"], meta_struct.pExports, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
     }
 }
 
@@ -3262,9 +3262,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SUBOBJECT_TO
     {
         const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& meta_struct = *data;
-        FieldToJson(jdata["pSubobjectToAssociate"], meta_struct.pSubobjectToAssociate, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pSubobjectToAssociate"], meta_struct.pSubobjectToAssociate, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
         FieldToJson(jdata["NumExports"], decoded_value.NumExports, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pExports"], meta_struct.pExports, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array]
+        FieldToJson(jdata["pExports"], meta_struct.pExports, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array]
     }
 }
 
@@ -3275,9 +3275,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DXIL_SUBOBJE
     {
         const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& meta_struct = *data;
-        FieldToJson(jdata["SubobjectToAssociate"], meta_struct.SubobjectToAssociate, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["SubobjectToAssociate"], meta_struct.SubobjectToAssociate, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["NumExports"], decoded_value.NumExports, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pExports"], meta_struct.pExports, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array]
+        FieldToJson(jdata["pExports"], meta_struct.pExports, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array]
     }
 }
 
@@ -3288,11 +3288,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_HIT_GROUP_DE
     {
         const D3D12_HIT_GROUP_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_HIT_GROUP_DESC& meta_struct = *data;
-        FieldToJson(jdata["HitGroupExport"], meta_struct.HitGroupExport, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["HitGroupExport"], meta_struct.HitGroupExport, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["Type"], decoded_value.Type, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["AnyHitShaderImport"], meta_struct.AnyHitShaderImport, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["ClosestHitShaderImport"], meta_struct.ClosestHitShaderImport, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["IntersectionShaderImport"], meta_struct.IntersectionShaderImport, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["AnyHitShaderImport"], meta_struct.AnyHitShaderImport, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["ClosestHitShaderImport"], meta_struct.ClosestHitShaderImport, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["IntersectionShaderImport"], meta_struct.IntersectionShaderImport, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -3340,7 +3340,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATE_OBJECT
         const Decoded_D3D12_STATE_OBJECT_DESC& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["NumSubobjects"], decoded_value.NumSubobjects, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pSubobjects"], meta_struct.pSubobjects, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pSubobjects"], meta_struct.pSubobjects, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
     }
 }
 
@@ -3394,7 +3394,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_G
         FieldToJson(jdata["IndexCount"], decoded_value.IndexCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["VertexCount"], decoded_value.VertexCount, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["IndexBuffer"], decoded_value.IndexBuffer, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["VertexBuffer"], meta_struct.VertexBuffer, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["VertexBuffer"], meta_struct.VertexBuffer, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -3422,7 +3422,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_G
         const D3D12_RAYTRACING_GEOMETRY_AABBS_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC& meta_struct = *data;
         FieldToJson(jdata["AABBCount"], decoded_value.AABBCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AABBs"], meta_struct.AABBs, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["AABBs"], meta_struct.AABBs, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -3491,8 +3491,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_D
     {
         const D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER& meta_struct = *data;
-        FieldToJson(jdata["DriverOpaqueGUID"], meta_struct.DriverOpaqueGUID, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["DriverOpaqueVersioningData"], meta_struct.DriverOpaqueVersioningData, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["DriverOpaqueGUID"], meta_struct.DriverOpaqueGUID, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["DriverOpaqueVersioningData"], meta_struct.DriverOpaqueVersioningData, options); // Complex types and handles plumb to the decoded struct [is_array]
     }
 }
 
@@ -3503,7 +3503,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_R
     {
         const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER& meta_struct = *data;
-        FieldToJson(jdata["DriverMatchingIdentifier"], meta_struct.DriverMatchingIdentifier, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["DriverMatchingIdentifier"], meta_struct.DriverMatchingIdentifier, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["SerializedSizeInBytesIncludingHeader"], decoded_value.SerializedSizeInBytesIncludingHeader, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DeserializedSizeInBytes"], decoded_value.DeserializedSizeInBytes, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["NumBottomLevelAccelerationStructurePointersAfterHeader"], decoded_value.NumBottomLevelAccelerationStructurePointersAfterHeader, options); // Basic data plumbs to raw struct
@@ -3528,7 +3528,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_I
     {
         const D3D12_RAYTRACING_INSTANCE_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RAYTRACING_INSTANCE_DESC& meta_struct = *data;
-        FieldToJson(jdata["Transform"], meta_struct.Transform, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_array]
+        FieldToJson(jdata["Transform"], meta_struct.Transform, options); // Complex types and handles plumb to the decoded struct [is_array]
         FieldToJson(jdata["InstanceID"], decoded_value.InstanceID, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["InstanceMask"], decoded_value.InstanceMask, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["InstanceContributionToHitGroupIndex"], decoded_value.InstanceContributionToHitGroupIndex, options); // Basic data plumbs to raw struct
@@ -3573,7 +3573,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRA
         const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& meta_struct = *data;
         FieldToJson(jdata["DestAccelerationStructureData"], decoded_value.DestAccelerationStructureData, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["Inputs"], meta_struct.Inputs, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["Inputs"], meta_struct.Inputs, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["SourceAccelerationStructureData"], decoded_value.SourceAccelerationStructureData, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["ScratchAccelerationStructureData"], decoded_value.ScratchAccelerationStructureData, options); // Basic data plumbs to raw struct
     }
@@ -3599,16 +3599,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_AUTO_BREADCR
     {
         const D3D12_AUTO_BREADCRUMB_NODE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_AUTO_BREADCRUMB_NODE& meta_struct = *data;
-        FieldToJson(jdata["pCommandListDebugNameA"], meta_struct.pCommandListDebugNameA, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandListDebugNameW"], meta_struct.pCommandListDebugNameW, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandQueueDebugNameA"], meta_struct.pCommandQueueDebugNameA, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandQueueDebugNameW"], meta_struct.pCommandQueueDebugNameW, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandList"], meta_struct.pCommandList, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandQueue"], meta_struct.pCommandQueue, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pCommandListDebugNameA"], meta_struct.pCommandListDebugNameA, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandListDebugNameW"], meta_struct.pCommandListDebugNameW, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandQueueDebugNameA"], meta_struct.pCommandQueueDebugNameA, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandQueueDebugNameW"], meta_struct.pCommandQueueDebugNameW, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandList"], meta_struct.pCommandList, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandQueue"], meta_struct.pCommandQueue, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["BreadcrumbCount"], decoded_value.BreadcrumbCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pLastBreadcrumbValue"], meta_struct.pLastBreadcrumbValue, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandHistory"], meta_struct.pCommandHistory, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_enum]
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pLastBreadcrumbValue"], meta_struct.pLastBreadcrumbValue, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandHistory"], meta_struct.pCommandHistory, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_enum]
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
     }
 }
 
@@ -3620,7 +3620,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_BREADCR
         const D3D12_DRED_BREADCRUMB_CONTEXT& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DRED_BREADCRUMB_CONTEXT& meta_struct = *data;
         FieldToJson(jdata["BreadcrumbIndex"], decoded_value.BreadcrumbIndex, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pContextString"], meta_struct.pContextString, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pContextString"], meta_struct.pContextString, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -3631,18 +3631,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_AUTO_BREADCR
     {
         const D3D12_AUTO_BREADCRUMB_NODE1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_AUTO_BREADCRUMB_NODE1& meta_struct = *data;
-        FieldToJson(jdata["pCommandListDebugNameA"], meta_struct.pCommandListDebugNameA, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandListDebugNameW"], meta_struct.pCommandListDebugNameW, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandQueueDebugNameA"], meta_struct.pCommandQueueDebugNameA, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandQueueDebugNameW"], meta_struct.pCommandQueueDebugNameW, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandList"], meta_struct.pCommandList, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandQueue"], meta_struct.pCommandQueue, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pCommandListDebugNameA"], meta_struct.pCommandListDebugNameA, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandListDebugNameW"], meta_struct.pCommandListDebugNameW, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandQueueDebugNameA"], meta_struct.pCommandQueueDebugNameA, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandQueueDebugNameW"], meta_struct.pCommandQueueDebugNameW, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandList"], meta_struct.pCommandList, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandQueue"], meta_struct.pCommandQueue, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["BreadcrumbCount"], decoded_value.BreadcrumbCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pLastBreadcrumbValue"], meta_struct.pLastBreadcrumbValue, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pCommandHistory"], meta_struct.pCommandHistory, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_enum]
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pLastBreadcrumbValue"], meta_struct.pLastBreadcrumbValue, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pCommandHistory"], meta_struct.pCommandHistory, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_enum]
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
         FieldToJson(jdata["BreadcrumbContextsCount"], decoded_value.BreadcrumbContextsCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pBreadcrumbContexts"], meta_struct.pBreadcrumbContexts, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pBreadcrumbContexts"], meta_struct.pBreadcrumbContexts, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
     }
 }
 
@@ -3654,7 +3654,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEVICE_REMOV
         const D3D12_DEVICE_REMOVED_EXTENDED_DATA& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA& meta_struct = *data;
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["pHeadAutoBreadcrumbNode"], meta_struct.pHeadAutoBreadcrumbNode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pHeadAutoBreadcrumbNode"], meta_struct.pHeadAutoBreadcrumbNode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
     }
 }
 
@@ -3665,10 +3665,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_ALLOCAT
     {
         const D3D12_DRED_ALLOCATION_NODE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DRED_ALLOCATION_NODE& meta_struct = *data;
-        FieldToJson(jdata["ObjectNameA"], meta_struct.ObjectNameA, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["ObjectNameW"], meta_struct.ObjectNameW, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["ObjectNameA"], meta_struct.ObjectNameA, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["ObjectNameW"], meta_struct.ObjectNameW, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["AllocationType"], decoded_value.AllocationType, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
     }
 }
 
@@ -3679,11 +3679,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_ALLOCAT
     {
         const D3D12_DRED_ALLOCATION_NODE1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DRED_ALLOCATION_NODE1& meta_struct = *data;
-        FieldToJson(jdata["ObjectNameA"], meta_struct.ObjectNameA, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["ObjectNameW"], meta_struct.ObjectNameW, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["ObjectNameA"], meta_struct.ObjectNameA, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["ObjectNameW"], meta_struct.ObjectNameW, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["AllocationType"], decoded_value.AllocationType, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
-        FieldToJson(jdata["pObject"], meta_struct.pObject, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
+        FieldToJson(jdata["pObject"], meta_struct.pObject, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -3694,7 +3694,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_AUTO_BR
     {
         const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT& meta_struct = *data;
-        FieldToJson(jdata["pHeadAutoBreadcrumbNode"], meta_struct.pHeadAutoBreadcrumbNode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pHeadAutoBreadcrumbNode"], meta_struct.pHeadAutoBreadcrumbNode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
     }
 }
 
@@ -3705,7 +3705,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_AUTO_BR
     {
         const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1& meta_struct = *data;
-        FieldToJson(jdata["pHeadAutoBreadcrumbNode"], meta_struct.pHeadAutoBreadcrumbNode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pHeadAutoBreadcrumbNode"], meta_struct.pHeadAutoBreadcrumbNode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
     }
 }
 
@@ -3717,8 +3717,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_PAGE_FA
         const D3D12_DRED_PAGE_FAULT_OUTPUT& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT& meta_struct = *data;
         FieldToJson(jdata["PageFaultVA"], decoded_value.PageFaultVA, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pHeadExistingAllocationNode"], meta_struct.pHeadExistingAllocationNode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
-        FieldToJson(jdata["pHeadRecentFreedAllocationNode"], meta_struct.pHeadRecentFreedAllocationNode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pHeadExistingAllocationNode"], meta_struct.pHeadExistingAllocationNode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
+        FieldToJson(jdata["pHeadRecentFreedAllocationNode"], meta_struct.pHeadRecentFreedAllocationNode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
     }
 }
 
@@ -3730,8 +3730,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_PAGE_FA
         const D3D12_DRED_PAGE_FAULT_OUTPUT1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1& meta_struct = *data;
         FieldToJson(jdata["PageFaultVA"], decoded_value.PageFaultVA, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pHeadExistingAllocationNode"], meta_struct.pHeadExistingAllocationNode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
-        FieldToJson(jdata["pHeadRecentFreedAllocationNode"], meta_struct.pHeadRecentFreedAllocationNode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pHeadExistingAllocationNode"], meta_struct.pHeadExistingAllocationNode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
+        FieldToJson(jdata["pHeadRecentFreedAllocationNode"], meta_struct.pHeadRecentFreedAllocationNode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
     }
 }
 
@@ -3743,8 +3743,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_PAGE_FA
         const D3D12_DRED_PAGE_FAULT_OUTPUT2& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT2& meta_struct = *data;
         FieldToJson(jdata["PageFaultVA"], decoded_value.PageFaultVA, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pHeadExistingAllocationNode"], meta_struct.pHeadExistingAllocationNode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
-        FieldToJson(jdata["pHeadRecentFreedAllocationNode"], meta_struct.pHeadRecentFreedAllocationNode, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_struct]
+        FieldToJson(jdata["pHeadExistingAllocationNode"], meta_struct.pHeadExistingAllocationNode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
+        FieldToJson(jdata["pHeadRecentFreedAllocationNode"], meta_struct.pHeadRecentFreedAllocationNode, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_struct]
         FieldToJson(jdata["PageFaultFlags"], decoded_value.PageFaultFlags, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -3757,8 +3757,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEVICE_REMOV
         const D3D12_DEVICE_REMOVED_EXTENDED_DATA1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1& meta_struct = *data;
         FieldToJson(jdata["DeviceRemovedReason"], decoded_value.DeviceRemovedReason, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AutoBreadcrumbsOutput"], meta_struct.AutoBreadcrumbsOutput, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["PageFaultOutput"], meta_struct.PageFaultOutput, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["AutoBreadcrumbsOutput"], meta_struct.AutoBreadcrumbsOutput, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["PageFaultOutput"], meta_struct.PageFaultOutput, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -3770,8 +3770,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEVICE_REMOV
         const D3D12_DEVICE_REMOVED_EXTENDED_DATA2& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2& meta_struct = *data;
         FieldToJson(jdata["DeviceRemovedReason"], decoded_value.DeviceRemovedReason, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AutoBreadcrumbsOutput"], meta_struct.AutoBreadcrumbsOutput, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["PageFaultOutput"], meta_struct.PageFaultOutput, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["AutoBreadcrumbsOutput"], meta_struct.AutoBreadcrumbsOutput, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["PageFaultOutput"], meta_struct.PageFaultOutput, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -3783,8 +3783,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEVICE_REMOV
         const D3D12_DEVICE_REMOVED_EXTENDED_DATA3& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA3& meta_struct = *data;
         FieldToJson(jdata["DeviceRemovedReason"], decoded_value.DeviceRemovedReason, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["AutoBreadcrumbsOutput"], meta_struct.AutoBreadcrumbsOutput, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["PageFaultOutput"], meta_struct.PageFaultOutput, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["AutoBreadcrumbsOutput"], meta_struct.AutoBreadcrumbsOutput, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["PageFaultOutput"], meta_struct.PageFaultOutput, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["DeviceState"], decoded_value.DeviceState, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -3822,7 +3822,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES& meta_struct = *data;
         FieldToJson(jdata["NodeIndex"], decoded_value.NodeIndex, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Count"], decoded_value.Count, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pTypes"], meta_struct.pTypes, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pTypes"], meta_struct.pTypes, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
     }
 }
 
@@ -3835,7 +3835,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PROTECTED_RE
         const Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1& meta_struct = *data;
         FieldToJson(jdata["NodeMask"], decoded_value.NodeMask, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["ProtectionType"], meta_struct.ProtectionType, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["ProtectionType"], meta_struct.ProtectionType, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -3846,7 +3846,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
     {
         const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS& meta_struct = *data;
-        FieldToJson(jdata["ClearValue"], meta_struct.ClearValue, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["ClearValue"], meta_struct.ClearValue, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -3885,7 +3885,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
         FieldToJson(jdata["DstSubresource"], decoded_value.DstSubresource, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DstX"], decoded_value.DstX, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DstY"], decoded_value.DstY, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["SrcRect"], meta_struct.SrcRect, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["SrcRect"], meta_struct.SrcRect, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -3896,13 +3896,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
     {
         const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS& meta_struct = *data;
-        FieldToJson(jdata["pSrcResource"], meta_struct.pSrcResource, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["pDstResource"], meta_struct.pDstResource, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pSrcResource"], meta_struct.pSrcResource, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["pDstResource"], meta_struct.pDstResource, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["SubresourceCount"], decoded_value.SubresourceCount, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pSubresourceParameters"], meta_struct.pSubresourceParameters, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_struct]
+        FieldToJson(jdata["pSubresourceParameters"], meta_struct.pSubresourceParameters, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_struct]
         FieldToJson(jdata["Format"], decoded_value.Format, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ResolveMode"], decoded_value.ResolveMode, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["PreserveResolveSource"], decoded_value.PreserveResolveSource, options); // Basic data plumbs to raw struct
+        Bool32ToJson(jdata["PreserveResolveSource"], decoded_value.PreserveResolveSource, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
@@ -3937,9 +3937,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
     {
         const D3D12_RENDER_PASS_RENDER_TARGET_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC& meta_struct = *data;
-        FieldToJson(jdata["cpuDescriptor"], meta_struct.cpuDescriptor, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["BeginningAccess"], meta_struct.BeginningAccess, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["EndingAccess"], meta_struct.EndingAccess, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["cpuDescriptor"], meta_struct.cpuDescriptor, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["BeginningAccess"], meta_struct.BeginningAccess, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["EndingAccess"], meta_struct.EndingAccess, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -3950,11 +3950,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
     {
         const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC& meta_struct = *data;
-        FieldToJson(jdata["cpuDescriptor"], meta_struct.cpuDescriptor, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["DepthBeginningAccess"], meta_struct.DepthBeginningAccess, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["StencilBeginningAccess"], meta_struct.StencilBeginningAccess, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["DepthEndingAccess"], meta_struct.DepthEndingAccess, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["StencilEndingAccess"], meta_struct.StencilEndingAccess, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["cpuDescriptor"], meta_struct.cpuDescriptor, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["DepthBeginningAccess"], meta_struct.DepthBeginningAccess, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["StencilBeginningAccess"], meta_struct.StencilBeginningAccess, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["DepthEndingAccess"], meta_struct.DepthEndingAccess, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["StencilEndingAccess"], meta_struct.StencilEndingAccess, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -3965,10 +3965,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DISPATCH_RAY
     {
         const D3D12_DISPATCH_RAYS_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DISPATCH_RAYS_DESC& meta_struct = *data;
-        FieldToJson(jdata["RayGenerationShaderRecord"], meta_struct.RayGenerationShaderRecord, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["MissShaderTable"], meta_struct.MissShaderTable, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["HitGroupTable"], meta_struct.HitGroupTable, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["CallableShaderTable"], meta_struct.CallableShaderTable, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["RayGenerationShaderRecord"], meta_struct.RayGenerationShaderRecord, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["MissShaderTable"], meta_struct.MissShaderTable, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["HitGroupTable"], meta_struct.HitGroupTable, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["CallableShaderTable"], meta_struct.CallableShaderTable, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Width"], decoded_value.Width, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Height"], decoded_value.Height, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Depth"], decoded_value.Depth, options); // Basic data plumbs to raw struct
@@ -3982,7 +3982,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SHADER_CACHE
     {
         const D3D12_SHADER_CACHE_SESSION_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SHADER_CACHE_SESSION_DESC& meta_struct = *data;
-        FieldToJson(jdata["Identifier"], meta_struct.Identifier, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["Identifier"], meta_struct.Identifier, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Mode"], decoded_value.Mode, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["MaximumInMemoryCacheSizeBytes"], decoded_value.MaximumInMemoryCacheSizeBytes, options); // Basic data plumbs to raw struct
@@ -4035,8 +4035,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_TEXTURE_BARR
         FieldToJson(jdata["AccessAfter"], decoded_value.AccessAfter, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["LayoutBefore"], decoded_value.LayoutBefore, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["LayoutAfter"], decoded_value.LayoutAfter, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["pResource"], meta_struct.pResource, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["Subresources"], meta_struct.Subresources, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["pResource"], meta_struct.pResource, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["Subresources"], meta_struct.Subresources, options); // Complex types and handles plumb to the decoded struct [is_struct]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
     }
 }
@@ -4052,7 +4052,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUFFER_BARRI
         FieldToJson(jdata["SyncAfter"], decoded_value.SyncAfter, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["AccessBefore"], decoded_value.AccessBefore, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["AccessAfter"], decoded_value.AccessAfter, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["pResource"], meta_struct.pResource, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pResource"], meta_struct.pResource, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["Offset"], decoded_value.Offset, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["Size"], decoded_value.Size, options); // Basic data plumbs to raw struct
     }
@@ -4065,7 +4065,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SUBRESOURCE_
     {
         const D3D12_SUBRESOURCE_DATA& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SUBRESOURCE_DATA& meta_struct = *data;
-        FieldToJson(jdata["pData"], meta_struct.pData, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pData"], meta_struct.pData, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["RowPitch"], decoded_value.RowPitch, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SlicePitch"], decoded_value.SlicePitch, options); // Basic data plumbs to raw struct
     }
@@ -4078,7 +4078,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_MEMCPY_DEST*
     {
         const D3D12_MEMCPY_DEST& decoded_value = *data->decoded_value;
         const Decoded_D3D12_MEMCPY_DEST& meta_struct = *data;
-        FieldToJson(jdata["pData"], meta_struct.pData, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pData"], meta_struct.pData, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["RowPitch"], decoded_value.RowPitch, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["SlicePitch"], decoded_value.SlicePitch, options); // Basic data plumbs to raw struct
     }
@@ -4118,8 +4118,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D_SHADER_MACRO* 
     {
         const D3D_SHADER_MACRO& decoded_value = *data->decoded_value;
         const Decoded_D3D_SHADER_MACRO& meta_struct = *data;
-        FieldToJson(jdata["Name"], meta_struct.Name, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["Definition"], meta_struct.Definition, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["Name"], meta_struct.Name, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        FieldToJson(jdata["Definition"], meta_struct.Definition, options); // Complex types and handles plumb to the decoded struct [is_pointer]
     }
 }
 
@@ -4168,7 +4168,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_MESSAGE* dat
         FieldToJson(jdata["Category"], decoded_value.Category, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Severity"], decoded_value.Severity, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["ID"], decoded_value.ID, options); // Basic data plumbs to raw struct [is_enum]
-        FieldToJson(jdata["pDescription"], meta_struct.pDescription, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+        FieldToJson(jdata["pDescription"], meta_struct.pDescription, options); // Complex types and handles plumb to the decoded struct [is_pointer]
         FieldToJson(jdata["DescriptionByteLength"], decoded_value.DescriptionByteLength, options); // Basic data plumbs to raw struct
     }
 }
@@ -4181,11 +4181,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_INFO_QUEUE_F
         const D3D12_INFO_QUEUE_FILTER_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_INFO_QUEUE_FILTER_DESC& meta_struct = *data;
         FieldToJson(jdata["NumCategories"], decoded_value.NumCategories, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pCategoryList"], meta_struct.pCategoryList, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_enum]
+        FieldToJson(jdata["pCategoryList"], meta_struct.pCategoryList, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_enum]
         FieldToJson(jdata["NumSeverities"], decoded_value.NumSeverities, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pSeverityList"], meta_struct.pSeverityList, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_enum]
+        FieldToJson(jdata["pSeverityList"], meta_struct.pSeverityList, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_enum]
         FieldToJson(jdata["NumIDs"], decoded_value.NumIDs, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["pIDList"], meta_struct.pIDList, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer] [is_array] [is_enum]
+        FieldToJson(jdata["pIDList"], meta_struct.pIDList, options); // Complex types and handles plumb to the decoded struct [is_pointer] [is_array] [is_enum]
     }
 }
 
@@ -4196,8 +4196,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_INFO_QUEUE_F
     {
         const D3D12_INFO_QUEUE_FILTER& decoded_value = *data->decoded_value;
         const Decoded_D3D12_INFO_QUEUE_FILTER& meta_struct = *data;
-        FieldToJson(jdata["AllowList"], meta_struct.AllowList, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
-        FieldToJson(jdata["DenyList"], meta_struct.DenyList, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_struct]
+        FieldToJson(jdata["AllowList"], meta_struct.AllowList, options); // Complex types and handles plumb to the decoded struct [is_struct]
+        FieldToJson(jdata["DenyList"], meta_struct.DenyList, options); // Complex types and handles plumb to the decoded struct [is_struct]
     }
 }
 
@@ -4235,8 +4235,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded__SECURITY_ATTRIBUT
         const _SECURITY_ATTRIBUTES& decoded_value = *data->decoded_value;
         const Decoded__SECURITY_ATTRIBUTES& meta_struct = *data;
         FieldToJson(jdata["nLength"], decoded_value.nLength, options); // Basic data plumbs to raw struct
-        FieldToJson(jdata["lpSecurityDescriptor"], meta_struct.lpSecurityDescriptor, options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-        FieldToJson(jdata["bInheritHandle"], decoded_value.bInheritHandle, options); // Basic data plumbs to raw struct
+        FieldToJson(jdata["lpSecurityDescriptor"], meta_struct.lpSecurityDescriptor, options); // Complex types and handles plumb to the decoded struct [is_pointer]
+        Bool32ToJson(jdata["bInheritHandle"], decoded_value.bInheritHandle, options); // Basic data plumbs to raw struct [is_bool]
     }
 }
 
