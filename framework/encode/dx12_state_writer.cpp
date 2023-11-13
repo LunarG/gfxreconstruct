@@ -616,7 +616,7 @@ void Dx12StateWriter::WriteResourceCreationState(
         else if ((resource_info->initial_state & D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE) ==
                  D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE)
         {
-            // Skip the capture of any ray tracing resource's data. Acceleration structres will be rebuilt from inputs
+            // Skip the capture of any ray tracing resource's data. Acceleration structures will be rebuilt from inputs
             // during replay. See WriteAccelerationStructuresState.
             GFXRECON_LOG_DEBUG_ONCE(
                 "Skipping resource data capture for ray tracing acceleration structure resource(s).");

@@ -1290,7 +1290,7 @@ class BaseGenerator(OutputGenerator):
         return 'void {}()'.format(name)
 
     def make_structure_type_enum(self, typeinfo, typename):
-        """Generate the VkStructreType enumeration value for the specified structure type."""
+        """Generate the VkStructureType enumeration value for the specified structure type."""
         members = typeinfo.elem.findall('.//member')
 
         for member in members:
