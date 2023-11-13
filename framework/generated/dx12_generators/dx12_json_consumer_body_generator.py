@@ -184,7 +184,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
     ## @todo Move this to a common base class shared with Dx12StructDecodersToJsonBodyGenerator
     ## if the types used for arguments and struct properties are compatible.
     ## @todo format::HandleId shows up tagged as a pointer but we output it as a decimal uint64_t. Make it a hex value?
-    ## @todo BOOL? Any other types which need special handling?
     def make_field_to_json(self, parent_name, value, options_name):
         field_to_json = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
         if "BOOL" in value.base_type:
