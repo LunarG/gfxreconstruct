@@ -32,10 +32,29 @@
 #include "graphics/dx12_util.h"
 #include "util/json_util.h"
 
+/// @file Implementations of functions for converting decoded D3D12 structs to JSON.
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 using util::JsonOptions;
+
+/// @defgroup ManualD3D12StructFieldToJsons Manual functions to convert structs.
+/** @{ */
+static void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS& data, const JsonOptions& options)
+{
+    using namespace util;
+    FieldToJson(jdata["AdditionalWidth"],  data.AdditionalWidth,  options);
+    FieldToJson(jdata["AdditionalHeight"], data.AdditionalHeight, options);
+}
+
+static void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS& data, const JsonOptions& options)
+{
+    using namespace util;
+    FieldToJson(jdata["AdditionalWidth"], data.AdditionalWidth, options);
+    FieldToJson(jdata["AdditionalHeight"], data.AdditionalHeight, options);
+}
+/** @} */
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS* data, const JsonOptions& options)
 {
@@ -3546,7 +3565,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_G
         const Decoded_D3D12_RAYTRACING_GEOMETRY_DESC& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
-        ; ///< @todo ALERT: Union member 0 of D3D12_RAYTRACING_GEOMETRY_DESC needs special handling.
+        switch(decoded_value.Type)
+        {
+            case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES:
+            {
+                FieldToJson(jdata["Triangles"], meta_struct.Triangles, options);
+                break;
+            }
+            case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS:
+            {
+                FieldToJson(jdata["AABBs"], meta_struct.AABBs, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata["Warning"], "Unknown D3D12_RAYTRACING_GEOMETRY_TYPE in D3D12_RAYTRACING_GEOMETRY_DESC. Uninitialised or corrupt struct?", options);
+                break;
+            }
+        }
     }
 }
 
@@ -3561,7 +3597,36 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRA
         FieldToJson(jdata["Flags"], decoded_value.Flags, options); // Basic data plumbs to raw struct [is_enum]
         FieldToJson(jdata["NumDescs"], decoded_value.NumDescs, options); // Basic data plumbs to raw struct
         FieldToJson(jdata["DescsLayout"], decoded_value.DescsLayout, options); // Basic data plumbs to raw struct [is_enum]
-        ; ///< @todo ALERT: Union member 0 of D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS needs special handling.
+        switch(decoded_value.Type)
+        {
+            case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL:
+            {
+                FieldToJsonAsHex(jdata["InstanceDescs"], decoded_value.InstanceDescs, options);
+                break;
+            }
+            case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL:
+            {
+                switch(decoded_value.DescsLayout)
+                {
+                    case D3D12_ELEMENTS_LAYOUT_ARRAY:
+                    {
+                        FieldToJson(jdata["pGeometryDescs"], meta_struct.pGeometryDescs, options);
+                        break;
+                    }
+                    case D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS:
+                    {
+                        FieldToJson(jdata["ppGeometryDescs"], meta_struct.ppGeometryDescs, options);
+                        break;
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata["Warning"], "Unknown D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE in D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS. Uninitialised or corrupt struct?", options);
+                break;
+            }
+        }
     }
 }
 
@@ -3797,7 +3862,38 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_VERSIONED_DE
         const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& decoded_value = *data->decoded_value;
         const Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& meta_struct = *data;
         FieldToJson(jdata["Version"], decoded_value.Version, options); // Basic data plumbs to raw struct [is_enum]
-        ; ///< @todo ALERT: Union member 0 of D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA needs special handling.
+        switch(decoded_value.Version)
+        {
+            case D3D12_DRED_VERSION_1_0:
+            {
+                FieldToJson(jdata["Dred_1_0"], meta_struct.Dred_1_0, options);
+                break;
+            }
+            case D3D12_DRED_VERSION_1_1:
+            {
+                FieldToJson(jdata["Dred_1_1"], meta_struct.Dred_1_1, options);
+                break;
+            }
+            case D3D12_DRED_VERSION_1_2:
+            {
+                FieldToJson(jdata["Dred_1_2"], meta_struct.Dred_1_2, options);
+                break;
+            }
+            case D3D12_DRED_VERSION_1_3:
+            {
+                // This field was missing in the custom struct at time of writing.
+                // See issue and revise this codegen by uncommenting line below when the issue
+                // is fixed <https://github.com/LunarG/gfxreconstruct/issues/1351>
+                // FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
+                FieldToJson(jdata["Warning"], "Dred_1_3 is not supported by GFXR at this time. Please file an issue quoting this text if this is a blocker for you.", options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata["Warning"], "Unknown D3D12_DRED_VERSION in D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA. Uninitialised or corrupt struct?", options);
+                break;
+            }
+        }
     }
 }
 
@@ -3870,7 +3966,36 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
         const D3D12_RENDER_PASS_BEGINNING_ACCESS& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type, options); // Basic data plumbs to raw struct [is_enum]
-        ; ///< @todo ALERT: Union member 0 of D3D12_RENDER_PASS_BEGINNING_ACCESS needs special handling.
+        switch(decoded_value.Type)
+        {
+            case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR:
+            {
+                FieldToJson(jdata["Clear"], meta_struct.Clear, options);
+                break;
+            }
+            case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
+            if(decoded_value.PreserveLocal.AdditionalWidth != 0U || decoded_value.PreserveLocal.AdditionalHeight != 0U)
+            {
+                FieldToJson(jdata["Warning"], "Additional width and height should be zero (see DirectX Specs).", options);
+            }
+            case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
+            case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
+            {
+                FieldToJson(jdata["PreserveLocal"], decoded_value.PreserveLocal, options);
+                break;
+            }
+            case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD:
+            case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE:
+            case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS:
+            // No parameters to these cases.
+            break;
+
+            default:
+            {
+                FieldToJson(jdata["Warning"], "Unknown D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE in D3D12_RENDER_PASS_BEGINNING_ACCESS. Uninitialised or corrupt struct?", options);
+                break;
+            }
+        }
     }
 }
 
@@ -3926,7 +4051,33 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
         const D3D12_RENDER_PASS_ENDING_ACCESS& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RENDER_PASS_ENDING_ACCESS& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type, options); // Basic data plumbs to raw struct [is_enum]
-        ; ///< @todo ALERT: Union member 0 of D3D12_RENDER_PASS_ENDING_ACCESS needs special handling.
+        switch(decoded_value.Type)
+        {
+            case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD:
+            case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE:
+            case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS:
+            // No parameters to these cases.
+            break;
+
+            case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE:
+            {
+                FieldToJson(jdata["Resolve"], meta_struct.Resolve, options);
+                break;
+            }
+            case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
+            case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
+            case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
+            {
+                FieldToJson(jdata["PreserveLocal"], decoded_value.PreserveLocal, options);
+                break;
+            }
+
+            default:
+            {
+                FieldToJson(jdata["Warning"], "Unknown D3D12_RENDER_PASS_ENDING_ACCESS_TYPE in D3D12_RENDER_PASS_ENDING_ACCESS. Uninitialised or corrupt struct?", options);
+                break;
+            }
+        }
     }
 }
 
