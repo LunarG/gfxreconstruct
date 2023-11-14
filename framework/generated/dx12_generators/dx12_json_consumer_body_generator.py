@@ -97,11 +97,98 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
             #include "decode/json_writer.h"
             #include "util/to_string.h"
             #include "format/format_json.h"
+
+            #include <winerror.h> // D3D12 and DXGI HRESULT return values.
+            // Still needed for D3D12 return values <https://learn.microsoft.com/en-us/windows/win32/direct3d12/d3d12-graphics-reference-returnvalues>
+            #include <d3d9.h>
+            #include <unordered_map>
+
         '''), file=self.outFile)
         self.newline()
 
     def generate_feature(self):
         Dx12BaseGenerator.generate_feature(self)
+        write(format_cpp_code('''
+            // const char * might be better to avoid two copies of each string in the process at runtime (one in the static data section for the literal string and one on the heap in the map).
+            // Even better would be for this to be a const array of pairs of HRESULT and const char*const with a flat_map style adaptor so the "map" itself could live in the const data section rather than being heap allocated as it is now.
+            const static std::unordered_map<HRESULT, std::string> kHresults {
+                // Basic names for zero and one from <winerror.h> also used by D3D12:
+                {S_OK, "S_OK"},
+                {S_FALSE,"S_FALSE"},
+                // D3D12 Errors from <winerror.h>:
+                // <https://learn.microsoft.com/en-us/windows/win32/direct3d12/d3d12-graphics-reference-returnvalues>
+                {D3D12_ERROR_ADAPTER_NOT_FOUND, "D3D12_ERROR_ADAPTER_NOT_FOUND"},
+                {D3D12_ERROR_DRIVER_VERSION_MISMATCH, "D3D12_ERROR_DRIVER_VERSION_MISMATCH"},
+                {D3D12_ERROR_INVALID_REDIST, "D3D12_ERROR_INVALID_REDIST"},
+                // D3D9 Errors inherited by D3D12:
+                {D3DERR_INVALIDCALL, "D3DERR_INVALIDCALL"},
+                {D3DERR_WASSTILLDRAWING, "D3DERR_WASSTILLDRAWING"},
+                // DXGI Errors from <winerror.h>:
+                // https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-error
+                {DXGI_ERROR_ACCESS_DENIED, "DXGI_ERROR_ACCESS_DENIED"},
+                {DXGI_ERROR_ACCESS_LOST, "DXGI_ERROR_ACCESS_LOST"},
+                {DXGI_ERROR_ALREADY_EXISTS, "DXGI_ERROR_ALREADY_EXISTS"},
+                {DXGI_ERROR_CANNOT_PROTECT_CONTENT, "DXGI_ERROR_CANNOT_PROTECT_CONTENT"},
+                {DXGI_ERROR_DEVICE_HUNG, "DXGI_ERROR_DEVICE_HUNG"},
+                {DXGI_ERROR_DEVICE_REMOVED, "DXGI_ERROR_DEVICE_REMOVED"},
+                {DXGI_ERROR_DEVICE_RESET, "DXGI_ERROR_DEVICE_RESET"},
+                {DXGI_ERROR_DRIVER_INTERNAL_ERROR, "DXGI_ERROR_DRIVER_INTERNAL_ERROR"},
+                {DXGI_ERROR_FRAME_STATISTICS_DISJOINT, "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"},
+                {DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE, "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"},
+                {DXGI_ERROR_INVALID_CALL, "DXGI_ERROR_INVALID_CALL"},
+                {DXGI_ERROR_MORE_DATA, "DXGI_ERROR_MORE_DATA"},
+                {DXGI_ERROR_NAME_ALREADY_EXISTS, "DXGI_ERROR_NAME_ALREADY_EXISTS"},
+                {DXGI_ERROR_NONEXCLUSIVE, "DXGI_ERROR_NONEXCLUSIVE"},
+                {DXGI_ERROR_NOT_CURRENTLY_AVAILABLE, "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"},
+                {DXGI_ERROR_NOT_FOUND, "DXGI_ERROR_NOT_FOUND"},
+                {DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED, "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"},
+                {DXGI_ERROR_REMOTE_OUTOFMEMORY, "DXGI_ERROR_REMOTE_OUTOFMEMORY"},
+                {DXGI_ERROR_RESTRICT_TO_OUTPUT_STALE, "DXGI_ERROR_RESTRICT_TO_OUTPUT_STALE"},
+                {DXGI_ERROR_SDK_COMPONENT_MISSING, "DXGI_ERROR_SDK_COMPONENT_MISSING"},
+                {DXGI_ERROR_SESSION_DISCONNECTED, "DXGI_ERROR_SESSION_DISCONNECTED"},
+                {DXGI_ERROR_UNSUPPORTED, "DXGI_ERROR_UNSUPPORTED"},
+                {DXGI_ERROR_WAIT_TIMEOUT, "DXGI_ERROR_WAIT_TIMEOUT"},
+                {DXGI_ERROR_WAS_STILL_DRAWING, "DXGI_ERROR_WAS_STILL_DRAWING"},
+                // Extra OLE Codes from <winerror.h> (we should never see these from DX12/DXGI but just in case):
+                {E_UNEXPECTED, "E_UNEXPECTED"},
+                {E_NOINTERFACE, "E_NOINTERFACE"},
+                {E_POINTER, "E_POINTER"},
+                {E_HANDLE, "E_HANDLE"},
+                {E_ABORT, "E_ABORT"},
+                {E_ACCESSDENIED, "E_ACCESSDENIED"},
+                // Misc errors:
+                {E_FAIL, "E_FAIL"},
+                {E_OUTOFMEMORY, "E_OUTOFMEMORY"},
+                {E_INVALIDARG, "E_INVALIDARG"},
+                {E_NOTIMPL, "E_NOTIMPL"},
+            };
+
+            /// @brief Turn a D3D12 or DXGI HRESULT into a string with the same character
+            /// sequence as the identifier of the C macro defining it in a header like
+            /// winerror.h. 
+            /// @param hresult A D3D12 or DXGI result code.
+            static std::string HresultToString(const HRESULT hresult)
+            {
+                const auto found = kHresults.find(hresult);
+                std::string result;
+                if(found != kHresults.end())
+                {
+                    result = found->second;
+                }
+                else
+                {
+                    result = util::to_hex_variable_width(static_cast<unsigned long>(hresult));
+                    GFXRECON_LOG_DEBUG("HresultToString() passed unkown HRESULT: %s.", result.c_str());
+                }
+                return result;
+            }
+
+            static void HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const util::JsonOptions& options)
+            {
+                FieldToJson(jdata, HresultToString(hresult), options);
+            }
+        '''), file=self.outFile)
+        self.newline()
         self.write_dx12_consumer_class('Json')
 
     def get_decoder_class_define(self, consumer_type):
@@ -126,15 +213,35 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
         code = "\n" + format_cpp_code(code)
         return code
 
+    ## Generate a FieldToJson appropriate to the return type.
+    ## @param func_type Either "function" or "method" for expected use.
+    def make_return(self, func_type, return_type):
+        ret_line = "FieldToJson({0}[format::kNameReturn], return_value, options);\n"
+        if "BOOL" in return_type:
+            ret_line = "Bool32ToJson({0}[format::kNameReturn], return_value, options);\n"
+        elif "HRESULT" in return_type:
+            ret_line = "HresultToJson({0}[format::kNameReturn], return_value, options);\n"
+        elif not "void" in return_type:
+            msg = "An unknown return type was seen in generation. Defaulting to the base converter signature."
+            print("ALERT: " + msg + " (" + return_type + ")")
+            ret_line = "// " + msg + "\n" + ret_line
+        else:
+            ret_line = "// Nothing returned.\n"
+        ret_line = ret_line.format(func_type)
+        return ret_line
+
     def make_consumer_func_body(self, method_info, return_type):
+        # Deal with the function's returned value:
         if return_type != 'HRESULT WINAPI':
             print ("Warning - Unexpected return type:", return_type)
+        ret_line = self.make_return("function", return_type)
+
         code = '''
             nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "{}");
             const JsonOptions& options = writer_->GetOptions();
-
-            FieldToJson(function[format::kNameReturn], return_value, options);
-            nlohmann::ordered_json& args = function[format::kNameArgs];
+        '''
+        code += ret_line
+        code += '''nlohmann::ordered_json& args = function[format::kNameArgs];
             {{
         '''
         # Generate a correct FieldToJson for each argument:
@@ -154,19 +261,12 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
             nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "{0}", object_id, "{1}");
             const JsonOptions& options = writer_->GetOptions();
         '''
-        default = "FieldToJson(method[format::kNameReturn], return_value, options);\n"
-        if "BOOL" in return_type:
-            code += "Bool32ToJson(method[format::kNameReturn], return_value, options);\n"
-        elif "HRESULT" in return_type:
-            code += "/// @todo Need a human-readable conversion for HRESULTs.\n"
-            code += default
-        elif not "void" in return_type:
-            msg = "An unknown return type was seen in generation. Defaulting to the base converter signature."
-            print("ALERT: " + msg + " (" + return_type + ")")
-            code += "// " + msg + "\n"
-            code += default
-        else:
-            code += "// Nothing returned from method.\n"
+
+        # Deal with the function's returned value:
+        ret_line = self.make_return("method", return_type)
+        code += ret_line
+
+        # Deal with function argumentS:
         if len(method_info['parameters']) > 0:
             code += '''nlohmann::ordered_json& args = method[format::kNameArgs];
                 {{
