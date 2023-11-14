@@ -2220,7 +2220,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetFrameLatencyWaitableObject");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Using the default for the underlying type of HANDLE:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -2283,7 +2283,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory3_GetCreationFlags(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory3", object_id, "GetCreationFlags");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -2449,7 +2449,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetColorSpace");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // A flags enum uses the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -2601,7 +2601,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "GetCurrentBackBufferIndex");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3391,7 +3391,7 @@ void Dx12JsonConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureD
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12RootSignatureDeserializer", object_id, "GetRootSignatureDesc");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3425,7 +3425,7 @@ void Dx12JsonConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUncon
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12VersionedRootSignatureDeserializer", object_id, "GetUnconvertedRootSignatureDesc");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3439,7 +3439,7 @@ void Dx12JsonConsumer::Process_ID3D12Heap_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Heap", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3494,7 +3494,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3508,8 +3508,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "GetGPUVirtualAddress");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    FieldToJsonAsHex(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -3581,7 +3580,7 @@ void Dx12JsonConsumer::Process_ID3D12Fence_GetCompletedValue(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Fence", object_id, "GetCompletedValue");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3633,7 +3632,7 @@ void Dx12JsonConsumer::Process_ID3D12Fence1_GetCreationFlags(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Fence1", object_id, "GetCreationFlags");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // A flags enum uses the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3665,7 +3664,7 @@ void Dx12JsonConsumer::Process_ID3D12DescriptorHeap_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DescriptorHeap", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3679,7 +3678,7 @@ void Dx12JsonConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHea
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DescriptorHeap", object_id, "GetCPUDescriptorHandleForHeapStart");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3693,7 +3692,7 @@ void Dx12JsonConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHea
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DescriptorHeap", object_id, "GetGPUDescriptorHandleForHeapStart");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -3707,7 +3706,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandList_GetType(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandList", object_id, "GetType");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // A regular non-flags enum uses the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -5156,7 +5155,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -5170,7 +5169,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetNodeCount(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetNodeCount");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -5323,7 +5322,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetDescriptorHandleIncrementSize");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT:
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5546,7 +5545,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetResourceAllocationInfo");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5568,7 +5567,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetCustomHeapProperties(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetCustomHeapProperties");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -5966,7 +5965,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetAdapterLuid(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetAdapterLuid");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6048,7 +6047,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineLibrary", object_id, "GetSerializedSize");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for SIZE_T:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6290,7 +6289,7 @@ void Dx12JsonConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ProtectedSession", object_id, "GetSessionStatus");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // A regular non-flags enum uses the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6304,7 +6303,7 @@ void Dx12JsonConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ProtectedResourceSession", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6454,7 +6453,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device4", object_id, "GetResourceAllocationInfo1");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6492,7 +6491,7 @@ void Dx12JsonConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12SwapChainAssistant", object_id, "GetLUID");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6600,7 +6599,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties", object_id, "GetShaderStackSize");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6618,7 +6617,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties", object_id, "GetPipelineStackSize");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -6800,7 +6799,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device5", object_id, "CheckDriverMatchingIdentifier");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // A regular non-flags enum uses the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -6994,7 +6993,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceRemovedExtendedData2_GetDeviceState(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceRemovedExtendedData2", object_id, "GetDeviceState");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // A regular non-flags enum uses the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7032,7 +7031,7 @@ void Dx12JsonConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ProtectedResourceSession1", object_id, "GetDesc1");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7096,7 +7095,7 @@ void Dx12JsonConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device8", object_id, "GetResourceAllocationInfo2");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7251,7 +7250,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource2_GetDesc1(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource2", object_id, "GetDesc1");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7304,7 +7303,7 @@ void Dx12JsonConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSiz
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12MetaCommand", object_id, "GetRequiredParameterResourceSize");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7557,7 +7556,7 @@ void Dx12JsonConsumer::Process_ID3D12ShaderCacheSession_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ShaderCacheSession", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -7764,7 +7763,7 @@ void Dx12JsonConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device12", object_id, "GetResourceAllocationInfo3");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
@@ -7959,7 +7958,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_GetFlags(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceFactory", object_id, "GetFlags");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // A flags enum uses the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -8043,7 +8042,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration_GetDesc(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceConfiguration", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // Structs use the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -8284,8 +8283,7 @@ void Dx12JsonConsumer::Process_ID3D10Blob_GetBufferPointer(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D10Blob", object_id, "GetBufferPointer");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
-    FieldToJson(method[format::kNameReturn], return_value, options);
+    FieldToJsonAsHex(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -8298,7 +8296,7 @@ void Dx12JsonConsumer::Process_ID3D10Blob_GetBufferSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D10Blob", object_id, "GetBufferSize");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for SIZE_T:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -8608,7 +8606,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice", object_id, "GetFeatureMask");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // A flags enum uses the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -8854,7 +8852,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList", object_id, "GetFeatureMask");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // A flags enum uses the default signature:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9099,7 +9097,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFil
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumMessagesAllowedByStorageFilter");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9113,7 +9111,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilt
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumMessagesDeniedByStorageFilter");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9127,7 +9125,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumStoredMessages");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9141,7 +9139,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetr
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumStoredMessagesAllowedByRetrievalFilter");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9155,7 +9153,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageC
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumMessagesDiscardedByMessageCountLimit");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9169,7 +9167,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetMessageCountLimit");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT64:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9289,7 +9287,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetStorageFilterStackSize");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9409,7 +9407,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetRetrievalFilterStackSize");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for UINT:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9677,7 +9675,7 @@ void Dx12JsonConsumer::Process_IUnknown_AddRef(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IUnknown", object_id, "AddRef");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for ULONG:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
@@ -9691,7 +9689,7 @@ void Dx12JsonConsumer::Process_IUnknown_Release(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IUnknown", object_id, "Release");
     const JsonOptions& options = writer_->GetOptions();
-    // An unknown return type was seen in generation. Defaulting to the base converter signature.
+    // The default will resolve correctly for ULONG:
     FieldToJson(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }

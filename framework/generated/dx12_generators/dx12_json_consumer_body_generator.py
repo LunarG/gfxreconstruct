@@ -215,18 +215,38 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
 
     ## Generate a FieldToJson appropriate to the return type.
     ## @param func_type Either "function" or "method" for expected use.
+    ## @todo factor out a function to be used everywhere for generating FieldToJSON functions for all the cases.
     def make_return(self, func_type, return_type):
+        type_start = return_type.split()[0]
         ret_line = "FieldToJson({0}[format::kNameReturn], return_value, options);\n"
-        if "BOOL" in return_type:
+        if "void" in return_type:
+            ret_line = "// Nothing returned.\n"
+        elif "BOOL" in return_type:
             ret_line = "Bool32ToJson({0}[format::kNameReturn], return_value, options);\n"
         elif "HRESULT" in return_type:
             ret_line = "HresultToJson({0}[format::kNameReturn], return_value, options);\n"
-        elif not "void" in return_type:
+        elif self.is_struct(type_start) or (type_start == "const" and "_DESC * " in return_type):
+            ret_line = "// Structs use the default signature:\n" + ret_line
+        elif return_type.startswith("HANDLE "):
+            ## This is a Windows handle, probably to a waitable object so we output it as a JSON number:
+            ## <https://learn.microsoft.com/en-us/windows/win32/sysinfo/handles-and-objects>
+            ## <https://learn.microsoft.com/en-us/windows/win32/sync/wait-functions>
+            ret_line = "// Using the default for the underlying type of " + type_start + ":\n" + ret_line
+        elif return_type.startswith("D3D12_GPU_VIRTUAL_ADDRESS") or return_type.startswith("LPVOID"):
+            ret_line = "FieldToJsonAsHex({0}[format::kNameReturn], return_value, options);\n"
+        elif return_type.startswith("UINT ") or return_type.startswith("UINT64 ") or return_type.startswith("ULONG ") or return_type.startswith("SIZE_T "):
+            ret_line = "// The default will resolve correctly for " + type_start + ":\n" + ret_line
+        elif type_start.endswith("_FLAGS") or type_start.endswith("D3D12_DEBUG_FEATURE"):
+            # Flags may convert incorrectly here or in arguments of struct fields but that should probably be addressed in the EnumToString function generator:
+            # <https://github.com/LunarG/gfxreconstruct/issues/1349>
+            ret_line = "// A flags enum uses the default signature:\n" + ret_line
+        elif self.is_enum(type_start):
+            ret_line = "// A regular non-flags enum uses the default signature:\n" + ret_line
+        else:
             msg = "An unknown return type was seen in generation. Defaulting to the base converter signature."
             print("ALERT: " + msg + " (" + return_type + ")")
             ret_line = "// " + msg + "\n" + ret_line
-        else:
-            ret_line = "// Nothing returned.\n"
+
         ret_line = ret_line.format(func_type)
         return ret_line
 
