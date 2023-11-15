@@ -59,38 +59,6 @@ static std::string GetAgsResultValueString(AGSReturnCode result)
     }
 }
 
-std::string FeatureLevelToString(const D3D_FEATURE_LEVEL& value)
-{
-    switch (value)
-    {
-        case D3D_FEATURE_LEVEL_1_0_CORE:
-            return "D3D_FEATURE_LEVEL_1_0_CORE";
-        case D3D_FEATURE_LEVEL_9_1:
-            return "D3D_FEATURE_LEVEL_9_1";
-        case D3D_FEATURE_LEVEL_9_2:
-            return "D3D_FEATURE_LEVEL_9_2";
-        case D3D_FEATURE_LEVEL_9_3:
-            return "D3D_FEATURE_LEVEL_9_3";
-        case D3D_FEATURE_LEVEL_10_0:
-            return "D3D_FEATURE_LEVEL_10_0";
-        case D3D_FEATURE_LEVEL_10_1:
-            return "D3D_FEATURE_LEVEL_10_1";
-        case D3D_FEATURE_LEVEL_11_0:
-            return "D3D_FEATURE_LEVEL_11_0";
-        case D3D_FEATURE_LEVEL_11_1:
-            return "D3D_FEATURE_LEVEL_11_1";
-        case D3D_FEATURE_LEVEL_12_0:
-            return "D3D_FEATURE_LEVEL_12_0";
-        case D3D_FEATURE_LEVEL_12_1:
-            return "D3D_FEATURE_LEVEL_12_1";
-        case D3D_FEATURE_LEVEL_12_2:
-            return "D3D_FEATURE_LEVEL_12_2";
-        default:
-            break;
-    }
-    return "Unhandled D3D_FEATURE_LEVEL";
-}
-
 std::string DisplayModeToString(const AGSDisplaySettings::Mode mode)
 {
     switch (mode)
@@ -255,7 +223,7 @@ void AgsAsciiConsumer::Process_agsDriverExtensionsDX12_CreateDevice(
                                         to_string_flags_,
                                         tab_count,
                                         tab_size,
-                                        FeatureLevelToString(creationParams->FeatureLevel));
+                                        ToString(creationParams->FeatureLevel, to_string_flags_, tab_count, tab_size));
                       }));
 
         FieldToString(str_strm,
