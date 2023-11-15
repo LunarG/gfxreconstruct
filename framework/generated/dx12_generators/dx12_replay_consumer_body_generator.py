@@ -96,9 +96,14 @@ class Dx12ReplayConsumerBodyGenerator(
             file=self.outFile
         )
         write(
+            '#include "decode/custom_dx12_replay_commands.h"',
+            file=self.outFile
+        )
+        write(
             '#include "generated/generated_dx12_struct_object_mappers.h"',
             file=self.outFile
         )
+        self.newline()
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
@@ -142,18 +147,12 @@ class Dx12ReplayConsumerBodyGenerator(
                 is_override = method_name in self.REPLAY_OVERRIDES[
                     'classmethods'][class_name]
 
-            if is_override:
-                cmddef += (
-                    "    auto replay_object = GetObjectInfo(object_id);\n"
-                    "    if ((replay_object != nullptr) &&"
-                    " (replay_object->object != nullptr))\n"
-                )
-            else:
-                cmddef += (
-                    "    auto replay_object = MapObject<{}>(object_id);\n"
-                    "    if (replay_object != nullptr)\n".format(class_name)
-                )
-            cmddef += "    {\n"
+            cmddef += (
+                "    auto replay_object = GetObjectInfo(object_id);\n"
+                "    if ((replay_object != nullptr) &&"
+                " (replay_object->object != nullptr))\n"
+                "    {\n"
+            )
 
             body = self.make_consumer_func_body(return_type, method, values)
             code_list = body.split('\n')
@@ -190,6 +189,21 @@ class Dx12ReplayConsumerBodyGenerator(
                 is_resource_creation_methods = True
         else:
             is_override = name in self.REPLAY_OVERRIDES['functions']
+        
+        code += (
+            "    CustomReplayPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n"
+            "        this,\n"
+            "        call_info,".format(name)
+        )
+
+        if is_object:
+            code += "\n        replay_object,"
+
+        for value in values:
+            code += ('\n' + "        " + value.name + ",")
+
+        code = code[:-1]
+        code += ");\n"
 
         for value in values:
             is_class = self.is_class(value)
@@ -401,7 +415,7 @@ class Dx12ReplayConsumerBodyGenerator(
             code += 'auto replay_result = '
 
         if is_object and not is_override:
-            code += 'replay_object->'
+            code += 'reinterpret_cast<{}*>(replay_object->object)->'.format(class_name)
 
         first = True
         if is_override:
@@ -451,6 +465,21 @@ class Dx12ReplayConsumerBodyGenerator(
                 '    CheckReplayResult("{}", return_value, replay_result);\n'.
                 format(name)
             )
+
+        code += (
+            "    CustomReplayPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n"
+            "        this,\n"
+            "        call_info,".format(name)
+        )
+
+        if is_object:
+            code += "\n        replay_object,"
+
+        for value in values:
+            code += ('\n' + "        " + value.name + ",")
+
+        code = code[:-1]
+        code +=");\n"
 
         for e in post_extenal_object_list:
             code += '    {}'.format(e)

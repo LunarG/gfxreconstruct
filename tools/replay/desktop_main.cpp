@@ -37,6 +37,7 @@
 #if defined(D3D12_SUPPORT)
 #include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_replay_consumer.h"
+#include "decode/dx12_browse_consumer.h"
 #ifdef GFXRECON_AGS_SUPPORT
 #include "decode/custom_ags_consumer_base.h"
 #include "decode/custom_ags_decoder.h"
@@ -87,6 +88,32 @@ void WaitForExit() {}
 #endif
 
 const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
+
+#if defined(D3D12_SUPPORT)
+bool BrowseFile(const std::string&                      input_filename,
+                gfxrecon::decode::DumpResourcesType     dump_resources_type,
+                uint64_t                                dump_resources_argument,
+                gfxrecon::decode::TrackDumpCommandList& out_track_dump_commandlist)
+{
+    gfxrecon::decode::TrackDumpCommandList* track_dump_commandlist = nullptr;
+
+    gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(input_filename))
+    {
+        gfxrecon::decode::Dx12BrowseConsumer dx12_browse_consumer;
+        gfxrecon::decode::Dx12Decoder        dx12_decoder;
+
+        dx12_browse_consumer.SetDumpTarget(dump_resources_type, dump_resources_argument);
+
+        dx12_decoder.AddConsumer(&dx12_browse_consumer);
+        file_processor.AddDecoder(&dx12_decoder);
+        file_processor.ProcessAllFrames();
+        track_dump_commandlist     = dx12_browse_consumer.GetTrackDumpTarget();
+        out_track_dump_commandlist = *track_dump_commandlist;
+    }
+    return (track_dump_commandlist != nullptr);
+}
+#endif
 
 int main(int argc, const char** argv)
 {
@@ -184,6 +211,16 @@ int main(int argc, const char** argv)
             gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser, filename);
             gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);
             gfxrecon::decode::Dx12Decoder        dx12_decoder;
+
+            if (dx_replay_options.dump_resources_type != gfxrecon::decode::DumpResourcesType::kNone)
+            {
+                gfxrecon::decode::TrackDumpCommandList track_dump_target;
+                BrowseFile(filename,
+                           dx_replay_options.dump_resources_type,
+                           dx_replay_options.dump_resources_argument,
+                           track_dump_target);
+                dx12_replay_consumer.SetDumpTarget(track_dump_target);
+            }
 
 #ifdef GFXRECON_AGS_SUPPORT
             gfxrecon::decode::AgsReplayConsumer ags_replay_consumer;
