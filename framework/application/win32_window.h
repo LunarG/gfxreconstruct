@@ -85,6 +85,7 @@ class Win32Window : public decode::Window
     uint32_t      screen_height_;
     bool          fullscreen_;
     HINSTANCE     hinstance_;
+    bool          force_windowed_;
 };
 
 class Win32WindowFactory : public decode::WindowFactory

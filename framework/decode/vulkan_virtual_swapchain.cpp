@@ -615,8 +615,9 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(VkResult                  o
     }
 
     result = func(device, swapchain, timeout, semaphore, fence, image_index);
-    if (result != VK_SUCCESS)
+    if ((result != VK_SUCCESS) && (result != VK_SUBOPTIMAL_KHR))
     {
+        // TODO: Add some handling of optimization with VK_SUBOPTIMAL_KHR.
         GFXRECON_LOG_ERROR("Virtual swapchain failed AcquireNextImageKHR 0x%08x for swapchain (ID = %" PRIu64 ")",
                            result,
                            swapchain_info->capture_id);
@@ -640,8 +641,9 @@ VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(VkResult                  
     }
 
     VkResult result = func(device, acquire_info, image_index);
-    if (result != VK_SUCCESS)
+    if ((result != VK_SUCCESS) && (result != VK_SUBOPTIMAL_KHR))
     {
+        // TODO: Add some handling of optimization with VK_SUBOPTIMAL_KHR.
         GFXRECON_LOG_ERROR("Virtual swapchain failed AcquireNextImage2KHR 0x%08x for swapchain (ID = %" PRIu64 ")",
                            result,
                            swapchain_info->capture_id);
