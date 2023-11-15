@@ -98,6 +98,7 @@ bool Win32Window::Create(const std::string& title,
     int32_t  x            = xpos;
     int32_t  y            = ypos;
     fullscreen_           = false;
+    force_windowed_       = force_windowed;
 
     if ((screen_height_ <= ypos) || (screen_width_ <= xpos))
     {
@@ -213,8 +214,17 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
                     screen_height_);
             }
 
-            uint32_t swp_flags    = SWP_NOMOVE | SWP_NOZORDER;
+            uint32_t swp_flags = SWP_NOMOVE | SWP_NOZORDER;
+
+            uint32_t current_window_style = GetWindowLong(hwnd_, GWL_STYLE);
             uint32_t window_style = fullscreen_ ? (WS_VISIBLE | kFullscreenStyle) : (WS_VISIBLE | kWindowedStyle);
+
+            if (((current_window_style & kFullscreenStyle) != kFullscreenStyle) && (force_windowed_ == false))
+            {
+                window_style = WS_VISIBLE | kFullscreenStyle;
+                SetWindowLong(hwnd_, GWL_STYLE, window_style);
+                swp_flags |= SWP_FRAMECHANGED;
+            }
 
             AdjustWindowRect(&wr, window_style, FALSE);
 
