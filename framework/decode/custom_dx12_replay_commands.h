@@ -45,6 +45,66 @@ struct CustomReplayPostCall
 };
 
 template <>
+struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PreCall_ID3D12GraphicsCommandList_ResourceBarrier(args...);
+    }
+};
+
+template <>
+struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConstantBufferView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PreCall_ID3D12Device_CreateConstantBufferView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PreCall_ID3D12Device_CreateShaderResourceView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRenderTargetView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device_CreateRenderTargetView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDepthStencilView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device_CreateDepthStencilView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12GraphicsCommandList_OMSetRenderTargets(args...);
+    }
+};
+
+template <>
 struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced>
 {
     template <typename... Args>

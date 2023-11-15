@@ -96,6 +96,26 @@ void Dx12DumpResources::WriteResources(const TrackDumpResources& resources)
     WriteMetaCommandToFile("resources", [&](auto& jdata) {
         // vertex
         WriteResources(jdata["vertex"], json_options_.data_sub_dir, resources.copy_vertex_resources);
+
+        // index
+        WriteResource(jdata["index"], json_options_.data_sub_dir, resources.copy_index_resource);
+
+        // descriptor
+        uint32_t index = 0;
+        for (const auto& heap_data : resources.descriptor_heap_datas)
+        {
+            std::string filename =
+                json_options_.data_sub_dir + "_heap_id_" + std::to_string(resources.target.descriptor_heap_ids[index]);
+            WriteResources(
+                jdata["descriptor_heap"][index]["constant_buffer"], filename, heap_data.copy_constant_buffer_resources);
+            WriteResources(
+                jdata["descriptor_heap"][index]["shader_resource"], filename, heap_data.copy_shader_resources);
+            ++index;
+        }
+
+        // render target
+        WriteResources(jdata["render_target"], json_options_.data_sub_dir, resources.copy_render_target_resources);
+        WriteResource(jdata["depth_stencil"], json_options_.data_sub_dir, resources.copy_depth_stencil_resource);
     });
 }
 

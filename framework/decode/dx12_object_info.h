@@ -149,10 +149,10 @@ struct ArgumentBufferExtraInfo
 
 struct ResourceValueInfo
 {
-    uint64_t              offset{ 0 };
-    ResourceValueType     type{ ResourceValueType::kUnknown };
-    uint64_t              size{ 0 };
-    D3D12StateObjectInfo* state_object{ nullptr }; ///< Used to map values in shader records.
+    uint64_t                offset{ 0 };
+    ResourceValueType       type{ ResourceValueType::kUnknown };
+    uint64_t                size{ 0 };
+    D3D12StateObjectInfo*   state_object{ nullptr }; ///< Used to map values in shader records.
     ArgumentBufferExtraInfo arg_buffer_extra_info;
 
     ResourceValueInfo(uint64_t                in_offset,
@@ -267,6 +267,13 @@ struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
     uint64_t                              capture_gpu_addr_begin{ kNullGpuAddress };
     size_t                                replay_cpu_addr_begin{ kNullCpuAddress };
     uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
+
+    std::vector<D3D12_GPU_VIRTUAL_ADDRESS>   captured_constant_buffer_view_desc_gvas;
+    std::vector<format::HandleId>            shader_resource_ids;
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> replay_render_target_handles;
+    std::vector<format::HandleId>            render_target_resource_ids;
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> replay_depth_stencil_handles;
+    std::vector<format::HandleId>            depth_stencil_resource_ids;
 };
 
 struct D3D12FenceInfo : DxObjectExtraInfo
@@ -303,7 +310,8 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
     std::map<uint64_t, uint64_t>                       mapped_gpu_addresses;
     std::map<uint64_t, graphics::Dx12ShaderIdentifier> mapped_shader_ids;
 
-    D3D12_RESOURCE_DESC1 desc = {};
+    D3D12_RESOURCE_DESC1  desc = {};
+    D3D12_RESOURCE_STATES current_state{ D3D12_RESOURCE_STATE_COMMON };
 };
 
 struct D3D12CommandSignatureInfo : DxObjectExtraInfo

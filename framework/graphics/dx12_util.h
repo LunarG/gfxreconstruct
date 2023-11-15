@@ -66,7 +66,7 @@ typedef _com_ptr_t<_com_IIID<ID3D12StateObjectProperties, &__uuidof(ID3D12StateO
     ID3D12StateObjectPropertiesComPtr;
 typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
-    ID3D12VersionedRootSignatureDeserializerComPtr;
+                                                                     ID3D12VersionedRootSignatureDeserializerComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
 
 struct ActiveAdapterInfo
@@ -100,6 +100,8 @@ struct ResourceStateInfo
 
 const D3D12_RANGE kZeroRange       = { 0, 0 };
 const double      kMemoryTolerance = 2.1;
+
+UINT GetTexturePitch(UINT64 width);
 
 // Take a screenshot
 void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& image_renderer,
