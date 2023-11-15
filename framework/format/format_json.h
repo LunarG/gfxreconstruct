@@ -47,6 +47,13 @@ constexpr const char* kNameReturn{ "return" };
 constexpr const char* kNameArgs{ "args" };
 /// @}
 
+/// @defgroup JSONMetaNames The names of fields used to convey out of band information like warnings and errors
+/// generated during conversion but not present in binary file.
+/// @{
+constexpr const char* kNameWarning{ "WARNING" };
+constexpr const char* kNameError{ "ERROR" };
+/// @}
+
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

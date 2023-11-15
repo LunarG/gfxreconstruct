@@ -62,6 +62,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
             #include "decode/decode_json_util.h"
             #include "graphics/dx12_util.h"
             #include "util/json_util.h"
+            #include "format/format_json.h"
 
             /// @file Implementations of functions for converting decoded D3D12 structs to JSON.
 
@@ -222,7 +223,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     {{
                         case D3D12_UAV_DIMENSION_UNKNOWN:
                         {{
-                            FieldToJson(jdata["Warning"], "Zero-valued ViewDimension is meaningless. Is struct corrupted?", options);
+                            FieldToJson(jdata[format::kNameWarning], "Zero-valued ViewDimension is meaningless. Is struct corrupted?", options);
                             break;
                         }}
                         case D3D12_UAV_DIMENSION_BUFFER:
@@ -267,7 +268,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                         }}
                         default:
                         {{
-                            FieldToJson(jdata["Warning"], "ViewDimension with unknown value. Is struct corrupted?", options);
+                            FieldToJson(jdata[format::kNameWarning], "ViewDimension with unknown value. Is struct corrupted?", options);
                             FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension), options);
                             break;
                         }}
@@ -279,7 +280,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     {{
                         case D3D12_RTV_DIMENSION_UNKNOWN:
                         {{
-                            FieldToJson(jdata["Warning"], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
+                            FieldToJson(jdata[format::kNameWarning], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
                             break;
                         }}
                         case D3D12_RTV_DIMENSION_BUFFER:
@@ -324,7 +325,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                         }}
                         default:
                         {{
-                            FieldToJson(jdata["Warning"], "Unknown D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Corrupt struct?", options);
+                            FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Corrupt struct?", options);
                             FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension), options);
                             break;
                         }}
@@ -336,7 +337,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     {{
                         case D3D12_DSV_DIMENSION_UNKNOWN:
                         {{
-                            FieldToJson(jdata["Warning"], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
+                            FieldToJson(jdata[format::kNameWarning], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
                             break;
                         }}
                         case D3D12_DSV_DIMENSION_TEXTURE1D:
@@ -371,7 +372,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                         }}
                         default:
                         {{
-                            FieldToJson(jdata["Warning"], "Unknown D3D12_DSV_DIMENSION in D3D12_DEPTH_STENCIL_VIEW_DESC. Corrupt struct?", options);
+                            FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_DSV_DIMENSION in D3D12_DEPTH_STENCIL_VIEW_DESC. Corrupt struct?", options);
                             FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension), options);
                             break;
                         }}
@@ -400,7 +401,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     }}
                     default:
                     {{
-                        FieldToJson(jdata["Warning"], "Unknown D3D12_ROOT_PARAMETER_TYPE in D3D12_ROOT_PARAMETER1. Uninitialised or corrupt struct?", options);
+                        FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_ROOT_PARAMETER_TYPE in D3D12_ROOT_PARAMETER1. Uninitialised or corrupt struct?", options);
                         FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ParameterType), options);
                         break;
                     }}
@@ -428,7 +429,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     }}
                     default:
                     {{
-                        FieldToJson(jdata["Warning"], "Unknown D3D_ROOT_SIGNATURE_VERSION in D3D12_VERSIONED_ROOT_SIGNATURE_DESC. Uninitialised or corrupt struct?", options);
+                        FieldToJson(jdata[format::kNameWarning], "Unknown D3D_ROOT_SIGNATURE_VERSION in D3D12_VERSIONED_ROOT_SIGNATURE_DESC. Uninitialised or corrupt struct?", options);
                         break;
                     }}
                 }}
@@ -490,7 +491,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     }}
                     default:
                     {{
-                        FieldToJson(jdata["Warning"], "Unknown D3D12_INDIRECT_ARGUMENT_TYPE in D3D12_INDIRECT_ARGUMENT_DESC. Uninitialised or corrupt struct?", options);
+                        FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_INDIRECT_ARGUMENT_TYPE in D3D12_INDIRECT_ARGUMENT_DESC. Uninitialised or corrupt struct?", options);
                         break;
                     }}
                 }}
@@ -511,7 +512,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     }}
                     default:
                     {{
-                        FieldToJson(jdata["Warning"], "Unknown D3D12_RAYTRACING_GEOMETRY_TYPE in D3D12_RAYTRACING_GEOMETRY_DESC. Uninitialised or corrupt struct?", options);
+                        FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RAYTRACING_GEOMETRY_TYPE in D3D12_RAYTRACING_GEOMETRY_DESC. Uninitialised or corrupt struct?", options);
                         break;
                     }}
                 }}
@@ -544,7 +545,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     }}
                     default:
                     {{
-                        FieldToJson(jdata["Warning"], "Unknown D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE in D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS. Uninitialised or corrupt struct?", options);
+                        FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE in D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS. Uninitialised or corrupt struct?", options);
                         break;
                     }}
                 }}
@@ -574,12 +575,12 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                         // See issue and revise this codegen by uncommenting line below when the issue
                         // is fixed <https://github.com/LunarG/gfxreconstruct/issues/1351>
                         // FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
-                        FieldToJson(jdata["Warning"], "Dred_1_3 is not supported by GFXR at this time. Please file an issue quoting this text if this is a blocker for you.", options);
+                        FieldToJson(jdata[format::kNameWarning], "Dred_1_3 is not supported by GFXR at this time. Please file an issue quoting this text if this is a blocker for you.", options);
                         break;
                     }}
                     default:
                     {{
-                        FieldToJson(jdata["Warning"], "Unknown D3D12_DRED_VERSION in D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA. Uninitialised or corrupt struct?", options);
+                        FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_DRED_VERSION in D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA. Uninitialised or corrupt struct?", options);
                         break;
                     }}
                 }}
@@ -596,7 +597,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
                     if(decoded_value.PreserveLocal.AdditionalWidth != 0U || decoded_value.PreserveLocal.AdditionalHeight != 0U)
                     {{
-                        FieldToJson(jdata["Warning"], "Additional width and height should be zero (see DirectX Specs).", options);
+                        FieldToJson(jdata[format::kNameWarning], "Additional width and height should be zero (see DirectX Specs).", options);
                     }}
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
@@ -612,7 +613,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
 
                     default:
                     {{
-                        FieldToJson(jdata["Warning"], "Unknown D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE in D3D12_RENDER_PASS_BEGINNING_ACCESS. Uninitialised or corrupt struct?", options);
+                        FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE in D3D12_RENDER_PASS_BEGINNING_ACCESS. Uninitialised or corrupt struct?", options);
                         break;
                     }}
                 }}
@@ -642,7 +643,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
 
                     default:
                     {{
-                        FieldToJson(jdata["Warning"], "Unknown D3D12_RENDER_PASS_ENDING_ACCESS_TYPE in D3D12_RENDER_PASS_ENDING_ACCESS. Uninitialised or corrupt struct?", options);
+                        FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RENDER_PASS_ENDING_ACCESS_TYPE in D3D12_RENDER_PASS_ENDING_ACCESS. Uninitialised or corrupt struct?", options);
                         break;
                     }}
                 }}

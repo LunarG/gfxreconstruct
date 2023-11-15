@@ -31,6 +31,7 @@
 #include "decode/decode_json_util.h"
 #include "graphics/dx12_util.h"
 #include "util/json_util.h"
+#include "format/format_json.h"
 
 /// @file Implementations of functions for converting decoded D3D12 structs to JSON.
 
@@ -2206,7 +2207,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_UNORDERED_AC
         {
             case D3D12_UAV_DIMENSION_UNKNOWN:
             {
-                FieldToJson(jdata["Warning"], "Zero-valued ViewDimension is meaningless. Is struct corrupted?", options);
+                FieldToJson(jdata[format::kNameWarning], "Zero-valued ViewDimension is meaningless. Is struct corrupted?", options);
                 break;
             }
             case D3D12_UAV_DIMENSION_BUFFER:
@@ -2251,7 +2252,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_UNORDERED_AC
             }
             default:
             {
-                FieldToJson(jdata["Warning"], "ViewDimension with unknown value. Is struct corrupted?", options);
+                FieldToJson(jdata[format::kNameWarning], "ViewDimension with unknown value. Is struct corrupted?", options);
                 FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension), options);
                 break;
             }
@@ -2370,7 +2371,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_TARGE
         {
             case D3D12_RTV_DIMENSION_UNKNOWN:
             {
-                FieldToJson(jdata["Warning"], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
                 break;
             }
             case D3D12_RTV_DIMENSION_BUFFER:
@@ -2415,7 +2416,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_TARGE
             }
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Corrupt struct?", options);
                 FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension), options);
                 break;
             }
@@ -2508,7 +2509,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEPTH_STENCI
         {
             case D3D12_DSV_DIMENSION_UNKNOWN:
             {
-                FieldToJson(jdata["Warning"], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
                 break;
             }
             case D3D12_DSV_DIMENSION_TEXTURE1D:
@@ -2543,7 +2544,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEPTH_STENCI
             }
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D12_DSV_DIMENSION in D3D12_DEPTH_STENCIL_VIEW_DESC. Corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_DSV_DIMENSION in D3D12_DEPTH_STENCIL_VIEW_DESC. Corrupt struct?", options);
                 FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension), options);
                 break;
             }
@@ -2781,7 +2782,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_PARAMET
             }
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D12_ROOT_PARAMETER_TYPE in D3D12_ROOT_PARAMETER1. Uninitialised or corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_ROOT_PARAMETER_TYPE in D3D12_ROOT_PARAMETER1. Uninitialised or corrupt struct?", options);
                 FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ParameterType), options);
                 break;
             }
@@ -2848,7 +2849,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_VERSIONED_RO
             }
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D_ROOT_SIGNATURE_VERSION in D3D12_VERSIONED_ROOT_SIGNATURE_DESC. Uninitialised or corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D_ROOT_SIGNATURE_VERSION in D3D12_VERSIONED_ROOT_SIGNATURE_DESC. Uninitialised or corrupt struct?", options);
                 break;
             }
         }
@@ -3105,7 +3106,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_INDIRECT_ARG
             }
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D12_INDIRECT_ARGUMENT_TYPE in D3D12_INDIRECT_ARGUMENT_DESC. Uninitialised or corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_INDIRECT_ARGUMENT_TYPE in D3D12_INDIRECT_ARGUMENT_DESC. Uninitialised or corrupt struct?", options);
                 break;
             }
         }
@@ -3579,7 +3580,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_G
             }
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D12_RAYTRACING_GEOMETRY_TYPE in D3D12_RAYTRACING_GEOMETRY_DESC. Uninitialised or corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RAYTRACING_GEOMETRY_TYPE in D3D12_RAYTRACING_GEOMETRY_DESC. Uninitialised or corrupt struct?", options);
                 break;
             }
         }
@@ -3623,7 +3624,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRA
             }
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE in D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS. Uninitialised or corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE in D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS. Uninitialised or corrupt struct?", options);
                 break;
             }
         }
@@ -3885,12 +3886,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_VERSIONED_DE
                 // See issue and revise this codegen by uncommenting line below when the issue
                 // is fixed <https://github.com/LunarG/gfxreconstruct/issues/1351>
                 // FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
-                FieldToJson(jdata["Warning"], "Dred_1_3 is not supported by GFXR at this time. Please file an issue quoting this text if this is a blocker for you.", options);
+                FieldToJson(jdata[format::kNameWarning], "Dred_1_3 is not supported by GFXR at this time. Please file an issue quoting this text if this is a blocker for you.", options);
                 break;
             }
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D12_DRED_VERSION in D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA. Uninitialised or corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_DRED_VERSION in D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA. Uninitialised or corrupt struct?", options);
                 break;
             }
         }
@@ -3976,7 +3977,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
             case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
             if(decoded_value.PreserveLocal.AdditionalWidth != 0U || decoded_value.PreserveLocal.AdditionalHeight != 0U)
             {
-                FieldToJson(jdata["Warning"], "Additional width and height should be zero (see DirectX Specs).", options);
+                FieldToJson(jdata[format::kNameWarning], "Additional width and height should be zero (see DirectX Specs).", options);
             }
             case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
             case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
@@ -3992,7 +3993,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
 
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE in D3D12_RENDER_PASS_BEGINNING_ACCESS. Uninitialised or corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE in D3D12_RENDER_PASS_BEGINNING_ACCESS. Uninitialised or corrupt struct?", options);
                 break;
             }
         }
@@ -4074,7 +4075,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RENDER_PASS_
 
             default:
             {
-                FieldToJson(jdata["Warning"], "Unknown D3D12_RENDER_PASS_ENDING_ACCESS_TYPE in D3D12_RENDER_PASS_ENDING_ACCESS. Uninitialised or corrupt struct?", options);
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RENDER_PASS_ENDING_ACCESS_TYPE in D3D12_RENDER_PASS_ENDING_ACCESS. Uninitialised or corrupt struct?", options);
                 break;
             }
         }
