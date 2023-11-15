@@ -209,8 +209,8 @@ Usage:
                         [-m <mode> | --memory-translation <mode>]
                         [--fw <width,height> | --force-windowed <width,height>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
-                        [--batching-memory-usage <pct>]
-                        [--api <api>] <file>
+                        [--batching-memory-usage <pct>] [--api <api>] 
+                        [--dump-resources <drawcall-index>] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -337,6 +337,10 @@ D3D12-only:
                                for batching and does not guarantee overall max memory usage.
                                Acceptable values range from 0 to 100 (default: 80). 0 means no batching,
                                100 means use all available system and GPU memory.
+  --dump-resources <drawcall-index>
+                                Output binaray resources for a specific drawcall.
+                                Include vertex, index, const buffer, shader resource, render target,
+                                and depth stencil. And for before and after drawcall.
 ```
 
 

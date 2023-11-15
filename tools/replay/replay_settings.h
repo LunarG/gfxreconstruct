@@ -36,7 +36,7 @@ const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
-    "force-windowed,--batching-memory-usage,--measurement-file,--swapchain";
+    "force-windowed,--batching-memory-usage,--measurement-file,--swapchain,--dump-resources";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -72,6 +72,7 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <drawcall-index>]");
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] [--no-debug-popup] <file>\n");
 #else
@@ -251,6 +252,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
     GFXRECON_WRITE_CONSOLE("          \t\t0 means no batching at all");
     GFXRECON_WRITE_CONSOLE("          \t\t100 means use all available system and GPU memory");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources <drawcall-index>");
+    GFXRECON_WRITE_CONSOLE("          \t\tOutput binaray resources for a specific drawcall.");
+    GFXRECON_WRITE_CONSOLE("          \t\tInclude vertex, index, const buffer, shader resource, render target,");
+    GFXRECON_WRITE_CONSOLE("          \t\tand depth stencil. And for before and after drawcall.");
 
 #endif
 
