@@ -4023,6 +4023,71 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_OMSetRenderTarge
     }
 }
 
+void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList4_BeginRenderPass(
+    const ApiCallInfo&                                                  call_info,
+    DxObjectInfo*                                                       object_info,
+    UINT                                                                NumRenderTargets,
+    StructPointerDecoder<Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC>* pRenderTargets,
+    StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
+    D3D12_RENDER_PASS_FLAGS                                             Flags)
+{
+    if (options_.dump_resources_type != DumpResourcesType::kNone &&
+        call_info.index == track_dump_resources_.target.begin_renderpass_code_index)
+    {
+        // This should be in the override function since it modifies the parameters. But the override function
+        // doesn't have call_info, so stay here.
+
+        // Since it will insert renderpass, this EndingAccess has to be PRESERVE.
+        // And then the inserted renderpass's BeginningAccess has to be PRESERVE.
+        auto rt_descs = pRenderTargets->GetMetaStructPointer();
+        for (uint32_t i = 0; i < NumRenderTargets; ++i)
+        {
+            rt_descs[i].EndingAccess->decoded_value->Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+        }
+
+        auto ds_desc = pDepthStencil->GetMetaStructPointer();
+        if (ds_desc)
+        {
+            ds_desc->DepthEndingAccess->decoded_value->Type   = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+            ds_desc->StencilEndingAccess->decoded_value->Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+        }
+    }
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList4_BeginRenderPass(
+    const ApiCallInfo&                                                  call_info,
+    DxObjectInfo*                                                       object_info,
+    UINT                                                                NumRenderTargets,
+    StructPointerDecoder<Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC>* pRenderTargets,
+    StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
+    D3D12_RENDER_PASS_FLAGS                                             Flags)
+{
+    if (options_.dump_resources_type != DumpResourcesType::kNone &&
+        call_info.index == track_dump_resources_.target.begin_renderpass_code_index)
+    {
+        // Record ending accesses and flags for the inserted BeginRenderPass in after drawcall.
+        auto rt_descs = pRenderTargets->GetMetaStructPointer();
+        track_dump_resources_.render_target_heap_ids.resize(NumRenderTargets);
+        track_dump_resources_.replay_render_target_handles.resize(NumRenderTargets);
+        track_dump_resources_.record_render_target_ending_accesses.resize(NumRenderTargets);
+        for (uint32_t i = 0; i < NumRenderTargets; ++i)
+        {
+            track_dump_resources_.render_target_heap_ids[i]               = rt_descs[i].cpuDescriptor->heap_id;
+            track_dump_resources_.replay_render_target_handles[i]         = *rt_descs[i].cpuDescriptor->decoded_value;
+            track_dump_resources_.record_render_target_ending_accesses[i] = *rt_descs[i].EndingAccess->decoded_value;
+        }
+        auto ds_desc = pDepthStencil->GetMetaStructPointer();
+        if (ds_desc)
+        {
+            track_dump_resources_.depth_stencil_heap_id        = ds_desc->cpuDescriptor->heap_id;
+            track_dump_resources_.replay_depth_stencil_handle  = *ds_desc->cpuDescriptor->decoded_value;
+            track_dump_resources_.record_depth_ending_access   = *ds_desc->DepthEndingAccess->decoded_value;
+            track_dump_resources_.record_stencil_ending_access = *ds_desc->StencilEndingAccess->decoded_value;
+        }
+        track_dump_resources_.record_render_pass_flags = Flags;
+    }
+}
+
 void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_DrawInstanced(const ApiCallInfo& call_info,
                                                                              DxObjectInfo*      object_info,
                                                                              UINT               VertexCountPerInstance,
@@ -4038,6 +4103,39 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_DrawInstanced(con
         {
             // The program doesn't use renderpass.
             AddCopyResourceCommandsForBeforeDrawcall(commandlist);
+        }
+        else
+        {
+            // Insert renderpass
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr commandlist4;
+            commandlist->QueryInterface(IID_PPV_ARGS(&commandlist4));
+            commandlist4->EndRenderPass();
+
+            AddCopyResourceCommandsForBeforeDrawcall(commandlist);
+
+            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs;
+            auto rt_descs_size = track_dump_resources_.replay_render_target_handles.size();
+            rt_descs.resize(rt_descs_size);
+            for (uint32_t i = 0; i < rt_descs_size; ++i)
+            {
+                rt_descs[i].cpuDescriptor        = track_dump_resources_.replay_render_target_handles[i];
+                rt_descs[i].BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                rt_descs[i].EndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+            }
+
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_ds_desc = nullptr;
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  ds_desc{};
+            if (track_dump_resources_.depth_stencil_heap_id != 0)
+            {
+                p_ds_desc                           = &ds_desc;
+                ds_desc.cpuDescriptor               = track_dump_resources_.replay_depth_stencil_handle;
+                ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                ds_desc.DepthEndingAccess.Type      = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+                ds_desc.StencilEndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+            }
+            commandlist4->BeginRenderPass(
+                rt_descs_size, rt_descs.data(), p_ds_desc, track_dump_resources_.record_render_pass_flags);
         }
     }
 }
@@ -4058,7 +4156,39 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_DrawInstanced(co
             // The program doesn't use renderpass.
             AddCopyResourceCommandsForAfterDrawcall(commandlist);
         }
+        else
+        {
+            // Insert renderpass
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr commandlist4;
+            commandlist->QueryInterface(IID_PPV_ARGS(&commandlist4));
+            commandlist4->EndRenderPass();
 
+            AddCopyResourceCommandsForAfterDrawcall(commandlist);
+
+            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs;
+            auto rt_descs_size = track_dump_resources_.replay_render_target_handles.size();
+            rt_descs.resize(rt_descs_size);
+            for (uint32_t i = 0; i < rt_descs_size; ++i)
+            {
+                rt_descs[i].cpuDescriptor        = track_dump_resources_.replay_render_target_handles[i];
+                rt_descs[i].BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                rt_descs[i].EndingAccess         = track_dump_resources_.record_render_target_ending_accesses[i];
+            }
+
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_ds_desc = nullptr;
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  ds_desc{};
+            if (track_dump_resources_.depth_stencil_heap_id != 0)
+            {
+                p_ds_desc                           = &ds_desc;
+                ds_desc.cpuDescriptor               = track_dump_resources_.replay_depth_stencil_handle;
+                ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                ds_desc.DepthEndingAccess           = track_dump_resources_.record_depth_ending_access;
+                ds_desc.StencilEndingAccess         = track_dump_resources_.record_stencil_ending_access;
+            }
+            commandlist4->BeginRenderPass(
+                rt_descs_size, rt_descs.data(), p_ds_desc, track_dump_resources_.record_render_pass_flags);
+        }
         // It has to run the original ExecuteCommandLists, not a new ExecuteCommandLists.
         // Because some FIllMemoryCommand runs before the original ExecuteCommandLists.
         // If it runs a new ExecuteCommandLists, it might miss FIllMemoryCommand.
