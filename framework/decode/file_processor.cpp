@@ -399,7 +399,10 @@ bool FileProcessor::ProcessBlocks()
                 else
                 {
                     // Unrecognized block type.
-                    GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
+                    GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64 ")",
+                                         block_header.type,
+                                         current_frame_number_,
+                                         block_index_);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                     success = SkipBytes(static_cast<size_t>(block_header.size));
                 }
@@ -413,7 +416,9 @@ bool FileProcessor::ProcessBlocks()
                     // end of file warning when the file is at EOF without an error. For this case (the normal EOF case)
                     // we print nothing at EOF, or print an error message and set the error code directly when not at
                     // EOF.
-                    GFXRECON_LOG_ERROR("Failed to read block header");
+                    GFXRECON_LOG_ERROR("Failed to read block header (frame %u block %" PRIu64 ")",
+                                       current_frame_number_,
+                                       block_index_);
                     error_state_ = kErrorReadingBlockHeader;
                 }
             }
@@ -507,7 +512,7 @@ void FileProcessor::HandleBlockReadError(Error error_code, const char* error_mes
     }
     else
     {
-        GFXRECON_LOG_ERROR("%s", error_message);
+        GFXRECON_LOG_ERROR("%s (frame %u block %" PRIu64 ")", error_message, current_frame_number_, block_index_);
         error_state_ = error_code;
     }
 }
