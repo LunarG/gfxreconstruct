@@ -39,12 +39,24 @@ struct TrackDumpCommandList
     // vertex
     std::vector<D3D12_GPU_VIRTUAL_ADDRESS> captured_vertex_buffer_view_gvas;
 
+    // index
+    D3D12_GPU_VIRTUAL_ADDRESS captured_index_buffer_view_gva{ decode::kNullGpuAddress };
+
+    // descriptor
+    std::vector<format::HandleId> descriptor_heap_ids;
+
+    // render target
+    // Track render target info in replay, not here.
+    // Because the useful info is replay cpuDescriptor. It's only available in replay.
+
     void Clear()
     {
         begin_renderpass_code_index = 0;
         drawcall_code_index         = 0;
         execute_code_index          = 0;
         captured_vertex_buffer_view_gvas.clear();
+        captured_index_buffer_view_gva = decode::kNullGpuAddress;
+        descriptor_heap_ids.clear();
     }
 };
 
@@ -142,6 +154,43 @@ class Dx12BrowseConsumer : public Dx12Consumer
                 for (uint32_t i = 0; i < NumViews; ++i)
                 {
                     it->second.captured_vertex_buffer_view_gvas[i] = views[i].decoded_value->BufferLocation;
+                }
+            }
+        }
+    }
+
+    virtual void
+    Process_ID3D12GraphicsCommandList_IASetIndexBuffer(const ApiCallInfo&                                     call_info,
+                                                       format::HandleId                                       object_id,
+                                                       StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView)
+    {
+        if (!IsFindDumpTarget())
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                auto view                                 = pView->GetMetaStructPointer();
+                it->second.captured_index_buffer_view_gva = view->decoded_value->BufferLocation;
+            }
+        }
+    }
+
+    virtual void
+    Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(const ApiCallInfo& call_info,
+                                                         format::HandleId   object_id,
+                                                         UINT               NumDescriptorHeaps,
+                                                         HandlePointerDecoder<ID3D12DescriptorHeap*>* ppDescriptorHeaps)
+    {
+        if (!IsFindDumpTarget())
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                it->second.descriptor_heap_ids.resize(NumDescriptorHeaps);
+                auto heap_ids = ppDescriptorHeaps->GetPointer();
+                for (uint32_t i = 0; i < NumDescriptorHeaps; ++i)
+                {
+                    it->second.descriptor_heap_ids[i] = heap_ids[i];
                 }
             }
         }
