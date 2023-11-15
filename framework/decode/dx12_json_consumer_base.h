@@ -48,12 +48,26 @@ class Dx12JsonConsumerBase : public Dx12Consumer
     /// @defGroup ApiAgnosticMetaBlocksUsedOnlyByDx12 Metablocks used by only DX12.
     /// @{
     /// @todo kCreateHeapAllocationCommand
+    virtual void ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size) override;
     /// @todo kInitSubresourceCommand
+    virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                               const uint8_t*                              data) override;
     /// @todo kInitDx12AccelerationStructureCommand
+    virtual void ProcessInitDx12AccelerationStructureCommand(
+        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                  build_inputs_data) override;
     /// @todo kFillMemoryResourceValueCommand
+    virtual void
+    ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
+                                          const uint8_t*                                      data) override;
     /// @todo kDxgiAdapterInfoCommand
+    virtual void ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header) override;
     /// @todo kDriverInfoCommand
+    virtual void Process_DriverInfo(const char* info_record) override;
     /// @todo kDx12RuntimeInfoCommand (only used by stats consumer)
+    virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header) override;
+    virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) override;
     /// @}
 
   protected:

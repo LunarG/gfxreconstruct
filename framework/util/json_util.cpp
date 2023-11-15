@@ -158,5 +158,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::string_view data, con
     jdata = data;
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data, const util::JsonOptions& options)
+{
+    jdata = data;
+}
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

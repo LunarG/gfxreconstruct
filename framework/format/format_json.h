@@ -54,6 +54,8 @@ constexpr const char* kValWriteFailed{ "Unable to write file" };
 /// @defgroup JSONMetaNames The names of fields used to convey out of band information like warnings and errors
 /// generated during conversion but not present in binary file.
 /// @{
+constexpr const char* kNameDebug{ "DEBUG" };
+constexpr const char* kNameInfo{ "INFO" };
 constexpr const char* kNameWarning{ "WARNING" };
 constexpr const char* kNameError{ "ERROR" };
 /// @}

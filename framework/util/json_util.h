@@ -78,6 +78,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, double data, const util::JsonOpt
 void FieldToJson(nlohmann::ordered_json&  jdata,
                  const std::string_view   data,
                  const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json&  jdata,
+                 const std::wstring_view  data,
+                 const util::JsonOptions& options = util::JsonOptions());
 
 /// @brief Convert the integer representation of a handle in capture files into
 /// either a JSON number or a JSON string with the number represented in
