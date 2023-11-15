@@ -355,21 +355,34 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
 {
     if (pData)
     {
-        if (pData->GetImageInfoCount())
+        const size_t                        image_info_count = pData->GetImageInfoCount();
+        std::vector<nlohmann::ordered_json> image_infos(image_info_count);
+
+        for (size_t image_info_index = 0; image_info_index < image_info_count; ++image_info_index)
         {
-            FieldToJson(jdata["imageInfos"], pData->GetImageInfoMetaStructPointer(), options);
+            FieldToJson(
+                image_infos[image_info_index], pData->GetImageInfoMetaStructPointer() + image_info_index, options);
         }
-        if (pData->GetBufferInfoCount())
+        jdata["imageInfos"] = image_infos;
+
+        const size_t                        buffer_info_count = pData->GetBufferInfoCount();
+        std::vector<nlohmann::ordered_json> buffer_infos(buffer_info_count);
+
+        for (size_t buffer_info_index = 0; buffer_info_index < buffer_info_count; ++buffer_info_index)
         {
-            FieldToJson(jdata["bufferInfos"], pData->GetBufferInfoMetaStructPointer(), options);
+            FieldToJson(
+                buffer_infos[buffer_info_index], pData->GetBufferInfoMetaStructPointer() + buffer_info_index, options);
         }
-        const auto texel_buffer_view_count = pData->GetTexelBufferViewCount();
+        jdata["bufferInfos"] = buffer_infos;
+
+        const size_t texel_buffer_view_count = pData->GetTexelBufferViewCount();
         if (texel_buffer_view_count > 0)
         {
             HandleToJson(
                 jdata["bufferViews"], pData->GetTexelBufferViewHandleIdsPointer(), texel_buffer_view_count, options);
         }
-        const auto acceleration_structure_count = pData->GetAccelerationStructureKHRCount();
+
+        const size_t acceleration_structure_count = pData->GetAccelerationStructureKHRCount();
         if (acceleration_structure_count > 0)
         {
             HandleToJson(jdata["accelStructViews"],
