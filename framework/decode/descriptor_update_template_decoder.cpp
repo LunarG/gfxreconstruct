@@ -63,13 +63,40 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
         bytes_read += ValueDecoder::DecodeSizeTValue(
             (buffer + bytes_read), (buffer_size - bytes_read), &texel_buffer_view_count_);
 
-        size_t buffer_info_offset       = image_info_count_ * sizeof(VkDescriptorImageInfo);
-        size_t texel_buffer_view_offset = buffer_info_offset + (buffer_info_count_ * sizeof(VkDescriptorBufferInfo));
-        size_t total_size               = texel_buffer_view_offset + (texel_buffer_view_count_ * sizeof(VkBufferView));
+        const size_t buffer_info_offset = image_info_count_ * sizeof(VkDescriptorImageInfo);
+        const size_t texel_buffer_view_offset =
+            buffer_info_offset + (buffer_info_count_ * sizeof(VkDescriptorBufferInfo));
+        size_t total_size = texel_buffer_view_offset + (texel_buffer_view_count_ * sizeof(VkBufferView));
+
+        // Calculate how many bytes we will read for obligatory information
+        size_t bytes_to_read = image_info_count_ * (sizeof(format::HandleId) * 2 + sizeof(format::EnumEncodeType));
+        bytes_to_read += buffer_info_count_ * (sizeof(format::HandleId) + 2 * sizeof(format::DeviceSizeEncodeType));
+        bytes_to_read += texel_buffer_view_count_ * sizeof(format::HandleId);
+
+        // This means that there are optional descriptor types in the capture file
+        if (bytes_read + bytes_to_read < buffer_size)
+        {
+            // Try to read the optional data
+            const size_t offset = bytes_read + bytes_to_read;
+            const size_t read   = ValueDecoder::DecodeSizeTValue(
+                (buffer + offset), (buffer_size - offset), &acceleration_structure_khr_count_);
+            if (offset + read == buffer_size)
+            {
+                acceleration_structure_khr_count_ = 0;
+                // A few captures in the wild were written with an uninitialized
+                // struct_count and no additional bytes. Commit 7d190ac9 fixed the encoding format.
+                GFXRECON_LOG_WARNING_ONCE(
+                    "A deprecated incorrect encoding of DescriptorUpdateTemplate was detected.  This "
+                    "capture is probably invalid.  Replay may subsequently fail or crash.");
+            }
+            else if (acceleration_structure_khr_count_ > 0)
+            {
+                total_size += sizeof(VkAccelerationStructureKHR) * acceleration_structure_khr_count_;
+            }
+        }
 
         assert(template_memory_ == nullptr);
         template_memory_ = DecodeAllocator::Allocate<uint8_t>(total_size);
-
         // Read each value type.
         if (image_info_count_ > 0)
         {
@@ -107,61 +134,36 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
                                                             texel_buffer_view_count_);
         }
 
-        // While there are remaining unread bytes in the buffer, decode the descriptor types which are optional in the
-        // capture file.
-        while (bytes_read < buffer_size)
+        if (acceleration_structure_khr_count_ > 0)
         {
-            size_t struct_count = 0;
-            size_t current_size = total_size;
+            VkDescriptorType descriptor_type;
+
+            // Account for reading acceleration structure count beforehand
+            bytes_read += sizeof(size_t);
             bytes_read +=
-                ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &struct_count);
-            if (bytes_read == buffer_size)
+                ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &descriptor_type);
+            if (descriptor_type == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
             {
-                // A few captures in the wild were written with an uninitialized
-                // struct_count and no additional bytes. Commit 7d190ac9 fixed the encoding format.
-                GFXRECON_LOG_WARNING_ONCE(
-                    "A deprecated incorrect encoding of DescriptorUpdateTemplate was detected.  This "
-                    "capture is probably invalid.  Replay may subsequently fail or crash.");
+                const size_t acceleration_structure_offset =
+                    texel_buffer_view_offset + (texel_buffer_view_count_ * sizeof(VkBufferView));
+                acceleration_structures_khr_ =
+                    reinterpret_cast<VkAccelerationStructureKHR*>(template_memory_ + acceleration_structure_offset);
+                decoded_acceleration_structure_khr_handle_ids_ =
+                    DecodeAllocator::Allocate<format::HandleId>(acceleration_structure_khr_count_);
+
+                bytes_read += ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
+                                                                (buffer_size - bytes_read),
+                                                                decoded_acceleration_structure_khr_handle_ids_,
+                                                                acceleration_structure_khr_count_);
             }
-            else if (struct_count > 0)
+            else
             {
-                VkDescriptorType descriptor_type;
-                bytes_read +=
-                    ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &descriptor_type);
-                if (descriptor_type == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
-                {
-                    acceleration_structure_khr_count_ = struct_count;
-                    total_size =
-                        current_size + (acceleration_structure_khr_count_ * sizeof(VkAccelerationStructureKHR));
-
-                    // Increase size of template_memory_ to hold these new descriptor structs.
-                    uint8_t* current_template_memory = template_memory_;
-                    template_memory_                 = DecodeAllocator::Allocate<uint8_t>(total_size);
-                    if (current_size > 0)
-                    {
-                        util::platform::MemoryCopy(template_memory_, total_size, current_template_memory, current_size);
-                    }
-
-                    acceleration_structures_khr_ =
-                        reinterpret_cast<VkAccelerationStructureKHR*>(template_memory_ + current_size);
-                    decoded_acceleration_structure_khr_handle_ids_ =
-                        DecodeAllocator::Allocate<format::HandleId>(acceleration_structure_khr_count_);
-
-                    bytes_read += ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
-                                                                    (buffer_size - bytes_read),
-                                                                    decoded_acceleration_structure_khr_handle_ids_,
-                                                                    acceleration_structure_khr_count_);
-                }
-                else
-                {
-                    // If descriptor_type is not recognized, it is possible the capture file was created with a
-                    // newer version of the capture layer that had support for additional optional descriptor types.
-                    // Display a warning and exit the processing loop.
-                    GFXRECON_LOG_WARNING("Unrecognized VkDescriptorType %d found when decoding data for descriptor "
-                                         "update with template.",
-                                         static_cast<int>(descriptor_type));
-                    break;
-                }
+                // If descriptor_type is not recognized, it is possible the capture file was created with a
+                // newer version of the capture layer that had support for additional optional descriptor types.
+                // Display a warning and exit the processing loop.
+                GFXRECON_LOG_WARNING("Unrecognized VkDescriptorType %d found when decoding data for descriptor "
+                                     "update with template.",
+                                     static_cast<int>(descriptor_type));
             }
         }
         assert(bytes_read <= buffer_size);
