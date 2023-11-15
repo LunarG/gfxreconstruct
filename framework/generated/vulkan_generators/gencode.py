@@ -82,6 +82,8 @@ from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGe
 from encode_pnext_struct_generator import EncodePNextStructGenerator, EncodePNextStructGeneratorOptions
 from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator, VulkanStructHandleWrappersHeaderGeneratorOptions
 from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator, VulkanStructHandleWrappersBodyGeneratorOptions
+from vulkan_struct_trackers_header_generator import VulkanStructTrackersHeaderGenerator, VulkanStructTrackersHeaderGeneratorOptions
+from vulkan_struct_trackers_body_generator import VulkanStructTrackersBodyGenerator, VulkanStructTrackersBodyGeneratorOptions
 
 # To String
 from vulkan_enum_to_string_body_generator import VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
@@ -568,6 +570,32 @@ def make_gen_opts(args):
         VulkanStructHandleWrappersBodyGenerator,
         VulkanStructHandleWrappersBodyGeneratorOptions(
             filename='generated_vulkan_struct_handle_wrappers.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_trackers.h'] = [
+        VulkanStructTrackersHeaderGenerator,
+        VulkanStructTrackersHeaderGeneratorOptions(
+            filename='generated_vulkan_struct_trackers.h',
+            directory=directory,
+            blacklists=blacklists,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_trackers.cpp'] = [
+        VulkanStructTrackersBodyGenerator,
+        VulkanStructTrackersBodyGeneratorOptions(
+            filename='generated_vulkan_struct_trackers.cpp',
             directory=directory,
             blacklists=blacklists,
             prefix_text=prefix_strings + vk_prefix_strings,

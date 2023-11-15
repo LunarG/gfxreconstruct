@@ -43,6 +43,8 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_trackers.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_trackers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_state_table.h
               )
 
