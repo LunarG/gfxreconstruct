@@ -66,6 +66,14 @@ void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS*    addresses,
     }
 }
 
+format::HandleId FindResourceIDbyGpuVA(D3D12_GPU_VIRTUAL_ADDRESS     captured_address,
+                                       const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    format::HandleId resource_id = format::kNullHandleId;
+    gpu_va_map.Map(captured_address, &resource_id);
+    return resource_id;
+}
+
 GFXRECON_END_NAMESPACE(object_mapping)
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

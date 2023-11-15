@@ -52,6 +52,9 @@ void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS*    addresses,
                             size_t                        addresses_len,
                             const graphics::Dx12GpuVaMap& gpu_va_map);
 
+format::HandleId FindResourceIDbyGpuVA(D3D12_GPU_VIRTUAL_ADDRESS     captured_address,
+                                       const graphics::Dx12GpuVaMap& gpu_va_map);
+
 template <typename T>
 static T* MapObject(format::HandleId id, const Dx12ObjectInfoTable& object_info_table)
 {
