@@ -86,13 +86,13 @@ class JsonWriter : public AnnotationHandler
 
     void WriteMarker(const char* name, const std::string& marker_type, uint64_t frame_number);
 
-    /// @brief Output the boilerplate for representing a metacommand in JSON,
+    /// @brief Output the boilerplate for representing a metadata block in JSON,
     /// returning the root of the empty "args" JSON sub-tree for the caller to populate.
     nlohmann::ordered_json& WriteMetaCommandStart(const std::string& command_name);
 
-    /// @brief Output the boilerplate for converting a metacommand to JSON but
+    /// @brief Output the boilerplate for converting a metadata block to JSON but
     /// defer internals to the function passed in.
-    /// @tparam ToJsonFunctionType A callable which fills out the body of the command.
+    /// @tparam ToJsonFunctionType A callable which fills out the body of the object.
     /// @todo Make this a regular function with a callback or just have callers use WriteMetaCommandStart() and
     /// WriteBlockEnd().
     template <typename ToJsonFunctionType>
@@ -132,8 +132,8 @@ class JsonWriter : public AnnotationHandler
     /// Number of side-files generated for dumping binary blobs etc.
     uint32_t num_files_{ 0 };
 
-    // Account for markers being broadcast to all decoders, all consumers, unlike functions and metacommands which are
-    // tagged with an API family. A marker is only converted if it differs in one of these three attributes.
+    // Account for markers being broadcast to all decoders, all consumers, unlike functions and metadata blocks which
+    // are tagged with an API family. A marker is only converted if it differs in one of these three attributes.
     std::string last_marker_name_;
     std::string last_marker_type_;
     uint64_t    last_frame_number_{ 0 };
