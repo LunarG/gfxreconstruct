@@ -47,6 +47,8 @@ constexpr uint32_t kDefaultWaitTimeout     = INFINITE;
 
 constexpr uint64_t kInternalEventId = static_cast<uint64_t>(~0);
 
+constexpr bool TEST_SHADER_RES = true;
+
 template <typename T, typename U>
 void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_info)
 {
@@ -4378,33 +4380,36 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
             }
         }
 
-        // shader resource
-        for (const auto& info : heap_extra_info->shader_resource_infos)
+        if (TEST_SHADER_RES)
         {
-            if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
-                                            info.replay_handle.ptr,
-                                            heap_extra_info->capture_gpu_addr_begin,
-                                            track_dump_resources_.target.captured_descriptor_gpu_handles))
+            // shader resource
+            for (const auto& info : heap_extra_info->shader_resource_infos)
             {
-                uint64_t offset = 0;
-                uint64_t size   = 0;
-                switch (info.view.ViewDimension)
+                if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
+                                                info.replay_handle.ptr,
+                                                heap_extra_info->capture_gpu_addr_begin,
+                                                track_dump_resources_.target.captured_descriptor_gpu_handles))
                 {
-                    case D3D12_SRV_DIMENSION_BUFFER:
-                        offset = info.view.Buffer.FirstElement * info.view.Buffer.StructureByteStride;
-                        size   = info.view.Buffer.NumElements * info.view.Buffer.StructureByteStride;
-                        break;
-                    // TODO: Set offset and size fot texture.
-                    default:
-                        break;
+                    uint64_t offset = 0;
+                    uint64_t size   = 0;
+                    switch (info.view.ViewDimension)
+                    {
+                        case D3D12_SRV_DIMENSION_BUFFER:
+                            offset = info.view.Buffer.FirstElement * info.view.Buffer.StructureByteStride;
+                            size   = info.view.Buffer.NumElements * info.view.Buffer.StructureByteStride;
+                            break;
+                        // TODO: Set offset and size fot texture.
+                        default:
+                            break;
+                    }
+
+                    graphics::CopyResourceData copy_resource_data;
+                    AddCopyResourceCommandForBeforeDrawcall(
+                        command_list_id, info.resource_id, offset, size, copy_resource_data);
+
+                    track_dump_resources_.descriptor_heap_datas[heap_index].copy_shader_resources.emplace_back(
+                        std::move(copy_resource_data));
                 }
-
-                graphics::CopyResourceData copy_resource_data;
-                AddCopyResourceCommandForBeforeDrawcall(
-                    command_list_id, info.resource_id, offset, size, copy_resource_data);
-
-                track_dump_resources_.descriptor_heap_datas[heap_index].copy_shader_resources.emplace_back(
-                    std::move(copy_resource_data));
             }
         }
     }
@@ -4598,8 +4603,11 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(format::Han
         // constant buffer
         AddCopyResourceCommandsForAfterDrawcall(command_list_id, heap_data.copy_constant_buffer_resources);
 
-        // shader resource
-        AddCopyResourceCommandsForAfterDrawcall(command_list_id, heap_data.copy_shader_resources);
+        if (TEST_SHADER_RES)
+        {
+            // shader resource
+            AddCopyResourceCommandsForAfterDrawcall(command_list_id, heap_data.copy_shader_resources);
+        }
     }
 
     // render target

@@ -32,6 +32,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+// TEST_READABLE is only for test because data type could be various.
+// But here uses fixed type.
+// float for vertex, index, constant buffer, shader resource(buffer), ExecuteIndirect
+// image for shader resource(texture), render target.
+const bool TEST_READABLE = false;
+
 Dx12DumpResources::Dx12DumpResources() : json_file_handle_(nullptr) {}
 
 Dx12DumpResources::~Dx12DumpResources()
@@ -124,6 +130,166 @@ void Dx12DumpResources::WriteResources(const TrackDumpResources& resources)
             jdata["ExecuteIndirect_argument"], json_options_.data_sub_dir, resources.copy_exe_indirect_argument);
         WriteResource(jdata["ExecuteIndirect_count"], json_options_.data_sub_dir, resources.copy_exe_indirect_count);
     });
+
+    if (TEST_READABLE)
+    {
+        std::string prefix_file_name =
+            gfxrecon::util::filepath::Join(json_options_.root_dir, json_options_.data_sub_dir);
+
+        // vertex
+        TestWriteFloatResources(prefix_file_name, resources.copy_vertex_resources);
+
+        // index
+        TestWriteFloatResource(prefix_file_name, resources.copy_index_resource);
+
+        // descriptor
+        uint32_t index = 0;
+        for (const auto& heap_data : resources.descriptor_heap_datas)
+        {
+            TestWriteFloatResources(prefix_file_name + "_heap_id_" +
+                                        std::to_string(resources.target.descriptor_heap_ids[index]),
+                                    heap_data.copy_constant_buffer_resources);
+
+            for (const auto& shader_res : heap_data.copy_shader_resources)
+            {
+                if (shader_res.desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+                {
+                    TestWriteFloatResource(prefix_file_name + "_heap_id_" +
+                                               std::to_string(resources.target.descriptor_heap_ids[index]),
+                                           shader_res);
+                }
+                else
+                {
+                    TestWriteImageResource(prefix_file_name + "_heap_id_" +
+                                               std::to_string(resources.target.descriptor_heap_ids[index]),
+                                           shader_res);
+                }
+            }
+            ++index;
+        }
+
+        // render target
+        TestWriteImageResources(prefix_file_name, resources.copy_render_target_resources);
+        TestWriteImageResource(prefix_file_name, resources.copy_depth_stencil_resource);
+
+        // ExecuteIndirect
+        TestWriteFloatResource(prefix_file_name, resources.copy_exe_indirect_argument);
+        TestWriteFloatResource(prefix_file_name, resources.copy_exe_indirect_count);
+    }
+}
+
+void Dx12DumpResources::TestWriteFloatResources(const std::string&                   prefix_file_name,
+                                                const std::vector<CopyResourceData>& resource_datas)
+{
+    for (const auto& resource : resource_datas)
+    {
+        TestWriteFloatResource(prefix_file_name, resource);
+    }
+}
+
+void Dx12DumpResources::TestWriteFloatResource(const std::string&      prefix_file_name,
+                                               const CopyResourceData& resource_data)
+{
+    std::string file_name = prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id);
+
+    if (resource_data.before_resource)
+    {
+        float*      data_begin;
+        D3D12_RANGE read_Range = { 0, 0 };
+        resource_data.before_resource->Map(0, &read_Range, reinterpret_cast<void**>(&data_begin));
+
+        uint32_t    size = resource_data.source_size / (sizeof(float));
+        std::string data = "";
+        for (uint32_t i = 0; i < size; ++i)
+        {
+            data += std::to_string(data_begin[i]);
+            data += "\n";
+        }
+        resource_data.before_resource->Unmap(0, nullptr);
+
+        std::string before_file_name = file_name + "_before.txt";
+        FILE*       file_handle;
+        util::platform::FileOpen(&file_handle, before_file_name.c_str(), "w");
+        util::platform::FilePuts(data.c_str(), file_handle);
+        util::platform::FileClose(file_handle);
+    }
+    if (resource_data.after_resource)
+    {
+        float*      data_begin;
+        D3D12_RANGE read_Range = { 0, 0 };
+
+        resource_data.after_resource->Map(0, &read_Range, reinterpret_cast<void**>(&data_begin));
+
+        uint32_t    size = resource_data.source_size / (sizeof(float));
+        std::string data = "";
+        for (uint32_t i = 0; i < size; ++i)
+        {
+            data += std::to_string(data_begin[i]);
+            data += "\n";
+        }
+        resource_data.after_resource->Unmap(0, nullptr);
+
+        std::string after_file_name = file_name + "_after.txt";
+        FILE*       file_handle;
+        util::platform::FileOpen(&file_handle, after_file_name.c_str(), "w");
+        util::platform::FilePuts(data.c_str(), file_handle);
+        util::platform::FileClose(file_handle);
+    }
+}
+
+void Dx12DumpResources::TestWriteImageResources(const std::string&                   prefix_file_name,
+                                                const std::vector<CopyResourceData>& resource_datas)
+{
+    for (const auto& resouce : resource_datas)
+    {
+        TestWriteImageResource(prefix_file_name, resouce);
+    }
+}
+
+void Dx12DumpResources::TestWriteImageResource(const std::string&      prefix_file_name,
+                                               const CopyResourceData& resource_data)
+{
+    std::string file_name = prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id);
+
+    if (resource_data.before_resource)
+    {
+        std::string before_file_name = file_name + "_before.bmp";
+
+        uint8_t*    data_begin;
+        D3D12_RANGE read_Range = { 0, 0 };
+        resource_data.before_resource->Map(0, &read_Range, reinterpret_cast<void**>(&data_begin));
+
+        if (!util::imagewriter::WriteBmpImage(before_file_name,
+                                              resource_data.source_footprint.Footprint.Width,
+                                              resource_data.source_footprint.Footprint.Height,
+                                              resource_data.source_size,
+                                              data_begin,
+                                              resource_data.source_footprint.Footprint.RowPitch))
+        {
+            GFXRECON_LOG_ERROR("Dump image could not be created: failed to write BMP file %s",
+                               before_file_name.c_str());
+        }
+        resource_data.before_resource->Unmap(0, nullptr);
+    }
+    if (resource_data.after_resource)
+    {
+        std::string after_file_name = file_name + "_after.bmp";
+
+        uint8_t*    data_begin;
+        D3D12_RANGE read_Range = { 0, 0 };
+        resource_data.after_resource->Map(0, &read_Range, reinterpret_cast<void**>(&data_begin));
+
+        if (!util::imagewriter::WriteBmpImage(after_file_name,
+                                              resource_data.source_footprint.Footprint.Width,
+                                              resource_data.source_footprint.Footprint.Height,
+                                              resource_data.source_size,
+                                              data_begin,
+                                              resource_data.source_footprint.Footprint.RowPitch))
+        {
+            GFXRECON_LOG_ERROR("Dump image could not be created: failed to write BMP file %s", after_file_name.c_str());
+        }
+        resource_data.after_resource->Unmap(0, nullptr);
+    }
 }
 
 std::unique_ptr<Dx12DumpResources> Dx12DumpResources::Create(const Dx12DumpResourcesConfig& config)
