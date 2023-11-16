@@ -188,7 +188,7 @@ nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo&     cal
     return method;
 }
 
-void JsonWriter::WriteMarker(const char* const name, const std::string& marker_type, uint64_t frame_number)
+void JsonWriter::WriteMarker(const char* const name, const std::string_view marker_type, uint64_t frame_number)
 {
     using namespace util;
 
@@ -210,7 +210,7 @@ void JsonWriter::WriteMarker(const char* const name, const std::string& marker_t
     }
 }
 
-nlohmann::ordered_json& JsonWriter::WriteMetaCommandStart(const std::string& command_name)
+nlohmann::ordered_json& JsonWriter::WriteMetaCommandStart(const std::string_view command_name)
 {
     using namespace util;
     auto& json_data = WriteBlockStart();
@@ -234,10 +234,10 @@ void JsonWriter::ProcessAnnotation(uint64_t               block_index,
     WriteBlockEnd();
 }
 
-std::string JsonWriter::GenerateFilename(const std::string& filename)
+std::string JsonWriter::GenerateFilename(const std::string_view filename)
 {
     num_files_++;
-    return std::to_string(num_files_) + "_" + filename;
+    return std::to_string(num_files_).append("_").append(filename);
 }
 
 bool JsonWriter::WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data)
@@ -250,6 +250,35 @@ bool JsonWriter::WriteBinaryFile(const std::string& filename, uint64_t data_size
         return true;
     }
     return false;
+}
+
+/// @todo Allow a third state: encode the binary in the tree as an array or a string for compactness.
+/// @todo We should have three states for binaries: dump them, drop them, and the new one: inline them.
+void RepresentBinaryFile(JsonWriter&             writer,
+                         nlohmann::ordered_json& jdata,
+                         std::string_view        filename_base,
+                         const uint64_t          data_size,
+                         const uint8_t* const    data)
+{
+    const util::JsonOptions& json_options = writer.GetOptions();
+    if (json_options.dump_binaries)
+    {
+        std::string filename = writer.GenerateFilename(filename_base);
+        std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+        std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
+        if (writer.WriteBinaryFile(filepath, data_size, data))
+        {
+            FieldToJson(jdata, basename, json_options);
+        }
+        else
+        {
+            FieldToJson(jdata, format::kValWriteFailed, json_options);
+        }
+    }
+    else
+    {
+        FieldToJson(jdata, format::kValBinary, json_options);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

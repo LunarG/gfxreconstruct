@@ -115,23 +115,13 @@ void VulkanExportJsonConsumerBase::Process_vkCreateShaderModule(
         FieldToJson(args["pAllocator"], pAllocator, json_options);
         HandleToJson(args["pShaderModule"], pShaderModule, json_options);
 
-        if (json_options.dump_binaries)
-        {
-            uint64_t    handle_id = *pShaderModule->GetPointer();
-            std::string filename  = GenerateFilename("shader_module_" + util::to_hex_fixed_width(handle_id) + ".bin");
-            std::string basename  = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-            std::string filepath  = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
-            auto        decoded_value = pCreateInfo->GetPointer();
-
-            if (WriteBinaryFile(filepath, decoded_value->codeSize, (uint8_t*)decoded_value->pCode))
-            {
-                args["pCreateInfo"]["pCode"] = basename;
-            }
-            else
-            {
-                args["pCreateInfo"]["pCode"] = "Unable to create file";
-            }
-        }
+        const uint64_t handle_id     = *pShaderModule->GetPointer();
+        auto           decoded_value = pCreateInfo->GetPointer();
+        RepresentBinaryFile(*(this->writer_),
+                            args["pCreateInfo"]["pCode"],
+                            "shader_module_" + util::to_hex_fixed_width(handle_id) + ".bin",
+                            decoded_value->codeSize,
+                            (uint8_t*)decoded_value->pCode);
     });
 }
 
@@ -153,25 +143,10 @@ void VulkanExportJsonConsumerBase::Process_vkGetPipelineCacheData(const ApiCallI
         {
             args["pData"] = nullptr;
         }
-        else if (json_options.dump_binaries)
-        {
-            auto        decoded_data = pData->GetPointer();
-            auto        data_size    = pData->GetLength();
-            std::string filename     = GenerateFilename("pipeline_cache_data.bin");
-            std::string basename     = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-            std::string filepath     = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
-            if (WriteBinaryFile(filepath, data_size, decoded_data))
-            {
-                FieldToJson(args["pData"], basename, json_options);
-            }
-            else
-            {
-                FieldToJson(args["pData"], "Unable to write file", json_options);
-            }
-        }
         else
         {
-            FieldToJson(args["pData"], "[Binary data]", json_options);
+            RepresentBinaryFile(
+                *(this->writer_), args["pData"], "pipeline_cache_data.bin", pData->GetLength(), pData->GetPointer());
         }
     });
 }
@@ -192,25 +167,11 @@ void VulkanExportJsonConsumerBase::Process_vkCreatePipelineCache(
         FieldToJson(args["pCreateInfo"], pCreateInfo, json_options);
         FieldToJson(args["pAllocator"], pAllocator, json_options);
         HandleToJson(args["pPipelineCache"], pPipelineCache, json_options);
-        if (json_options.dump_binaries)
-        {
-            auto        decoded_data = pCreateInfo->GetPointer();
-            std::string filename     = GenerateFilename("pipeline_cache_data.bin");
-            std::string basename     = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-            std::string filepath     = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
-            if (WriteBinaryFile(filepath, decoded_data->initialDataSize, (uint8_t*)decoded_data->pInitialData))
-            {
-                FieldToJson(args["pCreateInfo"]["pInitialData"], basename, json_options);
-            }
-            else
-            {
-                FieldToJson(args["pCreateInfo"]["pInitialData"], "Unable to write file", json_options);
-            }
-        }
-        else
-        {
-            FieldToJson(args["pData"], "[Binary data]", json_options);
-        }
+        RepresentBinaryFile(*(this->writer_),
+                            args["pCreateInfo"]["pInitialData"],
+                            "pipeline_cache_data.bin",
+                            pCreateInfo->GetPointer()->initialDataSize,
+                            reinterpret_cast<const uint8_t*>(pCreateInfo->GetPointer()->pInitialData));
     });
 }
 
@@ -235,25 +196,10 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
         {
             args["pValues"] = nullptr;
         }
-        else if (json_options.dump_binaries)
-        {
-            auto        decoded_data = pValues->GetPointer();
-            auto        data_size    = pValues->GetLength();
-            std::string filename     = GenerateFilename("pushconstants.bin");
-            std::string basename     = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-            std::string filepath     = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
-            if (WriteBinaryFile(filepath, data_size, decoded_data))
-            {
-                FieldToJson(args["pValues"], basename, json_options);
-            }
-            else
-            {
-                FieldToJson(args["pValues"], "Unable to write file", json_options);
-            }
-        }
         else
         {
-            FieldToJson(args["pValues"], "[Binary data]", json_options);
+            RepresentBinaryFile(
+                *(this->writer_), args["pValues"], "pushconstants.bin", pValues->GetLength(), pValues->GetPointer());
         }
     });
 }

@@ -61,7 +61,6 @@ class MetadataJsonConsumer : public Base
     inline void WriteBlockEnd() { this->writer_->WriteBlockEnd(); }
 
   public:
-
     /// @defGroup ApiAgnosticMetaBlocks Metablocks used by both Vulkan and DX12.
     /// @{
     virtual void ProcessDisplayMessageCommand(const std::string& message) override
@@ -79,24 +78,7 @@ class MetadataJsonConsumer : public Base
         HandleToJson(jdata["memory_id"], memory_id, json_options);
         FieldToJson(jdata["offset"], offset, json_options);
         FieldToJson(jdata["size"], size, json_options);
-        if (json_options.dump_binaries)
-        {
-            std::string filename = this->writer_->GenerateFilename("fill_memory.bin");
-            std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
-            if (this->writer_->WriteBinaryFile(filepath, size, data))
-            {
-                FieldToJson(jdata["data"], basename, json_options);
-            }
-            else
-            {
-                FieldToJson(jdata["data"], "Unable to write file", json_options);
-            }
-        }
-        else
-        {
-            FieldToJson(jdata["data"], "[Binary data]", json_options);
-        }
+        RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "fill_memory.bin", size, data);
         WriteBlockEnd();
     }
 
@@ -212,24 +194,8 @@ class MetadataJsonConsumer : public Base
             HandleToJson(jdata["device_id"], device_id, json_options);
             HandleToJson(jdata["pipeline_id"], pipeline_id, json_options);
             FieldToJson(jdata["data_size"], data_size, json_options);
-            if (json_options.dump_binaries)
-            {
-                std::string filename = this->writer_->GenerateFilename("set_raytracing_shader_group_handle.bin");
-                std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-                std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
-                if (this->writer_->WriteBinaryFile(filepath, data_size, data))
-                {
-                    FieldToJson(jdata["data"], basename, json_options);
-                }
-                else
-                {
-                    FieldToJson(jdata["data"], "Unable to write file", json_options);
-                }
-            }
-            else
-            {
-                FieldToJson(jdata["data"], "[Binary data]", json_options);
-            }
+            RepresentBinaryFile(
+                *(this->writer_), jdata[format::kNameData], "set_raytracing_shader_group_handle.bin", data_size, data);
         });
     }
 
@@ -277,24 +243,7 @@ class MetadataJsonConsumer : public Base
             HandleToJson(jdata["device_id"], device_id, json_options);
             HandleToJson(jdata["buffer_id"], buffer_id, json_options);
             FieldToJson(jdata["data_size"], data_size, json_options);
-            if (json_options.dump_binaries)
-            {
-                std::string filename = this->writer_->GenerateFilename("init_buffer.bin");
-                std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-                std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
-                if (this->writer_->WriteBinaryFile(filepath, data_size, data))
-                {
-                    FieldToJson(jdata["data"], basename, json_options);
-                }
-                else
-                {
-                    FieldToJson(jdata["data"], "Unable to write file", json_options);
-                }
-            }
-            else
-            {
-                FieldToJson(jdata["data"], "[Binary data]", json_options);
-            }
+            RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_buffer.bin", data_size, data);
         });
     }
 
@@ -314,25 +263,7 @@ class MetadataJsonConsumer : public Base
             FieldToJson(jdata["aspect"], aspect, json_options);
             FieldToJson(jdata["layout"], layout, json_options);
             FieldToJson(jdata["level_sizes"], "not available", json_options);
-
-            if (json_options.dump_binaries)
-            {
-                std::string filename = this->writer_->GenerateFilename("init_image.bin");
-                std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-                std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
-                if (this->writer_->WriteBinaryFile(filepath, data_size, data))
-                {
-                    FieldToJson(jdata["data"], basename, json_options);
-                }
-                else
-                {
-                    FieldToJson(jdata["data"], "Unable to write file", json_options);
-                }
-            }
-            else
-            {
-                FieldToJson(jdata["data"], "[Binary data]", json_options);
-            }
+            RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_image.bin", data_size, data);
         });
     }
     /// @}

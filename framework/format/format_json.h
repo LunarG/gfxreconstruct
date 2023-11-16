@@ -45,7 +45,11 @@ constexpr const char* kNameIndex{ "index" };
 constexpr const char* kNameThread{ "thread" };
 constexpr const char* kNameReturn{ "return" };
 constexpr const char* kNameArgs{ "args" };
+constexpr const char* kNameData{ "data" };
 /// @}
+
+constexpr const char* kValBinary{ "[Binary data]" };
+constexpr const char* kValWriteFailed{ "Unable to write file" };
 
 /// @defgroup JSONMetaNames The names of fields used to convey out of band information like warnings and errors
 /// generated during conversion but not present in binary file.

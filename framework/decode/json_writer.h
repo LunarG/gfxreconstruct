@@ -84,11 +84,11 @@ class JsonWriter : public AnnotationHandler
                                               const format::HandleId object_id,
                                               const std::string_view command_name);
 
-    void WriteMarker(const char* name, const std::string& marker_type, uint64_t frame_number);
+    void WriteMarker(const char* name, const std::string_view marker_type, uint64_t frame_number);
 
     /// @brief Output the boilerplate for representing a metadata block in JSON,
     /// returning the root of the empty "args" JSON sub-tree for the caller to populate.
-    nlohmann::ordered_json& WriteMetaCommandStart(const std::string& command_name);
+    nlohmann::ordered_json& WriteMetaCommandStart(const std::string_view command_name);
 
     /// @brief Output the boilerplate for converting a metadata block to JSON but
     /// defer internals to the function passed in.
@@ -96,7 +96,7 @@ class JsonWriter : public AnnotationHandler
     /// @todo Make this a regular function with a callback or just have callers use WriteMetaCommandStart() and
     /// WriteBlockEnd().
     template <typename ToJsonFunctionType>
-    inline void WriteMetaCommand(const std::string& command_name, ToJsonFunctionType to_json_function)
+    inline void WriteMetaCommand(const std::string_view command_name, ToJsonFunctionType to_json_function)
     {
         nlohmann::ordered_json& args = WriteMetaCommandStart(command_name);
         to_json_function(args);
@@ -120,7 +120,7 @@ class JsonWriter : public AnnotationHandler
                                    const std::string&     label,
                                    const std::string&     data) override;
 
-    std::string GenerateFilename(const std::string& filename);
+    std::string GenerateFilename(const std::string_view filename);
     bool        WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data);
 
   private:
@@ -140,6 +140,14 @@ class JsonWriter : public AnnotationHandler
 
     bool first_{ true };
 };
+
+/// Either write the binary data to a file, and put the filename in the tree or
+/// put the tag format::kValBinary in the tree to indicate it
+void RepresentBinaryFile(JsonWriter&             writer,
+                         nlohmann::ordered_json& jdata,
+                         const std::string_view  filename_base,
+                         const uint64_t          data_size,
+                         const uint8_t* const    data);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
