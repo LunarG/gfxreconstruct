@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
-** Copyright (c) 2020 Advanced Micro Devices, Inc.
+** Copyright (c) 2020-2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -31,6 +31,11 @@
 #include "generated/generated_vulkan_export_json_consumer.h"
 #if defined(CONVERT_EXPERIMENTAL_D3D12)
 #include "generated/generated_dx12_ascii_consumer.h"
+#ifdef GFXRECON_AGS_SUPPORT
+#include "decode/custom_ags_consumer_base.h"
+#include "decode/custom_ags_decoder.h"
+#include "decode/custom_ags_ascii_consumer.h"
+#endif // GFXRECON_AGS_SUPPORT
 #endif
 
 using gfxrecon::decode::JsonFormat;
@@ -270,6 +275,18 @@ int main(int argc, const char** argv)
             auto dx12_json_flags = output_format == JsonFormat::JSON ? gfxrecon::util::kToString_Formatted
                                                                      : gfxrecon::util::kToString_Unformatted;
             dx12_ascii_consumer.Initialize(out_file_handle, dx12_json_flags);
+
+#ifdef GFXRECON_AGS_SUPPORT
+            gfxrecon::decode::AgsAsciiConsumer ags_ascii_consumer;
+            ags_ascii_consumer.Initialize(out_file_handle, dx12_json_flags);
+
+            gfxrecon::decode::AgsDecoder ags_decoder;
+
+            ags_decoder.AddConsumer(&ags_ascii_consumer);
+
+            file_processor.AddDecoder(&ags_decoder);
+#endif // GFXRECON_AGS_SUPPORT
+
 #endif
 
             while (success)

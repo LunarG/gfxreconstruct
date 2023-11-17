@@ -166,7 +166,7 @@ class AgsDecoder : public ApiDecoder
                                                 const uint8_t*                              data) override
     {}
 
-    virtual void SetCurrentBlockIndex(uint64_t block_index) override {}
+    virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
     virtual void DecodeFunctionCall(format::ApiCallId  call_id,
                                     const ApiCallInfo& call_options,

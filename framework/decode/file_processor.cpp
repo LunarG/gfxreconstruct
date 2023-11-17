@@ -42,7 +42,7 @@ const uint32_t kFirstFrame = 0;
 FileProcessor::FileProcessor() :
     file_header_{}, file_descriptor_(nullptr), current_frame_number_(kFirstFrame), bytes_read_(0),
     error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0),
-    api_call_index_(0), block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
+    block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -655,8 +655,6 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, f
                     DecodeAllocator::End();
                 }
             }
-
-            ++api_call_index_;
         }
     }
     else

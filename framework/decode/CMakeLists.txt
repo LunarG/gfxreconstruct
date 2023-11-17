@@ -219,6 +219,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_ags_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_ags_replay_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_ags_replay_consumer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_ags_ascii_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_ags_ascii_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/ags_detection_consumer.h
                )
 endif()
