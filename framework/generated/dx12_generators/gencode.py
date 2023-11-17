@@ -36,8 +36,6 @@ from dx12_decoder_body_generator import Dx12DecoderBodyGenerator
 from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator, Dx12ConsumerHeaderGeneratorOptions
 from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator, Dx12ReplayConsumerHeaderGeneratorOptions
 from dx12_replay_consumer_body_generator import Dx12ReplayConsumerBodyGenerator, Dx12ReplayConsumerBodyGeneratorOptions
-from dx12_ascii_consumer_header_generator import Dx12AsciiConsumerHeaderGenerator
-from dx12_ascii_consumer_body_generator import Dx12AsciiConsumerBodyGenerator, Dx12AsciiBodyGeneratorOptions
 from dx12_json_consumer_header_generator import Dx12JsonConsumerHeaderGenerator
 from dx12_json_consumer_body_generator import Dx12JsonConsumerBodyGenerator, Dx12JsonBodyGeneratorOptions
 from dx12_wrapper_header_generator import Dx12WrapperHeaderGenerator
@@ -57,8 +55,6 @@ from dx12_command_list_util_body_generator import Dx12CommandListUtilBodyGenerat
 from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator
 from dx12_enum_to_string_body_generator import Dx12EnumToStringBodyGenerator
 from dx12_enum_to_json_header_generator import Dx12EnumToJsonHeaderGenerator
-from dx12_struct_to_string_header_generator import Dx12StructToStringHeaderGenerator
-from dx12_struct_to_string_body_generator import Dx12StructToStringBodyGenerator
 from dx12_call_id_to_string_header_generator import Dx12CallIdToStringHeaderGenerator
 from dx12_struct_decoders_to_json_header_generator import Dx12StructDecodersToJsonHeaderGenerator
 from dx12_struct_decoders_to_json_body_generator import Dx12StructDecodersToJsonBodyGenerator
@@ -71,7 +67,6 @@ default_blacklists = 'blacklists.json'
 default_platform_types = 'platform_types.json'
 default_replay_overrides = 'replay_overrides.json'
 default_capture_overrides = 'capture_overrides.json'
-default_ascii_overrides = 'ascii_overrides.json'
 default_json_overrides = 'json_overrides.json'
 
 
@@ -93,7 +88,6 @@ def make_gen_opts(args):
     platform_types = os.path.join(args.configs, default_platform_types)
     replay_overrides = os.path.join(args.configs, default_replay_overrides)
     capture_overrides = os.path.join(args.configs, default_capture_overrides)
-    ascii_overrides = os.path.join(args.configs, default_ascii_overrides)
     json_overrides = os.path.join(args.configs, default_json_overrides)
     # Structs, functions etc. to exclude from codegen for conversion to JSON features.
     json_blocklists = os.path.join(args.configs, "json_blocklists.json")
@@ -289,40 +283,6 @@ def make_gen_opts(args):
             blacklists=blacklists,
             platform_types=platform_types,
             replay_overrides=replay_overrides,
-            prefix_text=prefix_strings + py_prefix_strings,
-            protect_file=False,
-            protect_feature=False
-        )
-    ]
-
-    py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_ascii_consumer_header_generator.py'
-    )
-    gen_opts['generated_dx12_ascii_consumer.h'] = [
-        Dx12AsciiConsumerHeaderGenerator,
-        Dx12ConsumerHeaderGeneratorOptions(
-            filename='generated_dx12_ascii_consumer.h',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + py_prefix_strings,
-            protect_file=True,
-            protect_feature=False
-        )
-    ]
-
-    py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_ascii_consumer_body_generator.py'
-    )
-    gen_opts['generated_dx12_ascii_consumer.cpp'] = [
-        Dx12AsciiConsumerBodyGenerator,
-        Dx12AsciiBodyGeneratorOptions(
-            filename='generated_dx12_ascii_consumer.cpp',
-            directory=directory,
-            constructor_args='',
-            blacklists=blacklists,
-            platform_types=platform_types,
-            ascii_overrides=ascii_overrides,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False
@@ -626,38 +586,6 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
-            protect_feature=False
-        )
-    ]
-
-    py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_struct_to_string_header_generator.py'
-    )
-    gen_opts['generated_dx12_struct_to_string.h'] = [
-        Dx12StructToStringHeaderGenerator,
-        Dx12GeneratorOptions(
-            filename='generated_dx12_struct_to_string.h',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + py_prefix_strings,
-            protect_file=True,
-            protect_feature=False
-        )
-    ]
-
-    py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_struct_to_string_body_generator.py'
-    )
-    gen_opts['generated_dx12_struct_to_string.cpp'] = [
-        Dx12StructToStringBodyGenerator,
-        Dx12GeneratorOptions(
-            filename='generated_dx12_struct_to_string.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + py_prefix_strings,
-            protect_file=False,
             protect_feature=False
         )
     ]

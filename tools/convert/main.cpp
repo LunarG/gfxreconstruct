@@ -34,7 +34,6 @@
 #include "decode/marker_json_consumer.h"
 #include "decode/metadata_json_consumer.h"
 #if defined(CONVERT_EXPERIMENTAL_D3D12)
-#include "generated/generated_dx12_ascii_consumer.h"
 #include "generated/generated_dx12_json_consumer.h"
 #endif
 
@@ -275,16 +274,13 @@ int main(int argc, const char** argv)
 
             // If CONVERT_EXPERIMENTAL_D3D12 was set, then add DX12 consumer/decoder
 #ifdef CONVERT_EXPERIMENTAL_D3D12
-            gfxrecon::decode::Dx12AsciiConsumer dx12_ascii_consumer;
             Dx12JsonConsumer                    dx12_json_consumer;
             gfxrecon::decode::Dx12Decoder       dx12_decoder;
 
-            dx12_decoder.AddConsumer(&dx12_ascii_consumer);
             dx12_decoder.AddConsumer(&dx12_json_consumer);
             file_processor.AddDecoder(&dx12_decoder);
             auto dx12_json_flags = output_format == JsonFormat::JSON ? gfxrecon::util::kToString_Formatted
                                                                      : gfxrecon::util::kToString_Unformatted;
-            dx12_ascii_consumer.Initialize(out_file_handle, dx12_json_flags);
             dx12_json_consumer.Initialize(&json_writer);
 #endif
 
@@ -314,7 +310,6 @@ int main(int argc, const char** argv)
             json_consumer.Destroy();
             // If CONVERT_EXPERIMENTAL_D3D12 was set, then cleanup DX12 consumer
 #ifdef CONVERT_EXPERIMENTAL_D3D12
-            dx12_ascii_consumer.Destroy();
             dx12_json_consumer.Destroy();
 #endif
             if (!output_to_stdout)
