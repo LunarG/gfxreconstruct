@@ -25,6 +25,8 @@
 #include "util/to_string.h"
 #include "util/logging.h"
 
+#include <codecvt> // For encoding wstring_view to utf8.
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
@@ -160,7 +162,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::string_view data, con
 
 void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data, const util::JsonOptions& options)
 {
-    jdata = data;
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
+    jdata = utf8_conv.to_bytes(data.data(), data.data() + data.length());
 }
 
 GFXRECON_END_NAMESPACE(util)
