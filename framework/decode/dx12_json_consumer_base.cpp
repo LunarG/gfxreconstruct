@@ -73,12 +73,7 @@ static void
 FieldToJson(nlohmann::ordered_json& jdata, const format::Dx12RuntimeInfo& data, const util::JsonOptions& options)
 {
     FieldToJson(jdata["version"], data.version, util::filepath::kFileVersionSize, options);
-    // Copy the src string so we can put a defensive null at end of the char array:
-    char src[util::filepath::kMaxFilePropertySize + 1];
-    util::platform::StringCopy(
-        src, util::filepath::kMaxFilePropertySize, data.src, util::filepath::kMaxFilePropertySize);
-    src[util::filepath::kMaxFilePropertySize] = 0;
-    FieldToJson(jdata["src"], std::string_view(src), options);
+    FieldToJson(jdata["src"], util::ViewOfCharArray(data.src, util::filepath::kMaxFilePropertySize), options);
 }
 
 static void
@@ -220,13 +215,8 @@ void Dx12JsonConsumerBase::Process_DriverInfo(const char* info_record)
     char                     driver_record[gfxrecon::util::filepath::kMaxDriverInfoSize + 1];
 
     FieldToJson(jdata[format::kNameDebug], "thread_id field not exposed.", json_options);
-    // Copy the buffer and make sure there is a null on the end of it defensively:
-    util::platform::StringCopy(driver_record,
-                               gfxrecon::util::filepath::kMaxDriverInfoSize,
-                               info_record,
-                               gfxrecon::util::filepath::kMaxDriverInfoSize);
-    driver_record[gfxrecon::util::filepath::kMaxDriverInfoSize] = 0;
-    FieldToJson(jdata["driver_record"], std::string_view(driver_record), json_options);
+    FieldToJson(
+        jdata["driver_record"], util::ViewOfCharArray(info_record, util::filepath::kMaxDriverInfoSize), json_options);
     writer_->WriteBlockEnd();
 }
 
