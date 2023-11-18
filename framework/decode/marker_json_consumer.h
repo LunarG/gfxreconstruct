@@ -27,13 +27,12 @@
 #include "util/defines.h"
 #include "format/format_json.h"
 
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 /// Template shim for turning markers into json using a JsonWriter pointed to by
 // a protected pointer called writer_ in a base class.
-template<class Base>
+template <class Base>
 class MarkerJsonConsumer : public Base
 {
   public:
