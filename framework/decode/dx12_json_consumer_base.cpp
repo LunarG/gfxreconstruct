@@ -235,7 +235,6 @@ void Dx12JsonConsumerBase::Process_ExeFileInfo(const util::filepath::FileInfo& i
 {
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("Dx12RuntimeInfoCommandHeader");
-    /// @todo Plumb through the thread ID so it can be output here.
     FieldToJson(jdata["info_record"], info_record, json_options);
 }
 

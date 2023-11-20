@@ -36,11 +36,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 /// is done by gfxrecon-convert's main.cpp for both Vulkan and DX12 consumers to
 /// provide metacommand support.
 /// @note Any API-specific metablocks/metadata/metacommands are best handled directly by the JSON consumer of that API.
-/// @todo Finish converting the uses of the template `this->writer_->WriteMetaCommand` to `WriteMetaCommandStart,
-/// ..., WriteBlockEnd`
-/// @todo Consider moving the bodies of these into the JsonWriter (but that was originally going to only contain the
-/// top-level definitions of the json schemas for the block types), into non-template free functions, or into a concrete
-/// helper class to avoid duplicating the compiled code binaries across versions for each API consumer.
 /// @note An alternative implementation would make MetadataConsumerBase a virtual base class of the base
 /// Vulkan and DX12 consumers, and also a virtual base of a non-template version of MetadataJsonConsumer,
 /// and VulkanJSONConsumer and DX12JsonConsumer would both use multiple inheritance to mix-in this posited non-template

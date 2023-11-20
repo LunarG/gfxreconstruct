@@ -252,8 +252,6 @@ bool JsonWriter::WriteBinaryFile(const std::string& filename, uint64_t data_size
     return false;
 }
 
-/// @todo Allow a third state: encode the binary in the tree as an array or a string for compactness.
-/// @todo We should have three states for binaries: dump them, drop them, and the new one: inline them.
 void RepresentBinaryFile(JsonWriter&             writer,
                          nlohmann::ordered_json& jdata,
                          std::string_view        filename_base,

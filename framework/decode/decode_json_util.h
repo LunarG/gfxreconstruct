@@ -176,8 +176,9 @@ void HandleToJson(nlohmann::ordered_json&              jdata,
     }
 }
 
-/// @brief Thunk to HandleToJson for manual conversion functions which forget to
-/// use that for the array form.
+/// @brief Thunk to HandleToJson to allow the standard FieldToJson name to be
+/// used for pointers and arrays where the type of the HandlePointerDecoder
+/// allows the correct version to be resolved.
 template <typename THandle>
 void FieldToJson(nlohmann::ordered_json&              jdata,
                  const HandlePointerDecoder<THandle>* data,

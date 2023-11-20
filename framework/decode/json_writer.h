@@ -23,8 +23,6 @@
 
 /// @file Common features for writing decoded items to a single json stream, be
 /// they from Vulkan, D3D12, metadata, annotations, or any other source.
-/// @todo Add block indexes to metacommands (virtual void SetCurrentBlockIndex(uint64_t block_index){}; is implemented
-/// for dx12 but not vulkan).
 
 #ifndef GFXRECON_DECODE_JSON_WRITER_H
 #define GFXRECON_DECODE_JSON_WRITER_H
@@ -93,8 +91,6 @@ class JsonWriter : public AnnotationHandler
     /// @brief Output the boilerplate for converting a metadata block to JSON but
     /// defer internals to the function passed in.
     /// @tparam ToJsonFunctionType A callable which fills out the body of the object.
-    /// @todo Make this a regular function with a callback or just have callers use WriteMetaCommandStart() and
-    /// WriteBlockEnd().
     template <typename ToJsonFunctionType>
     inline void WriteMetaCommand(const std::string_view command_name, ToJsonFunctionType to_json_function)
     {

@@ -53,8 +53,6 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
             /// @file Functions to convert enums to JSON. While trivial these do tidy up
             /// the FieldToJsons of structs which use them and the JSON consumer too.
             /// They also mean that generators don't need separate cases for enums.
-            /// @todo Have a look at the callers and decide if we really need both pointer
-            /// and value versions.
 
             #include "util/json_util.h"
             #include "generated/generated_dx12_enum_to_string.h"

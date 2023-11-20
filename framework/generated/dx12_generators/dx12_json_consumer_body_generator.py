@@ -215,7 +215,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
 
     ## Generate a FieldToJson appropriate to the return type.
     ## @param func_type Either "function" or "method" for expected use.
-    ## @todo factor out a function to be used everywhere for generating FieldToJSON functions for all the cases.
     def make_return(self, func_type, return_type):
         type_start = return_type.split()[0]
         ret_line = "FieldToJson({0}[format::kNameReturn], return_value, options);\n"
