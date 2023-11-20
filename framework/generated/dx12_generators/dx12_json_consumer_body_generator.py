@@ -219,7 +219,10 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
         type_start = return_type.split()[0]
         ret_line = "FieldToJson({0}[format::kNameReturn], return_value, options);\n"
         if "void" in return_type:
-            ret_line = "// Nothing returned.\n"
+            if "*" in return_type:
+                ret_line = "// Void pointer return should be a PointerDecoder<uint_8>:\n" + ret_line
+            else:
+                ret_line = "// Nothing returned.\n"
         elif "BOOL" in return_type:
             ret_line = "Bool32ToJson({0}[format::kNameReturn], return_value, options);\n"
         elif "HRESULT" in return_type:

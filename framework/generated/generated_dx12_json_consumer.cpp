@@ -6581,7 +6581,8 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties", object_id, "GetShaderIdentifier");
     const JsonOptions& options = writer_->GetOptions();
-    // Nothing returned.
+    // Void pointer return should be a PointerDecoder<uint_8>:
+    FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pExportName"], pExportName, options); // [pointer to single value]
