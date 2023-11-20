@@ -1290,22 +1290,21 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
         {
             std::vector<uint64_t> subresource_offsets;
             std::vector<uint64_t> subresource_sizes;
-            VkResult              result = resource_util.ReadFromImageResource(image_wrapper->handle,
-                                                                  image_wrapper->format,
-                                                                  image_wrapper->image_type,
-                                                                  image_wrapper->extent,
-                                                                  image_wrapper->mip_levels,
-                                                                  image_wrapper->array_layers,
-                                                                  image_wrapper->tiling,
-                                                                  image_wrapper->samples,
-                                                                  image_wrapper->current_layout,
-                                                                  image_wrapper->queue_family_index,
-                                                                  snapshot_entry.aspect,
-                                                                  data,
-                                                                  subresource_offsets,
-                                                                  subresource_sizes,
-                                                                  snapshot_entry.need_staging_copy,
-                                                                  true);
+            VkResult              result = resource_util.ReadFromImageResourceStaging(image_wrapper->handle,
+                                                                         image_wrapper->format,
+                                                                         image_wrapper->image_type,
+                                                                         image_wrapper->extent,
+                                                                         image_wrapper->mip_levels,
+                                                                         image_wrapper->array_layers,
+                                                                         image_wrapper->tiling,
+                                                                         image_wrapper->samples,
+                                                                         image_wrapper->current_layout,
+                                                                         image_wrapper->queue_family_index,
+                                                                         snapshot_entry.aspect,
+                                                                         data,
+                                                                         subresource_offsets,
+                                                                         subresource_sizes,
+                                                                         true);
 
             if (result == VK_SUCCESS)
             {
@@ -1602,18 +1601,17 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                     snapshot_info.need_staging_copy = need_staging_copy;
                     snapshot_info.aspect            = aspect;
 
-                    snapshot_info.resource_size = resource_util.GetImageResourceSizes(wrapper->handle,
-                                                                                      wrapper->format,
-                                                                                      wrapper->image_type,
-                                                                                      wrapper->extent,
-                                                                                      wrapper->mip_levels,
-                                                                                      wrapper->array_layers,
-                                                                                      wrapper->tiling,
-                                                                                      aspect,
-                                                                                      nullptr,
-                                                                                      &snapshot_info.level_sizes,
-                                                                                      need_staging_copy,
-                                                                                      true);
+                    snapshot_info.resource_size = resource_util.GetImageResourceSizesOptimal(wrapper->handle,
+                                                                                             wrapper->format,
+                                                                                             wrapper->image_type,
+                                                                                             wrapper->extent,
+                                                                                             wrapper->mip_levels,
+                                                                                             wrapper->array_layers,
+                                                                                             wrapper->tiling,
+                                                                                             aspect,
+                                                                                             nullptr,
+                                                                                             &snapshot_info.level_sizes,
+                                                                                             true);
 
                     if ((*max_resource_size) < snapshot_info.resource_size)
                     {

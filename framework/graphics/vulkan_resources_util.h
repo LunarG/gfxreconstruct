@@ -57,38 +57,96 @@ class VulkanResourcesUtil
         DestroyCommandPool();
     }
 
+    // This function creates a staging buffer that will be used by the ReadFromImageResourceStaging() and
+    // ReadFromBufferResource() functions. It is not necessary to do so but can be useful when dumping multiple
+    // resource and the size of the biggest staging buffer necessary is known in advance.
     VkResult CreateStagingBuffer(VkDeviceSize size);
 
-    uint64_t GetImageResourceSizes(VkImage                image,
-                                   VkFormat               format,
-                                   VkImageType            type,
-                                   const VkExtent3D&      extent,
-                                   uint32_t               mip_levels,
-                                   uint32_t               array_layers,
-                                   VkImageTiling          tiling,
-                                   VkImageAspectFlagBits  aspect,
-                                   std::vector<uint64_t>* mip_level_offsets    = nullptr,
-                                   std::vector<uint64_t>* mip_level_sizes      = nullptr,
-                                   bool                   need_staging_copy    = true,
-                                   bool                   all_layers_per_level = true);
+    // Will return the size requirements and offsets for each subresource contained in the specified image.
+    // Sizes and offsets are calculated in such a way that the each subresource will be tightly packed.
+    //
+    // The sizes are returned in the subresource_sizes vector and will be in the order:
+    //    M0 L0 L1 ... La M1 L0 L1 ... La ... Mm L0 L1 ... La
+    // Where M denotes the mip map levels and L the array layers.
+    // The offsets will be returned in the subresource_offsets vector in the same manner.
+    // all_layers_per_level boolean determines if all array layer per mip map level will be accounted as one.
+    //
+    // Return value is the total size of the image.
+    uint64_t GetImageResourceSizesOptimal(VkImage                image,
+                                          VkFormat               format,
+                                          VkImageType            type,
+                                          const VkExtent3D&      extent,
+                                          uint32_t               mip_levels,
+                                          uint32_t               array_layers,
+                                          VkImageTiling          tiling,
+                                          VkImageAspectFlagBits  aspect,
+                                          std::vector<uint64_t>* subresource_offsets  = nullptr,
+                                          std::vector<uint64_t>* subresource_sizes    = nullptr,
+                                          bool                   all_layers_per_level = false);
 
-    VkResult ReadFromImageResource(VkImage                image,
-                                   VkFormat               format,
-                                   VkImageType            type,
-                                   const VkExtent3D&      extent,
-                                   uint32_t               mip_levels,
-                                   uint32_t               array_layers,
-                                   VkImageTiling          tiling,
-                                   VkSampleCountFlags     samples,
-                                   VkImageLayout          layout,
-                                   uint32_t               queue_family_index,
-                                   VkImageAspectFlagBits  aspect,
-                                   std::vector<uint8_t>&  data,
-                                   std::vector<uint64_t>& subresource_offsets,
-                                   std::vector<uint64_t>& subresource_sizes,
-                                   bool                   need_staging_copy    = true,
-                                   bool                   all_layers_per_level = true);
+    // Will return the size requirements and offsets for each subresource contained in the specified image.
+    // Sizes and offsets are calculated in such a way that the each subresource will be tightly packed.
+    //
+    // This function will use texel size values from the Vulkan Utilities Library and is intented to be used
+    // with images that can be created with Linear tiling and therefore it is possible to be accesses directly
+    // without using a staging buffer.
+    //
+    // The sizes are returned in the subresource_sizes vector and will be in the order:
+    //    M0 L0 L1 ... La M1 L0 L1 ... La ... Mm L0 L1 ... La
+    // Where M denotes the mip map levels and L the array layers.
+    // The offsets will be returned in the subresource_offsets vector in the same manner.
+    // all_layers_per_level boolean determines if all array layer per mip map level will be accounted as one.
+    //
+    // Return value is the total size of the image.
+    uint64_t GetImageResourceSizesLinear(VkImage                image,
+                                         VkFormat               format,
+                                         const VkExtent3D&      extent,
+                                         uint32_t               mip_levels,
+                                         uint32_t               array_layers,
+                                         VkImageAspectFlagBits  aspect,
+                                         std::vector<uint64_t>* subresource_offsets  = nullptr,
+                                         std::vector<uint64_t>* subresource_sizes    = nullptr,
+                                         bool                   all_layers_per_level = false);
 
+    // Use this function to dump an image sub resources into data vector.
+    // This function is intented to be used when accessing the image content directly is not possible
+    // and a staging buffer is required.
+    // subresource_offsets and subresource_sizes will be populated in the same manner as with
+    // GetImageResourceSizesOptimal()
+    VkResult ReadFromImageResourceStaging(VkImage                image,
+                                          VkFormat               format,
+                                          VkImageType            type,
+                                          const VkExtent3D&      extent,
+                                          uint32_t               mip_levels,
+                                          uint32_t               array_layers,
+                                          VkImageTiling          tiling,
+                                          VkSampleCountFlags     samples,
+                                          VkImageLayout          layout,
+                                          uint32_t               queue_family_index,
+                                          VkImageAspectFlagBits  aspect,
+                                          std::vector<uint8_t>&  data,
+                                          std::vector<uint64_t>& subresource_offsets,
+                                          std::vector<uint64_t>& subresource_sizes,
+                                          bool                   all_layers_per_level = false);
+
+    // Use this function to dump an image sub resources into data vector.
+    // This function is intented to be used when the image content can be accessed directly and expects to received a
+    // pointer to the mapped memory.
+    // subresource_offsets and subresource_sizes will be populated in the same manner as
+    // with GetImageResourceSizesLinear()
+    void ReadFromImageResourceLinear(VkImage                image,
+                                     VkFormat               format,
+                                     VkImageType            type,
+                                     const VkExtent3D&      extent,
+                                     uint32_t               mip_levels,
+                                     uint32_t               array_layers,
+                                     VkImageAspectFlagBits  aspect,
+                                     const void*            mapped_image_ptr,
+                                     std::vector<uint8_t>&  data,
+                                     std::vector<uint64_t>& subresource_offsets,
+                                     std::vector<uint64_t>& subresource_sizes);
+
+    // Use this function to dump the content of a buffer resource into the data vector.
     VkResult
     ReadFromBufferResource(VkBuffer buffer, uint64_t size, uint32_t queue_family_index, std::vector<uint8_t>& data);
 

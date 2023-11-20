@@ -21,6 +21,10 @@
 */
 
 #include "vulkan_resources_util.h"
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
+
+#include <cinttypes>
+#include <math.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -282,157 +286,143 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
     return found;
 }
 
-uint64_t VulkanResourcesUtil::GetImageResourceSizes(VkImage                image,
-                                                    VkFormat               format,
-                                                    VkImageType            type,
-                                                    const VkExtent3D&      extent,
-                                                    uint32_t               mip_levels,
-                                                    uint32_t               array_layers,
-                                                    VkImageTiling          tiling,
-                                                    VkImageAspectFlagBits  aspect,
-                                                    std::vector<uint64_t>* mip_level_offsets,
-                                                    std::vector<uint64_t>* mip_level_sizes,
-                                                    bool                   need_staging_copy,
-                                                    bool                   all_layers_per_level)
+uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage                image,
+                                                           VkFormat               format,
+                                                           VkImageType            type,
+                                                           const VkExtent3D&      extent,
+                                                           uint32_t               mip_levels,
+                                                           uint32_t               array_layers,
+                                                           VkImageTiling          tiling,
+                                                           VkImageAspectFlagBits  aspect,
+                                                           std::vector<uint64_t>* subresource_offsets,
+                                                           std::vector<uint64_t>* subresource_sizes,
+                                                           bool                   all_layers_per_level)
 {
-    if (mip_level_sizes != nullptr)
+    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+
+    if (subresource_sizes != nullptr)
     {
-        mip_level_sizes->clear();
+        subresource_sizes->clear();
     }
 
-    if (mip_level_offsets != nullptr)
+    if (subresource_offsets != nullptr)
     {
-        mip_level_offsets->clear();
+        subresource_offsets->clear();
     }
 
-    VkDeviceSize resource_size = 0;
-    if (need_staging_copy)
-    {
-        VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-        create_info.pNext                 = nullptr;
-        create_info.flags                 = 0;
-        create_info.imageType             = type;
-        create_info.format                = GetImageAspectFormat(format, aspect);
-        create_info.extent                = extent;
-        create_info.mipLevels             = 1;
-        create_info.arrayLayers           = all_layers_per_level ? array_layers : 1;
-        create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-        create_info.tiling                = tiling;
-        create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-        create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-        create_info.queueFamilyIndexCount = 0;
-        create_info.pQueueFamilyIndices   = nullptr;
-        create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+    uint64_t resource_size = 0;
 
-        for (uint32_t m = 0; m < mip_levels; ++m)
+    VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+    create_info.pNext                 = nullptr;
+    create_info.flags                 = 0;
+    create_info.imageType             = type;
+    create_info.format                = GetImageAspectFormat(format, aspect);
+    create_info.extent                = extent;
+    create_info.mipLevels             = 1;
+    create_info.arrayLayers           = all_layers_per_level ? array_layers : 1;
+    create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+    create_info.tiling                = tiling;
+    create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.queueFamilyIndexCount = 0;
+    create_info.pQueueFamilyIndices   = nullptr;
+    create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    for (uint32_t m = 0; m < mip_levels; ++m)
+    {
+        create_info.extent.width  = std::max(1u, (extent.width >> m));
+        create_info.extent.height = std::max(1u, (extent.height >> m));
+        create_info.extent.depth  = std::max(1u, (extent.depth >> m));
+
+        VkImage  temp_image;
+        VkResult result = device_table_.CreateImage(device_, &create_info, nullptr, &temp_image);
+        if (result != VK_SUCCESS)
         {
-            create_info.extent.width  = std::max(1u, (extent.width >> m));
-            create_info.extent.height = std::max(1u, (extent.height >> m));
-            create_info.extent.depth  = std::max(1u, (extent.depth >> m));
+            GFXRECON_LOG_ERROR("VulkanResourcesUtil::%s() Failed creating VkImage", __func__)
 
-            VkImage  temp_image;
-            VkResult result = device_table_.CreateImage(device_, &create_info, nullptr, &temp_image);
-            if (result != VK_SUCCESS)
+            if (subresource_offsets != nullptr)
             {
-                GFXRECON_LOG_ERROR("VulkanResourcesUtil::%s() Failed creating VkImage", __func__)
-
-                if (mip_level_offsets != nullptr)
-                {
-                    mip_level_offsets->clear();
-                }
-
-                if (mip_level_sizes != nullptr)
-                {
-                    mip_level_sizes->clear();
-                }
-
-                return 0;
+                subresource_offsets->clear();
             }
 
-            VkMemoryRequirements memory_requirements;
-            device_table_.GetImageMemoryRequirements(device_, temp_image, &memory_requirements);
-
-            for (uint32_t l = 0; l < array_layers; ++l)
+            if (subresource_sizes != nullptr)
             {
-                if (mip_level_offsets != nullptr)
-                {
-                    mip_level_offsets->push_back(resource_size);
-                }
-
-                if (mip_level_sizes != nullptr)
-                {
-                    mip_level_sizes->push_back(memory_requirements.size);
-                }
-
-                resource_size += memory_requirements.size;
-
-                if (all_layers_per_level)
-                {
-                    break;
-                }
+                subresource_sizes->clear();
             }
 
-            device_table_.DestroyImage(device_, temp_image, nullptr);
+            return 0;
         }
-    }
-    else
-    {
+
         VkMemoryRequirements memory_requirements;
-        device_table_.GetImageMemoryRequirements(device_, image, &memory_requirements);
-        resource_size = memory_requirements.size;
+        device_table_.GetImageMemoryRequirements(device_, temp_image, &memory_requirements);
 
-        if (mip_level_sizes || mip_level_offsets)
+        for (uint32_t l = 0; l < array_layers; ++l)
         {
-            uint64_t total_offset = 0;
-            for (uint32_t m = 0; m < mip_levels; ++m)
+            if (subresource_offsets != nullptr)
             {
-                for (uint32_t l = 0; l < array_layers; ++l)
-                {
-                    VkSubresourceLayout layout;
-                    VkImageSubresource  subresource;
-                    subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                    subresource.mipLevel   = m;
-                    subresource.arrayLayer = l;
+                subresource_offsets->push_back(resource_size);
+            }
 
-                    device_table_.GetImageSubresourceLayout(device_, image, &subresource, &layout);
+            if (subresource_sizes != nullptr)
+            {
+                subresource_sizes->push_back(memory_requirements.size);
+            }
 
-                    if (all_layers_per_level)
-                    {
-                        const uint64_t level_size = layout.size * array_layers;
+            resource_size += memory_requirements.size;
 
-                        if (mip_level_sizes != nullptr)
-                        {
-                            mip_level_sizes->push_back(level_size);
-                        }
-
-                        if (mip_level_offsets != nullptr)
-                        {
-                            mip_level_offsets->push_back(total_offset);
-                        }
-
-                        total_offset += level_size;
-
-                        // Continue with next mipmap level
-                        break;
-                    }
-                    else
-                    {
-                        if (mip_level_sizes != nullptr)
-                        {
-                            mip_level_sizes->push_back(layout.size);
-                        }
-
-                        if (mip_level_offsets != nullptr)
-                        {
-                            mip_level_offsets->push_back(layout.offset);
-                        }
-                    }
-                }
+            if (all_layers_per_level)
+            {
+                break;
             }
         }
+
+        device_table_.DestroyImage(device_, temp_image, nullptr);
     }
 
     return resource_size;
+}
+
+uint64_t VulkanResourcesUtil::GetImageResourceSizesLinear(VkImage                image,
+                                                          VkFormat               format,
+                                                          const VkExtent3D&      extent,
+                                                          uint32_t               mip_levels,
+                                                          uint32_t               array_layers,
+                                                          VkImageAspectFlagBits  aspect,
+                                                          std::vector<uint64_t>* subresource_offsets,
+                                                          std::vector<uint64_t>* subresource_sizes,
+                                                          bool                   all_layers_per_level)
+{
+    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+
+    subresource_offsets->clear();
+    subresource_sizes->clear();
+
+    const double texel_size = vkuFormatTexelSizeWithAspect(format, aspect);
+    // Not expecting a fractional number from a linear image
+    assert(texel_size == static_cast<uint64_t>(texel_size));
+
+    uint64_t offset = 0;
+    for (uint32_t m = 0; m < mip_levels; ++m)
+    {
+        for (uint32_t l = 0; l < array_layers; ++l)
+        {
+            const uint32_t mip_width  = std::max(1u, (extent.width >> m));
+            const uint32_t mip_height = std::max(1u, (extent.height >> m));
+            const uint64_t stride     = mip_width * static_cast<uint64_t>(texel_size);
+            const uint64_t size       = all_layers_per_level ? stride * mip_height * array_layers : stride * mip_height;
+
+            subresource_offsets->push_back(offset);
+            subresource_sizes->push_back(size);
+            offset += size;
+
+            if (all_layers_per_level)
+            {
+                break;
+            }
+        }
+    }
+
+    return offset;
 }
 
 VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
@@ -1158,38 +1148,38 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
     return result;
 }
 
-VkResult VulkanResourcesUtil::ReadFromImageResource(VkImage                image,
-                                                    VkFormat               format,
-                                                    VkImageType            type,
-                                                    const VkExtent3D&      extent,
-                                                    uint32_t               mip_levels,
-                                                    uint32_t               array_layers,
-                                                    VkImageTiling          tiling,
-                                                    VkSampleCountFlags     samples,
-                                                    VkImageLayout          layout,
-                                                    uint32_t               queue_family_index,
-                                                    VkImageAspectFlagBits  aspect,
-                                                    std::vector<uint8_t>&  data,
-                                                    std::vector<uint64_t>& subresource_offsets,
-                                                    std::vector<uint64_t>& subresource_sizes,
-                                                    bool                   need_staging_copy,
-                                                    bool                   all_layers_per_level)
+VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage                image,
+                                                           VkFormat               format,
+                                                           VkImageType            type,
+                                                           const VkExtent3D&      extent,
+                                                           uint32_t               mip_levels,
+                                                           uint32_t               array_layers,
+                                                           VkImageTiling          tiling,
+                                                           VkSampleCountFlags     samples,
+                                                           VkImageLayout          layout,
+                                                           uint32_t               queue_family_index,
+                                                           VkImageAspectFlagBits  aspect,
+                                                           std::vector<uint8_t>&  data,
+                                                           std::vector<uint64_t>& subresource_offsets,
+                                                           std::vector<uint64_t>& subresource_sizes,
+                                                           bool                   all_layers_per_level)
 {
+    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+
     subresource_offsets.clear();
     subresource_sizes.clear();
 
-    const uint64_t resource_size = GetImageResourceSizes(image,
-                                                         format,
-                                                         type,
-                                                         extent,
-                                                         mip_levels,
-                                                         array_layers,
-                                                         tiling,
-                                                         aspect,
-                                                         &subresource_offsets,
-                                                         &subresource_sizes,
-                                                         all_layers_per_level,
-                                                         need_staging_copy);
+    const uint64_t resource_size = GetImageResourceSizesOptimal(image,
+                                                                format,
+                                                                type,
+                                                                extent,
+                                                                mip_levels,
+                                                                array_layers,
+                                                                tiling,
+                                                                aspect,
+                                                                &subresource_offsets,
+                                                                &subresource_sizes,
+                                                                all_layers_per_level);
 
     const VkQueue queue = GetQueue(queue_family_index, 0);
     if (queue == VK_NULL_HANDLE)
@@ -1292,6 +1282,61 @@ VkResult VulkanResourcesUtil::ReadFromImageResource(VkImage                image
     }
 
     return VK_SUCCESS;
+}
+
+void VulkanResourcesUtil::ReadFromImageResourceLinear(VkImage                image,
+                                                      VkFormat               format,
+                                                      VkImageType            type,
+                                                      const VkExtent3D&      extent,
+                                                      uint32_t               mip_levels,
+                                                      uint32_t               array_layers,
+                                                      VkImageAspectFlagBits  aspect,
+                                                      const void*            mapped_image_ptr,
+                                                      std::vector<uint8_t>&  data,
+                                                      std::vector<uint64_t>& subresource_offsets,
+                                                      std::vector<uint64_t>& subresource_sizes)
+{
+    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+    assert(mapped_image_ptr);
+
+    subresource_offsets.clear();
+    subresource_sizes.clear();
+
+    const double texel_size = vkuFormatTexelSizeWithAspect(format, aspect);
+    assert(texel_size == static_cast<uint64_t>(texel_size));
+
+    uint64_t offset = 0;
+    for (uint32_t m = 0; m < mip_levels; ++m)
+    {
+        for (uint32_t l = 0; l < array_layers; ++l)
+        {
+            VkSubresourceLayout layout;
+            VkImageSubresource  subresource;
+            subresource.aspectMask = aspect;
+            subresource.mipLevel   = m;
+            subresource.arrayLayer = l;
+
+            device_table_.GetImageSubresourceLayout(device_, image, &subresource, &layout);
+
+            const uint8_t* image_u8_ptr = static_cast<const uint8_t*>(mapped_image_ptr) + layout.offset;
+            uint8_t*       data_u8      = static_cast<uint8_t*>(data.data());
+
+            const uint32_t mip_width  = std::max(1u, (extent.width >> m));
+            const uint32_t mip_height = std::max(1u, (extent.height >> m));
+            const uint64_t stride     = mip_width * static_cast<uint64_t>(texel_size);
+
+            for (uint32_t y = 0; y < mip_height; ++y)
+            {
+                util::platform::MemoryCopy(data_u8, stride, image_u8_ptr, stride);
+                data_u8 += stride;
+                image_u8_ptr += layout.rowPitch;
+            }
+
+            subresource_offsets.push_back(offset);
+            subresource_sizes.push_back(stride * mip_height);
+            offset += stride * mip_height;
+        }
+    }
 }
 
 VkResult VulkanResourcesUtil::ReadFromBufferResource(VkBuffer              buffer,
