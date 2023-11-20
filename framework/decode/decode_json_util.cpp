@@ -34,8 +34,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder& data, const
     const char* const decoded_data = data.GetPointer();
     if (decoded_data)
     {
-        jdata = std::string(decoded_data);
-        /// @todo try: jdata = decoded_data;
+        FieldToJson(jdata, decoded_data, options);
     }
 }
 
@@ -64,8 +63,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const WStringDecoder& data, cons
     const wchar_t* const decoded_data = data.GetPointer();
     if (decoded_data)
     {
-        jdata = std::wstring(decoded_data);
-        /// @todo try: jdata = decoded_data;
+        FieldToJson(jdata, decoded_data, options);
     }
 }
 
@@ -84,7 +82,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const WStringArrayDecoder& data,
     {
         for (size_t i = 0; i < data.GetLength(); ++i)
         {
-            jdata[i] = decoded_data[i];
+            FieldToJson(jdata[i], decoded_data[i], options);
         }
     }
 }
