@@ -876,6 +876,10 @@ optional arguments:
                         in the original capture. This allows preserving frames
                         when capturing a replay that uses. offscreen swapchain.
                         (forwarded to replay tool)
+  --use-ext-frame-boundary
+                        Convert all offscreen frame boundaries to
+                        `VK_EXT_frame_boundary` frame boundaries.
+                        (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay

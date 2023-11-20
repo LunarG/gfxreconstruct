@@ -86,6 +86,7 @@ def CreateReplayParser():
     parser.add_argument('--onhb', '--omit-null-hardware-buffers', action='store_true', default=False, help='Omit Vulkan calls that would pass a NULL AHardwareBuffer* (forwarded to replay tool)')
     parser.add_argument('--use-colorspace-fallback', action='store_true', default=False, help='Swap the swapchain color space if unsupported by replay device. Check if color space is not supported by replay device and swap to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR. (forwarded to replay tool).')
     parser.add_argument('--offscreen-swapchain-frame-boundary', action='store_true', default=False, help='Should only be used with offscreen swapchain. Activates the extension VK_EXT_frame_boundary (always supported if trimming, checks for driver support otherwise) and inserts command buffer submission with VkFrameBoundaryEXT where vkQueuePresentKHR was called in the original capture. This allows preserving frames when capturing a replay that uses. offscreen swapchain. (forwarded to replay tool)')
+    parser.add_argument('--use-ext-frame-boundary', action='store_true', default=False, help='Convert all offscreen frame boundaries to `VK_EXT_frame_boundary` frame boundaries. (forwarded to replay tool)')
     parser.add_argument('--mfr', '--measurement-frame-range', metavar='START-END', help='Custom framerange to measure FPS for. This range will include the start frame but not the end frame. The measurement frame range defaults to all frames except the loading frame but can be configured for any range. If the end frame is past the last frame in the trace it will be clamped to the frame after the last (so in that case the results would include the last frame). (forwarded to replay tool)')
     parser.add_argument('--measurement-file', metavar='DEVICE_FILE', help='Write measurements to a file at the specified path. Default is: \'/sdcard/gfxrecon-measurements.json\' on android and \'./gfxrecon-measurements.json\' on desktop. (forwarded to replay tool)')
     parser.add_argument('--quit-after-measurement-range', action='store_true', default=False, help='If this is specified the replayer will abort when it reaches the <end_frame> specified in the --measurement-frame-range argument. (forwarded to replay tool)')
@@ -198,6 +199,9 @@ def MakeExtrasString(args):
     
     if args.offscreen_swapchain_frame_boundary:
         arg_list.append('--offscreen-swapchain-frame-boundary')
+    
+    if args.use_ext_frame_boundary:
+        arg_list.append('--use-ext-frame-boundary')
 
     if args.memory_translation:
         arg_list.append('-m')

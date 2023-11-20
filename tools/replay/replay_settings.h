@@ -32,7 +32,7 @@ const char kOptions[] =
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-range,--fmr|--flush-"
     "measurement-range,--flush-inside-measurement-range,--use-captured-swapchain-indices,--dcp,--"
     "discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,"
-    "--offscreen-swapchain-frame-boundary";
+    "--offscreen-swapchain-frame-boundary,--use-ext-frame-boundary";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -210,6 +210,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\twas called in the original capture.");
     GFXRECON_WRITE_CONSOLE("          \t\tThis allows preserving frames when capturing a replay that uses.");
     GFXRECON_WRITE_CONSOLE("          \t\toffscreen swapchain.");
+    GFXRECON_WRITE_CONSOLE("  --use-ext-frame-boundary");
+    GFXRECON_WRITE_CONSOLE("          \t\tConvert all offscreen frame boundaries to `VK_EXT_frame_boundary`");
+    GFXRECON_WRITE_CONSOLE("          \t\tframe boundaries.");
     GFXRECON_WRITE_CONSOLE("  --measurement-frame-range <start_frame>-<end_frame>");
     GFXRECON_WRITE_CONSOLE("          \t\tCustom framerange to measure FPS for.");
     GFXRECON_WRITE_CONSOLE("          \t\tThis range will include the start frame but not the end frame.");

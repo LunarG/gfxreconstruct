@@ -984,9 +984,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                         CommandBufferInfo*        command_buffer_info,
                                         VkCommandBufferResetFlags flags);
 
-    void     OverrideCmdDebugMarkerInsertEXT(PFN_vkCmdDebugMarkerInsertEXT                             func,
-                                             CommandBufferInfo*                                        command_buffer_info,
-                                             StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* marker_info_decoder);
+    void OverrideCmdDebugMarkerInsertEXT(PFN_vkCmdDebugMarkerInsertEXT                             func,
+                                         CommandBufferInfo*                                        command_buffer_info,
+                                         StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* marker_info_decoder);
+
+    void OverrideCmdInsertDebugUtilsLabelEXT(PFN_vkCmdInsertDebugUtilsLabelEXT                   func,
+                                             CommandBufferInfo*                                  command_buffer_info,
+                                             StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* label_info_decoder);
+
     VkResult OverrideWaitSemaphores(PFN_vkWaitSemaphores                                     func,
                                     VkResult                                                 original_result,
                                     const DeviceInfo*                                        device_info,
@@ -1023,6 +1028,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                        StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* create_info_decoder,
                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*   allocator_decoder,
                                        HandlePointerDecoder<VkFramebuffer>*                   frame_buffer_decoder);
+
+    void OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID func,
+                                      const DeviceInfo*          device_info,
+                                      const SemaphoreInfo*       semaphore_info,
+                                      const ImageInfo*           image_info);
 
     const VulkanReplayOptions options_;
 
@@ -1137,6 +1147,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
 
+    void FillFrameBoundaryExtFromCommandBufferInfo(const CommandBufferInfo* command_buffer_info,
+                                                   VkFrameBoundaryEXT*      frame_boundary,
+                                                   std::vector<VkImage>&    frame_boundary_images);
+    void InsertFrameBoundaryExt(void* pnext_chain, const VkFrameBoundaryEXT* frame_boundary);
+
     bool CheckCommandBufferInfoForFrameBoundary(const CommandBufferInfo* command_buffer_info);
     bool CheckPNextChainForFrameBoundary(const DeviceInfo* device_info, const Decoded_VkBaseOutStructure* current);
 
@@ -1211,6 +1226,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_set<uint32_t>      removed_swapchain_indices_;
     std::vector<uint32_t>             capture_image_indices_;
     std::vector<SwapchainKHRInfo*>    swapchain_infos_;
+
+    // Resources for use-ext-frame-boundary option used by OverrideFrameBoundaryANDROID
+    std::unordered_map<VkDevice, std::pair<VkCommandPool, VkCommandBuffer>> fba_resources_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

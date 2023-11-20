@@ -84,6 +84,11 @@ class Application final
 
     void StopRunning() { running_ = false; }
 
+    uint32_t GetCurrentFrameNumber() const
+    {
+        return file_processor_->GetCurrentFrameNumber();
+    }
+
   private:
     // clang-format off
     std::string                                                  name_;              ///< Application name to display in window title bar.

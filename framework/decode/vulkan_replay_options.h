@@ -49,6 +49,7 @@ struct VulkanReplayOptions : public ReplayOptions
     bool                         remove_unsupported_features{ false };
     bool                         use_colorspace_fallback{ false };
     bool                         offscreen_swapchain_frame_boundary{ false };
+    bool                         use_ext_frame_boundary{ false };
     util::SwapchainOption        swapchain_option{ util::SwapchainOption::kVirtual };
     int32_t                      override_gpu_group_index{ -1 };
     int32_t                      surface_index{ -1 };
