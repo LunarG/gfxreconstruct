@@ -47,7 +47,7 @@ void VulkanExportJsonConsumerBase::Initialize(JsonWriter* writer, const std::str
     GFXRECON_ASSERT(writer);
     writer_ = writer;
 
-    writer->GetHeaderkJson()["vulkan-version"] = std::string(vulkanVersion);
+    writer->GetHeaderJson()["vulkan-version"] = std::string(vulkanVersion);
 }
 
 void VulkanExportJsonConsumerBase::Destroy()

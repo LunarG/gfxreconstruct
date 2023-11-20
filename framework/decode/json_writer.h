@@ -101,7 +101,7 @@ class JsonWriter : public AnnotationHandler
 
     /// Get the JSON object used to output the per-stream header
     /// Consumers can add their own fields to it.
-    nlohmann::ordered_json& GetHeaderkJson() { return header_; }
+    nlohmann::ordered_json& GetHeaderJson() { return header_; }
 
     /// Get the root of the JSON tree for the current block.
     nlohmann::ordered_json& GetBlockJson() { return json_data_; }
