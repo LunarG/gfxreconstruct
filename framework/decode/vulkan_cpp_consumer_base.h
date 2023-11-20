@@ -69,26 +69,26 @@ class VulkanCppConsumerBase : public VulkanConsumer
                           uint64_t           offset,
                           uint64_t           size);
 
-    bool IsValid() const { return (m_main_file != nullptr); }
+    bool IsValid() const { return (main_file_ != nullptr); }
 
-    const std::string& GetFilename() const { return m_filename; }
+    const std::string& GetFilename() const { return filename_; }
 
-    GfxTocppPlatform GetPlatform() { return m_platform; }
+    GfxTocppPlatform GetPlatform() { return platform_; }
 
-    uint32_t GetProperWindowWidth(uint32_t width) { return std::min(width, m_windowWidth); };
-    uint32_t GetProperWindowHeight(uint32_t height) { return std::min(height, m_windowHeight); };
+    uint32_t GetProperWindowWidth(uint32_t width) { return std::min(width, window_width_); };
+    uint32_t GetProperWindowHeight(uint32_t height) { return std::min(height, window_height_); };
 
     const std::string GetHandle(const format::HandleId& handleId)
     {
-        return m_handleIdMap.count(handleId) ? m_handleIdMap[handleId] : "VK_NULL_HANDLE";
+        return handle_id_map_.count(handleId) ? handle_id_map_[handleId] : "VK_NULL_HANDLE";
     }
 
     const std::string GetNextImage(const format::HandleId& swapchain)
     {
-        if (m_nextImageMap.count(swapchain))
+        if (next_image_map_.count(swapchain))
         {
-            std::string nextImage = m_nextImageMap[swapchain].front();
-            m_nextImageMap[swapchain].pop();
+            std::string nextImage = next_image_map_[swapchain].front();
+            next_image_map_[swapchain].pop();
             return nextImage;
         }
 
@@ -97,16 +97,16 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     bool GetResourceMemoryRequirements(format::HandleId memoryHandleId, std::string& requirements)
     {
-        auto found_resource = m_memoryResourceMap.find(memoryHandleId);
-        if (found_resource != m_memoryResourceMap.end())
+        auto found_resource = memory_resource_map_.find(memoryHandleId);
+        if (found_resource != memory_resource_map_.end())
         {
-            std::queue<std::pair<format::HandleId, VkDeviceSize>>& resourceHandles =
-                m_memoryResourceMap[memoryHandleId];
+            std::queue<std::pair<format::HandleId, VkDeviceSize>>& resource_handles =
+                memory_resource_map_[memoryHandleId];
 
-            format::HandleId resourceHandle = resourceHandles.front().first;
-            resourceHandles.pop();
+            format::HandleId resource_handle = resource_handles.front().first;
+            resource_handles.pop();
 
-            requirements = m_resourceMemoryReqMap[resourceHandle];
+            requirements = resource_memory_req_map_[resource_handle];
             return true;
         }
         return false;
@@ -115,7 +115,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::string AddStruct(const std::stringstream& content, const std::string& varnamePrefix);
     std::string
          AddMemoryFilePath(const std::string& fileName, const std::string& outDir, const uint8_t* data, uint64_t size);
-    void AddResourceTracker(VulkanCppResourceTracker& resourceTracker) { m_resourceTracker = &resourceTracker; }
+    void AddResourceTracker(VulkanCppResourceTracker& resourceTracker) { resource_tracker_ = &resourceTracker; }
     void AddKnownVariables(const std::string& type, const std::string& name);
     void AddKnownVariables(const std::string& type, const std::string& name, uint32_t count);
     void AddKnownVariables(const std::string& type, const std::string& name, const format::HandleId* handleId);
@@ -126,12 +126,12 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void SetMemoryResourceMap(
         const std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>> memoryImageMap);
     void SetWindowSize(uint32_t appWindowWidth, uint32_t appWindowHeight);
-    void SetMaxCommandLimit(uint32_t max) { m_max_command_limit = max; }
+    void SetMaxCommandLimit(uint32_t max) { max_command_limit_ = max; }
 
-    uint32_t getNextId();
-    uint32_t getNextId(VkObjectType object_type);
+    uint32_t GetNextId();
+    uint32_t GetNextId(VkObjectType object_type);
 
-    uint32_t GetCurrentApiCallNumber() { return m_apiCallNumber; }
+    uint32_t GetCurrentApiCallNumber() { return api_call_number_; }
 
     void Generate_vkEnumeratePhysicalDevices(VkResult                                returnValue,
                                              format::HandleId                        instance,
@@ -436,10 +436,10 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
-    static std::string toEscape(const char* value);
-    static std::string escapeStringArray(const char* const* layerNames, const uint32_t stringArrayLength);
-    static std::string toEscape(const std::string& value);
-    static std::string escapeStringArray(const std::vector<std::string>& strings);
+    static std::string ToEscape(const char* value);
+    static std::string EscapeStringArray(const char* const* layerNames, const uint32_t stringArrayLength);
+    static std::string ToEscape(const std::string& value);
+    static std::string EscapeStringArray(const std::vector<std::string>& strings);
 
     static std::string BuildValue(const VkClearColorValue color);
     static std::string BuildValue(const VkClearValue clearValue);
@@ -494,7 +494,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
         return output.str();
     }
 
-    void SetNeedsDebugUtilsCallback(bool value) { m_needsDebugUtilCallback = value; }
+    void SetNeedsDebugUtilsCallback(bool value) { needs_debug_util_callback_ = value; }
 
     // Meta data commands
     virtual void
@@ -524,8 +524,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
   protected:
     FILE* GetFrameFile();
-    FILE* GetHeaderFile() const { return m_header_file; };
-    FILE* GetGlobalFile() const { return m_global_file; };
+    FILE* GetHeaderFile() const { return header_file_; };
+    FILE* GetGlobalFile() const { return global_file_; };
 
     std::string GenFrameName(uint32_t frameNumber, uint32_t frameSplitNumber, uint32_t fillLength);
 
@@ -535,31 +535,6 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     void Post_APICall(format::ApiCallId callId);
 
-    std::unordered_map<VkObjectType, uint32_t> m_counters;
-    VulkanCppResourceTracker*                  m_resourceTracker;
-    VulkanCppLoaderGenerator                   m_pfnLoader;
-    std::map<format::HandleId, std::string>    m_handleIdMap;
-    std::vector<std::string>                   m_func_data;
-    std::map<uint64_t, std::string>            m_memoryIdMap;
-    struct VulkanCppAndroidBufferInfo
-    {
-        std::string name;
-        uint64_t    memory_id;
-    };
-    std::map<uint64_t, VulkanCppAndroidBufferInfo>              m_androidBufferIdMap;
-    std::map<uint64_t, std::string>                             m_androidMemoryIdMap;
-    std::map<format::HandleId, std::queue<std::string>>         m_nextImageMap;
-    std::map<void*, std::string>                                m_ptrMap;
-    std::map<uint64_t, std::string>                             m_structMap; // hash -> name
-    uint32_t                                                    m_windowWidth;
-    uint32_t                                                    m_windowHeight;
-    uint32_t                                                    m_max_command_limit{ 1000 };
-    std::vector<GfxToCppVariable>                               m_var_data;
-    std::map<format::HandleId, DescriptorUpdateTemplateEntries> m_descriptorUpdateTemplateEntryMap;
-
-    std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>> m_memoryResourceMap;
-    std::map<format::HandleId, std::string>                                           m_resourceMemoryReqMap;
-
     void AddHandles(const std::string& outputName, const format::HandleId* ptrs, uint32_t count);
     void AddHandles(const std::string& outputName, const format::HandleId* ptrs);
 
@@ -568,44 +543,67 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                               FILE*                            frame_file,
                                               std::string&                     template_data_var_name);
 
-    bool m_needsDebugUtilCallback = false;
-
-  private:
-    struct FrameTempMemory
+    struct VulkanCppAndroidBufferInfo
     {
         std::string name;
-        size_t      size;
+        uint64_t    memory_id;
     };
-    std::vector<FrameTempMemory> m_frameSplitTempMemory;
 
-    uint32_t m_frameNumber;
-    uint32_t m_frameSplitNumber;
-    uint32_t m_frameApiCallNumber;
-    uint32_t m_apiCallNumber;
-    FILE*    m_frameFile;
+    std::unordered_map<VkObjectType, uint32_t>                  counters_;
+    VulkanCppResourceTracker*                                   resource_tracker_;
+    VulkanCppLoaderGenerator                                    pfn_loader_;
+    std::map<format::HandleId, std::string>                     handle_id_map_;
+    std::vector<std::string>                                    func_data_;
+    std::map<uint64_t, std::string>                             memory_id_map_;
+    std::map<uint64_t, VulkanCppAndroidBufferInfo>              android_buffer_id_map_;
+    std::map<uint64_t, std::string>                             android_memory_id_map_;
+    std::map<format::HandleId, std::queue<std::string>>         next_image_map_;
+    std::map<void*, std::string>                                ptr_map_;
+    std::map<uint64_t, std::string>                             struct_map_; // hash -> name
+    uint32_t                                                    window_width_;
+    uint32_t                                                    window_height_;
+    uint32_t                                                    max_command_limit_{ 1000 };
+    std::vector<GfxToCppVariable>                               variable_data_;
+    std::map<format::HandleId, DescriptorUpdateTemplateEntries> descriptor_update_template_entry_map_;
+    std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>> memory_resource_map_;
+    std::map<format::HandleId, std::string>                                           resource_memory_req_map_;
 
-    FILE*            m_global_file;
-    FILE*            m_header_file;
-    FILE*            m_main_file;
-    std::string      m_filename;
-    GfxTocppPlatform m_platform;
-    std::string      m_outDir;
-    std::string      m_binOutDir;
-    std::string      m_spvOutDir;
-    std::string      m_srcOutDir;
+    bool needs_debug_util_callback_ = false;
 
-    DataFilePacker m_dataPacker;
-    DataFilePacker m_spvSaver;
-    bool           createSubOutputDirectories(const std::vector<std::string>& subDirs);
-
-    std::vector<std::vector<format::DeviceMemoryType>> m_original_memory_types;
-    std::vector<std::vector<format::DeviceMemoryHeap>> m_original_memory_heaps;
+  private:
+    bool CreateSubOutputDirectories(const std::vector<std::string>& subDirs);
 
     void WriteMainHeader();
     void WriteMainFooter();
     void WriteGlobalHeaderFile();
     void PrintOutGlobalVar();
     void PrintOutCMakeFile();
+
+    struct FrameTempMemory
+    {
+        std::string name;
+        size_t      size;
+    };
+    std::vector<FrameTempMemory> frame_split_temp_memory_;
+
+    uint32_t                                           frame_number_;
+    uint32_t                                           frame_split_number_;
+    uint32_t                                           frame_api_call_number_;
+    uint32_t                                           api_call_number_;
+    FILE*                                              frame_file_;
+    FILE*                                              global_file_;
+    FILE*                                              header_file_;
+    FILE*                                              main_file_;
+    std::string                                        filename_;
+    GfxTocppPlatform                                   platform_;
+    std::string                                        out_dir_;
+    std::string                                        bin_out_dir_;
+    std::string                                        spv_out_dir_;
+    std::string                                        src_out_dir_;
+    DataFilePacker                                     data_packer_;
+    DataFilePacker                                     spv_saver_;
+    std::vector<std::vector<format::DeviceMemoryType>> original_memory_types_;
+    std::vector<std::vector<format::DeviceMemoryHeap>> original_memory_heaps_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

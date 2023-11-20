@@ -134,18 +134,18 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
     def endFile(self):
         if self.is_header:
             self.writeout('class VulkanCppConsumerBase;')
-            self.writeout('std::string GenerateExtension(std::ostream& out, const void* structInfo, void* metaInfo, VulkanCppConsumerBase& consumer);')
+            self.writeout('std::string GenerateExtension(std::ostream& out, const void* struct_info, void* meta_info, VulkanCppConsumerBase& consumer);')
         else:
-            defaultBody = [makeGen('pNextName = "NULL";', indent=0),
+            defaultBody = [makeGen('next_var_name = "NULL";', indent=0),
                         makeGen('break;', indent=0)]
-            function = [makeGen('std::string GenerateExtension(std::ostream& out, const void* structInfo, void* metaInfo, VulkanCppConsumerBase& consumer) {{', indent=0),
-                        makeGen('std::string pNextName = "NULL";'),
-                        makeGenCond('structInfo != nullptr && metaInfo != nullptr',
+            function = [makeGen('std::string GenerateExtension(std::ostream& out, const void* struct_info, void* meta_info, VulkanCppConsumerBase& consumer) {{', indent=0),
+                        makeGen('std::string next_var_name = "NULL";'),
+                        makeGenCond('struct_info != nullptr && meta_info != nullptr',
                                     [makeGenCastVar('reinterpret_cast', 'const VkBaseInStructure*',
-                                                    'baseStruct', 'structInfo', indent=8),
-                                    makeGen('PNextNode* metaInfoPNext = reinterpret_cast<PNextNode*>(metaInfo);', indent=8),
-                                    makeGenSwitch('baseStruct->sType', self.cases, self.caseBodies, defaultBody, indent=4)], [], locals(), indent=4),
-                        makeGen('return pNextName;', indent=4),
+                                                    'base_struct', 'struct_info', indent=8),
+                                    makeGen('PNextNode* pnext_meta_data = reinterpret_cast<PNextNode*>(meta_info);', indent=8),
+                                    makeGenSwitch('base_struct->sType', self.cases, self.caseBodies, defaultBody, indent=4)], [], locals(), indent=4),
+                        makeGen('return next_var_name;', indent=4),
                         makeGen('}}', indent=0)]
             body = ''.join(function)
             self.writeout(body)
@@ -182,12 +182,12 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
 
             self.cases.append(sType)
             caseBody = [
-                makeGenCastVar('reinterpret_cast', 'const %s*' % structName, 'castedStruct', 'structInfo', use_auto=True, indent=0),
-                makeGenCastVar('reinterpret_cast', 'Decoded_%s*' % structName, 'castedMetaInfo', 'metaInfoPNext->GetMetaStructPointer()', use_auto=True, indent=0),
-                makeGen('pNextName = "&" + ' + makeGenCall('GenerateStruct_{structName}',
+                makeGenCastVar('reinterpret_cast', 'const %s*' % structName, 'casted_struct', 'struct_info', use_auto=True, indent=0),
+                makeGenCastVar('reinterpret_cast', 'Decoded_%s*' % structName, 'decoded_struct', 'pnext_meta_data->GetMetaStructPointer()', use_auto=True, indent=0),
+                makeGen('next_var_name = "&" + ' + makeGenCall(f'GenerateStruct_{structName}',
                                                             ['out',
-                                                            'castedStruct',
-                                                            'castedMetaInfo',
+                                                            'casted_struct',
+                                                            'decoded_struct',
                                                             'consumer'],
                                                             locals(), indent=1), indent=0),
                 makeGen('break;', indent=0)

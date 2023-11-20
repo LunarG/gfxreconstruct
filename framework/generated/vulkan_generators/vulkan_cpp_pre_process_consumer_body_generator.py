@@ -215,7 +215,7 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
             else:
                 arguments.append('{arg.name}')
 
-            body.append(makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(), indent=4))
+            body.append(makeGenCall('resource_tracker_->AddHandleUsage', arguments, locals(), indent=4))
 
         return '\n'.join(body)
 
@@ -241,12 +241,6 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
                 # Resolve how the handle is accessed through pointers
                 pointerAccess = recursivePointerAccess + arg.name
                 if arg.is_array:
-                    #if member.array_length is not None:
-                    #    pointerAccess += '->GetMetaStructPointer()[idx1]'
-                    #    argument = '%s.%s.GetPointer()[idx2]' % (pointerAccess, member.name)
-                    #else:
-                    #    pointerAccess += '->GetMetaStructPointer()[idx]'
-                    #    argument = '%s.%s' % (pointerAccess, member.name)
                     pointerAccess += '->GetMetaStructPointer()[idx]'
                     argument = '%s.%s' % (pointerAccess, member.name)
                 elif not arg.is_pointer and arg.is_dynamic:
@@ -270,24 +264,12 @@ class VulkanCppPreProcessConsumerBodyGenerator(BaseGenerator):
                     loop_counter1 = f'{forConditionAccess}{arg.array_length}'
                     if array_len_arg is not None and array_len_arg.is_pointer:
                         loop_counter1 = f'*({array_len_arg.name}->GetPointer())'
-                    #if member.array_length is not None:
-                    #    forConditionAccess = reverseReplace(pointerAccess, 'MetaStruct', '', 1)
-                    #    loop_counter2 = f'{forConditionAccess}.{member.array_length}'
-                    #
-                    #    body.append(makeGenLoop('idx1', '{loop_counter1}',
-                    #                            [makeGenLoop('idx2', '{loop_counter2}',
-                    #                                [makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(),
-                    #                                    indent=8 + recursionDepth * 4)], locals(), indent=8)], locals(), indent=4))
-                    #else:
-                    #    body.append(makeGenLoop('idx', '{loop_counter1}',
-                    #                            [makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(),
-                    #                                        indent=4 + recursionDepth * 4)], locals(), indent=4))
                     body.append(makeGenLoop('idx', '{loop_counter1}',
-                                             [makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(),
+                                             [makeGenCall('resource_tracker_->AddHandleUsage', arguments, locals(),
                                                          indent=4 + recursionDepth * 4)], locals(), indent=4))
                 else:
                     body.append(makeGenCond('{pointerAccess} != nullptr',
-                                            [makeGenCall('m_resourceTracker->AddHandleUsage', arguments, locals(),
+                                            [makeGenCall('resource_tracker_->AddHandleUsage', arguments, locals(),
                                                          indent=4 + recursionDepth * 4)], [], locals(), indent=4))
 
         return body

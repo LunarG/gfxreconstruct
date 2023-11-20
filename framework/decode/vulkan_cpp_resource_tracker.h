@@ -1,5 +1,7 @@
 /*
 ** Copyright (c) 2022 Samsung
+** Copyright (c) 2023 Google
+** Copyright (c) 2023 LunarG, Inc
 **
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,12 +35,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct FrameId
 {
     // TODO(tkeri: uint64_t to include xxhash64?)
-    uint32_t frameNumber;
-    uint32_t frameSplit;
+    uint32_t frame_number;
+    uint32_t frame_split;
 
     bool operator==(const FrameId& frameId) const
     {
-        return (frameNumber == frameId.frameNumber && frameSplit == frameId.frameSplit);
+        return (frame_number == frameId.frame_number && frame_split == frameId.frame_split);
     }
 };
 
@@ -46,7 +48,7 @@ struct FrameIdHasher
 {
     uint32_t operator()(const FrameId& frameId) const
     {
-        return XXHash32::hash(&frameId.frameSplit, 1, 0) ^ XXHash32::hash(&frameId.frameNumber, 1, 0);
+        return XXHash32::hash(&frameId.frame_split, 1, 0) ^ XXHash32::hash(&frameId.frame_number, 1, 0);
     }
 };
 
@@ -55,30 +57,34 @@ class VulkanCppResourceTracker
   public:
     VulkanCppResourceTracker() {}
 
-    void AddHandleUsage(uint32_t frameNumber, uint32_t frameSplitNumber, format::HandleId ptr);
+    void AddHandleUsage(uint32_t frame_number, uint32_t frame_split_number, format::HandleId ptr);
 
-    void AddHandleUsage(uint32_t frameNumber, uint32_t frameSplitNumber, const format::HandleId* ptrs, uint32_t count);
+    void
+    AddHandleUsage(uint32_t frame_number, uint32_t frame_split_number, const format::HandleId* ptrs, uint32_t count);
 
     template <typename T>
-    void AddHandleUsage(uint32_t                frameNumber,
-                        uint32_t                frameSplitNumber,
+    void AddHandleUsage(uint32_t                frame_number,
+                        uint32_t                frame_split_number,
                         const format::HandleId* ptrs,
                         PointerDecoder<T>*      count)
     {
         if (ptrs != nullptr && count != nullptr)
         {
-            AddHandleUsage(frameNumber, frameSplitNumber, ptrs, *count->GetPointer());
+            AddHandleUsage(frame_number, frame_split_number, ptrs, *count->GetPointer());
         }
     }
 
     void CalculateGlobalVariables();
 
-    bool IsGlobalVariable(format::HandleId handleId) { return true; } // return m_globalVariableMap[handleId]; }
+    bool IsGlobalVariable(format::HandleId handleId)
+    {
+        return true;
+    } // return global_variable_map_[handleId]; } // Brainpain
 
   private:
-    // HandleId -> (FrameNumber, FrameSplit)
-    std::map<format::HandleId, std::unordered_set<FrameId, FrameIdHasher>> m_handleIdUsageMap;
-    std::map<format::HandleId, bool>                                       m_globalVariableMap;
+    // HandleId -> (frame_number, frame_split)
+    std::map<format::HandleId, std::unordered_set<FrameId, FrameIdHasher>> handle_id_usage_map_;
+    std::map<format::HandleId, bool>                                       global_variable_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

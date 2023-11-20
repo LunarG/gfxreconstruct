@@ -35,24 +35,24 @@ static const char* sLoadFunction = R"(
 void loadFunctions(VkInstance instance);
 )";
 
-VulkanCppLoaderGenerator::VulkanCppLoaderGenerator() : m_vulkanMethods() {}
+VulkanCppLoaderGenerator::VulkanCppLoaderGenerator() : vulkan_methods_() {}
 
 VulkanCppLoaderGenerator::~VulkanCppLoaderGenerator() {}
 
 void VulkanCppLoaderGenerator::AddMethodName(const std::string method_name)
 {
-    m_vulkanMethods.insert(method_name);
+    vulkan_methods_.insert(method_name);
 }
 
 void VulkanCppLoaderGenerator::WriteOutLoaderGenerator(const std::string& outDir, const GfxTocppPlatform& platform)
 {
     FILE*       pfn_src_file; // loader.cpp
     FILE*       pfn_hdr_file; // loader.h
-    std::string filenameSrc = util::filepath::Join(outDir, "loader.cpp");
-    std::string filenameHdr = util::filepath::Join(outDir, "loader.h");
-    int32_t     resultSrc   = util::platform::FileOpen(&pfn_src_file, filenameSrc.c_str(), "w");
-    uint32_t    resultHdr   = util::platform::FileOpen(&pfn_hdr_file, filenameHdr.c_str(), "w");
-    if (resultSrc == 0 && resultHdr == 0)
+    std::string filename_src = util::filepath::Join(outDir, "loader.cpp");
+    std::string filename_hdr = util::filepath::Join(outDir, "loader.h");
+    int32_t     result_src   = util::platform::FileOpen(&pfn_src_file, filename_src.c_str(), "w");
+    uint32_t    result_hdr   = util::platform::FileOpen(&pfn_hdr_file, filename_hdr.c_str(), "w");
+    if (result_src == 0 && result_hdr == 0)
     {
         fprintf(pfn_hdr_file, "%s\n", sLoaderHeader);
         switch (platform)
@@ -81,11 +81,11 @@ void VulkanCppLoaderGenerator::WriteOutLoaderGenerator(const std::string& outDir
 
         fprintf(pfn_src_file, "#include \"loader.h\"\n\n");
         fprintf(pfn_hdr_file, "%s", sLoadFunction);
-        for (const auto& vulkanMethod : m_vulkanMethods)
+        for (const auto& vulkan_method : vulkan_methods_)
         {
-            std::string loaderBody = "PFN_" + vulkanMethod + " loaded_" + vulkanMethod + ";\n";
-            fprintf(pfn_src_file, "%s", loaderBody.c_str());
-            fprintf(pfn_hdr_file, "extern %s", loaderBody.c_str());
+            std::string loader_body = "PFN_" + vulkan_method + " loaded_" + vulkan_method + ";\n";
+            fprintf(pfn_src_file, "%s", loader_body.c_str());
+            fprintf(pfn_hdr_file, "extern %s", loader_body.c_str());
         }
         WriteOutLoadFunctions(pfn_src_file);
         fprintf(pfn_hdr_file, "#endif // LOADER_H\n");
@@ -95,13 +95,13 @@ void VulkanCppLoaderGenerator::WriteOutLoaderGenerator(const std::string& outDir
 void VulkanCppLoaderGenerator::WriteOutLoadFunctions(FILE* file)
 {
     fprintf(file, "\nvoid loadFunctions(VkInstance instance) {\n");
-    for (const auto& vulkanMethod : m_vulkanMethods)
+    for (const auto& vulkan_method : vulkan_methods_)
     {
         fprintf(file,
                 "  loaded_%s = reinterpret_cast<PFN_%s>(vkGetInstanceProcAddr(instance, \"%s\"));\n",
-                vulkanMethod.c_str(),
-                vulkanMethod.c_str(),
-                vulkanMethod.c_str());
+                vulkan_method.c_str(),
+                vulkan_method.c_str(),
+                vulkan_method.c_str());
     }
     fprintf(file, "}\n");
 }
