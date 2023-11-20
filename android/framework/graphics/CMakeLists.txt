@@ -15,6 +15,7 @@ target_sources(gfxrecon_graphics
 target_include_directories(gfxrecon_graphics
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/external/nlohmann/include
+                               ${GFXRECON_SOURCE_DIR}/external
                                ${GFXRECON_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific)
