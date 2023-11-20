@@ -156,6 +156,11 @@ CPP_CONSUMER_API_POST_CALL = [
 # Disabled wrapping function call into the 'VK_CALL_CHECK' macro call
 CPP_APICALL_DO_NOT_CHECK = ['vkGetPhysicalDeviceImageFormatProperties']
 
+def makeSnakeCaseName(camelCaseString):
+    new_string = ''.join(['_' + char.lower() if char.isupper() else char for char in camelCaseString]).lstrip('_')
+    if new_string.startswith('p_'):
+        new_string = new_string.replace('p_', 'p', 1)
+    return new_string.replace('_p_', '_p')
 
 def makeGenCall(method, args, arguments=None, indent=4, **kwargs):
     """
@@ -226,9 +231,9 @@ def makeGenVar(genName, cppName, handleObjectType=None, arguments=None, indent=4
         object = 'this->'
 
     if handleObjectType is None or '_VIEW' in handleObjectType:
-        return '{}{}{} = "{}_" + std::to_string({}getNextId());\n'.format(' ' * indent, typeToUse, genName, cppName, object).format(**arguments)
+        return '{}{}{} = "{}_" + std::to_string({}GetNextId());\n'.format(' ' * indent, typeToUse, genName, cppName, object).format(**arguments)
     else:
-        return '{}{}{} = "{}_" + std::to_string({}getNextId({}));\n'.format(' ' * indent, typeToUse, genName, cppName, object, handleObjectType).format(**arguments)
+        return '{}{}{} = "{}_" + std::to_string({}GetNextId({}));\n'.format(' ' * indent, typeToUse, genName, cppName, object, handleObjectType).format(**arguments)
 
 
 def makeGenCastVar(cast_type, type_name, target_var_name, source_var_name, use_auto=False, indent=4):
@@ -456,7 +461,7 @@ def makeOutStructSet(value, arguments=None, isFirstArg=False, isLastArg=False, i
         arguments = {}
     lineEnding = '' if isLastArg else ' << std::endl'
     tabs = '\\t' if isFirstArg else '\\t\\t\\t'
-    return ((' ' * indent) + 'structBody << "%s" << %s << ","%s;\n'.format(**arguments) % (tabs, value, lineEnding)).format(**arguments)
+    return ((' ' * indent) + 'struct_body << "%s" << %s << ","%s;\n'.format(**arguments) % (tabs, value, lineEnding)).format(**arguments)
 
 
 def printOutStream(values, arguments=None, indent=4):
@@ -690,20 +695,23 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         if arg.is_optional:
             conditional_arg += f' && {arg.name}->GetPointer() != nullptr'
 
+        arrayVarName = makeSnakeCaseName(arg.name + 'Array')
+        valuesVarName = makeSnakeCaseName(arg.name + 'Values')
+
         output = [
-            makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent=indent),
+            makeGenVar(arrayVarName, arg.name, handleObjectType, locals(), indent=indent),
             makeGenCond('{conditional_arg}', [
-                    makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
-                                ['{arg.name}->GetPointer()', '{arg.name}->GetPointer() + {arg.array_length}',
-                                    '[&](const auto current) {{ return std::to_string({to_string_type}) + "{valueSuffix}"; }}',
+                    makeGenVarCall('std::string', valuesVarName, 'toStringJoin',
+                                [f'{arg.name}->GetPointer()', '{arg.name}->GetPointer() + {arg.array_length}',
+                                    f'[&](const auto current) {{{{ return std::to_string({to_string_type}) + "{valueSuffix}"; }}}}',
                                     '", "'], locals(), indent=indent+4),
-                    makeCppArray('{arrayElementType}', '{arg.name}Array', '{arg.name}Values', locals(), indent=indent + 4)
+                    makeCppArray('{arrayElementType}', arrayVarName, valuesVarName, locals(), indent=indent + 4)
                 ],
-                [makeGen('{arg.name}Array = "NULL";', locals(), indent=indent+4)],
+                [makeGen(f'{arrayVarName} = "NULL";', locals(), indent=indent+4)],
                 locals(), indent=indent),
         ]
 
-        callArg = '{arg.name}Array.c_str()'.format(arg=arg)
+        callArg = f'{arrayVarName}.c_str()'
         callTemplate = '%s'
 
         return ''.join(output), callArg, callTemplate
@@ -764,55 +772,62 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     callTempl.append('%s')
                     continue
 
-                streamName = "stream_{arg.name}".format(**locals())
+                streamName = makeSnakeCaseName(f'stream_{arg.name}')
+
                 body += makeGen('std::stringstream {streamName};', locals(), indent=4)
 
                 if arg.is_array:
+                    arrayVarName = makeSnakeCaseName(arg.name + 'Array')
+                    pairName = makeSnakeCaseName(arg.name + 'Pair')
+                    arrayElementNames = makeSnakeCaseName(arg.name + 'Names')
+
                     #body += makeGen('std::string {arg.name}Names;', locals(), indent=4)
-                    body += makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent=4)
+                    body += makeGenVar('{arrayVarName}', None, handleObjectType, locals(), indent=4)
 
                     pair_string = "pair.t1, pair.t2"
                     if arg.pointer_count > 1:
                         pair_string = "*pair.t1, *pair.t2"
 
                     # TODO: maybe only do this if there is any contents to process in the cpp:
-                    body += makeGen('PointerPairContainer<decltype({arg.name}->GetPointer()), decltype({arg.name}->GetMetaStructPointer())> {arg.name}Pair{{ {arg.name}->GetPointer(), {arg.name}->GetMetaStructPointer(), {arg.array_length} }};', locals(), indent=4)
-                    body += makeGenVarCall('std::string', '{arg.name}Names', 'toStringJoin',
-                                           ['{arg.name}Pair.begin()',
-                                            '{arg.name}Pair.end()',
-                                            '[&](auto pair) {{ return GenerateStruct_{arg.base_type}({streamName}, {pair_string}, *this); }}',
+                    body += makeGen(f'PointerPairContainer<decltype({arg.name}->GetPointer()), decltype({arg.name}->GetMetaStructPointer())> {pairName}{{{{ {arg.name}->GetPointer(), {arg.name}->GetMetaStructPointer(), {arg.array_length} }}}};', locals(), indent=4)
+                    body += makeGenVarCall('std::string', arrayElementNames, 'toStringJoin',
+                                           [f'{pairName}.begin()',
+                                            f'{pairName}.end()',
+                                            '[&](auto pair) {{{{ return GenerateStruct_{arg.base_type}({streamName}, {pair_string}, *this); }}}}',
                                             '", "'], locals(), indent=4)
 
-                    body += makeGenCond('{streamName}.str().length() > 0', [
+                    body += makeGenCond(f'{streamName}.str().length() > 0', [
                                         makeCppOutputStream(streamName, indent=8),
                                         makeGenConditions([
-                                                ['{arg.array_length} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Names;', locals(), indent=12)]],
-                                                ['{arg.array_length} > 1', [
-                                                    makeGenVar('{arg.name}Array', arg.name, None, locals(), indent=12, addType=False), # generate the CPP name
-                                                    makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Names', locals(), indent=12)]],
+                                                [f'{arg.array_length} == 1', [makeGen('{arrayVarName} = "&" + {arrayElementNames};', locals(), indent=12)]],
+                                                [f'{arg.array_length} > 1', [
+                                                    makeGenVar(arrayVarName, arg.name, None, locals(), indent=12, addType=False), # generate the CPP name
+                                                    makeCppArray(arg.base_type, arrayVarName, arrayElementNames, locals(), indent=12)]],
                                         ], locals(), indent=8)
                             ], [], locals(), indent=4)
 
-                    callArgs.append('{arg.name}Array.c_str()'.format(arg=arg))
+                    callArgs.append(f'{arrayVarName}.c_str()')
                     callTempl.append('%s')
                 else:
-                    body += makeGenVarCall('std::string', '{arg.name}Struct',
-                                           'GenerateStruct_{arg.base_type}',
-                                           ['{streamName}',
-                                            '{arg.name}->GetPointer()',
-                                            '{arg.name}->GetMetaStructPointer()',
+                    structVarName = makeSnakeCaseName(arg.name + 'Struct')
+
+                    body += makeGenVarCall('std::string', structVarName,
+                                           f'GenerateStruct_{arg.base_type}',
+                                           [streamName,
+                                            f'{arg.name}->GetPointer()',
+                                            f'{arg.name}->GetMetaStructPointer()',
                                             '*this'],
                                            locals(), indent=4)
                     body += makeCppOutputStream(streamName)
 
-                    callArgs.append('{arg.name}Struct.c_str()'.format(arg=arg))
+                    callArgs.append(f'{structVarName}.c_str()')
                     callTempl.append('&%s')
 
             elif arg.is_pointer and self.is_handle(arg.base_type) and self.is_output_parameter(arg):
                 assert values.index(arg) == (len(values) - 1), "The handle output pointer should be the last argument"
 
-                varName = '{arg.name}Name'.format(arg=arg)
-                body += makeGenVar(varName, '{arg.name}', handleObjectType, locals(), indent=4)
+                varName = makeSnakeCaseName(f'{arg.name}Name')
+                body += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=4)
                 if arg.is_array:
                     callTempl.append('%s')
                     arrayInfo = '[%d]'
@@ -836,112 +851,117 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 if returnType == 'VkResult':
                     # TODO: This also needs to consider scenarios where VK_INCOMPLETE or other non-Error codes are used
                     body += makeGenCond('returnValue == VK_SUCCESS', [
-                                makeGenCall('this->AddHandles', [varName, '{arg.name}->GetPointer(){arrayFuncDelimiter}{arrayValue}'], locals(), indent=8),
+                                makeGenCall('this->AddHandles', [varName, f'{arg.name}->GetPointer(){arrayFuncDelimiter}{arrayValue}'], locals(), indent=8),
                             ], [],
                             locals(), indent=4)
                 else:
-                    body += makeGenCall('this->AddHandles', [varName, '{arg.name}->GetPointer(){arrayFuncDelimiter}{arrayValue}'], locals(), indent=4)
+                    body += makeGenCall('this->AddHandles', [varName, f'{arg.name}->GetPointer(){arrayFuncDelimiter}{arrayValue}'], locals(), indent=4)
 
             # TODO: Create a separate function for common parts.
             elif arg.is_pointer and self.is_output_parameter(arg):
-                # TODO: do a double check on this:
-                #assert arg.base_type == 'void', 'The arg.base_type should be void'
+                varName = makeSnakeCaseName(arg.name + 'Name')
+                streamName = makeSnakeCaseName('stream_' + arg.name)
 
-                body += makeGenVar('{arg.name}Name', '{arg.name}', handleObjectType, locals(), indent=4)
+                body += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=4)
 
                 if originalBaseType in self.stype_values: # The output parameter has an sType value, generate the struct, just to be safe for now.
-                    streamName = "stream_{arg.name}".format(**locals())
-                    body += makeGen('std::stringstream {streamName};', locals(), indent=4)
+                    body += makeGen(f'std::stringstream {streamName};', locals(), indent=4)
 
-                    body += makeGenVarCall(None, '{arg.name}Name',
-                                           'GenerateStruct_{arg.base_type}',
-                                           ['{streamName}',
-                                            '{arg.name}->GetPointer()',
-                                            '{arg.name}->GetMetaStructPointer()',
+                    body += makeGenVarCall(None, varName,
+                                           f'GenerateStruct_{arg.base_type}',
+                                           [streamName,
+                                            f'{arg.name}->GetPointer()',
+                                            f'{arg.name}->GetMetaStructPointer()',
                                             '*this'],
                                            locals(), indent=4)
                     body += makeCppOutputStream(streamName)
                     callTempl.append('&%s')
-                    callArgs.append('{arg.name}Name.c_str()'.format(arg=arg))
+                    callArgs.append(f'{varName}.c_str()')
                     continue
                 if arg.is_array:
                     callTempl.append('%s')
-                    arrayValue = ', {arg.array_length}'.format(arg=arg)
+                    arrayValue = f', {arg.array_length}'
                     if arg.array_length_value.base_type == 'size_t':
                         arrayInfo = '[%" PRId64 "]'
                     else:
                         arrayInfo = '[%d]'
 
                     if arg.array_length_value.is_pointer:
+                        arrayLenVarName = makeSnakeCaseName(f'in_{arg.array_length_value.name}')
                         if arg.array_length_value.base_type != 'size_t':
-                            body += makeGen('const uint32_t* in_{arg.array_length_value.name} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
+                            body += makeGen(f'const uint32_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
                         else:
-                            body += makeGen('size_t* in_{arg.array_length_value.name} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
-                        arrayValue = ', *in_{arg.array_length_value.name}'.format(arg=arg)
+                            body += makeGen(f'size_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
+                        arrayValue = f', *{arrayLenVarName}'
                     else:
-                        arrayValue = ', {arg.array_length_value.name}'.format(arg=arg)
+                        arrayValue = f', {arg.array_length_value.name}'
 
                 else:
                     callTempl.append('&%s')
                     arrayInfo = ''
                     arrayValue = ''
 
-                callArgs.append('{arg.name}Name.c_str()'.format(arg=arg))
+                callArgs.append(f'{varName}.c_str()')
 
                 varType = 'uint8_t' if arg.base_type == 'void' else arg.base_type
                 if arg.pointer_count > 1:
                     varType += '*' * (arg.pointer_count - 1)
-                body += makeGen('fprintf(file, "\\t\\t{varType} %s{arrayInfo};\\n", {arg.name}Name.c_str(){arrayValue});', locals(), indent=4)
+                body += makeGen(f'fprintf(file, "\\t\\t{varType} %s{arrayInfo};\\n", {varName}.c_str(){arrayValue});', locals(), indent=4)
             elif self.is_handle(arg.base_type):
                 if arg.is_array:
                     # Generate an array of strings containing the handle id names
-                    strArrayName = arg.name + "Array"
+                    strArrayVarName = makeSnakeCaseName(arg.name + 'Array')
+                    strValuesVarName = makeSnakeCaseName(arg.name + 'Values')
 
-                    body += makeGenVar(strArrayName, None, handleObjectType, locals(), indent=4)
-                    body += makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
-                                           ['{arg.name}->GetPointer()',
-                                            '{arg.name}->GetPointer() + {arg.array_length}',
+                    body += makeGenVar(strArrayVarName, None, handleObjectType, locals(), indent=4)
+                    body += makeGenVarCall('std::string', strValuesVarName, 'toStringJoin',
+                                           [f'{arg.name}->GetPointer()',
+                                            f'{arg.name}->GetPointer() + {arg.array_length}',
                                             '[&](const format::HandleId current) {{ return this->GetHandle(current); }}',
                                             '", "'], locals(), indent=4)
 
                     body += makeGenConditions([
-                                ['{arg.array_length} == 1 && {arg.name}Values != "VK_NULL_HANDLE"', [makeGen('{arg.name}Array = "&" + {arg.name}Values;', locals(), indent=8)]],
+                                ['{arg.array_length} == 1 && {strValuesVarName} != "VK_NULL_HANDLE"', [makeGen('{strArrayVarName} = "&" + {strValuesVarName};', locals(), indent=8)]],
                                 ['{arg.array_length} > 1', [
-                                    makeGenVar(strArrayName, strArrayName, None, locals(), indent=8, addType=False), # generate the CPP name
-                                    makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Values', locals(), indent=8)]],
+                                    makeGenVar(strArrayVarName, strArrayVarName, None, locals(), indent=8, addType=False), # generate the CPP name
+                                    makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=8)]],
                             ], locals(), indent=4)
 
-                    callArgs.append('{0}.c_str()'.format(strArrayName))
+                    callArgs.append('{0}.c_str()'.format(strArrayVarName))
                     callTempl.append('%s')
                 else:
-                    callArgs.append('this->GetHandle({argName}).c_str()'.format(argName=arg.name))
+                    callArgs.append(f'this->GetHandle({arg.name}).c_str()')
                     callTempl.append('%s')
             elif self.is_enum(arg.base_type) or self.is_flags(arg.base_type):
                 if arg.is_array:
-                    strArrayName = arg.name + "Array"
-                    body += makeGenVar(strArrayName, None, handleObjectType, locals(), indent=4)
-                    body += makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
-                                           ['{arg.name}->GetPointer()',
-                                            '{arg.name}->GetPointer() + {arg.array_length}',
+                    strArrayVarName = makeSnakeCaseName(arg.name + 'Array')
+                    strValuesVarName = makeSnakeCaseName(arg.name + 'Values')
+
+                    body += makeGenVar(strArrayVarName, None, handleObjectType, locals(), indent=4)
+                    body += makeGenVarCall('std::string', strValuesVarName, 'toStringJoin',
+                                           [f'{arg.name}->GetPointer()',
+                                            f'{arg.name}->GetPointer() + {arg.array_length}',
                                             '[&](const format::HandleId current) {{ return this->GetHandle(current); }}',
                                             '", "'], locals(), indent=4)
                     if arg.array_length.isnumeric() or arg.array_length.isupper():
-                        body += makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Values', locals(), indent=4)
+                        body += makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=4)
                     else:
                         body += makeGenConditions([
-                                    ['{arg.array_length} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Values;', locals(), indent=8)]],
+                                    ['{arg.array_length} == 1', [makeGen('{strArrayVarName} = "&" + {strValuesVarName};', locals(), indent=8)]],
                                     ['{arg.array_length} > 1', [
-                                        makeGenVar(strArrayName, strArrayName, None, locals(), indent=8, addType=False), # generate the CPP name
-                                        makeCppArray('{arg.base_type}', '{arg.name}Array', '{arg.name}Values', locals(), indent=8)]],
+                                        makeGenVar(strArrayVarName, strArrayVarName, None, locals(), indent=8, addType=False), # generate the CPP name
+                                        makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=8)]],
                                 ], locals(), indent=4)
 
-                    callArgs.append('{0}.c_str()'.format(strArrayName))
+                    callArgs.append('{0}.c_str()'.format(strArrayVarName))
                     callTempl.append('%s')
                 else:
-                    callArgs.append('util::ToString<{argType}>({argName}).c_str()'.format(argType=arg.base_type, argName=arg.name))
+                    callArgs.append(f'util::ToString<{arg.base_type}>({arg.name}).c_str()')
                     callTempl.append('%s')
 
             elif self.is_input_pointer(arg):
+                varName = makeSnakeCaseName(f'{arg.name}Name')
+
                 # There should be only primitive types here
                 valueSuffix = valueSuffixDict.get(arg.base_type, '')
 
@@ -949,36 +969,36 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     newArray, callArg, callTemplate = self.buildInputArray(arg, valueSuffix=valueSuffix, indent=4)
                     body += newArray
                 elif arg.base_type != 'void':
-                    callArg = '{arg.name}->GetPointer()'
+                    callArg = f'{arg.name}->GetPointer()'
                     callTemplate = "%p"
                 else:
                     # encoding void* inputs is tricky at the moment, hope for the best
-                    body += makeGenVar('{arg.name}Name', '{arg.name}', handleObjectType, locals(), indent=4)
-                    body += makeGen('fprintf(file, "\\t\\tvoid* %s;\\n", {arg.name}Name.c_str());', locals(), indent=4)
+                    body += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=4)
+                    body += makeGen(f'fprintf(file, "\\t\\tvoid* %s;\\n", {varName}.c_str());', locals(), indent=4)
 
-                    callArg = '{arg.name}Name.c_str()'.format(arg=arg)
+                    callArg = f'{varName}.c_str()'
                     callTemplate = '%s'
 
                 callArgs.append(callArg)
                 callTempl.append(callTemplate)
             elif arg.is_pointer:
                 assert self.is_output_parameter(arg)
-                body += makeGenVar('{arg.name}Name', '{arg.name}', handleObjectType, locals(), indent=4)
-                body += makeGen('fprintf(file, "\\t\\t{arg.base_type} %s;\\n", {arg.name}Name.c_str());', locals(), indent=4)
+                body += makeGenVar(varName, arg.name, handleObjectType, locals(), indent=4)
+                body += makeGen(f'fprintf(file, "\\t\\t{arg.base_type} %s;\\n", {varName}.c_str());', locals(), indent=4)
 
-                callArgs.append('{arg.name}Name.c_str()'.format(arg=arg))
+                callArgs.append(f'{varName}.c_str()')
                 callTempl.append('&%s')
             else:
                 # simple input argument (float, etc..)
                 valueSuffix = valueSuffixDict.get(arg.base_type, '')
                 valueFormat = valueFormatDict[arg.base_type]
 
-                callArgs.append('{arg.name}'.format(arg=arg))
+                callArgs.append(f'{arg.name}')
                 callTempl.append(valueFormat + valueSuffix)
 
         # Build the vk* function call with arguments
         if needsToBeLoaded:
-            body += makeGen('m_pfnLoader.AddMethodName("{}");'.format(name), locals(), indent=4)
+            body += makeGen('pfn_loader_.AddMethodName("{}");'.format(name), locals(), indent=4)
             functionCall = 'loaded_{}({})'.format(name, ', '.join(callTempl))
         else:
             functionCall = '{}({})'.format(name, ', '.join(callTempl)) # vk function call

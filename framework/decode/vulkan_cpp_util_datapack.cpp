@@ -1,5 +1,7 @@
 /*
 ** Copyright (c) 2021 Samsung
+** Copyright (c) 2023 Google
+** Copyright (c) 2023 LunarG, Inc
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -28,10 +30,10 @@ void DataFilePacker::Initialize(const std::string& outDir,
                                 const std::string& suffix,
                                 uint32_t           sizeLimitInBytes)
 {
-    m_outDir           = outDir;
-    m_prefix           = prefix;
-    m_suffix           = suffix;
-    m_sizeLimitInBytes = sizeLimitInBytes;
+    out_dir_             = outDir;
+    prefix_              = prefix;
+    suffix_              = suffix;
+    size_limit_in_bytes_ = sizeLimitInBytes;
 
     NewTargetFile();
 }
@@ -40,23 +42,23 @@ const SavedFileInfo DataFilePacker::AddFileContents(const uint8_t* data, const u
 {
     uint64_t hashValue = XXHash64::hash(data, dataSize, 0);
 
-    SavedFileInfo& dataEntry = m_dataFileMap[hashValue];
+    SavedFileInfo& dataEntry = data_file_map_[hashValue];
 
-    if (dataEntry.filePath.empty())
+    if (dataEntry.file_path.empty())
     {
         /* The binary contents is not found in any previous chunk. */
-        if (m_currentDataFile.currentSize > m_sizeLimitInBytes)
+        if (current_data_file_.current_size > size_limit_in_bytes_)
         {
             /* Reached the current file size limit, create a new data chunk. */
             NewTargetFile();
         }
 
-        dataEntry.filePath   = m_currentDataFile.filePath;
-        dataEntry.byteOffset = m_currentDataFile.currentSize;
+        dataEntry.file_path   = current_data_file_.file_path;
+        dataEntry.byte_offset = current_data_file_.current_size;
 
-        WriteContentsToFile(util::filepath::Join(m_outDir, dataEntry.filePath), dataEntry.byteOffset, dataSize, data);
+        WriteContentsToFile(util::filepath::Join(out_dir_, dataEntry.file_path), dataEntry.byte_offset, dataSize, data);
 
-        m_currentDataFile.currentSize += dataSize;
+        current_data_file_.current_size += dataSize;
     }
 
     return dataEntry;
@@ -64,20 +66,20 @@ const SavedFileInfo DataFilePacker::AddFileContents(const uint8_t* data, const u
 
 void DataFilePacker::NewTargetFile(void)
 {
-    m_currentDataFile = SavedFile{ m_prefix + std::to_string(++m_dataFileCounter) + "." + m_suffix, 0 };
+    current_data_file_ = SavedFile{ prefix_ + std::to_string(++data_file_counter_) + "." + suffix_, 0 };
 }
 
-void DataFilePacker::WriteContentsToFile(const std::string& filePath,
+void DataFilePacker::WriteContentsToFile(const std::string& file_path,
                                          uint64_t           fileOffset,
                                          uint64_t           size,
                                          const uint8_t*     data)
 {
     FILE*   fp     = nullptr;
-    int32_t result = util::platform::FileOpen(&fp, filePath.c_str(), "ab");
+    int32_t result = util::platform::FileOpen(&fp, file_path.c_str(), "ab");
 
     if (result != 0)
     {
-        fprintf(stderr, "Error while opening file: %s\n", filePath.c_str());
+        fprintf(stderr, "Error while opening file: %s\n", file_path.c_str());
         return;
     }
 
@@ -86,7 +88,7 @@ void DataFilePacker::WriteContentsToFile(const std::string& filePath,
     size_t written_size = util::platform::FileWrite(data, sizeof(uint8_t), size, fp);
     if (written_size != size)
     {
-        fprintf(stderr, "Error while saving data into %s\n", filePath.c_str());
+        fprintf(stderr, "Error while saving data into %s\n", file_path.c_str());
     }
 
     util::platform::FileClose(fp);

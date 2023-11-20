@@ -1,5 +1,7 @@
 //
 // Copyright (c) 2021 Samsung
+// Copyright (c) 2023 Google
+// Copyright (c) 2023 LunarG, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,23 +25,23 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 std::string GfxToCppVariable::str() const
 {
-    std::string varString = type + " " + name;
+    std::string var_string = type + " " + name;
     if (count > 0)
     {
-        return varString + " [" + std::to_string(count) + "]";
+        return var_string + " [" + std::to_string(count) + "]";
     }
-    return varString;
+    return var_string;
 }
 
 std::vector<std::string> GfxToCppVariable::toStrVec(const std::vector<GfxToCppVariable>& variables)
 {
-    std::vector<std::string> varStrings;
-    varStrings.reserve(variables.size());
+    std::vector<std::string> var_strings;
+    var_strings.reserve(variables.size());
     std::transform(variables.begin(),
                    variables.end(),
-                   std::back_inserter(varStrings),
+                   std::back_inserter(var_strings),
                    [](const GfxToCppVariable& variable) { return variable.str(); });
-    return varStrings;
+    return var_strings;
 }
 
 void PrintToFile(FILE* file, const std::string& format, const std::vector<std::string>& data)

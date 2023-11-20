@@ -1,5 +1,7 @@
 /*
 ** Copyright (c) 2021 Samsung
+** Copyright (c) 2023 Google
+** Copyright (c) 2023 LunarG, Inc
 **
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,18 +45,18 @@ class VulkanCppPreProcessConsumerBase : public VulkanConsumer
 
     bool Initialize();
 
-    void SetMaxCommandLimit(uint32_t max) { m_max_command_limit = max; }
+    void SetMaxCommandLimit(uint32_t max) { max_command_limit_ = max; }
 
-    void AddResourceTracker(VulkanCppResourceTracker& resourceTracker) { m_resourceTracker = &resourceTracker; };
+    void AddResourceTracker(VulkanCppResourceTracker& resourceTracker) { resource_tracker_ = &resourceTracker; };
 
-    uint32_t GetCaptureWindowWidth() { return m_captureWindowWidth; }
-    uint32_t GetCaptureWindowHeight() { return m_captureWindowHeight; }
-    uint32_t GetCurrentFrameNumber() { return m_frameNumber; }
-    uint32_t GetCurrentApiCallNumber() { return m_apiCallNumber; }
+    uint32_t GetCaptureWindowWidth() { return capture_window_width_; }
+    uint32_t GetCaptureWindowHeight() { return capture_window_height_; }
+    uint32_t GetCurrentFrameNumber() { return frame_number_; }
+    uint32_t GetCurrentApiCallNumber() { return api_call_number_; }
 
     std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>>& GetMemoryImageMappings()
     {
-        return m_memoryResourceMap;
+        return memory_resource_map_;
     }
 
     void Intercept_vkCreateSwapchainKHR(VkResult                                                returnValue,
@@ -133,22 +135,22 @@ class VulkanCppPreProcessConsumerBase : public VulkanConsumer
     virtual void ProcessDisplayMessageCommand(const std::string& message) override;
 
   protected:
-    VulkanCppResourceTracker* m_resourceTracker;
-    // VkDeviceMemory -> VkImage | VkBuffer
-    std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>> m_memoryResourceMap;
-
     void     Post_APICall(format::ApiCallId callId);
-    uint32_t GetCurrentFrameSplitNumber() { return m_frameSplitNumber; }
+    uint32_t GetCurrentFrameSplitNumber() { return frame_split_number_; }
 
-    uint32_t m_max_command_limit{ 1000 };
+    VulkanCppResourceTracker* resource_tracker_;
+    uint32_t                  max_command_limit_{ 1000 };
+
+    // VkDeviceMemory -> VkImage | VkBuffer
+    std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>> memory_resource_map_;
 
   private:
-    uint32_t m_captureWindowWidth;
-    uint32_t m_captureWindowHeight;
-    uint32_t m_frameNumber;
-    uint32_t m_frameSplitNumber;
-    uint32_t m_frameApiCallNumber;
-    uint32_t m_apiCallNumber;
+    uint32_t capture_window_width_;
+    uint32_t capture_window_height_;
+    uint32_t frame_number_;
+    uint32_t frame_split_number_;
+    uint32_t frame_api_call_number_;
+    uint32_t api_call_number_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -92,6 +92,7 @@ adb install ./app/build/outputs/apk/debug/app-debug.apk
 
 ```sh
 # In the root of GFXReconstruct
+# Where 'build' in this case is the build folder used to generate the source
 ./build/tools/tocpp/gfxrecon-tocpp -t xcb -o out_xcb_capture ./capture.gfxr
 ```
 
@@ -105,9 +106,14 @@ At the end the output directory (`out_xcb_capture`) contains the generated
 ### Build the source for desktop (XCB)
 
 ```sh
-# Inside the output directory (`out_xcb_capture`)
+#cd <directory you output content to>
+cd  out_xcb_capture
+
+# Generate build contents
 cmake -H. -Bbuild
-make -C build  # recommended to specify the number of jobs with '-j <cpu_num>'. For example: make -C build -j ${nproc}
+
+# Perform the build
+cmake --build build
 ```
 
 ### Run the source for desktop (XCB)
@@ -116,3 +122,22 @@ make -C build  # recommended to specify the number of jobs with '-j <cpu_num>'. 
 # Inside the output directory (`out_xcb_capture`)
 ./build/vulkan_app
 ```
+
+## Make Conversion Easier
+
+Currently, there is no memory re-binding or swapchain improvement code in the `ToCpp` path.
+However, you can re-capture existing captures in a way that will make them easier to 
+convert to C++ code.
+
+Simply do the following:
+
+```
+python3 ./x86_64/bin/gfxrecon-capture-vulkan.py -o new_capture.gfxr -f 1-1000 \
+        --no-file-timestamp gfxrecon-replay --remove-unsupported -m rebind \
+        --wsi xcb original_capture.gfxr
+```
+
+This replays an existing capture on Linux using XCB as the WSI interface,
+rebinds the memory, and removes unsupported extensions for the current platform.
+The capture not only creates a new capture file, but this is trimming the orginal
+capture file down to only 1000 frames so that it is easier to convert.

@@ -20,7 +20,8 @@ import re
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 from vulkan_cpp_consumer_body_generator import \
-    makeGen, makeGenVar, makeGenVarCall, makeGenCond, makeGenConditions, makeGenLoop, makeObjectType, makeOutStructSet, printOutStream
+    makeSnakeCaseName, makeGen, makeGenVar, makeGenVarCall, makeGenCond, makeGenConditions, \
+    makeGenLoop, makeObjectType, makeOutStructSet, printOutStream
 
 # Copyright text prefixing all headers (list of strings).
 CPP_PREFIX_STRING = [
@@ -226,7 +227,7 @@ class VulkanCppStructGenerator(BaseGenerator):
         if struct_type in self.CUSTOM_GENERATE_STRUCT:
             return
         body = f'std::string GenerateStruct_{struct_type}(std::ostream &out, const {struct_type}* structInfo, ' \
-                        f'Decoded_{struct_type}* metainfo, VulkanCppConsumerBase &consumer)'
+                        f'Decoded_{struct_type}* metaInfo, VulkanCppConsumerBase &consumer)'
         if self.is_header:
             body += ';'
         else:
@@ -247,8 +248,8 @@ class VulkanCppStructGenerator(BaseGenerator):
         local_header.extend(header)
         local_body.extend(body)
 
-        local_header.append(makeGen('std::string pNextName = GenerateExtension(out, {struct_prefix}pNext, metainfo->pNext, consumer);', locals(), indent))
-        local_body.append(makeOutStructSet('pNextName', locals(), isFirstArg, isLastArg, indent))
+        local_header.append(makeGen(f'std::string pnext_name = GenerateExtension(out, {struct_prefix}pNext, metaInfo->pNext, consumer);', locals(), indent))
+        local_body.append(makeOutStructSet('pnext_name', locals(), isFirstArg, isLastArg, indent))
 
         return local_header, local_body
 
@@ -264,7 +265,7 @@ class VulkanCppStructGenerator(BaseGenerator):
             if arg.base_type in self.handle_names:
                 handleObjectType = makeObjectType(arg.base_type)
 
-            escapedStringArrayName = '{arg.name}Var'.format(**locals())
+            escapedStringArrayName = makeSnakeCaseName(f'{arg.name}Var'.format(**locals()))
             header_data = [
                 makeGenVar(escapedStringArrayName, None, locals(), handleObjectType, indent, useThis=False),
                 makeGenCond('{struct_prefix}{arg.array_length}',
@@ -272,12 +273,12 @@ class VulkanCppStructGenerator(BaseGenerator):
                             printOutStream(['"const char* "',
                                             escapedStringArrayName,
                                             '"[] = "',
-                                            'VulkanCppConsumerBase::escapeStringArray({struct_prefix}{arg.name}, {struct_prefix}{arg.array_length})',
+                                            f'VulkanCppConsumerBase::EscapeStringArray({struct_prefix}{arg.name}, {struct_prefix}{arg.array_length})',
                                             '";"'], locals(), indent)], [], locals(), indent)]
             local_header.append(''.join(header_data))
             local_body.append(makeOutStructSet(escapedStringArrayName, locals(), isFirstArg, isLastArg, indent))
         else:
-            local_body.append(makeOutStructSet('VulkanCppConsumerBase::toEscape({struct_prefix}{arg.name})', locals(), isFirstArg, isLastArg, indent))
+            local_body.append(makeOutStructSet('VulkanCppConsumerBase::ToEscape({struct_prefix}{arg.name})', locals(), isFirstArg, isLastArg, indent))
         return local_header, local_body
 
     def handleBasicPointer(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
@@ -298,15 +299,17 @@ class VulkanCppStructGenerator(BaseGenerator):
         if arg.base_type in self.handle_names:
             handleObjectType = makeObjectType(arg.base_type)
 
+        variable_name = makeSnakeCaseName(arg.name + 'Array')
+
         this_header = [
-            makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False),
-            makeGenCond('{struct_prefix}{arg.name} != NULL', [
-                makeGenVar('{arg.name}Array', '{arg.name}', handleObjectType, locals(), indent + 4, addType=False, useThis=False),
-                printOutStream(['"{arg.base_type} "', '{arg.name}Array << "[] = "',
-                                'VulkanCppConsumerBase::BuildValue({struct_prefix}{arg.name}, {lengths[0]})',
+            makeGenVar(variable_name, None, handleObjectType, locals(), indent, useThis=False),
+            makeGenCond(f'{struct_prefix}{arg.name} != NULL', [
+                makeGenVar(variable_name, arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False),
+                printOutStream([f'"{arg.base_type} "', '{variable_name} << "[] = "',
+                                f'VulkanCppConsumerBase::BuildValue({struct_prefix}{arg.name}, {lengths[0]})',
                                 '";"'], locals(), indent + 4)], [], locals(), indent)]
         local_header.extend(this_header)
-        local_body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
+        local_body.append(makeOutStructSet(variable_name, locals(), isFirstArg, isLastArg, indent))
         return local_header, local_body
 
     def handleLargeUint(self, struct_prefix, arg, num_lengths, lengths, indent, header, body, isFirstArg, isLastArg):
@@ -316,28 +319,29 @@ class VulkanCppStructGenerator(BaseGenerator):
         local_body.extend(body)
 
         if arg.is_array:
-            strArrayName = '{arg.name}Array'.format(**locals())
+            strArrayName = makeSnakeCaseName(f'{arg.name}Array'.format(**locals()))
+            strArrayValuesName = makeSnakeCaseName(f'{arg.name}Values'.format(**locals()))
 
             handleObjectType = None
             if arg.base_type in self.handle_names:
                 handleObjectType = makeObjectType(arg.base_type)
 
-            local_header.append(makeGenVar('{strArrayName}', '{strArrayName}', handleObjectType, locals(), indent, addType=True, useThis=False)),
+            local_header.append(makeGenVar(strArrayName, strArrayName, handleObjectType, locals(), indent, addType=True, useThis=False)),
             local_header.append(makeGenCond('{lengths[0]} > 0', [
-                makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
-                                ['{struct_prefix}{arg.name}',
-                                '{struct_prefix}{arg.name} + {lengths[0]}',
-                                '[]({arg.base_type} current) {{ return std::to_string(current); }}',
+                makeGenVarCall('std::string', strArrayValuesName, 'toStringJoin',
+                                [f'{struct_prefix}{arg.name}',
+                                f'{struct_prefix}{arg.name} + {lengths[0]}',
+                                f'[]({arg.base_type} current) {{{{ return std::to_string(current); }}}}',
                                 '", "'], locals(), indent + 4),
                 makeGenConditions([
-                    ['{lengths[0]} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Values;', locals(), indent + 8)]],
-                    ['{lengths[0]} > 1', [printOutStream(['"{arg.base_type} "', '{arg.name}Array', '"[] = {{"', '{arg.name}Values', '"}};"'], locals(), indent + 8)]],
+                    ['{lengths[0]} == 1', [makeGen(f'{strArrayName} = "&" + {strArrayValuesName};', locals(), indent + 8)]],
+                    ['{lengths[0]} > 1', [printOutStream([f'"{arg.base_type} "', strArrayName, '"[] = {{"', strArrayValuesName, '"}};"'], locals(), indent + 8)]],
                     # No need for else case
                 ], locals(), indent + 4),
             ], [], locals(), indent))
-            local_body.append(makeOutStructSet('"{{ *" << {arg.name}Array << " }}"', locals(), isFirstArg, isLastArg, indent))
+            local_body.append(makeOutStructSet(f'"{{{{ *" << {strArrayName} << " }}}}"', locals(), isFirstArg, isLastArg, indent))
         else:
-            local_body.append(makeOutStructSet('{struct_prefix}{arg.name} << "UL"', locals(), isFirstArg, isLastArg, indent))
+            local_body.append(makeOutStructSet(f'{struct_prefix}{arg.name} << "UL"', locals(), isFirstArg, isLastArg, indent))
 
         return local_header, local_body
 
@@ -350,31 +354,30 @@ class VulkanCppStructGenerator(BaseGenerator):
         if arg.is_pointer:
             # TODO: Possibly an array of enum/flag values?
             if num_lengths > 0:
-                # VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-                # submitInfo.pWaitDstStageMask = waitStages;
-                arrayName = '{arg.name}Array'.format(arg=arg)
+                strArrayName = makeSnakeCaseName(f'{arg.name}Array'.format(**locals()))
+                strArrayValuesName = makeSnakeCaseName(f'{arg.name}Values'.format(**locals()))
 
                 handleObjectType = None
                 if arg.base_type in self.handle_names:
                     handleObjectType = makeObjectType(arg.base_type)
 
                 argHandler = [
-                    makeGen('std::string {arg.name}Values;', locals(), indent),
-                    makeGenVar(arrayName, None, handleObjectType, locals(), indent, useThis=False),
-                    makeGenCond('{struct_prefix}{arg.name} != NULL', [
+                    makeGen(f'std::string {strArrayValuesName};', locals(), indent),
+                    makeGenVar(strArrayName, None, handleObjectType, locals(), indent, useThis=False),
+                    makeGenCond(f'{struct_prefix}{arg.name} != NULL', [
                         makeGenLoop('idx', '{lengths[0]}', [
-                            makeGen('{arg.name}Values += util::ToString<{arg.base_type}>({struct_prefix}{arg.name}[idx]) + ", ";', locals(), indent + 8),
+                            makeGen(f'{strArrayValuesName} += util::ToString<{arg.base_type}>({struct_prefix}{arg.name}[idx]) + ", ";', locals(), indent + 8),
                         ], locals(), indent + 4),
-                        makeGenVar(arrayName, '{arg.name}', handleObjectType, locals(), indent + 4, addType=False, useThis=False),
-                        printOutStream(['"{arg.base_type} "', arrayName, '"[] = {{"', '{arg.name}Values', '"}};"'], locals(), indent + 4)
+                        makeGenVar(strArrayName, arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False),
+                        printOutStream([f'"{arg.base_type} "', strArrayName, '"[] = {{"', strArrayValuesName, '"}};"'], locals(), indent + 4)
                     ], [], locals(), indent),
                 ]
                 local_header.append(''.join(argHandler))
-                local_body.append(makeOutStructSet(arrayName, locals(), isFirstArg, isLastArg, indent))
+                local_body.append(makeOutStructSet(strArrayName, locals(), isFirstArg, isLastArg, indent))
             else:
                 local_body.append(self.generateTodoFor(arg.name + '(Enum/flag pointer)', indent))
         else:
-            local_body.append(makeOutStructSet('"{arg.base_type}(" << {struct_prefix}{arg.name} << ")"', locals(), isFirstArg, isLastArg, indent))
+            local_body.append(makeOutStructSet(f'"{arg.base_type}(" << {struct_prefix}{arg.name} << ")"', locals(), isFirstArg, isLastArg, indent))
 
         return local_header, local_body
 
@@ -387,30 +390,31 @@ class VulkanCppStructGenerator(BaseGenerator):
 
         if arg.is_array:
             # Generate an array of strings containing the handle id names
-            strArrayName = arg.name + "Array"
+            strArrayName = makeSnakeCaseName(arg.name + "Array")
+            strArrayValuesName = makeSnakeCaseName(arg.name + "Values")
 
             handleObjectType = None
             if arg.base_type in self.handle_names:
                 handleObjectType = makeObjectType(arg.base_type)
 
-            local_header.append(makeGenVar('{strArrayName}', None, handleObjectType, locals(), indent, useThis=False))
-            local_header.append(makeGenCond('metainfo->{arg.name}.GetPointer() != NULL && {lengths[0]} > 0', [
-                makeGenVar('{strArrayName}', '{strArrayName}', handleObjectType, locals(), indent + 4, addType=False, useThis=False),
-                makeGenVarCall('std::string', '{arg.name}Values', 'toStringJoin',
-                                ['metainfo->{arg.name}.GetPointer()',
-                                'metainfo->{arg.name}.GetPointer() + {lengths[0]}',
+            local_header.append(makeGenVar(strArrayName, None, handleObjectType, locals(), indent, useThis=False))
+            local_header.append(makeGenCond(f'metaInfo->{arg.name}.GetPointer() != NULL && {lengths[0]} > 0', [
+                makeGenVar(strArrayName, strArrayName, handleObjectType, locals(), indent + 4, addType=False, useThis=False),
+                makeGenVarCall('std::string', strArrayValuesName, 'toStringJoin',
+                                [f'metaInfo->{arg.name}.GetPointer()',
+                                f'metaInfo->{arg.name}.GetPointer() + {lengths[0]}',
                                 '[&](const format::HandleId current) {{ return consumer.GetHandle(current); }}',
                                 '", "'], locals(), indent + 4),
                 makeGenConditions([
-                    ['{lengths[0]} == 1', [makeGen('{arg.name}Array = "&" + {arg.name}Values;', locals(), indent + 8)]],
-                    ['{lengths[0]} > 1', [printOutStream(['"{arg.base_type} "', '{arg.name}Array', '"[] = {{"', '{arg.name}Values', '"}};"'], locals(), indent + 8)]],
+                    ['{lengths[0]} == 1', [makeGen(f'{strArrayName} = "&" + {strArrayValuesName};', locals(), indent + 8)]],
+                    ['{lengths[0]} > 1', [printOutStream([f'"{arg.base_type} "', strArrayName, '"[] = {{"', strArrayValuesName, '"}};"'], locals(), indent + 8)]],
                     # No need for else case
                 ], locals(), indent + 4),
             ], [], locals(), indent))
 
-            local_body.append(makeOutStructSet('{strArrayName}', locals(), isFirstArg, isLastArg, indent))
+            local_body.append(makeOutStructSet(strArrayName, locals(), isFirstArg, isLastArg, indent))
         else:
-            local_body.append(makeOutStructSet('consumer.GetHandle(metainfo->{arg.name})', locals(), isFirstArg, isLastArg, indent))
+            local_body.append(makeOutStructSet(f'consumer.GetHandle(metaInfo->{arg.name})', locals(), isFirstArg, isLastArg, indent))
 
         return local_header, local_body
 
@@ -433,7 +437,10 @@ class VulkanCppStructGenerator(BaseGenerator):
             handleObjectType = makeObjectType(arg.base_type)
 
         if num_lengths > 0:
-            structBuild += makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False)
+            strArrayName = makeSnakeCaseName(arg.name + "Array")
+            strArrayValuesName = makeSnakeCaseName(arg.name + "Values")
+
+            structBuild += makeGenVar(strArrayName, None, handleObjectType, locals(), indent, useThis=False)
             space = (' ' * indent)
             
             # If pointer and not just static array
@@ -442,7 +449,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                 indent += 4
                 space = (' ' * indent)
 
-            structBuild += makeGen('std::string {arg.name}Values;', locals(), indent)
+            structBuild += makeGen('std::string {strArrayValuesName};', locals(), indent)
 
             var_suffix = ''
             for count, cur_length in enumerate(lengths):
@@ -452,22 +459,22 @@ class VulkanCppStructGenerator(BaseGenerator):
                 indent = indent + 4
                 if count < num_lengths - 1:
                     space = (' ' * indent)
-                    structBuild += f'{space}{arg.name}Values += "{{ ";\n'
+                    structBuild += f'{space}{strArrayValuesName} += "{{ ";\n'
 
             cur_arg_value = f'{type_cast_prefix}{struct_prefix}{arg.name}{type_cast_suffix}{var_suffix}'
-            structBuild += makeGen('{arg.name}Values += std::to_string({cur_arg_value}) + ", ";', locals(), indent)
+            structBuild += makeGen(f'{strArrayValuesName} += std::to_string({cur_arg_value}) + ", ";', locals(), indent)
 
             for count, cur_length in enumerate(lengths):
                 if count < num_lengths - 1:
                     space = (' ' * indent)
-                    structBuild += f'{space}{arg.name}Values += " }},";\n'
+                    structBuild += f'{space}{strArrayValuesName} += " }},";\n'
 
                 indent = indent - 4
                 space = (' ' * indent)
                 structBuild += f'{space}}}\n'
 
-            structBuild += makeGenVar('{arg.name}Array', '{arg.name}', handleObjectType, locals(), indent, addType=False, useThis=False)
-            structBuild += printOutStream(['"{arg.base_type} "', '{arg.name}Array', '"[] = {{"', '{arg.name}Values', '"}};"'], locals(), indent)
+            structBuild += makeGenVar(strArrayName, arg.name, handleObjectType, locals(), indent, addType=False, useThis=False)
+            structBuild += printOutStream([f'"{arg.base_type} "', strArrayName, '"[] = {{"', strArrayValuesName, '"}};"'], locals(), indent)
 
             if not self.isStaticArray(lengths[0]):
                 indent = indent - 4
@@ -475,7 +482,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                 structBuild += f'{space}}}\n'
 
             local_header.append(''.join(structBuild))
-            local_body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
+            local_body.append(makeOutStructSet(strArrayName, locals(), isFirstArg, isLastArg, indent))
 
         else:
             local_body.append(self.generateTodoFor(arg.name + '(input pointer)', indent))
@@ -508,54 +515,61 @@ class VulkanCppStructGenerator(BaseGenerator):
                 else:
                     struct_param = f'{struct_prefix}{arg.name}'
 
-                local_body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({struct_param}, {lengths[0]})', locals(), isFirstArg, isLastArg, indent))
+                local_body.append(makeOutStructSet(f'VulkanCppConsumerBase::BuildValue({struct_param}, {lengths[0]})', locals(), isFirstArg, isLastArg, indent))
             else: # arg.array_length_value
                 if self.is_struct(arg.base_type):
                     innerIndent = indent + 4 if not arg.array_capacity else 4
 
+                    varName = makeSnakeCaseName(arg.name + "Names")
+                    arrayVarName = makeSnakeCaseName(arg.name + "Array")
+                    valuesVarName = makeSnakeCaseName(arg.name + "Values")
+
                     arrayBuilder = [
-                        makeGen('std::string {arg.name}Names;', locals(), indent=innerIndent),
-                        makeGenLoop('idx', '{lengths[0]}', [
-                            makeGen('std::string varName = "NULL";', indent=innerIndent + 4),
-                            makeGenCond('{struct_prefix}{arg.name} + idx != NULL', [
+                        makeGen(f'std::string {varName};', locals(), indent=innerIndent),
+                        makeGenLoop('idx', f'{lengths[0]}', [
+                            makeGen('std::string variable_name = "NULL";', indent=innerIndent + 4),
+                            makeGenCond(f'{struct_prefix}{arg.name} + idx != NULL', [
                                 makeGenVarCall(None,
-                                                'varName',
-                                                'GenerateStruct_{arg.base_type}',
+                                                'variable_name',
+                                                f'GenerateStruct_{arg.base_type}',
                                                 ['out',
-                                                '{struct_prefix}{arg.name} + idx',
-                                                'metainfo->{arg.name}->GetMetaStructPointer() + idx',
+                                                f'{struct_prefix}{arg.name} + idx',
+                                                f'metaInfo->{arg.name}->GetMetaStructPointer() + idx',
                                                 'consumer'],
                                                 locals(), indent=innerIndent + 8)
                             ], [], locals(), indent=innerIndent + 4),
-                            makeGen('{arg.name}Names += varName + ", ";', locals(), indent=innerIndent + 4),
+                            makeGen('{varName} += variable_name + ", ";', locals(), indent=innerIndent + 4),
                         ], locals(), indent=innerIndent),
-                        printOutStream(['"{arg.base_type} "', '{arg.name}Array', '"[] = {{"', '{arg.name}Names', '"}};"'],
+                        printOutStream([f'"{arg.base_type} "', arrayVarName, '"[] = {{"', varName, '"}};"'],
                                         locals(), indent=innerIndent)
                     ]
 
                     if arg.array_capacity:
-                        local_body.append('    structBody << "\\t\\t\\t{}," << std::endl;\n')
+                        local_body.append('\tstruct_body << "\\t\\t\\t{}," << std::endl;\n')
                     else:
-                        arrayName = makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False)
-                        arrayNameSet = makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False)
-                        arrayProcess = makeGenCond('{struct_prefix}{arg.name} != NULL', [arrayNameSet] + arrayBuilder, [], locals(), indent)
+                        arrayName = makeGenVar(arrayVarName, None, handleObjectType, locals(), indent, useThis=False)
+                        arrayNameSet = makeGenVar(arrayVarName, arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False)
+                        arrayProcess = makeGenCond(f'{struct_prefix}{arg.name} != NULL', [arrayNameSet] + arrayBuilder, [], locals(), indent)
 
                         local_header.append(arrayName + arrayProcess)
-                        local_body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
+                        local_body.append(makeOutStructSet(arrayVarName, locals(), isFirstArg, isLastArg, indent))
                 elif self.is_enum(arg.base_type) or self.is_flags(arg.base_type):
+                    arrayVarName = makeSnakeCaseName(arg.name + "Array")
+                    valuesVarName = makeSnakeCaseName(arg.name + "Values")
+
                     argHandler = [
-                        makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False),
-                        makeGenCond('{struct_prefix}{arg.name} != NULL', [
-                            makeGen('std::string {arg.name}Values;', locals(), indent + 4),
+                        makeGenVar(arrayVarName, None, handleObjectType, locals(), indent, useThis=False),
+                        makeGenCond(f'{struct_prefix}{arg.name} != NULL', [
+                            makeGen(f'std::string {valuesVarName};', locals(), indent + 4),
                             makeGenLoop('idx', '{lengths[0]}', [
-                                makeGen('{arg.name}Values += util::ToString<{arg.base_type}>({struct_prefix}{arg.name}[idx]) + ", ";', locals(), indent + 8),
+                                makeGen(f'{valuesVarName} += util::ToString<{arg.base_type}>({struct_prefix}{arg.name}[idx]) + ", ";', locals(), indent + 8),
                             ], locals(), indent + 4),
-                            makeGenVar('{arg.name}Array', '{arg.name}', handleObjectType, locals(), indent + 4, addType=False, useThis=False),
-                            printOutStream(['"{arg.base_type} "', '{arg.name}Array', '"[] = {{"', '{arg.name}Values', '"}};"'], locals(), indent + 4)
+                            makeGenVar(arrayVarName, '{arg.name}', handleObjectType, locals(), indent + 4, addType=False, useThis=False),
+                            printOutStream([f'"{arg.base_type} "', arrayVarName, '"[] = {{"', valuesVarName, '"}};"'], locals(), indent + 4)
                         ], [], locals(), indent),
                     ]
                     local_header.append(''.join(argHandler))
-                    local_body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
+                    local_body.append(makeOutStructSet(arrayVarName, locals(), isFirstArg, isLastArg, indent))
                 else:
                     local_body.append(self.generateTodoFor(arg.name + " (output with array length value?)", indent))
 
@@ -569,14 +583,14 @@ class VulkanCppStructGenerator(BaseGenerator):
         indent = 4
         body = []
         header = []
-        header.append(makeGen('std::stringstream structBody;', locals(), indent))
+        header.append(makeGen('std::stringstream struct_body;', locals(), indent))
         struct_prefix = 'structInfo->'
 
         if structName in self.overrideStructs:
-            body.append(makeGenVar('varname', 'override', None, locals(), indent, useThis=False))
-            body.append(printOutStream(['"{structName} "', 'varname', '" {{}};"'], locals(), indent))
-            body.append(printOutStream(['"Override{structName}(&"', 'varname', '", "', '"appdata"', '");"'], locals(), indent))
-            body.append(makeGen('return varname;', locals(), indent))
+            body.append(makeGenVar('variable_name', 'override', None, locals(), indent, useThis=False))
+            body.append(printOutStream(['"{structName} "', 'variable_name', '" {{}};"'], locals(), indent))
+            body.append(printOutStream(['"Override{structName}(&"', 'variable_name', '", "', '"appdata"', '");"'], locals(), indent))
+            body.append(makeGen('return variable_name;', locals(), indent))
             return body
 
         for arg in structMembers:
@@ -642,55 +656,61 @@ class VulkanCppStructGenerator(BaseGenerator):
                         first_member = union_members[0]
 
                         if first_member.base_type in BasicStringConversionHandledTypes:
-                            body.append(makeOutStructSet('{arg_name}.{first_member.name}', locals(), isFirstArg, isLastArg, indent))
+                            body.append(makeOutStructSet(f'{arg_name}.{first_member.name}', locals(), isFirstArg, isLastArg, indent))
                         elif self.is_struct(first_member.base_type):
+                            varName = makeSnakeCaseName(first_member.name + "InfoVar")
 
                             argHandler = [
                                 makeGenVarCall('std::string',
-                                                '{first_member.name}InfoVar',
-                                                'GenerateStruct_{first_member.base_type}',
+                                                varName,
+                                                f'GenerateStruct_{first_member.base_type}',
                                                 ['out',
-                                                '&{arg_name}.{first_member.name}',
-                                                'metainfo->{arg.name}->{first_member.name}',
+                                                f'&{arg_name}.{first_member.name}',
+                                                f'metaInfo->{arg.name}->{first_member.name}',
                                                 'consumer'],
                                                 locals(), indent),
                             ]
                             header.append(''.join(argHandler))
 
-                            body.append(makeOutStructSet('{first_member.name}InfoVar', locals(), isFirstArg, isLastArg, indent))
+                            body.append(makeOutStructSet(varName, locals(), isFirstArg, isLastArg, indent))
                         else:
                             body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name}.{first_member.name})', locals(), isFirstArg, isLastArg, indent))
                     else:
                         body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isFirstArg, isLastArg, indent))
                 else:
                     #if arg.base_type in ['VkClearColorValue', 'VkComponentMapping', 'VkOffset2D', 'VkExtent2D']:
-                    body.append(makeGenVar('tmp{arg.name}', '{arg.name}', handleObjectType, locals(), indent, useThis=False))
+                    body.append(makeGenVar(f'tmp{arg.name}', arg.name, handleObjectType, locals(), indent, useThis=False))
                     body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isFirstArg, isLastArg, indent + 4))
             elif self.is_struct(arg.base_type) and arg.base_type not in self.LOCAL_STRUCT_BLACKLIST:
                 if not arg.is_pointer:
+                    varName = makeSnakeCaseName(arg.name + "InfoVar")
                     argHandler = [
                         makeGenVarCall('std::string',
-                                        '{arg.name}InfoVar',
-                                        'GenerateStruct_{arg.base_type}',
+                                        varName,
+                                        f'GenerateStruct_{arg.base_type}',
                                         ['out',
-                                        '&{arg_name}',
-                                        'metainfo->{arg.name}',
+                                        f'&{arg_name}',
+                                        f'metaInfo->{arg.name}',
                                         'consumer'],
                                         locals(), indent),
                     ]
                     header.append(''.join(argHandler))
 
-                    body.append(makeOutStructSet('{arg.name}InfoVar', locals(), isFirstArg, isLastArg, indent))
+                    body.append(makeOutStructSet(varName, locals(), isFirstArg, isLastArg, indent))
                 else:
                     if num_lengths > 0:
+                        arrayVarName = makeSnakeCaseName(arg.name + "Array")
+                        namesVarName = makeSnakeCaseName(arg.name + "Names")
+
                         if num_lengths > 1:
+
                             indent = 4
-                            structBuild = makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False)
+                            structBuild = makeGenVar(arrayVarName, None, handleObjectType, locals(), indent, useThis=False)
                             space = (' ' * indent)
                             structBuild += f'{space}if ({arg_name} != NULL) {{\n'
                             indent = 8
-                            structBuild += makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent, addType=False, useThis=False)
-                            structBuild += makeGen('std::string {arg.name}Names;', locals(), indent)
+                            structBuild += makeGenVar(arrayVarName, arg.name, handleObjectType, locals(), indent, addType=False, useThis=False)
+                            structBuild += makeGen(f'std::string {namesVarName};', locals(), indent)
 
                             member_prefix = '&('
                             member_suffix = ')'
@@ -707,7 +727,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                                 var_suffix = var_suffix + f'[idx{count}]'
                                 indent = indent + 4
 
-                            structBuild += makeGen('std::string varName = "NULL";', locals(), indent)
+                            structBuild += makeGen('std::string variable_name = "NULL";', locals(), indent)
                             space = (' ' * indent)
                             
                             if still_is_pointer:
@@ -715,13 +735,13 @@ class VulkanCppStructGenerator(BaseGenerator):
                                 indent = indent + 4
 
                             structBuild += makeGenVarCall(None,
-                                                    'varName',
-                                                    'GenerateStruct_{arg.base_type}',
+                                                    'variable_name',
+                                                    f'GenerateStruct_{arg.base_type}',
                                                     ['out',
-                                                        '{member_prefix}{arg_name}{var_suffix}{member_suffix}',
-                                                        '{member_prefix}metainfo->{arg.name}->GetMetaStructPointer(){var_suffix}{member_suffix}',
+                                                        f'{member_prefix}{arg_name}{var_suffix}{member_suffix}',
+                                                        f'{member_prefix}metaInfo->{arg.name}->GetMetaStructPointer(){var_suffix}{member_suffix}',
                                                         'consumer'], locals(), indent)
-                            structBuild += makeGen('{arg.name}Names += varName + ", ";', locals(), indent)
+                            structBuild += makeGen(f'{namesVarName} += variable_name + ", ";', locals(), indent)
 
                             if still_is_pointer:
                                 indent = indent - 4
@@ -738,48 +758,50 @@ class VulkanCppStructGenerator(BaseGenerator):
                             structBuild += f'{space}}}\n'
                         else:
                             structBuild = [
-                                makeGenVar('{arg.name}Array', None, handleObjectType, locals(), indent, useThis=False),
-                                makeGenCond('{arg_name} != NULL', [
-                                    makeGenVar('{arg.name}Array', arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False),
-                                    makeGen('std::string {arg.name}Names;', locals(), indent + 4),
-                                    makeGenLoop('idx', '{lengths[0]}', [
-                                        makeGen('std::string varName = "NULL";', locals(), indent + 8),
-                                        makeGenCond('{arg_name} + idx != NULL', [
+                                makeGenVar(arrayVarName, None, handleObjectType, locals(), indent, useThis=False),
+                                makeGenCond(f'{arg_name} != NULL', [
+                                    makeGenVar(arrayVarName, arg.name, handleObjectType, locals(), indent + 4, addType=False, useThis=False),
+                                    makeGen(f'std::string {namesVarName};', locals(), indent + 4),
+                                    makeGenLoop('idx', f'{lengths[0]}', [
+                                        makeGen('std::string variable_name = "NULL";', locals(), indent + 8),
+                                        makeGenCond(f'{arg_name} + idx != NULL', [
                                             makeGenVarCall(None,
-                                                        'varName',
-                                                        'GenerateStruct_{arg.base_type}',
+                                                        'variable_name',
+                                                        f'GenerateStruct_{arg.base_type}',
                                                         ['out',
-                                                            '{arg_name} + idx',
-                                                            'metainfo->{arg.name}->GetMetaStructPointer() + idx',
+                                                            f'{arg_name} + idx',
+                                                            f'metaInfo->{arg.name}->GetMetaStructPointer() + idx',
                                                             'consumer'],
                                                         locals(), indent + 12),
                                         ], [], locals(), indent + 8),
-                                        makeGen('{arg.name}Names += varName + ", ";', locals(), indent + 8),
+                                        makeGen(f'{namesVarName} += variable_name + ", ";', locals(), indent + 8),
                                     ], locals(), indent + 4),
-                                    printOutStream(['"{arg.base_type} "', '{arg.name}Array', '"[] = {{"', '{arg.name}Names', '"}};"'], locals(), indent + 4),
+                                    printOutStream([f'"{arg.base_type} "', arrayVarName, '"[] = {{"', namesVarName, '"}};"'], locals(), indent + 4),
                                 ], [], locals(), indent)
                             ]
                         header.append(''.join(structBuild))
-                        body.append(makeOutStructSet('{arg.name}Array', locals(), isFirstArg, isLastArg, indent))
+                        body.append(makeOutStructSet(arrayVarName, locals(), isFirstArg, isLastArg, indent))
                     else:
-                        prefixVar = "prefix_{arg.name}".format(**locals())
+                        varName = makeSnakeCaseName(arg.name + "Struct")
+
+                        prefixVar = f'prefix_{arg.name}'
                         # Make sure if the sub struct pointer during capture processing does contain data and it is not a NULL value.
                         structBuild = [
-                            makeGenVar('{arg.name}Struct', None, handleObjectType, locals(), indent, useThis=False),
+                            makeGenVar(varName, None, handleObjectType, locals(), indent, useThis=False),
                             makeGenCond('{arg_name} != NULL', [
                                 makeGenVarCall(None,
-                                               '{arg.name}Struct',
-                                               'GenerateStruct_{arg.base_type}',
+                                               varName,
+                                               f'GenerateStruct_{arg.base_type}',
                                                ['out',
-                                                '{arg_name}',
-                                                'metainfo->{arg.name}->GetMetaStructPointer()',
+                                                f'{arg_name}',
+                                                f'metaInfo->{arg.name}->GetMetaStructPointer()',
                                                 'consumer'],
                                                locals(), indent + 4),
-                                makeGen('{arg.name}Struct.insert(0, "&");', locals(), indent + 4),
+                                makeGen('{varName}.insert(0, "&");', locals(), indent + 4),
                             ], [], locals(), indent),
                         ]
                         header.append(''.join(structBuild))
-                        body.append(makeOutStructSet('{arg.name}Struct', locals(), isFirstArg, isLastArg, indent))
+                        body.append(makeOutStructSet(varName, locals(), isFirstArg, isLastArg, indent))
                 # TODO:
                 # structArguments = []
                 # for subArg in self.feature_struct_members[arg.base_type]:
@@ -799,7 +821,7 @@ class VulkanCppStructGenerator(BaseGenerator):
                 struct_arg = arg_name
                 if 'int8_t' in arg.base_type:
                     struct_arg = f'std::to_string({arg_name})'
-                body.append(makeOutStructSet('{struct_arg}', locals(), isFirstArg, isLastArg, indent))
+                body.append(makeOutStructSet(struct_arg, locals(), isFirstArg, isLastArg, indent))
 
         if structName in self.feature_struct_aliases:
             structName = self.feature_struct_aliases[structName]
@@ -809,11 +831,11 @@ class VulkanCppStructGenerator(BaseGenerator):
         # If we already have a variable we're going to overwrite, just set the variable = to the new values.
         # Otherwise, we need to define a new variable
         if structName in self.trackedStructs:
-            var_list.append('varname')
+            var_list.append('variable_name')
             var_list.append('" = {{"')
         else:
             var_list.append(f'"{structName} "')
-            var_list.append('varname')
+            var_list.append('variable_name')
             var_list.append('" {{"')
 
         # convert name: Vk<StructName> => <structName>
@@ -825,11 +847,11 @@ class VulkanCppStructGenerator(BaseGenerator):
         structVarName = structVarName[0].lower() + structVarName[1:]
 
         # insert the header up front (where all the variables are defined)
-        body.append(makeGen('std::string varname = consumer.AddStruct(structBody, "{structVarName}");', locals(), indent))
+        body.append(makeGen(f'std::string variable_name = consumer.AddStruct(struct_body, "{structVarName}");', locals(), indent))
         body.append(printOutStream(var_list, locals(), indent))
-        body.append(printOutStream(['structBody.str()'], locals(), indent))
+        body.append(printOutStream(['struct_body.str()'], locals(), indent))
         body.append(printOutStream(['"}};"'], locals(), indent))
-        body.append(makeGen('return varname;', locals(), indent))
+        body.append(makeGen('return variable_name;', locals(), indent))
 
         func = []
         func.extend(header)

@@ -1,5 +1,7 @@
 /*
 ** Copyright (c) 2021 Samsung
+** Copyright (c) 2023 Google
+** Copyright (c) 2023 LunarG, Inc
 **
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,33 +23,33 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanCppResourceTracker::AddHandleUsage(const uint32_t   frameNumber,
-                                              uint32_t         m_frameSplitNumber,
+void VulkanCppResourceTracker::AddHandleUsage(const uint32_t   frame_number,
+                                              uint32_t         frame_split_number,
                                               format::HandleId ptr)
 {
-    m_handleIdUsageMap[ptr].insert(FrameId{ frameNumber, m_frameSplitNumber });
+    handle_id_usage_map_[ptr].insert(FrameId{ frame_number, frame_split_number });
 }
 
-void VulkanCppResourceTracker::AddHandleUsage(uint32_t                frameNumber,
-                                              uint32_t                frameSplitNumber,
+void VulkanCppResourceTracker::AddHandleUsage(uint32_t                frame_number,
+                                              uint32_t                frame_split_number,
                                               const format::HandleId* ptrs,
                                               uint32_t                count)
 {
     for (uint32_t idx = 0; idx < count; idx++)
     {
-        m_handleIdUsageMap[ptrs[idx]].insert(FrameId{ frameNumber, frameSplitNumber });
+        handle_id_usage_map_[ptrs[idx]].insert(FrameId{ frame_number, frame_split_number });
     }
 }
 
 void VulkanCppResourceTracker::CalculateGlobalVariables()
 {
-    for (const auto& handleIdUsage : m_handleIdUsageMap)
+    for (const auto& handle_id_usage : handle_id_usage_map_)
     {
         // If the resource is used in more than a single frame then it's global
-        uint32_t size     = handleIdUsage.second.size();
-        bool     isGlobal = size > 1;
+        uint32_t size      = handle_id_usage.second.size();
+        bool     is_global = size > 1;
 
-        m_globalVariableMap[handleIdUsage.first] = isGlobal;
+        global_variable_map_[handle_id_usage.first] = is_global;
     }
 }
 

@@ -1,5 +1,7 @@
 /*
 ** Copyright (c) 2021 Samsung
+** Copyright (c) 2023 Google
+** Copyright (c) 2023 LunarG, Inc
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -27,14 +29,14 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct SavedFileInfo
 {
-    std::string filePath;
-    uint64_t    byteOffset;
+    std::string file_path;
+    uint64_t    byte_offset;
 };
 
 class DataFilePacker
 {
   public:
-    DataFilePacker() : m_dataFileCounter(0) {}
+    DataFilePacker() : data_file_counter_(0) {}
 
     void                Initialize(const std::string& outDir,
                                    const std::string& prefix,
@@ -48,18 +50,18 @@ class DataFilePacker
 
     struct SavedFile
     {
-        std::string filePath;
-        uint64_t    currentSize;
+        std::string file_path;
+        uint64_t    current_size;
     };
 
-    std::string m_outDir;
-    std::string m_prefix;
-    std::string m_suffix;
-    uint32_t    m_sizeLimitInBytes;
-    uint32_t    m_dataFileCounter;
+    std::string out_dir_;
+    std::string prefix_;
+    std::string suffix_;
+    uint32_t    size_limit_in_bytes_;
+    uint32_t    data_file_counter_;
 
-    std::map<uint64_t, SavedFileInfo> m_dataFileMap;
-    SavedFile                         m_currentDataFile;
+    std::map<uint64_t, SavedFileInfo> data_file_map_;
+    SavedFile                         current_data_file_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

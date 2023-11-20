@@ -31,67 +31,67 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 std::string GenerateStruct_VkMemoryAllocateInfo(std::ostream&                 out,
                                                 format::HandleId              memoryHandleId,
                                                 const VkMemoryAllocateInfo*   structInfo,
-                                                Decoded_VkMemoryAllocateInfo* metainfo,
+                                                Decoded_VkMemoryAllocateInfo* metaInfo,
                                                 VulkanCppConsumerBase&        consumer)
 {
 
-    std::string memoryRequirements = "";
-    bool        new_size           = consumer.GetResourceMemoryRequirements(memoryHandleId, memoryRequirements);
+    std::string memory_reqs = "";
+    bool        new_size    = consumer.GetResourceMemoryRequirements(memoryHandleId, memory_reqs);
 
-    std::stringstream structBody;
+    std::stringstream struct_body;
     /* sType */
-    structBody << "\t\t\t"
-               << "VkStructureType(" << structInfo->sType << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
     /* pNext */
-    std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
-    structBody << "\t\t\t" << pNextName << "," << std::endl;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     /* allocationSize */
-    structBody << "\t\t\t" << structInfo->allocationSize << "UL"
-               << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->allocationSize << "UL"
+                << "," << std::endl;
     /* memoryTypeIndex */
-    structBody << "\t\t\t"
-               << "RecalculateMemoryTypeIndex(" << structInfo->memoryTypeIndex << ")"
-               << ",";
-    std::string varname = consumer.AddStruct(structBody, "memoryAllocateInfo");
-    out << "\t\tVkMemoryAllocateInfo " << varname << " {" << std::endl;
-    out << structBody.str() << std::endl;
+    struct_body << "\t\t\t"
+                << "RecalculateMemoryTypeIndex(" << structInfo->memoryTypeIndex << ")"
+                << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "memoryAllocateInfo");
+    out << "\t\tVkMemoryAllocateInfo " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t};" << std::endl;
-    return varname;
+    return variable_name;
 }
 
 std::string GenerateStruct_VkClearColorValue(std::ostream&              out,
                                              const VkClearColorValue*   structInfo,
-                                             Decoded_VkClearColorValue* metainfo,
+                                             Decoded_VkClearColorValue* metaInfo,
                                              VulkanCppConsumerBase&     consumer)
 {
-    std::stringstream structBody;
-    structBody << VulkanCppConsumerBase::BuildValue(*structInfo);
+    std::stringstream struct_body;
+    struct_body << VulkanCppConsumerBase::BuildValue(*structInfo);
 
-    std::string varname = consumer.AddStruct(structBody, "clearColorValue");
-    out << "\t\tVkClearColorValue " << varname << " = " << structBody.str() << ";" << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "clearColorValue");
+    out << "\t\tVkClearColorValue " << variable_name << " = " << struct_body.str() << ";" << std::endl;
 
-    return varname;
+    return variable_name;
 }
 
 std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 out,
                                                 const VkWriteDescriptorSet*   structInfo,
-                                                Decoded_VkWriteDescriptorSet* metainfo,
+                                                Decoded_VkWriteDescriptorSet* metaInfo,
                                                 VulkanCppConsumerBase&        consumer)
 {
-    std::stringstream structBody;
-    std::stringstream structBodyHeader;
+    std::stringstream struct_body;
+    std::stringstream struct_body_header;
 
-    structBody << "\t\t\tVkStructureType(" << structInfo->sType << ")"
-               << "," << std::endl;
-    structBody << "\t\t\t" << GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer) << "," << std::endl;
-    structBody << "\t\t\t" << consumer.GetHandle(metainfo->dstSet) << "," << std::endl;
-    structBody << "\t\t\t" << structInfo->dstBinding << "," << std::endl;
-    structBody << "\t\t\t" << structInfo->dstArrayElement << "," << std::endl;
-    structBody << "\t\t\t" << structInfo->descriptorCount << "," << std::endl;
-    structBody << "\t\t\t"
-               << "VkDescriptorType(" << structInfo->descriptorType << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\tVkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer) << "," << std::endl;
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->dstSet) << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->dstBinding << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->dstArrayElement << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->descriptorCount << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkDescriptorType(" << structInfo->descriptorType << ")"
+                << "," << std::endl;
 
     switch (structInfo->descriptorType)
     {
@@ -101,29 +101,29 @@ std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 ou
         case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
         case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
         {
-            std::string                    infoValues;
-            Decoded_VkDescriptorImageInfo* imageMetaInfos = metainfo->pImageInfo->GetMetaStructPointer();
-            VkDescriptorImageInfo*         imageInfos     = metainfo->pImageInfo->GetPointer();
+            std::string                    info_values;
+            Decoded_VkDescriptorImageInfo* image_meta_infos = metaInfo->pImageInfo->GetMetaStructPointer();
+            VkDescriptorImageInfo*         image_infos      = metaInfo->pImageInfo->GetPointer();
             for (uint32_t idx = 0; idx < structInfo->descriptorCount; idx++)
             {
-                std::string samplerValue = "VK_NULL_HANDLE";
+                std::string sampler_value = "VK_NULL_HANDLE";
                 if ((structInfo->descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) ||
                     (structInfo->descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
                 {
-                    samplerValue = consumer.GetHandle(imageMetaInfos[idx].sampler);
-                    assert(samplerValue.length() > 0); /* There should be a sampler in these cases */
+                    sampler_value = consumer.GetHandle(image_meta_infos[idx].sampler);
+                    assert(sampler_value.length() > 0); /* There should be a sampler in these cases */
                 }
 
-                infoValues += "{ " + samplerValue + ", " + consumer.GetHandle(imageMetaInfos[idx].imageView) + ", " +
-                              "VkImageLayout(" + std::to_string(static_cast<int>(imageInfos[idx].imageLayout)) + ")" +
-                              " }, ";
+                info_values += "{ " + sampler_value + ", " + consumer.GetHandle(image_meta_infos[idx].imageView) +
+                               ", " + "VkImageLayout(" +
+                               std::to_string(static_cast<int>(image_infos[idx].imageLayout)) + ")" + " }, ";
             }
-            std::string pInfoArray = "pImageInfoArray_" + std::to_string(consumer.getNextId());
-            structBodyHeader << "\t\tVkDescriptorImageInfo " << pInfoArray << "[] = { " << infoValues << " };"
-                             << std::endl;
-            structBody << "\t\t\t" << pInfoArray << "," << std::endl;
-            structBody << "\t\t\tNULL," << std::endl;
-            structBody << "\t\t\tNULL,";
+            std::string info_array = "pImageInfoArray_" + std::to_string(consumer.GetNextId());
+            struct_body_header << "\t\tVkDescriptorImageInfo " << info_array << "[] = { " << info_values << " };"
+                               << std::endl;
+            struct_body << "\t\t\t" << info_array << "," << std::endl;
+            struct_body << "\t\t\tNULL," << std::endl;
+            struct_body << "\t\t\tNULL,";
             break;
         }
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
@@ -131,39 +131,39 @@ std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 ou
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
         {
-            std::string                     infoValues;
-            Decoded_VkDescriptorBufferInfo* bufferMetaInfos = metainfo->pBufferInfo->GetMetaStructPointer();
-            VkDescriptorBufferInfo*         bufferInfos     = metainfo->pBufferInfo->GetPointer();
+            std::string                     info_values;
+            Decoded_VkDescriptorBufferInfo* buffer_meta_infos = metaInfo->pBufferInfo->GetMetaStructPointer();
+            VkDescriptorBufferInfo*         buffer_infos      = metaInfo->pBufferInfo->GetPointer();
             for (uint32_t idx = 0; idx < structInfo->descriptorCount; idx++)
             {
-                infoValues += "{ " + consumer.GetHandle(bufferMetaInfos[idx].buffer) + ", " +
-                              std::to_string(bufferInfos[idx].offset) + "UL, " +
-                              std::to_string(bufferInfos[idx].range) + "UL " + " }, ";
+                info_values += "{ " + consumer.GetHandle(buffer_meta_infos[idx].buffer) + ", " +
+                               std::to_string(buffer_infos[idx].offset) + "UL, " +
+                               std::to_string(buffer_infos[idx].range) + "UL " + " }, ";
             }
 
-            std::string pInfoArray = "pBufferInfoArray_" + std::to_string(consumer.getNextId());
+            std::string info_array = "pBufferInfoArray_" + std::to_string(consumer.GetNextId());
 
-            structBodyHeader << "\t\tVkDescriptorBufferInfo " << pInfoArray << "[] = { " << infoValues << " };"
-                             << std::endl;
-            structBody << "\t\t\tNULL," << std::endl;
-            structBody << "\t\t\t" << pInfoArray << "," << std::endl;
-            structBody << "\t\t\tNULL,";
+            struct_body_header << "\t\tVkDescriptorBufferInfo " << info_array << "[] = { " << info_values << " };"
+                               << std::endl;
+            struct_body << "\t\t\tNULL," << std::endl;
+            struct_body << "\t\t\t" << info_array << "," << std::endl;
+            struct_body << "\t\t\tNULL,";
             break;
         }
         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
         {
-            std::string infoValues;
+            std::string info_values;
             for (uint32_t idx = 0; idx < structInfo->descriptorCount; idx++)
             {
-                infoValues += consumer.GetHandle(metainfo->pTexelBufferView.GetPointer()[idx]) + ", ";
+                info_values += consumer.GetHandle(metaInfo->pTexelBufferView.GetPointer()[idx]) + ", ";
             }
-            std::string pInfoArray = "pTexelBufferViewArray_" + std::to_string(consumer.getNextId());
+            std::string info_array = "pTexelBufferViewArray_" + std::to_string(consumer.GetNextId());
 
-            structBodyHeader << "\t\tVkBufferView " << pInfoArray << "[] = { " << infoValues << " };" << std::endl;
-            structBody << "\t\t\tNULL," << std::endl;
-            structBody << "\t\t\tNULL," << std::endl;
-            structBody << "\t\t\t" << pInfoArray << ",";
+            struct_body_header << "\t\tVkBufferView " << info_array << "[] = { " << info_values << " };" << std::endl;
+            struct_body << "\t\t\tNULL," << std::endl;
+            struct_body << "\t\t\tNULL," << std::endl;
+            struct_body << "\t\t\t" << info_array << ",";
             break;
         }
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
@@ -180,48 +180,49 @@ std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 ou
         }
     }
 
-    std::string varname = "vkWriteDescriptorSet_" + std::to_string(consumer.getNextId());
-    out << structBodyHeader.str() << std::endl;
-    out << "\t\tVkWriteDescriptorSet " << varname << " {" << std::endl;
-    out << structBody.str() << std::endl;
+    std::string variable_name = "vkWriteDescriptorSet_" + std::to_string(consumer.GetNextId());
+    out << struct_body_header.str() << std::endl;
+    out << "\t\tVkWriteDescriptorSet " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t};" << std::endl;
 
-    return varname;
+    return variable_name;
 }
 
 std::string GenerateStruct_VkPresentInfoKHR(std::ostream&             out,
                                             const VkPresentInfoKHR*   structInfo,
-                                            Decoded_VkPresentInfoKHR* metainfo,
+                                            Decoded_VkPresentInfoKHR* metaInfo,
                                             VulkanCppConsumerBase&    consumer)
 {
-    std::string pImageIndicesArray = "NULL";
-    std::string pSwapchainsArray   = "NULL";
-    if (metainfo->pSwapchains.GetPointer() != NULL)
+    std::string image_array_indices = "NULL";
+    std::string swapchains_array    = "NULL";
+    if (metaInfo->pSwapchains.GetPointer() != NULL)
     {
-        const format::HandleId* swapchainArray    = metainfo->pSwapchains.GetPointer();
-        std::string             pSwapchainsValues = toStringJoin(
-            swapchainArray,
-            swapchainArray + structInfo->swapchainCount,
+        const format::HandleId* swapchain_handles       = metaInfo->pSwapchains.GetPointer();
+        std::string             swapchain_handle_values = toStringJoin(
+            swapchain_handles,
+            swapchain_handles + structInfo->swapchainCount,
             [&](const format::HandleId current) { return consumer.GetHandle(current); },
             ", ");
-        std::string imageIndicesValues = toStringJoin(
-            swapchainArray,
-            swapchainArray + structInfo->swapchainCount,
+        std::string image_indices_values = toStringJoin(
+            swapchain_handles,
+            swapchain_handles + structInfo->swapchainCount,
             [&](const format::HandleId current) { return consumer.GetNextImage(current); },
             ", ");
 
         if (structInfo->swapchainCount == 1)
         {
-            pSwapchainsArray   = "&" + pSwapchainsValues;
-            pImageIndicesArray = "&" + imageIndicesValues;
+            swapchains_array    = "&" + swapchain_handle_values;
+            image_array_indices = "&" + image_indices_values;
         }
         else if (structInfo->swapchainCount > 1)
         {
-            pImageIndicesArray = "pImageIndices_" + std::to_string(consumer.getNextId());
-            pSwapchainsArray   = "pSwapchainsArray_" + std::to_string(consumer.getNextId());
+            image_array_indices = "pImageIndices_" + std::to_string(consumer.GetNextId());
+            swapchains_array    = "pSwapchainsArray_" + std::to_string(consumer.GetNextId());
 
-            out << "\t\tVkSwapchainKHR " << pSwapchainsArray << "[] = {" << pSwapchainsValues << "};" << std::endl;
-            out << "\t\tuint32_t " << pImageIndicesArray << "[] = {" << imageIndicesValues << "};" << std::endl;
+            out << "\t\tVkSwapchainKHR " << swapchains_array << "[] = {" << swapchain_handle_values << "};"
+                << std::endl;
+            out << "\t\tuint32_t " << image_array_indices << "[] = {" << image_indices_values << "};" << std::endl;
         }
         else
         {
@@ -229,66 +230,68 @@ std::string GenerateStruct_VkPresentInfoKHR(std::ostream&             out,
         }
     }
 
-    std::string pWaitSemaphoresArray = "NULL";
-    if (metainfo->pWaitSemaphores.GetPointer() != NULL)
+    std::string wait_semaphore_array_string = "NULL";
+    if (metaInfo->pWaitSemaphores.GetPointer() != NULL)
     {
-        const format::HandleId* waitSemaphoresArray   = metainfo->pWaitSemaphores.GetPointer();
-        std::string             pWaitSemaphoresValues = toStringJoin(
-            waitSemaphoresArray,
-            waitSemaphoresArray + structInfo->waitSemaphoreCount,
+        const format::HandleId* wait_semaphore_array  = metaInfo->pWaitSemaphores.GetPointer();
+        std::string             wait_semaphore_values = toStringJoin(
+            wait_semaphore_array,
+            wait_semaphore_array + structInfo->waitSemaphoreCount,
             [&](const format::HandleId current) { return consumer.GetHandle(current); },
             ", ");
 
         if (structInfo->waitSemaphoreCount == 1)
         {
-            pWaitSemaphoresArray = "&" + pWaitSemaphoresValues;
+            wait_semaphore_array_string = "&" + wait_semaphore_values;
         }
         else if (structInfo->waitSemaphoreCount > 1)
         {
-            pWaitSemaphoresArray = "pWaitSemaphoresArray_" + std::to_string(consumer.getNextId());
+            wait_semaphore_array_string = "pWaitSemaphoresArray_" + std::to_string(consumer.GetNextId());
 
-            out << "\t\tVkSemaphore " << pWaitSemaphoresArray << "[] = {" << pWaitSemaphoresValues << "};" << std::endl;
+            out << "\t\tVkSemaphore " << wait_semaphore_array_string << "[] = {" << wait_semaphore_values << "};"
+                << std::endl;
         }
     }
 
-    std::stringstream structBody;
-    structBody << "\t\t\t"
-               << "VkStructureType(" << structInfo->sType << ")"
-               << "," << std::endl;
+    std::stringstream struct_body;
+    struct_body << "\t\t\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
     /* pNext */
-    std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
-    structBody << "\t\t\t" << pNextName << "," << std::endl;
-    structBody << "\t\t\t" << structInfo->waitSemaphoreCount << "," << std::endl;
-    structBody << "\t\t\t" << pWaitSemaphoresArray << "," << std::endl;
-    structBody << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
-    structBody << "\t\t\t" << pSwapchainsArray << "," << std::endl;
-    structBody << "\t\t\t" << pImageIndicesArray << "," << std::endl;
-    structBody << "\t\t\t"
-               << "NULL";
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->waitSemaphoreCount << "," << std::endl;
+    struct_body << "\t\t\t" << wait_semaphore_array_string << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
+    struct_body << "\t\t\t" << swapchains_array << "," << std::endl;
+    struct_body << "\t\t\t" << image_array_indices << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "NULL";
 
-    std::string varname = consumer.AddStruct(structBody, "presentInfoKHR");
-    out << "\t\tVkPresentInfoKHR " << varname << " {" << std::endl;
-    out << structBody.str() << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "presentInfoKHR");
+    out << "\t\tVkPresentInfoKHR " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t};" << std::endl;
-    return varname;
+    return variable_name;
 }
 
 std::string
 GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&                                 out,
                                                        const VkDescriptorUpdateTemplateCreateInfo*   structInfo,
-                                                       Decoded_VkDescriptorUpdateTemplateCreateInfo* metainfo,
+                                                       Decoded_VkDescriptorUpdateTemplateCreateInfo* metaInfo,
                                                        VulkanCppConsumerBase&                        consumer,
                                                        const std::string&                            structTypeSuffix)
 {
-    std::string pDescriptorUpdateEntriesArray = "NULL";
+    std::string descriptor_update_entries_array_string = "NULL";
     if (structInfo->pDescriptorUpdateEntries != NULL)
     {
-        pDescriptorUpdateEntriesArray = "pDescriptorUpdateEntries_" + std::to_string(consumer.getNextId());
+        descriptor_update_entries_array_string = "pDescriptorUpdateEntries_" + std::to_string(consumer.GetNextId());
 
         // Recalculate the offset and stride for each template entry.
-        uint32_t imageInfoCount       = 0;
-        uint32_t bufferInfoCount      = 0;
-        uint32_t texelBufferViewCount = 0;
+        uint32_t image_info_count             = 0;
+        uint32_t buffer_info_count            = 0;
+        uint32_t texel_buffer_view_info_count = 0;
+        uint32_t acceleration_info_count      = 0;
 
         const VkDescriptorUpdateTemplateEntry* entries = structInfo->pDescriptorUpdateEntries;
 
@@ -300,17 +303,22 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
                 case DESCRIPTOR_BASE_TYPE_SAMPLER:
                 case DESCRIPTOR_BASE_TYPE_COMBINED_IMAGE_SAMPLER:
                 {
-                    imageInfoCount += entries[idx].descriptorCount;
+                    image_info_count += entries[idx].descriptorCount;
                     break;
                 }
                 case DESCRIPTOR_BASE_TYPE_BUFFER:
                 {
-                    bufferInfoCount += entries[idx].descriptorCount;
+                    buffer_info_count += entries[idx].descriptorCount;
                     break;
                 }
                 case DESCRIPTOR_BASE_TYPE_TEXEL:
                 {
-                    texelBufferViewCount += entries[idx].descriptorCount;
+                    texel_buffer_view_info_count += entries[idx].descriptorCount;
+                    break;
+                }
+                case DESCRIPTOR_BASE_TYPE_ACCELERATION_STRUCTURE:
+                {
+                    acceleration_info_count += entries[idx].descriptorCount;
                     break;
                 }
                 default:
@@ -320,17 +328,19 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
             }
         }
 
-        uint32_t imageInfoOffset       = 0;
-        uint32_t bufferInfoOffset      = imageInfoCount * sizeof(VkDescriptorImageInfo);
-        uint32_t texelBufferViewOffset = bufferInfoOffset + (bufferInfoCount * sizeof(VkDescriptorBufferInfo));
+        uint32_t image_info_offset        = 0;
+        uint32_t buffer_info_offset       = image_info_count * sizeof(VkDescriptorImageInfo);
+        uint32_t texel_buffer_view_offset = buffer_info_offset + (buffer_info_count * sizeof(VkDescriptorBufferInfo));
+        uint32_t acceleration_info_offset =
+            texel_buffer_view_offset + (texel_buffer_view_info_count * sizeof(VkBufferView));
 
-        std::string pDescriptorUpdateEntriesNames;
+        std::string descriptor_update_entries_names;
         for (uint32_t idx = 0; idx < structInfo->descriptorUpdateEntryCount; idx++)
         {
             VkDescriptorUpdateTemplateEntry entry = structInfo->pDescriptorUpdateEntries[idx];
 
-            size_t overrideStride = 0;
-            size_t overrideOffset = 0;
+            size_t override_stride = 0;
+            size_t override_offset = 0;
 
             switch (GetDescriptorBaseType(entry.descriptorType))
             {
@@ -338,23 +348,30 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
                 case DESCRIPTOR_BASE_TYPE_SAMPLER:
                 case DESCRIPTOR_BASE_TYPE_COMBINED_IMAGE_SAMPLER:
                 {
-                    overrideStride = sizeof(VkDescriptorImageInfo);
-                    overrideOffset = imageInfoOffset;
-                    imageInfoOffset += entry.descriptorCount * sizeof(VkDescriptorImageInfo);
+                    override_stride = sizeof(VkDescriptorImageInfo);
+                    override_offset = image_info_offset;
+                    image_info_offset += entry.descriptorCount * sizeof(VkDescriptorImageInfo);
                     break;
                 }
                 case DESCRIPTOR_BASE_TYPE_BUFFER:
                 {
-                    overrideStride = sizeof(VkDescriptorBufferInfo);
-                    overrideOffset = bufferInfoOffset;
-                    bufferInfoOffset += entry.descriptorCount * sizeof(VkDescriptorBufferInfo);
+                    override_stride = sizeof(VkDescriptorBufferInfo);
+                    override_offset = buffer_info_offset;
+                    buffer_info_offset += entry.descriptorCount * sizeof(VkDescriptorBufferInfo);
                     break;
                 }
                 case DESCRIPTOR_BASE_TYPE_TEXEL:
                 {
-                    overrideStride = sizeof(VkBufferView);
-                    overrideOffset = texelBufferViewOffset;
-                    texelBufferViewOffset += entry.descriptorCount * sizeof(VkBufferView);
+                    override_stride = sizeof(VkBufferView);
+                    override_offset = texel_buffer_view_offset;
+                    texel_buffer_view_offset += entry.descriptorCount * sizeof(VkBufferView);
+                    break;
+                }
+                case DESCRIPTOR_BASE_TYPE_ACCELERATION_STRUCTURE:
+                {
+                    override_stride = sizeof(VkBufferView);
+                    override_offset = acceleration_info_offset;
+                    acceleration_info_offset += entry.descriptorCount * sizeof(VkAccelerationStructureKHR);
                     break;
                 }
                 default:
@@ -363,53 +380,53 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
                 }
             }
 
-            entry.offset = overrideOffset;
-            entry.stride = overrideStride;
+            entry.offset = override_offset;
+            entry.stride = override_stride;
 
-            std::string varName = GenerateStruct_VkDescriptorUpdateTemplateEntry(
-                out, &entry, metainfo->pDescriptorUpdateEntries->GetMetaStructPointer() + idx, consumer);
-            pDescriptorUpdateEntriesNames += varName + ", ";
+            std::string decs_update_var_name = GenerateStruct_VkDescriptorUpdateTemplateEntry(
+                out, &entry, metaInfo->pDescriptorUpdateEntries->GetMetaStructPointer() + idx, consumer);
+            descriptor_update_entries_names += decs_update_var_name + ", ";
         }
-        out << "VkDescriptorUpdateTemplateEntry" << structTypeSuffix << " " << pDescriptorUpdateEntriesArray << "[] = {"
-            << pDescriptorUpdateEntriesNames << "};" << std::endl;
+        out << "VkDescriptorUpdateTemplateEntry" << structTypeSuffix << " " << descriptor_update_entries_array_string
+            << "[] = {" << descriptor_update_entries_names << "};" << std::endl;
     }
-    std::stringstream structBody;
+    std::stringstream struct_body;
     /* sType */
-    structBody << "\t\t\t"
-               << "VkStructureType(" << structInfo->sType << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
     /* pNext */
-    std::string pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
-    structBody << "\t\t\t" << pNextName << "," << std::endl;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     /* flags */
-    structBody << "\t\t\t"
-               << "VkDescriptorUpdateTemplateCreateFlags>(" << structInfo->flags << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkDescriptorUpdateTemplateCreateFlags>(" << structInfo->flags << ")"
+                << "," << std::endl;
     /* descriptorUpdateEntryCount */
-    structBody << "\t\t\t" << structInfo->descriptorUpdateEntryCount << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->descriptorUpdateEntryCount << "," << std::endl;
     /* pDescriptorUpdateEntries */
-    structBody << "\t\t\t" << pDescriptorUpdateEntriesArray << "," << std::endl;
+    struct_body << "\t\t\t" << descriptor_update_entries_array_string << "," << std::endl;
     /* templateType */
-    structBody << "\t\t\t"
-               << "VkDescriptorUpdateTemplateType(" << structInfo->templateType << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkDescriptorUpdateTemplateType(" << structInfo->templateType << ")"
+                << "," << std::endl;
     /* descriptorSetLayout */
-    structBody << "\t\t\t" << consumer.GetHandle(metainfo->descriptorSetLayout) << "," << std::endl;
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->descriptorSetLayout) << "," << std::endl;
     /* pipelineBindPoint */
-    structBody << "\t\t\t"
-               << "VkPipelineBindPoint(" << structInfo->pipelineBindPoint << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkPipelineBindPoint(" << structInfo->pipelineBindPoint << ")"
+                << "," << std::endl;
     /* pipelineLayout */
-    structBody << "\t\t\t" << consumer.GetHandle(metainfo->pipelineLayout) << "," << std::endl;
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->pipelineLayout) << "," << std::endl;
     /* set */
-    structBody << "\t\t\t" << structInfo->set << ",";
+    struct_body << "\t\t\t" << structInfo->set << ",";
 
-    std::string varname = consumer.AddStruct(structBody, "descriptorUpdateTemplateCreateInfo");
-    out << "\t\tVkDescriptorUpdateTemplateCreateInfo" << structTypeSuffix << " " << varname << " {" << std::endl;
-    out << structBody.str() << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "descriptorUpdateTemplateCreateInfo");
+    out << "\t\tVkDescriptorUpdateTemplateCreateInfo" << structTypeSuffix << " " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t};" << std::endl;
 
-    return varname;
+    return variable_name;
 }
 
 std::string GenerateStruct_VkDescriptorImageInfo(std::ostream&                   out,
@@ -418,184 +435,185 @@ std::string GenerateStruct_VkDescriptorImageInfo(std::ostream&                  
                                                  Decoded_VkDescriptorImageInfo*  metaInfo,
                                                  VulkanCppConsumerBase&          consumer)
 {
-    std::stringstream structBody;
+    std::stringstream struct_body;
 
-    DescriptorBaseType descriptorBaseType = GetDescriptorBaseType(templateEntry.descriptorType);
-    if (descriptorBaseType == DESCRIPTOR_BASE_TYPE_SAMPLER ||
-        descriptorBaseType == DESCRIPTOR_BASE_TYPE_COMBINED_IMAGE_SAMPLER)
+    DescriptorBaseType desc_base_type = GetDescriptorBaseType(templateEntry.descriptorType);
+    if (desc_base_type == DESCRIPTOR_BASE_TYPE_SAMPLER || desc_base_type == DESCRIPTOR_BASE_TYPE_COMBINED_IMAGE_SAMPLER)
     {
-        structBody << "\t\t\t" << consumer.GetHandle(metaInfo->sampler) << ",";
+        struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->sampler) << ",";
     }
     else
     {
-        structBody << "\t\t\t"
-                   << "VK_NULL_HANDLE"
-                   << ",";
+        struct_body << "\t\t\t"
+                    << "VK_NULL_HANDLE"
+                    << ",";
     }
 
-    if (descriptorBaseType != DESCRIPTOR_BASE_TYPE_SAMPLER)
+    if (desc_base_type != DESCRIPTOR_BASE_TYPE_SAMPLER)
     {
-        structBody << std::endl;
-        structBody << "\t\t\t" << consumer.GetHandle(metaInfo->imageView) << "," << std::endl;
-        structBody << "\t\t\t"
-                   << "VkImageLayout(" << structInfo->imageLayout << "),";
+        struct_body << std::endl;
+        struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->imageView) << "," << std::endl;
+        struct_body << "\t\t\t"
+                    << "VkImageLayout(" << structInfo->imageLayout << "),";
     }
 
-    std::string varName = consumer.AddStruct(structBody, "descriptorImageInfo");
-    out << "\t\tVkDescriptorImageInfo " << varName << " {" << std::endl;
-    out << structBody.str() << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "descriptorImageInfo");
+    out << "\t\tVkDescriptorImageInfo " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t};" << std::endl;
 
-    return varName;
+    return variable_name;
 }
 
 std::string GenerateStruct_VkDescriptorUpdateTemplateEntry(std::ostream&                            out,
                                                            const VkDescriptorUpdateTemplateEntry*   structInfo,
-                                                           Decoded_VkDescriptorUpdateTemplateEntry* metainfo,
+                                                           Decoded_VkDescriptorUpdateTemplateEntry* metaInfo,
                                                            VulkanCppConsumerBase&                   consumer)
 {
-    std::stringstream structBody;
+    std::stringstream struct_body;
     /* dstBinding */
-    structBody << "\t\t\t" << structInfo->dstBinding << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->dstBinding << "," << std::endl;
     /* dstArrayElement */
-    structBody << "\t\t\t" << structInfo->dstArrayElement << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->dstArrayElement << "," << std::endl;
     /* descriptorCount */
-    structBody << "\t\t\t" << structInfo->descriptorCount << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->descriptorCount << "," << std::endl;
     /* descriptorType */
-    structBody << "\t\t\t"
-               << "VkDescriptorType(" << structInfo->descriptorType << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkDescriptorType(" << structInfo->descriptorType << ")"
+                << "," << std::endl;
     /* offset */
-    structBody << "\t\t\t" << structInfo->offset << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->offset << "," << std::endl;
     /* stride */
-    structBody << "\t\t\t" << structInfo->stride << ",";
+    struct_body << "\t\t\t" << structInfo->stride << ",";
 
-    std::string varname = consumer.AddStruct(structBody, "descriptorUpdateTemplateEntry");
-    out << "\t\tVkDescriptorUpdateTemplateEntry " << varname << " {" << std::endl;
-    out << structBody.str() << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "descriptorUpdateTemplateEntry");
+    out << "\t\tVkDescriptorUpdateTemplateEntry " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t};" << std::endl;
 
-    return varname;
+    return variable_name;
 }
 
 std::string
 GenerateStruct_VkAccelerationStructureMotionInstanceNV(std::ostream&                                    out,
                                                        const VkAccelerationStructureMotionInstanceNV*   structInfo,
-                                                       Decoded_VkAccelerationStructureMotionInstanceNV* metainfo,
+                                                       Decoded_VkAccelerationStructureMotionInstanceNV* metaInfo,
                                                        VulkanCppConsumerBase&                           consumer)
 {
-    std::stringstream structBody;
-    std::string       staticInstanceInfoVar = GenerateStruct_VkAccelerationStructureInstanceKHR(
-        out, &structInfo->data.staticInstance, metainfo->staticInstance, consumer);
+    std::stringstream struct_body;
+    std::string       accel_struct_inst_variable = GenerateStruct_VkAccelerationStructureInstanceKHR(
+        out, &structInfo->data.staticInstance, metaInfo->staticInstance, consumer);
     /* type */
-    structBody << "\t\t\t"
-               << "VkAccelerationStructureMotionInstanceTypeNV(" << structInfo->type << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkAccelerationStructureMotionInstanceTypeNV(" << structInfo->type << ")"
+                << "," << std::endl;
     /* flags */
-    structBody << "\t\t\t"
-               << "VkAccelerationStructureMotionInstanceFlagsNV(" << structInfo->flags << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkAccelerationStructureMotionInstanceFlagsNV(" << structInfo->flags << ")"
+                << "," << std::endl;
     /* data */
-    structBody << "\t\t\t" << staticInstanceInfoVar << ",";
-    std::string varname = consumer.AddStruct(structBody, "accelerationStructureMotionInstanceNV");
-    out << "\t\tVkAccelerationStructureMotionInstanceNV " << varname << " {" << std::endl;
-    out << structBody.str() << std::endl;
+    struct_body << "\t\t\t" << accel_struct_inst_variable << ",";
+
+    std::string variable_name = consumer.AddStruct(struct_body, "accelerationStructureMotionInstanceNV");
+    out << "\t\tVkAccelerationStructureMotionInstanceNV " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t};" << std::endl;
 
-    return varname;
+    return variable_name;
 }
 
 std::string GenerateStruct_VkAccelerationStructureGeometryKHR(std::ostream&                               out,
                                                               const VkAccelerationStructureGeometryKHR*   structInfo,
-                                                              Decoded_VkAccelerationStructureGeometryKHR* metainfo,
+                                                              Decoded_VkAccelerationStructureGeometryKHR* metaInfo,
                                                               VulkanCppConsumerBase&                      consumer)
 {
-    std::stringstream structBody;
-    std::string       pNextName        = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
-    std::string       trianglesInfoVar = GenerateStruct_VkAccelerationStructureGeometryTrianglesDataKHR(
-        out, &structInfo->geometry.triangles, metainfo->geometry->triangles, consumer);
+    std::stringstream struct_body;
+    std::string       pnext_name        = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string       triangle_geometry = GenerateStruct_VkAccelerationStructureGeometryTrianglesDataKHR(
+        out, &structInfo->geometry.triangles, metaInfo->geometry->triangles, consumer);
     /* sType */
-    structBody << "\t\t\t"
-               << "VkStructureType(" << structInfo->sType << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
     /* pNext */
-    structBody << "\t\t\t" << pNextName << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     /* geometryType */
-    structBody << "\t\t\t"
-               << "VkGeometryTypeKHR(" << structInfo->geometryType << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkGeometryTypeKHR(" << structInfo->geometryType << ")"
+                << "," << std::endl;
     /* geometry */
-    structBody << "\t\t\t" << trianglesInfoVar << "," << std::endl;
+    struct_body << "\t\t\t" << triangle_geometry << "," << std::endl;
     /* flags */
-    structBody << "\t\t\t"
-               << "VkGeometryFlagsKHR(" << structInfo->flags << ")"
-               << ",";
-    std::string varname = consumer.AddStruct(structBody, "accelerationStructureGeometryKHR");
+    struct_body << "\t\t\t"
+                << "VkGeometryFlagsKHR(" << structInfo->flags << ")"
+                << ",";
+
+    std::string variable_name = consumer.AddStruct(struct_body, "accelerationStructureGeometryKHR");
     out << "\t\t"
-        << "VkAccelerationStructureGeometryKHR " << varname << " {" << std::endl;
-    out << structBody.str() << std::endl;
+        << "VkAccelerationStructureGeometryKHR " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t"
         << "};" << std::endl;
-    return varname;
+    return variable_name;
 }
 
 std::string GenerateStruct_VkDebugUtilsMessengerCreateInfoEXT(std::ostream&                               out,
                                                               const VkDebugUtilsMessengerCreateInfoEXT*   structInfo,
-                                                              Decoded_VkDebugUtilsMessengerCreateInfoEXT* metainfo,
+                                                              Decoded_VkDebugUtilsMessengerCreateInfoEXT* metaInfo,
                                                               VulkanCppConsumerBase&                      consumer)
 {
-    std::stringstream structBody;
-    std::string       pNextName = GenerateExtension(out, structInfo->pNext, metainfo->pNext, consumer);
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     /* sType */
-    structBody << "\t\t\t"
-               << "VkStructureType(" << structInfo->sType << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
     /* pNext */
-    structBody << "\t\t\t" << pNextName << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     /* flags */
-    structBody << "\t\t\t"
-               << "VkDebugUtilsMessengerCreateFlagsEXT(" << structInfo->flags << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkDebugUtilsMessengerCreateFlagsEXT(" << structInfo->flags << ")"
+                << "," << std::endl;
     /* messageSeverity */
-    structBody << "\t\t\t"
-               << "VkDebugUtilsMessageSeverityFlagsEXT(" << structInfo->messageSeverity << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkDebugUtilsMessageSeverityFlagsEXT(" << structInfo->messageSeverity << ")"
+                << "," << std::endl;
     /* messageType */
-    structBody << "\t\t\t"
-               << "VkDebugUtilsMessageTypeFlagsEXT(" << structInfo->messageType << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkDebugUtilsMessageTypeFlagsEXT(" << structInfo->messageType << ")"
+                << "," << std::endl;
     /* pfnUserCallback */
-    structBody << "\t\t\t&vulkanCppDebugUtilsCallback," << std::endl;
+    struct_body << "\t\t\t&vulkanCppDebugUtilsCallback," << std::endl;
     consumer.SetNeedsDebugUtilsCallback(true);
     /* pUserData */
-    structBody << "\t\t\tnullptr,";
+    struct_body << "\t\t\tnullptr,";
 
-    std::string varname = consumer.AddStruct(structBody, "debugUtilsMessengerCreateInfoEXT");
-    out << "\t\tVkDebugUtilsMessengerCreateInfoEXT " << varname << " {" << std::endl;
-    out << structBody.str() << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "debugUtilsMessengerCreateInfoEXT");
+    out << "\t\tVkDebugUtilsMessengerCreateInfoEXT " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t};" << std::endl;
 
-    return varname;
+    return variable_name;
 }
 
 std::string GenerateStruct_VkPerformanceValueINTEL(std::ostream&                    out,
                                                    const VkPerformanceValueINTEL*   structInfo,
-                                                   Decoded_VkPerformanceValueINTEL* metainfo,
+                                                   Decoded_VkPerformanceValueINTEL* metaInfo,
                                                    VulkanCppConsumerBase&           consumer)
 {
-    std::stringstream structBody;
+    std::stringstream struct_body;
     /* type */
-    structBody << "\t\t\t"
-               << "VkPerformanceValueTypeINTEL(" << structInfo->type << ")"
-               << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkPerformanceValueTypeINTEL(" << structInfo->type << ")"
+                << "," << std::endl;
     /* data */
-    structBody << "\t\t\t" << structInfo->data.value32 << ",";
+    struct_body << "\t\t\t" << structInfo->data.value32 << ",";
 
-    std::string varname = consumer.AddStruct(structBody, "performanceValueINTEL");
-    out << "\t\tVkPerformanceValueINTEL " << varname << " {" << std::endl;
-    out << structBody.str() << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "performanceValueINTEL");
+    out << "\t\tVkPerformanceValueINTEL " << variable_name << " {" << std::endl;
+    out << struct_body.str() << std::endl;
     out << "\t\t};" << std::endl;
-    return varname;
+    return variable_name;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
