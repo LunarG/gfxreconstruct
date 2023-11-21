@@ -60,7 +60,7 @@
         }                 \
     }
 
-// Usefull to avoid sign extension when converting a 32bit pointer to uint64_t
+// Useful to avoid sign extension when converting a 32bit pointer to uint64_t
 template <typename T>
 static constexpr uint64_t GFXRECON_PTR_TO_UINT64(T ptr)
 {
