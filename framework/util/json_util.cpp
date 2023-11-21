@@ -27,6 +27,14 @@
 
 #include <codecvt> // For encoding wstring_view to utf8.
 
+#if defined(D3D12_SUPPORT)
+#include <winerror.h> // D3D12 and DXGI HRESULT return values.
+// Still needed for D3D12 return values
+// <https://learn.microsoft.com/en-us/windows/win32/direct3d12/d3d12-graphics-reference-returnvalues>
+#include <d3d9.h>
+#include <unordered_map>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
@@ -165,6 +173,93 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data, co
     std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
     jdata = utf8_conv.to_bytes(data.data(), data.data() + data.length());
 }
+
+#if defined(D3D12_SUPPORT)
+
+// const char * might be better to avoid two copies of each string in the process at runtime (one in the static data
+// section for the literal string and one on the heap in the map). Even better would be for this to be a const array of
+// pairs of HRESULT and const char*const with a flat_map style adaptor so the "map" itself could live in the const data
+// section rather than being heap allocated as it is now. Possibly expand with more from
+// <https://learn.microsoft.com/en-us/windows/win32/com/com-error-codes-10> as docs for
+// D3D12_DEVICE_REMOVED_EXTENDED_DATA1's HRESULT member lead there.
+const static std::unordered_map<HRESULT, std::string> kHresults{
+    // Basic names for zero and one from <winerror.h> also used by D3D12:
+    { S_OK, "S_OK" },
+    { S_FALSE, "S_FALSE" },
+    // D3D12 Errors from <winerror.h>:
+    // <https://learn.microsoft.com/en-us/windows/win32/direct3d12/d3d12-graphics-reference-returnvalues>
+    { D3D12_ERROR_ADAPTER_NOT_FOUND, "D3D12_ERROR_ADAPTER_NOT_FOUND" },
+    { D3D12_ERROR_DRIVER_VERSION_MISMATCH, "D3D12_ERROR_DRIVER_VERSION_MISMATCH" },
+    { D3D12_ERROR_INVALID_REDIST, "D3D12_ERROR_INVALID_REDIST" },
+    // D3D9 Errors inherited by D3D12:
+    { D3DERR_INVALIDCALL, "D3DERR_INVALIDCALL" },
+    { D3DERR_WASSTILLDRAWING, "D3DERR_WASSTILLDRAWING" },
+    // DXGI Errors from <winerror.h>:
+    // https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-error
+    { DXGI_ERROR_ACCESS_DENIED, "DXGI_ERROR_ACCESS_DENIED" },
+    { DXGI_ERROR_ACCESS_LOST, "DXGI_ERROR_ACCESS_LOST" },
+    { DXGI_ERROR_ALREADY_EXISTS, "DXGI_ERROR_ALREADY_EXISTS" },
+    { DXGI_ERROR_CANNOT_PROTECT_CONTENT, "DXGI_ERROR_CANNOT_PROTECT_CONTENT" },
+    { DXGI_ERROR_DEVICE_HUNG, "DXGI_ERROR_DEVICE_HUNG" },
+    { DXGI_ERROR_DEVICE_REMOVED, "DXGI_ERROR_DEVICE_REMOVED" },
+    { DXGI_ERROR_DEVICE_RESET, "DXGI_ERROR_DEVICE_RESET" },
+    { DXGI_ERROR_DRIVER_INTERNAL_ERROR, "DXGI_ERROR_DRIVER_INTERNAL_ERROR" },
+    { DXGI_ERROR_FRAME_STATISTICS_DISJOINT, "DXGI_ERROR_FRAME_STATISTICS_DISJOINT" },
+    { DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE, "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE" },
+    { DXGI_ERROR_INVALID_CALL, "DXGI_ERROR_INVALID_CALL" },
+    { DXGI_ERROR_MORE_DATA, "DXGI_ERROR_MORE_DATA" },
+    { DXGI_ERROR_NAME_ALREADY_EXISTS, "DXGI_ERROR_NAME_ALREADY_EXISTS" },
+    { DXGI_ERROR_NONEXCLUSIVE, "DXGI_ERROR_NONEXCLUSIVE" },
+    { DXGI_ERROR_NOT_CURRENTLY_AVAILABLE, "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE" },
+    { DXGI_ERROR_NOT_FOUND, "DXGI_ERROR_NOT_FOUND" },
+    { DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED, "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED" },
+    { DXGI_ERROR_REMOTE_OUTOFMEMORY, "DXGI_ERROR_REMOTE_OUTOFMEMORY" },
+    { DXGI_ERROR_RESTRICT_TO_OUTPUT_STALE, "DXGI_ERROR_RESTRICT_TO_OUTPUT_STALE" },
+    { DXGI_ERROR_SDK_COMPONENT_MISSING, "DXGI_ERROR_SDK_COMPONENT_MISSING" },
+    { DXGI_ERROR_SESSION_DISCONNECTED, "DXGI_ERROR_SESSION_DISCONNECTED" },
+    { DXGI_ERROR_UNSUPPORTED, "DXGI_ERROR_UNSUPPORTED" },
+    { DXGI_ERROR_WAIT_TIMEOUT, "DXGI_ERROR_WAIT_TIMEOUT" },
+    { DXGI_ERROR_WAS_STILL_DRAWING, "DXGI_ERROR_WAS_STILL_DRAWING" },
+    // Extra OLE Codes from <winerror.h> (we should never see these from DX12/DXGI but just in case):
+    { E_UNEXPECTED, "E_UNEXPECTED" },
+    { E_NOINTERFACE, "E_NOINTERFACE" },
+    { E_POINTER, "E_POINTER" },
+    { E_HANDLE, "E_HANDLE" },
+    { E_ABORT, "E_ABORT" },
+    { E_ACCESSDENIED, "E_ACCESSDENIED" },
+    // Misc errors:
+    { E_FAIL, "E_FAIL" },
+    { E_OUTOFMEMORY, "E_OUTOFMEMORY" },
+    { E_INVALIDARG, "E_INVALIDARG" },
+    { E_NOTIMPL, "E_NOTIMPL" },
+};
+
+/// @brief Turn a D3D12 or DXGI HRESULT into a string with the same character
+/// sequence as the identifier of the C macro defining it in a header like
+/// winerror.h.
+/// @param hresult A D3D12 or DXGI result code.
+std::string HresultToString(const HRESULT hresult)
+{
+    const auto  found = kHresults.find(hresult);
+    std::string result;
+    if (found != kHresults.end())
+    {
+        result = found->second;
+    }
+    else
+    {
+        result = util::to_hex_variable_width(static_cast<unsigned long>(hresult));
+        GFXRECON_LOG_DEBUG("HresultToString() passed unkown HRESULT: %s.", result.c_str());
+    }
+    return result;
+}
+
+void HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const util::JsonOptions& options)
+{
+    FieldToJson(jdata, HresultToString(hresult), options);
+}
+
+#endif
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

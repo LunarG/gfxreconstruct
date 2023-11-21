@@ -24,9 +24,10 @@
 import sys
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
+from dx12_json_common_generator import Dx12JsonCommonGenerator
 from reformat_code import format_cpp_code
 
-class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
+class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
     """Generates C++ functions responsible for converting structs to JSON."""
 
     def __init__(
@@ -659,43 +660,21 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12BaseGenerator):
         # Iterate over private, protected, public properties (only public non-empty):
         for property_visibility, properties in values['properties'].items():
             for p in properties:
-                value = self.get_value_info(p)
-                type = p['type']
+                value_info = self.get_value_info(p)
 
-                if "anon-union" in type:
+                if "anon-union" in value_info.base_type:
                     field_to_json = self.makeUnionFieldToJson(properties, name, union_index)
                     union_index += 1
-                elif not (value.is_pointer or value.is_array or self.is_handle(value.base_type) or self.is_struct(value.base_type)):
-                    if "BOOL" in type:
-                        field_to_json = '        Bool32ToJson(jdata["{0}"], decoded_value.{0}, options); // Basic data plumbs to raw struct'
-                    else:
-                        field_to_json = '        FieldToJson(jdata["{0}"], decoded_value.{0}, options); // Basic data plumbs to raw struct'
                 else:
-                    if "BOOL" in type:
-                        field_to_json = '        Bool32ToJson(jdata["{0}"], meta_struct.{0}, options); // Complex types and handles plumb to the decoded struct'
-                        # This branch never taken so warn devs to check out the generated code if it ever is:
-                        print("ALERT: First time generating code for non-simple Bool. Check the result and delete this alert:")
-                        print(field_to_json)
+                    function_name = self.choose_field_to_json_name(value_info)
+                    if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type)):
+                        # Basic data plumbs to raw struct:
+                        field_to_json = '        {0}(jdata["{1}"], decoded_value.{1}, options);'
                     else:
-                        field_to_json = '        FieldToJson(jdata["{0}"], meta_struct.{0}, options); // Complex types and handles plumb to the decoded struct'
+                        # Complex types, pointers and handles plumb to the decoded struct:
+                        field_to_json = '        {0}(jdata["{1}"], meta_struct.{1}, options);'
 
-                # Append some type info to the generated comment to help working back from
-                # generated to code to change required here:
-                if value.is_pointer:
-                    field_to_json += " [is_pointer]"
-                if value.is_array:
-                        field_to_json += " [is_array]"
-                if self.is_handle(value.base_type):
-                    print("ALERT: Found handle: " + field_to_json)
-                    field_to_json += " [is_handle]"
-                elif self.is_struct(value.base_type):
-                    field_to_json += " [is_struct]"
-                elif self.is_enum(value.base_type):
-                    field_to_json += " [is_enum]"
-                elif "BOOL" in type:
-                    field_to_json += " [is_bool]"
-
-                field_to_json = field_to_json.format(value.name, value.array_length)
+                field_to_json = field_to_json.format(function_name, value_info.name, value_info.array_length)
                 body += field_to_json + '\n'
         return body
     # yapf: enable

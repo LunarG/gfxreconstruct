@@ -25,6 +25,7 @@ import json
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
 from dx12_json_consumer_header_generator import Dx12JsonConsumerHeaderGenerator, Dx12JsonConsumerHeaderGeneratorOptions
+from dx12_json_common_generator import Dx12JsonCommonGenerator
 from reformat_code import format_cpp_code, remove_leading_empty_lines
 
 
@@ -52,7 +53,7 @@ class Dx12JsonBodyGeneratorOptions(Dx12JsonConsumerHeaderGeneratorOptions):
         self.json_overrides = json_overrides
 
 
-class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
+class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCommonGenerator):
 
     JSON_OVERRIDES = {}
 
@@ -97,98 +98,11 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
             #include "decode/json_writer.h"
             #include "util/to_string.h"
             #include "format/format_json.h"
-
-            #include <winerror.h> // D3D12 and DXGI HRESULT return values.
-            // Still needed for D3D12 return values <https://learn.microsoft.com/en-us/windows/win32/direct3d12/d3d12-graphics-reference-returnvalues>
-            #include <d3d9.h>
-            #include <unordered_map>
-
         '''), file=self.outFile)
         self.newline()
 
     def generate_feature(self):
         Dx12BaseGenerator.generate_feature(self)
-        write(format_cpp_code('''
-            // const char * might be better to avoid two copies of each string in the process at runtime (one in the static data section for the literal string and one on the heap in the map).
-            // Even better would be for this to be a const array of pairs of HRESULT and const char*const with a flat_map style adaptor so the "map" itself could live in the const data section rather than being heap allocated as it is now.
-            const static std::unordered_map<HRESULT, std::string> kHresults {
-                // Basic names for zero and one from <winerror.h> also used by D3D12:
-                {S_OK, "S_OK"},
-                {S_FALSE,"S_FALSE"},
-                // D3D12 Errors from <winerror.h>:
-                // <https://learn.microsoft.com/en-us/windows/win32/direct3d12/d3d12-graphics-reference-returnvalues>
-                {D3D12_ERROR_ADAPTER_NOT_FOUND, "D3D12_ERROR_ADAPTER_NOT_FOUND"},
-                {D3D12_ERROR_DRIVER_VERSION_MISMATCH, "D3D12_ERROR_DRIVER_VERSION_MISMATCH"},
-                {D3D12_ERROR_INVALID_REDIST, "D3D12_ERROR_INVALID_REDIST"},
-                // D3D9 Errors inherited by D3D12:
-                {D3DERR_INVALIDCALL, "D3DERR_INVALIDCALL"},
-                {D3DERR_WASSTILLDRAWING, "D3DERR_WASSTILLDRAWING"},
-                // DXGI Errors from <winerror.h>:
-                // https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-error
-                {DXGI_ERROR_ACCESS_DENIED, "DXGI_ERROR_ACCESS_DENIED"},
-                {DXGI_ERROR_ACCESS_LOST, "DXGI_ERROR_ACCESS_LOST"},
-                {DXGI_ERROR_ALREADY_EXISTS, "DXGI_ERROR_ALREADY_EXISTS"},
-                {DXGI_ERROR_CANNOT_PROTECT_CONTENT, "DXGI_ERROR_CANNOT_PROTECT_CONTENT"},
-                {DXGI_ERROR_DEVICE_HUNG, "DXGI_ERROR_DEVICE_HUNG"},
-                {DXGI_ERROR_DEVICE_REMOVED, "DXGI_ERROR_DEVICE_REMOVED"},
-                {DXGI_ERROR_DEVICE_RESET, "DXGI_ERROR_DEVICE_RESET"},
-                {DXGI_ERROR_DRIVER_INTERNAL_ERROR, "DXGI_ERROR_DRIVER_INTERNAL_ERROR"},
-                {DXGI_ERROR_FRAME_STATISTICS_DISJOINT, "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"},
-                {DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE, "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"},
-                {DXGI_ERROR_INVALID_CALL, "DXGI_ERROR_INVALID_CALL"},
-                {DXGI_ERROR_MORE_DATA, "DXGI_ERROR_MORE_DATA"},
-                {DXGI_ERROR_NAME_ALREADY_EXISTS, "DXGI_ERROR_NAME_ALREADY_EXISTS"},
-                {DXGI_ERROR_NONEXCLUSIVE, "DXGI_ERROR_NONEXCLUSIVE"},
-                {DXGI_ERROR_NOT_CURRENTLY_AVAILABLE, "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"},
-                {DXGI_ERROR_NOT_FOUND, "DXGI_ERROR_NOT_FOUND"},
-                {DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED, "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"},
-                {DXGI_ERROR_REMOTE_OUTOFMEMORY, "DXGI_ERROR_REMOTE_OUTOFMEMORY"},
-                {DXGI_ERROR_RESTRICT_TO_OUTPUT_STALE, "DXGI_ERROR_RESTRICT_TO_OUTPUT_STALE"},
-                {DXGI_ERROR_SDK_COMPONENT_MISSING, "DXGI_ERROR_SDK_COMPONENT_MISSING"},
-                {DXGI_ERROR_SESSION_DISCONNECTED, "DXGI_ERROR_SESSION_DISCONNECTED"},
-                {DXGI_ERROR_UNSUPPORTED, "DXGI_ERROR_UNSUPPORTED"},
-                {DXGI_ERROR_WAIT_TIMEOUT, "DXGI_ERROR_WAIT_TIMEOUT"},
-                {DXGI_ERROR_WAS_STILL_DRAWING, "DXGI_ERROR_WAS_STILL_DRAWING"},
-                // Extra OLE Codes from <winerror.h> (we should never see these from DX12/DXGI but just in case):
-                {E_UNEXPECTED, "E_UNEXPECTED"},
-                {E_NOINTERFACE, "E_NOINTERFACE"},
-                {E_POINTER, "E_POINTER"},
-                {E_HANDLE, "E_HANDLE"},
-                {E_ABORT, "E_ABORT"},
-                {E_ACCESSDENIED, "E_ACCESSDENIED"},
-                // Misc errors:
-                {E_FAIL, "E_FAIL"},
-                {E_OUTOFMEMORY, "E_OUTOFMEMORY"},
-                {E_INVALIDARG, "E_INVALIDARG"},
-                {E_NOTIMPL, "E_NOTIMPL"},
-            };
-
-            /// @brief Turn a D3D12 or DXGI HRESULT into a string with the same character
-            /// sequence as the identifier of the C macro defining it in a header like
-            /// winerror.h. 
-            /// @param hresult A D3D12 or DXGI result code.
-            static std::string HresultToString(const HRESULT hresult)
-            {
-                const auto found = kHresults.find(hresult);
-                std::string result;
-                if(found != kHresults.end())
-                {
-                    result = found->second;
-                }
-                else
-                {
-                    result = util::to_hex_variable_width(static_cast<unsigned long>(hresult));
-                    GFXRECON_LOG_DEBUG("HresultToString() passed unkown HRESULT: %s.", result.c_str());
-                }
-                return result;
-            }
-
-            static void HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const util::JsonOptions& options)
-            {
-                FieldToJson(jdata, HresultToString(hresult), options);
-            }
-        '''), file=self.outFile)
-        self.newline()
         self.write_dx12_consumer_class('Json')
 
     def get_decoder_class_define(self, consumer_type):
@@ -303,32 +217,16 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator):
         code = code.format(class_name, method_info['name'])
         return code
 
-    ## @todo Move this to a common base class shared with Dx12StructDecodersToJsonBodyGenerator
-    ## if the types used for arguments and struct properties are compatible.
+    ## @param value_info A ValueInfo object from base_generator.py.
     ## @todo format::HandleId shows up tagged as a pointer but we output it as a decimal uint64_t. Make it a hex value?
-    def make_field_to_json(self, parent_name, value, options_name):
-        field_to_json = 'FieldToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
-        if "BOOL" in value.base_type:
-            field_to_json = 'Bool32ToJson({0}["{1}"], {1}, {2});'.format(parent_name, value.name, options_name)
-
-        # Comment the line with some type info:
-        if value.is_pointer:
-            # Pointer to POD, struct, enum, string, scalar or array can all have same signature:
-            if value.is_array:
-                field_to_json += " // [pointer to array]"
-                if "*" in value.array_length:
-                    field_to_json += ' [value.array_length: "{}"]'.format(value.array_length)
-            else:
-                field_to_json += " // [pointer to single value]"
-        else:
-            if value.is_array:
-                field_to_json += " // [direct array]"
-                pass
-            else:
-                if self.is_handle(value.base_type):
-                    field_to_json = 'static_assert(false, "Unhandled handle.")'
-                    field_to_json += " // [non-pointer, non-array, handle]"
-                else:
-                    field_to_json += " // [non-pointer, non-array, non-handle]"
+    def make_field_to_json(self, parent_name, value_info, options_name):
+        function_name = self.choose_field_to_json_name(value_info)
+        src = value_info.name
+        if value_info.is_pointer and function_name.startswith("FieldToJson_"):
+            src = "*" + src + "->GetPointer()"
+        field_to_json = '{0}({1}["{2}"], {3}, {4});'.format(function_name, parent_name, value_info.name, src, options_name)
+        if "anon-union" in value_info.base_type:
+            field_to_json += "// [anon-union] "
+            print("ALERT: anon union " + value_info.name + " in " + parent_name)
 
         return field_to_json
