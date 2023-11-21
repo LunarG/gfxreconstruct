@@ -996,7 +996,8 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(
 {
     if (resource_alloc_info->is_image && dst_offset != 0)
     {
-        // TODO implement offset based stagging image copy
+        // TODO: implement offset based stagging image copy
+        GFXRECON_LOG_WARNING("Skipping image with offset in staging write: support not yet implemented");
         return;
     }
 
@@ -1058,6 +1059,11 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(
 
             if (original_image)
             {
+                // TODO: handle mip maps/array layers
+                GFXRECON_LOG_WARNING(
+                    "Ignoring potential mip maps/array layers in staging buffer to image copy: support "
+                    "not yet implemented");
+
                 VkBufferImageCopy region{};
                 region.bufferOffset      = 0;
                 region.bufferRowLength   = 0;
