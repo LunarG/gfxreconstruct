@@ -35,6 +35,12 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 
 class VulkanResourcesUtil
 {
+    enum CopyBufferImageDirection
+    {
+        kBufferToImage = 0,
+        kImageToBuffer
+    };
+
   public:
     VulkanResourcesUtil() = delete;
 
@@ -146,6 +152,19 @@ class VulkanResourcesUtil
                                      std::vector<uint64_t>& subresource_offsets,
                                      std::vector<uint64_t>& subresource_sizes);
 
+    VkResult WriteToImageResourceStaging(VkImage                      image,
+                                         VkFormat                     format,
+                                         VkImageType                  type,
+                                         const VkExtent3D&            extent,
+                                         uint32_t                     mip_levels,
+                                         uint32_t                     array_layers,
+                                         VkImageAspectFlagBits        aspect,
+                                         VkImageLayout                layout,
+                                         uint32_t                     queue_family_index,
+                                         const void*                  data,
+                                         const std::vector<uint64_t>& subresource_offsets,
+                                         const std::vector<uint64_t>& subresource_sizes);
+
     // Use this function to dump the content of a buffer resource into the data vector.
     VkResult
     ReadFromBufferResource(VkBuffer buffer, uint64_t size, uint32_t queue_family_index, std::vector<uint8_t>& data);
@@ -173,18 +192,25 @@ class VulkanResourcesUtil
 
     void DestroyStagingBuffer();
 
-    void TransitionImageToSrcOptimal(VkImage image, VkImageLayout current_layout, VkImageAspectFlags aspect);
+    void TransitionImageToTransferOptimal(VkImage            image,
+                                          VkImageLayout      current_layout,
+                                          VkImageLayout      destination_layout,
+                                          VkImageAspectFlags aspect);
 
-    void TransitionImageFromSrcOptimal(VkImage image, VkImageLayout new_layout, VkImageAspectFlags aspect);
+    void TransitionImageFromTransferOptimal(VkImage            image,
+                                            VkImageLayout      old_layout,
+                                            VkImageLayout      new_layout,
+                                            VkImageAspectFlags aspect);
 
-    void CopyImageToBuffer(VkImage                      image,
-                           const VkExtent3D&            extent,
-                           uint32_t                     mip_levels,
-                           uint32_t                     array_layers,
-                           VkImageAspectFlags           aspect,
-                           const std::vector<uint64_t>& sizes,
-                           VkBuffer                     destination_buffer,
-                           bool                         all_layers_per_level);
+    void CopyImageBuffer(VkImage                      image,
+                         VkBuffer                     buffer,
+                         const VkExtent3D&            extent,
+                         uint32_t                     mip_levels,
+                         uint32_t                     array_layers,
+                         VkImageAspectFlags           aspect,
+                         const std::vector<uint64_t>& sizes,
+                         bool                         all_layers_per_level,
+                         CopyBufferImageDirection     copy_direction);
 
     void CopyBuffer(VkBuffer source_buffer, VkBuffer destination_buffer, uint64_t size);
 
