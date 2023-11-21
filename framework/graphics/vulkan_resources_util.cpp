@@ -739,9 +739,10 @@ void VulkanResourcesUtil::DestroyCommandBuffer()
     }
 }
 
-void VulkanResourcesUtil::TransitionImageToSrcOptimal(VkImage            image,
-                                                      VkImageLayout      current_layout,
-                                                      VkImageAspectFlags aspect)
+void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkImage            image,
+                                                           VkImageLayout      current_layout,
+                                                           VkImageLayout      destination_layout,
+                                                           VkImageAspectFlags aspect)
 {
     assert(image != VK_NULL_HANDLE);
     assert(command_buffer_ != VK_NULL_HANDLE);
@@ -752,7 +753,7 @@ void VulkanResourcesUtil::TransitionImageToSrcOptimal(VkImage            image,
     memory_barrier.srcAccessMask                   = 0;
     memory_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
     memory_barrier.oldLayout                       = current_layout;
-    memory_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    memory_barrier.newLayout                       = destination_layout;
     memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     memory_barrier.image                           = image;
@@ -774,9 +775,10 @@ void VulkanResourcesUtil::TransitionImageToSrcOptimal(VkImage            image,
                                      &memory_barrier);
 }
 
-void VulkanResourcesUtil::TransitionImageFromSrcOptimal(VkImage            image,
-                                                        VkImageLayout      new_layout,
-                                                        VkImageAspectFlags aspect)
+void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkImage            image,
+                                                             VkImageLayout      old_layout,
+                                                             VkImageLayout      new_layout,
+                                                             VkImageAspectFlags aspect)
 {
     assert(image != VK_NULL_HANDLE);
     assert(command_buffer_ != VK_NULL_HANDLE);
@@ -795,7 +797,7 @@ void VulkanResourcesUtil::TransitionImageFromSrcOptimal(VkImage            image
 
     memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
     memory_barrier.dstAccessMask = 0;
-    memory_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    memory_barrier.oldLayout     = old_layout;
     memory_barrier.newLayout     = new_layout;
 
     device_table_.CmdPipelineBarrier(command_buffer_,
@@ -810,14 +812,15 @@ void VulkanResourcesUtil::TransitionImageFromSrcOptimal(VkImage            image
                                      &memory_barrier);
 }
 
-void VulkanResourcesUtil::CopyImageToBuffer(VkImage                      image,
-                                            const VkExtent3D&            extent,
-                                            uint32_t                     mip_levels,
-                                            uint32_t                     array_layers,
-                                            VkImageAspectFlags           aspect,
-                                            const std::vector<uint64_t>& sizes,
-                                            VkBuffer                     destination_buffer,
-                                            bool                         all_layers_per_level)
+void VulkanResourcesUtil::CopyImageBuffer(VkImage                      image,
+                                          VkBuffer                     buffer,
+                                          const VkExtent3D&            extent,
+                                          uint32_t                     mip_levels,
+                                          uint32_t                     array_layers,
+                                          VkImageAspectFlags           aspect,
+                                          const std::vector<uint64_t>& sizes,
+                                          bool                         all_layers_per_level,
+                                          CopyBufferImageDirection     copy_direction)
 {
     assert(command_buffer_ != VK_NULL_HANDLE);
 
@@ -861,12 +864,26 @@ void VulkanResourcesUtil::CopyImageToBuffer(VkImage                      image,
     }
     assert(sr == n_subresources);
 
-    device_table_.CmdCopyImageToBuffer(command_buffer_,
-                                       image,
-                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                       destination_buffer,
-                                       static_cast<uint32_t>(copy_regions.size()),
-                                       copy_regions.data());
+    if (copy_direction == kImageToBuffer)
+    {
+        device_table_.CmdCopyImageToBuffer(command_buffer_,
+                                           image,
+                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                           buffer,
+                                           static_cast<uint32_t>(copy_regions.size()),
+                                           copy_regions.data());
+    }
+    else
+    {
+        assert(copy_direction == kBufferToImage);
+
+        device_table_.CmdCopyBufferToImage(command_buffer_,
+                                           buffer,
+                                           image,
+                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                           static_cast<uint32_t>(copy_regions.size()),
+                                           copy_regions.data());
+    }
 }
 
 void VulkanResourcesUtil::CopyBuffer(VkBuffer source_buffer, VkBuffer destination_buffer, uint64_t size)
@@ -1241,22 +1258,23 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     }
     else
     {
-        TransitionImageToSrcOptimal(image, layout, transition_aspect);
+        TransitionImageToTransferOptimal(image, layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, transition_aspect);
     }
 
-    CopyImageToBuffer(copy_image,
-                      extent,
-                      mip_levels,
-                      array_layers,
-                      aspect,
-                      subresource_sizes,
-                      staging_buffer_.buffer,
-                      all_layers_per_level);
+    CopyImageBuffer(copy_image,
+                    staging_buffer_.buffer,
+                    extent,
+                    mip_levels,
+                    array_layers,
+                    aspect,
+                    subresource_sizes,
+                    all_layers_per_level,
+                    kImageToBuffer);
 
     if ((samples == VK_SAMPLE_COUNT_1_BIT) && (layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
         (layout != VK_IMAGE_LAYOUT_PREINITIALIZED) && (layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL))
     {
-        TransitionImageFromSrcOptimal(image, layout, transition_aspect);
+        TransitionImageFromTransferOptimal(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, layout, transition_aspect);
     }
 
     result = SubmitCommandBuffer(queue);
@@ -1389,6 +1407,106 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(VkBuffer              buffe
 
     InvalidateStagingBuffer();
     util::platform::MemoryCopy(data.data(), size, staging_buffer_.mapped_ptr, size);
+
+    return result;
+}
+
+VkResult VulkanResourcesUtil::WriteToImageResourceStaging(VkImage                      image,
+                                                          VkFormat                     format,
+                                                          VkImageType                  type,
+                                                          const VkExtent3D&            extent,
+                                                          uint32_t                     mip_levels,
+                                                          uint32_t                     array_layers,
+                                                          VkImageAspectFlagBits        aspect,
+                                                          VkImageLayout                layout,
+                                                          uint32_t                     queue_family_index,
+                                                          const void*                  data,
+                                                          const std::vector<uint64_t>& subresource_offsets,
+                                                          const std::vector<uint64_t>& subresource_sizes)
+{
+    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+
+    const VkQueue queue = GetQueue(queue_family_index, 0);
+    if (queue == VK_NULL_HANDLE)
+    {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    VkResult result;
+    uint64_t resource_size = 0;
+    for (const auto size : subresource_sizes)
+    {
+        resource_size += size;
+    }
+
+    result = CreateStagingBuffer(resource_size);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+
+    result = MapStagingBuffer();
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+
+    uint8_t*       stg_u8_ptr  = static_cast<uint8_t*>(staging_buffer_.mapped_ptr);
+    const uint8_t* data_u8_ptr = static_cast<const uint8_t*>(data);
+    uint32_t       sr          = 0;
+    for (uint32_t m = 0; m < mip_levels; ++m)
+    {
+        for (uint32_t l = 0; l < array_layers; ++l)
+        {
+            util::platform::MemoryCopy(stg_u8_ptr, subresource_sizes[sr], data_u8_ptr, subresource_sizes[sr]);
+            stg_u8_ptr += subresource_sizes[sr];
+            data_u8_ptr += subresource_sizes[sr];
+            ++sr;
+        }
+    }
+    assert(sr == subresource_sizes.size());
+
+    result = CreateCommandPool(queue_family_index);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+
+    result = CreateCommandBuffer(queue_family_index);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+
+    VkImageAspectFlags transition_aspect = aspect;
+    if ((transition_aspect == VK_IMAGE_ASPECT_DEPTH_BIT) || (transition_aspect == VK_IMAGE_ASPECT_STENCIL_BIT))
+    {
+        // Depth and stencil aspects need to be transitioned together, so get full aspect
+        // mask for image.
+        transition_aspect = GetFormatAspectMask(format);
+    }
+
+    if (layout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        TransitionImageToTransferOptimal(image, layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, transition_aspect);
+    }
+
+    CopyImageBuffer(image,
+                    staging_buffer_.buffer,
+                    extent,
+                    mip_levels,
+                    array_layers,
+                    aspect,
+                    subresource_sizes,
+                    false,
+                    kBufferToImage);
+
+    if (layout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        TransitionImageFromTransferOptimal(image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, layout, transition_aspect);
+    }
+
+    result = SubmitCommandBuffer(queue);
 
     return result;
 }
