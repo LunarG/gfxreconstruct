@@ -613,7 +613,7 @@ class VulkanCppStructGenerator(BaseGenerator):
 
             arg_name = struct_prefix + arg.name
 
-            body.append(makeGen('/* {arg.name} */', locals(), 0))
+            body.append(makeGen('// {arg.name}', locals(), 0))
 
             lengths = []
             if arg.array_length_value is not None:
@@ -626,9 +626,9 @@ class VulkanCppStructGenerator(BaseGenerator):
                     lengths = re.split(',', loopCondition)
             elif arg.array_length is not None:
                 lengths = re.split(',', arg.array_length)
-                for count in range(len(lengths)):
-                    if not lengths[count].isupper() and not lengths[count].isnumeric():
-                        lengths[count] = struct_prefix + lengths[count]
+                for index, length in enumerate(lengths):
+                    if not (length.isupper() or length.isnumeric()):
+                        lengths[index] = struct_prefix + length
 
             num_lengths = len(lengths)
 

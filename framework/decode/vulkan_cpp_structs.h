@@ -84,7 +84,10 @@ std::string GenerateStruct_VkDebugUtilsMessengerCreateInfoEXT(std::ostream&     
                                                               Decoded_VkDebugUtilsMessengerCreateInfoEXT* metainfo,
                                                               VulkanCppConsumerBase&                      consumer);
 
-std::string GenerateStruct_VkPerformanceValueINTEL(std::ostream &out, const VkPerformanceValueINTEL* structInfo, Decoded_VkPerformanceValueINTEL* metainfo, VulkanCppConsumerBase &consumer);
+std::string GenerateStruct_VkPerformanceValueINTEL(std::ostream&                    out,
+                                                   const VkPerformanceValueINTEL*   structInfo,
+                                                   Decoded_VkPerformanceValueINTEL* metainfo,
+                                                   VulkanCppConsumerBase&           consumer);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

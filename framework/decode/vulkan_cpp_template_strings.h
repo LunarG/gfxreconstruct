@@ -86,24 +86,24 @@ static uint8_t CountBits(uint32_t val) {
 }
 
 uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
-    VkMemoryPropertyFlags targetPropertyFlags = originalMemoryTypes[0][originalMemoryTypeIndex].propertyFlags;
-    uint32_t memoryTypeIndex = UINT32_MAX;
+    VkMemoryPropertyFlags target_property_flags = originalMemoryTypes[0][originalMemoryTypeIndex].propertyFlags;
+    uint32_t memory_type_index = UINT32_MAX;
 
     // Always try the same index in case we are attempting a replay on the same device as it was recorded on.
-    if ((s_physicalDeviceMemoryProperties.memoryTypes[originalMemoryTypeIndex].propertyFlags & targetPropertyFlags) ==
-        targetPropertyFlags) {
-        memoryTypeIndex = originalMemoryTypeIndex;
+    if ((s_physicalDeviceMemoryProperties.memoryTypes[originalMemoryTypeIndex].propertyFlags & target_property_flags) ==
+        target_property_flags) {
+        memory_type_index = originalMemoryTypeIndex;
     } else {
         bool     fallback_found         = false;
         uint32_t fallback_index         = 0;
         uint8_t fallback_important_bits = 0;
         uint8_t fallback_normal_bits    = 0;
         for (uint32_t i = 0; i < s_physicalDeviceMemoryProperties.memoryTypeCount; i++) {
-            if((s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & targetPropertyFlags) == targetPropertyFlags) {
-              memoryTypeIndex = i;
+            if((s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & target_property_flags) == target_property_flags) {
+              memory_type_index = i;
               break;
             }
-            uint32_t cur_flags = (s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & targetPropertyFlags);
+            uint32_t cur_flags = (s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & target_property_flags);
             uint8_t normal_bits = CountBits(cur_flags);
             uint32_t important_flags = (cur_flags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT));
             uint8_t important_bits = CountBits(important_flags);
@@ -115,21 +115,21 @@ uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
             }
         }
 
-        if (memoryTypeIndex == UINT32_MAX) {
+        if (memory_type_index == UINT32_MAX) {
           if (fallback_found) {
-            memoryTypeIndex = fallback_index;
+            memory_type_index = fallback_index;
           } else {
             printf("Warning: couldn't find a matching memory type index, falling back to original.\n");
-            memoryTypeIndex = originalMemoryTypeIndex;
+            memory_type_index = originalMemoryTypeIndex;
           }
         }
 
-        if (originalMemoryTypeIndex != memoryTypeIndex) {
-          printf("Warning: memory type index changed from %u to %u.\n", originalMemoryTypeIndex, memoryTypeIndex);
+        if (originalMemoryTypeIndex != memory_type_index) {
+          printf("Warning: memory type index changed from %u to %u.\n", originalMemoryTypeIndex, memory_type_index);
         }
     }
 
-    return memoryTypeIndex;
+    return memory_type_index;
 }
 )";
 
@@ -171,7 +171,7 @@ static const char* sXcbOutputMainEnd = R"(
 )";
 
 static const char* sXcbOutputHeadersPlatform = R"(
-/* This file is a generated source, follow the instructions under tools/tocpp/README.md to build. */
+// This file is a generated source, follow the instructions under tools/tocpp/README.md to build.
 #define VK_USE_PLATFORM_XCB_KHR
 )";
 
@@ -199,18 +199,18 @@ extern void LogVkError(const char* function,
                        const char* file,
                        int line,
                        VkResult capturedReturnValue);
-extern size_t loadData(const char* filename,
-                       size_t file_offset,
-                       void* buffer,
-                       size_t offset,
-                       size_t data_size,
-                       struct XCBApp& appdata);
+extern size_t LoadBinaryData(const char* filename,
+                             size_t file_offset,
+                             void* buffer,
+                             size_t offset,
+                             size_t data_size,
+                             struct XCBApp& appdata);
 )";
 
 static const char* sXcbOutputOverrideMethod = R"(
 void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
                                        struct XCBApp& appdata) {
-    /* Open the connection to the X server */
+    // Open the connection to the X server
     xcb_connection_t *connection = xcb_connect(NULL, NULL);
 
     if (xcb_connection_has_error(connection) > 0)
@@ -219,29 +219,28 @@ void OverrideVkXcbSurfaceCreateInfoKHR(VkXcbSurfaceCreateInfoKHR* createInfo,
       exit(1);
     }
 
-    /* Get the first screen */
+    // Get the first screen
     const xcb_setup_t      *setup  = xcb_get_setup(connection);
     xcb_screen_iterator_t   iter   = xcb_setup_roots_iterator(setup);
     xcb_screen_t           *screen = iter.data;
 
-    /* Create the window */
+    // Create the window
     xcb_window_t window = xcb_generate_id(connection);
-    xcb_create_window(connection,                    /* Connection          */
-                      XCB_COPY_FROM_PARENT,          /* depth (same as root)*/
-                      window,                        /* window Id           */
-                      screen->root,                  /* parent window       */
-                      0, 0,                          /* x, y                */
-                      appdata.width, appdata.height, /* width, height       */
-                      10,                            /* border_width        */
-                      XCB_WINDOW_CLASS_INPUT_OUTPUT, /* class               */
-                      screen->root_visual,           /* visual              */
-                      0, NULL );                     /* masks, not used yet */
+    xcb_create_window(connection,                    // Connection
+                      XCB_COPY_FROM_PARENT,          // depth (same as root)
+                      window,                        // window Id
+                      screen->root,                  // parent window
+                      0, 0,                          // x, y
+                      appdata.width, appdata.height, // width, height
+                      10,                            // border_width
+                      XCB_WINDOW_CLASS_INPUT_OUTPUT, // class
+                      screen->root_visual,           // visual
+                      0, NULL );                     // masks, not used yet
 
-
-    /* Map the window on the screen */
+    // Map the window on the screen
     xcb_map_window(connection, window);
 
-    /* Make sure commands are sent before we pause so that the window gets shown */
+    // Make sure commands are sent before we pause so that the window gets shown
     xcb_flush(connection);
 
     appdata.connection = connection;
@@ -283,12 +282,12 @@ void UpdateWindowSize(uint32_t width,
     appdata.height = height;
 }
 
-size_t loadData(const char* filename,
-                size_t file_offset,
-                void* buffer,
-                size_t offset,
-                size_t data_size,
-                struct XCBApp& appdata) {
+size_t LoadBinaryData(const char* filename,
+                      size_t file_offset,
+                      void* buffer,
+                      size_t offset,
+                      size_t data_size,
+                      struct XCBApp& appdata) {
     (void)appdata; // Unused
 
     FILE* fp = fopen(filename, "rb");
@@ -324,7 +323,7 @@ target_link_libraries(vulkan_app vulkan xcb)
 
 // Beginning of Android template strings
 static const char* sAndroidOutputHeadersPlatform = R"(
-/* This file is a generated source, follow the instructions under tools/tocpp/README.md to build. */
+// This file is a generated source, follow the instructions under tools/tocpp/README.md to build.
 #define VK_USE_PLATFORM_ANDROID_KHR
 )";
 
@@ -344,12 +343,12 @@ void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* create
     createInfo->window = appdata->window;
 }
 
-void loadData(const char* filename,
-              size_t file_offset,
-              void* buffer,
-              size_t offset,
-              size_t data_size,
-              android_app* app) {
+void LoadBinaryData(const char* filename,
+                    size_t file_offset,
+                    void* buffer,
+                    size_t offset,
+                    size_t data_size,
+                    android_app* app) {
     AAsset* file = AAssetManager_open(app->activity->assetManager, filename,
                                       AASSET_MODE_STREAMING);
     if (!file) {
@@ -365,7 +364,7 @@ void loadData(const char* filename,
     AAsset_close(file);
 }
 
-void copyImageSubresourceMemory(uint8_t*       dst,
+void CopyImageSubresourceMemory(uint8_t*       dst,
                                 const uint8_t* src,
                                 size_t         offset,
                                 size_t         size,
@@ -494,13 +493,13 @@ static const char* sAndroidOutputHeader = R"(
 
 extern void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo,
                                                   struct android_app* appdata);
-extern void loadData(const char* filename,
-                     size_t file_offset,
-                     void* buffer,
-                     size_t offset,
-                     size_t data_size,
-                     android_app* app);
-extern void copyImageSubresourceMemory(uint8_t*       dst,
+extern void LoadBinaryData(const char* filename,
+                           size_t file_offset,
+                           void* buffer,
+                           size_t offset,
+                           size_t data_size,
+                           android_app* app);
+extern void CopyImageSubresourceMemory(uint8_t*       dst,
                                        const uint8_t* src,
                                        size_t         offset,
                                        size_t         size,
@@ -555,7 +554,7 @@ static const char* sWin32OutputMainEnd = R"(
 )";
 
 static const char* sWin32OutputHeadersPlatform = R"(
-/* This file is a generated source, follow the instructions under tools/tocpp/README.md to build. */
+// This file is a generated source, follow the instructions under tools/tocpp/README.md to build.
 #define VK_USE_PLATFORM_WIN32_KHR
 )";
 
@@ -584,12 +583,12 @@ extern void LogVkError(const char* function,
                        const char* file,
                        int line,
                        VkResult capturedReturnValue);
-extern size_t loadData(const char* filename,
-                       size_t file_offset,
-                       void* buffer,
-                       size_t offset,
-                       size_t data_size,
-                       struct Win32App& appdata);
+extern size_t LoadBinaryData(const char* filename,
+                             size_t file_offset,
+                             void* buffer,
+                             size_t offset,
+                             size_t data_size,
+                             struct Win32App& appdata);
 )";
 
 static const char* sWin32OutputOverrideMethod = R"(
@@ -624,12 +623,12 @@ void UpdateWindowSize(uint32_t width,
     appdata.height = height;
 }
 
-size_t loadData(const char* filename,
-                size_t file_offset,
-                void* buffer,
-                size_t offset,
-                size_t data_size,
-                struct Win32App& appdata) {
+size_t LoadBinaryData(const char* filename,
+                      size_t file_offset,
+                      void* buffer,
+                      size_t offset,
+                      size_t data_size,
+                      struct Win32App& appdata) {
     (void)appdata; // Unused
 
     FILE* fp = fopen(filename, "rb");

@@ -764,7 +764,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             if arg.base_type in self.handle_names:
                 handleObjectType = makeObjectType(arg.base_type)
 
-            body += makeGen('/* {arg.name} */', locals(), indent=0)
+            body += makeGen('// {arg.name}', locals(), indent=0)
 
             if arg.is_pointer and self.is_struct(arg.base_type) and self.is_input_pointer(arg):
                 if arg.base_type == 'VkAllocationCallbacks':

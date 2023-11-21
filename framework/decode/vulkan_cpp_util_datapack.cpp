@@ -1,20 +1,19 @@
-/*
-** Copyright (c) 2021 Samsung
-** Copyright (c) 2023 Google
-** Copyright (c) 2023 LunarG, Inc
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+//
+// Copyright (c) 2021 Samsung
+// Copyright (c) 2023 Google
+// Copyright (c) 2023 LunarG, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "decode/vulkan_cpp_util_datapack.h"
 
@@ -46,10 +45,10 @@ const SavedFileInfo DataFilePacker::AddFileContents(const uint8_t* data, const u
 
     if (dataEntry.file_path.empty())
     {
-        /* The binary contents is not found in any previous chunk. */
+        // The binary contents is not found in any previous chunk.
         if (current_data_file_.current_size > size_limit_in_bytes_)
         {
-            /* Reached the current file size limit, create a new data chunk. */
+            // Reached the current file size limit, create a new data chunk.
             NewTargetFile();
         }
 

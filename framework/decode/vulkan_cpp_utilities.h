@@ -31,7 +31,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 const uint32_t MAX_FRAME_CAPACITY = 1000;
 
-enum class GfxTocppPlatform
+enum class GfxToCppPlatform
 {
     PLATFORM_ANDROID,
     PLATFORM_MACOS,
@@ -44,18 +44,18 @@ enum class GfxTocppPlatform
 
 struct PlatformTargets
 {
-    gfxrecon::decode::GfxTocppPlatform platformEnum;
+    gfxrecon::decode::GfxToCppPlatform platformEnum;
     char                               platformName[32];
     char                               wsiSurfaceExtName[32];
 };
 
 const PlatformTargets kValidTargetPlatforms[] = {
-    { GfxTocppPlatform::PLATFORM_ANDROID, "android", VK_KHR_ANDROID_SURFACE_EXTENSION_NAME },
-    { GfxTocppPlatform::PLATFORM_MACOS, "macos", VK_EXT_METAL_SURFACE_EXTENSION_NAME },
-    { GfxTocppPlatform::PLATFORM_WAYLAND, "wayland", VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME },
-    { GfxTocppPlatform::PLATFORM_WIN32, "win32", VK_KHR_WIN32_SURFACE_EXTENSION_NAME },
-    { GfxTocppPlatform::PLATFORM_XCB, "xcb", VK_KHR_XCB_SURFACE_EXTENSION_NAME },
-    { GfxTocppPlatform::PLATFORM_XLIB, "xlib", VK_KHR_XLIB_SURFACE_EXTENSION_NAME }
+    { GfxToCppPlatform::PLATFORM_ANDROID, "android", VK_KHR_ANDROID_SURFACE_EXTENSION_NAME },
+    { GfxToCppPlatform::PLATFORM_MACOS, "macos", VK_EXT_METAL_SURFACE_EXTENSION_NAME },
+    { GfxToCppPlatform::PLATFORM_WAYLAND, "wayland", VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME },
+    { GfxToCppPlatform::PLATFORM_WIN32, "win32", VK_KHR_WIN32_SURFACE_EXTENSION_NAME },
+    { GfxToCppPlatform::PLATFORM_XCB, "xcb", VK_KHR_XCB_SURFACE_EXTENSION_NAME },
+    { GfxToCppPlatform::PLATFORM_XLIB, "xlib", VK_KHR_XLIB_SURFACE_EXTENSION_NAME }
 };
 
 struct GfxToCppVariable
@@ -64,8 +64,8 @@ struct GfxToCppVariable
     std::string name;
     uint32_t    count;
 
-    std::string                     str() const;
-    static std::vector<std::string> toStrVec(const std::vector<GfxToCppVariable>& variables);
+    std::string                     GenerateString() const;
+    static std::vector<std::string> GenerateStringVec(const std::vector<GfxToCppVariable>& variables);
 };
 
 void PrintToFile(FILE* file, const std::string& format, const std::vector<std::string>& data);

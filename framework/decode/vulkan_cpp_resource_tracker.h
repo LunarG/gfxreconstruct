@@ -1,21 +1,20 @@
-/*
-** Copyright (c) 2022 Samsung
-** Copyright (c) 2023 Google
-** Copyright (c) 2023 LunarG, Inc
-**
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+//
+// Copyright (c) 2022 Samsung
+// Copyright (c) 2023 Google
+// Copyright (c) 2023 LunarG, Inc
+//
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef GFXRECONSTRUCT_VULKAN_CPP_RESOURCE_TRACKER_H
 #define GFXRECONSTRUCT_VULKAN_CPP_RESOURCE_TRACKER_H
@@ -34,7 +33,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct FrameId
 {
-    // TODO(tkeri: uint64_t to include xxhash64?)
     uint32_t frame_number;
     uint32_t frame_split;
 
@@ -46,9 +44,11 @@ struct FrameId
 
 struct FrameIdHasher
 {
-    uint32_t operator()(const FrameId& frameId) const
+    uint64_t operator()(const FrameId& frameId) const
     {
-        return XXHash32::hash(&frameId.frame_split, 1, 0) ^ XXHash32::hash(&frameId.frame_number, 1, 0);
+        // With a 32-bit frame and split number, we can easily just output a 64-bit "hash" which is just both
+        // numbers bit-shifted giving a unique value instead of doing an actual 32-bit hash on each number.
+        return (static_cast<uint64_t>(frameId.frame_split) << 32) | (static_cast<uint64_t>(frameId.frame_number) & 0x00000000FFFFFFFF);
     }
 };
 

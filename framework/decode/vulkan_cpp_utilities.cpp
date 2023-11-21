@@ -23,7 +23,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-std::string GfxToCppVariable::str() const
+std::string GfxToCppVariable::GenerateString() const
 {
     std::string var_string = type + " " + name;
     if (count > 0)
@@ -33,14 +33,14 @@ std::string GfxToCppVariable::str() const
     return var_string;
 }
 
-std::vector<std::string> GfxToCppVariable::toStrVec(const std::vector<GfxToCppVariable>& variables)
+std::vector<std::string> GfxToCppVariable::GenerateStringVec(const std::vector<GfxToCppVariable>& variables)
 {
     std::vector<std::string> var_strings;
     var_strings.reserve(variables.size());
     std::transform(variables.begin(),
                    variables.end(),
                    std::back_inserter(var_strings),
-                   [](const GfxToCppVariable& variable) { return variable.str(); });
+                   [](const GfxToCppVariable& variable) { return variable.GenerateString(); });
     return var_strings;
 }
 
