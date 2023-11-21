@@ -1,20 +1,19 @@
-/*
-** Copyright (c) 2020 Samsung
-** Copyright (c) 2023 Google
-** Copyright (c) 2023 LunarG, Inc
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+//
+// Copyright (c) 2020 Samsung
+// Copyright (c) 2023 Google
+// Copyright (c) 2023 LunarG, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef GFXRECON_DECODE_VULKAN_CPP_CONSUMER_BASE_H
 #define GFXRECON_DECODE_VULKAN_CPP_CONSUMER_BASE_H
@@ -59,7 +58,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     virtual ~VulkanCppConsumerBase() override;
 
-    bool Initialize(const std::string& filename, const GfxTocppPlatform& platform, const std::string& outputDir);
+    bool Initialize(const std::string& filename, const GfxToCppPlatform& platform, const std::string& outputDir);
 
     void Destroy();
 
@@ -73,7 +72,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     const std::string& GetFilename() const { return filename_; }
 
-    GfxTocppPlatform GetPlatform() { return platform_; }
+    GfxToCppPlatform GetPlatform() { return platform_; }
 
     uint32_t GetProperWindowWidth(uint32_t width) { return std::min(width, window_width_); };
     uint32_t GetProperWindowHeight(uint32_t height) { return std::min(height, window_height_); };
@@ -133,6 +132,9 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     uint32_t GetCurrentApiCallNumber() { return api_call_number_; }
 
+    void SetNeedsDebugUtilsCallback(bool value) { needs_debug_util_callback_ = value; }
+
+    // Custom code generation commands
     void Generate_vkEnumeratePhysicalDevices(VkResult                                returnValue,
                                              format::HandleId                        instance,
                                              PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
@@ -236,7 +238,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
                                         HandlePointerDecoder<VkPipelineCache>*                   pPipelineCache);
 
-    void GenerateSurfaceCreation(GfxTocppPlatform        platform,
+    void GenerateSurfaceCreation(GfxToCppPlatform        platform,
                                  VkResult                returnValue,
                                  format::HandleId        instance,
                                  void*                   pSurfaceCreateInfo,
@@ -379,6 +381,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                pPipelines);
 
+    // Intercept commands that perform additional work prior to the standard code generation
     void Intercept_vkCreateDevice(VkResult                                             returnValue,
                                   format::HandleId                                     physicalDevice,
                                   StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
@@ -401,6 +404,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                         StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
                                         VkSubpassContents                                    contents);
 
+    // Complete manual process functions
     void Process_vkCreateRayTracingPipelinesKHR(
         const ApiCallInfo&                                               call_info,
         VkResult                                                         returnValue,
@@ -436,11 +440,13 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
+    // String utilities
     static std::string ToEscape(const char* value);
     static std::string EscapeStringArray(const char* const* layerNames, const uint32_t stringArrayLength);
     static std::string ToEscape(const std::string& value);
     static std::string EscapeStringArray(const std::vector<std::string>& strings);
 
+    // Special case struct build functions for cleaner use in generated code.
     static std::string BuildValue(const VkClearColorValue color);
     static std::string BuildValue(const VkClearValue clearValue);
     static std::string BuildValue(const VkClearValue* clearValue);
@@ -493,8 +499,6 @@ class VulkanCppConsumerBase : public VulkanConsumer
         output << "}";
         return output.str();
     }
-
-    void SetNeedsDebugUtilsCallback(bool value) { needs_debug_util_callback_ = value; }
 
     // Meta data commands
     virtual void
@@ -572,30 +576,29 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
   private:
     bool CreateSubOutputDirectories(const std::vector<std::string>& subDirs);
-
+    void PrintOutCMakeFile();
+    void PrintOutGlobalVar();
     void WriteMainHeader();
     void WriteMainFooter();
     void WriteGlobalHeaderFile();
-    void PrintOutGlobalVar();
-    void PrintOutCMakeFile();
 
     struct FrameTempMemory
     {
         std::string name;
         size_t      size;
     };
-    std::vector<FrameTempMemory> frame_split_temp_memory_;
 
     uint32_t                                           frame_number_;
     uint32_t                                           frame_split_number_;
     uint32_t                                           frame_api_call_number_;
     uint32_t                                           api_call_number_;
+    std::vector<FrameTempMemory>                       frame_split_temp_memory_;
     FILE*                                              frame_file_;
     FILE*                                              global_file_;
     FILE*                                              header_file_;
     FILE*                                              main_file_;
     std::string                                        filename_;
-    GfxTocppPlatform                                   platform_;
+    GfxToCppPlatform                                   platform_;
     std::string                                        out_dir_;
     std::string                                        bin_out_dir_;
     std::string                                        spv_out_dir_;

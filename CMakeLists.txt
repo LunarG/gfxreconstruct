@@ -118,6 +118,8 @@ if(${GFXRECON_ENABLE_RELEASE_ASSERTS})
     add_definitions(-DGFXRECON_ENABLE_RELEASE_ASSERTS)
 endif()
 
+option(GFXRECON_TOCPP_SUPPORT "Build ToCpp export tool as part of GFXReconstruct builds." OFF)
+
 if(MSVC)
 
     # The host toolchain architecture (i.e. are the compiler and other tools compiled to ARM/Intel 32bit/64bit binaries):

@@ -1,20 +1,19 @@
-/*
-** Copyright (c) 2020 Samsung
-** Copyright (c) 2023 Google
-** Copyright (c) 2023 LunarG, Inc
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+//
+// Copyright (c) 2020 Samsung
+// Copyright (c) 2023 Google
+// Copyright (c) 2023 LunarG, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "decode/vulkan_cpp_consumer_base.h"
 #include "decode/vulkan_cpp_template_strings.h"
@@ -34,15 +33,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-struct GfxTocppPlatformMap
+struct GfxToCppPlatformMap
 {
-    GfxTocppPlatform platform;
+    GfxToCppPlatform platform;
     std::string      platform_str;
 };
 
-const GfxTocppPlatform GetGfxTocppPlatform(const std::string& format_str);
-const std::string      GfxTocppPlatformToString(GfxTocppPlatform platform);
-bool                   GfxTocppPlatformIsValid(const GfxTocppPlatform& platform);
+const GfxToCppPlatform GetGfxToCppPlatform(const std::string& format_str);
+const std::string      GfxToCppPlatformToString(GfxToCppPlatform platform);
+bool                   GfxToCppPlatformIsValid(const GfxToCppPlatform& platform);
 
 VulkanCppConsumerBase::VulkanCppConsumerBase() :
     frame_file_(nullptr), global_file_(nullptr), header_file_(nullptr), main_file_(nullptr), pfn_loader_()
@@ -86,21 +85,21 @@ void VulkanCppConsumerBase::WriteMainHeader()
 {
     switch (platform_)
     {
-        case GfxTocppPlatform::PLATFORM_ANDROID:
+        case GfxToCppPlatform::PLATFORM_ANDROID:
             fprintf(main_file_, "%s", sAndroidOutputDrawFunctionStart);
             break;
-        case GfxTocppPlatform::PLATFORM_WIN32:
+        case GfxToCppPlatform::PLATFORM_WIN32:
             fprintf(main_file_, "%s", sWin32OutputMainStart);
             break;
-        case GfxTocppPlatform::PLATFORM_XCB:
+        case GfxToCppPlatform::PLATFORM_XCB:
             fprintf(main_file_, "%s", sXcbOutputMainStart);
             break;
-        case GfxTocppPlatform::PLATFORM_COUNT:
+        case GfxToCppPlatform::PLATFORM_COUNT:
         default:
         {
             fprintf(main_file_,
                     "// Nothing to generate for unknown platform: %s\n",
-                    GfxTocppPlatformToString(platform_).c_str());
+                    GfxToCppPlatformToString(platform_).c_str());
             assert(false);
             break;
         }
@@ -111,21 +110,21 @@ void VulkanCppConsumerBase::WriteMainFooter()
 {
     switch (platform_)
     {
-        case GfxTocppPlatform::PLATFORM_ANDROID:
+        case GfxToCppPlatform::PLATFORM_ANDROID:
             fprintf(main_file_, "%s", sAndroidOutputDrawFunctionEnd);
             break;
-        case GfxTocppPlatform::PLATFORM_WIN32:
+        case GfxToCppPlatform::PLATFORM_WIN32:
             fprintf(main_file_, "%s", sWin32OutputMainEnd);
             break;
-        case GfxTocppPlatform::PLATFORM_XCB:
+        case GfxToCppPlatform::PLATFORM_XCB:
             fprintf(main_file_, "%s", sXcbOutputMainEnd);
             break;
-        case GfxTocppPlatform::PLATFORM_COUNT:
+        case GfxToCppPlatform::PLATFORM_COUNT:
         default:
         {
             fprintf(main_file_,
                     "// Nothing to generate for unknown platform: %s\n",
-                    GfxTocppPlatformToString(platform_).c_str());
+                    GfxToCppPlatformToString(platform_).c_str());
             assert(false);
             break;
         }
@@ -136,7 +135,7 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
 {
     switch (platform_)
     {
-        case GfxTocppPlatform::PLATFORM_ANDROID:
+        case GfxToCppPlatform::PLATFORM_ANDROID:
             fprintf(GetHeaderFile(),
                     "%s%s%s%s",
                     sAndroidOutputHeadersPlatform,
@@ -144,7 +143,7 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
                     sAndroidOutputHeader,
                     sCommonOutputHeaderFunctions);
             break;
-        case GfxTocppPlatform::PLATFORM_WIN32:
+        case GfxToCppPlatform::PLATFORM_WIN32:
             fprintf(GetHeaderFile(),
                     "%s%s%s%s",
                     sWin32OutputHeadersPlatform,
@@ -152,7 +151,7 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
                     sWin32OutputHeader,
                     sCommonOutputHeaderFunctions);
             break;
-        case GfxTocppPlatform::PLATFORM_XCB:
+        case GfxToCppPlatform::PLATFORM_XCB:
             fprintf(GetHeaderFile(),
                     "%s%s%s%s",
                     sXcbOutputHeadersPlatform,
@@ -160,18 +159,18 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
                     sXcbOutputHeader,
                     sCommonOutputHeaderFunctions);
             break;
-        case GfxTocppPlatform::PLATFORM_COUNT:
+        case GfxToCppPlatform::PLATFORM_COUNT:
         default:
         {
             fprintf(main_file_,
                     "// Nothing to generate for unknown platform: %s\n",
-                    GfxTocppPlatformToString(platform_).c_str());
+                    GfxToCppPlatformToString(platform_).c_str());
             assert(false);
             break;
         }
     }
 
-    PrintToFile(GetHeaderFile(), "extern %s;\n", GfxToCppVariable::toStrVec(variable_data_));
+    PrintToFile(GetHeaderFile(), "extern %s;\n", GfxToCppVariable::GenerateStringVec(variable_data_));
 
     PrintToFile(GetHeaderFile(), "%s", func_data_);
 
@@ -197,16 +196,16 @@ void VulkanCppConsumerBase::PrintOutCMakeFile()
     {
         switch (platform_)
         {
-            case GfxTocppPlatform::PLATFORM_ANDROID:
+            case GfxToCppPlatform::PLATFORM_ANDROID:
                 // Nothing to do here
                 break;
-            case GfxTocppPlatform::PLATFORM_WIN32:
+            case GfxToCppPlatform::PLATFORM_WIN32:
                 fprintf(cmake_file, "%s", sWin32CMakeFile);
                 break;
-            case GfxTocppPlatform::PLATFORM_XCB:
+            case GfxToCppPlatform::PLATFORM_XCB:
                 fprintf(cmake_file, "%s", sXcbCMakeFile);
                 break;
-            case GfxTocppPlatform::PLATFORM_COUNT:
+            case GfxToCppPlatform::PLATFORM_COUNT:
             default:
             {
                 fprintf(stderr, "Error while opening file: %s\n", filename.c_str());
@@ -272,10 +271,10 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
 
         switch (platform_)
         {
-            case GfxTocppPlatform::PLATFORM_ANDROID:
+            case GfxToCppPlatform::PLATFORM_ANDROID:
                 fputs(sAndroidOutputGlobalSource, global_file);
                 break;
-            case GfxTocppPlatform::PLATFORM_WIN32:
+            case GfxToCppPlatform::PLATFORM_WIN32:
             {
                 int   size = snprintf(NULL, 0, sWin32OutputOverrideMethod, window_width_, window_height_);
                 char* formatted_output_override_method = new char[size + 2];
@@ -288,7 +287,7 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
                 delete[] formatted_output_override_method;
                 break;
             }
-            case GfxTocppPlatform::PLATFORM_XCB:
+            case GfxToCppPlatform::PLATFORM_XCB:
             {
                 int   size = snprintf(NULL, 0, sXcbOutputOverrideMethod, window_width_, window_height_);
                 char* formatted_output_override_method = new char[size + 2];
@@ -301,17 +300,17 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
                 delete[] formatted_output_override_method;
                 break;
             }
-            case GfxTocppPlatform::PLATFORM_COUNT:
+            case GfxToCppPlatform::PLATFORM_COUNT:
             default:
             {
                 fprintf(main_file_,
                         "// Nothing to generate for unknown platform: %s\n",
-                        GfxTocppPlatformToString(platform_).c_str());
+                        GfxToCppPlatformToString(platform_).c_str());
                 return;
             }
         }
 
-        PrintToFile(global_file, "%s;\n", GfxToCppVariable::toStrVec(variable_data_));
+        PrintToFile(global_file, "%s;\n", GfxToCppVariable::GenerateStringVec(variable_data_));
 
         if (needs_debug_util_callback_)
         {
@@ -339,7 +338,7 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
 }
 
 bool VulkanCppConsumerBase::Initialize(const std::string&      filename,
-                                       const GfxTocppPlatform& platform,
+                                       const GfxToCppPlatform& platform,
                                        const std::string&      outputDir)
 {
     bool success = false;
@@ -349,7 +348,7 @@ bool VulkanCppConsumerBase::Initialize(const std::string&      filename,
         int32_t result = util::platform::FileOpen(&main_file_, filename.c_str(), "w");
         if (result == 0)
         {
-            if (platform != GfxTocppPlatform::PLATFORM_COUNT)
+            if (platform != GfxToCppPlatform::PLATFORM_COUNT)
             {
                 filename_    = filename;
                 platform_    = platform;
@@ -400,7 +399,7 @@ void VulkanCppConsumerBase::Destroy()
             WriteGlobalHeaderFile();
             WriteMainFooter();
             util::platform::FileClose(main_file_);
-            if (platform_ != GfxTocppPlatform::PLATFORM_ANDROID)
+            if (platform_ != GfxToCppPlatform::PLATFORM_ANDROID)
             {
                 PrintOutCMakeFile();
             }
@@ -496,7 +495,7 @@ void VulkanCppConsumerBase::GenerateLoadData(
     const std::string& filename, uint64_t fileOffset, const std::string& dataPtrVarName, uint64_t offset, uint64_t size)
 {
     fprintf(GetFrameFile(),
-            "\tloadData(\"%s\", %" PRIu64 ", %s, %" PRIu64 ", %" PRIu64 ", appdata);\n",
+            "\tLoadBinaryData(\"%s\", %" PRIu64 ", %s, %" PRIu64 ", %" PRIu64 ", appdata);\n",
             filename.c_str(),
             fileOffset,
             dataPtrVarName.c_str(),
@@ -756,13 +755,13 @@ void VulkanCppConsumerBase::Generate_vkGetBufferMemoryRequirements2(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    /* device */
-    /* pInfo */
+    // device
+    // pInfo
     std::stringstream stream_info;
     std::string       info_struct_name = GenerateStruct_VkBufferMemoryRequirementsInfo2(
         stream_info, pInfo->GetPointer(), pInfo->GetMetaStructPointer(), *this);
     fprintf(file, "%s", stream_info.str().c_str());
-    /* pMemoryRequirements */
+    // pMemoryRequirements
     std::string       memory_requirements_var_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
     std::stringstream stream_pMemoryRequirements;
     memory_requirements_var_name = GenerateStruct_VkMemoryRequirements2(stream_pMemoryRequirements,
@@ -795,13 +794,13 @@ void VulkanCppConsumerBase::Generate_vkGetImageMemoryRequirements2(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    /* device */
-    /* pInfo */
+    // device
+    // pInfo
     std::stringstream stream_info;
     std::string       info_struct_name = GenerateStruct_VkImageMemoryRequirementsInfo2(
         stream_info, pInfo->GetPointer(), pInfo->GetMetaStructPointer(), *this);
     fprintf(file, "%s", stream_info.str().c_str());
-    /* pMemoryRequirements */
+    // pMemoryRequirements
     std::string       memory_requirements_var_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
     std::stringstream stream_pMemoryRequirements;
     memory_requirements_var_name = GenerateStruct_VkMemoryRequirements2(stream_pMemoryRequirements,
@@ -1068,7 +1067,7 @@ static void BuildInstanceCreateInfo(std::ostream&                       out,
                       out, struct_info->pApplicationInfo, metaInfo->pApplicationInfo->GetMetaStructPointer(), consumer);
     }
 
-    /* Print out enabled layers if there is any */
+    // Print out enabled layers if there is any
     std::string enabled_layers_value = "NULL";
     if (layerNames.size() > 0)
     {
@@ -1082,7 +1081,7 @@ static void BuildInstanceCreateInfo(std::ostream&                       out,
     if (struct_info->enabledExtensionCount > 0)
     {
         // The array should be setup so that the enum could be used as an index.  Just verify it
-        GfxTocppPlatform cur_platform = consumer.GetPlatform();
+        GfxToCppPlatform cur_platform = consumer.GetPlatform();
         assert(kValidTargetPlatforms[static_cast<uint32_t>(cur_platform)].platformEnum == cur_platform);
         std::string cur_extension_name = kValidTargetPlatforms[static_cast<uint32_t>(cur_platform)].wsiSurfaceExtName;
 
@@ -1103,14 +1102,14 @@ static void BuildInstanceCreateInfo(std::ostream&                       out,
     }
 
     out << "\t\tVkInstanceCreateInfo " << var_name << " = {" << std::endl;
-    out << "\t\t/* sType */ " << util::ToString<VkStructureType>(struct_info->sType) << "," << std::endl;
-    out << "\t\t/* pNext */ " << next_name << "," << std::endl;
-    out << "\t\t/* flags */ " << util::ToString<VkInstanceCreateFlags>(struct_info->flags) << "," << std::endl;
-    out << "\t\t/* pApplicationInfo */ " << app_info_struct_var_name << "," << std::endl;
-    out << "\t\t/* enabledLayerCount */ " << layerNames.size() << "," << std::endl;
-    out << "\t\t/* ppEnabledLayerNames */ " << enabled_layers_value << "," << std::endl;
-    out << "\t\t/* enabledExtensionCount */ " << extension_names.size() << "," << std::endl;
-    out << "\t\t/* ppEnabledExtensionNames */ " << enabled_extensions_names << "," << std::endl;
+    out << "\t\t" << util::ToString<VkStructureType>(struct_info->sType) << ", // sType" << std::endl;
+    out << "\t\t" << next_name << ", // pNext" << std::endl;
+    out << "\t\t" << util::ToString<VkInstanceCreateFlags>(struct_info->flags) << ", // flags" << std::endl;
+    out << "\t\t" << app_info_struct_var_name << ", // pApplicationInfo" << std::endl;
+    out << "\t\t" << layerNames.size() << ", // enabledLayerCount" << std::endl;
+    out << "\t\t" << enabled_layers_value << ", // ppEnabledLayerNames" << std::endl;
+    out << "\t\t" << extension_names.size() << ", // enabledExtensionCount" << std::endl;
+    out << "\t\t" << enabled_extensions_names << " // ppEnabledExtensionNames" << std::endl;
     out << "\t\t};" << std::endl;
 
     std::string vkInstanceCreateInfoVar = "VkInstanceCreateInfo " + var_name + ";\n";
@@ -1172,7 +1171,7 @@ void VulkanCppConsumerBase::Generate_vkCreateShaderModule(
 
     const VkShaderModuleCreateInfo* struct_info = pCreateInfo->GetPointer();
 
-    /* emit spirv data load. */
+    // emit spirv data load.
     std::string         code_var_name = "pCode_" + std::to_string(VulkanCppConsumerBase::GetNextId());
     const SavedFileInfo file_info =
         spv_saver_.AddFileContents((const uint8_t*)struct_info->pCode, struct_info->codeSize);
@@ -1186,12 +1185,11 @@ void VulkanCppConsumerBase::Generate_vkCreateShaderModule(
 
     std::stringstream out_struct;
     out_struct << "\t\tVkShaderModuleCreateInfo " << create_info_struct_name << " = {" << std::endl;
-    out_struct << "\t\t/* sType */ " << util::ToString<VkStructureType>(struct_info->sType) << "," << std::endl;
-    out_struct << "\t\t/* pNext */ " << struct_info->pNext << "," << std::endl;
-    out_struct << "\t\t/* flags */ " << util::ToString<VkShaderModuleCreateFlags>(struct_info->flags) << ","
-               << std::endl;
-    out_struct << "\t\t/* codeSize */ " << struct_info->codeSize << "," << std::endl;
-    out_struct << "\t\t/* pCode */ (const uint32_t*)" << code_var_name << "," << std::endl;
+    out_struct << "\t\t" << util::ToString<VkStructureType>(struct_info->sType) << ", // sType" << std::endl;
+    out_struct << "\t\t" << struct_info->pNext << ", // pNext" << std::endl;
+    out_struct << "\t\t" << util::ToString<VkShaderModuleCreateFlags>(struct_info->flags) << ", // flags" << std::endl;
+    out_struct << "\t\t" << struct_info->codeSize << ", // codeSize" << std::endl;
+    out_struct << "\t\t(const uint32_t*)" << code_var_name << " // pCode" << std::endl;
     out_struct << "\t\t};" << std::endl;
     fprintf(file, "%s", out_struct.str().c_str());
 
@@ -1210,7 +1208,7 @@ void VulkanCppConsumerBase::Generate_vkCreateShaderModule(
             shader_module_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
 
-    /* emit delete the allocated spv data. */
+    // emit delete the allocated spv data.
     fprintf(file, "\t\tdelete [] %s;\n\n", code_var_name.c_str());
     fprintf(file, "\t}\n");
 }
@@ -1231,16 +1229,12 @@ void VulkanCppConsumerBase::Generate_vkCreatePipelineCache(
     std::stringstream stream_create_info;
 
     stream_create_info << "\t\tVkPipelineCacheCreateInfo " << create_info_struct_var_name << " {" << std::endl;
-    stream_create_info << "\t\t/* sType */ " << util::ToString<VkStructureType>(struct_info->sType) << "," << std::endl;
-    stream_create_info << "\t\t/* pNext */ " << struct_info->pNext << "," << std::endl;
-    stream_create_info << "\t\t/* flags */ " << util::ToString<VkPipelineCacheCreateFlags>(struct_info->flags) << ","
+    stream_create_info << "\t\t" << util::ToString<VkStructureType>(struct_info->sType) << ", // sType" << std::endl;
+    stream_create_info << "\t\t" << struct_info->pNext << ", // pNext" << std::endl;
+    stream_create_info << "\t\t" << util::ToString<VkPipelineCacheCreateFlags>(struct_info->flags) << ", // flags"
                        << std::endl;
-    stream_create_info << "\t\t/* initialDataSize */ "
-                       << "0"
-                       << "," << std::endl;
-    stream_create_info << "\t\t/* pInitialData */ "
-                       << "NULL"
-                       << "," << std::endl;
+    stream_create_info << "\t\t0, // initialDataSize" << std::endl;
+    stream_create_info << "\t\tNULL // pInitialData" << std::endl;
     stream_create_info << "\t\t};" << std::endl;
     fprintf(file, "\n%s", stream_create_info.str().c_str());
 
@@ -1321,7 +1315,7 @@ void VulkanCppConsumerBase::Generate_vkCreateXlibSurfaceKHR(
     GenerateSurfaceCreation(platform_, returnValue, instance, (void*)pCreateInfo, pSurface->GetPointer());
 }
 
-void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxTocppPlatform        platform,
+void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxToCppPlatform        platform,
                                                     VkResult                returnValue,
                                                     format::HandleId        instance,
                                                     void*                   pSurfaceCreateInfo,
@@ -1338,7 +1332,7 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxTocppPlatform        plat
 
     switch (platform_)
     {
-        case GfxTocppPlatform::PLATFORM_ANDROID:
+        case GfxToCppPlatform::PLATFORM_ANDROID:
         {
             VkAndroidSurfaceCreateInfoKHR         android_struct_info  = {};
             Decoded_VkAndroidSurfaceCreateInfoKHR decoded_android_info = {};
@@ -1355,7 +1349,7 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxTocppPlatform        plat
             surface_create_func_call = "vkCreateAndroidSurfaceKHR";
             break;
         }
-        case GfxTocppPlatform::PLATFORM_WIN32:
+        case GfxToCppPlatform::PLATFORM_WIN32:
         {
             VkWin32SurfaceCreateInfoKHR         win32_struct_info  = {};
             Decoded_VkWin32SurfaceCreateInfoKHR decoded_win32_info = {};
@@ -1372,7 +1366,7 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxTocppPlatform        plat
             surface_create_func_call = "vkCreateWin32SurfaceKHR";
             break;
         }
-        case GfxTocppPlatform::PLATFORM_XCB:
+        case GfxToCppPlatform::PLATFORM_XCB:
         {
             VkXcbSurfaceCreateInfoKHR         xcb_struct_info  = {};
             Decoded_VkXcbSurfaceCreateInfoKHR decoded_xcb_info = {};
@@ -1389,7 +1383,7 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxTocppPlatform        plat
             surface_create_func_call = "vkCreateXcbSurfaceKHR";
             break;
         }
-        case GfxTocppPlatform::PLATFORM_COUNT:
+        case GfxToCppPlatform::PLATFORM_COUNT:
         default:
         {
             assert(false);
@@ -1419,7 +1413,7 @@ void VulkanCppConsumerBase::Intercept_vkCreateSwapchainKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain)
 {
-    if (platform_ == GfxTocppPlatform::PLATFORM_ANDROID)
+    if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
     {
         VkSwapchainCreateInfoKHR* struct_info = pCreateInfo->GetPointer();
         struct_info->imageExtent.width        = GetProperWindowWidth(struct_info->imageExtent.width);
@@ -1434,7 +1428,7 @@ void VulkanCppConsumerBase::Intercept_vkCreateFramebuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
     HandlePointerDecoder<VkFramebuffer>*                   pFramebuffer)
 {
-    if (platform_ == GfxTocppPlatform::PLATFORM_ANDROID)
+    if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
     {
         VkFramebufferCreateInfo* struct_info = pCreateInfo->GetPointer();
         struct_info->width                   = GetProperWindowWidth(struct_info->width);
@@ -1447,7 +1441,7 @@ void VulkanCppConsumerBase::Intercept_vkCmdBeginRenderPass(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     VkSubpassContents                                    contents)
 {
-    if (platform_ == GfxTocppPlatform::PLATFORM_ANDROID)
+    if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
     {
         // TODO: This completely breaks desktop, especially if anti-aliasing is enabled.
         //       Leaving this in as the original drop had this code and it may be required
@@ -2074,10 +2068,10 @@ void VulkanCppConsumerBase::Generate_vkCreateGraphicsPipelines(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "    {\n");
-    /* device */
-    /* pipelineCache */
-    /* createInfoCount */
-    /* pCreateInfos */
+    // device
+    // pipelineCache
+    // createInfoCount
+    // pCreateInfos
     std::stringstream stream_create_infos;
     std::string       create_infos_array_variable = "NULL";
     PointerPairContainer<decltype(pCreateInfos->GetPointer()), decltype(pCreateInfos->GetMetaStructPointer())>
@@ -2102,8 +2096,8 @@ void VulkanCppConsumerBase::Generate_vkCreateGraphicsPipelines(
                 create_infos_array_variable.c_str(),
                 create_info_var_name.c_str());
     }
-    /* pAllocator */
-    /* pPipelines */
+    // pAllocator
+    // pPipelines
     std::string pipeline_var_name = "pPipelines_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_PIPELINE));
     AddKnownVariables("VkPipeline", pipeline_var_name, pPipelines->GetPointer(), createInfoCount);
     if (returnValue == VK_SUCCESS)
@@ -2134,10 +2128,10 @@ void VulkanCppConsumerBase::Generate_vkCreateRayTracingPipelinesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "    {\n");
-    /* device */
-    /* pipelineCache */
-    /* createInfoCount */
-    /* pCreateInfos */
+    // device
+    // pipelineCache
+    // createInfoCount
+    // pCreateInfos
     std::stringstream stream_create_infos;
     std::string       create_infos_array_variable = "NULL";
     PointerPairContainer<decltype(pCreateInfos->GetPointer()), decltype(pCreateInfos->GetMetaStructPointer())>
@@ -2162,8 +2156,8 @@ void VulkanCppConsumerBase::Generate_vkCreateRayTracingPipelinesKHR(
                 create_infos_array_variable.c_str(),
                 create_info_var_name.c_str());
     }
-    /* pAllocator */
-    /* pPipelines */
+    // pAllocator
+    // pPipelines
     std::string pipeline_var_name = "pPipelines_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_PIPELINE));
     AddKnownVariables("VkPipeline", pipeline_var_name, pPipelines->GetPointer(), createInfoCount);
     if (returnValue == VK_SUCCESS)
@@ -2193,10 +2187,10 @@ void VulkanCppConsumerBase::Generate_vkCreateComputePipelines(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "    {\n");
-    /* device */
-    /* pipelineCache */
-    /* createInfoCount */
-    /* pCreateInfos */
+    // device
+    // pipelineCache
+    // createInfoCount
+    // pCreateInfos
     std::stringstream stream_create_infos;
     std::string       create_infos_array_variable = "NULL";
     PointerPairContainer<decltype(pCreateInfos->GetPointer()), decltype(pCreateInfos->GetMetaStructPointer())>
@@ -2221,8 +2215,8 @@ void VulkanCppConsumerBase::Generate_vkCreateComputePipelines(
                 create_infos_array_variable.c_str(),
                 create_info_var_name.c_str());
     }
-    /* pAllocator */
-    /* pPipelines */
+    // pAllocator
+    // pPipelines
     std::string pipeline_var_name = "pPipelines_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_PIPELINE));
     AddKnownVariables("VkPipeline", pipeline_var_name, pPipelines->GetPointer(), createInfoCount);
     if (returnValue == VK_SUCCESS)
@@ -2290,7 +2284,7 @@ std::string VulkanCppConsumerBase::EscapeStringArray(const std::vector<std::stri
 std::string VulkanCppConsumerBase::BuildValue(const VkClearColorValue color)
 {
     float values[4];
-    /* normalize the float values, to avoid inf/nan outputs */
+    // normalize the float values, to avoid inf/nan outputs
     for (size_t idx = 0; idx < 4; idx++)
     {
         values[idx] = std::isfinite(color.float32[idx]) ? color.float32[idx] : 0;
@@ -2477,7 +2471,7 @@ std::string VulkanCppConsumerBase::BuildValue(const VkPipelineExecutableStatisti
     return output.str();
 }
 
-const GfxTocppPlatform getGfxTocppPlatform(const std::string& format_str)
+const GfxToCppPlatform getGfxToCppPlatform(const std::string& format_str)
 {
     for (const PlatformTargets& entry : kValidTargetPlatforms)
     {
@@ -2487,10 +2481,10 @@ const GfxTocppPlatform getGfxTocppPlatform(const std::string& format_str)
         }
     }
 
-    return GfxTocppPlatform::PLATFORM_COUNT;
+    return GfxToCppPlatform::PLATFORM_COUNT;
 }
 
-const std::string GfxTocppPlatformToString(GfxTocppPlatform platform)
+const std::string GfxToCppPlatformToString(GfxToCppPlatform platform)
 {
     for (const PlatformTargets& entry : kValidTargetPlatforms)
     {
@@ -2503,9 +2497,9 @@ const std::string GfxTocppPlatformToString(GfxTocppPlatform platform)
     return "<unknown platform>";
 }
 
-bool GfxTocppPlatformIsValid(const GfxTocppPlatform& platform)
+bool GfxToCppPlatformIsValid(const GfxToCppPlatform& platform)
 {
-    return platform != GfxTocppPlatform::PLATFORM_COUNT;
+    return platform != GfxToCppPlatform::PLATFORM_COUNT;
 }
 
 std::string VulkanCppConsumerBase::AddStruct(const std::stringstream& content, const std::string& var_namePrefix)
@@ -2555,7 +2549,7 @@ void VulkanCppConsumerBase::AddKnownVariables(const std::string&      type,
     if (!resource_tracker_->IsGlobalVariable(*handleId))
     {
         fprintf(file, "//Local var at frame: %d, handle id: %" PRIu64 "\n", frame_number_, *handleId);
-        fprintf(file, "%s;\n", variable.str().c_str());
+        fprintf(file, "%s;\n", variable.GenerateString().c_str());
         return;
     }
     variable_data_.emplace_back(variable);
@@ -2574,7 +2568,7 @@ void VulkanCppConsumerBase::AddKnownVariables(const std::string&      type,
     if (!has_global)
     {
         fprintf(GetFrameFile(), "//Local var at frame: %d, handle id: %" PRIu64 "\n", frame_number_, handleId[0]);
-        fprintf(GetFrameFile(), "%s;\n", variable.str().c_str());
+        fprintf(GetFrameFile(), "%s;\n", variable.GenerateString().c_str());
         return;
     }
     variable_data_.emplace_back(variable);
@@ -2657,7 +2651,7 @@ void VulkanCppConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
                 "\t\t\t\tsize_t   replay_row_pitch  = %s.plane_info[0].replay_row_pitch;\n",
                 android_hw_mem_name.c_str());
         fprintf(file, "\t\t\t\tuint32_t height            = %s.plane_info[0].height;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\tcopyImageSubresourceMemory(static_cast<uint8_t*>(buffer_data),\n");
+        fprintf(file, "\t\t\t\tCopyImageSubresourceMemory(static_cast<uint8_t*>(buffer_data),\n");
         fprintf(file, "\t\t\t\t                 data,\n");
         fprintf(file, "\t\t\t\t                 data_offset,\n");
         fprintf(file, "\t\t\t\t                 data_size,v\n");
@@ -2708,7 +2702,7 @@ void VulkanCppConsumerBase::ProcessResizeWindowCommand2(format::HandleId surface
 {
     FILE* file = GetFrameFile();
 
-    if (platform_ == GfxTocppPlatform::PLATFORM_ANDROID)
+    if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
     {
         fprintf(
             file, "\tscreen.windowSetSizePreTransform(%u, %u, %u);\n", window_width_, window_height_, pre_transform);
@@ -2730,7 +2724,7 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
     uint32_t                                            layers,
     const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
 {
-    if (platform_ == GfxTocppPlatform::PLATFORM_ANDROID)
+    if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
     {
         FILE* file = GetFrameFile();
 
@@ -2956,8 +2950,8 @@ void VulkanCppConsumerBase::Process_vkDeferredOperationJoinKHR(const ApiCallInfo
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    /* device */
-    /* operation */
+    // device
+    // operation
     pfn_loader_.AddMethodName("vkDeferredOperationJoinKHR");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkDeferredOperationJoinKHR(%s, %s), %s);\n",

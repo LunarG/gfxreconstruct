@@ -1,20 +1,19 @@
-/*
-** Copyright (c) 2021 Samsung
-** Copyright (c) 2023 Google
-** Copyright (c) 2023 LunarG, Inc
-**
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-*/
+//
+// Copyright (c) 2021 Samsung
+// Copyright (c) 2023 Google
+// Copyright (c) 2023 LunarG, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "decode/vulkan_cpp_loader_generator.h"
 
@@ -44,7 +43,7 @@ void VulkanCppLoaderGenerator::AddMethodName(const std::string method_name)
     vulkan_methods_.insert(method_name);
 }
 
-void VulkanCppLoaderGenerator::WriteOutLoaderGenerator(const std::string& outDir, const GfxTocppPlatform& platform)
+void VulkanCppLoaderGenerator::WriteOutLoaderGenerator(const std::string& outDir, const GfxToCppPlatform& platform)
 {
     FILE*       pfn_src_file; // loader.cpp
     FILE*       pfn_hdr_file; // loader.h
@@ -57,22 +56,22 @@ void VulkanCppLoaderGenerator::WriteOutLoaderGenerator(const std::string& outDir
         fprintf(pfn_hdr_file, "%s\n", sLoaderHeader);
         switch (platform)
         {
-            case GfxTocppPlatform::PLATFORM_ANDROID:
+            case GfxToCppPlatform::PLATFORM_ANDROID:
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_ANDROID_KHR\n");
                 break;
-            case GfxTocppPlatform::PLATFORM_MACOS:
+            case GfxToCppPlatform::PLATFORM_MACOS:
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_METAL_EXT\n");
                 break;
-            case GfxTocppPlatform::PLATFORM_WAYLAND:
+            case GfxToCppPlatform::PLATFORM_WAYLAND:
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_WAYLAND_KHR\n");
                 break;
-            case GfxTocppPlatform::PLATFORM_WIN32:
+            case GfxToCppPlatform::PLATFORM_WIN32:
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_WIN32_KHR\n");
                 break;
-            case GfxTocppPlatform::PLATFORM_XCB:
+            case GfxToCppPlatform::PLATFORM_XCB:
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_XCB_KHR\n");
                 break;
-            case GfxTocppPlatform::PLATFORM_XLIB:
+            case GfxToCppPlatform::PLATFORM_XLIB:
                 fprintf(pfn_src_file, "#define VK_USE_PLATFORM_XLIB_KHR\n");
                 break;
             default:
