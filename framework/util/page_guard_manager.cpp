@@ -226,7 +226,7 @@ PageGuardManager::PageGuardManager() :
     if (kUserFaultFdMode == protection_mode_ && !USERFAULTFD_SUPPORTED)
     {
         GFXRECON_LOG_WARNING(
-            "Kernel does not support all required userfaultfd features. Falling back to mprotect method");
+            "Kernel does not support all features for userfaultfd memory tracking mode. Falling back to mprotect mode.");
 
         protection_mode_ = kMProtectMode;
     }
@@ -239,7 +239,7 @@ PageGuardManager::PageGuardManager() :
     {
         if (!InitializeUserFaultFd())
         {
-            GFXRECON_LOG_ERROR("Userfaultfd initialization failed. Falling back to mprotect method");
+            GFXRECON_LOG_ERROR("Userfaultfd initialization failed. Falling back to mprotect memory tracking mode.");
 
             protection_mode_ = kMProtectMode;
             InitializeSystemExceptionContext();
@@ -265,7 +265,7 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
     if (kUserFaultFdMode == protection_mode_ && !USERFAULTFD_SUPPORTED)
     {
         GFXRECON_LOG_WARNING(
-            "Kernel does not support all required userfaultfd features. Falling back to mprotect method");
+            "Kernel does not support all features for userfaultfd memory tracking mode. Falling back to mprotect mode.");
 
         protection_mode_ = kMProtectMode;
     }
@@ -278,7 +278,7 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
     {
         if (!InitializeUserFaultFd())
         {
-            GFXRECON_LOG_ERROR("Userfaultfd initialization failed. Falling back to mprotect method");
+            GFXRECON_LOG_ERROR("Userfaultfd initialization failed. Falling back to mprotect memory tracking mode.");
 
             protection_mode_ = kMProtectMode;
             InitializeSystemExceptionContext();
