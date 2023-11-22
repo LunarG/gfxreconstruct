@@ -503,5 +503,14 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
     }
 }
 
+void VulkanDecoderBase::DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
+                                                               const std::vector<format::HandleId>& blases)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetTlasToBlasRelationCommand(tlas, blases);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

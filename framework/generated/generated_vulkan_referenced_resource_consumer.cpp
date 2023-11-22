@@ -1040,6 +1040,34 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
         size_t pDescriptorWrites_count = pDescriptorWrites->GetLength();
         for (size_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pDescriptorWrites_count; ++pDescriptorWrites_index)
         {
+            const VkBaseInStructure* pnext_header = nullptr;
+            if (pDescriptorWrites_ptr->pNext != nullptr)
+            {
+                pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites_ptr->pNext->GetPointer());
+            }
+            while (pnext_header)
+            {
+                switch (pnext_header->sType)
+                {
+                    default:
+                        break;
+                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                    {
+                        auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(pDescriptorWrites_ptr->pNext->GetPointer());
+                        if (!pnext_value->pAccelerationStructures.IsNull() && (pnext_value->pAccelerationStructures.HasData()))
+                        {
+                            auto pAccelerationStructures_ptr = pnext_value->pAccelerationStructures.GetPointer();
+                            size_t pAccelerationStructures_count = pnext_value->pAccelerationStructures.GetLength();
+                            for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
+                            {
+                                GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                pnext_header = pnext_header->pNext;
+            }
             GetTable().AddContainerToUser(commandBuffer, pDescriptorWrites_ptr[pDescriptorWrites_index].dstSet);
 
             if (!pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->IsNull() && (pDescriptorWrites_ptr[pDescriptorWrites_index].pImageInfo->HasData()))
@@ -1810,6 +1838,128 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
     GFXRECON_UNREFERENCED_PARAMETER(offset);
 
     GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(infoCount);
+    GFXRECON_UNREFERENCED_PARAMETER(ppBuildRangeInfos);
+
+    assert(pInfos != nullptr);
+
+    if (!pInfos->IsNull() && (pInfos->HasData()))
+    {
+        auto pInfos_ptr = pInfos->GetMetaStructPointer();
+        size_t pInfos_count = pInfos->GetLength();
+        for (size_t pInfos_index = 0; pInfos_index < pInfos_count; ++pInfos_index)
+        {
+            GetTable().AddResourceToUser(commandBuffer, pInfos_ptr[pInfos_index].srcAccelerationStructure);
+            GetTable().AddResourceToUser(commandBuffer, pInfos_ptr[pInfos_index].dstAccelerationStructure);
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    PointerDecoder<VkDeviceAddress>*            pIndirectDeviceAddresses,
+    PointerDecoder<uint32_t>*                   pIndirectStrides,
+    PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(infoCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pIndirectDeviceAddresses);
+    GFXRECON_UNREFERENCED_PARAMETER(pIndirectStrides);
+    GFXRECON_UNREFERENCED_PARAMETER(ppMaxPrimitiveCounts);
+
+    assert(pInfos != nullptr);
+
+    if (!pInfos->IsNull() && (pInfos->HasData()))
+    {
+        auto pInfos_ptr = pInfos->GetMetaStructPointer();
+        size_t pInfos_count = pInfos->GetLength();
+        for (size_t pInfos_index = 0; pInfos_index < pInfos_count; ++pInfos_index)
+        {
+            GetTable().AddResourceToUser(commandBuffer, pInfos_ptr[pInfos_index].srcAccelerationStructure);
+            GetTable().AddResourceToUser(commandBuffer, pInfos_ptr[pInfos_index].dstAccelerationStructure);
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyAccelerationStructureKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
+{
+    assert(pInfo != nullptr);
+
+    if (!pInfo->IsNull() && (pInfo->HasData()))
+    {
+        auto pInfo_ptr = pInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pInfo_ptr->src);
+        GetTable().AddResourceToUser(commandBuffer, pInfo_ptr->dst);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyAccelerationStructureToMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
+{
+    assert(pInfo != nullptr);
+
+    if (!pInfo->IsNull() && (pInfo->HasData()))
+    {
+        auto pInfo_ptr = pInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pInfo_ptr->src);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
+{
+    assert(pInfo != nullptr);
+
+    if (!pInfo->IsNull() && (pInfo->HasData()))
+    {
+        auto pInfo_ptr = pInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pInfo_ptr->dst);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    accelerationStructureCount,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+    VkQueryType                                 queryType,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(accelerationStructureCount);
+    GFXRECON_UNREFERENCED_PARAMETER(queryType);
+    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
+    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
+
+    assert(pAccelerationStructures != nullptr);
+
+    if (!pAccelerationStructures->IsNull() && (pAccelerationStructures->HasData()))
+    {
+        auto pAccelerationStructures_ptr = pAccelerationStructures->GetPointer();
+        size_t pAccelerationStructures_count = pAccelerationStructures->GetLength();
+        for (size_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pAccelerationStructures_count; ++pAccelerationStructures_index)
+        {
+            GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
+        }
+    }
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(

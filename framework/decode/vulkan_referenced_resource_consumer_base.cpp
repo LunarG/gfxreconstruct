@@ -292,6 +292,112 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorUpdateTempl
     CreateDescriptorUpdateTemplate(pCreateInfo, pDescriptorUpdateTemplate);
 }
 
+void VulkanReferencedResourceConsumerBase::Process_vkCreateAccelerationStructureKHR(
+    const ApiCallInfo&                                                  call_info,
+    VkResult                                                            returnValue,
+    format::HandleId                                                    device,
+    StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
+    HandlePointerDecoder<VkAccelerationStructureKHR>*                   pAccelerationStructure)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(call_info);
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
+    if (!pCreateInfo->IsNull() && pCreateInfo->HasData())
+    {
+        const auto meta_create_info = pCreateInfo->GetMetaStructPointer();
+
+        table_.AddResource(*pAccelerationStructure->GetPointer());
+        table_.AddResource(*pAccelerationStructure->GetPointer(), meta_create_info->buffer, true);
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId device_id,
+                                                                          format::HandleId object_id,
+                                                                          uint64_t         address)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device_id);
+
+    dev_address_to_resource_map[object_id] = address;
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkBindBufferMemory(const ApiCallInfo& call_info,
+                                                                      VkResult           returnValue,
+                                                                      format::HandleId   device,
+                                                                      format::HandleId   buffer,
+                                                                      format::HandleId   memory,
+                                                                      VkDeviceSize       memoryOffset)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(call_info);
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    const auto dev_mem_dev_addr = dev_address_to_resource_map.find(memory);
+    if (dev_mem_dev_addr != dev_address_to_resource_map.end())
+    {
+        const VkDeviceAddress address       = dev_mem_dev_addr->second + memoryOffset;
+        dev_address_to_buffers_map[address] = buffer;
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCmdTraceRaysKHR(
+    const ApiCallInfo&                                             call_info,
+    format::HandleId                                               commandBuffer,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+    uint32_t                                                       width,
+    uint32_t                                                       height,
+    uint32_t                                                       depth)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(call_info);
+    GFXRECON_UNREFERENCED_PARAMETER(width);
+    GFXRECON_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(depth);
+
+    if (!pRaygenShaderBindingTable->IsNull() && pRaygenShaderBindingTable->HasData())
+    {
+        const Decoded_VkStridedDeviceAddressRegionKHR* meta = pRaygenShaderBindingTable->GetMetaStructPointer();
+        const auto buffer = dev_address_to_buffers_map.find(meta->decoded_value->deviceAddress);
+        if (buffer != dev_address_to_buffers_map.end())
+        {
+            table_.AddResourceToUser(commandBuffer, buffer->second);
+        }
+    }
+
+    if (!pMissShaderBindingTable->IsNull() && pMissShaderBindingTable->HasData())
+    {
+        const Decoded_VkStridedDeviceAddressRegionKHR* meta = pMissShaderBindingTable->GetMetaStructPointer();
+        const auto buffer = dev_address_to_buffers_map.find(meta->decoded_value->deviceAddress);
+        if (buffer != dev_address_to_buffers_map.end())
+        {
+            table_.AddResourceToUser(commandBuffer, buffer->second);
+        }
+    }
+
+    if (!pHitShaderBindingTable->IsNull() && pHitShaderBindingTable->HasData())
+    {
+        const Decoded_VkStridedDeviceAddressRegionKHR* meta = pHitShaderBindingTable->GetMetaStructPointer();
+        const auto buffer = dev_address_to_buffers_map.find(meta->decoded_value->deviceAddress);
+        if (buffer != dev_address_to_buffers_map.end())
+        {
+            table_.AddResourceToUser(commandBuffer, buffer->second);
+        }
+    }
+
+    if (!pCallableShaderBindingTable->IsNull() && pCallableShaderBindingTable->HasData())
+    {
+        const Decoded_VkStridedDeviceAddressRegionKHR* meta = pCallableShaderBindingTable->GetMetaStructPointer();
+        const auto buffer = dev_address_to_buffers_map.find(meta->decoded_value->deviceAddress);
+        if (buffer != dev_address_to_buffers_map.end())
+        {
+            table_.AddResourceToUser(commandBuffer, buffer->second);
+        }
+    }
+}
+
 void VulkanReferencedResourceConsumerBase::Process_vkDestroyDescriptorPool(
     const ApiCallInfo&                                   call_info,
     format::HandleId                                     device,
@@ -398,7 +504,6 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
             {
                 case VK_DESCRIPTOR_TYPE_SAMPLER:
                 case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                     // Descriptor types that do not need to be tracked.
                     break;
                 case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -446,15 +551,53 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
 
                     if (!views.IsNull() && views.HasData())
                     {
-                        AddTexelBufferViewsToContainer(meta_writes[i].dstSet,
-                                                       writes[i].dstBinding,
-                                                       writes[i].dstArrayElement,
-                                                       writes[i].descriptorCount,
-                                                       views.GetPointer());
+                        AddResourcesToContainer(meta_writes[i].dstSet,
+                                                writes[i].dstBinding,
+                                                writes[i].dstArrayElement,
+                                                writes[i].descriptorCount,
+                                                views.GetPointer());
                     }
 
                     break;
                 }
+                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                {
+                    const VkBaseInStructure* pnext_header = nullptr;
+                    if (meta_writes[i].pNext != nullptr)
+                    {
+                        pnext_header = reinterpret_cast<const VkBaseInStructure*>(meta_writes[i].pNext->GetPointer());
+                    }
+
+                    while (pnext_header)
+                    {
+                        switch (pnext_header->sType)
+                        {
+                            default:
+                                break;
+                            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                            {
+                                auto pnext_value =
+                                    reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(
+                                        meta_writes[i].pNext->GetMetaStructPointer());
+                                const VkWriteDescriptorSetAccelerationStructureKHR& decoded_value =
+                                    *pnext_value->decoded_value;
+
+                                if (pnext_value && pnext_value->decoded_value)
+                                {
+                                    AddResourcesToContainer(meta_writes[i].dstSet,
+                                                            writes[i].dstBinding,
+                                                            writes[i].dstArrayElement,
+                                                            writes[i].descriptorCount,
+                                                            pnext_value->pAccelerationStructures.GetPointer());
+                                }
+                                break;
+                            }
+                        }
+                        pnext_header = pnext_header->pNext;
+                    }
+                }
+                break;
+
                 default:
                     GFXRECON_LOG_WARNING("Ingoring unrecognized descriptor type %d", writes[i].descriptorType);
                     break;
@@ -648,6 +791,18 @@ void VulkanReferencedResourceConsumerBase::Process_vkResetCommandBuffer(const Ap
     table_.ResetUser(commandBuffer);
 }
 
+void VulkanReferencedResourceConsumerBase::ProcessSetTlasToBlasRelationCommand(
+    format::HandleId tlas, const std::vector<format::HandleId>& blases)
+{
+    if (blases.size())
+    {
+        for (const auto& blas : blases)
+        {
+            table_.AddResource(tlas, blas, true);
+        }
+    }
+}
+
 uint32_t VulkanReferencedResourceConsumerBase::GetBindingCount(format::HandleId container_id, uint32_t binding) const
 {
     const auto layout_entry = set_layouts_.find(container_id);
@@ -725,14 +880,17 @@ void VulkanReferencedResourceConsumerBase::AddBuffersToContainer(format::HandleI
         });
 }
 
-void VulkanReferencedResourceConsumerBase::AddTexelBufferViewsToContainer(
-    format::HandleId container_id, int32_t binding, uint32_t element, uint32_t count, const format::HandleId* view_ids)
+void VulkanReferencedResourceConsumerBase::AddResourcesToContainer(format::HandleId        container_id,
+                                                                   int32_t                 binding,
+                                                                   uint32_t                element,
+                                                                   uint32_t                count,
+                                                                   const format::HandleId* resource_ids)
 {
-    assert(view_ids != nullptr);
+    assert(resource_ids != nullptr);
 
     AddDescriptorToContainer(
         container_id, binding, element, count, [&](uint32_t index, int32_t current_binding, uint32_t current_element) {
-            table_.AddResourceToContainer(container_id, view_ids[index], current_binding, current_element);
+            table_.AddResourceToContainer(container_id, resource_ids[index], current_binding, current_element);
         });
 }
 
@@ -819,6 +977,10 @@ void VulkanReferencedResourceConsumerBase::CreateDescriptorUpdateTemplate(
             {
                 template_info.texel_buffer_view_infos.emplace_back(std::move(entry_info));
             }
+            else if (entry_info.type == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
+            {
+                template_info.acceleration_structure_infos.emplace_back(std::move(entry_info));
+            }
         }
 
         template_infos_.emplace(template_id, std::move(template_info));
@@ -830,9 +992,10 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
 {
     assert(decoder != nullptr);
 
-    auto image_info_count        = static_cast<uint32_t>(decoder->GetImageInfoCount());
-    auto buffer_info_count       = static_cast<uint32_t>(decoder->GetBufferInfoCount());
-    auto texel_buffer_view_count = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
+    auto image_info_count             = static_cast<uint32_t>(decoder->GetImageInfoCount());
+    auto buffer_info_count            = static_cast<uint32_t>(decoder->GetBufferInfoCount());
+    auto texel_buffer_view_count      = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
+    auto acceleration_structure_count = static_cast<uint32_t>(decoder->GetAccelerationStructureKHRCount());
 
     const auto template_info_entry = template_infos_.find(template_id);
     if (template_info_entry != template_infos_.end())
@@ -910,8 +1073,30 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
                     break;
                 }
 
-                AddTexelBufferViewsToContainer(
-                    container_id, info.binding, info.array_element, info.count, &view_ids[offset]);
+                AddResourcesToContainer(container_id, info.binding, info.array_element, info.count, &view_ids[offset]);
+
+                offset += info.count;
+            }
+        }
+
+        if (acceleration_structure_count > 0)
+        {
+            uint32_t offset = 0;
+            auto     as_ids = decoder->GetAccelerationStructureKHRHandleIdsPointer();
+            assert(as_ids != nullptr);
+
+            for (const auto& info : template_info.acceleration_structure_infos)
+            {
+                assert((offset + info.count) <= acceleration_structure_count);
+
+                if ((offset + info.count) > acceleration_structure_count)
+                {
+                    GFXRECON_LOG_ERROR("Descriptor update template entry count exceeds the total number of entries in"
+                                       " the update template data.");
+                    break;
+                }
+
+                AddResourcesToContainer(container_id, info.binding, info.array_element, info.count, &as_ids[offset]);
 
                 offset += info.count;
             }

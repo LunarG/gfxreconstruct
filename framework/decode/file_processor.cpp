@@ -1751,6 +1751,62 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read runtime info meta-data block");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kParentToChildDependency)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::ParentToChildDependencyHeader header;
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.dependency_type, sizeof(header.dependency_type));
+        success = success && ReadBytes(&header.parent_id, sizeof(header.parent_id));
+        success = success && ReadBytes(&header.child_count, sizeof(header.child_count));
+
+        if (success)
+        {
+            switch (header.dependency_type)
+            {
+                case format::kAccelerationStructuresDependency:
+                {
+                    std::vector<format::HandleId> blases;
+                    blases.resize(header.child_count);
+
+                    for (uint32_t i = 0; i < header.child_count; ++i)
+                    {
+                        success = success && ReadBytes(&blases[i], sizeof(blases[i]));
+                    }
+
+                    if (success)
+                    {
+                        for (auto decoder : decoders_)
+                        {
+                            if (decoder->SupportsMetaDataId(meta_data_id))
+                            {
+                                decoder->DispatchSetTlasToBlasDependencyCommand(header.parent_id, blases);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        HandleBlockReadError(kErrorReadingBlockHeader,
+                                             "Failed to read TLAS to BLAS dependency meta-data block header");
+                    }
+                }
+                break;
+
+                default:
+                    success = false;
+                    HandleBlockReadError(kErrorReadingBlockHeader,
+                                         "Corrupted parent to child dependency meta-data block header");
+                    break;
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read parent to child dependency meta-data block header");
+        }
+    }
     else
     {
         // Unrecognized metadata type.

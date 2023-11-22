@@ -138,6 +138,7 @@ enum class MetaDataType : uint16_t
     kCreateHardwareBufferCommand            = 24,
     kReserved25                             = 25,
     kDx12RuntimeInfoCommand                 = 26,
+    kParentToChildDependency                = 27,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -339,9 +340,9 @@ struct DriverInfoBlock
 
 struct ExeFileInfoBlock
 {
-    MetaDataHeader              meta_header;
-    format::ThreadId            thread_id;
-    util::filepath::FileInfo    info_record;
+    MetaDataHeader           meta_header;
+    format::ThreadId         thread_id;
+    util::filepath::FileInfo info_record;
 };
 
 // Not a header because this command does not include a variable length data payload.
@@ -616,6 +617,21 @@ struct Dx12RuntimeInfoCommandHeader
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
     Dx12RuntimeInfo  runtime_info;
+};
+
+enum ParentToChildDependencyType : uint32_t
+{
+    kUnknownDependency                = 0,
+    kAccelerationStructuresDependency = 1
+};
+
+struct ParentToChildDependencyHeader
+{
+    MetaDataHeader              meta_header;
+    format::ThreadId            thread_id;
+    ParentToChildDependencyType dependency_type;
+    format::HandleId            parent_id;
+    uint32_t                    child_count;
 };
 
 // Restore size_t to normal behavior.

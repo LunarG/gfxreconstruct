@@ -49,6 +49,7 @@ void VulkanStateTracker::TrackCommandExecution(CommandBufferWrapper*           w
         wrapper->command_data.Reset();
         wrapper->pending_layouts.clear();
         wrapper->recorded_queries.clear();
+        wrapper->tlas_build_info_map.clear();
 
         for (size_t i = 0; i < CommandHandleType::NumHandleTypes; ++i)
         {
@@ -88,6 +89,7 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
         entry.second->command_data.Reset();
         entry.second->pending_layouts.clear();
         entry.second->recorded_queries.clear();
+        entry.second->tlas_build_info_map.clear();
 
         for (size_t i = 0; i < CommandHandleType::NumHandleTypes; ++i)
         {
@@ -361,6 +363,44 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
     if (bind_info_pnext != nullptr)
     {
         wrapper->bind_pnext = TrackPNextStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
+    }
+}
+
+void VulkanStateTracker::TrackTLASBuildCommand(
+    VkCommandBuffer                                        command_buffer,
+    uint32_t                                               info_count,
+    const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
+    const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos)
+{
+    if (info_count && infos && pp_buildRange_infos)
+    {
+        CommandBufferWrapper* buf_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+
+        for (uint32_t i = 0; i < info_count; ++i)
+        {
+            if (infos[i].type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR &&
+                infos[i].dstAccelerationStructure != VK_NULL_HANDLE && infos[i].geometryCount && infos[i].pGeometries)
+            {
+                AccelerationStructureKHRWrapper* tlas_wrapper =
+                    GetWrapper<AccelerationStructureKHRWrapper>(infos[i].dstAccelerationStructure);
+
+                tlas_wrapper->blas.clear();
+
+                for (uint32_t g = 0; g < infos[i].geometryCount; ++g)
+                {
+                    if (infos[i].pGeometries[g].geometryType == VK_GEOMETRY_TYPE_INSTANCES_KHR)
+                    {
+                        const VkDeviceAddress address = infos[i].pGeometries[g].geometry.instances.data.deviceAddress;
+                        const CommandBufferWrapper::tlas_build_info tlas_info = {
+                            address, pp_buildRange_infos[i]->primitiveCount, pp_buildRange_infos[i]->primitiveOffset
+                        };
+
+                        buf_wrapper->tlas_build_info_map.emplace_back(
+                            std::make_pair(tlas_wrapper, std::move(tlas_info)));
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1278,6 +1318,9 @@ void VulkanStateTracker::TrackAccelerationStructureKHRDeviceAddress(VkDevice    
     auto wrapper       = GetWrapper<AccelerationStructureKHRWrapper>(accel_struct);
     wrapper->device_id = GetWrappedId<DeviceWrapper>(device);
     wrapper->address   = address;
+
+    assert(address);
+    as_device_addresses_map.emplace(address, wrapper);
 }
 
 void VulkanStateTracker::TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address)
@@ -1287,6 +1330,8 @@ void VulkanStateTracker::TrackDeviceMemoryDeviceAddress(VkDevice device, VkDevic
     auto wrapper       = GetWrapper<DeviceMemoryWrapper>(memory);
     wrapper->device_id = GetWrappedId<DeviceWrapper>(device);
     wrapper->address   = address;
+
+    device_memory_addresses_map.emplace(address, wrapper);
 }
 
 void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
@@ -1421,6 +1466,142 @@ void VulkanStateTracker::DestroyState(SwapchainKHRWrapper* wrapper)
     for (auto entry : wrapper->child_images)
     {
         state_table_.RemoveWrapper(entry);
+    }
+}
+
+void VulkanStateTracker::DestroyState(DeviceMemoryWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    const auto& entry = device_memory_addresses_map.find(wrapper->address);
+    if (entry != device_memory_addresses_map.end())
+    {
+        device_memory_addresses_map.erase(entry);
+    }
+}
+
+void VulkanStateTracker::DestroyState(AccelerationStructureKHRWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    const auto& entry = as_device_addresses_map.find(wrapper->address);
+    if (entry != as_device_addresses_map.end())
+    {
+        as_device_addresses_map.erase(entry);
+    }
+}
+
+void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               command_buffer_count,
+                                                     const VkCommandBuffer* command_buffers)
+{
+    if (!command_buffer_count || !command_buffers)
+    {
+        return;
+    }
+
+    for (uint32_t c = 0; c < command_buffer_count; ++c)
+    {
+        const CommandBufferWrapper* cmd_buf_wrapper = GetWrapper<CommandBufferWrapper>(command_buffers[c]);
+
+        for (const auto& tlas_build_info : cmd_buf_wrapper->tlas_build_info_map)
+        {
+            // Find to which device memory this address belongs
+            const VkDeviceAddress      address         = tlas_build_info.second.address;
+            const DeviceMemoryWrapper* dev_mem_wrapper = nullptr;
+            for (const auto& dev_mem : device_memory_addresses_map)
+            {
+                if (address >= dev_mem.second->address &&
+                    address < dev_mem.second->address + dev_mem.second->allocation_size)
+                {
+                    dev_mem_wrapper = dev_mem.second;
+                    break;
+                }
+            }
+
+            assert(dev_mem_wrapper);
+            if (!dev_mem_wrapper)
+            {
+                continue;
+            }
+
+            assert(dev_mem_wrapper->address);
+            assert(address >= dev_mem_wrapper->address);
+
+            // Calculate total offset:
+            //  address:        The address of the buffer where the
+            //                  VkAccelerationStructureInstanceKHRs are located.
+            //  base_address:   The device address of the device memory where
+            //                  the buffer is bound.
+            //  buffer_offset:  The offset within the buffer as provided in the
+            //                  BuildAccelerationStructureKHR command.
+            const VkDeviceAddress base_address  = dev_mem_wrapper->address;
+            const VkDeviceAddress buffer_offset = tlas_build_info.second.offset;
+            const VkDeviceSize    total_offset  = (address - base_address) + buffer_offset;
+
+            const VkAccelerationStructureInstanceKHR* instances = nullptr;
+            const util::PageGuardManager*             manager   = util::PageGuardManager::Get();
+
+            if (manager)
+            {
+                const void* mapped_memory = manager->GetMappedMemory(dev_mem_wrapper->handle_id);
+                if (mapped_memory)
+                {
+                    instances = reinterpret_cast<const VkAccelerationStructureInstanceKHR*>(
+                        static_cast<const uint8_t*>(mapped_memory) + total_offset);
+                }
+            }
+
+            const uint32_t blas_count = tlas_build_info.second.blas_count;
+            assert(blas_count);
+
+            bool needs_unmapping = false;
+            if (!instances)
+            {
+                // If PageGuardManager is not used or if it couldn't find the memory id it means that
+                // we need to map the memory.
+                VkDevice           device        = dev_mem_wrapper->map_device->handle;
+                const DeviceTable* device_table  = GetDeviceTable(device);
+                const VkDeviceSize map_size      = sizeof(VkAccelerationStructureInstanceKHR) * blas_count;
+                void*              mapped_memory = nullptr;
+                const VkResult     result =
+                    device_table->MapMemory(device, dev_mem_wrapper->handle, total_offset, map_size, 0, &mapped_memory);
+
+                if (result == VK_SUCCESS)
+                {
+                    needs_unmapping = true;
+
+                    instances = reinterpret_cast<const VkAccelerationStructureInstanceKHR*>(mapped_memory);
+                }
+            }
+
+            if (instances)
+            {
+                AccelerationStructureKHRWrapper* tlas_wrapper = tlas_build_info.first;
+
+                for (uint32_t b = 0; b < blas_count; ++b)
+                {
+                    // Find to which BLAS the device address stored in
+                    // VkAccelerationStructureInstanceKHR::accelerationStructureReference referes to
+                    const uint64_t as_reference = instances[b].accelerationStructureReference;
+
+                    const auto blas_dev_mem_pair = as_device_addresses_map.find(as_reference);
+                    if (blas_dev_mem_pair != as_device_addresses_map.end())
+                    {
+                        tlas_wrapper->blas.push_back(blas_dev_mem_pair->second);
+                    }
+                }
+
+                // If we had to map the device memory unmap it now
+                if (needs_unmapping)
+                {
+                    VkDevice           device       = dev_mem_wrapper->map_device->handle;
+                    const DeviceTable* device_table = GetDeviceTable(device);
+                    device_table->UnmapMemory(device, dev_mem_wrapper->handle);
+                }
+            }
+        }
     }
 }
 

@@ -148,6 +148,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     StandardCreateWrite<PipelineCacheWrapper>(state_table);
     WritePipelineState(state_table);
     WriteAccelerationStructureKHRState(state_table);
+    WriteTlasToBlasDependenciesMetadata(state_table);
     StandardCreateWrite<AccelerationStructureNVWrapper>(state_table);
 
     // Descriptor creation.
@@ -1069,6 +1070,38 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
         }
 
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+    });
+}
+
+void VulkanStateWriter::WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const AccelerationStructureKHRWrapper* tlas) {
+        assert(tlas != nullptr);
+
+        if (tlas->blas.size())
+        {
+            format::ParentToChildDependencyHeader tlas_to_blas;
+
+            const size_t blas_count                    = tlas->blas.size();
+            tlas_to_blas.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+            tlas_to_blas.meta_header.block_header.size =
+                format::GetMetaDataBlockBaseSize(tlas_to_blas) + blas_count * sizeof(format::HandleId);
+            tlas_to_blas.meta_header.meta_data_id = format::MakeMetaDataId(
+                format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kParentToChildDependency);
+            tlas_to_blas.thread_id       = thread_id_;
+            tlas_to_blas.dependency_type = format::ParentToChildDependencyType::kAccelerationStructuresDependency;
+            tlas_to_blas.parent_id       = tlas->handle_id;
+            tlas_to_blas.child_count     = static_cast<uint32_t>(blas_count);
+
+            output_stream_->Write(&tlas_to_blas, sizeof(tlas_to_blas));
+
+            for (const auto& blas : tlas->blas)
+            {
+                output_stream_->Write(&blas->handle_id, sizeof(format::HandleId));
+            }
+
+            ++blocks_written_;
+        }
     });
 }
 

@@ -182,6 +182,9 @@ class VulkanDecoderBase : public ApiDecoder
     virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                 const uint8_t*                              data) override;
 
+    virtual void DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
+                                                        const std::vector<format::HandleId>& blases) override;
+
     virtual void DispatchInitDx12AccelerationStructureCommand(
         const format::InitDx12AccelerationStructureCommandHeader&       command_header,
         std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,

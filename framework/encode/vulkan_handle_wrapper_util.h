@@ -77,7 +77,7 @@ format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
 {
     if (handle == VK_NULL_HANDLE)
     {
-        return 0;
+        return format::kNullHandleId;
     }
     auto temp_id = GetTempWrapperId<Wrapper>(handle);
     if (temp_id != 0)
@@ -90,7 +90,7 @@ format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
     {
         GFXRECON_LOG_WARNING("GetWrappedId() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed",
                              handle);
-        return 0;
+        return format::kNullHandleId;
     }
     return wrapper->handle_id;
 }

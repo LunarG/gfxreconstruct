@@ -117,6 +117,8 @@ class PageGuardManager
 
     void FreePersistentShadowMemory(uintptr_t shadow_memory_handle);
 
+    const void* GetMappedMemory(uint64_t memory_id) const;
+
   protected:
     PageGuardManager();
 
