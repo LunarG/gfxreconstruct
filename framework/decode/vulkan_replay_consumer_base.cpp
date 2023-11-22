@@ -38,7 +38,6 @@
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
 #include "util/file_path.h"
-#include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
 

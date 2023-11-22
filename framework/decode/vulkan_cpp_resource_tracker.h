@@ -22,7 +22,6 @@
 #include "format/platform_types.h"
 #include "format/format.h"
 #include "pointer_decoder.h"
-#include "util/xxhash32.h"
 
 #include <cstdint>
 #include <map>
