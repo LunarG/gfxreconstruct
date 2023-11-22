@@ -21,7 +21,7 @@
 #include "project_version.h"
 #include "util/file_path.h"
 #include "util/platform.h"
-#include <util/xxhash64.h>
+#include <util/hash.h>
 #include "decode/vulkan_cpp_structs.h"
 #include <generated/generated_vulkan_cpp_structs.h>
 #include "generated/generated_vulkan_cpp_consumer_extension.h"
@@ -2504,8 +2504,9 @@ bool GfxToCppPlatformIsValid(const GfxToCppPlatform& platform)
 
 std::string VulkanCppConsumerBase::AddStruct(const std::stringstream& content, const std::string& var_namePrefix)
 {
-    const std::string str        = content.str();
-    uint64_t          hash_value = XXHash64::hash(str.c_str(), str.size(), 0);
+    const std::string content_string = content.str();
+    const uint64_t    hash_value     = util::hash::GenerateCheckSum<uint64_t>(
+        reinterpret_cast<const uint8_t*>(content_string.c_str()), content_string.size());
 
     std::string var_name    = var_namePrefix + "_" + std::to_string(GetNextId());
     struct_map_[hash_value] = var_name;

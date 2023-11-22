@@ -18,7 +18,8 @@
 #ifndef GFXRECON_DECODE_VULKAN_CPP_UTIL_DATAPACK_H
 #define GFXRECON_DECODE_VULKAN_CPP_UTIL_DATAPACK_H
 
-#include <map>
+// #include <map> // Brainpain
+#include <unordered_map>
 #include <string>
 
 #include "util/defines.h"
@@ -41,7 +42,7 @@ class DataFilePacker
                                    const std::string& prefix,
                                    const std::string& suffix,
                                    uint32_t           sizeLimitInBytes);
-    const SavedFileInfo AddFileContents(const uint8_t* data, const uint64_t dataSize);
+    const SavedFileInfo AddFileContents(const uint8_t* data, const size_t dataSize);
 
   private:
     void NewTargetFile(void);
@@ -59,8 +60,8 @@ class DataFilePacker
     uint32_t    size_limit_in_bytes_;
     uint32_t    data_file_counter_;
 
-    std::map<uint64_t, SavedFileInfo> data_file_map_;
-    SavedFile                         current_data_file_;
+    std::unordered_map<uint64_t, SavedFileInfo> data_file_map_;
+    SavedFile                                   current_data_file_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -43,7 +43,6 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/hash.h
-                    ${CMAKE_CURRENT_LIST_DIR}/hash.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/json_util.h
@@ -100,8 +99,6 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/xxhash64.h
-                    ${CMAKE_CURRENT_LIST_DIR}/xxhash32.h
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>

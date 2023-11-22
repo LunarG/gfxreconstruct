@@ -15,11 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <functional>
+
 #include "decode/vulkan_cpp_util_datapack.h"
 
+#include "util/hash.h"
 #include "util/file_path.h"
 #include "util/platform.h"
-#include "util/xxhash64.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -37,13 +39,12 @@ void DataFilePacker::Initialize(const std::string& outDir,
     NewTargetFile();
 }
 
-const SavedFileInfo DataFilePacker::AddFileContents(const uint8_t* data, const uint64_t dataSize)
+const SavedFileInfo DataFilePacker::AddFileContents(const uint8_t* data, const size_t dataSize)
 {
-    uint64_t hashValue = XXHash64::hash(data, dataSize, 0);
+    const uint64_t hash_value = util::hash::GenerateCheckSum<uint64_t>(data, dataSize);
+    SavedFileInfo& data_entry = data_file_map_[hash_value];
 
-    SavedFileInfo& dataEntry = data_file_map_[hashValue];
-
-    if (dataEntry.file_path.empty())
+    if (data_entry.file_path.empty())
     {
         // The binary contents is not found in any previous chunk.
         if (current_data_file_.current_size > size_limit_in_bytes_)
@@ -52,15 +53,16 @@ const SavedFileInfo DataFilePacker::AddFileContents(const uint8_t* data, const u
             NewTargetFile();
         }
 
-        dataEntry.file_path   = current_data_file_.file_path;
-        dataEntry.byte_offset = current_data_file_.current_size;
+        data_entry.file_path   = current_data_file_.file_path;
+        data_entry.byte_offset = current_data_file_.current_size;
 
-        WriteContentsToFile(util::filepath::Join(out_dir_, dataEntry.file_path), dataEntry.byte_offset, dataSize, data);
+        WriteContentsToFile(
+            util::filepath::Join(out_dir_, data_entry.file_path), data_entry.byte_offset, dataSize, data);
 
         current_data_file_.current_size += dataSize;
     }
 
-    return dataEntry;
+    return data_entry;
 }
 
 void DataFilePacker::NewTargetFile(void)
