@@ -4884,14 +4884,93 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
                                                                 PointerDecoder<size_t>*    pDataSize,
                                                                 PointerDecoder<uint8_t>*   pData)
 {
-    if (options_.omit_pipeline_cache_data)
+    if ((options_.omit_pipeline_cache_data) || (original_result != VK_SUCCESS) || pData->GetPointer() == nullptr)
     {
+        // If original result is not VK_SUCCESS, it means target title cannot get valid pipeline cache data, also means
+        // there's no need to map the capture time pipeline cache data to playback time, so we can skip the call.
+        //
+        // If user set omit_pipeline_cache_data, it will be different for using pipeline cache data between capture and
+        // playback time, we don't need to track pipeline cache data, so we also skip the call.
+        //
+        // If pData->GetPointer() == nullptr, it means the call is just used to get the buffer size, so we also skip the
+        // call.
         return original_result;
     }
     else
     {
-        return func(
-            device_info->handle, pipeline_cache_info->handle, pDataSize->GetOutputPointer(), pData->GetOutputPointer());
+        // If capture/playback on same system, the pipeline cache data size should be same, otherwise it's not guarantee
+        // that the cache data size is same. So here we first query the replay time cache data size, then get the cache
+        // data.
+
+        size_t*  replay_cache_data_size = pDataSize->AllocateOutputData(1);
+        uint8_t* replay_cache_data      = nullptr;
+
+        VkResult replay_result =
+            func(device_info->handle, pipeline_cache_info->handle, replay_cache_data_size, nullptr);
+
+        GFXRECON_ASSERT(replay_result == VK_SUCCESS);
+
+        if (*replay_cache_data_size != 0)
+        {
+            replay_cache_data = pData->AllocateOutputData(*replay_cache_data_size);
+
+            replay_result =
+                func(device_info->handle, pipeline_cache_info->handle, replay_cache_data_size, replay_cache_data);
+
+            GFXRECON_ASSERT(replay_result == VK_SUCCESS);
+
+            bool     new_cache_data                   = false;
+            uint32_t capture_pipeline_cache_data_hash = gfxrecon::util::hash::CheckSum(
+                reinterpret_cast<const uint32_t*>(pData->GetPointer()), *pDataSize->GetPointer());
+
+            auto iterator = pipeline_cache_info->pipeline_cache_data.find(capture_pipeline_cache_data_hash);
+            if (iterator == pipeline_cache_info->pipeline_cache_data.end())
+            {
+                new_cache_data = true;
+            }
+            else
+            {
+                // We found some existing pipeline cache data has same hash, so we continue to check if it's same with
+                // current pipeline cache data
+
+                new_cache_data = true;
+                const std::vector<PipelineCacheData>& cache_data =
+                    const_cast<PipelineCacheInfo*>(pipeline_cache_info)
+                        ->pipeline_cache_data[capture_pipeline_cache_data_hash];
+                for (auto& existing_cache_data : cache_data)
+                {
+                    if (*pDataSize->GetPointer() == existing_cache_data.capture_cache_data.size())
+                    {
+                        if (memcmp(existing_cache_data.capture_cache_data.data(),
+                                   pData->GetPointer(),
+                                   *pDataSize->GetPointer()) == 0)
+                        {
+                            // The pipeline cache data is not new. This is possible, by doc, two calls to
+                            // vkGetPipelineCacheData with the same parameters must retrieve the same data unless a
+                            // command that modifies the contents of the cache is called between them.
+                            new_cache_data = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (new_cache_data)
+            {
+                std::vector<PipelineCacheData>& item = const_cast<PipelineCacheInfo*>(pipeline_cache_info)
+                                                           ->pipeline_cache_data[capture_pipeline_cache_data_hash];
+
+                PipelineCacheData pipeline_cache_data;
+                pipeline_cache_data.capture_cache_data.resize(*pDataSize->GetPointer());
+                memcpy(pipeline_cache_data.capture_cache_data.data(), pData->GetPointer(), *pDataSize->GetPointer());
+                pipeline_cache_data.replay_cache_data.resize(*pDataSize->GetOutputPointer());
+                memcpy(pipeline_cache_data.replay_cache_data.data(),
+                       pData->GetOutputPointer(),
+                       *pDataSize->GetOutputPointer());
+                item.push_back(std::move(pipeline_cache_data));
+            }
+        }
+        return replay_result;
     }
 }
 
@@ -4905,12 +4984,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pPipelineCache != nullptr) &&
-           (pPipelineCache->GetHandlePointer() != nullptr));
+    GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfo != nullptr) && (pPipelineCache != nullptr) &&
+                    (pPipelineCache->GetHandlePointer() != nullptr));
 
     auto replay_create_info = pCreateInfo->GetPointer();
+    GFXRECON_ASSERT(replay_create_info != nullptr);
 
-    if (options_.omit_pipeline_cache_data && (replay_create_info != nullptr))
+    if (options_.omit_pipeline_cache_data)
     {
         // Make a shallow copy of the create info structure and clear the cache data.
         VkPipelineCacheCreateInfo override_create_info = (*replay_create_info);
@@ -4930,10 +5010,85 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     }
     else
     {
-        return func(device_info->handle,
-                    replay_create_info,
-                    GetAllocationCallbacks(pAllocator),
-                    pPipelineCache->GetHandlePointer());
+        auto& create_info = *pCreateInfo->GetPointer();
+        if ((create_info.pInitialData != nullptr) && (create_info.initialDataSize != 0))
+        {
+            // This vkCreatePipelineCache call has initial pipeline cache data, the data is valid for capture time,
+            // but it might not be valid for replay time if considering platform/driver version change. So in the
+            // following process, we'll try to find corresponding replay time pipeline cache data.
+            matched_replay_cache_data_exist_  = false;
+            capture_pipeline_cache_data_hash_ = gfxrecon::util::hash::CheckSum(
+                reinterpret_cast<const uint32_t*>(create_info.pInitialData), create_info.initialDataSize);
+            capture_pipeline_cache_data_      = const_cast<void*>(create_info.pInitialData);
+            capture_pipeline_cache_data_size_ = create_info.initialDataSize;
+
+            object_info_table_.VisitPipelineCacheInfo([this](const PipelineCacheInfo* pipeline_cache_info) {
+                GFXRECON_ASSERT(pipeline_cache_info != nullptr);
+
+                auto iterator = pipeline_cache_info->pipeline_cache_data.find(capture_pipeline_cache_data_hash_);
+
+                if (iterator != pipeline_cache_info->pipeline_cache_data.end())
+                {
+                    // We found pipeline cache data vector which has same hash value, will continue to check if it has
+                    // same capture time pipeline cache data.
+                    auto& cache_data = const_cast<PipelineCacheInfo*>(pipeline_cache_info)
+                                           ->pipeline_cache_data[capture_pipeline_cache_data_hash_];
+
+                    for (auto& existing_cache_data : cache_data)
+                    {
+                        if ((matched_replay_cache_data_exist_ == false) &&
+                            (capture_pipeline_cache_data_size_ == existing_cache_data.capture_cache_data.size()))
+                        {
+                            // Target pipeline cache data has same size, we continue to check if it also has same data.
+                            if (memcmp(existing_cache_data.capture_cache_data.data(),
+                                       capture_pipeline_cache_data_,
+                                       capture_pipeline_cache_data_size_) == 0)
+                            {
+                                // Now we found the pipeline cache data, here we record its replay time data because we
+                                // need this data to replace capture time cache data in the vkCreatePipelineCache call.
+                                matched_replay_cache_data_exist_ = true;
+                                matched_replay_cache_data_.resize(existing_cache_data.replay_cache_data.size());
+                                memcpy(matched_replay_cache_data_.data(),
+                                       existing_cache_data.replay_cache_data.data(),
+                                       existing_cache_data.replay_cache_data.size());
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (matched_replay_cache_data_exist_)
+            {
+                VkPipelineCacheCreateInfo override_create_info = (*replay_create_info);
+                override_create_info.initialDataSize           = matched_replay_cache_data_.size();
+                override_create_info.pInitialData              = matched_replay_cache_data_.data();
+
+                return func(device_info->handle,
+                            &override_create_info,
+                            GetAllocationCallbacks(pAllocator),
+                            pPipelineCache->GetHandlePointer());
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING(
+                    "There's initial pipeline cache data in VkPipelineCacheCreateInfo, but no corresponding "
+                    "replay time cache data!");
+
+                omitted_pipeline_cache_data_ = true;
+
+                return func(device_info->handle,
+                            replay_create_info,
+                            GetAllocationCallbacks(pAllocator),
+                            pPipelineCache->GetHandlePointer());
+            }
+        }
+        else
+        {
+            return func(device_info->handle,
+                        replay_create_info,
+                        GetAllocationCallbacks(pAllocator),
+                        pPipelineCache->GetHandlePointer());
+        }
     }
 }
 

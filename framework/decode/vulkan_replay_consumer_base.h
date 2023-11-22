@@ -1218,8 +1218,24 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::vector<SwapchainKHRInfo*>    swapchain_infos_;
 
   protected:
-    // Used by pipeline cache handling
+    // Used by pipeline cache handling, there are the following two cases for the flag to be set:
+    //
+    //    1. Replay with command line option --opcd or --omit-pipeline-cache-data and some
+    //       pipeline cache data was really omitted.
+    //
+    //    2. Replay without command line option --opcd or --omit-pipeline-cache-data and there is
+    //       at least one vkCreatePipelineCache call with valid initial pipeline cache data and
+    //       the initial cache data has no corresponding replay time cache data.
     bool omitted_pipeline_cache_data_;
+
+    // Temporary data used by pipeline cache data handling
+    // The following capture time data used for calling VisitPipelineCacheInfo as input parameters
+    // , replay time data used as output result.
+    uint32_t             capture_pipeline_cache_data_hash_ = 0;
+    uint32_t             capture_pipeline_cache_data_size_ = 0;
+    void*                capture_pipeline_cache_data_;
+    bool                 matched_replay_cache_data_exist_ = false;
+    std::vector<uint8_t> matched_replay_cache_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
