@@ -216,36 +216,14 @@ void PageGuardManager::InitializeSystemExceptionContext(void)
 }
 
 PageGuardManager::PageGuardManager() :
-    exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
-    system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(kDefaultEnableCopyOnMap),
-    enable_separate_read_(kDefaultEnableSeparateRead), unblock_sigsegv_(kDefaultUnblockSIGSEGV),
-    enable_signal_handler_watcher_(kDefaultEnableSignalHandlerWatcher),
-    signal_handler_watcher_max_restores_(kDefaultSignalHandlerWatcherMaxRestores),
-    enable_read_write_same_page_(kDefaultEnableReadWriteSamePage), protection_mode_(kDefaultMemoryProtMode)
-{
-    if (kUserFaultFdMode == protection_mode_ && !USERFAULTFD_SUPPORTED)
-    {
-        GFXRECON_LOG_WARNING(
-            "Kernel does not support all features for userfaultfd memory tracking mode. Falling back to mprotect mode.");
-
-        protection_mode_ = kMProtectMode;
-    }
-
-    if (kMProtectMode == protection_mode_)
-    {
-        InitializeSystemExceptionContext();
-    }
-    else
-    {
-        if (!InitializeUserFaultFd())
-        {
-            GFXRECON_LOG_ERROR("Userfaultfd initialization failed. Falling back to mprotect memory tracking mode.");
-
-            protection_mode_ = kMProtectMode;
-            InitializeSystemExceptionContext();
-        }
-    }
-}
+    PageGuardManager(kDefaultEnableCopyOnMap,
+                     kDefaultEnableSeparateRead,
+                     kDefaultUnblockSIGSEGV,
+                     kDefaultEnableSignalHandlerWatcher,
+                     kDefaultSignalHandlerWatcherMaxRestores,
+                     kDefaultEnableReadWriteSamePage,
+                     kDefaultMemoryProtMode)
+{}
 
 PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
                                    bool                 enable_separate_read,
@@ -264,8 +242,8 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
 {
     if (kUserFaultFdMode == protection_mode_ && !USERFAULTFD_SUPPORTED)
     {
-        GFXRECON_LOG_WARNING(
-            "Kernel does not support all features for userfaultfd memory tracking mode. Falling back to mprotect mode.");
+        GFXRECON_LOG_WARNING("Kernel does not support all features for userfaultfd memory tracking mode. Falling back "
+                             "to mprotect mode.");
 
         protection_mode_ = kMProtectMode;
     }
