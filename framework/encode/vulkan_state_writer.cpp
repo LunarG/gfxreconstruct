@@ -1782,8 +1782,8 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
 
         const DeviceWrapper* device_wrapper = wrapper->device;
         size_t               image_count    = wrapper->child_images.size() > wrapper->image_acquired_info.size()
-                                 ? wrapper->image_acquired_info.size()
-                                 : wrapper->child_images.size();
+                                                  ? wrapper->image_acquired_info.size()
+                                                  : wrapper->child_images.size();
 
         format::SetSwapchainImageStateCommandHeader header;
         format::SwapchainImageStateInfo             info;
