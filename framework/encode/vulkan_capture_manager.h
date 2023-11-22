@@ -287,6 +287,12 @@ class VulkanCaptureManager : public CaptureManager
                                                     const VkAllocationCallbacks*                pAllocator,
                                                     VkAccelerationStructureKHR* pAccelerationStructureKHR);
 
+    void
+    OverrideCmdBuildAccelerationStructuresKHR(VkCommandBuffer                                        commandBuffer,
+                                              uint32_t                                               infoCount,
+                                              const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
+                                              const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
+
     VkResult OverrideAllocateMemory(VkDevice                     device,
                                     const VkMemoryAllocateInfo*  pAllocateInfo,
                                     const VkAllocationCallbacks* pAllocator,

@@ -377,6 +377,8 @@ class VulkanStateWriter
 
     bool IsFramebufferValid(const FramebufferWrapper* framebuffer_wrapper, const VulkanStateTable& state_table);
 
+    void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;

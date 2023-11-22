@@ -926,6 +926,21 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
     return result;
 }
 
+void VulkanCaptureManager::OverrideCmdBuildAccelerationStructuresKHR(
+    VkCommandBuffer                                        commandBuffer,
+    uint32_t                                               infoCount,
+    const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
+    const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackTLASBuildCommand(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+    }
+
+    const DeviceTable* device_table = GetDeviceTable(commandBuffer);
+    device_table->CmdBuildAccelerationStructuresKHR(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+}
+
 VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                     device,
                                                       const VkMemoryAllocateInfo*  pAllocateInfo,
                                                       const VkAllocationCallbacks* pAllocator,
@@ -2169,6 +2184,18 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     QueueSubmitWriteFillMemoryCmd();
 
     PreQueueSubmit();
+
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        if (pSubmits)
+        {
+            for (uint32_t s = 0; s < submitCount; ++s)
+            {
+                state_tracker_->TrackTlasToBlasDependencies(pSubmits[s].commandBufferCount,
+                                                            pSubmits[s].pCommandBuffers);
+            }
+        }
+    }
 }
 
 void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
@@ -2184,6 +2211,26 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
     QueueSubmitWriteFillMemoryCmd();
 
     PreQueueSubmit();
+
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        std::vector<VkCommandBuffer> command_buffs;
+        if (pSubmits)
+        {
+            for (uint32_t s = 0; s < submitCount; ++s)
+            {
+                if (pSubmits[s].pCommandBufferInfos)
+                {
+                    for (uint32_t c = 0; c < pSubmits[s].commandBufferInfoCount; ++c)
+                    {
+                        command_buffs.push_back(pSubmits[s].pCommandBufferInfos[c].commandBuffer);
+                    }
+                }
+            }
+
+            state_tracker_->TrackTlasToBlasDependencies(command_buffs.size(), command_buffs.data());
+        }
+    }
 }
 
 void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()

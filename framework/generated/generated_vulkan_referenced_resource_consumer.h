@@ -606,6 +606,46 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            buffer,
         VkDeviceSize                                offset) override;
 
+    virtual void Process_vkCmdBuildAccelerationStructuresKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos) override;
+
+    virtual void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        PointerDecoder<VkDeviceAddress>*            pIndirectDeviceAddresses,
+        PointerDecoder<uint32_t>*                   pIndirectStrides,
+        PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts) override;
+
+    virtual void Process_vkCmdCopyAccelerationStructureKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo) override;
+
+    virtual void Process_vkCmdCopyAccelerationStructureToMemoryKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo) override;
+
+    virtual void Process_vkCmdCopyMemoryToAccelerationStructureKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo) override;
+
+    virtual void Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    accelerationStructureCount,
+        HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+        VkQueryType                                 queryType,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery) override;
+
     virtual void Process_vkCmdDrawMeshTasksIndirectEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

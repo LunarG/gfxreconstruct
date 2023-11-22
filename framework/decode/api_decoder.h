@@ -189,6 +189,9 @@ class ApiDecoder
     virtual void DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header){};
 
     virtual void SetCurrentBlockIndex(uint64_t block_index){};
+
+    virtual void DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
+                                                        const std::vector<format::HandleId>& blases){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

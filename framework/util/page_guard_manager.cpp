@@ -1223,5 +1223,16 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
     return found;
 }
 
+const void* PageGuardManager::GetMappedMemory(uint64_t memory_id) const
+{
+    const auto& mem_info = memory_info_.find(memory_id);
+    if (mem_info != memory_info_.end())
+    {
+        return mem_info->second.mapped_memory;
+    }
+
+    return nullptr;
+}
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
