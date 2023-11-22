@@ -1793,25 +1793,37 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     functions.get_physical_device_memory_properties = instance_table->GetPhysicalDeviceMemoryProperties;
     functions.get_instance_proc_addr                = instance_table->GetInstanceProcAddr;
 
-    functions.allocate_memory                = device_table->AllocateMemory;
-    functions.free_memory                    = device_table->FreeMemory;
-    functions.get_device_memory_commitment   = device_table->GetDeviceMemoryCommitment;
-    functions.map_memory                     = device_table->MapMemory;
-    functions.unmap_memory                   = device_table->UnmapMemory;
-    functions.flush_memory_ranges            = device_table->FlushMappedMemoryRanges;
-    functions.invalidate_memory_ranges       = device_table->InvalidateMappedMemoryRanges;
-    functions.create_buffer                  = device_table->CreateBuffer;
-    functions.destroy_buffer                 = device_table->DestroyBuffer;
-    functions.get_buffer_memory_requirements = device_table->GetBufferMemoryRequirements;
-    functions.bind_buffer_memory             = device_table->BindBufferMemory;
-    functions.cmd_copy_buffer                = device_table->CmdCopyBuffer;
-    functions.create_image                   = device_table->CreateImage;
-    functions.destroy_image                  = device_table->DestroyImage;
-    functions.get_image_memory_requirements  = device_table->GetImageMemoryRequirements;
-    functions.get_image_subresource_layout   = device_table->GetImageSubresourceLayout;
-    functions.bind_image_memory              = device_table->BindImageMemory;
-    functions.get_device_proc_addr           = device_table->GetDeviceProcAddr;
-
+    functions.allocate_memory                             = device_table->AllocateMemory;
+    functions.free_memory                                 = device_table->FreeMemory;
+    functions.get_device_memory_commitment                = device_table->GetDeviceMemoryCommitment;
+    functions.map_memory                                  = device_table->MapMemory;
+    functions.unmap_memory                                = device_table->UnmapMemory;
+    functions.flush_memory_ranges                         = device_table->FlushMappedMemoryRanges;
+    functions.invalidate_memory_ranges                    = device_table->InvalidateMappedMemoryRanges;
+    functions.create_buffer                               = device_table->CreateBuffer;
+    functions.destroy_buffer                              = device_table->DestroyBuffer;
+    functions.get_buffer_memory_requirements              = device_table->GetBufferMemoryRequirements;
+    functions.bind_buffer_memory                          = device_table->BindBufferMemory;
+    functions.cmd_copy_buffer                             = device_table->CmdCopyBuffer;
+    functions.create_image                                = device_table->CreateImage;
+    functions.destroy_image                               = device_table->DestroyImage;
+    functions.get_image_memory_requirements               = device_table->GetImageMemoryRequirements;
+    functions.get_image_subresource_layout                = device_table->GetImageSubresourceLayout;
+    functions.bind_image_memory                           = device_table->BindImageMemory;
+    functions.get_device_proc_addr                        = device_table->GetDeviceProcAddr;
+    functions.get_device_queue                            = device_table->GetDeviceQueue;
+    functions.create_command_pool                         = device_table->CreateCommandPool;
+    functions.allocate_command_buffers                    = device_table->AllocateCommandBuffers;
+    functions.begin_command_buffer                        = device_table->BeginCommandBuffer;
+    functions.cmd_copy_buffer                             = device_table->CmdCopyBuffer;
+    functions.cmd_copy_buffer_to_image                    = device_table->CmdCopyBufferToImage;
+    functions.end_command_buffer                          = device_table->EndCommandBuffer;
+    functions.queue_submit                                = device_table->QueueSubmit;
+    functions.queue_wait_idle                             = device_table->QueueWaitIdle;
+    functions.reset_command_buffer                        = device_table->ResetCommandBuffer;
+    functions.free_command_buffers                        = device_table->FreeCommandBuffers;
+    functions.destroy_command_pool                        = device_table->DestroyCommandPool;
+    functions.get_physical_device_queue_family_properties = instance_table->GetPhysicalDeviceQueueFamilyProperties;
     if (physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2;
@@ -2430,6 +2442,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
     PFN_vkGetDeviceProcAddr get_device_proc_addr = GetDeviceAddrProc(physical_device);
     PFN_vkCreateDevice      create_device_proc   = GetCreateDeviceProc(physical_device);
     VkResult                result               = VK_ERROR_INITIALIZATION_FAILED;
+    auto                    instance_table       = GetInstanceTable(physical_device);
 
     if ((get_device_proc_addr != nullptr) && (create_device_proc != nullptr))
     {
