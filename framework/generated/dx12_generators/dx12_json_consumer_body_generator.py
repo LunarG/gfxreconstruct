@@ -93,7 +93,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             #include "generated_dx12_enum_to_json.h"
             #include "generated_dx12_struct_decoders_to_json.h"
             #include "decode/dx12_enum_util.h"
-            #include "decode/dx12_decode_json_util.h"
             #include "decode/decode_json_util.h"
             #include "decode/json_writer.h"
             #include "util/to_string.h"
