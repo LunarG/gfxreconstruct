@@ -24,6 +24,7 @@
 #include "util/json_util.h"
 #include "util/to_string.h"
 #include "util/logging.h"
+#include "format/format_json.h"
 
 #include <codecvt> // For encoding wstring_view to utf8.
 
@@ -33,6 +34,7 @@
 // <https://learn.microsoft.com/en-us/windows/win32/direct3d12/d3d12-graphics-reference-returnvalues>
 #include <d3d9.h>
 #include <unordered_map>
+#include "json_util.h"
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -130,6 +132,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, unsigned long data, const JsonOp
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, unsigned long long data, const JsonOptions& options)
+{
+    jdata = data;
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data, const JsonOptions& options)
 {
     jdata = data;
 }
@@ -260,6 +267,77 @@ void HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const u
 }
 
 #endif
+
+static std::string GenerateFilename(const std::string_view filename, const uint64_t instance_counter)
+{
+    std::string fullname{ filename };
+    return fullname.append("-").append(std::to_string(instance_counter)).append(".bin");
+}
+
+static bool WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data)
+{
+    FILE* file_output = nullptr;
+    bool  written_all = false;
+    if (util::platform::FileOpen(&file_output, filename.c_str(), "wb") == 0)
+    {
+        const uint64_t written = util::platform::FileWrite(data, 1, static_cast<size_t>(data_size), file_output);
+        if (written >= data_size)
+        {
+            written_all = true;
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Only wrote %llu bytes of %llu data to file %s.",
+                               (unsigned long long)written,
+                               (unsigned long long)data_size,
+                               filename.c_str());
+        }
+        util::platform::FileClose(file_output);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to open file %s for writing.", filename.c_str());
+    }
+    return written_all;
+}
+
+bool RepresentBinaryFile(const util::JsonOptions& json_options,
+                         nlohmann::ordered_json&  jdata,
+                         std::string_view         filename_base,
+                         const uint64_t           instance_counter,
+                         const uint64_t           data_size,
+                         const uint8_t* const     data)
+{
+    bool written = false;
+    // If the data is null or empty, put a null in the JSON.
+    if (data_size < 1 || nullptr == data)
+    {
+        FieldToJson(jdata, nullptr, json_options);
+    }
+    else
+    {
+        if (json_options.dump_binaries)
+        {
+            std::string filename = GenerateFilename(filename_base, instance_counter);
+            std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
+            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
+            if (WriteBinaryFile(filepath, data_size, data))
+            {
+                FieldToJson(jdata, basename, json_options);
+                written = true;
+            }
+            else
+            {
+                FieldToJson(jdata, format::kValWriteFailed, json_options);
+            }
+        }
+        else
+        {
+            FieldToJson(jdata, format::kValBinary, json_options);
+        }
+    }
+    return written;
+}
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

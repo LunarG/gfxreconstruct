@@ -57,6 +57,15 @@ static void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_E
 }
 /** @} */
 
+inline bool RepresentBinaryFile(const util::JsonOptions&       json_options,
+nlohmann::ordered_json&        jdata,
+std::string_view               filename_base,
+const uint64_t                 instance_counter,
+const PointerDecoder<uint8_t>& data)
+{
+    return RepresentBinaryFile(json_options, jdata, filename_base, instance_counter, data.GetLength(), data.GetPointer());
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS* data, const JsonOptions& options)
 {
     using namespace util;
@@ -891,7 +900,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SHADER_BYTEC
     {
         const D3D12_SHADER_BYTECODE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SHADER_BYTECODE& meta_struct = *data;
-        FieldToJson(jdata["pShaderBytecode"], meta_struct.pShaderBytecode, options);
+        static thread_local uint64_t D3D12_SHADER_BYTECODE_pShaderBytecode_counter{ 0 };
+        const bool written = RepresentBinaryFile(options, jdata["pShaderBytecode"], "D3D12_SHADER_BYTECODE.pShaderBytecode", D3D12_SHADER_BYTECODE_pShaderBytecode_counter, meta_struct.pShaderBytecode);
+        D3D12_SHADER_BYTECODE_pShaderBytecode_counter += written;
+
         FieldToJson(jdata["BytecodeLength"], decoded_value.BytecodeLength, options);
     }
 }

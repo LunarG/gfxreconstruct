@@ -43,6 +43,16 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
             diag_file
         )
 
+        ## @brief A set of tuples, each specifying a field of a struct which could be represented as a
+        ## binary blob.
+        ## If a field is present in this set, the generated code will output the field as a binary file*
+        ## so add any field names here that you want to be output as a binary file.
+        ## * If the JsonOptions::dump_binaries flag is set.
+        ## The binary file will be named as follows: <struct_name>.<field_name>-<instance_counter>.bin
+        self.binary_blobs = {
+            ('D3D12_SHADER_BYTECODE', 'pShaderBytecode')
+        }
+
     def beginFile(self, gen_opts):
         Dx12BaseGenerator.beginFile(self, gen_opts)
         ## @todo De-duplicate this list.
@@ -88,6 +98,15 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 FieldToJson(jdata["AdditionalHeight"], data.AdditionalHeight, options);
             }
             /** @} */
+
+            inline bool RepresentBinaryFile(const util::JsonOptions&       json_options,
+                                            nlohmann::ordered_json&        jdata,
+                                            std::string_view               filename_base,
+                                            const uint64_t                 instance_counter,
+                                            const PointerDecoder<uint8_t>& data)
+            {
+                return RepresentBinaryFile(json_options, jdata, filename_base, instance_counter, data.GetLength(), data.GetPointer());
+            }
         ''')
         write(code, file=self.outFile)
         self.newline()
@@ -126,486 +145,486 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
             case "D3D12_ROOT_PARAMETER":
                 field_to_json = '''
                 switch(decoded_value.ParameterType)
-                {{
+                {
                     case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
-                    {{
+                    {
                         FieldToJson(jdata["DescriptorTable"], meta_struct.DescriptorTable, options);
                         break;
-                    }}
+                    }
                     case D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS:
-                    {{
+                    {
                         FieldToJson(jdata["Constants"], meta_struct.Constants, options);
                         break;
-                    }}
+                    }
                     case D3D12_ROOT_PARAMETER_TYPE_CBV:
                     case D3D12_ROOT_PARAMETER_TYPE_SRV:
                     case D3D12_ROOT_PARAMETER_TYPE_UAV:
-                    {{
+                    {
                         FieldToJson(jdata["Descriptor"], meta_struct.Descriptor, options);
                         break;
-                    }}
-                }}
+                    }
+                }
                 '''
             case "D3D12_SHADER_RESOURCE_VIEW_DESC":
                 field_to_json = '''
                 switch(decoded_value.ViewDimension)
-                {{
+                {
                     case D3D12_SRV_DIMENSION_BUFFER:
-                    {{
+                    {
                         FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_TEXTURE1D:
-                    {{
+                    {
                         FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_TEXTURE1DARRAY:
-                    {{
+                    {
                         FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_TEXTURE2D:
-                    {{
+                    {
                         FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_TEXTURE2DARRAY:
-                    {{
+                    {
                         FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_TEXTURE2DMS:
-                    {{
+                    {
                         FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY:
-                    {{
+                    {
                         FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_TEXTURE3D:
-                    {{
+                    {
                         FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_TEXTURECUBE:
-                    {{
+                    {
                         FieldToJson(jdata["TextureCube"], meta_struct.TextureCube, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_TEXTURECUBEARRAY:
-                    {{
+                    {
                         FieldToJson(jdata["TextureCubeArray"], meta_struct.TextureCubeArray, options);
                         break;
-                    }}
+                    }
                     case D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE:
-                    {{
+                    {
                         FieldToJson(jdata["RaytracingAccelerationStructure"], meta_struct.RaytracingAccelerationStructure, options);
                         break;
-                    }}
-                }}
+                    }
+                }
                 '''
             case "D3D12_SAMPLER_DESC2":
                 field_to_json = '''
                     if(decoded_value.Flags & D3D12_SAMPLER_FLAG_UINT_BORDER_COLOR)
-                    {{
+                    {
                         FieldToJson(jdata["UintBorderColor"], decoded_value.UintBorderColor, options);
-                    }}
+                    }
                     else
-                    {{
+                    {
                         FieldToJson(jdata["FloatBorderColor"], decoded_value.FloatBorderColor, options);
-                    }}
+                    }
                 '''
             case "D3D12_UNORDERED_ACCESS_VIEW_DESC":
                 field_to_json = '''
                     switch(decoded_value.ViewDimension)
-                    {{
+                    {
                         case D3D12_UAV_DIMENSION_UNKNOWN:
-                        {{
+                        {
                             FieldToJson(jdata[format::kNameWarning], "Zero-valued ViewDimension is meaningless. Is struct corrupted?", options);
                             break;
-                        }}
+                        }
                         case D3D12_UAV_DIMENSION_BUFFER:
-                        {{
+                        {
                             FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
                             break;
-                        }}
+                        }
                         case D3D12_UAV_DIMENSION_TEXTURE1D:
-                        {{
+                        {
                             FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
                             break;
-                        }}
+                        }
                         case D3D12_UAV_DIMENSION_TEXTURE1DARRAY:
-                        {{
+                        {
                             FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
                             break;
-                        }}
+                        }
                         case D3D12_UAV_DIMENSION_TEXTURE2D:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
                             break;
-                        }}
+                        }
                         case D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
                             break;
-                        }}
+                        }
                         case D3D12_UAV_DIMENSION_TEXTURE2DMS:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2DMS"], "Field missing from Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC.", options);
                             break;
-                        }}
+                        }
                         case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2DMSArray"], "Field missing from Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC.", options);
                             break;
-                        }}
+                        }
                         case D3D12_UAV_DIMENSION_TEXTURE3D:
-                        {{
+                        {
                             FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
                             break;
-                        }}
+                        }
                         default:
-                        {{
+                        {
                             FieldToJson(jdata[format::kNameWarning], "ViewDimension with unknown value. Is struct corrupted?", options);
                             FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension), options);
                             break;
-                        }}
-                    }}
+                        }
+                    }
                 '''
             case "D3D12_RENDER_TARGET_VIEW_DESC":
                 field_to_json = '''
                     switch(decoded_value.ViewDimension)
-                    {{
+                    {
                         case D3D12_RTV_DIMENSION_UNKNOWN:
-                        {{
+                        {
                             FieldToJson(jdata[format::kNameWarning], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
                             break;
-                        }}
+                        }
                         case D3D12_RTV_DIMENSION_BUFFER:
-                        {{
+                        {
                             FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
                             break;
-                        }}
+                        }
                         case D3D12_RTV_DIMENSION_TEXTURE1D:
-                        {{
+                        {
                             FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
                             break;
-                        }}
+                        }
                         case D3D12_RTV_DIMENSION_TEXTURE1DARRAY:
-                        {{
+                        {
                             FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
                             break;
-                        }}
+                        }
                         case D3D12_RTV_DIMENSION_TEXTURE2D:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
                             break;
-                        }}
+                        }
                         case D3D12_RTV_DIMENSION_TEXTURE2DARRAY:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
                             break;
-                        }}
+                        }
                         case D3D12_RTV_DIMENSION_TEXTURE2DMS:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
                             break;
-                        }}
+                        }
                         case D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
                             break;
-                        }}
+                        }
                         case D3D12_RTV_DIMENSION_TEXTURE3D:
-                        {{
+                        {
                             FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
                             break;
-                        }}
+                        }
                         default:
-                        {{
+                        {
                             FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Corrupt struct?", options);
                             FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension), options);
                             break;
-                        }}
-                    }}
+                        }
+                    }
                 '''
             case "D3D12_DEPTH_STENCIL_VIEW_DESC":
                 field_to_json = '''
                     switch(decoded_value.ViewDimension)
-                    {{
+                    {
                         case D3D12_DSV_DIMENSION_UNKNOWN:
-                        {{
+                        {
                             FieldToJson(jdata[format::kNameWarning], "Zero D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Uninitialised struct?", options);
                             break;
-                        }}
+                        }
                         case D3D12_DSV_DIMENSION_TEXTURE1D:
-                        {{
+                        {
                             FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
                             break;
-                        }}
+                        }
                         case D3D12_DSV_DIMENSION_TEXTURE1DARRAY:
-                        {{
+                        {
                             FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
                             break;
-                        }}
+                        }
                         case D3D12_DSV_DIMENSION_TEXTURE2D:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
                             break;
-                        }}
+                        }
                         case D3D12_DSV_DIMENSION_TEXTURE2DARRAY:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
                             break;
-                        }}
+                        }
                         case D3D12_DSV_DIMENSION_TEXTURE2DMS:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
                             break;
-                        }}
+                        }
                         case D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY:
-                        {{
+                        {
                             FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
                             break;
-                        }}
+                        }
                         default:
-                        {{
+                        {
                             FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_DSV_DIMENSION in D3D12_DEPTH_STENCIL_VIEW_DESC. Corrupt struct?", options);
                             FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension), options);
                             break;
-                        }}
-                    }}
+                        }
+                    }
                 '''
             case "D3D12_ROOT_PARAMETER1":
                 field_to_json = '''
                 switch (decoded_value.ParameterType)
-                {{
+                {
                     case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
-                    {{
+                    {
                         FieldToJson(jdata["DescriptorTable"], meta_struct.DescriptorTable, options);
                         break;
-                    }}
+                    }
                     case D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS:
-                    {{
+                    {
                         FieldToJson(jdata["Constants"], meta_struct.Constants, options);
                         break;
-                    }}
+                    }
                     case D3D12_ROOT_PARAMETER_TYPE_CBV:
                     case D3D12_ROOT_PARAMETER_TYPE_SRV:
                     case D3D12_ROOT_PARAMETER_TYPE_UAV:
-                    {{
+                    {
                         FieldToJson(jdata["Descriptor"], meta_struct.Descriptor, options);
                         break;
-                    }}
+                    }
                     default:
-                    {{
+                    {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_ROOT_PARAMETER_TYPE in D3D12_ROOT_PARAMETER1. Uninitialised or corrupt struct?", options);
                         FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ParameterType), options);
                         break;
-                    }}
-                }}
+                    }
+                }
             '''
             case "D3D12_VERSIONED_ROOT_SIGNATURE_DESC":
                 field_to_json = '''
                 switch (decoded_value.Version)
-                {{
+                {
                     case D3D_ROOT_SIGNATURE_VERSION_1_0:
-                    {{
+                    {
                         FieldToJson(jdata["Desc_1_0"], meta_struct.Desc_1_0, options);
                         break;
-                    }}
+                    }
                     case D3D_ROOT_SIGNATURE_VERSION_1_1:
-                    {{
+                    {
                         FieldToJson(jdata["Desc_1_1"], meta_struct.Desc_1_1, options);
                         break;
-                    }}
+                    }
                     case D3D_ROOT_SIGNATURE_VERSION_1_2:
-                    {{
+                    {
                         /// @todo Uncomment this once the union member is added to the decoded struct: FieldToJson(jdata["Desc_1_2"], meta_struct.Desc_1_2, options);
                         GFXRECON_LOG_ERROR("Unknown D3D_ROOT_SIGNATURE_VERSION_1_2 in D3D12_VERSIONED_ROOT_SIGNATURE_DESC.");
                         break;
-                    }}
+                    }
                     default:
-                    {{
+                    {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D_ROOT_SIGNATURE_VERSION in D3D12_VERSIONED_ROOT_SIGNATURE_DESC. Uninitialised or corrupt struct?", options);
                         break;
-                    }}
-                }}
+                    }
+                }
             '''
             case "D3D12_INDIRECT_ARGUMENT_DESC":
                 field_to_json = '''
                 switch (decoded_value.Type)
-                {{
+                {
                     case D3D12_INDIRECT_ARGUMENT_TYPE_DRAW:
                     case D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED:
                     case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH:
-                    {{
+                    {
                         // No data to output for draws and dispatches, they are parameterless tags.
                         break;
-                    }}
+                    }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_VERTEX_BUFFER_VIEW:
-                    {{
+                    {
                         auto& vb = jdata["VertexBuffer"];
                         FieldToJson(vb["Slot"], decoded_value.VertexBuffer.Slot, options);
                         break;
-                    }}
+                    }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_INDEX_BUFFER_VIEW:
-                    {{
+                    {
                         // No parameters to output.
                         FieldToJson(jdata["comment"], "There must be a D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED in the same sequence.", options);
                         break;
-                    }}
+                    }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT:
-                    {{
+                    {
                         auto& c = jdata["Constant"];
                         FieldToJson(c["RootParameterIndex"], decoded_value.Constant.RootParameterIndex, options);
                         FieldToJson(c["DestOffsetIn32BitValues"], decoded_value.Constant.DestOffsetIn32BitValues, options);
                         FieldToJson(c["Num32BitValuesToSet"], decoded_value.Constant.Num32BitValuesToSet, options);
                         break;
-                    }}
+                    }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW:
-                    {{
+                    {
                         auto& cbv = jdata["ConstantBufferView"];
                         FieldToJson(cbv["RootParameterIndex"], decoded_value.ConstantBufferView.RootParameterIndex, options);
                         break;
-                    }}
+                    }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW:
-                    {{
+                    {
                         auto& srv = jdata["ShaderResourceView"];
                         FieldToJson(srv["RootParameterIndex"], decoded_value.ShaderResourceView.RootParameterIndex, options);
                         break;
-                    }}
+                    }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW:
-                    {{
+                    {
                         auto& uav = jdata["UnorderedAccessView"];
                         FieldToJson(uav["RootParameterIndex"], decoded_value.UnorderedAccessView.RootParameterIndex, options);
                         break;
-                    }}
+                    }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS:
                     case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH:
-                    {{
+                    {
                         // No data to output for draws and dispatches, they are parameterless tags.
                         break;
-                    }}
+                    }
                     default:
-                    {{
+                    {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_INDIRECT_ARGUMENT_TYPE in D3D12_INDIRECT_ARGUMENT_DESC. Uninitialised or corrupt struct?", options);
                         break;
-                    }}
-                }}
+                    }
+                }
                 '''
             case "D3D12_RAYTRACING_GEOMETRY_DESC":
                 field_to_json = '''
                 switch(decoded_value.Type)
-                {{
+                {
                     case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES:
-                    {{
+                    {
                         FieldToJson(jdata["Triangles"], meta_struct.Triangles, options);
                         break;
-                    }}
+                    }
                     case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS:
-                    {{
+                    {
                         FieldToJson(jdata["AABBs"], meta_struct.AABBs, options);
                         break;
-                    }}
+                    }
                     default:
-                    {{
+                    {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RAYTRACING_GEOMETRY_TYPE in D3D12_RAYTRACING_GEOMETRY_DESC. Uninitialised or corrupt struct?", options);
                         break;
-                    }}
-                }}
+                    }
+                }
                 '''
             case "D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS":
                 field_to_json = '''
                 switch(decoded_value.Type)
-                {{
+                {
                     case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL:
-                    {{
+                    {
                         FieldToJsonAsHex(jdata["InstanceDescs"], decoded_value.InstanceDescs, options);
                         break;
-                    }}
+                    }
                     case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL:
-                    {{
+                    {
                         switch(decoded_value.DescsLayout)
-                        {{
+                        {
                             case D3D12_ELEMENTS_LAYOUT_ARRAY:
-                            {{
+                            {
                                 FieldToJson(jdata["pGeometryDescs"], meta_struct.pGeometryDescs, options);
                                 break;
-                            }}
+                            }
                             case D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS:
-                            {{
+                            {
                                 FieldToJson(jdata["ppGeometryDescs"], meta_struct.ppGeometryDescs, options);
                                 break;
-                            }}
-                        }}
+                            }
+                        }
                         break;
-                    }}
+                    }
                     default:
-                    {{
+                    {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE in D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS. Uninitialised or corrupt struct?", options);
                         break;
-                    }}
-                }}
+                    }
+                }
                 '''
             case "D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA":
                 field_to_json = '''
                 switch(decoded_value.Version)
-                {{
+                {
                     case D3D12_DRED_VERSION_1_0:
-                    {{
+                    {
                         FieldToJson(jdata["Dred_1_0"], meta_struct.Dred_1_0, options);
                         break;
-                    }}
+                    }
                     case D3D12_DRED_VERSION_1_1:
-                    {{
+                    {
                         FieldToJson(jdata["Dred_1_1"], meta_struct.Dred_1_1, options);
                         break;
-                    }}
+                    }
                     case D3D12_DRED_VERSION_1_2:
-                    {{
+                    {
                         FieldToJson(jdata["Dred_1_2"], meta_struct.Dred_1_2, options);
                         break;
-                    }}
+                    }
                     case D3D12_DRED_VERSION_1_3:
-                    {{
+                    {
                         // This field was missing in the custom struct at time of writing.
                         // See issue and revise this codegen by uncommenting line below when the issue
                         // is fixed <https://github.com/LunarG/gfxreconstruct/issues/1351>
                         // FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
                         FieldToJson(jdata[format::kNameWarning], "Dred_1_3 is not supported by GFXR at this time. Please file an issue quoting this text if this is a blocker for you.", options);
                         break;
-                    }}
+                    }
                     default:
-                    {{
+                    {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_DRED_VERSION in D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA. Uninitialised or corrupt struct?", options);
                         break;
-                    }}
-                }}
+                    }
+                }
                 '''
             case "D3D12_RENDER_PASS_BEGINNING_ACCESS":
                 field_to_json = '''
                 switch(decoded_value.Type)
-                {{
+                {
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR:
-                    {{
+                    {
                         FieldToJson(jdata["Clear"], meta_struct.Clear, options);
                         break;
-                    }}
+                    }
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
                     if(decoded_value.PreserveLocal.AdditionalWidth != 0U || decoded_value.PreserveLocal.AdditionalHeight != 0U)
-                    {{
+                    {
                         FieldToJson(jdata[format::kNameWarning], "Additional width and height should be zero (see DirectX Specs).", options);
-                    }}
+                    }
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
-                    {{
+                    {
                         FieldToJson(jdata["PreserveLocal"], decoded_value.PreserveLocal, options);
                         break;
-                    }}
+                    }
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD:
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE:
                     case D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS:
@@ -613,16 +632,16 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     break;
 
                     default:
-                    {{
+                    {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE in D3D12_RENDER_PASS_BEGINNING_ACCESS. Uninitialised or corrupt struct?", options);
                         break;
-                    }}
-                }}
+                    }
+                }
                 '''
             case "D3D12_RENDER_PASS_ENDING_ACCESS":
                 field_to_json = '''
                 switch(decoded_value.Type)
-                {{
+                {
                     case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD:
                     case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE:
                     case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS:
@@ -630,24 +649,24 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     break;
 
                     case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE:
-                    {{
+                    {
                         FieldToJson(jdata["Resolve"], meta_struct.Resolve, options);
                         break;
-                    }}
+                    }
                     case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_RENDER:
                     case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_SRV:
                     case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE_LOCAL_UAV:
-                    {{
+                    {
                         FieldToJson(jdata["PreserveLocal"], decoded_value.PreserveLocal, options);
                         break;
-                    }}
+                    }
 
                     default:
-                    {{
+                    {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RENDER_PASS_ENDING_ACCESS_TYPE in D3D12_RENDER_PASS_ENDING_ACCESS. Uninitialised or corrupt struct?", options);
                         break;
-                    }}
-                }}
+                    }
+                }
                 '''
             case _:
                 print(message)
@@ -662,9 +681,16 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
             for p in properties:
                 value_info = self.get_value_info(p)
 
+                field_to_json = ''
+
                 if "anon-union" in value_info.base_type:
                     field_to_json = self.makeUnionFieldToJson(properties, name, union_index)
                     union_index += 1
+                elif (name, value_info.name) in self.binary_blobs:
+                    field_to_json  = '        static thread_local uint64_t {0}_{1}_counter{{ 0 }};\n'
+                    field_to_json += '        const bool written = RepresentBinaryFile(options, jdata["{1}"], "{0}.{1}", {0}_{1}_counter, meta_struct.{1});\n'
+                    field_to_json += '        {0}_{1}_counter += written;\n'
+                    field_to_json = field_to_json.format(name, value_info.name)
                 else:
                     function_name = self.choose_field_to_json_name(value_info)
                     if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type)):
@@ -673,9 +699,9 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     else:
                         # Complex types, pointers and handles plumb to the decoded struct:
                         field_to_json = '        {0}(jdata["{1}"], meta_struct.{1}, options);'
-
-                field_to_json = field_to_json.format(function_name, value_info.name, value_info.array_length)
-                body += field_to_json + '\n'
+                    field_to_json = field_to_json.format(function_name, value_info.name, value_info.array_length)
+                body += field_to_json
+                body += '\n'
         return body
     # yapf: enable
 

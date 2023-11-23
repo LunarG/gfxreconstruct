@@ -69,6 +69,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, unsigned short data, const JsonO
 void FieldToJson(nlohmann::ordered_json& jdata, unsigned int data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, unsigned long data, const JsonOptions& options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, unsigned long long data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data, const JsonOptions& options = JsonOptions());
 /// Convert floats to JSON, logging information loss when floats with no JSON
 /// number type representation are adjusted. The JSON library turns these numbers
 /// into JSON nulls otherwise.
@@ -155,6 +156,16 @@ void HandleToJson(nlohmann::ordered_json&  jdata,
 std::string HresultToString(const HRESULT hresult);
 void        HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const util::JsonOptions& options);
 #endif
+
+/// @brief Represent a binary blob in the JSON tree either as the filename of a file containing the data that is also
+/// written, or as placeholder text with the binary file not written, depending on the JsonOptions in effect.
+/// @return true if a binary file was written to storage, false if not.
+bool RepresentBinaryFile(const util::JsonOptions& json_options,
+                         nlohmann::ordered_json&  jdata,
+                         std::string_view         filename_base,
+                         const uint64_t           instance_counter,
+                         const uint64_t           data_size,
+                         const uint8_t* const     data);
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
