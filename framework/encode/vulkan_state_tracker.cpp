@@ -1120,12 +1120,23 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
                 for (uint32_t i = 0; i < current_writes; ++i)
                 {
-                    auto accel_struct = reinterpret_cast<const VkAccelerationStructureKHR*>(src_address);
-                    dst_view_ids[i]   = GetWrappedId<AccelerationStructureKHRWrapper>(*accel_struct);
-                    dst_info[i]       = *accel_struct;
+                    const auto* accel_struct = reinterpret_cast<const VkAccelerationStructureKHR*>(src_address);
+                    dst_view_ids[i]          = GetWrappedId<AccelerationStructureKHRWrapper>(*accel_struct);
+                    dst_info[i]              = *accel_struct;
 
                     src_address += entry.stride;
                 }
+                // Because UpdateWithTemplate does not require pNext to update acceleration structures
+                // but state recreation uses UpdateDescriptorSets which does require pNext to update acceleration
+                // structures we create a relevant pNext
+                const VkWriteDescriptorSetAccelerationStructureKHR p_next{
+                    VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
+                    nullptr,
+                    current_writes,
+                    binding.acceleration_structures.get()
+                };
+
+                binding.write_pnext = TrackStruct(&p_next, &binding.write_pnext_memory);
 
                 // Check for consecutive update.
                 if (current_count == current_writes)
