@@ -2,13 +2,10 @@
   "description": "Block codegen of features for header files used in DX12 to JSON conversion. While many features such as structs containing unions need custom implementations of their FieldToJson functions, the function prototypes for them can still be generated, so we use this file to block generation of far fewer header features than body ones. (this is just a comment on the current file for human eyes)",
   "functions-all": [],
   "functions-encoder": [],
-  "functions-decoder": [
-    "D3D12GetDebugInterface"
-  ],
+  "functions-decoder": [],
   "classmethods": {
     "ID3D12Device": [
-      "CheckFeatureSupport",
-      "CreateCommandQueue"
+      "CheckFeatureSupport"
     ],
     "IDXGIFactory5": [
       "CheckFeatureSupport"
