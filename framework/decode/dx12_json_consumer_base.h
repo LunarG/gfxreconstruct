@@ -63,6 +63,24 @@ class Dx12JsonConsumerBase : public Dx12Consumer
     virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) override;
     /// @}
 
+    /// @defGroup CustomFunctions DX12 functions and methods which require fully custom handling.
+    /// @{
+    /// Data must be extracted from the void pointer depending on the value of feature.
+    void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
+                                                  HRESULT          original_result,
+                                                  D3D12_FEATURE    feature,
+                                                  const void*      capture_feature_data,
+                                                  void*            replay_feature_data,
+                                                  UINT             feature_data_size) override;
+
+    /// Data must be extracted from the void pointer depending on the value of feature.
+    void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
+                                                   HRESULT          original_result,
+                                                   DXGI_FEATURE     feature,
+                                                   const void*      capture_feature_data,
+                                                   void*            replay_feature_data,
+                                                   UINT             feature_data_size) override;
+    /// @}
   protected:
     JsonWriter* writer_{ nullptr };
 };

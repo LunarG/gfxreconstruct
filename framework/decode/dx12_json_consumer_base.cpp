@@ -26,6 +26,7 @@
 #include "decode/dx12_json_consumer_base.h"
 #include "decode/json_writer.h"
 #include "decode/decode_json_util.h"
+#include "generated/generated_dx12_enum_to_json.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -236,6 +237,64 @@ void Dx12JsonConsumerBase::Process_ExeFileInfo(const util::filepath::FileInfo& i
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("Dx12RuntimeInfoCommandHeader");
     FieldToJson(jdata["info_record"], info_record, json_options);
+}
+
+void Dx12JsonConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
+                                                                    HRESULT          original_result,
+                                                                    D3D12_FEATURE    feature,
+                                                                    const void*      capture_feature_data,
+                                                                    void*            replay_feature_data,
+                                                                    UINT             feature_data_size)
+{
+    using namespace gfxrecon::util;
+    ApiCallInfo call_info;
+    call_info.index     = GetCurrentBlockIndex();
+    call_info.thread_id = 31415926535;
+
+    nlohmann::ordered_json& method =
+        writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CheckFeatureSupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], original_result, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Feature"], feature, options);
+        FieldToJson(args["pFeatureSupportData"], nullptr, options);
+        FieldToJson(args["FeatureSupportDataSize"], feature_data_size, options);
+        /// @todo Complete conversion of the void * contents of Process_ID3D12Device_CheckFeatureSupport. See
+        /// <https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport>
+        FieldToJson(
+            args[format::kNameWarning], "Incomplete conversion: pFeatureSupportData not supported yet.", options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
+                                                                     HRESULT          original_result,
+                                                                     DXGI_FEATURE     feature,
+                                                                     const void*      capture_feature_data,
+                                                                     void*            replay_feature_data,
+                                                                     UINT             feature_data_size)
+{
+    using namespace gfxrecon::util;
+    ApiCallInfo call_info;
+    call_info.index     = GetCurrentBlockIndex();
+    call_info.thread_id = 31415926535;
+
+    nlohmann::ordered_json& method =
+        writer_->WriteApiCallStart(call_info, "IDXGIFactory5", object_id, "CheckFeatureSupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], original_result, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Feature"], feature, options);
+        FieldToJson(args["pFeatureSupportData"], nullptr, options);
+        FieldToJson(args["FeatureSupportDataSize"], feature_data_size, options);
+        /// @todo Complete conversion of the void * contents of Process_IDXGIFactory5_CheckFeatureSupport. See
+        /// <https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_5/nf-dxgi1_5-idxgifactory5-checkfeaturesupport>
+        FieldToJson(
+            args[format::kNameWarning], "Incomplete conversion: pFeatureSupportData not supported yet.", options);
+    }
+    writer_->WriteBlockEnd();
 }
 
 GFXRECON_END_NAMESPACE(decode)
