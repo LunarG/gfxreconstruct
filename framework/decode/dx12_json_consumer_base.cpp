@@ -27,6 +27,7 @@
 #include "decode/json_writer.h"
 #include "decode/decode_json_util.h"
 #include "generated/generated_dx12_enum_to_json.h"
+#include "generated/generated_dx12_struct_decoders_to_json.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -297,5 +298,34 @@ void Dx12JsonConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Han
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::HandleId object_id,
+                                                                     HRESULT          return_value,
+                                                                     UINT             DstSubresource,
+                                                                     StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
+                                                                     void*                                    pSrcData,
+                                                                     UINT SrcRowPitch,
+                                                                     UINT SrcDepthPitch)
+{
+    using namespace gfxrecon::util;
+    ApiCallInfo call_info;
+    call_info.index     = GetCurrentBlockIndex();
+    call_info.thread_id = 31415926535; /// @todo Make an int in format: format::kNameUnknownThreadId
+
+    nlohmann::ordered_json& method =
+        writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "WriteToSubresource");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["DstSubresource"], DstSubresource, options);
+        FieldToJson(args["pDstBox"], pDstBox, options);
+        /// @todo Complete conversion of the void * member pSrcData of Process_ID3D12Resource_WriteToSubresource.
+        FieldToJson(args[format::kNameWarning], "Incomplete conversion: pSrcData not supported yet.", options);
+        FieldToJson(args["pSrcData"], nullptr, options);
+        FieldToJson(args["SrcRowPitch"], SrcRowPitch, options);
+        FieldToJson(args["SrcDepthPitch"], SrcDepthPitch, options);
+    }
+    writer_->WriteBlockEnd();
+}
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

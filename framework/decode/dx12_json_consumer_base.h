@@ -80,6 +80,16 @@ class Dx12JsonConsumerBase : public Dx12Consumer
                                                    const void*      capture_feature_data,
                                                    void*            replay_feature_data,
                                                    UINT             feature_data_size) override;
+
+    /// This is only custom because codegen gives pSrcData type uint64_t instead of void*.
+    /// <https://github.com/LunarG/gfxreconstruct/issues/1369>
+    virtual void Process_ID3D12Resource_WriteToSubresource(format::HandleId                         object_id,
+                                                           HRESULT                                  original_result,
+                                                           UINT                                     DstSubresource,
+                                                           StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
+                                                           void*                                    pSrcData,
+                                                           UINT                                     SrcRowPitch,
+                                                           UINT SrcDepthPitch) override;
     /// @}
   protected:
     JsonWriter* writer_{ nullptr };

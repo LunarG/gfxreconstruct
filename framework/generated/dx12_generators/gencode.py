@@ -297,9 +297,7 @@ def make_gen_opts(args):
         Dx12ConsumerHeaderGeneratorOptions(
             filename='generated_dx12_json_consumer.h',
             directory=directory,
-            # blacklists=blacklists,
-            blacklists=json_blocklists,
-            # ToDo: json_headers_blocklists
+            blacklists=json_headers_blocklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
