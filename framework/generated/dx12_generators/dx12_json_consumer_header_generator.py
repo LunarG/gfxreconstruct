@@ -55,7 +55,7 @@ class Dx12JsonConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
     """Generates C++ functions responsible for consuming Dx12 API calls."""
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.generate_feature(self)
         self.write_dx12_consumer_class('Json')
 

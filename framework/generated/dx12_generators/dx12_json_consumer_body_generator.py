@@ -58,29 +58,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
     JSON_OVERRIDES = {}
 
     def beginFile(self, genOpts):
-        # The following functions/methods may require custom handling
-        # @todo Turn Evaluate each of these, turn them back on in a blocklists.json and write the code to deal with them.
-        # -- self.APICALL_BLACKLIST.append('D3D12CreateRootSignatureDeserializer')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12RootSignatureDeserializer_GetRootSignatureDesc')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12Heap_GetDesc')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12Resource_GetDesc')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12DescriptorHeap_GetDesc')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12CommandQueue_GetDesc')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12Device_GetResourceAllocationInfo')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12Device_GetCustomHeapProperties')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12Device_GetAdapterLuid')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12ProtectedResourceSession_GetDesc')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12Device4_GetResourceAllocationInfo1')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12GraphicsCommandList_ResourceBarrier')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetMessage')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetStorageFilter')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12InfoQueue_GetRetrievalFilter')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12Device_CreateRootSignature')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12CommandList_GetType')
-        # -- self.METHODCALL_BLACKLIST.append('ID3D12Device1_CreatePipelineLibrary')
         Dx12JsonConsumerHeaderGenerator.beginFile(self, genOpts)
         if genOpts.json_overrides:
             overrides = json.loads(open(genOpts.json_overrides, 'r').read())

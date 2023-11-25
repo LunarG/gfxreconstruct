@@ -332,7 +332,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagPOINT* pObj, co
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded__SECURITY_ATTRIBUTES* pObj, const util::JsonOptions& options);
 
 // Reference versions of above which simply pipe through to the pointer versions.
-/// @todo Take a look at the users and see if we can have either all references or all pointers.
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MAPPED_RECT& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LUID& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
@@ -618,11 +617,7 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagRECT& ob
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagPOINT& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded__SECURITY_ATTRIBUTES& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 
-// Custom, manually written implementations:
-// void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* pObj, const util::JsonOptions& options);
-// inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
-// void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE* pObj, const util::JsonOptions& options);
-// inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+// Custom, manually written implementations whose prototypes haven't been generated above:
 
 /// <winnt.h> Named union type with two structs and a uint64_t inside.
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* pObj, const util::JsonOptions& options);

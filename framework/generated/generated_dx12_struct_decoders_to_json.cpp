@@ -4530,12 +4530,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded__SECURITY_ATTRIBUT
     }
 }
 
-/// @defgroup custom_dx12_struct_decoders_to_json_body_generators Custom implementations
-/// for troublesome structs.
-/// We put the custom implementations in the generator Python here rather than
+/// @defgroup custom_dx12_struct_decoders_to_json_bodies Custom implementations for
+/// troublesome structs.
+/// We put the custom implementations in the generator Python rather than
 /// creating a whole new compilation unit for them.
 /** @{*/
-// Won't be generated as is a <winnt.h> struct.
+
+// Decoded_LARGE_INTEGER won't be generated as it is a <winnt.h> struct rather than D3D12.
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* data, const JsonOptions& options)
 {
     using namespace util;

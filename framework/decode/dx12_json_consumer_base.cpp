@@ -167,7 +167,7 @@ void Dx12JsonConsumerBase::ProcessInitDx12AccelerationStructureCommand(
         jdata["inputs_flags"], command_header.inputs_flags, json_options); /// @todo Flags as pretty form or hex?
     FieldToJson(jdata["inputs_num_instance_descs"], command_header.inputs_num_instance_descs, json_options);
     FieldToJson(jdata["inputs_num_geometry_descs"], command_header.inputs_num_geometry_descs, json_options);
-    /// @todo Do we want to dump the geometry_descs, the input data, or both?
+    /// Do we want to dump the geometry_descs, the input data, or both?
     /// The data is useful to be closer to the binary capture and to round-trip to it one day, but the constructed descs
     /// are good for eyeballing.
     FieldToJson(jdata["inputs_data_size"], command_header.inputs_data_size, json_options);

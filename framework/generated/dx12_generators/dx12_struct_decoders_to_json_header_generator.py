@@ -42,7 +42,7 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
         )
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         code = inspect.cleandoc('''
@@ -71,7 +71,6 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
         struct_dict = self.source_dict['struct_dict']
         ref_wrappers = remove_trailing_empty_lines(indent_cpp_code('''
           // Reference versions of above which simply pipe through to the pointer versions.
-          /// @todo Take a look at the users and see if we can have either all references or all pointers.
         '''))
         for k, v in struct_dict.items():
             if not self.is_struct_black_listed(k):
@@ -83,11 +82,8 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
     def endFile(self):
         """Method override."""
         custom_to_fields = '''
-        // Custom, manually written implementations:
-        // void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* pObj, const util::JsonOptions& options);
-        // inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
-        // void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE* pObj, const util::JsonOptions& options);
-        // inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+
+        // Custom, manually written implementations whose prototypes haven't been generated above:
 
         /// <winnt.h> Named union type with two structs and a uint64_t inside.
         void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* pObj, const util::JsonOptions& options);
