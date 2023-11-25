@@ -64,4 +64,6 @@ class Dx12JsonConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
         write(code, file=self.outFile)
 
     def get_consumer_function_body(self, class_name, method_info, return_type):
-        return ';'
+        # Marking functions as override helps to ensure the code gen for
+        # base and derived classes never gets out of sync.
+        return ' override;'
