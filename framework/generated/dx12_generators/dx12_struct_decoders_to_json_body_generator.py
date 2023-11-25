@@ -860,9 +860,51 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 {
                     const D3D12_STATE_SUBOBJECT& decoded_value = *data->decoded_value;
                     const Decoded_D3D12_STATE_SUBOBJECT& meta_struct = *data;
-                    FieldToJson(jdata["Type"], decoded_value.Type, options); // Basic data plumbs to raw struct [is_enum]
-                    /// @todo This needs custom handling:
-                    FieldToJson(jdata["pDesc"], "ToDo: custom handler required.", options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+                    FieldToJson(jdata["Type"], decoded_value.Type, options);
+                    switch(decoded_value.Type)
+                    {
+                        case D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG:
+                        FieldToJson(jdata["state_object_config"], meta_struct.state_object_config, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE:
+                        FieldToJson(jdata["global_root_signature"], meta_struct.global_root_signature, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE:
+                        FieldToJson(jdata["local_root_signature"], meta_struct.local_root_signature, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_NODE_MASK:
+                        FieldToJson(jdata["node_mask"], meta_struct.node_mask, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY:
+                        FieldToJson(jdata["dxil_library_desc"], meta_struct.dxil_library_desc, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION:
+                        FieldToJson(jdata["existing_collection_desc"], meta_struct.existing_collection_desc, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+                        FieldToJson(jdata["subobject_to_exports_association"], meta_struct.subobject_to_exports_association, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+                        FieldToJson(jdata["dxil_subobject_to_exports_association"], meta_struct.dxil_subobject_to_exports_association, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG:
+                        FieldToJson(jdata["raytracing_shader_config"], meta_struct.raytracing_shader_config, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG:
+                        FieldToJson(jdata["raytracing_pipeline_config"], meta_struct.raytracing_pipeline_config, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP:
+                        FieldToJson(jdata["hit_group_desc"], meta_struct.hit_group_desc, options);
+                        break;
+                        case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG1:
+                        FieldToJson(jdata["raytracing_pipeline_config1"], meta_struct.raytracing_pipeline_config1, options);
+                        break;
+                        default:
+                        {
+                            FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_STATE_SUBOBJECT_TYPE in D3D12_STATE_SUBOBJECT. Uninitialised or corrupt struct?", options);
+                            break;
+                        }
+                    }
                 }
             }
 
