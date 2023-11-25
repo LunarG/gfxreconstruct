@@ -147,7 +147,7 @@ class Dx12StructToStringBodyGenerator(Dx12BaseGenerator):
     # yapf: enable
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

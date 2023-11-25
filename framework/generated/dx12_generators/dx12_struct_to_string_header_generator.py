@@ -41,7 +41,7 @@ class Dx12StructToStringHeaderGenerator(Dx12BaseGenerator):
         )
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         self.STRUCT_BLACKLIST.append('DXGI_DISPLAY_COLOR_SPACE')
         self.STRUCT_BLACKLIST.append('D3D12_RAYTRACING_INSTANCE_DESC')
         self.STRUCT_BLACKLIST.append('D3D12_CPU_DESCRIPTOR_HANDLE')
@@ -72,7 +72,7 @@ class Dx12StructToStringHeaderGenerator(Dx12BaseGenerator):
                 write(body, file=self.outFile)
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

@@ -85,7 +85,7 @@ class Dx12ReplayConsumerBodyGenerator(
             self.__load_replay_overrides(gen_opts.replay_overrides)
 
     def write_include(self):
-        """Methond override."""
+        """Method override."""
         write(
             '#include "generated/generated_dx12_replay_consumer.h"',
             file=self.outFile
@@ -112,7 +112,7 @@ class Dx12ReplayConsumerBodyGenerator(
                 )
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         header_dict = self.source_dict['header_dict']
         self.structs_with_objects = self.collect_struct_with_objects(
             header_dict
@@ -168,7 +168,7 @@ class Dx12ReplayConsumerBodyGenerator(
             first = False
 
     def make_consumer_func_body(self, return_type, name, values):
-        """Methond override."""
+        """Method override."""
         code = ''
         arg_list = []
         add_object_list = []

@@ -34,7 +34,7 @@ class Dx12DecoderBodyGenerator(
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
     def write_include(self):
-        """Methond override."""
+        """Method override."""
         code = (
             "\n"
             "#include \"generated_dx12_decoder.h\"\n"
@@ -45,7 +45,7 @@ class Dx12DecoderBodyGenerator(
         write(code, file=self.outFile)
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         self.cmd_names = []
         self.method_names = []
         Dx12BaseGenerator.generate_feature(self)
@@ -98,7 +98,7 @@ class Dx12DecoderBodyGenerator(
         write(code, file=self.outFile)
 
     def get_decode_function_call_body(self):
-        """Methond override."""
+        """Method override."""
         code = '\n'\
                '{\n'\
                '    GFXRECON_UNREFERENCED_PARAMETER(call_info);\n'\
@@ -125,7 +125,7 @@ class Dx12DecoderBodyGenerator(
         return code
 
     def get_decode_method_call_body(self):
-        """Methond override."""
+        """Method override."""
         code = '\n'\
                '{\n'\
                '    GFXRECON_UNREFERENCED_PARAMETER(call_info);\n'\

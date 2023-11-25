@@ -46,7 +46,7 @@ class Dx12StructDecodersHeaderGenerator(
         self.check_blacklist = True
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
@@ -55,12 +55,12 @@ class Dx12StructDecodersHeaderGenerator(
         self.newline()
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.generate_feature(self)
         BaseStructDecodersHeaderGenerator.generate_feature(self)
 
     def write_include(self):
-        """Methond override."""
+        """Method override."""
         code = ''
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
@@ -79,7 +79,7 @@ class Dx12StructDecodersHeaderGenerator(
         write(code, file=self.outFile)
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

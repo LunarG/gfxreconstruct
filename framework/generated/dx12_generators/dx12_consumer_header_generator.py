@@ -64,7 +64,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         )
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.constructor_args:
@@ -76,7 +76,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         self.newline()
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.generate_feature(self)
         self.write_dx12_consumer_class('')
 
@@ -249,7 +249,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         write(code, file=self.outFile)
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
