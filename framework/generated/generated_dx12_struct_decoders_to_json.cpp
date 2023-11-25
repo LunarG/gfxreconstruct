@@ -55,6 +55,13 @@ static void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_E
     FieldToJson(jdata["AdditionalWidth"], data.AdditionalWidth, options);
     FieldToJson(jdata["AdditionalHeight"], data.AdditionalHeight, options);
 }
+
+/// Manual raw struct functon to be used for Decoded_D3D12_CLEAR_VALUE conversion.
+void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEPTH_STENCIL_VALUE& obj, const JsonOptions& options)
+{
+    FieldToJson(jdata["Depth"], obj.Depth, options);
+    FieldToJson(jdata["Stencil"], obj.Stencil, options);
+}
 /** @} */
 
 inline bool RepresentBinaryFile(const util::JsonOptions&       json_options,
@@ -1607,6 +1614,25 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEPTH_STENCI
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CLEAR_VALUE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_CLEAR_VALUE& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_CLEAR_VALUE& meta_struct = *data;
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        if(graphics::dx12::IsDepthStencilFormat(decoded_value.Format))
+        {
+            FieldToJson(jdata["DepthStencil"], decoded_value.DepthStencil, options);
+        }
+        else
+        {
+            FieldToJson(jdata["Color"], decoded_value.Color, options);
+        }
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RANGE* data, const JsonOptions& options)
 {
     using namespace util;
@@ -1763,6 +1789,41 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_UAV
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_BARRIER* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RESOURCE_BARRIER& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RESOURCE_BARRIER& meta_struct = *data;
+        FieldToJson(jdata["Type"], decoded_value.Type, options);
+        FieldToJson_D3D12_RESOURCE_BARRIER_FLAGS(jdata["Flags"], decoded_value.Flags, options);
+        switch(decoded_value.Type)
+        {
+            case D3D12_RESOURCE_BARRIER_TYPE_TRANSITION:
+            {
+                FieldToJson(jdata["Transition"], meta_struct.Transition, options);
+                break;
+            }
+            case D3D12_RESOURCE_BARRIER_TYPE_ALIASING:
+            {
+                FieldToJson(jdata["Aliasing"], meta_struct.Aliasing, options);
+                break;
+            }
+            case D3D12_RESOURCE_BARRIER_TYPE_UAV:
+            {
+                FieldToJson(jdata["UAV"], meta_struct.UAV, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RESOURCE_BARRIER_TYPE in D3D12_RESOURCE_BARRIER. Uninitialised or corrupt struct?", options);
+                break;
+            }
+        }
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SUBRESOURCE_FOOTPRINT* data, const JsonOptions& options)
 {
     using namespace util;
@@ -1787,6 +1848,36 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PLACED_SUBRE
         const Decoded_D3D12_PLACED_SUBRESOURCE_FOOTPRINT& meta_struct = *data;
         FieldToJson(jdata["Offset"], decoded_value.Offset, options);
         FieldToJson(jdata["Footprint"], meta_struct.Footprint, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_TEXTURE_COPY_LOCATION* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_TEXTURE_COPY_LOCATION& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_TEXTURE_COPY_LOCATION& meta_struct = *data;
+        FieldToJson(jdata["pResource"], meta_struct.pResource, options);
+        FieldToJson(jdata["Type"], decoded_value.Type, options);
+        switch(decoded_value.Type)
+        {
+            case D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX:
+            {
+                FieldToJson(jdata["SubresourceIndex"], decoded_value.SubresourceIndex, options);
+                break;
+            }
+            case D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT:
+            {
+                FieldToJson(jdata["PlacedFootprint"], meta_struct.PlacedFootprint, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_TEXTURE_COPY_TYPE in D3D12_TEXTURE_COPY_LOCATION. Uninitialised or corrupt struct?", options);
+                break;
+            }
+        }
     }
 }
 
@@ -4222,6 +4313,41 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUFFER_BARRI
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BARRIER_GROUP* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_BARRIER_GROUP& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_BARRIER_GROUP& meta_struct = *data;
+        FieldToJson(jdata["Type"], decoded_value.Type, options);
+        FieldToJson(jdata["NumBarriers"], decoded_value.NumBarriers, options);
+        switch(decoded_value.Type)
+        {
+            case D3D12_BARRIER_TYPE_GLOBAL:
+            {
+                FieldToJson(jdata["pGlobalBarriers"], meta_struct.global_barriers, options);
+                break;
+            }
+            case D3D12_BARRIER_TYPE_TEXTURE:
+            {
+                FieldToJson(jdata["pTextureBarriers"], meta_struct.texture_barriers, options);
+                break;
+            }
+            case D3D12_BARRIER_TYPE_BUFFER:
+            {
+                FieldToJson(jdata["pBufferBarriers"], meta_struct.buffer_barriers, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_BARRIER_TYPE in D3D12_BARRIER_GROUP. Uninitialised or corrupt struct?", options);
+                break;
+            }
+        }
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SUBRESOURCE_DATA* data, const JsonOptions& options)
 {
     using namespace util;
@@ -4456,78 +4582,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATE_SUBOBJ
         FieldToJson(jdata["Type"], decoded_value.Type, options); // Basic data plumbs to raw struct [is_enum]
         /// @todo This needs custom handling:
         FieldToJson(jdata["pDesc"], "ToDo: custom handler required.", options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
-    }
-}
-
-
-
-//  ============================================================================================================================
-/// @todo Pull out the structs below which only fail due to having a union member and use the union injection mechanism instead.
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BARRIER_GROUP* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const D3D12_BARRIER_GROUP& decoded_value = *data->decoded_value;
-        const Decoded_D3D12_BARRIER_GROUP& meta_struct = *data;
-        FieldToJson(jdata["Type"], decoded_value.Type, options); // [is_enum]
-        FieldToJson(jdata["NumBarriers"], decoded_value.NumBarriers, options); //
-        /// @todo Implement this union: FieldToJson(jdata[""], decoded_value., options); //
-    }
-}
-
-/// Manual raw struct functon to be used for Decoded_D3D12_CLEAR_VALUE conversion.
-void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEPTH_STENCIL_VALUE& obj, const JsonOptions& options)
-{
-    FieldToJson(jdata["Depth"], obj.Depth, options);
-    FieldToJson(jdata["Stencil"], obj.Stencil, options);
-}
-
-// D3D12_CLEAR_VALUE contains a union so we need to output depending on the format.
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CLEAR_VALUE* data, const JsonOptions& options)
-{
-    using namespace util;
-
-    if (data && data->decoded_value)
-    {
-        const D3D12_CLEAR_VALUE& decoded_value = *data->decoded_value;
-        const Decoded_D3D12_CLEAR_VALUE& meta_struct = *data;
-        FieldToJson(jdata["Format"], decoded_value.Format, options);
-        if(graphics::dx12::IsDepthStencilFormat(decoded_value.Format))
-        {
-            FieldToJson(jdata["DepthStencil"], decoded_value.DepthStencil, options);
-        }
-        else
-        {
-            FieldToJson(jdata["Color"], decoded_value.Color, options);
-        }
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_BARRIER* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const D3D12_RESOURCE_BARRIER& decoded_value = *data->decoded_value;
-        const Decoded_D3D12_RESOURCE_BARRIER& meta_struct = *data;
-        FieldToJson(jdata["Type"], decoded_value.Type, options); // [is_enum]
-        FieldToJson(jdata["Flags"], decoded_value.Flags, options); // [is_enum]
-        /// @todo Implement this union: FieldToJson(jdata[""], decoded_value., options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_TEXTURE_COPY_LOCATION* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const D3D12_TEXTURE_COPY_LOCATION& decoded_value = *data->decoded_value;
-        const Decoded_D3D12_TEXTURE_COPY_LOCATION& meta_struct = *data;
-        ; ///< @todo Generate for pResource[None]: ID3D12Resource [is_pointer]
-        FieldToJson(jdata["Type"], decoded_value.Type, options); // [is_enum]
-        /// @todo Implement this union: FieldToJson(jdata[""], decoded_value., options); //
     }
 }
 
