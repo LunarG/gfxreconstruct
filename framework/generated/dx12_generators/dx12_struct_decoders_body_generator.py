@@ -49,7 +49,7 @@ class Dx12StructDecodersBodyGenerator(
         self.check_blacklist = True
 
     def write_include(self):
-        """Methond override."""
+        """Method override."""
         code = (
             "#include \"generated_dx12_struct_decoders.h\"\n"
             "\n"

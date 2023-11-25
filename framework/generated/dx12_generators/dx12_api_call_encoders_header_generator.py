@@ -47,7 +47,7 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         self.check_blacklist = True
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
@@ -57,7 +57,7 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         self.newline()
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.generate_feature(self)
 
         header_dict = self.source_dict['header_dict']
@@ -201,7 +201,7 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         self.newline()
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

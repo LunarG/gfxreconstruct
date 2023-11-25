@@ -46,7 +46,7 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
         )
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
@@ -84,7 +84,7 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
         write(code, file=self.outFile)
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

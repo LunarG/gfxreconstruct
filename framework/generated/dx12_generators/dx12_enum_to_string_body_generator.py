@@ -46,7 +46,7 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
         )
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         code = '#include "generated_dx12_enum_to_string.h"\n'
@@ -102,7 +102,7 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
         write(body, file=self.outFile)
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

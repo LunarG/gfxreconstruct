@@ -57,7 +57,7 @@ class Dx12StructObjectMappersHeaderGenerator(
         self.structs_with_map_data = dict()
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "format/platform_types.h"', file=self.outFile)
