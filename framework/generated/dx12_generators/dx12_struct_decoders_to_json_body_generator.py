@@ -55,17 +55,6 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
 
     def beginFile(self, gen_opts):
         Dx12BaseGenerator.beginFile(self, gen_opts)
-        ## @todo De-duplicate this list.
-        '''self.STRUCT_BLACKLIST.append('DXGI_DISPLAY_COLOR_SPACE')
-        self.STRUCT_BLACKLIST.append('D3D12_RAYTRACING_INSTANCE_DESC')
-        self.STRUCT_BLACKLIST.append('D3D12_CPU_DESCRIPTOR_HANDLE')
-        self.STRUCT_BLACKLIST.append('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
-        self.STRUCT_BLACKLIST.append('D3D12_GPU_DESCRIPTOR_HANDLE')
-        self.STRUCT_BLACKLIST.append('_SECURITY_ATTRIBUTES')
-        self.STRUCT_BLACKLIST.remove('D3D12_CPU_DESCRIPTOR_HANDLE')'''
-        # We can generate the header for the decoder version but the body needs the manual implementation at the end of this file.
-        self.STRUCT_BLACKLIST.append('GUID')
-
         code = format_cpp_code('''
             #include "generated_dx12_struct_decoders_to_json.h"
             #include "generated_dx12_enum_to_json.h"
@@ -82,7 +71,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
 
             using util::JsonOptions;
 
-            /// @defgroup ManualD3D12StructFieldToJsons Manual functions to convert structs.
+            /// @defgroup ManualD3D12StructFieldToJsons Manual functions to convert raw structs.
             /** @{ */
             static void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS& data, const JsonOptions& options)
             {

@@ -40,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 using util::JsonOptions;
 
-/// @defgroup ManualD3D12StructFieldToJsons Manual functions to convert structs.
+/// @defgroup ManualD3D12StructFieldToJsons Manual functions to convert raw structs.
 /** @{ */
 static void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS& data, const JsonOptions& options)
 {

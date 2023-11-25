@@ -1,9 +1,8 @@
 {
-  "description": "Block codegen of features for DX12 to JSON conversion. These are things like structs with unions which need special handling. (this is just a comment on the current file for human eyes)",
+  "description": "Block codegen of features for DX12 to JSON conversion. (this is just a comment on the current file for human eyes)",
   "functions-all": [],
   "functions-encoder": [],
   "functions-decoder": [],
-  "todo1": "Try enabling these functions for json output",
   "classmethods": {
     "ID3D12Device": [
       "CheckFeatureSupport"
@@ -18,6 +17,8 @@
   },
   "todo2": "Remove the ones below which can be handled with anon union support.",
   "structures": [
+    "GUID Comment - We can generate the header for the decoded struct but the body needs a manual implementation.",
+    "GUID",
     "D3D12_BARRIER_GROUP",
     "D3D12_CLEAR_VALUE",
     "D3D12_RESOURCE_BARRIER",
@@ -26,29 +27,6 @@
     "XX definitely need custom json conversion below",
     "D3D12_PIPELINE_STATE_STREAM_DESC",
     "D3D12_STATE_SUBOBJECT",
-    "XXTERMINATORXX"
-  ],
-  "disabled_for_raw_struct_gen_structures": [
-    "D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS",
-    "D3D12_DEPTH_STENCIL_VIEW_DESC",
-    "D3D12_INDIRECT_ARGUMENT_DESC",
-    "D3D12_RAYTRACING_GEOMETRY_DESC",
-    "D3D12_RENDER_PASS_BEGINNING_ACCESS",
-    "D3D12_RENDER_PASS_ENDING_ACCESS",
-    "D3D12_RENDER_TARGET_VIEW_DESC",
-    "D3D12_ROOT_PARAMETER",
-    "D3D12_ROOT_PARAMETER1",
-    "D3D12_SAMPLER_DESC2",
-    "D3D12_SHADER_RESOURCE_VIEW_DESC",
-    "D3D12_UNORDERED_ACCESS_VIEW_DESC",
-    "D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA",
-    "D3D12_VERSIONED_ROOT_SIGNATURE_DESC",
-    "XXTERMINATORXX"
-  ],
-  "xxx_disabled_structures": [
-    "D3D12_CPU_DESCRIPTOR_HANDLE",
-    "D3D12_STATE_OBJECT_DESC",
-    "D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION",
     "XXTERMINATORXX"
   ]
 }

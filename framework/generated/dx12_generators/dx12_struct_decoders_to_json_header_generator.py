@@ -44,16 +44,6 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
     def beginFile(self, gen_opts):
         """Methond override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
-        # These are added by the Base Generator from the blacklists.json used across
-        # dx12 generation so make sure we generate prototypes for them here even though
-        # their bodies will need custom implementations.
-        # self.STRUCT_BLACKLIST.remove('DXGI_DISPLAY_COLOR_SPACE')
-        # self.STRUCT_BLACKLIST.remove('D3D12_RAYTRACING_INSTANCE_DESC')
-        # self.STRUCT_BLACKLIST.remove('D3D12_CPU_DESCRIPTOR_HANDLE')
-        # self.STRUCT_BLACKLIST.remove('D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION')
-        # self.STRUCT_BLACKLIST.remove('D3D12_GPU_DESCRIPTOR_HANDLE')
-        # self.STRUCT_BLACKLIST.remove('_SECURITY_ATTRIBUTES')
-        # self.STRUCT_BLACKLIST.append('GUID') # Generated with the enums.
 
         code = inspect.cleandoc('''
             /// @file Functions to convert decoded structs to JSON.
