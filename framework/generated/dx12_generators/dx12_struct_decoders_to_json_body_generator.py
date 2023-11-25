@@ -815,7 +815,11 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 }
             }
 
-            // The decoded struct has a custom implementation.
+            /// Dump all the fields of the custom struct, even though not all need be populated.
+            /// @note D3D12 doesn't define names for these: the underlying struct is just a void pointer
+            /// and a byte count with the structure defined in documentation. See:
+            /// <https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ns-d3d12-d3d12_pipeline_state_stream_desc>
+            /// See also: framework\decode\custom_dx12_struct_decoders.cpp
             void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* data, const JsonOptions& options)
             {
                 using namespace util;
@@ -824,8 +828,27 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     const D3D12_PIPELINE_STATE_STREAM_DESC& decoded_value = *data->decoded_value;
                     const Decoded_D3D12_PIPELINE_STATE_STREAM_DESC& meta_struct = *data;
                     FieldToJson(jdata["SizeInBytes"], decoded_value.SizeInBytes, options); // Basic data plumbs to raw struct.
-                    /// @todo This needs custom handling:
-                    FieldToJson(jdata["pPipelineStateSubobjectStream"], "ToDo: custom handler required.", options); // Any pointer or thing with a pointer or a handle plumbs to the Decoded type [is_pointer]
+                    //FieldToJson(jdata["root_signature_ptr"], meta_struct.root_signature_ptr, options);
+                    FieldToJson(jdata[format::kNameWarning], "D3D12_PIPELINE_STATE_STREAM_DESC.root_signature_ptr is not supported.", options);
+                    FieldToJson(jdata["root_signature_ptr"], "@todo Get this field to convert cleanly.", options);
+                    FieldToJson(jdata["vs_bytecode"], meta_struct.vs_bytecode, options);
+                    FieldToJson(jdata["ps_bytecode"], meta_struct.ps_bytecode, options);
+                    FieldToJson(jdata["ds_bytecode"], meta_struct.ds_bytecode, options);
+                    FieldToJson(jdata["hs_bytecode"], meta_struct.hs_bytecode, options);
+                    FieldToJson(jdata["gs_bytecode"], meta_struct.gs_bytecode, options);
+                    FieldToJson(jdata["cs_bytecode"], meta_struct.cs_bytecode, options);
+                    FieldToJson(jdata["as_bytecode"], meta_struct.as_bytecode, options);
+                    FieldToJson(jdata["ms_bytecode"], meta_struct.ms_bytecode, options);
+                    FieldToJson(jdata["stream_output"], meta_struct.stream_output, options);
+                    FieldToJson(jdata["blend"], meta_struct.blend, options);
+                    FieldToJson(jdata["rasterizer"], meta_struct.rasterizer, options);
+                    FieldToJson(jdata["depth_stencil"], meta_struct.depth_stencil, options);
+                    FieldToJson(jdata["input_layout"], meta_struct.input_layout, options);
+                    FieldToJson(jdata["render_target_formats"], meta_struct.render_target_formats, options);
+                    FieldToJson(jdata["sample_desc"], meta_struct.sample_desc, options);
+                    FieldToJson(jdata["cached_pso"], meta_struct.cached_pso, options);
+                    FieldToJson(jdata["depth_stencil1"], meta_struct.depth_stencil1, options);
+                    FieldToJson(jdata["view_instancing"], meta_struct.view_instancing, options);
                 }
             }
 

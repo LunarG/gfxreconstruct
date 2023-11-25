@@ -19,7 +19,7 @@
   "structures": [
     "GUID Comment - We can generate the header for the decoded struct but the body needs a manual implementation.",
     "GUID",
-    "XX definitely need custom json conversion below",
+    "Comment: definitely need custom json conversion below",
     "D3D12_PIPELINE_STATE_STREAM_DESC",
     "D3D12_STATE_SUBOBJECT",
     "XXTERMINATORXX"
