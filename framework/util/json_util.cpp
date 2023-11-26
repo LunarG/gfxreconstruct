@@ -24,6 +24,7 @@
 #include "util/json_util.h"
 #include "util/to_string.h"
 #include "util/logging.h"
+#include "util/strings.h"
 #include "format/format_json.h"
 
 #include <codecvt> // For encoding wstring_view to utf8.
@@ -264,6 +265,67 @@ std::string HresultToString(const HRESULT hresult)
 void HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const util::JsonOptions& options)
 {
     FieldToJson(jdata, HresultToString(hresult), options);
+}
+
+void FieldToJson(nlohmann::ordered_json&                                  jdata,
+                 const format::InitDx12AccelerationStructureGeometryDesc& data,
+                 const util::JsonOptions&                                 options)
+{
+    FieldToJson(jdata["geometry_type"], data.geometry_type, options);
+    FieldToJson(jdata["geometry_flags"], data.geometry_flags, options);
+    FieldToJson(jdata["aabbs_count"], data.aabbs_count, options);
+    FieldToJson(jdata["aabbs_stride"], data.aabbs_stride, options);
+    Bool32ToJson(jdata["triangles_has_transform"], data.triangles_has_transform, options);
+    FieldToJson(jdata["triangles_index_format"], data.triangles_index_format, options);
+    FieldToJson(jdata["triangles_vertex_format"], data.triangles_vertex_format, options);
+    FieldToJson(jdata["triangles_index_count"], data.triangles_index_count, options);
+    FieldToJson(jdata["triangles_vertex_count"], data.triangles_vertex_count, options);
+    FieldToJson(jdata["triangles_vertex_stride"], data.triangles_vertex_stride, options);
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data, const util::JsonOptions& options)
+{
+    FieldToJson(jdata["Description"], std::wstring_view(data.Description), options);
+    FieldToJson(jdata["VendorId"], data.VendorId, options);
+    FieldToJson(jdata["DeviceId"], data.DeviceId, options);
+    FieldToJson(jdata["SubSysId"], data.SubSysId, options);
+    FieldToJson(jdata["Revision"], data.Revision, options);
+    FieldToJson(jdata["DedicatedVideoMemory"], data.DedicatedVideoMemory, options);
+    FieldToJson(jdata["DedicatedSystemMemory"], data.DedicatedSystemMemory, options);
+    FieldToJson(jdata["SharedSystemMemory"], data.SharedSystemMemory, options);
+    FieldToJson(jdata["LuidLowPart"], data.LuidLowPart, options);
+    FieldToJson(jdata["LuidHighPar"], data.LuidHighPart, options);
+    // Should we break out the packed data? (2 bits (LSB) to store Type and 30 bits for object ID)
+    FieldToJson(jdata["extra_info"], data.extra_info, options);
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const format::Dx12RuntimeInfo& data, const util::JsonOptions& options)
+{
+    FieldToJson(jdata["version"], data.version, util::filepath::kFileVersionSize, options);
+    FieldToJson(jdata["src"], util::strings::ViewOfCharArray(data.src, util::filepath::kMaxFilePropertySize), options);
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const util::filepath::FileInfo& data, const util::JsonOptions& options)
+{
+    FieldToJson(jdata["ProductVersion"],
+                strings::ViewOfCharArray(data.ProductVersion, filepath::kMaxFilePropertySize),
+                options);
+    FieldToJson(
+        jdata["FileVersion"], strings::ViewOfCharArray(data.FileVersion, filepath::kMaxFilePropertySize), options);
+    FieldToJson(jdata["AppVersion"], data.AppVersion, filepath::kMaxFilePropertySize, options);
+    FieldToJson(jdata["AppName"], strings::ViewOfCharArray(data.AppName, filepath::kMaxFilePropertySize), options);
+    FieldToJson(
+        jdata["CompanyName"], strings::ViewOfCharArray(data.CompanyName, filepath::kMaxFilePropertySize), options);
+    FieldToJson(jdata["FileDescription"],
+                strings::ViewOfCharArray(data.FileDescription, filepath::kMaxFilePropertySize),
+                options);
+    FieldToJson(
+        jdata["InternalName"], strings::ViewOfCharArray(data.InternalName, filepath::kMaxFilePropertySize), options);
+    FieldToJson(jdata["OriginalFilename"],
+                strings::ViewOfCharArray(data.OriginalFilename, filepath::kMaxFilePropertySize),
+                options);
+    FieldToJson(
+        jdata["ProductName"], strings::ViewOfCharArray(data.ProductName, filepath::kMaxFilePropertySize), options);
 }
 
 #endif

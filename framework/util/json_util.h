@@ -155,6 +155,13 @@ void HandleToJson(nlohmann::ordered_json&  jdata,
 /// @param hresult A D3D12 or DXGI result code.
 std::string HresultToString(const HRESULT hresult);
 void        HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const util::JsonOptions& options);
+
+void FieldToJson(nlohmann::ordered_json&                                  jdata,
+                 const format::InitDx12AccelerationStructureGeometryDesc& data,
+                 const util::JsonOptions&                                 options);
+void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const format::Dx12RuntimeInfo& data, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const util::filepath::FileInfo& data, const util::JsonOptions& options);
 #endif
 
 /// @brief Represent a binary blob in the JSON tree either as the filename of a file containing the data that is also

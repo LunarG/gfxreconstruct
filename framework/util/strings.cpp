@@ -79,6 +79,12 @@ void RemoveWhitespace(std::string& str)
     str.erase(new_end, str.end());
 }
 
+std::string_view ViewOfCharArray(const char* array, const size_t capacity)
+{
+    const char* zero_end = std::find(array, array + capacity, 0);
+    return std::string_view(array, zero_end - array);
+}
+
 GFXRECON_END_NAMESPACE(strings)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

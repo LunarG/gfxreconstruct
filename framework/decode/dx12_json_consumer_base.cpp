@@ -28,73 +28,9 @@
 #include "decode/decode_json_util.h"
 #include "generated/generated_dx12_enum_to_json.h"
 #include "generated/generated_dx12_struct_decoders_to_json.h"
+#include "util/strings.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
-
-static std::string_view ViewOfCharArray(const char* array, const size_t capacity)
-{
-    const char* zero_end = std::find(array, array + capacity, 0);
-    return std::string_view(array, zero_end - array);
-}
-
-static void FieldToJson(nlohmann::ordered_json&                                  jdata,
-                        const format::InitDx12AccelerationStructureGeometryDesc& data,
-                        const util::JsonOptions&                                 options)
-{
-    FieldToJson(jdata["geometry_type"], data.geometry_type, options);
-    FieldToJson(jdata["geometry_flags"], data.geometry_flags, options);
-    FieldToJson(jdata["aabbs_count"], data.aabbs_count, options);
-    FieldToJson(jdata["aabbs_stride"], data.aabbs_stride, options);
-    Bool32ToJson(jdata["triangles_has_transform"], data.triangles_has_transform, options);
-    FieldToJson(jdata["triangles_index_format"], data.triangles_index_format, options);
-    FieldToJson(jdata["triangles_vertex_format"], data.triangles_vertex_format, options);
-    FieldToJson(jdata["triangles_index_count"], data.triangles_index_count, options);
-    FieldToJson(jdata["triangles_vertex_count"], data.triangles_vertex_count, options);
-    FieldToJson(jdata["triangles_vertex_stride"], data.triangles_vertex_stride, options);
-}
-
-static void
-FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data, const util::JsonOptions& options)
-{
-    FieldToJson(jdata["Description"], std::wstring_view(data.Description), options);
-    FieldToJson(jdata["VendorId"], data.VendorId, options);
-    FieldToJson(jdata["DeviceId"], data.DeviceId, options);
-    FieldToJson(jdata["SubSysId"], data.SubSysId, options);
-    FieldToJson(jdata["Revision"], data.Revision, options);
-    FieldToJson(jdata["DedicatedVideoMemory"], data.DedicatedVideoMemory, options);
-    FieldToJson(jdata["DedicatedSystemMemory"], data.DedicatedSystemMemory, options);
-    FieldToJson(jdata["SharedSystemMemory"], data.SharedSystemMemory, options);
-    FieldToJson(jdata["LuidLowPart"], data.LuidLowPart, options);
-    FieldToJson(jdata["LuidHighPar"], data.LuidHighPart, options);
-    // Should we break out the packed data? (2 bits (LSB) to store Type and 30 bits for object ID)
-    FieldToJson(jdata["extra_info"], data.extra_info, options);
-}
-
-static void
-FieldToJson(nlohmann::ordered_json& jdata, const format::Dx12RuntimeInfo& data, const util::JsonOptions& options)
-{
-    FieldToJson(jdata["version"], data.version, util::filepath::kFileVersionSize, options);
-    FieldToJson(jdata["src"], util::ViewOfCharArray(data.src, util::filepath::kMaxFilePropertySize), options);
-}
-
-static void
-FieldToJson(nlohmann::ordered_json& jdata, const util::filepath::FileInfo& data, const util::JsonOptions& options)
-{
-    FieldToJson(jdata["ProductVersion"], ViewOfCharArray(data.ProductVersion, filepath::kMaxFilePropertySize), options);
-    FieldToJson(jdata["FileVersion"], ViewOfCharArray(data.FileVersion, filepath::kMaxFilePropertySize), options);
-    FieldToJson(jdata["AppVersion"], data.AppVersion, filepath::kMaxFilePropertySize, options);
-    FieldToJson(jdata["AppName"], ViewOfCharArray(data.AppName, filepath::kMaxFilePropertySize), options);
-    FieldToJson(jdata["CompanyName"], ViewOfCharArray(data.CompanyName, filepath::kMaxFilePropertySize), options);
-    FieldToJson(
-        jdata["FileDescription"], ViewOfCharArray(data.FileDescription, filepath::kMaxFilePropertySize), options);
-    FieldToJson(jdata["InternalName"], ViewOfCharArray(data.InternalName, filepath::kMaxFilePropertySize), options);
-    FieldToJson(
-        jdata["OriginalFilename"], ViewOfCharArray(data.OriginalFilename, filepath::kMaxFilePropertySize), options);
-    FieldToJson(jdata["ProductName"], ViewOfCharArray(data.ProductName, filepath::kMaxFilePropertySize), options);
-}
-
-GFXRECON_END_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 Dx12JsonConsumerBase::Dx12JsonConsumerBase() {}
@@ -217,8 +153,9 @@ void Dx12JsonConsumerBase::Process_DriverInfo(const char* info_record)
     char                     driver_record[gfxrecon::util::filepath::kMaxDriverInfoSize + 1];
 
     FieldToJson(jdata[format::kNameDebug], "thread_id field not exposed.", json_options);
-    FieldToJson(
-        jdata["driver_record"], util::ViewOfCharArray(info_record, util::filepath::kMaxDriverInfoSize), json_options);
+    FieldToJson(jdata["driver_record"],
+                util::strings::ViewOfCharArray(info_record, util::filepath::kMaxDriverInfoSize),
+                json_options);
     writer_->WriteBlockEnd();
 }
 
