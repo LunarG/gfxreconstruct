@@ -34,7 +34,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 using namespace util;
 
-
 JsonWriter::JsonWriter(const JsonOptions&     options,
                        const std::string_view gfxrVersion,
                        const std::string_view inputFilepath) :
