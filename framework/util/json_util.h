@@ -112,6 +112,16 @@ void FieldToJsonAsHex(nlohmann::ordered_json&  jdata,
     jdata = to_hex_variable_width(data);
 }
 
+/// @brief Convert an integer type to JSON but encoded in binary as a JSON string
+/// rather than as a JSON number type. Useful for bitmasks.
+template <typename T>
+void FieldToJsonAsFixedWidthBinary(nlohmann::ordered_json&  jdata,
+                                   const T                  data,
+                                   const util::JsonOptions& options = util::JsonOptions())
+{
+    jdata = to_binary_fixed_width(data);
+}
+
 template <typename T>
 void FieldToJson(nlohmann::ordered_json&  jdata,
                  const T*                 data,

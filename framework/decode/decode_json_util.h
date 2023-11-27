@@ -220,6 +220,56 @@ void FieldToJsonAsHex(nlohmann::ordered_json&                               jdat
     FieldToJsonAsHex(jdata, &data, options);
 }
 
+/// Same as array FieldToJson above but converts elements pointed-to to binary
+/// as a JSON string rather than as a JSON number type. Useful for bitmasks.
+template <typename DecodedType, typename OutputDecodedType = DecodedType>
+void FieldToJsonAsFixedWidthBinary(nlohmann::ordered_json&                               jdata,
+                                   const PointerDecoder<DecodedType, OutputDecodedType>& data,
+                                   const util::JsonOptions&                              options = util::JsonOptions())
+{
+    if (data.GetPointer())
+    {
+        const auto decoded_value = data.GetPointer();
+        const auto length        = data.GetLength();
+
+        if (data.IsArray())
+        {
+            for (size_t i = 0; i < length; ++i)
+            {
+                FieldToJsonAsFixedWidthBinary(jdata[i], decoded_value[i], options);
+            }
+        }
+        else if (length == 1)
+        {
+            FieldToJsonAsFixedWidthBinary(jdata, *decoded_value, options);
+        }
+    }
+}
+
+template <typename DecodedType, typename OutputDecodedType = DecodedType>
+void FieldToJsonAsFixedWidthBinary(nlohmann::ordered_json&                               jdata,
+                                   const PointerDecoder<DecodedType, OutputDecodedType>* data,
+                                   const util::JsonOptions&                              options = util::JsonOptions())
+{
+    if (data)
+    {
+        FieldToJsonAsFixedWidthBinary(jdata, *data, options);
+    }
+}
+
+/// @brief Thunk to FieldToJsonAsFixedWidthBinary because consumers deliver pointers to non-const PointerDecoders
+/// and they fail to resolve to the const version above.
+template <typename DecodedType, typename OutputDecodedType = DecodedType>
+void FieldToJsonAsFixedWidthBinary(nlohmann::ordered_json&                         jdata,
+                                   PointerDecoder<DecodedType, OutputDecodedType>* data,
+                                   const util::JsonOptions&                        options = util::JsonOptions())
+{
+    if (data)
+    {
+        FieldToJsonAsFixedWidthBinary(jdata, *data, options);
+    }
+}
+
 // Used by (e.g.) VkMapMemory's ppData
 inline void
 FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<uint64_t, void*>* data, const util::JsonOptions& options)

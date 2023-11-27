@@ -22,9 +22,47 @@
 */
 #include "util/to_string.h"
 #include "util/logging.h"
+#include "to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+
+/// Convert a value to a string in binary form, filling with leading zeros to
+/// make a fixed-width for a given parameter type.
+/// Concrete versions follow for uint8_t, uint16_t, uint32_t, and uint64_t and
+/// only those are exposed outside this compilation unit.
+template <typename T>
+std::string to_binary_fixed_width(const T value)
+{
+    const auto  num_bits = sizeof(T) * 8U;
+    const T     one{ 1u };
+    std::string ret{ "0b" };
+    for (auto i = num_bits; i > 0; --i)
+    {
+        ret += ((value >> i - 1) & one) ? '1' : '0';
+    }
+    return ret;
+}
+
+std::string to_binary_fixed_width(const uint8_t value)
+{
+    return to_binary_fixed_width<uint8_t>(value);
+}
+
+std::string to_binary_fixed_width(const uint16_t value)
+{
+    return to_binary_fixed_width<uint16_t>(value);
+}
+
+std::string to_binary_fixed_width(const uint32_t value)
+{
+    return to_binary_fixed_width<uint32_t>(value);
+}
+
+std::string to_binary_fixed_width(const uint64_t value)
+{
+    return to_binary_fixed_width<uint64_t>(value);
+}
 
 std::string uuid_to_string(uint32_t size, const uint8_t* uuid)
 {

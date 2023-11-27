@@ -59,6 +59,8 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
                 return "HresultToJson"
             if ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES):
                 return "FieldToJson_" + value_info.base_type
+            if value_info.base_type.upper().startswith('UINT') and value_info.name.upper().endswith("MASK"):
+                return "FieldToJsonAsFixedWidthBinary"
         return "FieldToJson"
     pass
 

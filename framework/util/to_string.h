@@ -69,6 +69,13 @@ std::string to_hex_fixed_width(T value)
     return stream.str();
 }
 
+/// Convert a value to a string in binary form, filling with leading zeros to
+/// make a fixed-width. Follows C++ 14's format for literal binary constants.
+std::string to_binary_fixed_width(const uint8_t value);
+std::string to_binary_fixed_width(const uint16_t value);
+std::string to_binary_fixed_width(const uint32_t value);
+std::string to_binary_fixed_width(const uint64_t value);
+
 std::string uuid_to_string(uint32_t size, const uint8_t* uuid);
 
 /// @brief Convert an annotation to its string representation.

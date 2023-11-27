@@ -2573,7 +2573,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
         FieldToJson(args["Height"], Height, options);
         FieldToJson(args["Format"], Format, options);
         FieldToJson(args["SwapChainFlags"], SwapChainFlags, options);
-        FieldToJson(args["pCreationNodeMask"], pCreationNodeMask, options);
+        FieldToJsonAsFixedWidthBinary(args["pCreationNodeMask"], pCreationNodeMask, options);
         FieldToJson(args["ppPresentQueue"], ppPresentQueue, options);
     }
     writer_->WriteBlockEnd();
@@ -4744,7 +4744,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
     const JsonOptions& options = writer_->GetOptions();
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Mask"], Mask, options);
+        FieldToJsonAsFixedWidthBinary(args["Mask"], Mask, options);
     }
     writer_->WriteBlockEnd();
 }
@@ -5108,7 +5108,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandList(
     HresultToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["nodeMask"], nodeMask, options);
+        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask, options);
         FieldToJson(args["type"], type, options);
         FieldToJson(args["pCommandAllocator"], pCommandAllocator, options);
         FieldToJson(args["pInitialState"], pInitialState, options);
@@ -5175,7 +5175,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateRootSignature(
     HresultToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["nodeMask"], nodeMask, options);
+        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask, options);
         FieldToJson(args["pBlobWithRootSignature"], pBlobWithRootSignature, options);
         FieldToJson(args["blobLengthInBytes"], blobLengthInBytes, options);
         FieldToJson(args["riid"], riid, options);
@@ -5367,7 +5367,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["visibleMask"], visibleMask, options);
+        FieldToJsonAsFixedWidthBinary(args["visibleMask"], visibleMask, options);
         FieldToJson(args["numResourceDescs"], numResourceDescs, options);
         FieldToJson(args["pResourceDescs"], pResourceDescs, options);
     }
@@ -5388,7 +5388,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetCustomHeapProperties(
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["nodeMask"], nodeMask, options);
+        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask, options);
         FieldToJson(args["heapType"], heapType, options);
     }
     writer_->WriteBlockEnd();
@@ -6136,7 +6136,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateCommandList1(
     HresultToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["nodeMask"], nodeMask, options);
+        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask, options);
         FieldToJson(args["type"], type, options);
         FieldToJson_D3D12_COMMAND_LIST_FLAGS(args["flags"], flags, options);
         FieldToJson(args["riid"], riid, options);
@@ -6267,7 +6267,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["visibleMask"], visibleMask, options);
+        FieldToJsonAsFixedWidthBinary(args["visibleMask"], visibleMask, options);
         FieldToJson(args["numResourceDescs"], numResourceDescs, options);
         FieldToJson(args["pResourceDescs"], pResourceDescs, options);
         FieldToJson(args["pResourceAllocationInfo1"], pResourceAllocationInfo1, options);
@@ -6542,7 +6542,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CreateMetaCommand(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["CommandId"], CommandId, options);
-        FieldToJson(args["NodeMask"], NodeMask, options);
+        FieldToJsonAsFixedWidthBinary(args["NodeMask"], NodeMask, options);
         FieldToJson(args["pCreationParametersData"], pCreationParametersData, options);
         FieldToJson(args["CreationParametersDataSizeInBytes"], CreationParametersDataSizeInBytes, options);
         FieldToJson(args["riid"], riid, options);
@@ -6893,7 +6893,7 @@ void Dx12JsonConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["visibleMask"], visibleMask, options);
+        FieldToJsonAsFixedWidthBinary(args["visibleMask"], visibleMask, options);
         FieldToJson(args["numResourceDescs"], numResourceDescs, options);
         FieldToJson(args["pResourceDescs"], pResourceDescs, options);
         FieldToJson(args["pResourceAllocationInfo1"], pResourceAllocationInfo1, options);
@@ -7543,7 +7543,7 @@ void Dx12JsonConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
     FieldToJson(method[format::kNameReturn], return_value, options);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["visibleMask"], visibleMask, options);
+        FieldToJsonAsFixedWidthBinary(args["visibleMask"], visibleMask, options);
         FieldToJson(args["numResourceDescs"], numResourceDescs, options);
         FieldToJson(args["pResourceDescs"], pResourceDescs, options);
         FieldToJson(args["pNumCastableFormats"], pNumCastableFormats, options);
@@ -8028,7 +8028,7 @@ void Dx12JsonConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pD3D12Device"], pD3D12Device, options);
-        FieldToJson(args["NodeMask"], NodeMask, options);
+        FieldToJsonAsFixedWidthBinary(args["NodeMask"], NodeMask, options);
         FieldToJson(args["riid"], riid, options);
         FieldToJson(args["ppvDSRDevice"], ppvDSRDevice, options);
     }
