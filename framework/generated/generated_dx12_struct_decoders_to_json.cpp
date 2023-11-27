@@ -2959,17 +2959,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_VERSIONED_RO
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const D3D12_CPU_DESCRIPTOR_HANDLE& decoded_value = *data->decoded_value;
-        const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& meta_struct = *data;
-        FieldToJson(jdata["ptr"], decoded_value.ptr, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* data, const JsonOptions& options)
 {
     using namespace util;
@@ -4648,6 +4637,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATE_SUBOBJ
                 break;
             }
         }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_CPU_DESCRIPTOR_HANDLE& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& meta_struct = *data;
+        // FieldToJson(jdata[format::kNameInfo], "heap_id and index were copied out of ptr by a custom encoder at capture time, and ptr was never stored in the capture file.", options);
+        FieldToJson(jdata["heap_id"], meta_struct.heap_id, options);
+        FieldToJson(jdata["index"], meta_struct.index, options);
     }
 }
 
