@@ -21,6 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 #include "util/to_string.h"
+#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -34,6 +35,32 @@ std::string uuid_to_string(uint32_t size, const uint8_t* uuid)
         stream << (uint32_t)uuid[i];
     }
     return stream.str();
+}
+
+std::string AnnotationTypeToString(const format::AnnotationType& type)
+{
+    std::string str;
+    switch (type)
+    {
+        case format::AnnotationType::kUnknown:
+            str.assign("kUnknown");
+            break;
+        case format::AnnotationType::kText:
+            str.assign("kText");
+            break;
+        case format::AnnotationType::kJson:
+            str.assign("kJson");
+            break;
+        case format::AnnotationType::kXml:
+            str.assign("kXml");
+            break;
+        default:
+            str.assign("OUT_OF_RANGE_ERROR");
+            GFXRECON_LOG_WARNING("format::AnnotationType with out of range value: %lu",
+                                 static_cast<long unsigned>(type));
+            break;
+    }
+    return str;
 }
 
 void FieldToString(std::ostringstream& strStrm,

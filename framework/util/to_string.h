@@ -71,6 +71,10 @@ std::string to_hex_fixed_width(T value)
 
 std::string uuid_to_string(uint32_t size, const uint8_t* uuid);
 
+/// @brief Convert an annotation to its string representation.
+std::string AnnotationTypeToString(const format::AnnotationType& type);
+
+/// @deprecated Use the nlohmann JSON library instead.
 /// @brief  A template ToString to take care of simple POD cases like the many
 /// types of integers.
 /// It contains the three parameters that are unused for unstructured types like
@@ -89,6 +93,7 @@ inline std::string ToString(const T&      obj,
     return std::to_string(obj);
 }
 
+/// @deprecated Use the nlohmann JSON library instead.
 /// @brief A template that exists only to allow the ToStrings for 32 bit sets of
 /// flags to be template specializations.
 /// It is never called and its return value of "0" is a meaningless placeholder
@@ -197,16 +202,19 @@ inline std::string PtrToString(PtrType ptr)
     return to_hex_variable_width(ptr);
 }
 
+/// @deprecated Use the nlohmann JSON library instead.
 inline std::string GetNewlineString(ToStringFlags toStringFlags)
 {
     return (toStringFlags & kToString_Formatted) ? std::string("\n") : std::string();
 }
 
+/// @deprecated Use the nlohmann JSON library instead.
 inline std::string GetWhitespaceString(ToStringFlags toStringFlags, uint32_t count = 1)
 {
     return (toStringFlags & kToString_Formatted) ? std::string((size_t)count, ' ') : std::string();
 }
 
+/// @deprecated Use the nlohmann JSON library instead.
 inline std::string
 GetTabString(ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize = kToStringDefaultTabSize)
 {
@@ -222,13 +230,13 @@ inline std::string Quote(const std::string& str)
     return quoted;
 }
 
+/// @deprecated Use the nlohmann JSON library instead.
 /// @brief Create the opening and closing braces of a JSON object: calling a function
 /// to fill out the internal fields of the object.
 /// By convention the functions which convert structs will be called ToString and
 /// will call FieldToString() to format each field and another ToString,
 /// ArrayToString(), etc. to form the nested structure or the immediate value of
 /// the field.
-/// @deprecated Use the nlohmann JSON library instead.
 template <typename ToStringFunctionType>
 inline std::string
 ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize, ToStringFunctionType toStringFunction)
@@ -246,6 +254,7 @@ ObjectToString(ToStringFlags toStringFlags, uint32_t& tabCount, uint32_t tabSize
     return strStrm.str();
 }
 
+/// @deprecated Use the nlohmann JSON library instead.
 /// Part of a system for formatting fields of structs and arguments of functions
 /// as JSON text strings.
 /// @deprecated Use the nlohmann JSON library instead.
@@ -257,6 +266,7 @@ void FieldToString(std::ostringstream& strStrm,
                    uint32_t            tabSize,
                    const std::string&  fieldString);
 
+/// @deprecated Use the nlohmann JSON library instead.
 template <typename ObjectType, typename ValidateArrayFunctionType, typename ToStringFunctionType>
 inline std::string ArrayToString(size_t                    count,
                                  const ObjectType*         pObjs,
@@ -287,6 +297,7 @@ inline std::string ArrayToString(size_t                    count,
     return strStrm.str();
 }
 
+/// @deprecated Use the nlohmann JSON library instead.
 template <typename T>
 inline std::string ArrayToString(size_t        count,
                                  const T*      pObjs,
@@ -304,6 +315,7 @@ inline std::string ArrayToString(size_t        count,
         [&](size_t i) { return ToString(pObjs[i], toStringFlags, tabCount + 1, tabSize); });
 }
 
+/// @deprecated Use the nlohmann JSON library instead.
 template <typename EnumType>
 inline std::string EnumArrayToString(size_t              count,
                                      const EnumType*     pObjs,
