@@ -1961,259 +1961,835 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_MESSAGE_CALLB
 
 inline void FieldToJson_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_DXGI_OFFER_RESOURCE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_DXGI_OFFER_RESOURCE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_DXGI_OFFER_RESOURCE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_COMMAND_QUEUE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_COMMAND_QUEUE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_COMMAND_QUEUE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_PIPELINE_STATE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_PIPELINE_STATE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_PIPELINE_STATE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_SHADER_MIN_PRECISION_SUPPORT(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_SHADER_MIN_PRECISION_SUPPORT(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_SHADER_MIN_PRECISION_SUPPORT(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_FORMAT_SUPPORT1(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_FORMAT_SUPPORT1(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_FORMAT_SUPPORT1(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_FORMAT_SUPPORT2(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_FORMAT_SUPPORT2(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_FORMAT_SUPPORT2(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_SHADER_CACHE_SUPPORT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_SHADER_CACHE_SUPPORT_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_SHADER_CACHE_SUPPORT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_COMMAND_LIST_SUPPORT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_COMMAND_LIST_SUPPORT_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_COMMAND_LIST_SUPPORT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_HEAP_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_HEAP_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_HEAP_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RESOURCE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RESOURCE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RESOURCE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_TILE_RANGE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_TILE_RANGE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_TILE_RANGE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_TILE_MAPPING_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_TILE_MAPPING_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_TILE_MAPPING_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_TILE_COPY_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_TILE_COPY_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_TILE_COPY_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RESOURCE_STATES(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RESOURCE_STATES(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RESOURCE_STATES(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RESOURCE_BARRIER_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RESOURCE_BARRIER_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RESOURCE_BARRIER_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_VIEW_INSTANCING_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_VIEW_INSTANCING_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_VIEW_INSTANCING_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_BUFFER_SRV_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_BUFFER_SRV_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_BUFFER_SRV_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_SAMPLER_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_SAMPLER_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_SAMPLER_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_BUFFER_UAV_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_BUFFER_UAV_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_BUFFER_UAV_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_DSV_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_DSV_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_DSV_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_CLEAR_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_CLEAR_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_CLEAR_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_FENCE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_FENCE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_FENCE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_DESCRIPTOR_HEAP_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_DESCRIPTOR_HEAP_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_DESCRIPTOR_HEAP_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_ROOT_SIGNATURE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_ROOT_SIGNATURE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_ROOT_SIGNATURE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_DESCRIPTOR_RANGE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_DESCRIPTOR_RANGE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_DESCRIPTOR_RANGE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_ROOT_DESCRIPTOR_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_ROOT_DESCRIPTOR_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_ROOT_DESCRIPTOR_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_MULTIPLE_FENCE_WAIT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_MULTIPLE_FENCE_WAIT_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_MULTIPLE_FENCE_WAIT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RESIDENCY_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RESIDENCY_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RESIDENCY_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_COMMAND_LIST_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_COMMAND_LIST_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_COMMAND_LIST_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_COMMAND_POOL_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_COMMAND_POOL_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_COMMAND_POOL_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_COMMAND_RECORDER_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_COMMAND_RECORDER_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_COMMAND_RECORDER_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_PROTECTED_SESSION_STATUS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_PROTECTED_SESSION_STATUS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_PROTECTED_SESSION_STATUS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_PROTECTED_RESOURCE_SESSION_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_PROTECTED_RESOURCE_SESSION_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_PROTECTED_RESOURCE_SESSION_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_META_COMMAND_PARAMETER_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_META_COMMAND_PARAMETER_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_META_COMMAND_PARAMETER_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_GRAPHICS_STATES(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_GRAPHICS_STATES(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_GRAPHICS_STATES(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_STATE_OBJECT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_STATE_OBJECT_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_STATE_OBJECT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_EXPORT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_EXPORT_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_EXPORT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RAYTRACING_PIPELINE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RAYTRACING_PIPELINE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RAYTRACING_PIPELINE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RAYTRACING_GEOMETRY_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RAYTRACING_GEOMETRY_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RAYTRACING_GEOMETRY_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RAYTRACING_INSTANCE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RAYTRACING_INSTANCE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RAYTRACING_INSTANCE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RAY_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RAY_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RAY_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_DRED_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_DRED_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_DRED_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_DRED_PAGE_FAULT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_DRED_PAGE_FAULT_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_DRED_PAGE_FAULT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RENDER_PASS_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RENDER_PASS_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RENDER_PASS_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_SHADER_CACHE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_SHADER_CACHE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_SHADER_CACHE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_TEXTURE_BARRIER_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_TEXTURE_BARRIER_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_TEXTURE_BARRIER_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_SHADER_CACHE_KIND_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_SHADER_CACHE_KIND_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_SHADER_CACHE_KIND_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_SHADER_CACHE_CONTROL_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_SHADER_CACHE_CONTROL_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_SHADER_CACHE_CONTROL_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_DEVICE_FACTORY_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_DEVICE_FACTORY_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_DEVICE_FACTORY_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_DEVICE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_DEVICE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_DEVICE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D_SHADER_VARIABLE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D_SHADER_VARIABLE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D_SHADER_VARIABLE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D_SHADER_INPUT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D_SHADER_INPUT_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D_SHADER_INPUT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D_SHADER_CBUFFER_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D_SHADER_CBUFFER_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D_SHADER_CBUFFER_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D_PARAMETER_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D_PARAMETER_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D_PARAMETER_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_GPU_BASED_VALIDATION_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_GPU_BASED_VALIDATION_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_GPU_BASED_VALIDATION_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_RLDO_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_RLDO_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_RLDO_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 inline void FieldToJson_D3D12_MESSAGE_CALLBACK_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
 {
-    FieldToJson(jdata, ToString_D3D12_MESSAGE_CALLBACK_FLAGS(flags), options);
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_MESSAGE_CALLBACK_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
 }
 
 // IID struct-as-enum special case:

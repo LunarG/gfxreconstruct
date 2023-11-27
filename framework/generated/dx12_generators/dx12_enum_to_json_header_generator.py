@@ -70,6 +70,7 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
         enum_dict = self.source_dict['enum_dict']
         enum_prototypes = ''
         flag_prototypes = ''
+
         for k, v in enum_dict.items():
             # Generate enum handler for all enums
             enum_prototypes += format_cpp_code('''inline void FieldToJson(nlohmann::ordered_json& jdata, const {0} value, const JsonOptions& options = JsonOptions())
@@ -88,7 +89,16 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
                 if k.find(bits) >= 0:
                     flag_prototypes += format_cpp_code('''inline void FieldToJson_{0}(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
                     {{
-                        FieldToJson(jdata, ToString_{0}(flags), options);
+                        std::string representation;
+                        if (!options.expand_flags)
+                        {{
+                            representation = to_hex_fixed_width(flags);
+                        }}
+                        else
+                        {{
+                            representation = ToString_{0}(flags);
+                        }}
+                        FieldToJson(jdata, representation, options);
                     }}
                     \n'''.format(k))
                     flag_prototypes += '\n'
