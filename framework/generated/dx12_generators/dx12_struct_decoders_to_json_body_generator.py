@@ -21,6 +21,36 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+## @file Generation of functions to convert decoded D3D12 structs to JSON.
+## As well as the wholey generated functions, there are two levels of custom
+## function support embedded inside this file.
+## 1. Embedding manual code for a union member of a struct into an otherwise
+##    generated function via makeUnionFieldToJson().
+## 2. Wholey custom functions for more complicated struct such as those with
+##    custom decoded struct classes to deal with mechanisms of type erasure
+##    in the API such as void pointers pointing into opaque memory blocks
+##    tagged with a type enum. These custom functions are embedded here and
+##    output by endFile() to be included in the generated file for simplicity
+##    and to avoid compiling a whole separate .cpp file draggig in the same
+##    headers just for a few functions.
+## If the generated ouput for a struct is ever observed to be incorrect, the
+## procedure for generating a custom function is as follows:
+## 1. Add cases to makeUnionFieldToJson() if it is only union members
+##    that are causing the issue. 
+## If the issue is not just union members with determining type fields in the
+## same struct:
+## 2. Copy the generated function into the custom function section below.
+## 3. Add the struct name to json_blocklists.json (the prototype in the
+##    header will still be generated).
+## 4. Edit the custom function to fix the issue.
+##
+## @todo Add a mechanism to generate the boilerplate for custom functions
+##       for structs with custom bodies to avoid the copy-paste. It should be
+##       possible to generate up to and including the line
+##       `const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& meta_struct = *data;`
+##       and then have a custom function body for just the FieldToJson calls.
+##
+
 import sys
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
@@ -128,6 +158,39 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 ''', 2)
                 body += '\n'
                 write(body, file=self.outFile)
+
+    # yapf: disable
+    def makeStructBody(self, name, values):
+        body = ''
+        union_index = 0
+        # Iterate over private, protected, public properties (only public non-empty):
+        for property_visibility, properties in values['properties'].items():
+            for p in properties:
+                value_info = self.get_value_info(p)
+
+                field_to_json = ''
+
+                if "anon-union" in value_info.base_type:
+                    field_to_json = self.makeUnionFieldToJson(properties, name, union_index)
+                    union_index += 1
+                elif (name, value_info.name) in self.binary_blobs:
+                    field_to_json  = '        static thread_local uint64_t {0}_{1}_counter{{ 0 }};\n'
+                    field_to_json += '        const bool written = RepresentBinaryFile(options, jdata["{1}"], "{0}.{1}", {0}_{1}_counter, meta_struct.{1});\n'
+                    field_to_json += '        {0}_{1}_counter += written;\n'
+                    field_to_json = field_to_json.format(name, value_info.name)
+                else:
+                    function_name = self.choose_field_to_json_name(value_info)
+                    if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type)):
+                        # Basic data plumbs to raw struct:
+                        field_to_json = '        {0}(jdata["{1}"], decoded_value.{1}, options);'
+                    else:
+                        # Complex types, pointers and handles plumb to the decoded struct:
+                        field_to_json = '        {0}(jdata["{1}"], meta_struct.{1}, options);'
+                    field_to_json = field_to_json.format(function_name, value_info.name, value_info.array_length)
+                body += field_to_json
+                body += '\n'
+        return body
+    # yapf: enable
 
     # Helper for structs with anonymous unions as members.
     # Instead of making the whole struct's FieldToJson custom, this helper can
@@ -751,39 +814,6 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
             case _:
                 print(message)
         return format_cpp_code(field_to_json, 2)
-
-    # yapf: disable
-    def makeStructBody(self, name, values):
-        body = ''
-        union_index = 0
-        # Iterate over private, protected, public properties (only public non-empty):
-        for property_visibility, properties in values['properties'].items():
-            for p in properties:
-                value_info = self.get_value_info(p)
-
-                field_to_json = ''
-
-                if "anon-union" in value_info.base_type:
-                    field_to_json = self.makeUnionFieldToJson(properties, name, union_index)
-                    union_index += 1
-                elif (name, value_info.name) in self.binary_blobs:
-                    field_to_json  = '        static thread_local uint64_t {0}_{1}_counter{{ 0 }};\n'
-                    field_to_json += '        const bool written = RepresentBinaryFile(options, jdata["{1}"], "{0}.{1}", {0}_{1}_counter, meta_struct.{1});\n'
-                    field_to_json += '        {0}_{1}_counter += written;\n'
-                    field_to_json = field_to_json.format(name, value_info.name)
-                else:
-                    function_name = self.choose_field_to_json_name(value_info)
-                    if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type)):
-                        # Basic data plumbs to raw struct:
-                        field_to_json = '        {0}(jdata["{1}"], decoded_value.{1}, options);'
-                    else:
-                        # Complex types, pointers and handles plumb to the decoded struct:
-                        field_to_json = '        {0}(jdata["{1}"], meta_struct.{1}, options);'
-                    field_to_json = field_to_json.format(function_name, value_info.name, value_info.array_length)
-                body += field_to_json
-                body += '\n'
-        return body
-    # yapf: enable
 
     def endFile(self):
         """Method override."""
