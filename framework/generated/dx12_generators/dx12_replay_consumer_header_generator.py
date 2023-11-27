@@ -60,4 +60,4 @@ class Dx12ReplayConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
         write(code, file=self.outFile)
 
     def get_consumer_function_body(self, class_name, method_info, return_type):
-        return ';'
+        return ' override;'
