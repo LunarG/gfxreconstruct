@@ -196,7 +196,7 @@ void Dx12JsonConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Hand
     using namespace gfxrecon::util;
     ApiCallInfo call_info;
     call_info.index     = GetCurrentBlockIndex();
-    call_info.thread_id = 31415926535;
+    call_info.thread_id = format::kNameUnknownThreadId;
 
     nlohmann::ordered_json& method =
         writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CheckFeatureSupport");
@@ -225,7 +225,7 @@ void Dx12JsonConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Han
     using namespace gfxrecon::util;
     ApiCallInfo call_info;
     call_info.index     = GetCurrentBlockIndex();
-    call_info.thread_id = 31415926535;
+    call_info.thread_id = format::kNameUnknownThreadId;
 
     nlohmann::ordered_json& method =
         writer_->WriteApiCallStart(call_info, "IDXGIFactory5", object_id, "CheckFeatureSupport");
@@ -255,7 +255,7 @@ void Dx12JsonConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::Han
     using namespace gfxrecon::util;
     ApiCallInfo call_info;
     call_info.index     = GetCurrentBlockIndex();
-    call_info.thread_id = 31415926535; /// @todo Make an int in format: format::kNameUnknownThreadId
+    call_info.thread_id = format::kNameUnknownThreadId;
 
     nlohmann::ordered_json& method =
         writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "WriteToSubresource");

@@ -24,6 +24,7 @@
 
 #ifndef GFXRECON_FORMAT_FORMAT_JSON_H
 #define GFXRECON_FORMAT_FORMAT_JSON_H
+#include "format.h"
 #include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -59,6 +60,9 @@ constexpr const char* kNameInfo{ "INFO" };
 constexpr const char* kNameWarning{ "WARNING" };
 constexpr const char* kNameError{ "ERROR" };
 /// @}
+
+/// The thread ID to use when the thread ID is not known.
+constexpr format::ThreadId kNameUnknownThreadId{ gfxrecon::format::ThreadId(-1) };
 
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
