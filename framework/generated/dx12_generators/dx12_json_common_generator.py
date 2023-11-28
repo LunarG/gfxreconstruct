@@ -48,16 +48,17 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
     # HresultToJson
     # Plus all the unique signatures for flag sets like FieldToJson_D3D_PARAMETER_FLAGS
     def choose_field_to_json_name(self, value_info):
-        if value_info.base_type in self.HEX_TYPES:
-            return "FieldToJsonAsHex"
-        if "BOOL" in value_info.base_type:
-            return "Bool32ToJson"
-        if self.is_handle(value_info.base_type):
-            return "HandleToJson"
-        if("HRESULT" in value_info.base_type):
-            return "HresultToJson"
-        if ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES):
-            return "FieldToJson_" + value_info.base_type
+        if value_info != None:
+            if value_info.base_type in self.HEX_TYPES:
+                return "FieldToJsonAsHex"
+            if "BOOL" in value_info.base_type:
+                return "Bool32ToJson"
+            if self.is_handle(value_info.base_type):
+                return "HandleToJson"
+            if("HRESULT" in value_info.base_type):
+                return "HresultToJson"
+            if ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES):
+                return "FieldToJson_" + value_info.base_type
         return "FieldToJson"
     pass
 
