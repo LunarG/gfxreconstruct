@@ -28,7 +28,10 @@ from dx12_base_generator import Dx12BaseGenerator
 class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
     """TODO : Generates C++ functions responsible for Convert to texts."""
 
-    ## @todo deduplicate this and copies of it in other files
+    ## A list of suffix substrings which appear at the ends of the names of bitflag enums.
+    ## If a name contains one of these substrings, then a function will be generated to convert
+    ## a value of that enum type to a string concatenating all the flags it represents.
+    ## Like this: "DX12_ENUMX_ENUMERANTY|DX12_ENUMX_ENUMERANTZ|...".
     BITS_LIST = [
         '_FLAGS', '_STATES', '_STATUS', 'D3D12_SHADER_MIN_PRECISION_SUPPORT',
         'D3D12_FORMAT_SUPPORT1', 'D3D12_FORMAT_SUPPORT2'

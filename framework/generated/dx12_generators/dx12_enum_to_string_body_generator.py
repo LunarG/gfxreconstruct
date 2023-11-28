@@ -24,14 +24,12 @@
 import sys
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
+from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator # For the list of substrings in bitflag
 
 class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
     """TODO : Generates C++ functions responsible for Convert to texts."""
 
-    BITS_LIST = [
-        '_FLAGS', '_STATES', '_STATUS', 'D3D12_SHADER_MIN_PRECISION_SUPPORT',
-        'D3D12_FORMAT_SUPPORT1', 'D3D12_FORMAT_SUPPORT2'
-    ]
+    BITS_LIST = Dx12EnumToStringHeaderGenerator.BITS_LIST
 
     def __init__(
         self,
