@@ -85,6 +85,9 @@ void Dx12JsonConsumerBase::ProcessInitSubresourceCommand(const format::InitSubre
     writer_->WriteBlockEnd();
 }
 
+/// @brief Convert an InitDx12AccelerationStructureCommand, which is used for trimmed
+/// captures as part of establishing the GPU memory state at the start of the trimmed
+/// range.
 void Dx12JsonConsumerBase::ProcessInitDx12AccelerationStructureCommand(
     const format::InitDx12AccelerationStructureCommandHeader&       command_header,
     std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
@@ -93,19 +96,25 @@ void Dx12JsonConsumerBase::ProcessInitDx12AccelerationStructureCommand(
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("InitDx12AccelerationStructureCommand");
     FieldToJson(jdata["thread_id"], command_header.thread_id, json_options);
-    FieldToJson(
+    // The GPU address D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC.DestAccelerationStructureData
+    // is mapped from this during replay but we'll just dump the raw capture file value:
+    FieldToJsonAsHex(
         jdata["dest_acceleration_structure_data"], command_header.dest_acceleration_structure_data, json_options);
-    FieldToJson(jdata["copy_source_gpu_va"], command_header.copy_source_gpu_va, json_options);
-    FieldToJson(jdata["copy_mode"], command_header.copy_mode, json_options);
-    FieldToJson(
-        jdata["inputs_type"], command_header.inputs_type, json_options); /// @todo does this correspond to a D3D12 enum?
-    FieldToJson(
-        jdata["inputs_flags"], command_header.inputs_flags, json_options); /// @todo Flags as pretty form or hex?
+    // A GPU virtual address to copy from after pumping througnh a graphics::Dx12GpuVaMap during replay, but we'll just
+    // dump the raw capture file value:
+    FieldToJsonAsHex(jdata["copy_source_gpu_va"], command_header.copy_source_gpu_va, json_options);
+    FieldToJson(jdata["copy_mode"],
+                static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE>(command_header.copy_mode),
+                json_options);
+    FieldToJson(jdata["inputs_type"],
+                static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE>(command_header.inputs_type),
+                json_options);
+    FieldToJson_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(
+        jdata["inputs_flags"],
+        static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS>(command_header.inputs_flags),
+        json_options);
     FieldToJson(jdata["inputs_num_instance_descs"], command_header.inputs_num_instance_descs, json_options);
     FieldToJson(jdata["inputs_num_geometry_descs"], command_header.inputs_num_geometry_descs, json_options);
-    /// Do we want to dump the geometry_descs, the input data, or both?
-    /// The data is useful to be closer to the binary capture and to round-trip to it one day, but the constructed descs
-    /// are good for eyeballing.
     FieldToJson(jdata["inputs_data_size"], command_header.inputs_data_size, json_options);
     RepresentBinaryFile(*(this->writer_),
                         jdata[format::kNameData],

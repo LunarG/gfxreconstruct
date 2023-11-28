@@ -33,9 +33,10 @@
 #include <winerror.h> // D3D12 and DXGI HRESULT return values.
 // Still needed for D3D12 return values
 // <https://learn.microsoft.com/en-us/windows/win32/direct3d12/d3d12-graphics-reference-returnvalues>
+#include <d3d12.h>
 #include <d3d9.h>
 #include <unordered_map>
-#include "json_util.h"
+#include "generated/generated_dx12_enum_to_json.h"
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -271,13 +272,15 @@ void FieldToJson(nlohmann::ordered_json&                                  jdata,
                  const format::InitDx12AccelerationStructureGeometryDesc& data,
                  const util::JsonOptions&                                 options)
 {
-    FieldToJson(jdata["geometry_type"], data.geometry_type, options);
-    FieldToJson(jdata["geometry_flags"], data.geometry_flags, options);
+    /// @todo handle enums and so on.
+    FieldToJson(jdata["geometry_type"], static_cast<D3D12_RAYTRACING_GEOMETRY_TYPE>(data.geometry_type), options);
+    FieldToJson_D3D12_RAYTRACING_GEOMETRY_FLAGS(
+        jdata["geometry_flags"], static_cast<D3D12_RAYTRACING_GEOMETRY_FLAGS>(data.geometry_flags), options);
     FieldToJson(jdata["aabbs_count"], data.aabbs_count, options);
     FieldToJson(jdata["aabbs_stride"], data.aabbs_stride, options);
     Bool32ToJson(jdata["triangles_has_transform"], data.triangles_has_transform, options);
-    FieldToJson(jdata["triangles_index_format"], data.triangles_index_format, options);
-    FieldToJson(jdata["triangles_vertex_format"], data.triangles_vertex_format, options);
+    FieldToJson(jdata["triangles_index_format"], static_cast<DXGI_FORMAT>(data.triangles_index_format), options);
+    FieldToJson(jdata["triangles_vertex_format"], static_cast<DXGI_FORMAT>(data.triangles_vertex_format), options);
     FieldToJson(jdata["triangles_index_count"], data.triangles_index_count, options);
     FieldToJson(jdata["triangles_vertex_count"], data.triangles_vertex_count, options);
     FieldToJson(jdata["triangles_vertex_stride"], data.triangles_vertex_stride, options);
