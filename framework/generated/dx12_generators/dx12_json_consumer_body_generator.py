@@ -65,7 +65,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
 
     def write_include(self):
         write(format_cpp_code('''
-            /// @todo Optimise this include list. Pos, only include most specific [util|decode]/x_json_util.h variant since we have the convention that they include each other.
             #include "generated_dx12_json_consumer.h"
             #include "generated_dx12_enum_to_json.h"
             #include "generated_dx12_struct_decoders_to_json.h"
@@ -169,10 +168,11 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         return code
 
     ## @param value_info A ValueInfo object from base_generator.py.
-    ## @todo format::HandleId shows up tagged as a pointer but we output it as a decimal uint64_t. Make it a hex value?
     def make_field_to_json(self, parent_name, value_info, options_name):
         function_name = self.choose_field_to_json_name(value_info)
         src = value_info.name
+        ## Special case for pointers to flag sets defined by enums:
+        ## (easier than having pointer decoder versions of each flagset type's FieldToString)
         if value_info.is_pointer and function_name.startswith("FieldToJson_"):
             src = "*" + src + "->GetPointer()"
         field_to_json = '{0}({1}["{2}"], {3}, {4});'.format(function_name, parent_name, value_info.name, src, options_name)

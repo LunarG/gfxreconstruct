@@ -25,7 +25,6 @@
 **
 */
 
-/// @todo Optimise this include list. Pos, only include most specific [util|decode]/x_json_util.h variant since we have the convention that they include each other.
 #include "generated_dx12_json_consumer.h"
 #include "generated_dx12_enum_to_json.h"
 #include "generated_dx12_struct_decoders_to_json.h"
