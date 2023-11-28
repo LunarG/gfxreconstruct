@@ -33,20 +33,20 @@ def ends_with_any(string, suffixes):
 
 # Base class with features shared by multiple DX12 JSON Generators.
 class Dx12JsonCommonGenerator(Dx12BaseGenerator):
+
     BIT_FLAG_SUFFIXES = Dx12EnumToStringHeaderGenerator.BITS_LIST;
+
     ## A set of strings which are the types of arguments and struct fields which should be output as hexadecimal.
     ## @todo Expand this to include more types.
     HEX_TYPES = {"D3D12_GPU_VIRTUAL_ADDRESS"}
 
     ## @param value_info A ValueInfo object from base_generator.py.
-    ## @todo Handle the non-enum bitflags / masks.
-    # The unique signatures:
-    # FieldToJsonAsHex
-    # Bool32ToJson
-    # FieldToJson
-    # HandleToJson
-    # HresultToJson
-    # Plus all the unique signatures for flag sets like FieldToJson_D3D_PARAMETER_FLAGS
+    def is_raw_bitflags(self, value_info):
+        if (not ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES)) and value_info.base_type.upper().startswith('UINT') and value_info.name.upper().endswith("MASK"):
+            return True
+        return False
+
+    ## @param value_info A ValueInfo object from base_generator.py.
     def choose_field_to_json_name(self, value_info):
         if value_info != None:
             if value_info.base_type in self.HEX_TYPES:
@@ -59,7 +59,7 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
                 return "HresultToJson"
             if ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES):
                 return "FieldToJson_" + value_info.base_type
-            if value_info.base_type.upper().startswith('UINT') and value_info.name.upper().endswith("MASK"):
+            if  self.is_raw_bitflags(value_info):
                 return "FieldToJsonAsFixedWidthBinary"
         return "FieldToJson"
     pass
