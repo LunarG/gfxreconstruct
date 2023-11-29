@@ -456,6 +456,35 @@ void CopyImageSubresourceMemory(uint8_t*       dst,
 
 AndroidScreen screen;
 android_app* appdata;
+
+uint32_t GetHardwareBufferFormatBpp(uint32_t format)
+{
+    switch (format)
+    {
+        case AHARDWAREBUFFER_FORMAT_BLOB:
+        case AHARDWAREBUFFER_FORMAT_S8_UINT: // VK_FORMAT_S8_UINT
+            return 1;
+        case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM: // VK_FORMAT_R5G6B5_UNORM_PACK16
+        case AHARDWAREBUFFER_FORMAT_D16_UNORM:    // VK_FORMAT_D16_UNORM
+            return 2;
+        case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM: // VK_FORMAT_R8G8B8_UNORM
+            return 3;
+        case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:    // VK_FORMAT_R8G8B8A8_UNORM
+        case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:    // VK_FORMAT_R8G8B8A8_UNORM
+        case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM: // VK_FORMAT_A2B10G10R10_UNORM_PACK32
+        case AHARDWAREBUFFER_FORMAT_D24_UNORM:         // VK_FORMAT_X8_D24_UNORM_PACK32
+        case AHARDWAREBUFFER_FORMAT_D24_UNORM_S8_UINT: // VK_FORMAT_D24_UNORM_S8_UINT
+        case AHARDWAREBUFFER_FORMAT_D32_FLOAT:         // VK_FORMAT_D32_SFLOAT
+            return 4;
+        case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT: // VK_FORMAT_R16G16B16A16_SFLOAT
+        case AHARDWAREBUFFER_FORMAT_D32_FLOAT_S8_UINT:  // VK_FORMAT_D32_SFLOAT_S8_UINT
+            return 8;
+        default:
+            break;
+    }
+
+    return 0;
+}
 )";
 
 static const char* sAndroidOutputDrawFunctionStart = R"(
@@ -525,6 +554,8 @@ struct HardwareBufferMemoryInfo
 
 extern AndroidScreen screen;
 extern android_app* appdata;
+
+uint32_t GetHardwareBufferFormatBpp(uint32_t format);
 )";
 // End of Android template strings
 

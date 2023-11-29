@@ -649,7 +649,7 @@ class VulkanCppStructGenerator(BaseGenerator):
 
             elif self.is_union(arg.base_type):
                 if not arg.is_pointer:
-                    if arg.base_type in ['VkClearColorValue', 'VkComponentMapping', 'VkOffset2D', 'VkExtent2D']:
+                    if arg.base_type in ['VkClearValue', 'VkClearColorValue', 'VkComponentMapping', 'VkOffset2D', 'VkExtent2D']:
                         body.append(makeOutStructSet('VulkanCppConsumerBase::BuildValue({arg_name})', locals(), isFirstArg, isLastArg, indent))
                     elif arg.base_type in self.feature_union_members:
                         union_members = self.feature_union_members[arg.base_type]

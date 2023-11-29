@@ -2753,7 +2753,7 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         fprintf(file, "\t\t\t%s = buffer;\n", buffer_info.name.c_str());
         fprintf(file, "\t\t\tahwbuf_res = -1;\n");
         fprintf(file, "\n");
-        fprintf(file, "\t\t\tstd::vector<format::HardwareBufferPlaneInfo> replay_plane_info;\n");
+        fprintf(file, "\t\t\tstd::vector<HardwareBufferPlaneInfo> replay_plane_info;\n");
         fprintf(file, "\n");
         fprintf(
             file,
@@ -2775,7 +2775,7 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         fprintf(file, "\n");
         fprintf(file, "\t\t\t\t\tfor (uint32_t i = 0; i < ahb_planes.planeCount; ++i)\n");
         fprintf(file, "\t\t\t\t\t{\n");
-        fprintf(file, "\t\t\t\t\t\tformat::HardwareBufferPlaneInfo ahb_plane_info;\n");
+        fprintf(file, "\t\t\t\t\t\tHardwareBufferPlaneInfo ahb_plane_info;\n");
         fprintf(file, "\t\t\t\t\t\tahb_plane_info.offset =\n");
         fprintf(file,
                 "\t\t\t\t\t\t\treinterpret_cast<uint8_t*>(ahb_planes.planes[i].data) - "
@@ -2791,8 +2791,8 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
                 "\t\t\t\t\t\t\tprintf(\"ERROR: AHardwareBuffer_unlock failed for AHardwareBuffer object (Buffer "
                 "ID = %%\" PRIu64\n");
         fprintf(file, "\t\t\t\t\t\t\t\", Memory ID = %%\" PRIu64 \")\",\n");
-        fprintf(file, "\t\t\t\t\t\t\t%" PRIu64 ",\n", buffer_id);
-        fprintf(file, "\t\t\t\t\t\t\t%" PRIu64 ");\n", memory_id);
+        fprintf(file, "\t\t\t\t\t\t\t%" PRIu64 "ull,\n", buffer_id);
+        fprintf(file, "\t\t\t\t\t\t\t%" PRIu64 "ull);\n", memory_id);
         fprintf(file, "\t\t\t\t\t}\n");
         fprintf(file, "\t\t\t\t}\n");
         fprintf(file, "\t\t\t\telse\n");
@@ -2808,7 +2808,7 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         fprintf(file, "\t\t\t// Check for matching strides.\n");
         fprintf(file, "\t\t\tif (plane_info.empty() || replay_plane_info.empty())\n");
         fprintf(file, "\t\t\t{\n");
-        fprintf(file, "\t\t\t\tuint32_t bpp = GetHardwareBufferFormatBpp(format);\n");
+        fprintf(file, "\t\t\t\tuint32_t bpp = GetHardwareBufferFormatBpp(%u);\n", format);
         fprintf(file, "\n");
         fprintf(file, "\t\t\t\tAHardwareBuffer_describe(buffer, &desc);\n");
         fprintf(file, "\t\t\t\tif (stride != desc.stride)\n");
@@ -2819,9 +2819,9 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         fprintf(file, "\t\t\t\t%s.plane_info.resize(1);\n", android_hw_mem_name.c_str());
         fprintf(file, "\t\t\t\t%s.plane_info[0].capture_offset    = 0;\n", android_hw_mem_name.c_str());
         fprintf(file, "\t\t\t\t%s.plane_info[0].replay_offset     = 0;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t%s.plane_info[0].capture_row_pitch = bpp * stride;\n", android_hw_mem_name.c_str());
+        fprintf(file, "\t\t\t\t%s.plane_info[0].capture_row_pitch = bpp * %u;\n", android_hw_mem_name.c_str(), stride);
         fprintf(file, "\t\t\t\t%s.plane_info[0].replay_row_pitch  = bpp * desc.stride;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t%s.plane_info[0].height            = height;\n", android_hw_mem_name.c_str());
+        fprintf(file, "\t\t\t\t%s.plane_info[0].height            = %u;\n", android_hw_mem_name.c_str(), height);
         fprintf(file, "\t\t\t}\n");
         fprintf(file, "\t\t\telse\n");
         fprintf(file, "\t\t\t{\n");
@@ -2845,7 +2845,7 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         fprintf(file,
                 "\t\t\t\t\t%s.plane_info[i].replay_row_pitch  = replay_plane_info[i].row_pitch;\n",
                 android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t\t%s.plane_info[i].height            = height;\n", android_hw_mem_name.c_str());
+        fprintf(file, "\t\t\t\t\t%s.plane_info[i].height            = %u;\n", android_hw_mem_name.c_str(), height);
         fprintf(file, "\n");
         fprintf(file, "\t\t\t\t\tif ((plane_info[i].offset != replay_plane_info[i].offset) ||\n");
         fprintf(file, "\t\t\t\t\t\t(plane_info[i].row_pitch != replay_plane_info[i].row_pitch))\n");
@@ -2861,8 +2861,8 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
                 "\t\t\tprintf(\"ERROR: AHardwareBuffer_allocate failed for AHardwareBuffer object (Buffer ID = %%\" "
                 "PRIu64\n");
         fprintf(file, "\t\t\t\t\t\", Memory ID = %%\" PRIu64 \")\",\n");
-        fprintf(file, "\t\t\t\t\t%" PRIu64 ",\n", buffer_id);
-        fprintf(file, "\t\t\t\t\t%" PRIu64 ");\n", memory_id);
+        fprintf(file, "\t\t\t\t\t%" PRIu64 "ull,\n", buffer_id);
+        fprintf(file, "\t\t\t\t\t%" PRIu64 "ull);\n", memory_id);
         fprintf(file, "\t\t}\n");
         fprintf(file, "\t}\n");
     }

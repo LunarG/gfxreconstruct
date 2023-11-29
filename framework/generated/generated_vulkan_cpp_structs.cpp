@@ -2412,16 +2412,12 @@ std::string GenerateStruct_VkBufferViewCreateInfo(std::ostream &out, const VkBuf
 
 std::string GenerateStruct_VkClearAttachment(std::ostream &out, const VkClearAttachment* structInfo, Decoded_VkClearAttachment* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    std::string color_info_var = GenerateStruct_VkClearColorValue(out,
-                                                                  &structInfo->clearValue.color,
-                                                                  metaInfo->clearValue->color,
-                                                                  consumer);
 // aspectMask
     struct_body << "\t" << "VkImageAspectFlags(" << structInfo->aspectMask << ")" << "," << std::endl;
 // colorAttachment
     struct_body << "\t\t\t" << structInfo->colorAttachment << "," << std::endl;
 // clearValue
-    struct_body << "\t\t\t" << color_info_var << ",";
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(structInfo->clearValue) << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "clearAttachment");
     out << "\t\t" << "VkClearAttachment " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -9914,10 +9910,6 @@ std::string GenerateStruct_VkPrivateDataSlotCreateInfo(std::ostream &out, const 
 std::string GenerateStruct_VkRenderingAttachmentInfo(std::ostream &out, const VkRenderingAttachmentInfo* structInfo, Decoded_VkRenderingAttachmentInfo* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string color_info_var = GenerateStruct_VkClearColorValue(out,
-                                                                  &structInfo->clearValue.color,
-                                                                  metaInfo->clearValue->color,
-                                                                  consumer);
 // sType
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
 // pNext
@@ -9937,7 +9929,7 @@ std::string GenerateStruct_VkRenderingAttachmentInfo(std::ostream &out, const Vk
 // storeOp
     struct_body << "\t\t\t" << "VkAttachmentStoreOp(" << structInfo->storeOp << ")" << "," << std::endl;
 // clearValue
-    struct_body << "\t\t\t" << color_info_var << ",";
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(structInfo->clearValue) << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "renderingAttachmentInfo");
     out << "\t\t" << "VkRenderingAttachmentInfo " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
