@@ -131,9 +131,9 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
                         body = 'std::string {0}ToString(const {0} value);'
                         body += '\nstd::string {1}ToString(VkFlags64 vkFlags);'
                     else:
-                        body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+                        body = 'std::string ToString(const {0}& value);'
                         if 'Bits' in enum:
-                            body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
+                            body += '\nstd::string {1}ToString(VkFlags vkFlags);'
                     write(body.format(enum, BitsEnumToFlagsTypedef(enum)),
                           file=self.outFile)
     # yapf: enable
