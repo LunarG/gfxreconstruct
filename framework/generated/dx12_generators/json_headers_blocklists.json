@@ -11,7 +11,7 @@
       "CheckFeatureSupport"
     ],
     "ID3D12Resource": [
-      "Comment: WriteToSubresource is needed because codegen gives pSrcData as the wrong type and because thhe manual signature in the base class defining it doesn't match what correct codegen would produce.",
+      "Comment: WriteToSubresource is needed because codegen gives pSrcData as the wrong type and because the manual signature in the base class defining it doesn't match what correct codegen would produce.",
       "WriteToSubresource"
     ]
   },
