@@ -41,6 +41,14 @@ bool AgsDecoder::SupportsApiCall(format::ApiCallId call_id)
     return (family_id == format::ApiFamilyId::ApiFamily_AGS);
 }
 
+void AgsDecoder::SetCurrentBlockIndex(uint64_t block_index)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->SetCurrentBlockIndex(block_index);
+    }
+}
+
 void AgsDecoder::DecodeFunctionCall(format::ApiCallId  call_id,
                                     const ApiCallInfo& call_info,
                                     const uint8_t*     parameter_buffer,
