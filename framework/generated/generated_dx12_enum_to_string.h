@@ -34,12 +34,20 @@
 #include <dxgi1_4.h>
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
+#include <dxgicommon.h>
+#include <dxgiformat.h>
+#include <dxgitype.h>
 #include <d3d12.h>
-#include "util/defines.h"
-#include "util/to_string.h"
+#include <d3dcommon.h>
+#include <d3d12sdklayers.h>
+#include <Unknwnbase.h>
+#include <guiddef.h>
+#include <windef.h>
+#include <minwinbase.h>
 #include "format/platform_types.h"
 #include "util/defines.h"
 #include "util/to_string.h"
+
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)

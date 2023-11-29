@@ -78,21 +78,15 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
         write(body, file=self.outFile)
 
     def write_include(self):
-        # We don't need everything in self.source_dict['header_dict']:
-        code = inspect.cleandoc('''
-            #include <dxgi.h>
-            #include <dxgi1_2.h>
-            #include <dxgi1_3.h>
-            #include <dxgi1_4.h>
-            #include <dxgi1_5.h>
-            #include <dxgi1_6.h>
-            #include <d3d12.h>
-            #include "util/defines.h"
-            #include "util/to_string.h"
-            #include "format/platform_types.h"
-            #include "util/defines.h"
-            #include "util/to_string.h"
-        ''')
+        code = ''
+        header_dict = self.source_dict['header_dict']
+        for k, v in header_dict.items():
+            code += '#include <{}>\n'.format(k)
+
+        code += '#include "format/platform_types.h"\n'
+        code += '#include "util/defines.h"\n'
+        code += '#include "util/to_string.h"\n'
+
         write(code, file=self.outFile)
         self.newline()
 
