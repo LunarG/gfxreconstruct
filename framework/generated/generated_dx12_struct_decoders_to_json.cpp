@@ -64,11 +64,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEPTH_STENCIL_VALUE&
 }
 /** @} */
 
-inline bool RepresentBinaryFile(const util::JsonOptions&       json_options,
-nlohmann::ordered_json&        jdata,
-std::string_view               filename_base,
-const uint64_t                 instance_counter,
-const PointerDecoder<uint8_t>& data)
+inline bool RepresentBinaryFile(const util::JsonOptions& json_options, nlohmann::ordered_json& jdata, std::string_view filename_base, const uint64_t instance_counter, const PointerDecoder<uint8_t>& data)
 {
     return RepresentBinaryFile(json_options, jdata, filename_base, instance_counter, data.GetLength(), data.GetPointer());
 }
