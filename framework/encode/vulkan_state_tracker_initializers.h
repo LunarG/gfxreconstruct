@@ -227,6 +227,26 @@ inline void InitializeState<VkDevice, EventWrapper, VkEventCreateInfo>(VkDevice 
 }
 
 template <>
+inline void
+InitializeState<VkDevice, PipelineCacheWrapper, VkPipelineCacheCreateInfo>(VkDevice              parent_handle,
+                                                                           PipelineCacheWrapper* wrapper,
+                                                                           const VkPipelineCacheCreateInfo* create_info,
+                                                                           format::ApiCallId create_call_id,
+                                                                           CreateParameters  create_parameters)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->device = GetWrapper<DeviceWrapper>(parent_handle);
+
+    wrapper->create_info = *create_info;
+}
+
+template <>
 inline void InitializeState<VkDevice, SemaphoreWrapper, VkSemaphoreCreateInfo>(VkDevice          parent_handle,
                                                                                SemaphoreWrapper* wrapper,
                                                                                const VkSemaphoreCreateInfo* create_info,
