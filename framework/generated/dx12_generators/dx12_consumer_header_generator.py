@@ -90,7 +90,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         )
         write(code, file=self.outFile)
 
-    def get_consumer_function_body(self, class_name, method_info, return_type):
+    def get_consumer_function_body(self, class_name, method_info, return_type, return_value):
         return '{}'
 
     def change_param_type(self, param):
@@ -110,6 +110,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
             class_method_name = class_name + '_' + class_method_name
 
         rtn_type = method_info['rtnType']
+        return_value = None
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
             rtn_type1 = self.clean_type_define(rtn_type)
             return_value = self.get_return_value_info(
@@ -178,7 +179,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
                 _class_name,
                 method_info['name'],
                 parameters,
-                self.get_consumer_function_body(class_name, method_info, rtn_type))
+                self.get_consumer_function_body(class_name, method_info, rtn_type, return_value))
         return code
 
     def write_constructor_class(self, consumer_type):

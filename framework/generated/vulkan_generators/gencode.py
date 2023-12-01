@@ -58,8 +58,8 @@ from decode_pnext_struct_generator import DecodePNextStructGenerator, DecodePNex
 
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
-from vulkan_export_json_consumer_header_generator import VulkanExportJsonConsumerHeaderGenerator, VulkanExportJsonConsumerHeaderGeneratorOptions
-from vulkan_export_json_consumer_body_generator import VulkanExportJsonConsumerBodyGenerator, VulkanExportJsonConsumerBodyGeneratorOptions
+from vulkan_json_consumer_header_generator import VulkanExportJsonConsumerHeaderGenerator, VulkanExportJsonConsumerHeaderGeneratorOptions
+from vulkan_json_consumer_body_generator import VulkanExportJsonConsumerBodyGenerator, VulkanExportJsonConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator, VulkanReplayConsumerBodyGeneratorOptions
 from vulkan_referenced_resource_consumer_header_generator import VulkanReferencedResourceHeaderGenerator, VulkanReferencedResourceHeaderGeneratorOptions
 from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator, VulkanReferencedResourceBodyGeneratorOptions
@@ -630,13 +630,13 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_vulkan_export_json_consumer.h'] = [
+    gen_opts['generated_vulkan_json_consumer.h'] = [
         VulkanExportJsonConsumerHeaderGenerator,
         VulkanExportJsonConsumerHeaderGeneratorOptions(
             class_name='VulkanExportJsonConsumer',
-            base_class_header='vulkan_export_json_consumer_base.h',
+            base_class_header='vulkan_json_consumer_base.h',
             is_override=True,
-            filename='generated_vulkan_export_json_consumer.h',
+            filename='generated_vulkan_json_consumer.h',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,
@@ -647,10 +647,10 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_vulkan_export_json_consumer.cpp'] = [
+    gen_opts['generated_vulkan_json_consumer.cpp'] = [
         VulkanExportJsonConsumerBodyGenerator,
         VulkanExportJsonConsumerBodyGeneratorOptions(
-            filename='generated_vulkan_export_json_consumer.cpp',
+            filename='generated_vulkan_json_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,

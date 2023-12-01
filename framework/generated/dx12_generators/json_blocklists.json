@@ -1,0 +1,27 @@
+{
+  "description": "Block codegen of features for DX12 to JSON conversion. (this is just a comment on the current file for human eyes)",
+  "functions-all": [],
+  "functions-encoder": [],
+  "functions-decoder": [],
+  "classmethods": {
+    "ID3D12Device": [
+      "CheckFeatureSupport"
+    ],
+    "IDXGIFactory5": [
+      "CheckFeatureSupport"
+    ],
+    "ID3D12Resource": [
+      "Comment: WriteToSubresource is needed because codegen gives pSrcData as the wrong type and because thhe manual signature in the base class defining it doesn't match what correct codegen would produce.",
+      "WriteToSubresource"
+    ]
+  },
+  "todo2": "Remove the ones below which can be handled with anon union support.",
+  "structures": [
+    "GUID Comment - We can generate the header for the decoded struct but the body needs a manual implementation.",
+    "GUID",
+    "Comment: definitely need custom json conversion below",
+    "D3D12_PIPELINE_STATE_STREAM_DESC",
+    "D3D12_STATE_SUBOBJECT",
+    "D3D12_CPU_DESCRIPTOR_HANDLE"
+  ]
+}

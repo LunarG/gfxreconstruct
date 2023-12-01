@@ -238,6 +238,8 @@ uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const D3D12_RESOURCE_DESC
 
 bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc);
 
+bool IsDepthStencilFormat(const DXGI_FORMAT format);
+
 bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTURE_LAYOUT layout);
 
 bool VerifyAgilitySDKRuntime();

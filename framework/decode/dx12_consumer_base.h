@@ -44,7 +44,7 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     virtual void Process_DriverInfo(const char* info_record) {}
 
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
+    virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) {}
 
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
@@ -83,7 +83,7 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                                            UINT                                     SrcDepthPitch)
     {}
 
-    void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; };
+    void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; }
 
     bool ContainsDxrWorkload() const { return dxr_workload_; }
 

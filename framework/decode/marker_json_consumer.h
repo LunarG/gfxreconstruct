@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2023 Valve Corporation
+** Copyright (c) 2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,37 +21,37 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_UTIL_OUTPUT_STREAM_H
-#define GFXRECON_UTIL_OUTPUT_STREAM_H
+#ifndef GFXRECON_DECODE_MARKER_JSON_CONSUMER_BASE_H
+#define GFXRECON_DECODE_MARKER_JSON_CONSUMER_BASE_H
 
 #include "util/defines.h"
-
-#include <string_view>
-#include <cstddef>
+#include "format/format_json.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
-class OutputStream
+/// Template shim for turning markers into json using a JsonWriter pointed to by
+// a protected pointer called writer_ in a base class.
+template <class Base>
+class MarkerJsonConsumer : public Base
 {
   public:
-    virtual ~OutputStream() {}
+    virtual void ProcessStateBeginMarker(uint64_t frame_number)
+    {
+        this->writer_->WriteMarker(format::kNameState, "BeginMarker", frame_number);
+    }
+    virtual void ProcessStateEndMarker(uint64_t frame_number)
+    {
+        this->writer_->WriteMarker(format::kNameState, "EndMarker", frame_number);
+    }
 
-    virtual bool IsValid() { return false; }
-
-    virtual void Reset() {}
-
-    virtual size_t Write(const void* data, size_t len) = 0;
-
-    virtual void Flush() {}
+    virtual void ProcessFrameEndMarker(uint64_t frame_number)
+    {
+        this->writer_->WriteMarker(format::kNameFrame, "EndMarker", frame_number);
+    }
 };
 
-inline void Write(OutputStream& os, std::string_view sv)
-{
-    os.Write(sv.data(), sv.size());
-}
-
-GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_UTIL_OUTPUT_STREAM_H
+#endif // GFXRECON_DECODE_MARKER_JSON_CONSUMER_BASE_H

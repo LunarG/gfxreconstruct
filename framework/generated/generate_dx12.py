@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2021-2023 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -34,26 +34,36 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 # File names to provide to the dxgi generator script.
 GENERATE_TARGETS = [
     'generated_dx12_api_call_encoders.h',
-    'generated_dx12_api_call_encoders.cpp', 'generated_dx12_decoder.h',
-    'generated_dx12_decoder.cpp', 'generated_dx12_struct_decoders_forward.h',
-    'generated_dx12_struct_decoders.h', 'generated_dx12_struct_decoders.cpp',
-    'generated_dx12_consumer.h', 'generated_dx12_replay_consumer.h',
-    'generated_dx12_replay_consumer.cpp', 'generated_dx12_ascii_consumer.h',
-    'generated_dx12_ascii_consumer.cpp', 'generated_dx12_wrappers.h',
-    'generated_dx12_wrappers.cpp', 'generated_dx12_wrapper_creators.h',
+    'generated_dx12_api_call_encoders.cpp',
+    'generated_dx12_decoder.h',
+    'generated_dx12_decoder.cpp',
+    'generated_dx12_struct_decoders_forward.h',
+    'generated_dx12_struct_decoders.h',
+    'generated_dx12_struct_decoders.cpp',
+    'generated_dx12_consumer.h',
+    'generated_dx12_replay_consumer.h',
+    'generated_dx12_replay_consumer.cpp',
+    'generated_dx12_json_consumer.h',
+    'generated_dx12_json_consumer.cpp',
+    'generated_dx12_wrappers.h',
+    'generated_dx12_wrappers.cpp',
+    'generated_dx12_wrapper_creators.h',
     'generated_dx12_wrapper_creators.cpp',
     'generated_dx12_struct_unwrappers.h',
     'generated_dx12_struct_unwrappers.cpp',
     'generated_dx12_struct_object_mappers.h',
     'generated_dx12_struct_object_mappers.cpp',
-    'generated_dx12_struct_wrappers.h', 'generated_dx12_struct_wrappers.cpp',
+    'generated_dx12_struct_wrappers.h',
+    'generated_dx12_struct_wrappers.cpp',
     'generated_dx12_add_entries.h',
-    'generated_dx12_state_table.h', 'generated_dx12_command_list_util.h',
+    'generated_dx12_state_table.h',
+    'generated_dx12_command_list_util.h',
     'generated_dx12_command_list_util.cpp',
     'generated_dx12_enum_to_string.h',
     'generated_dx12_enum_to_string.cpp',
-    'generated_dx12_struct_to_string.h',
-    'generated_dx12_struct_to_string.cpp',
+    'generated_dx12_enum_to_json.h',
+    'generated_dx12_struct_decoders_to_json.h',
+    'generated_dx12_struct_decoders_to_json.cpp',
     'generated_dx12_call_id_to_string.h',
 ]
 

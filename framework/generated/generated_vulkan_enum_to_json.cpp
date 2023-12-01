@@ -27,9 +27,13 @@
 */
 
 #include "generated_vulkan_enum_to_json.h"
+#include "util/to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+using util::JsonOptions;
+using util::to_hex_fixed_width;
 
 template<typename TFlags, typename ToStringFunctionType>
 std::string ExpandFlags(TFlags flags, ToStringFunctionType toString)

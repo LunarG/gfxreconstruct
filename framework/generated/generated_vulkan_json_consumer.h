@@ -26,10 +26,10 @@
 **
 */
 
-#ifndef  GFXRECON_GENERATED_VULKAN_EXPORT_JSON_CONSUMER_H
-#define  GFXRECON_GENERATED_VULKAN_EXPORT_JSON_CONSUMER_H
+#ifndef  GFXRECON_GENERATED_VULKAN_JSON_CONSUMER_H
+#define  GFXRECON_GENERATED_VULKAN_JSON_CONSUMER_H
 
-#include "decode/vulkan_export_json_consumer_base.h"
+#include "decode/vulkan_json_consumer_base.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"

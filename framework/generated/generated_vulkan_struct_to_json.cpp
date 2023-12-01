@@ -28,9 +28,13 @@
 
 #include "generated_vulkan_struct_to_json.h"
 #include "generated_vulkan_enum_to_json.h"
+#include "util/to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+using util::JsonOptions;
+using util::to_hex_variable_width;
+using util::uuid_to_string;
 
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264SpsVuiFlags* data, const JsonOptions& options)
@@ -12927,7 +12931,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorWri
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["attachmentCount"], decoded_value.attachmentCount, options);
-        VkBool32ToJson(jdata["pColorWriteEnables"], &meta_struct.pColorWriteEnables);
+        Bool32ToJson(jdata["pColorWriteEnables"], &meta_struct.pColorWriteEnables);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
