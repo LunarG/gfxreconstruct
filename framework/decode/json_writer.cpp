@@ -32,11 +32,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-using namespace util;
-
-JsonWriter::JsonWriter(const JsonOptions&     options,
-                       const std::string_view gfxrVersion,
-                       const std::string_view inputFilepath) :
+JsonWriter::JsonWriter(const util::JsonOptions& options,
+                       const std::string_view   gfxrVersion,
+                       const std::string_view   inputFilepath) :
     json_options_(options)
 {
     header_["source-path"]      = inputFilepath;
@@ -57,7 +55,7 @@ void JsonWriter::StartStream(util::OutputStream* os)
     first_ = true;
     os_    = os;
 
-    if (json_options_.format == JsonFormat::JSON)
+    if (json_options_.format == util::JsonFormat::JSON)
     {
         Write(*os_, "[\n");
     }
@@ -74,7 +72,7 @@ void JsonWriter::EndStream()
 {
     if (os_ != nullptr)
     {
-        if (json_options_.format == JsonFormat::JSON)
+        if (json_options_.format == util::JsonFormat::JSON)
         {
             Write(*os_, "\n]\n");
         }
@@ -106,24 +104,22 @@ nlohmann::ordered_json& JsonWriter::WriteBlockStart()
 
 void JsonWriter::WriteBlockEnd()
 {
-    using namespace util::platform;
-
     if (!first_)
     {
-        Write(*os_, json_options_.format == JsonFormat::JSONL ? "\n" : ",\n");
+        Write(*os_, json_options_.format == util::JsonFormat::JSONL ? "\n" : ",\n");
     }
     first_ = false;
     /// @todo Hand the tree over to a backend thread which dumps it to a string and streams it
     /// while the main thread gets on with building the tree for the next block.
     // Dominates profiling (2/2):
-    const std::string block = json_data_.dump(json_options_.format == JsonFormat::JSONL ? -1 : kJsonIndentWidth);
+    const std::string block =
+        json_data_.dump(json_options_.format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth);
     Write(*os_, block);
     os_->Flush();
 }
 
 nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo& call_info, const std::string_view command_name)
 {
-    using namespace util;
     auto& json_data = WriteBlockStart();
 
     json_data[format::kNameIndex] = call_info.index;
@@ -140,7 +136,6 @@ nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo&     cal
                                                       const format::HandleId object_id,
                                                       const std::string_view command_name)
 {
-    using namespace util;
     auto& json_data = WriteBlockStart();
 
     json_data[format::kNameIndex] = call_info.index;
@@ -158,8 +153,6 @@ nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo&     cal
 
 void JsonWriter::WriteMarker(const char* const name, const std::string_view marker_type, uint64_t frame_number)
 {
-    using namespace util;
-
     // Markers are dispatched to all decoders and consumers so de-duplicate them for JSON
     // output in case the build has multiple JSON consumers for different APIs enabled.
     if (name != last_marker_name_ || marker_type != last_marker_type_ || frame_number != last_frame_number_)
@@ -180,7 +173,6 @@ void JsonWriter::WriteMarker(const char* const name, const std::string_view mark
 
 nlohmann::ordered_json& JsonWriter::WriteMetaCommandStart(const std::string_view command_name)
 {
-    using namespace util;
     auto& json_data = WriteBlockStart();
 
     nlohmann::ordered_json& meta = json_data[format::kNameMeta];
@@ -196,7 +188,7 @@ void JsonWriter::ProcessAnnotation(uint64_t               block_index,
     auto& json_data     = WriteBlockStart();
     json_data["index"]  = block_index;
     auto& annotation    = json_data["annotation"];
-    annotation["type"]  = AnnotationTypeToString(type);
+    annotation["type"]  = util::AnnotationTypeToString(type);
     annotation["label"] = label;
     annotation["data"]  = data;
     WriteBlockEnd();
