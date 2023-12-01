@@ -94,6 +94,9 @@ from vulkan_enum_to_json_header_generator import VulkanEnumToJsonHeaderGenerator
 from vulkan_struct_to_json_header_generator import VulkanStructToJsonHeaderGenerator, VulkanStructToJsonHeaderGeneratorOptions
 from vulkan_struct_to_json_body_generator import VulkanStructToJsonBodyGenerator, VulkanStructToJsonBodyGeneratorOptions
 
+# Constants
+from vulkan_constant_maps_generator import VulkanConstantMapsGenerator, VulkanConstantMapsGeneratorOptions
+
 # Simple timer functions
 start_time = None
 
@@ -695,6 +698,20 @@ def make_gen_opts(args):
             prefixText=prefix_strings + vk_prefix_strings,
             protectFile=False,
             protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_constant_maps.h'] = [
+        VulkanConstantMapsGenerator,
+        VulkanConstantMapsGeneratorOptions(
+            filename='generated_vulkan_constant_maps.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
     ]

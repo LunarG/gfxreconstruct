@@ -33,6 +33,7 @@
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
+#include "generated/generated_vulkan_constant_maps.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
 #include "util/file_path.h"
@@ -63,23 +64,6 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_MIR_SURFACE_EXTENSION_NAME,     VK_NN_VI_SURFACE_EXTENSION_NAME,   VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,   VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 };
-
-const std::unordered_set<VkColorSpaceKHR> kColorspaceSwapchainExtension = { VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT,
-                                                                            VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT,
-                                                                            VK_COLOR_SPACE_BT2020_LINEAR_EXT,
-                                                                            VK_COLOR_SPACE_BT709_LINEAR_EXT,
-                                                                            VK_COLOR_SPACE_BT709_NONLINEAR_EXT,
-                                                                            VK_COLOR_SPACE_DCI_P3_LINEAR_EXT,
-                                                                            VK_COLOR_SPACE_DCI_P3_NONLINEAR_EXT,
-                                                                            VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT,
-                                                                            VK_COLOR_SPACE_DOLBYVISION_EXT,
-                                                                            VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT,
-                                                                            VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT,
-                                                                            VK_COLOR_SPACE_HDR10_HLG_EXT,
-                                                                            VK_COLOR_SPACE_HDR10_ST2084_EXT,
-                                                                            VK_COLOR_SPACE_PASS_THROUGH_EXT };
-
-const VkColorSpaceKHR kAMDNativeDisplayColorspace = VK_COLOR_SPACE_DISPLAY_NATIVE_AMD;
 
 // Device extensions to enable for trimming state setup, when available.
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
@@ -2302,31 +2286,10 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                 }
                 else if (options_.use_colorspace_fallback)
                 {
-                    if (!feature_util::IsSupportedExtension(available_extensions,
-                                                            VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME))
+                    for (auto& extension_name : kColorSpaceExtensionNames)
                     {
-                        auto iter = std::find_if(
-                            filtered_extensions.begin(), filtered_extensions.end(), [](const char* extension) {
-                                return util::platform::StringCompare(VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME,
-                                                                     extension) == 0;
-                            });
-                        if (iter != filtered_extensions.end())
-                        {
-                            filtered_extensions.erase(iter);
-                        }
-                    }
-                    if (!feature_util::IsSupportedExtension(available_extensions,
-                                                            VK_AMD_DISPLAY_NATIVE_HDR_EXTENSION_NAME))
-                    {
-                        auto iter = std::find_if(
-                            filtered_extensions.begin(), filtered_extensions.end(), [](const char* extension) {
-                                return util::platform::StringCompare(VK_AMD_DISPLAY_NATIVE_HDR_EXTENSION_NAME,
-                                                                     extension) == 0;
-                            });
-                        if (iter != filtered_extensions.end())
-                        {
-                            filtered_extensions.erase(iter);
-                        }
+                        feature_util::RemoveExtensionIfUnsupported(
+                            available_extensions, &filtered_extensions, extension_name);
                     }
                 }
                 else
@@ -5056,21 +5019,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         PhysicalDeviceInfo* physical_device_info = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
         InstanceInfo*       instance_info        = object_info_table_.GetInstanceInfo(physical_device_info->parent_id);
 
-        if (kColorspaceSwapchainExtension.count(replay_create_info->imageColorSpace) != 0)
+        auto colorspace_extension_map_iterator = kColorSpaceExtensionMap.find(replay_create_info->imageColorSpace);
+        if (colorspace_extension_map_iterator != kColorSpaceExtensionMap.end())
         {
+            auto supported_extension_iterator = std::find(instance_info->enabled_extensions.begin(),
+                                                          instance_info->enabled_extensions.end(),
+                                                          colorspace_extension_map_iterator->second);
             colorspace_extension_used_unsupported =
-                std::find_if(instance_info->enabled_extensions.begin(),
-                             instance_info->enabled_extensions.end(),
-                             [](const std::string& s) { return s == VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME; }) ==
-                instance_info->enabled_extensions.end();
-        }
-        else if (replay_create_info->imageColorSpace == kAMDNativeDisplayColorspace)
-        {
-            colorspace_extension_used_unsupported =
-                std::find_if(instance_info->enabled_extensions.begin(),
-                             instance_info->enabled_extensions.end(),
-                             [](const std::string& s) { return s == VK_AMD_DISPLAY_NATIVE_HDR_EXTENSION_NAME; }) ==
-                instance_info->enabled_extensions.end();
+                supported_extension_iterator == instance_info->enabled_extensions.end();
         }
 
         if (colorspace_extension_used_unsupported)
