@@ -160,7 +160,9 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
         body = ''
         union_index = 0
         # Iterate over private, protected, public properties (only public non-empty):
-        for property_visibility, properties in values['properties'].items():
+        items = values['properties'].items()
+        for item in items:
+            properties = item[1] # item[0] is the access level which is always 'public' so we ignore it
             for p in properties:
                 value_info = self.get_value_info(p)
 
