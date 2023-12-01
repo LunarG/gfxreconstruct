@@ -101,6 +101,8 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
 
             using util::JsonOptions;
 
+            // TODO Move all these manual functions out of the generator and into a .cpp file.
+
             /// @defgroup ManualD3D12StructFieldToJsons Manual functions to convert raw structs.
             /** @{ */
             static void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS& data, const JsonOptions& options)
@@ -816,6 +818,8 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
     def endFile(self):
         """Method override."""
         custom_impls = format_cpp_code('''
+            // TODO Move all these manual functions out of the generator and into a .cpp file.
+
             /// @defgroup custom_dx12_struct_decoders_to_json_bodies Custom implementations for
             /// troublesome structs.
             /// We put the custom implementations in the generator Python rather than
