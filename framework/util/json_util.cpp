@@ -352,10 +352,8 @@ static bool WriteBinaryFile(const std::string& filename, uint64_t data_size, con
         }
         else
         {
-            GFXRECON_LOG_ERROR("Only wrote %llu bytes of %llu data to file %s.",
-                               (unsigned long long)written,
-                               (unsigned long long)data_size,
-                               filename.c_str());
+            GFXRECON_LOG_ERROR(
+                "Only wrote %" PRIu64 " bytes of %" PRIu64 " data to file %s.", written, data_size, filename.c_str());
         }
         util::platform::FileClose(file_output);
     }
