@@ -50,6 +50,8 @@ if (NOT DEFINED HEADLESS)
     set(HEADLESS TRUE)
 endif()
 
+option(BUILD_ZSTD_SUPPORT "Build zstd support" ON)
+
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 git_get_exact_tag(GIT_TAG)
@@ -210,7 +212,7 @@ else(MSVC)
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
         set(CMAKE_PREFIX_PATH
             ${CMAKE_PREFIX_PATH}
-        "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm64-v8a")
+           "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm64-v8a")
     elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
         set(CMAKE_PREFIX_PATH
             ${CMAKE_PREFIX_PATH}
@@ -224,7 +226,10 @@ find_package(Detours)
 endif() # WIN32
 
 find_package(LZ4)
-find_package(ZSTD)
+
+if(BUILD_ZSTD_SUPPORT)
+    find_package(ZSTD)
+endif()
 
 if(UNIX)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
@@ -274,6 +279,12 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>
     $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    target_include_directories(linux_specific INTERFACE "${CMAKE_SOURCE_DIR}/external/precompiled/linux/include")
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+    target_include_directories(linux_specific INTERFACE "${CMAKE_SOURCE_DIR}/external/precompiled/linux/include")
+endif()
 
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE
