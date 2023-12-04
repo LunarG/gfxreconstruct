@@ -11351,28 +11351,7 @@ void VulkanCppConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     uint64_t                                    buffer,
     StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// buffer
-    std::string buffer_name = "buffer_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tvoid* %s;\n", buffer_name.c_str());
-// pProperties
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkAndroidHardwareBufferPropertiesANDROID(stream_pproperties,
-                                                                               pProperties->GetPointer(),
-                                                                               pProperties->GetMetaStructPointer(),
-                                                                               *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
-    pfn_loader_.AddMethodName("vkGetAndroidHardwareBufferPropertiesANDROID");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetAndroidHardwareBufferPropertiesANDROID(%s, %s, &%s), %s);\n",
-            this->GetHandle(device).c_str(),
-            buffer_name.c_str(),
-            pproperties_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkGetAndroidHardwareBufferPropertiesANDROID(returnValue, device, buffer, pProperties);
     Post_APICall(format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID);
 }
 
@@ -11383,27 +11362,7 @@ void VulkanCppConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>* pInfo,
     PointerDecoder<uint64_t, void*>*            pBuffer)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// pInfo
-    std::stringstream stream_pinfo;
-    std::string pinfo_struct = GenerateStruct_VkMemoryGetAndroidHardwareBufferInfoANDROID(stream_pinfo,
-                                                                                          pInfo->GetPointer(),
-                                                                                          pInfo->GetMetaStructPointer(),
-                                                                                          *this);
-    fprintf(file, "%s", stream_pinfo.str().c_str());
-// pBuffer
-    std::string pbuffer_name = "pBuffer_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t* %s;\n", pbuffer_name.c_str());
-    pfn_loader_.AddMethodName("vkGetMemoryAndroidHardwareBufferANDROID");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryAndroidHardwareBufferANDROID(%s, &%s, &%s), %s);\n",
-            this->GetHandle(device).c_str(),
-            pinfo_struct.c_str(),
-            pbuffer_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkGetMemoryAndroidHardwareBufferANDROID(returnValue, device, pInfo, pBuffer);
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID);
 }
 void VulkanCppConsumer::Process_vkCmdSetSampleLocationsEXT(

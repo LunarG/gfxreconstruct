@@ -335,60 +335,71 @@ static const char* sAndroidOutputGlobalSource = R"(
 #include <string>
 #include <vulkan/vulkan.h>
 
-void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo,
-                                           struct android_app* appdata) {
-    createInfo->sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-    createInfo->pNext = nullptr;
-    createInfo->flags = 0;
+void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo, struct android_app* appdata)
+{
+    createInfo->sType  = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+    createInfo->pNext  = nullptr;
+    createInfo->flags  = 0;
     createInfo->window = appdata->window;
 }
 
-void LoadBinaryData(const char* filename,
-                    size_t file_offset,
-                    void* buffer,
-                    size_t offset,
-                    size_t data_size,
-                    android_app* app) {
-    AAsset* file = AAssetManager_open(app->activity->assetManager, filename,
-                                      AASSET_MODE_STREAMING);
-    if (!file) {
+void LoadBinaryData(
+    const char* filename, size_t file_offset, void* buffer, size_t offset, size_t data_size, android_app* app)
+{
+    AAsset* file = AAssetManager_open(app->activity->assetManager, filename, AASSET_MODE_STREAMING);
+    if (!file)
+    {
         throw std::runtime_error("Can't open file: " + std::string(filename));
     }
 
     AAsset_seek64(file, file_offset, SEEK_SET);
     int read_size = AAsset_read(file, (uint8_t*)buffer + offset, data_size);
-    if (read_size < 0) {
+    if (read_size < 0)
+    {
         AAsset_close(file);
         throw std::runtime_error("Error while reading file: " + std::string(filename));
     }
     AAsset_close(file);
 }
 
-void CopyImageSubresourceMemory(uint8_t*       dst,
-                                const uint8_t* src,
-                                size_t         offset,
-                                size_t         size,
-                                size_t         dst_row_pitch,
-                                size_t         src_row_pitch,
-                                uint32_t       height)
+void CopyImageSubresourceMemory(const char*  filename,
+                                size_t       file_offset,
+                                uint8_t*     dst,
+                                size_t       dst_offset,
+                                size_t       size,
+                                size_t       dst_row_pitch,
+                                size_t       src_row_pitch,
+                                uint32_t     height,
+                                android_app* app)
 {
+    AAsset* file = AAssetManager_open(app->activity->assetManager, filename, AASSET_MODE_STREAMING);
+    if (!file)
+    {
+        throw std::runtime_error("Can't open file: " + std::string(filename));
+    }
+
+    AAsset_seek64(file, file_offset, SEEK_SET);
     if (src_row_pitch == dst_row_pitch)
     {
         // Determine the aligned size of the destination subresource as row_pitch * height to ensure that we don't write
         // past the end of the resource in the case that the capture and replay resources had different slice pitches,
         // and the data size matches the size of a capture resource with a larger slice pitch.
         size_t subresource_size = height * dst_row_pitch;
-        size_t copy_size        = std::min(size, (subresource_size - offset));
+        size_t copy_size        = std::min(size, (subresource_size - dst_offset));
 
-        // Copy entire range without adjustment.
-        memcpy(dst + offset, src, copy_size);
+        int read_size = AAsset_read(file, (uint8_t*)dst + dst_offset, copy_size);
+        if (read_size < 0)
+        {
+            AAsset_close(file);
+            throw std::runtime_error("Error while reading file: " + std::string(filename));
+        }
     }
     else
     {
         size_t copy_row_pitch = std::min(dst_row_pitch, src_row_pitch);
 
-        size_t current_row = offset / src_row_pitch;
-        size_t row_offset  = offset % src_row_pitch;
+        size_t current_row = dst_offset / src_row_pitch;
+        size_t row_offset  = dst_offset % src_row_pitch;
 
         if (row_offset >= copy_row_pitch)
         {
@@ -401,17 +412,24 @@ void CopyImageSubresourceMemory(uint8_t*       dst,
             ++current_row;
         }
 
-        const uint8_t* copy_src = src;
-        uint8_t*       copy_dst = reinterpret_cast<uint8_t*>(dst) + (current_row * dst_row_pitch) + row_offset;
+        size_t   src_offset = file_offset;
+        uint8_t* copy_dst = reinterpret_cast<uint8_t*>(dst) + (current_row * dst_row_pitch) + row_offset;
 
         // Process first partial row.
         if (row_offset > 0)
         {
+            AAsset_seek64(file, src_offset, SEEK_SET);
+
             // Handle row with both partial begin and end positions.
             size_t copy_size = std::min(copy_row_pitch - row_offset, size);
-            memcpy(copy_dst, copy_src, copy_size);
+            int read_size = AAsset_read(file, copy_dst, copy_size);
+            if (read_size < 0)
+            {
+                AAsset_close(file);
+                throw std::runtime_error("Error while reading file: " + std::string(filename));
+            }
 
-            copy_src += src_row_pitch - row_offset;
+            src_offset += src_row_pitch - row_offset;
             copy_dst += dst_row_pitch - row_offset;
 
             size -= std::min(src_row_pitch - row_offset, size);
@@ -437,25 +455,40 @@ void CopyImageSubresourceMemory(uint8_t*       dst,
             // First process the complete rows.
             for (size_t i = 0; i < total_rows; ++i)
             {
-                size_t copy_size = copy_row_pitch;
-                memcpy(copy_dst, copy_src, copy_size);
+                AAsset_seek64(file, src_offset, SEEK_SET);
 
-                copy_src += src_row_pitch;
-                copy_dst += dst_row_pitch;
+                size_t copy_size = copy_row_pitch;
+                int    read_size = AAsset_read(file, copy_dst, copy_size);
+                if (read_size < 0)
+                {
+                    AAsset_close(file);
+                    throw std::runtime_error("Error while reading file: " + std::string(filename));
+                }
+
+                src_offset += src_row_pitch;
+                copy_dst   += dst_row_pitch;
             }
 
             // Process a partial end row.
             if (row_remainder != 0)
             {
+                AAsset_seek64(file, src_offset, SEEK_SET);
+
                 size_t copy_size = std::min(copy_row_pitch, row_remainder);
-                memcpy(copy_dst, copy_src, copy_size);
+                int    read_size = AAsset_read(file, copy_dst, copy_size);
+                if (read_size < 0)
+                {
+                    AAsset_close(file);
+                    throw std::runtime_error("Error while reading file: " + std::string(filename));
+                }
             }
         }
     }
+    AAsset_close(file);
 }
 
 AndroidScreen screen;
-android_app* appdata;
+android_app*  appdata;
 
 uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 {
@@ -528,13 +561,15 @@ extern void LoadBinaryData(const char* filename,
                            size_t offset,
                            size_t data_size,
                            android_app* app);
-extern void CopyImageSubresourceMemory(uint8_t*       dst,
-                                       const uint8_t* src,
-                                       size_t         offset,
-                                       size_t         size,
-                                       size_t         dst_row_pitch,
-                                       size_t         src_row_pitch,
-                                       uint32_t       height);
+extern void CopyImageSubresourceMemory(const char*  filename,
+                                       size_t       file_offset,
+                                       uint8_t*     dst,
+                                       size_t       dst_offset,
+                                       size_t       size,
+                                       size_t       dst_row_pitch,
+                                       size_t       src_row_pitch,
+                                       uint32_t     height,
+                                       android_app* app);
 
 struct HardwareBufferPlaneInfo
 {
@@ -547,7 +582,6 @@ struct HardwareBufferPlaneInfo
 
 struct HardwareBufferMemoryInfo
 {
-    AHardwareBuffer*                     hardware_buffer;
     bool                                 compatible_strides;
     std::vector<HardwareBufferPlaneInfo> plane_info;
 };
@@ -624,7 +658,8 @@ extern size_t LoadBinaryData(const char* filename,
 
 static const char* sWin32OutputOverrideMethod = R"(
 void OverrideVkWin32SurfaceCreateInfoKHR(VkWin32SurfaceCreateInfoKHR* createInfo,
-                                         struct Win32App& appdata) {
+                                         struct Win32App& appdata)
+{
     appdata.window = glfwCreateWindow(appdata.width,
                                       appdata.height,
                                       "Vulkan",
@@ -643,8 +678,10 @@ void OverrideVkWin32SurfaceCreateInfoKHR(VkWin32SurfaceCreateInfoKHR* createInfo
 void UpdateWindowSize(uint32_t width,
                       uint32_t height,
                       uint32_t pretransform,
-                      struct Win32App& appdata) {
-    if (appdata.width == width && appdata.height == height) {
+                      struct Win32App& appdata)
+{
+    if (appdata.width == width && appdata.height == height)
+    {
       return;
     }
 
@@ -659,7 +696,8 @@ size_t LoadBinaryData(const char* filename,
                       void* buffer,
                       size_t offset,
                       size_t data_size,
-                      struct Win32App& appdata) {
+                      struct Win32App& appdata)
+{
     (void)appdata; // Unused
 
     FILE* fp = fopen(filename, "rb");
