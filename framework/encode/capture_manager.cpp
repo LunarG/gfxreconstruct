@@ -285,10 +285,13 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {
-        page_guard_align_buffer_sizes_     = trace_settings.page_guard_align_buffer_sizes;
-        page_guard_track_ahb_memory_       = trace_settings.page_guard_track_ahb_memory;
-        page_guard_unblock_sigsegv_        = trace_settings.page_guard_unblock_sigsegv;
-        page_guard_signal_handler_watcher_ = trace_settings.page_guard_signal_handler_watcher;
+        page_guard_align_buffer_sizes_                  = trace_settings.page_guard_align_buffer_sizes;
+        page_guard_track_ahb_memory_                    = trace_settings.page_guard_track_ahb_memory;
+        page_guard_unblock_sigsegv_                     = trace_settings.page_guard_unblock_sigsegv;
+        page_guard_signal_handler_watcher_              = trace_settings.page_guard_signal_handler_watcher;
+        page_guard_copy_on_map_                         = trace_settings.page_guard_copy_on_map;
+        page_guard_signal_handler_watcher_max_restores_ = trace_settings.page_guard_signal_handler_watcher_max_restores;
+        page_guard_separate_read_                       = trace_settings.page_guard_separate_read;
 
         bool use_external_memory = trace_settings.page_guard_external_memory;
 
@@ -861,18 +864,27 @@ bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
         // Save parameters of the capture in an annotation.
         std::string operation_annotation = "{\n"
                                            "    \"tool\": \"capture\",\n"
-                                           "    \"timestamp\": \"";
+                                           "    \"";
+        operation_annotation += gfxrecon::format::kOperationAnnotationTimestamp;
+        operation_annotation += "\": \"";
         operation_annotation += util::datetime::UtcNowString();
         operation_annotation += "\",\n";
-        operation_annotation += "    \"gfxrecon-version\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n"
-                                "    \"vulkan-version\": \"";
+        operation_annotation += "    \"";
+        operation_annotation += gfxrecon::format::kOperationAnnotationGfxreconstructVersion;
+        operation_annotation += "\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n";
+        operation_annotation += "    \"";
+        operation_annotation += gfxrecon::format::kOperationAnnotationVulkanVersion;
+        operation_annotation += "\": \"";
         operation_annotation += std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE));
         operation_annotation += '.';
         operation_annotation += std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE));
         operation_annotation += '.';
         operation_annotation += std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-        operation_annotation += "\"\n}";
+        operation_annotation += "\"";
 
+        WriteCaptureOptions(operation_annotation);
+
+        operation_annotation += "\n}";
         ForcedWriteAnnotation(
             format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
     }
@@ -1106,6 +1118,106 @@ void CaptureManager::WriteToFile(const void* data, size_t size)
 
     ++block_index_;
     thread_data->block_index_ = block_index_.load();
+}
+
+void CaptureManager::WriteCaptureOptions(std::string& operation_annotation)
+{
+    CaptureSettings::TraceSettings default_settings = GetDefaultTraceSettings();
+    std::string                    buffer;
+
+    if (force_file_flush_ != default_settings.force_flush)
+    {
+        buffer += "\n    \"file-flush\": ";
+        buffer += force_file_flush_ ? "true," : "false,";
+    }
+
+    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+    {
+        buffer += "\n    \"memory-tracking-mode\": \"unassisted\",";
+    }
+    else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kAssisted)
+    {
+        buffer += "\n    \"memory-tracking-mode\": \"assisted\",";
+    }
+    else
+    {
+        std::string page_guard_options_buffer;
+        if (page_guard_copy_on_map_ != default_settings.page_guard_copy_on_map)
+        {
+            page_guard_options_buffer += "\n    \"page-guard-copy-on-map\": ";
+            page_guard_options_buffer += page_guard_copy_on_map_ ? "true," : "false,";
+        }
+        if (page_guard_separate_read_ != default_settings.page_guard_separate_read)
+        {
+            page_guard_options_buffer += "\n    \"page-guard-separate-read\": ";
+            page_guard_options_buffer += page_guard_separate_read_ ? "true," : "false,";
+        }
+        if (page_guard_external_memory_ != default_settings.page_guard_external_memory)
+        {
+            page_guard_options_buffer += "\n    \"page-guard-external-memory\": ";
+            page_guard_options_buffer += page_guard_external_memory_ ? "true," : "false,";
+        }
+        if (!page_guard_external_memory_ && page_guard_memory_mode_ != PageGuardMemoryMode::kMemoryModeShadowInternal)
+        {
+            page_guard_options_buffer += "\n    \"page-guard-persistent-memory\": ";
+            page_guard_options_buffer +=
+                (page_guard_memory_mode_ == PageGuardMemoryMode::kMemoryModeShadowPersistent) ? "true," : "false,";
+        }
+        if (page_guard_align_buffer_sizes_ != default_settings.page_guard_align_buffer_sizes)
+        {
+            page_guard_options_buffer += "\n    \"page-guard-align-buffer-sizes\": ";
+            page_guard_options_buffer += page_guard_align_buffer_sizes_ ? "true," : "false,";
+        }
+        if (page_guard_unblock_sigsegv_ != default_settings.page_guard_unblock_sigsegv)
+        {
+            page_guard_options_buffer += "\n    \"page-guard-unblock-sigsegv\": ";
+            page_guard_options_buffer += page_guard_unblock_sigsegv_ ? "true," : "false,";
+        }
+        if (page_guard_signal_handler_watcher_ != default_settings.page_guard_signal_handler_watcher)
+        {
+            page_guard_options_buffer += "\n    \"page-guard-signal-handler-watcher\": ";
+            page_guard_options_buffer += page_guard_signal_handler_watcher_ ? "true," : "false,";
+        }
+        if (page_guard_signal_handler_watcher_max_restores_ !=
+            default_settings.page_guard_signal_handler_watcher_max_restores)
+        {
+            page_guard_options_buffer += "\n    \"page-guard-signal-handler-watcher-max-restores\": " +
+                                         std::to_string(page_guard_signal_handler_watcher_max_restores_) + ',';
+        }
+
+        if (!page_guard_options_buffer.empty())
+        {
+            buffer += "\n    \"memory-tracking-mode\": \"page_guard\",";
+            buffer += page_guard_options_buffer;
+        }
+    }
+
+    if (force_command_serialization_ != default_settings.force_command_serialization)
+    {
+        buffer += "\n    \"force-command-serialization\": ";
+        buffer += force_command_serialization_ ? "true," : "false,";
+    }
+
+    if (queue_zero_only_ != default_settings.queue_zero_only)
+    {
+        buffer += "\n    \"queue-zero-only\": ";
+        buffer += queue_zero_only_ ? "true," : "false,";
+    }
+
+    if (buffer.empty())
+    {
+        return;
+    }
+
+    // Erase the trailing comma
+    buffer.pop_back();
+
+    // Add the comma after the vulkan version only if there is something more to write
+    operation_annotation += ",\n    \"";
+    operation_annotation += gfxrecon::format::kOperationAnnotationCaptureParameters;
+    operation_annotation += "\": \n    {";
+    operation_annotation += buffer;
+    operation_annotation += "\n    }";
 }
 
 CaptureSettings::TraceSettings CaptureManager::GetDefaultTraceSettings()

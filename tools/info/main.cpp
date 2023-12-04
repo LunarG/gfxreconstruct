@@ -69,6 +69,8 @@ const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only,--
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
+const int kDefaultIndent = 12;
+
 struct AnnotationInfo
 {
     std::string desc;
@@ -222,7 +224,16 @@ std::string GetJsonValue(const nlohmann::json& json_obj, const std::string& key)
 
     if (json_obj.contains(key))
     {
-        out = json_obj.at(key);
+        try
+        {
+            out = json_obj.at(key).get<std::string>();
+        }
+        catch (const nlohmann::json::type_error& te)
+        {
+            out += "\n\t" + json_obj.at(key).dump(kDefaultIndent);
+            out.pop_back();
+            out += "\t}";
+        }
     }
 
     return out;
@@ -415,9 +426,13 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
         GFXRECON_WRITE_CONSOLE("\tTotal compute pipelines: %" PRIu64, vulkan_stats_consumer.GetComputePipelineCount());
 
         // Print annotations relevant to Vulkan
-        std::vector<AnnotationInfo> target_annotations = { { "GFXR version", "gfxrecon-version" },
-                                                           { "Vulkan version", "vulkan-version" },
-                                                           { "Capture timestamp", "timestamp" } };
+        std::vector<AnnotationInfo> target_annotations = {
+            { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion },
+            { "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion },
+            { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp },
+            { "Default replay options", gfxrecon::format::kAnnotationLabelReplayOptions },
+            { "Non-default capture options", gfxrecon::format::kOperationAnnotationCaptureParameters }
+        };
 
         GFXRECON_WRITE_CONSOLE("");
         PrintAnnotations(annotation_recoder.GetAnnotationCount(),
@@ -677,8 +692,10 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
         PrintDxrEiInfo(dx12_consumer);
 
         // Print annotations relevant to D3D12
-        std::vector<AnnotationInfo> target_annotations = { { "GFXR version", "gfxrecon-version" },
-                                                           { "Capture timestamp", "timestamp" } };
+        std::vector<AnnotationInfo> target_annotations = {
+            { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion },
+            { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp }
+        };
 
         PrintAnnotations(annotation_recoder.GetAnnotationCount(),
                          annotation_recoder.GetOperationAnnotationDatas(),
