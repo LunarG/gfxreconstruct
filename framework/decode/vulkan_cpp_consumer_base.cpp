@@ -538,21 +538,22 @@ void VulkanCppConsumerBase::Generate_vkEnumeratePhysicalDevices(
 {
     FILE* file = GetFrameFile();
 
-    static bool deviceFound = false;
-    if (!deviceFound && pPhysicalDevices->GetPointer() != nullptr)
+    if (pPhysicalDevices->GetPointer() != nullptr)
     {
-        deviceFound                             = true;
-        uint32_t          recorded_count        = *(pPhysicalDeviceCount->GetPointer());
-        const std::string physical_device_names = "physicalDevices";
+        fprintf(file, "\t{\n");
+        uint32_t          recorded_count = *(pPhysicalDeviceCount->GetPointer());
+        const std::string physical_device_names =
+            "physicalDevices_" + std::to_string(GetNextId(VK_OBJECT_TYPE_PHYSICAL_DEVICE));
 
         AddKnownVariables("VkPhysicalDevice", physical_device_names, pPhysicalDevices->GetPointer(), recorded_count);
-        fprintf(file, "\tuint32_t deviceCount = %d;\n", recorded_count);
+        fprintf(file, "\t\tuint32_t deviceCount = %d;\n", recorded_count);
         fprintf(file,
-                "\tvkEnumeratePhysicalDevices(%s, &deviceCount, %s);\n",
+                "\t\tvkEnumeratePhysicalDevices(%s, &deviceCount, %s);\n",
                 handle_id_map_[instance].c_str(),
                 physical_device_names.c_str());
 
         AddHandles(physical_device_names, pPhysicalDevices->GetPointer(), recorded_count);
+        fprintf(file, "\t}\n");
     }
 }
 
@@ -763,12 +764,12 @@ void VulkanCppConsumerBase::Generate_vkGetBufferMemoryRequirements2(
     fprintf(file, "%s", stream_info.str().c_str());
     // pMemoryRequirements
     std::string       memory_requirements_var_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pMemoryRequirements;
-    memory_requirements_var_name = GenerateStruct_VkMemoryRequirements2(stream_pMemoryRequirements,
+    std::stringstream stream_memory_requirements;
+    memory_requirements_var_name = GenerateStruct_VkMemoryRequirements2(stream_memory_requirements,
                                                                         pMemoryRequirements->GetPointer(),
                                                                         pMemoryRequirements->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "%s", stream_pMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_memory_requirements.str().c_str());
     AddKnownVariables("VkMemoryRequirements2", memory_requirements_var_name);
     fprintf(file,
             "\t\tvkGetBufferMemoryRequirements2(%s, &%s, &%s);\n",
@@ -802,12 +803,12 @@ void VulkanCppConsumerBase::Generate_vkGetImageMemoryRequirements2(
     fprintf(file, "%s", stream_info.str().c_str());
     // pMemoryRequirements
     std::string       memory_requirements_var_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pMemoryRequirements;
-    memory_requirements_var_name = GenerateStruct_VkMemoryRequirements2(stream_pMemoryRequirements,
+    std::stringstream stream_memory_requirements;
+    memory_requirements_var_name = GenerateStruct_VkMemoryRequirements2(stream_memory_requirements,
                                                                         pMemoryRequirements->GetPointer(),
                                                                         pMemoryRequirements->GetMetaStructPointer(),
                                                                         *this);
-    fprintf(file, "%s", stream_pMemoryRequirements.str().c_str());
+    fprintf(file, "%s", stream_memory_requirements.str().c_str());
     AddKnownVariables("VkMemoryRequirements2", memory_requirements_var_name);
     fprintf(file,
             "\t\tvkGetImageMemoryRequirements2(%s, &%s, &%s);\n",
@@ -1130,7 +1131,7 @@ void VulkanCppConsumerBase::Generate_vkCreateInstance(VkResult                  
                             create_info_struct_var_name,
                             *this);
 
-    std::string instance_var_name = "instance";
+    std::string instance_var_name = "instance_" + std::to_string(GetNextId(VK_OBJECT_TYPE_INSTANCE));
     AddKnownVariables("VkInstance", instance_var_name);
 
     fprintf(file, "\t{\n");
@@ -2626,16 +2627,17 @@ void VulkanCppConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
     }
     else if (android_memory_id_map_.find(memory_id) != android_memory_id_map_.end())
     {
-        std::string android_hw_mem_name = android_memory_id_map_[memory_id];
-        FILE*       file                = GetFrameFile();
+        VulkanCppAndroidMemoryInfo android_memory_info = android_memory_id_map_[memory_id];
+        std::string                android_hw_mem_name = android_memory_info.name;
+        FILE*                      file                = GetFrameFile();
         fprintf(file, "#if defined(VK_USE_PLATFORM_ANDROID_KHR)\n");
         fprintf(file, "\t{\n");
         fprintf(file, "\t\tresult            = VK_SUCCESS;\n");
         fprintf(file, "\t\tvoid* buffer_data = nullptr;\n");
         fprintf(file, "\t\tint lock_result   = AHardwareBuffer_lock(\n");
         fprintf(file,
-                "\t\t\t%s.hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr, &buffer_data);\n",
-                android_hw_mem_name.c_str());
+                "\t\t\t%s, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr, &buffer_data);\n",
+                android_memory_info.buffer_name.c_str());
         fprintf(file, "\t\tif (lock_result == 0)\n");
         fprintf(file, "\t\t{\n");
         fprintf(file, "\t\t\tassert(buffer_data != nullptr);\n");
@@ -2652,13 +2654,15 @@ void VulkanCppConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
                 "\t\t\t\tsize_t   replay_row_pitch  = %s.plane_info[0].replay_row_pitch;\n",
                 android_hw_mem_name.c_str());
         fprintf(file, "\t\t\t\tuint32_t height            = %s.plane_info[0].height;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\tCopyImageSubresourceMemory(static_cast<uint8_t*>(buffer_data),\n");
-        fprintf(file, "\t\t\t\t                 data,\n");
-        fprintf(file, "\t\t\t\t                 data_offset,\n");
-        fprintf(file, "\t\t\t\t                 data_size,v\n");
-        fprintf(file, "\t\t\t\t                 replay_row_pitch,\n");
-        fprintf(file, "\t\t\t\t                 capture_row_pitch,\n");
-        fprintf(file, "\t\t\t\t                 height);\n");
+        fprintf(file, "\t\t\t\tCopyImageSubresourceMemory(%s,\n", file_info.file_path.c_str());
+        fprintf(file, "\t\t\t\t\t\t\t\t\t%" PRIu64 ",\n", file_info.byte_offset);
+        fprintf(file, "\t\t\t\t\t\t\t\t\tstatic_cast<uint8_t*>(buffer_data),\n");
+        fprintf(file, "\t\t\t\t\t\t\t\t\toffset,v\n");
+        fprintf(file, "\t\t\t\t\t\t\t\t\tdata_size,v\n");
+        fprintf(file, "\t\t\t\t\t\t\t\t\treplay_row_pitch,\n");
+        fprintf(file, "\t\t\t\t\t\t\t\t\tcapture_row_pitch,\n");
+        fprintf(file, "\t\t\t\t\t\t\t\t\theight,\n");
+        fprintf(file, "\t\t\t\t\t\t\t\t\tappdata);\n");
         fprintf(file, "\t\t\t}\n");
         fprintf(file, "\t\t\telse\n");
         fprintf(file, "\t\t\t{\n");
@@ -2670,7 +2674,9 @@ void VulkanCppConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
         fprintf(file, "\t\t\t\t\t\"): support not yet implemented\",\n");
         fprintf(file, "\t\t\t\t\tmemory_id);\n");
         fprintf(file, "\t\t\t}\n");
-        fprintf(file, "\t\t\tlock_result = AHardwareBuffer_unlock(buffer_info.hardware_buffer, nullptr);\n");
+        fprintf(file,
+                "\t\t\tlock_result = AHardwareBuffer_unlock(%s, nullptr);\n",
+                android_memory_info.buffer_name.c_str());
         fprintf(file, "\t\t\tif (lock_result != 0)\n");
         fprintf(file, "\t\t\t{\n");
         fprintf(file,
@@ -2729,15 +2735,23 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
     {
         FILE* file = GetFrameFile();
 
-        std::string android_hw_mem_name = "hHwBufferMemInfo" + std::to_string(memory_id);
-        AddKnownVariables("HardwareBufferMemoryInfo", android_hw_mem_name);
-        android_memory_id_map_[memory_id] = android_hw_mem_name;
-
         VulkanCppAndroidBufferInfo buffer_info;
-        buffer_info.name      = "aHwBuffer" + std::to_string(buffer_id);
+        buffer_info.name      = "and_hw_buffer_" + std::to_string(GetNextId());
         buffer_info.memory_id = memory_id;
         AddKnownVariables("AHardwareBuffer*", buffer_info.name);
         android_buffer_id_map_[buffer_id] = buffer_info;
+
+        VulkanCppAndroidMemoryInfo memory_info;
+        memory_info.name        = "and_hw_buf_mem_info_" + std::to_string(GetNextId());
+        memory_info.buffer_name = buffer_info.name;
+        AddKnownVariables("HardwareBufferMemoryInfo", memory_info.name);
+        android_memory_id_map_[memory_id] = memory_info;
+
+        std::string memory_name;
+        if (memory_id_map_.find(memory_id) != memory_id_map_.end())
+        {
+            memory_name = memory_id_map_[memory_id];
+        }
 
         fprintf(file, "\t{\n");
         fprintf(file, "\t\tAHardwareBuffer_Desc desc = {};\n");
@@ -2746,11 +2760,10 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         fprintf(file, "\t\tdesc.layers               = %u;\n", layers);
         fprintf(file, "\t\tdesc.usage                = %" PRIu64 ";\n", usage);
         fprintf(file, "\t\tdesc.width                = %u;\n", width);
-        fprintf(file, "\t\tAHardwareBuffer* buffer = nullptr;\n");
-        fprintf(file, "\t\tint              ahwbuf_res = AHardwareBuffer_allocate(&desc, &buffer);\n");
-        fprintf(file, "\t\tif ((ahwbuf_res == 0) && (buffer != nullptr))\n");
+        fprintf(file, "\n");
+        fprintf(file, "\t\tint ahwbuf_res = AHardwareBuffer_allocate(&desc, &%s);\n", buffer_info.name.c_str());
+        fprintf(file, "\t\tif (ahwbuf_res == 0 && %s != nullptr)\n", buffer_info.name.c_str());
         fprintf(file, "\t\t{\n");
-        fprintf(file, "\t\t\t%s = buffer;\n", buffer_info.name.c_str());
         fprintf(file, "\t\t\tahwbuf_res = -1;\n");
         fprintf(file, "\n");
         fprintf(file, "\t\t\tstd::vector<HardwareBufferPlaneInfo> replay_plane_info;\n");
@@ -2787,12 +2800,16 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         fprintf(file, "\n");
         fprintf(file, "\t\t\t\t\t\tif (AHardwareBuffer_unlock(buffer, nullptr) != 0)\n");
         fprintf(file, "\t\t\t\t\t\t{\n");
-        fprintf(file,
-                "\t\t\t\t\t\t\tprintf(\"ERROR: AHardwareBuffer_unlock failed for AHardwareBuffer object (Buffer "
-                "ID = %%\" PRIu64\n");
-        fprintf(file, "\t\t\t\t\t\t\t\", Memory ID = %%\" PRIu64 \")\",\n");
-        fprintf(file, "\t\t\t\t\t\t\t%" PRIu64 "ull,\n", buffer_id);
-        fprintf(file, "\t\t\t\t\t\t\t%" PRIu64 "ull);\n", memory_id);
+        fprintf(file, "\t\t\t\t\t\t\tprintf(\"ERROR: AHardwareBuffer_unlock failed for AHardwareBuffer object\"\n");
+        if (memory_name.length() > 0)
+        {
+            fprintf(
+                file, "\t\t\t\t\t\t\t\"(Buffer %s, Memory %s)\");\n", buffer_info.name.c_str(), memory_name.c_str());
+        }
+        else
+        {
+            fprintf(file, "\t\t\t\t\t\t\t\"(Buffer %s)\");\n", buffer_info.name.c_str());
+        }
         fprintf(file, "\t\t\t\t\t}\n");
         fprintf(file, "\t\t\t\t}\n");
         fprintf(file, "\t\t\t\telse\n");
@@ -2801,71 +2818,170 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         fprintf(file, "\t\t\t\t}\n");
         fprintf(file, "\t\t\t}\n");
         fprintf(file, "#endif\n");
+
         fprintf(file, "\n");
-        fprintf(file, "\t\t\t%s.hardware_buffer           = buffer;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t%s.compatible_strides        = true;\n", android_hw_mem_name.c_str());
+        fprintf(file, "\t\t\t%s.compatible_strides = true;\n", memory_info.name.c_str());
         fprintf(file, "\n");
         fprintf(file, "\t\t\t// Check for matching strides.\n");
-        fprintf(file, "\t\t\tif (plane_info.empty() || replay_plane_info.empty())\n");
-        fprintf(file, "\t\t\t{\n");
-        fprintf(file, "\t\t\t\tuint32_t bpp = GetHardwareBufferFormatBpp(%u);\n", format);
-        fprintf(file, "\n");
-        fprintf(file, "\t\t\t\tAHardwareBuffer_describe(buffer, &desc);\n");
-        fprintf(file, "\t\t\t\tif (stride != desc.stride)\n");
-        fprintf(file, "\t\t\t\t{\n");
-        fprintf(file, "\t\t\t\t\t%s.compatible_strides = false;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t}\n");
-        fprintf(file, "\n");
-        fprintf(file, "\t\t\t\t%s.plane_info.resize(1);\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t%s.plane_info[0].capture_offset    = 0;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t%s.plane_info[0].replay_offset     = 0;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t%s.plane_info[0].capture_row_pitch = bpp * %u;\n", android_hw_mem_name.c_str(), stride);
-        fprintf(file, "\t\t\t\t%s.plane_info[0].replay_row_pitch  = bpp * desc.stride;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t%s.plane_info[0].height            = %u;\n", android_hw_mem_name.c_str(), height);
-        fprintf(file, "\t\t\t}\n");
-        fprintf(file, "\t\t\telse\n");
-        fprintf(file, "\t\t\t{\n");
-        fprintf(file, "\t\t\t\tassert(plane_info.size() == replay_plane_info.size());\n");
-        fprintf(file, "\n");
-        fprintf(file, "\t\t\t\tsize_t layer_count = plane_info.size();\n");
-        fprintf(file, "\n");
-        fprintf(file, "\t\t\t\t%s.plane_info.resize(layer_count);\n", android_hw_mem_name.c_str());
-        fprintf(file, "\n");
-        fprintf(file, "\t\t\t\tfor (size_t i = 0; i < layer_count; ++i)\n");
-        fprintf(file, "\t\t\t\t{\n");
-        fprintf(file,
-                "\t\t\t\t\t%s.plane_info[i].capture_offset    = plane_info[i].offset;\n",
-                android_hw_mem_name.c_str());
-        fprintf(file,
-                "\t\t\t\t\t%s.plane_info[i].replay_offset     = replay_plane_info[i].offset;\n",
-                android_hw_mem_name.c_str());
-        fprintf(file,
-                "\t\t\t\t\t%s.plane_info[i].capture_row_pitch = plane_info[i].row_pitch;\n",
-                android_hw_mem_name.c_str());
-        fprintf(file,
-                "\t\t\t\t\t%s.plane_info[i].replay_row_pitch  = replay_plane_info[i].row_pitch;\n",
-                android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t\t%s.plane_info[i].height            = %u;\n", android_hw_mem_name.c_str(), height);
-        fprintf(file, "\n");
-        fprintf(file, "\t\t\t\t\tif ((plane_info[i].offset != replay_plane_info[i].offset) ||\n");
-        fprintf(file, "\t\t\t\t\t\t(plane_info[i].row_pitch != replay_plane_info[i].row_pitch))\n");
-        fprintf(file, "\t\t\t\t\t{\n");
-        fprintf(file, "\t\t\t\t\t\t%s.compatible_strides = false;\n", android_hw_mem_name.c_str());
-        fprintf(file, "\t\t\t\t\t}\n");
-        fprintf(file, "\t\t\t\t}\n");
-        fprintf(file, "\t\t\t}\n");
+        if (plane_info.empty())
+        {
+            fprintf(file, "\t\t\tuint32_t bpp = GetHardwareBufferFormatBpp(%u);\n", format);
+            fprintf(file, "\n");
+            fprintf(file, "\t\t\tAHardwareBuffer_describe(%s, &desc);\n", buffer_info.name.c_str());
+            fprintf(file, "\t\t\tif (%u != desc.stride)\n", stride);
+            fprintf(file, "\t\t\t{\n");
+            fprintf(file, "\t\t\t\t%s.compatible_strides = false;\n", memory_info.name.c_str());
+            fprintf(file, "\t\t\t}\n");
+            fprintf(file, "\n");
+            fprintf(file, "\t\t\t%s.plane_info.resize(1);\n", memory_info.name.c_str());
+            fprintf(file, "\t\t\t%s.plane_info[0].capture_offset    = 0;\n", memory_info.name.c_str());
+            fprintf(file, "\t\t\t%s.plane_info[0].replay_offset     = 0;\n", memory_info.name.c_str());
+            fprintf(file, "\t\t\t%s.plane_info[0].capture_row_pitch = bpp * %u;\n", memory_info.name.c_str(), stride);
+            fprintf(file, "\t\t\t%s.plane_info[0].replay_row_pitch  = bpp * desc.stride;\n", memory_info.name.c_str());
+            fprintf(file, "\t\t\t%s.plane_info[0].height            = %u;\n", memory_info.name.c_str(), height);
+        }
+        else
+        {
+            fprintf(file, "\t\t\t%s.plane_info.resize(%" PRId64 ");\n", memory_info.name.c_str(), plane_info.size());
+            fprintf(file, "\n");
+            for (uint32_t i = 0; i < static_cast<uint32_t>(plane_info.size()); ++i)
+            {
+                fprintf(file,
+                        "\t\t\t%s.plane_info[%u].capture_offset    = %" PRId64 ";\n",
+                        memory_info.name.c_str(),
+                        i,
+                        plane_info[i].offset);
+                fprintf(file,
+                        "\t\t\t%s.plane_info[%u].replay_offset     = replay_plane_info[%u].offset;\n",
+                        memory_info.name.c_str(),
+                        i,
+                        i);
+                fprintf(file,
+                        "\t\t\t%s.plane_info[%u].capture_row_pitch = %" PRId64 ";\n",
+                        memory_info.name.c_str(),
+                        i,
+                        plane_info[i].row_pitch);
+                fprintf(file,
+                        "\t\t\t%s.plane_info[%u].replay_row_pitch  = replay_plane_info[%u].row_pitch;\n",
+                        memory_info.name.c_str(),
+                        i,
+                        i);
+                fprintf(file, "\t\t\t%s.plane_info[%u].height            = %u;\n", i, memory_info.name.c_str(), height);
+                fprintf(file, "\n");
+                fprintf(file, "\t\t\tif ((%" PRIu64 " != replay_plane_info[%u].offset) ||\n", plane_info[i].offset, i);
+                fprintf(
+                    file, "\t\t\t\t(%" PRIu64 " != replay_plane_info[%u].row_pitch))\n", plane_info[i].row_pitch, i);
+                fprintf(file, "\t\t\t{\n");
+                fprintf(file, "\t\t\t\t%s.compatible_strides = false;\n", memory_info.name.c_str());
+                fprintf(file, "\t\t\t}\n");
+            }
+        }
+
         fprintf(file, "\t\t}\n");
         fprintf(file, "\t\telse\n");
         fprintf(file, "\t\t{\n");
-        fprintf(file,
-                "\t\t\tprintf(\"ERROR: AHardwareBuffer_allocate failed for AHardwareBuffer object (Buffer ID = %%\" "
-                "PRIu64\n");
-        fprintf(file, "\t\t\t\t\t\", Memory ID = %%\" PRIu64 \")\",\n");
-        fprintf(file, "\t\t\t\t\t%" PRIu64 "ull,\n", buffer_id);
-        fprintf(file, "\t\t\t\t\t%" PRIu64 "ull);\n", memory_id);
+        fprintf(file, "\t\t\tprintf(\"ERROR: AHardwareBuffer_allocate failed for AHardwareBuffer object \"\n");
+        if (memory_name.length() > 0)
+        {
+            fprintf(file, "\t\t\t\t\t\"(Buffer %s, Memory %s)\");\n", buffer_info.name.c_str(), memory_name.c_str());
+        }
+        else
+        {
+            fprintf(file, "\t\t\t\t\t\"(Buffer %s)\");\n", buffer_info.name.c_str());
+        }
         fprintf(file, "\t\t}\n");
         fprintf(file, "\t}\n");
     }
+}
+
+void VulkanCppConsumerBase::Generate_vkGetAndroidHardwareBufferPropertiesANDROID(
+    VkResult                                                                returnValue,
+    format::HandleId                                                        device,
+    uint64_t                                                                buffer,
+    StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+
+    std::string buffer_name;
+    if (android_buffer_id_map_.find(buffer) == android_buffer_id_map_.end())
+    {
+        buffer_name = "buffer_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tvoid* %s;\n", buffer_name.c_str());
+    }
+    else
+    {
+        buffer_name = android_buffer_id_map_[buffer].name;
+    }
+
+    std::string       properties_name = "pProperties_" + std::to_string(this->GetNextId());
+    std::stringstream stream_properties;
+    properties_name = GenerateStruct_VkAndroidHardwareBufferPropertiesANDROID(
+        stream_properties, pProperties->GetPointer(), pProperties->GetMetaStructPointer(), *this);
+    fprintf(file, "%s", stream_properties.str().c_str());
+    pfn_loader_.AddMethodName("vkGetAndroidHardwareBufferPropertiesANDROID");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetAndroidHardwareBufferPropertiesANDROID(%s, %s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            buffer_name.c_str(),
+            properties_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+
+    fprintf(file, "\t}\n");
+}
+
+void VulkanCppConsumerBase::Generate_vkGetMemoryAndroidHardwareBufferANDROID(
+    VkResult                                                                   returnValue,
+    format::HandleId                                                           device,
+    StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>* pInfo,
+    PointerDecoder<uint64_t, void*>*                                           pBuffer)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+
+    std::stringstream stream_info;
+    std::string       info_struct = GenerateStruct_VkMemoryGetAndroidHardwareBufferInfoANDROID(
+        stream_info, pInfo->GetPointer(), pInfo->GetMetaStructPointer(), *this);
+    fprintf(file, "%s", stream_info.str().c_str());
+
+    format::HandleId memory_id = pInfo->GetMetaStructPointer()->memory;
+
+    std::string buffer_name;
+    std::string buffer_argument;
+    if (pBuffer->IsNull())
+    {
+        buffer_name     = "";
+        buffer_argument = "nullptr";
+    }
+    else
+    {
+        buffer_name     = "and_hw_buffer_" + std::to_string(GetNextId());
+        buffer_argument = "&" + buffer_name;
+    }
+
+    VulkanCppAndroidBufferInfo buffer_info;
+    buffer_info.name      = buffer_name;
+    buffer_info.memory_id = memory_id;
+    AddKnownVariables("AHardwareBuffer*", buffer_info.name);
+
+    // TODO: Not sure if this is necessary
+    VulkanCppAndroidMemoryInfo memory_info;
+    memory_info.name                  = "";
+    memory_info.buffer_name           = buffer_name;
+    android_memory_id_map_[memory_id] = memory_info;
+
+    pfn_loader_.AddMethodName("vkGetMemoryAndroidHardwareBufferANDROID");
+
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryAndroidHardwareBufferANDROID(%s, &%s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            info_struct.c_str(),
+            buffer_argument.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+
+    android_buffer_id_map_[*pBuffer->GetPointer()] = buffer_info;
+
+    fprintf(file, "\t}\n");
 }
 
 void VulkanCppConsumerBase::ProcessDestroyHardwareBufferCommand(uint64_t buffer_id)

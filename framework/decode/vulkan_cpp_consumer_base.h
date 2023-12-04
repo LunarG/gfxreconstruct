@@ -381,6 +381,17 @@ class VulkanCppConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                pPipelines);
 
+    void Generate_vkGetAndroidHardwareBufferPropertiesANDROID(
+        VkResult                                                                returnValue,
+        format::HandleId                                                        device,
+        uint64_t                                                                buffer,
+        StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties);
+    void Generate_vkGetMemoryAndroidHardwareBufferANDROID(
+        VkResult                                                                   returnValue,
+        format::HandleId                                                           device,
+        StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>* pInfo,
+        PointerDecoder<uint64_t, void*>*                                           pBuffer);
+
     // Intercept commands that perform additional work prior to the standard code generation
     void Intercept_vkCreateDevice(VkResult                                             returnValue,
                                   format::HandleId                                     physicalDevice,
@@ -553,6 +564,12 @@ class VulkanCppConsumerBase : public VulkanConsumer
         uint64_t    memory_id;
     };
 
+    struct VulkanCppAndroidMemoryInfo
+    {
+        std::string name;
+        std::string buffer_name;
+    };
+
     std::unordered_map<VkObjectType, uint32_t>                  counters_;
     VulkanCppResourceTracker*                                   resource_tracker_;
     VulkanCppLoaderGenerator                                    pfn_loader_;
@@ -560,7 +577,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::vector<std::string>                                    func_data_;
     std::map<uint64_t, std::string>                             memory_id_map_;
     std::map<uint64_t, VulkanCppAndroidBufferInfo>              android_buffer_id_map_;
-    std::map<uint64_t, std::string>                             android_memory_id_map_;
+    std::map<uint64_t, VulkanCppAndroidMemoryInfo>              android_memory_id_map_;
     std::map<format::HandleId, std::queue<std::string>>         next_image_map_;
     std::map<void*, std::string>                                ptr_map_;
     std::map<uint64_t, std::string>                             struct_map_; // hash -> name

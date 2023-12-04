@@ -138,6 +138,8 @@ CPP_APICALL_GENERATE = [
     'vkCreateDescriptorUpdateTemplateKHR',
     'vkCreateGraphicsPipelines',
     'vkCreateComputePipelines',
+    'vkGetAndroidHardwareBufferPropertiesANDROID',
+    'vkGetMemoryAndroidHardwareBufferANDROID',
 ]
 
 CPP_APICALL_INTERCEPT_LIST = [
