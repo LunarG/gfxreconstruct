@@ -179,7 +179,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     field_to_json += '        {0}_{1}_counter += written;\n'
                     field_to_json = field_to_json.format(name, value_info.name)
                 else:
-                    function_name = self.choose_field_to_json_name(value_info)
+                    function_name = self.choose_field_to_json_name(value_info, name)
                     if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type)):
                         # Basic data plumbs to raw struct:
                         field_to_json = '        {0}(jdata["{1}"], decoded_value.{1}, options);'
