@@ -88,17 +88,6 @@ class JsonWriter : public AnnotationHandler
     /// returning the root of the empty "args" JSON sub-tree for the caller to populate.
     nlohmann::ordered_json& WriteMetaCommandStart(const std::string_view command_name);
 
-    /// @brief Output the boilerplate for converting a metadata block to JSON but
-    /// defer internals to the function passed in.
-    /// @tparam ToJsonFunctionType A callable which fills out the body of the object.
-    template <typename ToJsonFunctionType>
-    inline void WriteMetaCommand(const std::string_view command_name, ToJsonFunctionType to_json_function)
-    {
-        nlohmann::ordered_json& args = WriteMetaCommandStart(command_name);
-        to_json_function(args);
-        WriteBlockEnd();
-    }
-
     /// Get the JSON object used to output the per-stream header
     /// Consumers can add their own fields to it.
     nlohmann::ordered_json& GetHeaderJson() { return header_; }
