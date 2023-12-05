@@ -932,6 +932,44 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateReservedResource1(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device10_CreateReservedResource2(
+    ID3D12Device10_Wrapper*         wrapper,
+    HRESULT                         result,
+    const D3D12_RESOURCE_DESC*      desc,
+    D3D12_BARRIER_LAYOUT            initial_layout,
+    const D3D12_CLEAR_VALUE*        optimized_clear_value,
+    ID3D12ProtectedResourceSession* protected_session,
+    UINT32                          num_castable_formats,
+    const DXGI_FORMAT*              castable_formats,
+    REFIID                          riid,
+    void**                          resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(initial_layout);
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(protected_session);
+    GFXRECON_UNREFERENCED_PARAMETER(num_castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (resource != nullptr) &&
+        ((*resource) != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc->Dimension,
+                                     desc->Layout,
+                                     desc->Width,
+                                     D3D12_HEAP_TYPE_DEFAULT,
+                                     D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+                                     D3D12_MEMORY_POOL_UNKNOWN,
+                                     D3D12_RESOURCE_STATE_COMMON,
+                                     false,
+                                     nullptr,
+                                     0);
+    }
+}
+
 void D3D12CaptureManager::PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(ID3D12Device3_Wrapper* wrapper,
                                                                                const void*            address,
                                                                                REFIID                 riid,
@@ -1075,6 +1113,49 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device10_CreateCommittedResource3(
+    ID3D12Device10_Wrapper*         wrapper,
+    HRESULT                         result,
+    const D3D12_HEAP_PROPERTIES*    heap_properties,
+    D3D12_HEAP_FLAGS                heap_flags,
+    const D3D12_RESOURCE_DESC1*     desc,
+    D3D12_BARRIER_LAYOUT            initial_layout,
+    const D3D12_CLEAR_VALUE*        optimized_clear_value,
+    ID3D12ProtectedResourceSession* protected_session,
+    UINT32                          num_castable_formats,
+    const DXGI_FORMAT*              castable_formats,
+    REFIID                          riid,
+    void**                          resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_layout);
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(num_castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (heap_properties != nullptr) && (desc != nullptr) &&
+        (resource != nullptr) && ((*resource) != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc->Dimension,
+                                     desc->Layout,
+                                     desc->Width,
+                                     heap_properties->Type,
+                                     heap_properties->CPUPageProperty,
+                                     heap_properties->MemoryPoolPreference,
+                                     D3D12_RESOURCE_STATE_COMMON,
+                                     UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty),
+                                     nullptr,
+                                     0);
+
+        CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
     ID3D12Device8_Wrapper*      wrapper,
     HRESULT                     result,
@@ -1107,6 +1188,49 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
                                      heap_info->page_property,
                                      heap_info->memory_pool,
                                      initial_state,
+                                     heap_info->has_write_watch,
+                                     heap_wrapper,
+                                     heap_offset);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device10_CreatePlacedResource2(
+    ID3D12Device10_Wrapper*     wrapper,
+    HRESULT                     result,
+    ID3D12Heap*                 heap,
+    UINT64                      heap_offset,
+    const D3D12_RESOURCE_DESC1* desc,
+    D3D12_BARRIER_LAYOUT        initial_layout,
+    const D3D12_CLEAR_VALUE*    optimized_clear_value,
+    UINT32                      num_castable_formats,
+    const DXGI_FORMAT*          castable_formats,
+    REFIID                      riid,
+    void**                      resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(heap_offset);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_layout);
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(num_castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(castable_formats);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (heap != nullptr) && (desc != nullptr) && (resource != nullptr) &&
+        ((*resource) != nullptr))
+    {
+        auto heap_wrapper     = reinterpret_cast<ID3D12Heap_Wrapper*>(heap);
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+        auto heap_info        = heap_wrapper->GetObjectInfo();
+        assert(heap_info != nullptr);
+
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc->Dimension,
+                                     desc->Layout,
+                                     desc->Width,
+                                     heap_info->heap_type,
+                                     heap_info->page_property,
+                                     heap_info->memory_pool,
+                                     D3D12_RESOURCE_STATE_COMMON,
                                      heap_info->has_write_watch,
                                      heap_wrapper,
                                      heap_offset);
@@ -1795,6 +1919,54 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8
                                             initial_resource_state,
                                             optimized_clear_value,
                                             protected_session,
+                                            riid_resource,
+                                            ppv_resource);
+}
+
+HRESULT
+D3D12CaptureManager::OverrideID3D12Device10_CreateCommittedResource3(ID3D12Device10_Wrapper*      wrapper,
+                                                                     const D3D12_HEAP_PROPERTIES* heap_properties,
+                                                                     D3D12_HEAP_FLAGS             heap_flags,
+                                                                     const D3D12_RESOURCE_DESC1*  desc,
+                                                                     D3D12_BARRIER_LAYOUT         initial_layout,
+                                                                     const D3D12_CLEAR_VALUE*     optimized_clear_value,
+                                                                     ID3D12ProtectedResourceSession* protected_session,
+                                                                     UINT32             num_castable_formats,
+                                                                     const DXGI_FORMAT* castable_formats,
+                                                                     REFIID             riid_resource,
+                                                                     void**             ppv_resource)
+{
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device10>();
+
+    if ((desc == nullptr) || (heap_properties == nullptr))
+    {
+        return E_INVALIDARG;
+    }
+    else if (UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty))
+    {
+        auto properties_copy = *heap_properties;
+        EnableWriteWatch(heap_flags, properties_copy);
+
+        return device->CreateCommittedResource3(&properties_copy,
+                                                heap_flags,
+                                                desc,
+                                                initial_layout,
+                                                optimized_clear_value,
+                                                protected_session,
+                                                num_castable_formats,
+                                                castable_formats,
+                                                riid_resource,
+                                                ppv_resource);
+    }
+
+    return device->CreateCommittedResource3(heap_properties,
+                                            heap_flags,
+                                            desc,
+                                            initial_layout,
+                                            optimized_clear_value,
+                                            protected_session,
+                                            num_castable_formats,
+                                            castable_formats,
                                             riid_resource,
                                             ppv_resource);
 }

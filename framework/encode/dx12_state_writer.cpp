@@ -778,8 +778,10 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
     temp_subresource_sizes_.clear();
     temp_subresource_offsets_.clear();
 
-    bool is_reserved_resouce = (resource_info->create_call_id == format::ApiCall_ID3D12Device_CreateReservedResource) ||
-                               (resource_info->create_call_id == format::ApiCall_ID3D12Device4_CreateReservedResource1);
+    bool is_reserved_resouce =
+        (resource_info->create_call_id == format::ApiCall_ID3D12Device_CreateReservedResource) ||
+        (resource_info->create_call_id == format::ApiCall_ID3D12Device4_CreateReservedResource1) ||
+        (resource_info->create_call_id == format::ApiCall_ID3D12Device10_CreateReservedResource2);
     bool is_texture_with_unknown_layout =
         graphics::dx12::IsTextureWithUnknownLayout(resource_info->dimension, resource_info->layout);
 
