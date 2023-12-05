@@ -132,6 +132,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     uint32_t GetCurrentApiCallNumber() { return api_call_number_; }
 
+    std::string GetAndroidHwBufferName(uint64_t buffer);
+
     void SetNeedsDebugUtilsCallback(bool value) { needs_debug_util_callback_ = value; }
 
     // Custom code generation commands

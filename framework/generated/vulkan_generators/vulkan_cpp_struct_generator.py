@@ -144,6 +144,7 @@ class VulkanCppStructGenerator(BaseGenerator):
             'VkDescriptorUpdateTemplateEntry',
             'VkAccelerationStructureMotionInstanceNV',
             'VkDebugUtilsMessengerCreateInfoEXT',
+            'VkImportAndroidHardwareBufferInfoANDROID',
         ]
 
         self.LOCAL_STRUCT_BLACKLIST = [

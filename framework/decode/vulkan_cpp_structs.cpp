@@ -621,5 +621,30 @@ std::string GenerateStruct_VkPerformanceValueINTEL(std::ostream&                
     return variable_name;
 }
 
+std::string
+GenerateStruct_VkImportAndroidHardwareBufferInfoANDROID(std::ostream&                                     out,
+                                                        const VkImportAndroidHardwareBufferInfoANDROID*   structInfo,
+                                                        Decoded_VkImportAndroidHardwareBufferInfoANDROID* metaInfo,
+                                                        VulkanCppConsumerBase&                            consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    // sType
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    // pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    // buffer
+    struct_body << "\t\t\t" << consumer.GetAndroidHwBufferName(metaInfo->buffer) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "importAndroidHardwareBufferInfoANDROID");
+    out << "\t\t"
+        << "VkImportAndroidHardwareBufferInfoANDROID " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

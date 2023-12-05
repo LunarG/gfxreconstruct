@@ -54,6 +54,7 @@ static const char* sCommonFrameSourceHeader = R"(
 #include "global_var.h"
 #include "loader.h"
 #include "vulkan/vulkan.h"
+#include <android/log.h>
 )";
 
 static const char* sCommonFrameSourceFooter = R"(

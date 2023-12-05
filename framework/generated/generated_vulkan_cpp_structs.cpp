@@ -16469,23 +16469,6 @@ std::string GenerateStruct_VkExternalFormatANDROID(std::ostream &out, const VkEx
 }
 
 
-std::string GenerateStruct_VkImportAndroidHardwareBufferInfoANDROID(std::ostream &out, const VkImportAndroidHardwareBufferInfoANDROID* structInfo, Decoded_VkImportAndroidHardwareBufferInfoANDROID* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-// sType
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-// pNext
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-// buffer
-    struct_body << "\t\t\t" << structInfo->buffer << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "importAndroidHardwareBufferInfoANDROID");
-    out << "\t\t" << "VkImportAndroidHardwareBufferInfoANDROID " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkMemoryGetAndroidHardwareBufferInfoANDROID(std::ostream &out, const VkMemoryGetAndroidHardwareBufferInfoANDROID* structInfo, Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
