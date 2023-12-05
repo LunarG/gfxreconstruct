@@ -103,7 +103,7 @@ class VulkanConstantMapsGenerator(BaseGenerator):
             'static const std::vector<const char *> kColorSpaceExtensionNames = {',
             file=self.outFile
         )
-        for extension_name in colorspace_extensions_names:
+        for extension_name in sorted(colorspace_extensions_names):
             write(f'"{extension_name}",', file=self.outFile)
         write('};', file=self.outFile)
         self.newline()
