@@ -6935,26 +6935,29 @@ void Dx12ReplayConsumer::Process_ID3D12Device10_CreateCommittedResource3(
     Decoded_GUID                                riidResource,
     HandlePointerDecoder<void*>*                ppvResource)
 {
-    auto replay_object = MapObject<ID3D12Device10>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pProtectedSession = MapObject<ID3D12ProtectedResourceSession>(pProtectedSession);
+        auto in_pProtectedSession = GetObjectInfo(pProtectedSession);
         if(!ppvResource->IsNull()) ppvResource->SetHandleLength(1);
-        auto out_p_ppvResource    = ppvResource->GetPointer();
-        auto out_hp_ppvResource   = ppvResource->GetHandlePointer();
-        auto replay_result = replay_object->CreateCommittedResource3(pHeapProperties->GetPointer(),
-                                                                     HeapFlags,
-                                                                     pDesc->GetPointer(),
-                                                                     InitialLayout,
-                                                                     pOptimizedClearValue->GetPointer(),
-                                                                     in_pProtectedSession,
-                                                                     NumCastableFormats,
-                                                                     pCastableFormats->GetPointer(),
-                                                                     *riidResource.decoded_value,
-                                                                     out_hp_ppvResource);
+        DxObjectInfo object_info{};
+        ppvResource->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateCommittedResource3(replay_object,
+                                                              return_value,
+                                                              pHeapProperties,
+                                                              HeapFlags,
+                                                              pDesc,
+                                                              InitialLayout,
+                                                              pOptimizedClearValue,
+                                                              in_pProtectedSession,
+                                                              NumCastableFormats,
+                                                              pCastableFormats,
+                                                              riidResource,
+                                                              ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource, format::ApiCall_ID3D12Device10_CreateCommittedResource3);
+            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device10_CreateCommittedResource3);
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device10_CreateCommittedResource3", return_value, replay_result);
     }
@@ -6993,6 +6996,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device10_CreatePlacedResource2(
         if (SUCCEEDED(replay_result))
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource, format::ApiCall_ID3D12Device10_CreatePlacedResource2);
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device10_CreatePlacedResource2", return_value, replay_result);
     }
@@ -7011,24 +7015,27 @@ void Dx12ReplayConsumer::Process_ID3D12Device10_CreateReservedResource2(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvResource)
 {
-    auto replay_object = MapObject<ID3D12Device10>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pProtectedSession = MapObject<ID3D12ProtectedResourceSession>(pProtectedSession);
+        auto in_pProtectedSession = GetObjectInfo(pProtectedSession);
         if(!ppvResource->IsNull()) ppvResource->SetHandleLength(1);
-        auto out_p_ppvResource    = ppvResource->GetPointer();
-        auto out_hp_ppvResource   = ppvResource->GetHandlePointer();
-        auto replay_result = replay_object->CreateReservedResource2(pDesc->GetPointer(),
-                                                                    InitialLayout,
-                                                                    pOptimizedClearValue->GetPointer(),
-                                                                    in_pProtectedSession,
-                                                                    NumCastableFormats,
-                                                                    pCastableFormats->GetPointer(),
-                                                                    *riid.decoded_value,
-                                                                    out_hp_ppvResource);
+        DxObjectInfo object_info{};
+        ppvResource->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateReservedResource2(replay_object,
+                                                             return_value,
+                                                             pDesc,
+                                                             InitialLayout,
+                                                             pOptimizedClearValue,
+                                                             in_pProtectedSession,
+                                                             NumCastableFormats,
+                                                             pCastableFormats,
+                                                             riid,
+                                                             ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource, format::ApiCall_ID3D12Device10_CreateReservedResource2);
+            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info), format::ApiCall_ID3D12Device10_CreateReservedResource2);
+            SetResourceDesc(ppvResource, pDesc);
         }
         CheckReplayResult("ID3D12Device10_CreateReservedResource2", return_value, replay_result);
     }

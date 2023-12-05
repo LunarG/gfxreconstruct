@@ -371,6 +371,19 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                              Decoded_GUID                 riid,
                                              HandlePointerDecoder<void*>* resource);
 
+    HRESULT OverrideCreateCommittedResource3(DxObjectInfo*                                        replay_object_info,
+                                             HRESULT                                              original_result,
+                                             StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
+                                             D3D12_HEAP_FLAGS                                     HeapFlags,
+                                             StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>*  pDesc,
+                                             D3D12_BARRIER_LAYOUT                                 InitialLayout,
+                                             StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*     pOptimizedClearValue,
+                                             DxObjectInfo*                protected_session_object_info,
+                                             UINT32                       NumCastableFormats,
+                                             PointerDecoder<DXGI_FORMAT>* pCastableFormats,
+                                             Decoded_GUID                 riid,
+                                             HandlePointerDecoder<void*>* resource);
+
     HRESULT OverrideCreateFence(DxObjectInfo*                replay_object_info,
                                 HRESULT                      original_result,
                                 UINT64                       initial_value,
@@ -565,6 +578,17 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                             D3D12_RESOURCE_STATES                              initial_state,
                                             StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   optimized_clear_value,
                                             DxObjectInfo*                protected_session_object_info,
+                                            Decoded_GUID                 riid,
+                                            HandlePointerDecoder<void*>* resource);
+
+    HRESULT OverrideCreateReservedResource2(DxObjectInfo*                                      device_object_info,
+                                            HRESULT                                            original_result,
+                                            StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* desc,
+                                            D3D12_BARRIER_LAYOUT                               initial_layout,
+                                            StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   optimized_clear_value,
+                                            DxObjectInfo*                protected_session_object_info,
+                                            UINT32                       num_castable_formats,
+                                            PointerDecoder<DXGI_FORMAT>* castable_formats,
                                             Decoded_GUID                 riid,
                                             HandlePointerDecoder<void*>* resource);
 
