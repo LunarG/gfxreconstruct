@@ -78,6 +78,7 @@ generate_targets = [
     'generated_vulkan_struct_to_json.cpp',
     'generated_vulkan_enum_to_json.h',
     'generated_vulkan_enum_to_json.cpp',
+    'generated_vulkan_constant_maps.h'
 ]
 
 if __name__ == '__main__':

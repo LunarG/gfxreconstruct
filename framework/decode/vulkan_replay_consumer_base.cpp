@@ -34,6 +34,7 @@
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
+#include "generated/generated_vulkan_constant_maps.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
 #include "util/file_path.h"
@@ -2299,6 +2300,14 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                 {
                     // Remove enabled extensions that are not available from the replay instance.
                     feature_util::RemoveUnsupportedExtensions(available_extensions, &filtered_extensions);
+                }
+                else if (options_.use_colorspace_fallback)
+                {
+                    for (auto& extension_name : kColorSpaceExtensionNames)
+                    {
+                        feature_util::RemoveExtensionIfUnsupported(
+                            available_extensions, &filtered_extensions, extension_name);
+                    }
                 }
                 else
                 {
@@ -5037,29 +5046,51 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
 
-        if (screenshot_handler_ == nullptr)
-        {
-            result = swapchain_->CreateSwapchainKHR(original_result,
-                                                    func,
-                                                    device_info,
-                                                    replay_create_info,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    pSwapchain,
-                                                    GetDeviceTable(device_info->handle));
-        }
-        else
+        VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
+
+        if (screenshot_handler_ != nullptr)
         {
             // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
-            VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
             modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-            result = swapchain_->CreateSwapchainKHR(original_result,
-                                                    func,
-                                                    device_info,
-                                                    &modified_create_info,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    pSwapchain,
-                                                    GetDeviceTable(device_info->handle));
         }
+
+        bool                colorspace_extension_used_unsupported = false;
+        PhysicalDeviceInfo* physical_device_info = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
+        InstanceInfo*       instance_info        = object_info_table_.GetInstanceInfo(physical_device_info->parent_id);
+
+        auto colorspace_extension_map_iterator = kColorSpaceExtensionMap.find(replay_create_info->imageColorSpace);
+        if (colorspace_extension_map_iterator != kColorSpaceExtensionMap.end())
+        {
+            auto supported_extension_iterator = std::find(instance_info->enabled_extensions.begin(),
+                                                          instance_info->enabled_extensions.end(),
+                                                          colorspace_extension_map_iterator->second);
+            colorspace_extension_used_unsupported =
+                supported_extension_iterator == instance_info->enabled_extensions.end();
+        }
+
+        if (colorspace_extension_used_unsupported)
+        {
+            if (options_.use_colorspace_fallback)
+            {
+                modified_create_info.imageColorSpace = VkColorSpaceKHR::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+                GFXRECON_LOG_INFO("Forcing supported color space for swapchain (ID = %" PRIu64 ")",
+                                  swapchain_info->capture_id);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Swapchain (ID = %" PRIu64
+                                   ") uses color space provided by unsupported VK_EXT_swapchain_colorspace",
+                                   swapchain_info->capture_id);
+            }
+        }
+
+        result = swapchain_->CreateSwapchainKHR(original_result,
+                                                func,
+                                                device_info,
+                                                &modified_create_info,
+                                                GetAllocationCallbacks(pAllocator),
+                                                pSwapchain,
+                                                GetDeviceTable(device_info->handle));
     }
     else
     {

@@ -31,7 +31,7 @@ const char kOptions[] =
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-"
     "range,--fmr|--flush-measurement-range,--use-captured-swapchain-indices,--dcp,--discard-cached-psos,"
-    "--use-cached-psos,--dx12-override-object-names";
+    "--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -64,6 +64,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--swapchain <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-captured-swapchain-indices]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--use-colorspace-fallback]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--mfr|--measurement-frame-range <start-frame>-<end-frame>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--flush-measurement-range]");
@@ -206,6 +207,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tframe but can be configured for any range. If the end frame is past the");
     GFXRECON_WRITE_CONSOLE("          \t\tlast frame in the trace it will be clamped to the frame after the last");
     GFXRECON_WRITE_CONSOLE("          \t\t(so in that case the results would include the last frame).");
+    GFXRECON_WRITE_CONSOLE("  --use-colorspace-fallback");
+    GFXRECON_WRITE_CONSOLE("          \t\tSwap the swapchain color space if unsupported by replay device.");
+    GFXRECON_WRITE_CONSOLE("          \t\tCheck if color space is not supported by replay device and fallback to "
+                           "VK_COLOR_SPACE_SRGB_NONLINEAR_KHR.");
     GFXRECON_WRITE_CONSOLE("  --measurement-file <file>");
     GFXRECON_WRITE_CONSOLE("          \t\tWrite measurements to a file at the specified path.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is: '/sdcard/gfxrecon-measurements.json' on android and");
