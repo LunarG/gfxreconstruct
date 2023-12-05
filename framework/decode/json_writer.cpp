@@ -155,7 +155,7 @@ void JsonWriter::WriteMarker(const char* const name, const std::string_view mark
 {
     // Markers are dispatched to all decoders and consumers so de-duplicate them for JSON
     // output in case the build has multiple JSON consumers for different APIs enabled.
-    if (name != last_marker_name_ || marker_type != last_marker_type_ || frame_number != last_frame_number_)
+    if (frame_number != last_frame_number_ || name != last_marker_name_ || marker_type != last_marker_type_)
     {
         auto& json_data = WriteBlockStart();
 
