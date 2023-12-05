@@ -23758,7 +23758,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateCommittedResource3(
             riidResource,
             ppvResource);
 
-        result = GetWrappedObjectAs<ID3D12Device10>()->CreateCommittedResource3(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Device10_CreateCommittedResource3(
+            this,
             pHeapProperties,
             HeapFlags,
             pDesc,

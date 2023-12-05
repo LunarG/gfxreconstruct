@@ -22,6 +22,9 @@
     "ID3D12Device8": {
       "CreateCommittedResource2": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource2"
     },
+	"ID3D12Device10": {
+      "CreateCommittedResource3": "D3D12CaptureManager::Get()->OverrideID3D12Device10_CreateCommittedResource3"
+    },
     "ID3D12Device1": {
       "CreatePipelineLibrary": "D3D12CaptureManager::Get()->OverrideID3D12Device1_CreatePipelineLibrary"
     },
