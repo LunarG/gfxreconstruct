@@ -239,6 +239,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateRese
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device10_CreateReservedResource2>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device10_CreateReservedResource2(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateHeap1>
 {
     template <typename... Args>
@@ -269,12 +279,32 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateComm
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device10_CreateCommittedResource3>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device10_CreateCommittedResource3(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device8_CreatePlacedResource1>
 {
     template <typename... Args>
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D12Device8_CreatePlacedResource1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device10_CreatePlacedResource2>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device10_CreatePlacedResource2(args...);
     }
 };
 
