@@ -1210,8 +1210,6 @@ std::string GenerateStruct_VkAndroidHardwareBufferUsageANDROID(std::ostream &out
 
 std::string GenerateStruct_VkExternalFormatANDROID(std::ostream &out, const VkExternalFormatANDROID* structInfo, Decoded_VkExternalFormatANDROID* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkImportAndroidHardwareBufferInfoANDROID(std::ostream &out, const VkImportAndroidHardwareBufferInfoANDROID* structInfo, Decoded_VkImportAndroidHardwareBufferInfoANDROID* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkMemoryGetAndroidHardwareBufferInfoANDROID(std::ostream &out, const VkMemoryGetAndroidHardwareBufferInfoANDROID* structInfo, Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkAttachmentSampleLocationsEXT(std::ostream &out, const VkAttachmentSampleLocationsEXT* structInfo, Decoded_VkAttachmentSampleLocationsEXT* metaInfo, VulkanCppConsumerBase &consumer);

@@ -89,6 +89,12 @@ std::string GenerateStruct_VkPerformanceValueINTEL(std::ostream&                
                                                    Decoded_VkPerformanceValueINTEL* metainfo,
                                                    VulkanCppConsumerBase&           consumer);
 
+std::string
+GenerateStruct_VkImportAndroidHardwareBufferInfoANDROID(std::ostream&                                     out,
+                                                        const VkImportAndroidHardwareBufferInfoANDROID*   structInfo,
+                                                        Decoded_VkImportAndroidHardwareBufferInfoANDROID* metaInfo,
+                                                        VulkanCppConsumerBase&                            consumer);
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
 

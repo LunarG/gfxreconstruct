@@ -915,13 +915,14 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(VkResult                  
 {
     FILE* file = GetFrameFile();
 
+    fprintf(file, "\t{\n");
     std::stringstream stream_alloc_info;
     std::string       alloc_info_struct_var_name = GenerateStruct_VkMemoryAllocateInfo(stream_alloc_info,
                                                                                  *pMemory->GetPointer(),
                                                                                  pAllocateInfo->GetPointer(),
                                                                                  pAllocateInfo->GetMetaStructPointer(),
                                                                                  *this);
-    fprintf(file, "\n\t%s", stream_alloc_info.str().c_str());
+    fprintf(file, "%s", stream_alloc_info.str().c_str());
     std::string memory_var_name = "pMemory_" + std::to_string(this->GetNextId());
     AddKnownVariables("VkDeviceMemory", memory_var_name, pMemory->GetPointer());
     if (returnValue == VK_SUCCESS)
@@ -929,12 +930,13 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(VkResult                  
         this->AddHandles(memory_var_name, pMemory->GetPointer());
     }
     fprintf(file,
-            "\tVK_CALL_CHECK(vkAllocateMemory(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkAllocateMemory(%s, &%s, %s, &%s), %s);\n",
             GetHandle(device).c_str(),
             alloc_info_struct_var_name.c_str(),
             "nullptr",
             memory_var_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
 }
 
 void VulkanCppConsumerBase::Generate_vkGetQueryPoolResults(VkResult                 returnValue,
@@ -2892,6 +2894,15 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         fprintf(file, "\t\t}\n");
         fprintf(file, "\t}\n");
     }
+}
+
+std::string VulkanCppConsumerBase::GetAndroidHwBufferName(uint64_t buffer)
+{
+    if (android_buffer_id_map_.find(buffer) != android_buffer_id_map_.end())
+    {
+        return android_buffer_id_map_[buffer].name;
+    }
+    return "VK_NULL_HANDLE";
 }
 
 void VulkanCppConsumerBase::Generate_vkGetAndroidHardwareBufferPropertiesANDROID(
