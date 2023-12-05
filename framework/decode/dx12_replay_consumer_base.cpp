@@ -1465,6 +1465,82 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource2(
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource3(
+    DxObjectInfo*                                        replay_object_info,
+    HRESULT                                              original_result,
+    StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
+    D3D12_HEAP_FLAGS                                     HeapFlags,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>*  pDesc,
+    D3D12_BARRIER_LAYOUT                                 InitialLayout,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*     pOptimizedClearValue,
+    DxObjectInfo*                                        protected_session_object_info,
+    UINT32                                               NumCastableFormats,
+    PointerDecoder<DXGI_FORMAT>*                         pCastableFormats,
+    Decoded_GUID                                         riid,
+    HandlePointerDecoder<void*>*                         resource)
+{
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (pDesc != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device10*>(replay_object_info->object);
+
+    ID3D12ProtectedResourceSession* protected_session = nullptr;
+    if (protected_session_object_info != nullptr)
+    {
+        protected_session = static_cast<ID3D12ProtectedResourceSession*>(protected_session_object_info->object);
+    }
+
+    auto heap_properties_pointer = pHeapProperties->GetPointer();
+
+    auto desc_pointer = pDesc->GetPointer();
+
+    auto clear_value_pointer = pOptimizedClearValue->GetPointer();
+
+    // Create an equivalent but temporary dummy resource
+    // This allows us to further validate GFXR, since playback will now use a resource located at a different address
+    HRESULT         dummy_result   = E_FAIL;
+    ID3D12Resource* dummy_resource = nullptr;
+    if (options_.create_dummy_allocations)
+    {
+        dummy_result = replay_object->CreateCommittedResource3(heap_properties_pointer,
+                                                               HeapFlags,
+                                                               desc_pointer,
+                                                               InitialLayout,
+                                                               clear_value_pointer,
+                                                               protected_session,
+                                                               NumCastableFormats,
+                                                               pCastableFormats->GetPointer(),
+                                                               IID_PPV_ARGS(&dummy_resource));
+
+        if (!SUCCEEDED(dummy_result))
+        {
+            GFXRECON_LOG_WARNING("Failed to create dummy committed resource");
+        }
+    }
+
+    // Playback will use this resource
+    auto replay_result = replay_object->CreateCommittedResource3(heap_properties_pointer,
+                                                                 HeapFlags,
+                                                                 desc_pointer,
+                                                                 InitialLayout,
+                                                                 clear_value_pointer,
+                                                                 protected_session,
+                                                                 NumCastableFormats,
+                                                                 pCastableFormats->GetPointer(),
+                                                                 *riid.decoded_value,
+                                                                 resource->GetHandlePointer());
+
+    // Release the temporary dummy resource
+    if (options_.create_dummy_allocations)
+    {
+        if (SUCCEEDED(dummy_result))
+        {
+            dummy_resource->Release();
+        }
+    }
+
+    return replay_result;
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideCreateFence(DxObjectInfo*                replay_object_info,
                                                     HRESULT                      original_result,
                                                     UINT64                       initial_value,
@@ -3083,6 +3159,47 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource1(
                                                              protected_session,
                                                              *riid.decoded_value,
                                                              resource->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        SetIsReservedResource(resource);
+    }
+
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource2(
+    DxObjectInfo*                                      device_object_info,
+    HRESULT                                            original_result,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* desc,
+    D3D12_BARRIER_LAYOUT                               initial_layout,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   optimized_clear_value,
+    DxObjectInfo*                                      protected_session_object_info,
+    UINT32                                             num_castable_formats,
+    PointerDecoder<DXGI_FORMAT>*                       castable_formats,
+    Decoded_GUID                                       riid,
+    HandlePointerDecoder<void*>*                       resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT(device_object_info != nullptr);
+    GFXRECON_ASSERT(device_object_info->object != nullptr);
+
+    auto                            device10          = static_cast<ID3D12Device10*>(device_object_info->object);
+    ID3D12ProtectedResourceSession* protected_session = nullptr;
+    if (protected_session_object_info != nullptr)
+    {
+        protected_session = static_cast<ID3D12ProtectedResourceSession*>(protected_session_object_info->object);
+    }
+
+    HRESULT replay_result = device10->CreateReservedResource2(desc->GetPointer(),
+                                                              initial_layout,
+                                                              optimized_clear_value->GetPointer(),
+                                                              protected_session,
+                                                              num_castable_formats,
+                                                              castable_formats->GetPointer(),
+                                                              *riid.decoded_value,
+                                                              resource->GetHandlePointer());
 
     if (SUCCEEDED(replay_result))
     {

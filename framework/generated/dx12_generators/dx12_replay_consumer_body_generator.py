@@ -22,6 +22,7 @@
 
 import json
 import sys
+import re
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
 from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator, Dx12ReplayConsumerHeaderGeneratorOptions
@@ -185,8 +186,7 @@ class Dx12ReplayConsumerBodyGenerator(
             if class_name in self.REPLAY_OVERRIDES['classmethods']:
                 is_override = method_name in self.REPLAY_OVERRIDES[
                     'classmethods'][class_name]
-            resource_creation_methods = ["CreateCommittedResource", "CreatePlacedResource", "CreateReservedResource", "CreateCommittedResource1", "CreateReservedResource1", "CreateCommittedResource2", "CreatePlacedResource1"]
-            if method_name in resource_creation_methods:
+            if re.search("^Create.+Resource[0-9]*$", method_name) is not None:
                 is_resource_creation_methods = True
         else:
             is_override = name in self.REPLAY_OVERRIDES['functions']
