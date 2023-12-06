@@ -260,6 +260,7 @@ class CaptureManager
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     bool        CreateCaptureFile(const std::string& base_filename);
+    void        WriteCaptureOptions(std::string& operation_annotation);
     void        ActivateTrimming();
     void        DeactivateTrimming();
 
@@ -334,7 +335,11 @@ class CaptureManager
     bool                                    page_guard_track_ahb_memory_;
     bool                                    page_guard_unblock_sigsegv_;
     bool                                    page_guard_signal_handler_watcher_;
+    uint32_t                                page_guard_signal_handler_watcher_max_restores_;
     PageGuardMemoryMode                     page_guard_memory_mode_;
+    bool                                    page_guard_separate_read_;
+    bool                                    page_guard_copy_on_map_;
+    bool                                    page_guard_external_memory_;
     bool                                    trim_enabled_;
     CaptureSettings::TrimBoundary           trim_boundary_;
     std::vector<util::UintRange>            trim_ranges_;
