@@ -136,7 +136,7 @@ void GetUnreferencedResources(const std::string&                              in
             exit(0);
         }
         else if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                 (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
         {
             // Get the list of resources that were included in a command buffer submission during replay.
             resref_consumer.GetReferencedResourceIds(nullptr, unreferenced_ids);
