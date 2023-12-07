@@ -249,6 +249,15 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                             format::HandleId   memory,
                                             VkDeviceSize       memoryOffset) override;
 
+    bool IsComplete(uint64_t current_block_index) override
+    {
+        return not_optimizable_;
+    }
+
+    bool WasNotOptimizable()
+    {
+        return not_optimizable_;
+    }
   protected:
     bool IsStateLoading() const { return loading_state_; }
 
@@ -335,6 +344,7 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     LayoutBindingCounts     layout_binding_counts_;
     SetLayouts              set_layouts_;
     UpdateTemplateInfos     template_infos_;
+    bool                    not_optimizable_;
 
     std::unordered_map<format::HandleId, VkDeviceAddress> dev_address_to_resource_map;
     std::unordered_map<VkDeviceAddress, format::HandleId> dev_address_to_buffers_map;
