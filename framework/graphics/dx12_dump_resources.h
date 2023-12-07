@@ -63,6 +63,8 @@ struct DescriptorHeapData
     std::vector<CopyResourceData> copy_shader_resources;
 };
 
+// TODO: The required data could be a piece of the ID3D12Resource, not the whole ID3D12Resource.
+//       we need to handle resource's views' offset, byte stride, count, ...
 struct TrackDumpResources
 {
     decode::TrackDumpCommandList target{};
@@ -89,6 +91,10 @@ struct TrackDumpResources
     D3D12_RENDER_PASS_ENDING_ACCESS              record_depth_ending_access{};
     D3D12_RENDER_PASS_ENDING_ACCESS              record_stencil_ending_access{};
     D3D12_RENDER_PASS_FLAGS                      record_render_pass_flags{ D3D12_RENDER_PASS_FLAG_NONE };
+
+    // ExecuteIndirect
+    CopyResourceData copy_exe_indirect_argument;
+    CopyResourceData copy_exe_indirect_count;
 
     ~TrackDumpResources() {}
 };

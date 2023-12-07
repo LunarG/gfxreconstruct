@@ -196,6 +196,52 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                           UINT               StartVertexLocation,
                                                           UINT               StartInstanceLocation);
 
+    void PreCall_ID3D12GraphicsCommandList_DrawIndexedInstanced(const ApiCallInfo& call_info,
+                                                                DxObjectInfo*      object_info,
+                                                                UINT               IndexCountPerInstance,
+                                                                UINT               InstanceCount,
+                                                                UINT               StartIndexLocation,
+                                                                INT                BaseVertexLocation,
+                                                                UINT               StartInstanceLocation);
+
+    void PostCall_ID3D12GraphicsCommandList_DrawIndexedInstanced(const ApiCallInfo& call_info,
+                                                                 DxObjectInfo*      object_info,
+                                                                 UINT               IndexCountPerInstance,
+                                                                 UINT               InstanceCount,
+                                                                 UINT               StartIndexLocation,
+                                                                 INT                BaseVertexLocation,
+                                                                 UINT               StartInstanceLocation);
+
+    void PreCall_ID3D12GraphicsCommandList_Dispatch(const ApiCallInfo& call_info,
+                                                    DxObjectInfo*      object_info,
+                                                    UINT               ThreadGroupCountX,
+                                                    UINT               ThreadGroupCountY,
+                                                    UINT               ThreadGroupCountZ);
+
+    void PostCall_ID3D12GraphicsCommandList_Dispatch(const ApiCallInfo& call_info,
+                                                     DxObjectInfo*      object_info,
+                                                     UINT               ThreadGroupCountX,
+                                                     UINT               ThreadGroupCountY,
+                                                     UINT               ThreadGroupCountZ);
+
+    void PreCall_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
+                                                           DxObjectInfo*      object_info,
+                                                           format::HandleId   pCommandSignature,
+                                                           UINT               MaxCommandCount,
+                                                           format::HandleId   pArgumentBuffer,
+                                                           UINT64             ArgumentBufferOffset,
+                                                           format::HandleId   pCountBuffer,
+                                                           UINT64             CountBufferOffset);
+
+    void PostCall_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
+                                                            DxObjectInfo*      object_info,
+                                                            format::HandleId   pCommandSignature,
+                                                            UINT               MaxCommandCount,
+                                                            format::HandleId   pArgumentBuffer,
+                                                            UINT64             ArgumentBufferOffset,
+                                                            format::HandleId   pCountBuffer,
+                                                            UINT64             CountBufferOffset);
+
     void PostCall_ID3D12CommandQueue_ExecuteCommandLists(const ApiCallInfo&                        call_info,
                                                          DxObjectInfo*                             object_info,
                                                          UINT                                      NumCommandLists,
@@ -956,6 +1002,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
+    void AddCopyResourceCommandsForBeforeDrawcall(const ApiCallInfo& call_info, DxObjectInfo* object_info);
+
     void AddCopyResourceCommandsForBeforeDrawcall(ID3D12GraphicsCommandList* copy_command_list);
 
     void AddCopyResourceCommandsForBeforeDrawcallByGPUVAs(
@@ -985,6 +1033,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                      format::HandleId            heap_id,
                                                      D3D12_CPU_DESCRIPTOR_HANDLE replay_depth_stencil_handle,
                                                      graphics::CopyResourceData& copy_resource_data);
+
+    void AddCopyResourceCommandsForAfterDrawcall(const ApiCallInfo& call_info, DxObjectInfo* object_info);
 
     void AddCopyResourceCommandsForAfterDrawcall(ID3D12GraphicsCommandList* copy_command_list);
 

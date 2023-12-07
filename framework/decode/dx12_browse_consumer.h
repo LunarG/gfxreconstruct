@@ -45,6 +45,9 @@ struct TrackDumpCommandList
     // descriptor
     std::vector<format::HandleId> descriptor_heap_ids;
 
+    // ExecuteIndirect
+    format::HandleId exe_indirect_argument_id{ format::kNullHandleId };
+    format::HandleId exe_indirect_count_id{ format::kNullHandleId };
     // render target
     // Track render target info in replay, not here.
     // Because the useful info is replay cpuDescriptor. It's only available in replay.
@@ -80,25 +83,26 @@ class Dx12BrowseConsumer : public Dx12Consumer
         return nullptr;
     }
 
+    virtual void Process_ID3D12Device_CreateCommandList(const ApiCallInfo&           call_info,
+                                                        format::HandleId             object_id,
+                                                        HRESULT                      return_value,
+                                                        UINT                         nodeMask,
+                                                        D3D12_COMMAND_LIST_TYPE      type,
+                                                        format::HandleId             pCommandAllocator,
+                                                        format::HandleId             pInitialState,
+                                                        Decoded_GUID                 riid,
+                                                        HandlePointerDecoder<void*>* ppCommandList)
+    {
+        InitializeTracking(*ppCommandList->GetPointer());
+    }
+
     virtual void Process_ID3D12GraphicsCommandList_Reset(const ApiCallInfo& call_info,
                                                          format::HandleId   object_id,
                                                          HRESULT            return_value,
                                                          format::HandleId   pAllocator,
                                                          format::HandleId   pInitialState)
     {
-        if (!IsFindDumpTarget())
-        {
-            auto it = track_commandlist_infos_.find(object_id);
-            if (it != track_commandlist_infos_.end())
-            {
-                it->second.Clear();
-            }
-            else
-            {
-                TrackDumpCommandList info = {};
-                track_commandlist_infos_.insert({ object_id, std::move(info) });
-            }
-        }
+        InitializeTracking(object_id);
     }
 
     virtual void Process_ID3D12GraphicsCommandList4_BeginRenderPass(
@@ -203,22 +207,39 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                                                  UINT               StartVertexLocation,
                                                                  UINT               StartInstanceLocation)
     {
-        if (!IsFindDumpTarget())
-        {
-            auto it = track_commandlist_infos_.find(object_id);
-            if (it != track_commandlist_infos_.end())
-            {
-                if (dump_resources_type_ == DumpResourcesType::kDrawCall)
-                {
-                    if (track_drawcall_index_ == dump_resources_argument_)
-                    {
-                        it->second.drawcall_code_index = call_info.index;
-                        target_command_list_           = object_id;
-                    }
-                }
-            }
-        }
-        ++track_drawcall_index_;
+        TrackTargetDrawcall(call_info, object_id);
+    }
+
+    virtual void Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(const ApiCallInfo& call_info,
+                                                                        format::HandleId   object_id,
+                                                                        UINT               IndexCountPerInstance,
+                                                                        UINT               InstanceCount,
+                                                                        UINT               StartIndexLocation,
+                                                                        INT                BaseVertexLocation,
+                                                                        UINT               StartInstanceLocation)
+    {
+        TrackTargetDrawcall(call_info, object_id);
+    }
+
+    virtual void Process_ID3D12GraphicsCommandList_Dispatch(const ApiCallInfo& call_info,
+                                                            format::HandleId   object_id,
+                                                            UINT               ThreadGroupCountX,
+                                                            UINT               ThreadGroupCountY,
+                                                            UINT               ThreadGroupCountZ)
+    {
+        TrackTargetDrawcall(call_info, object_id);
+    }
+
+    virtual void Process_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
+                                                                   format::HandleId   object_id,
+                                                                   format::HandleId   pCommandSignature,
+                                                                   UINT               MaxCommandCount,
+                                                                   format::HandleId   pArgumentBuffer,
+                                                                   UINT64             ArgumentBufferOffset,
+                                                                   format::HandleId   pCountBuffer,
+                                                                   UINT64             CountBufferOffset)
+    {
+        TrackTargetDrawcall(call_info, object_id, pArgumentBuffer, pCountBuffer);
     }
 
     virtual void
@@ -264,6 +285,48 @@ class Dx12BrowseConsumer : public Dx12Consumer
     // Key is commandlist_id. We need to know the commandlist of the info because in a commandlist block
     // between reset and close, it might have the other commandlist's commands.
     std::map<format::HandleId, TrackDumpCommandList> track_commandlist_infos_;
+
+    void InitializeTracking(format::HandleId object_id)
+    {
+        if (!IsFindDumpTarget())
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                it->second.Clear();
+            }
+            else
+            {
+                TrackDumpCommandList info = {};
+                track_commandlist_infos_.insert({ object_id, std::move(info) });
+            }
+        }
+    }
+
+    void TrackTargetDrawcall(const ApiCallInfo& call_info,
+                             format::HandleId   object_id,
+                             format::HandleId   exe_indirect_argument_id = format::kNullHandleId,
+                             format::HandleId   exe_indirect_count_id    = format::kNullHandleId)
+    {
+        if (!IsFindDumpTarget())
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                if (dump_resources_type_ == DumpResourcesType::kDrawCall)
+                {
+                    if (track_drawcall_index_ == dump_resources_argument_)
+                    {
+                        it->second.drawcall_code_index      = call_info.index;
+                        it->second.exe_indirect_argument_id = exe_indirect_argument_id;
+                        it->second.exe_indirect_count_id    = exe_indirect_count_id;
+                        target_command_list_                = object_id;
+                    }
+                }
+            }
+        }
+        ++track_drawcall_index_;
+    }
 };
 
 GFXRECON_END_NAMESPACE(decode)
