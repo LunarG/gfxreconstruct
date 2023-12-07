@@ -58,6 +58,7 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
     // before
     if (resource_data.before_resource)
     {
+        util::FieldToJson(jdata["resource_id"], resource_data.source_resource_id, json_options_);
         util::FieldToJson(jdata["size"], resource_data.size, json_options_);
 
         std::string file_name =
@@ -116,6 +117,11 @@ void Dx12DumpResources::WriteResources(const TrackDumpResources& resources)
         // render target
         WriteResources(jdata["render_target"], json_options_.data_sub_dir, resources.copy_render_target_resources);
         WriteResource(jdata["depth_stencil"], json_options_.data_sub_dir, resources.copy_depth_stencil_resource);
+
+        // ExecuteIndirect
+        WriteResource(
+            jdata["ExecuteIndirect_argument"], json_options_.data_sub_dir, resources.copy_exe_indirect_argument);
+        WriteResource(jdata["ExecuteIndirect_count"], json_options_.data_sub_dir, resources.copy_exe_indirect_count);
     });
 }
 

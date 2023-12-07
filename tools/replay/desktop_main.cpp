@@ -108,7 +108,8 @@ bool BrowseFile(const std::string&                      input_filename,
         dx12_decoder.AddConsumer(&dx12_browse_consumer);
         file_processor.AddDecoder(&dx12_decoder);
         file_processor.ProcessAllFrames();
-        track_dump_commandlist     = dx12_browse_consumer.GetTrackDumpTarget();
+        track_dump_commandlist = dx12_browse_consumer.GetTrackDumpTarget();
+        GFXRECON_ASSERT((track_dump_commandlist != nullptr));
         out_track_dump_commandlist = *track_dump_commandlist;
     }
     return (track_dump_commandlist != nullptr);

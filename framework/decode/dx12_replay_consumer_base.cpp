@@ -3979,6 +3979,108 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_DrawInstanced(con
                                                                              UINT               StartVertexLocation,
                                                                              UINT               StartInstanceLocation)
 {
+    AddCopyResourceCommandsForBeforeDrawcall(call_info, object_info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_DrawInstanced(const ApiCallInfo& call_info,
+                                                                              DxObjectInfo*      object_info,
+                                                                              UINT               VertexCountPerInstance,
+                                                                              UINT               InstanceCount,
+                                                                              UINT               StartVertexLocation,
+                                                                              UINT               StartInstanceLocation)
+{
+    AddCopyResourceCommandsForAfterDrawcall(call_info, object_info);
+}
+
+void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_DrawIndexedInstanced(const ApiCallInfo& call_info,
+                                                                                    DxObjectInfo*      object_info,
+                                                                                    UINT IndexCountPerInstance,
+                                                                                    UINT InstanceCount,
+                                                                                    UINT StartIndexLocation,
+                                                                                    INT  BaseVertexLocation,
+                                                                                    UINT StartInstanceLocation)
+{
+    AddCopyResourceCommandsForBeforeDrawcall(call_info, object_info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_DrawIndexedInstanced(const ApiCallInfo& call_info,
+                                                                                     DxObjectInfo*      object_info,
+                                                                                     UINT IndexCountPerInstance,
+                                                                                     UINT InstanceCount,
+                                                                                     UINT StartIndexLocation,
+                                                                                     INT  BaseVertexLocation,
+                                                                                     UINT StartInstanceLocation)
+{
+    AddCopyResourceCommandsForAfterDrawcall(call_info, object_info);
+}
+
+void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_Dispatch(const ApiCallInfo& call_info,
+                                                                        DxObjectInfo*      object_info,
+                                                                        UINT               ThreadGroupCountX,
+                                                                        UINT               ThreadGroupCountY,
+                                                                        UINT               ThreadGroupCountZ)
+{
+    AddCopyResourceCommandsForBeforeDrawcall(call_info, object_info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_Dispatch(const ApiCallInfo& call_info,
+                                                                         DxObjectInfo*      object_info,
+                                                                         UINT               ThreadGroupCountX,
+                                                                         UINT               ThreadGroupCountY,
+                                                                         UINT               ThreadGroupCountZ)
+{
+    AddCopyResourceCommandsForAfterDrawcall(call_info, object_info);
+}
+
+void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
+                                                                               DxObjectInfo*      object_info,
+                                                                               format::HandleId   pCommandSignature,
+                                                                               UINT               MaxCommandCount,
+                                                                               format::HandleId   pArgumentBuffer,
+                                                                               UINT64             ArgumentBufferOffset,
+                                                                               format::HandleId   pCountBuffer,
+                                                                               UINT64             CountBufferOffset)
+{
+    AddCopyResourceCommandsForBeforeDrawcall(call_info, object_info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
+                                                                                DxObjectInfo*      object_info,
+                                                                                format::HandleId   pCommandSignature,
+                                                                                UINT               MaxCommandCount,
+                                                                                format::HandleId   pArgumentBuffer,
+                                                                                UINT64             ArgumentBufferOffset,
+                                                                                format::HandleId   pCountBuffer,
+                                                                                UINT64             CountBufferOffset)
+{
+    AddCopyResourceCommandsForAfterDrawcall(call_info, object_info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
+    const ApiCallInfo&                        call_info,
+    DxObjectInfo*                             object_info,
+    UINT                                      NumCommandLists,
+    HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
+{
+    if (options_.dump_resources_type != DumpResourcesType::kNone &&
+        track_dump_resources_.target.execute_code_index == call_info.index)
+    {
+        auto                              queue  = reinterpret_cast<ID3D12CommandQueue*>(object_info->object);
+        auto                              device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(queue);
+        graphics::dx12::ID3D12FenceComPtr fence;
+        auto                              hr = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+        GFXRECON_ASSERT(SUCCEEDED(hr));
+
+        hr = graphics::dx12::WaitForQueue(queue, fence, UINT64_MAX);
+        GFXRECON_ASSERT(SUCCEEDED(hr));
+
+        dump_resources_->WriteResources(track_dump_resources_);
+    }
+}
+
+void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(const ApiCallInfo& call_info,
+                                                                      DxObjectInfo*      object_info)
+{
     if (options_.dump_resources_type != DumpResourcesType::kNone &&
         track_dump_resources_.target.drawcall_code_index == call_info.index)
     {
@@ -4024,83 +4126,6 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_DrawInstanced(con
     }
 }
 
-void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_DrawInstanced(const ApiCallInfo& call_info,
-                                                                              DxObjectInfo*      object_info,
-                                                                              UINT               VertexCountPerInstance,
-                                                                              UINT               InstanceCount,
-                                                                              UINT               StartVertexLocation,
-                                                                              UINT               StartInstanceLocation)
-{
-    if (options_.dump_resources_type != DumpResourcesType::kNone &&
-        track_dump_resources_.target.drawcall_code_index == call_info.index)
-    {
-        auto commandlist = reinterpret_cast<ID3D12GraphicsCommandList*>(object_info->object);
-        if (track_dump_resources_.target.begin_renderpass_code_index == 0)
-        {
-            // The program doesn't use renderpass.
-            AddCopyResourceCommandsForAfterDrawcall(commandlist);
-        }
-        else
-        {
-            // Insert renderpass
-            graphics::dx12::ID3D12GraphicsCommandList4ComPtr commandlist4;
-            commandlist->QueryInterface(IID_PPV_ARGS(&commandlist4));
-            commandlist4->EndRenderPass();
-
-            AddCopyResourceCommandsForAfterDrawcall(commandlist);
-
-            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs;
-            auto rt_descs_size = track_dump_resources_.replay_render_target_handles.size();
-            rt_descs.resize(rt_descs_size);
-            for (uint32_t i = 0; i < rt_descs_size; ++i)
-            {
-                rt_descs[i].cpuDescriptor        = track_dump_resources_.replay_render_target_handles[i];
-                rt_descs[i].BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-                rt_descs[i].EndingAccess         = track_dump_resources_.record_render_target_ending_accesses[i];
-            }
-
-            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_ds_desc = nullptr;
-            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  ds_desc{};
-            if (track_dump_resources_.depth_stencil_heap_id != 0)
-            {
-                p_ds_desc                           = &ds_desc;
-                ds_desc.cpuDescriptor               = track_dump_resources_.replay_depth_stencil_handle;
-                ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-                ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-                ds_desc.DepthEndingAccess           = track_dump_resources_.record_depth_ending_access;
-                ds_desc.StencilEndingAccess         = track_dump_resources_.record_stencil_ending_access;
-            }
-            commandlist4->BeginRenderPass(
-                rt_descs_size, rt_descs.data(), p_ds_desc, track_dump_resources_.record_render_pass_flags);
-        }
-        // It has to run the original ExecuteCommandLists, not a new ExecuteCommandLists.
-        // Because some FIllMemoryCommand runs before the original ExecuteCommandLists.
-        // If it runs a new ExecuteCommandLists, it might miss FIllMemoryCommand.
-    }
-}
-
-void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
-    const ApiCallInfo&                        call_info,
-    DxObjectInfo*                             object_info,
-    UINT                                      NumCommandLists,
-    HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
-{
-    if (options_.dump_resources_type != DumpResourcesType::kNone &&
-        track_dump_resources_.target.execute_code_index == call_info.index)
-    {
-        auto                              queue  = reinterpret_cast<ID3D12CommandQueue*>(object_info->object);
-        auto                              device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(queue);
-        graphics::dx12::ID3D12FenceComPtr fence;
-        auto                              hr = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-        GFXRECON_ASSERT(SUCCEEDED(hr));
-
-        hr = graphics::dx12::WaitForQueue(queue, fence, UINT64_MAX);
-        GFXRECON_ASSERT(SUCCEEDED(hr));
-
-        dump_resources_->WriteResources(track_dump_resources_);
-    }
-}
-
 void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(ID3D12GraphicsCommandList* copy_command_list)
 {
     // vertex
@@ -4140,6 +4165,14 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(ID3D12Grap
                                                 track_dump_resources_.depth_stencil_heap_id,
                                                 track_dump_resources_.replay_depth_stencil_handle,
                                                 track_dump_resources_.copy_depth_stencil_resource);
+
+    // ExecuteIndirect
+    AddCopyResourceCommandForBeforeDrawcall(copy_command_list,
+                                            track_dump_resources_.target.exe_indirect_argument_id,
+                                            track_dump_resources_.copy_exe_indirect_argument);
+    AddCopyResourceCommandForBeforeDrawcall(copy_command_list,
+                                            track_dump_resources_.target.exe_indirect_count_id,
+                                            track_dump_resources_.copy_exe_indirect_count);
 }
 
 void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcallByGPUVAs(
@@ -4264,6 +4297,57 @@ void Dx12ReplayConsumerBase::AddCopyDepthStencilCommandForBeforeDrawcall(
     }
 }
 
+void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(const ApiCallInfo& call_info,
+                                                                     DxObjectInfo*      object_info)
+{
+    if (options_.dump_resources_type != DumpResourcesType::kNone &&
+        track_dump_resources_.target.drawcall_code_index == call_info.index)
+    {
+        auto commandlist = reinterpret_cast<ID3D12GraphicsCommandList*>(object_info->object);
+        if (track_dump_resources_.target.begin_renderpass_code_index == 0)
+        {
+            // The program doesn't use renderpass.
+            AddCopyResourceCommandsForAfterDrawcall(commandlist);
+        }
+        else
+        {
+            // Insert renderpass
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr commandlist4;
+            commandlist->QueryInterface(IID_PPV_ARGS(&commandlist4));
+            commandlist4->EndRenderPass();
+
+            AddCopyResourceCommandsForAfterDrawcall(commandlist);
+
+            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs;
+            auto rt_descs_size = track_dump_resources_.replay_render_target_handles.size();
+            rt_descs.resize(rt_descs_size);
+            for (uint32_t i = 0; i < rt_descs_size; ++i)
+            {
+                rt_descs[i].cpuDescriptor        = track_dump_resources_.replay_render_target_handles[i];
+                rt_descs[i].BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                rt_descs[i].EndingAccess         = track_dump_resources_.record_render_target_ending_accesses[i];
+            }
+
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_ds_desc = nullptr;
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  ds_desc{};
+            if (track_dump_resources_.depth_stencil_heap_id != 0)
+            {
+                p_ds_desc                           = &ds_desc;
+                ds_desc.cpuDescriptor               = track_dump_resources_.replay_depth_stencil_handle;
+                ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                ds_desc.DepthEndingAccess           = track_dump_resources_.record_depth_ending_access;
+                ds_desc.StencilEndingAccess         = track_dump_resources_.record_stencil_ending_access;
+            }
+            commandlist4->BeginRenderPass(
+                rt_descs_size, rt_descs.data(), p_ds_desc, track_dump_resources_.record_render_pass_flags);
+        }
+        // It has to run the original ExecuteCommandLists, not a new ExecuteCommandLists.
+        // Because some FIllMemoryCommand runs before the original ExecuteCommandLists.
+        // If it runs a new ExecuteCommandLists, it might miss FIllMemoryCommand.
+    }
+}
+
 void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(ID3D12GraphicsCommandList* copy_command_list)
 {
     // vertex
@@ -4285,6 +4369,10 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(ID3D12Graph
     // render target
     AddCopyResourceCommandsForAfterDrawcall(copy_command_list, track_dump_resources_.copy_render_target_resources);
     AddCopyResourceCommandForAfterDrawcall(copy_command_list, track_dump_resources_.copy_depth_stencil_resource);
+
+    // ExecuteIndirect
+    AddCopyResourceCommandForAfterDrawcall(copy_command_list, track_dump_resources_.copy_exe_indirect_argument);
+    AddCopyResourceCommandForAfterDrawcall(copy_command_list, track_dump_resources_.copy_exe_indirect_count);
 }
 
 void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(
