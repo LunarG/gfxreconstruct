@@ -56,7 +56,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>/*@@@PLQ*/* pBeginInfo) override;
+        StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo) override;
 
     virtual void Process_vkCmdBindDescriptorSets(
         const ApiCallInfo&                          call_info,
@@ -112,7 +112,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            srcBuffer,
         format::HandleId                            dstBuffer,
         uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkBufferCopy>/*@@@PLQ*/* pRegions) override;
+        StructPointerDecoder<Decoded_VkBufferCopy>* pRegions) override;
 
     virtual void Process_vkCmdCopyImage(
         const ApiCallInfo&                          call_info,
@@ -122,7 +122,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            dstImage,
         VkImageLayout                               dstImageLayout,
         uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkImageCopy>/*@@@PLQ*/* pRegions) override;
+        StructPointerDecoder<Decoded_VkImageCopy>*  pRegions) override;
 
     virtual void Process_vkCmdBlitImage(
         const ApiCallInfo&                          call_info,
@@ -132,7 +132,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            dstImage,
         VkImageLayout                               dstImageLayout,
         uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkImageBlit>/*@@@PLQ*/* pRegions,
+        StructPointerDecoder<Decoded_VkImageBlit>*  pRegions,
         VkFilter                                    filter) override;
 
     virtual void Process_vkCmdCopyBufferToImage(
@@ -142,7 +142,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            dstImage,
         VkImageLayout                               dstImageLayout,
         uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkBufferImageCopy>/*@@@PLQ*/* pRegions) override;
+        StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions) override;
 
     virtual void Process_vkCmdCopyImageToBuffer(
         const ApiCallInfo&                          call_info,
@@ -151,7 +151,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         VkImageLayout                               srcImageLayout,
         format::HandleId                            dstBuffer,
         uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkBufferImageCopy>/*@@@PLQ*/* pRegions) override;
+        StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions) override;
 
     virtual void Process_vkCmdUpdateBuffer(
         const ApiCallInfo&                          call_info,
@@ -174,18 +174,18 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            commandBuffer,
         format::HandleId                            image,
         VkImageLayout                               imageLayout,
-        StructPointerDecoder<Decoded_VkClearColorValue>/*@@@PLQ*/* pColor,
+        StructPointerDecoder<Decoded_VkClearColorValue>* pColor,
         uint32_t                                    rangeCount,
-        StructPointerDecoder<Decoded_VkImageSubresourceRange>/*@@@PLQ*/* pRanges) override;
+        StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges) override;
 
     virtual void Process_vkCmdClearDepthStencilImage(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         format::HandleId                            image,
         VkImageLayout                               imageLayout,
-        StructPointerDecoder<Decoded_VkClearDepthStencilValue>/*@@@PLQ*/* pDepthStencil,
+        StructPointerDecoder<Decoded_VkClearDepthStencilValue>* pDepthStencil,
         uint32_t                                    rangeCount,
-        StructPointerDecoder<Decoded_VkImageSubresourceRange>/*@@@PLQ*/* pRanges) override;
+        StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges) override;
 
     virtual void Process_vkCmdResolveImage(
         const ApiCallInfo&                          call_info,
@@ -195,7 +195,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            dstImage,
         VkImageLayout                               dstImageLayout,
         uint32_t                                    regionCount,
-        StructPointerDecoder<Decoded_VkImageResolve>/*@@@PLQ*/* pRegions) override;
+        StructPointerDecoder<Decoded_VkImageResolve>* pRegions) override;
 
     virtual void Process_vkCmdWaitEvents(
         const ApiCallInfo&                          call_info,
@@ -205,11 +205,11 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         VkPipelineStageFlags                        srcStageMask,
         VkPipelineStageFlags                        dstStageMask,
         uint32_t                                    memoryBarrierCount,
-        StructPointerDecoder<Decoded_VkMemoryBarrier>/*@@@PLQ*/* pMemoryBarriers,
+        StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
         uint32_t                                    bufferMemoryBarrierCount,
-        StructPointerDecoder<Decoded_VkBufferMemoryBarrier>/*@@@PLQ*/* pBufferMemoryBarriers,
+        StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
         uint32_t                                    imageMemoryBarrierCount,
-        StructPointerDecoder<Decoded_VkImageMemoryBarrier>/*@@@PLQ*/* pImageMemoryBarriers) override;
+        StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers) override;
 
     virtual void Process_vkCmdPipelineBarrier(
         const ApiCallInfo&                          call_info,
@@ -218,11 +218,11 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         VkPipelineStageFlags                        dstStageMask,
         VkDependencyFlags                           dependencyFlags,
         uint32_t                                    memoryBarrierCount,
-        StructPointerDecoder<Decoded_VkMemoryBarrier>/*@@@PLQ*/* pMemoryBarriers,
+        StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
         uint32_t                                    bufferMemoryBarrierCount,
-        StructPointerDecoder<Decoded_VkBufferMemoryBarrier>/*@@@PLQ*/* pBufferMemoryBarriers,
+        StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
         uint32_t                                    imageMemoryBarrierCount,
-        StructPointerDecoder<Decoded_VkImageMemoryBarrier>/*@@@PLQ*/* pImageMemoryBarriers) override;
+        StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers) override;
 
     virtual void Process_vkCmdCopyQueryPoolResults(
         const ApiCallInfo&                          call_info,
@@ -238,7 +238,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
     virtual void Process_vkCmdBeginRenderPass(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>/*@@@PLQ*/* pRenderPassBegin,
+        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
         VkSubpassContents                           contents) override;
 
     virtual void Process_vkCmdExecuteCommands(
@@ -270,61 +270,61 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
     virtual void Process_vkCmdBeginRenderPass2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>/*@@@PLQ*/* pRenderPassBegin,
-        StructPointerDecoder<Decoded_VkSubpassBeginInfo>/*@@@PLQ*/* pSubpassBeginInfo) override;
+        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
+        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo) override;
 
     virtual void Process_vkCmdSetEvent2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         format::HandleId                            event,
-        StructPointerDecoder<Decoded_VkDependencyInfo>/*@@@PLQ*/* pDependencyInfo) override;
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
 
     virtual void Process_vkCmdWaitEvents2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         uint32_t                                    eventCount,
         HandlePointerDecoder<VkEvent>*              pEvents,
-        StructPointerDecoder<Decoded_VkDependencyInfo>/*@@@PLQ*/* pDependencyInfos) override;
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos) override;
 
     virtual void Process_vkCmdPipelineBarrier2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDependencyInfo>/*@@@PLQ*/* pDependencyInfo) override;
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
 
     virtual void Process_vkCmdCopyBuffer2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferInfo2>/*@@@PLQ*/* pCopyBufferInfo) override;
+        StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo) override;
 
     virtual void Process_vkCmdCopyImage2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageInfo2>/*@@@PLQ*/* pCopyImageInfo) override;
+        StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo) override;
 
     virtual void Process_vkCmdCopyBufferToImage2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>/*@@@PLQ*/* pCopyBufferToImageInfo) override;
+        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo) override;
 
     virtual void Process_vkCmdCopyImageToBuffer2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>/*@@@PLQ*/* pCopyImageToBufferInfo) override;
+        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo) override;
 
     virtual void Process_vkCmdBlitImage2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBlitImageInfo2>/*@@@PLQ*/* pBlitImageInfo) override;
+        StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo) override;
 
     virtual void Process_vkCmdResolveImage2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkResolveImageInfo2>/*@@@PLQ*/* pResolveImageInfo) override;
+        StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo) override;
 
     virtual void Process_vkCmdBeginRendering(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInfo>/*@@@PLQ*/* pRenderingInfo) override;
+        StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) override;
 
     virtual void Process_vkCmdBindVertexBuffers2(
         const ApiCallInfo&                          call_info,
@@ -339,17 +339,17 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
     virtual void Process_vkCmdBeginVideoCodingKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>/*@@@PLQ*/* pBeginInfo) override;
+        StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo) override;
 
     virtual void Process_vkCmdDecodeVideoKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>/*@@@PLQ*/* pDecodeInfo) override;
+        StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo) override;
 
     virtual void Process_vkCmdBeginRenderingKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInfo>/*@@@PLQ*/* pRenderingInfo) override;
+        StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) override;
 
     virtual void Process_vkCmdPushDescriptorSetKHR(
         const ApiCallInfo&                          call_info,
@@ -358,13 +358,13 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            layout,
         uint32_t                                    set,
         uint32_t                                    descriptorWriteCount,
-        StructPointerDecoder<Decoded_VkWriteDescriptorSet>/*@@@PLQ*/* pDescriptorWrites) override;
+        StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites) override;
 
     virtual void Process_vkCmdBeginRenderPass2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>/*@@@PLQ*/* pRenderPassBegin,
-        StructPointerDecoder<Decoded_VkSubpassBeginInfo>/*@@@PLQ*/* pSubpassBeginInfo) override;
+        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
+        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo) override;
 
     virtual void Process_vkCmdDrawIndirectCountKHR(
         const ApiCallInfo&                          call_info,
@@ -389,25 +389,25 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
     virtual void Process_vkCmdEncodeVideoKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>/*@@@PLQ*/* pEncodeInfo) override;
+        StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo) override;
 
     virtual void Process_vkCmdSetEvent2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         format::HandleId                            event,
-        StructPointerDecoder<Decoded_VkDependencyInfo>/*@@@PLQ*/* pDependencyInfo) override;
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
 
     virtual void Process_vkCmdWaitEvents2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         uint32_t                                    eventCount,
         HandlePointerDecoder<VkEvent>*              pEvents,
-        StructPointerDecoder<Decoded_VkDependencyInfo>/*@@@PLQ*/* pDependencyInfos) override;
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos) override;
 
     virtual void Process_vkCmdPipelineBarrier2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkDependencyInfo>/*@@@PLQ*/* pDependencyInfo) override;
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
 
     virtual void Process_vkCmdWriteBufferMarker2AMD(
         const ApiCallInfo&                          call_info,
@@ -420,32 +420,32 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
     virtual void Process_vkCmdCopyBuffer2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferInfo2>/*@@@PLQ*/* pCopyBufferInfo) override;
+        StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo) override;
 
     virtual void Process_vkCmdCopyImage2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageInfo2>/*@@@PLQ*/* pCopyImageInfo) override;
+        StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo) override;
 
     virtual void Process_vkCmdCopyBufferToImage2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>/*@@@PLQ*/* pCopyBufferToImageInfo) override;
+        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo) override;
 
     virtual void Process_vkCmdCopyImageToBuffer2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>/*@@@PLQ*/* pCopyImageToBufferInfo) override;
+        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo) override;
 
     virtual void Process_vkCmdBlitImage2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkBlitImageInfo2>/*@@@PLQ*/* pBlitImageInfo) override;
+        StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo) override;
 
     virtual void Process_vkCmdResolveImage2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkResolveImageInfo2>/*@@@PLQ*/* pResolveImageInfo) override;
+        StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo) override;
 
     virtual void Process_vkCmdBindIndexBuffer2KHR(
         const ApiCallInfo&                          call_info,
@@ -543,7 +543,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
     virtual void Process_vkCmdBeginConditionalRenderingEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>/*@@@PLQ*/* pConditionalRenderingBegin) override;
+        StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>* pConditionalRenderingBegin) override;
 
     virtual void Process_vkCmdBindShadingRateImageNV(
         const ApiCallInfo&                          call_info,
@@ -554,7 +554,7 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
     virtual void Process_vkCmdBuildAccelerationStructureNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkAccelerationStructureInfoNV>/*@@@PLQ*/* pInfo,
+        StructPointerDecoder<Decoded_VkAccelerationStructureInfoNV>* pInfo,
         format::HandleId                            instanceData,
         VkDeviceSize                                instanceOffset,
         VkBool32                                    update,
@@ -620,13 +620,13 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
     virtual void Process_vkCmdPreprocessGeneratedCommandsNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>/*@@@PLQ*/* pGeneratedCommandsInfo) override;
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo) override;
 
     virtual void Process_vkCmdExecuteGeneratedCommandsNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         VkBool32                                    isPreprocessed,
-        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>/*@@@PLQ*/* pGeneratedCommandsInfo) override;
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo) override;
 
     virtual void Process_vkCmdBindInvocationMaskHUAWEI(
         const ApiCallInfo&                          call_info,

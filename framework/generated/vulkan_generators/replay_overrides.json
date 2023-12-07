@@ -97,6 +97,8 @@
     "vkResetCommandBuffer": "OverrideResetCommandBuffer",
     "vkCmdDebugMarkerInsertEXT": "OverrideCmdDebugMarkerInsertEXT",
     "vkCmdBeginRenderPass": "OverrideCmdBeginRenderPass",
+    "vkCmdBeginRenderPass2": "OverrideCmdBeginRenderPass2",
+    "vkCmdBeginRenderPass2KHR": "OverrideCmdBeginRenderPass2",
     "vkCreateImageView": "OverrideCreateImageView",
     "vkCreateFramebuffer": "OverrideCreateFramebuffer",
     "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",

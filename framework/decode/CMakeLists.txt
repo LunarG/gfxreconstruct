@@ -165,6 +165,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_options.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_resource_dump.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_resource_dump.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp
@@ -199,6 +201,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp
@@ -268,9 +272,36 @@ target_include_directories(gfxrecon_decode
                                ${CMAKE_BINARY_DIR}
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework
+                               ${CMAKE_SOURCE_DIR}/external
+                               ${CMAKE_SOURCE_DIR}/external/precompiled/linux/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 
-target_link_libraries(gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific nlohmann_json::nlohmann_json $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    if (WIN32)
+        target_link_directories(gfxrecon_decode
+                                PUBLIC
+                                    ${CMAKE_SOURCE_DIR}/external/precompiled/win64/lib)
+    else()
+        target_link_directories(gfxrecon_decode
+                                PUBLIC
+                                    ${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/x86_64)
+    endif()
+else (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    target_link_directories(gfxrecon_decode
+                            PUBLIC
+                                ${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/x86)
+endif()
+
+target_link_libraries(gfxrecon_decode
+                        gfxrecon_graphics
+                        gfxrecon_format
+                        gfxrecon_util
+                        vulkan_registry
+                        vulkan_memory_allocator
+                        platform_specific
+                        spirv-reflect-static
+                        nlohmann_json::nlohmann_json
+                        $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
 
 common_build_directives(gfxrecon_decode)
 

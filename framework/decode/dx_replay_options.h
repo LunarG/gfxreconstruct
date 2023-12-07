@@ -29,6 +29,7 @@
 
 #include "util/defines.h"
 #include "util/options.h"
+#include "util/logging.h"
 
 #include <vector>
 #include <string>
@@ -38,6 +39,25 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
 
+enum class DumpResourcesType
+{
+    kNone     = 0,
+    kDrawCall = 1,
+};
+
+inline std::string GetDumpResourcesType(DumpResourcesType type)
+{
+    switch (type)
+    {
+        case DumpResourcesType::kDrawCall:
+            return "drawcall";
+        default:
+            break;
+    }
+    GFXRECON_LOG_WARNING("Unrecognized DumpResourcesType %d. Return \"none \".", static_cast<int>(type));
+    return "none";
+}
+
 struct DxReplayOptions : public ReplayOptions
 {
     bool                 enable_d3d12{ true };
@@ -46,6 +66,8 @@ struct DxReplayOptions : public ReplayOptions
     std::vector<int32_t> AllowedDebugMessages;
     std::vector<int32_t> DeniedDebugMessages;
     bool                 override_object_names{ false };
+    DumpResourcesType    dump_resources_type{ DumpResourcesType::kNone };
+    uint64_t             dump_resources_argument{ 0 };
 
     util::ScreenshotFormat       screenshot_format{ util::ScreenshotFormat::kBmp };
     std::vector<ScreenshotRange> screenshot_ranges;

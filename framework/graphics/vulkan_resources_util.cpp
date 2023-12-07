@@ -1256,7 +1256,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     {
         copy_image = resolve_image;
     }
-    else
+    else if (layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
     {
         TransitionImageToTransferOptimal(image, layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, transition_aspect);
     }
