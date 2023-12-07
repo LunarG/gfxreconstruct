@@ -249,15 +249,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                             format::HandleId   memory,
                                             VkDeviceSize       memoryOffset) override;
 
-    bool IsComplete(uint64_t current_block_index) override
-    {
-        return not_optimizable_;
-    }
+    bool IsComplete(uint64_t current_block_index) override { return not_optimizable_; }
 
-    bool WasNotOptimizable()
-    {
-        return not_optimizable_;
-    }
+    bool WasNotOptimizable() { return not_optimizable_; }
+
   protected:
     bool IsStateLoading() const { return loading_state_; }
 
