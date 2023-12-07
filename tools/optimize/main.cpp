@@ -129,13 +129,14 @@ void GetUnreferencedResources(const std::string&                              in
         file_processor.AddDecoder(&decoder);
         file_processor.ProcessAllFrames();
 
-        if (resref_consumer.WasNotOptimizable()) {
+        if (resref_consumer.WasNotOptimizable())
+        {
             GFXRECON_WRITE_CONSOLE("File did not contain trim state setup - no optimization was performed");
             gfxrecon::util::Log::Release();
             exit(0);
         }
         else if ((file_processor.GetCurrentFrameNumber() > 0) &&
-            (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
         {
             // Get the list of resources that were included in a command buffer submission during replay.
             resref_consumer.GetReferencedResourceIds(nullptr, unreferenced_ids);
