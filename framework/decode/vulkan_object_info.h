@@ -35,6 +35,7 @@
 #include "vulkan/vulkan.h"
 
 #include <memory>
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -190,13 +191,10 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 
 typedef VulkanObjectInfo<VkEvent>                         EventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
-typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
-typedef VulkanObjectInfo<VkShaderModule>                  ShaderModuleInfo;
 typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>               PrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
-typedef VulkanPoolObjectInfo<VkDescriptorSet>             DescriptorSetInfo;
 typedef VulkanPoolInfo<VkCommandPool>                     CommandPoolInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>        SamplerYcbcrConversionInfo;
 typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
@@ -313,7 +311,13 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
     // The following values are only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
     VkBufferUsageFlags    usage{ 0 };
+    VkDeviceSize          size{ 0 };
     uint32_t              queue_family_index{ 0 };
+};
+
+struct BufferViewInfo : public VulkanObjectInfo<VkBufferView>
+{
+    format::HandleId buffer_id{ format::kNullHandleId };
 };
 
 struct ImageInfo : public VulkanObjectInfo<VkImage>
@@ -357,9 +361,37 @@ struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
     std::unordered_map<uint32_t, std::vector<PipelineCacheData>> pipeline_cache_data;
 };
 
+struct ShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
+{
+    struct DescriptorInfo
+    {
+        DescriptorInfo(VkDescriptorType type, bool readonly) : type(type), readonly(readonly) {}
+        DescriptorInfo(const DescriptorInfo& other) : type(other.type), readonly(other.readonly) {}
+
+        VkDescriptorType type;
+        bool             readonly;
+    };
+
+    ShaderModuleInfo() = default;
+    ShaderModuleInfo(const ShaderModuleInfo& other)
+    {
+        handle                = other.handle;
+        parent_id             = other.parent_id;
+        capture_id            = other.capture_id;
+        used_descriptors_info = other.used_descriptors_info;
+    }
+
+    using DescriptorSetInfo   = std::map<uint32_t, DescriptorInfo>;
+    using DescriptorSetsInfos = std::map<uint32_t, DescriptorSetInfo>;
+
+    DescriptorSetsInfos used_descriptors_info;
+};
+
 struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    std::vector<ShaderModuleInfo> shaders;
 };
 
 struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
@@ -474,7 +506,52 @@ struct CommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
 struct RenderPassInfo : public VulkanObjectInfo<VkRenderPass>
 {
-    std::vector<VkImageLayout> attachment_description_final_layouts;
+    std::vector<VkImageLayout>           attachment_description_final_layouts;
+    std::vector<VkAttachmentDescription> attachment_descs;
+
+    struct SubpassReferences
+    {
+        VkSubpassDescriptionFlags          flags;
+        VkPipelineBindPoint                pipeline_bind_point;
+        std::vector<VkAttachmentReference> input_att_refs;
+        std::vector<VkAttachmentReference> color_att_refs;
+        std::vector<VkAttachmentReference> resolve_att_refs;
+        std::vector<uint32_t>              preserve_att_refs;
+
+        bool                  has_depth;
+        VkAttachmentReference depth_att_ref;
+    };
+
+    // The attachment references per subpass
+    std::vector<SubpassReferences> subpass_refs;
+
+    std::vector<VkSubpassDependency> dependencies;
+};
+
+struct descriptor_type_image_info
+{
+    format::HandleId image_view_id;
+    VkImageLayout    image_layout;
+};
+
+struct descriptor_type_buffer_info
+{
+    format::HandleId buffer_id;
+    VkDeviceSize     offset;
+    VkDeviceSize     range;
+};
+
+struct descriptor_binding_info
+{
+    VkDescriptorType            desc_type;
+    descriptor_type_image_info  image_info;
+    descriptor_type_buffer_info buffer_info;
+    format::HandleId            texel_buffer_view;
+};
+
+struct DescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
+{
+    std::unordered_map<uint32_t, descriptor_binding_info> descriptors;
 };
 
 //

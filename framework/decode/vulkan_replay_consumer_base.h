@@ -33,6 +33,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
+#include "decode/vulkan_replay_resource_dump.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
 #include "decode/vulkan_resource_initializer.h"
@@ -41,6 +42,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
+#include "generated/generated_vulkan_replay_dump_resources.h"
 #include "graphics/fps_info.h"
 #include "util/defines.h"
 #include "util/logging.h"
@@ -546,6 +548,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          VkQueryResultFlags        flags);
 
     VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                                 func,
+                                 uint64_t                                          index,
                                  VkResult                                          original_result,
                                  const QueueInfo*                                  queue_info,
                                  uint32_t                                          submitCount,
@@ -988,6 +991,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void ClearCommandBufferInfo(CommandBufferInfo* command_buffer_info);
 
     VkResult OverrideBeginCommandBuffer(PFN_vkBeginCommandBuffer                                func,
+                                        uint64_t                                                index,
                                         VkResult                                                original_result,
                                         CommandBufferInfo*                                      command_buffer_info,
                                         StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* begin_info_decoder);
@@ -1023,6 +1027,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
                                     VkSubpassContents                                    contents);
 
+    void
+    OverrideCmdBeginRenderPass2(PFN_vkCmdBeginRenderPass2                            func,
+                                CommandBufferInfo*                                   command_buffer_info,
+                                StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
+                                StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    subpass_begin_info_decode);
+
     VkResult OverrideCreateImageView(PFN_vkCreateImageView                                func,
                                      VkResult                                             original_result,
                                      const DeviceInfo*                                    device_info,
@@ -1043,6 +1053,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                       const ImageInfo*           image_info);
 
     const VulkanReplayOptions options_;
+
+    VulkanReplayResourceDump dumper;
 
   private:
     void RaiseFatalError(const char* message) const;

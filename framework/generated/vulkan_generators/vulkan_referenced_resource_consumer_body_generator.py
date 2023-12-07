@@ -228,7 +228,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
             else:
                 # If there is a prefix, this is a struct member.  We need to determine the type of access operator to use
                 # for the member of a 'decoded' struct type, where handle member types will be HandlePointerDecoder, but
-                # struct member types will be unique_ptr<StructPointerDecoder>.  //@@@HVM
+                # struct member types will be unique_ptr<StructPointerDecoder>.
                 if is_handle:
                     access_operator = '.'
 

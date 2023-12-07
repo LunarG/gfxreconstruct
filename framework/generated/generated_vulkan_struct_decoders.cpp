@@ -135,7 +135,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->chroma_sample_loc_type_top_field));
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->chroma_sample_loc_type_bottom_field));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->reserved1));
-    wrapper->pHrdParameters = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264HrdParameters>/*@@@PLQ*/>();
+    wrapper->pHrdParameters = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264HrdParameters>>();
     bytes_read += wrapper->pHrdParameters->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pHrdParameters = wrapper->pHrdParameters->GetPointer();
 
@@ -251,10 +251,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->reserved2));
     bytes_read += wrapper->pOffsetForRefFrame.DecodeInt32((buffer + bytes_read), (buffer_size - bytes_read));
     value->pOffsetForRefFrame = wrapper->pOffsetForRefFrame.GetPointer();
-    wrapper->pScalingLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264ScalingLists>/*@@@PLQ*/>();
+    wrapper->pScalingLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264ScalingLists>>();
     bytes_read += wrapper->pScalingLists->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pScalingLists = wrapper->pScalingLists->GetPointer();
-    wrapper->pSequenceParameterSetVui = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264SequenceParameterSetVui>/*@@@PLQ*/>();
+    wrapper->pSequenceParameterSetVui = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264SequenceParameterSetVui>>();
     bytes_read += wrapper->pSequenceParameterSetVui->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSequenceParameterSetVui = wrapper->pSequenceParameterSetVui->GetPointer();
 
@@ -315,7 +315,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
     bytes_read += ValueDecoder::DecodeInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->pic_init_qs_minus26));
     bytes_read += ValueDecoder::DecodeInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->chroma_qp_index_offset));
     bytes_read += ValueDecoder::DecodeInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->second_chroma_qp_index_offset));
-    wrapper->pScalingLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264ScalingLists>/*@@@PLQ*/>();
+    wrapper->pScalingLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264ScalingLists>>();
     bytes_read += wrapper->pScalingLists->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pScalingLists = wrapper->pScalingLists->GetPointer();
 
@@ -598,13 +598,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->refPicMarkingOpCount));
     wrapper->reserved1.SetExternalMemory(value->reserved1, 7);
     bytes_read += wrapper->reserved1.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->pRefList0ModOperations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264RefListModEntry>/*@@@PLQ*/>();
+    wrapper->pRefList0ModOperations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264RefListModEntry>>();
     bytes_read += wrapper->pRefList0ModOperations->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRefList0ModOperations = wrapper->pRefList0ModOperations->GetPointer();
-    wrapper->pRefList1ModOperations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264RefListModEntry>/*@@@PLQ*/>();
+    wrapper->pRefList1ModOperations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264RefListModEntry>>();
     bytes_read += wrapper->pRefList1ModOperations->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRefList1ModOperations = wrapper->pRefList1ModOperations->GetPointer();
-    wrapper->pRefPicMarkingOperations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264RefPicMarkingEntry>/*@@@PLQ*/>();
+    wrapper->pRefPicMarkingOperations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264RefPicMarkingEntry>>();
     bytes_read += wrapper->pRefPicMarkingOperations->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRefPicMarkingOperations = wrapper->pRefPicMarkingOperations->GetPointer();
 
@@ -630,7 +630,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->temporal_id));
     wrapper->reserved1.SetExternalMemory(value->reserved1, 3);
     bytes_read += wrapper->reserved1.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->pRefLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264ReferenceListsInfo>/*@@@PLQ*/>();
+    wrapper->pRefLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264ReferenceListsInfo>>();
     bytes_read += wrapper->pRefLists->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRefLists = wrapper->pRefLists->GetPointer();
 
@@ -675,7 +675,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->reserved1));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->cabac_init_idc));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->disable_deblocking_filter_idc));
-    wrapper->pWeightTable = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264WeightTable>/*@@@PLQ*/>();
+    wrapper->pWeightTable = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH264WeightTable>>();
     bytes_read += wrapper->pWeightTable->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pWeightTable = wrapper->pWeightTable->GetPointer();
 
@@ -818,10 +818,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
     bytes_read += wrapper->elemental_duration_in_tc_minus1.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
     wrapper->reserved.SetExternalMemory(value->reserved, 3);
     bytes_read += wrapper->reserved.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->pSubLayerHrdParametersNal = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265SubLayerHrdParameters>/*@@@PLQ*/>();
+    wrapper->pSubLayerHrdParametersNal = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265SubLayerHrdParameters>>();
     bytes_read += wrapper->pSubLayerHrdParametersNal->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSubLayerHrdParametersNal = wrapper->pSubLayerHrdParametersNal->GetPointer();
-    wrapper->pSubLayerHrdParametersVcl = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265SubLayerHrdParameters>/*@@@PLQ*/>();
+    wrapper->pSubLayerHrdParametersVcl = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265SubLayerHrdParameters>>();
     bytes_read += wrapper->pSubLayerHrdParametersVcl->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSubLayerHrdParametersVcl = wrapper->pSubLayerHrdParametersVcl->GetPointer();
 
@@ -869,13 +869,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->vps_time_scale));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->vps_num_ticks_poc_diff_one_minus1));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->reserved3));
-    wrapper->pDecPicBufMgr = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265DecPicBufMgr>/*@@@PLQ*/>();
+    wrapper->pDecPicBufMgr = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265DecPicBufMgr>>();
     bytes_read += wrapper->pDecPicBufMgr->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDecPicBufMgr = wrapper->pDecPicBufMgr->GetPointer();
-    wrapper->pHrdParameters = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265HrdParameters>/*@@@PLQ*/>();
+    wrapper->pHrdParameters = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265HrdParameters>>();
     bytes_read += wrapper->pHrdParameters->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pHrdParameters = wrapper->pHrdParameters->GetPointer();
-    wrapper->pProfileTierLevel = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ProfileTierLevel>/*@@@PLQ*/>();
+    wrapper->pProfileTierLevel = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ProfileTierLevel>>();
     bytes_read += wrapper->pProfileTierLevel->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pProfileTierLevel = wrapper->pProfileTierLevel->GetPointer();
 
@@ -1064,7 +1064,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->max_bits_per_min_cu_denom));
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->log2_max_mv_length_horizontal));
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->log2_max_mv_length_vertical));
-    wrapper->pHrdParameters = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265HrdParameters>/*@@@PLQ*/>();
+    wrapper->pHrdParameters = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265HrdParameters>>();
     bytes_read += wrapper->pHrdParameters->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pHrdParameters = wrapper->pHrdParameters->GetPointer();
 
@@ -1226,25 +1226,25 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->conf_win_right_offset));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->conf_win_top_offset));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->conf_win_bottom_offset));
-    wrapper->pProfileTierLevel = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ProfileTierLevel>/*@@@PLQ*/>();
+    wrapper->pProfileTierLevel = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ProfileTierLevel>>();
     bytes_read += wrapper->pProfileTierLevel->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pProfileTierLevel = wrapper->pProfileTierLevel->GetPointer();
-    wrapper->pDecPicBufMgr = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265DecPicBufMgr>/*@@@PLQ*/>();
+    wrapper->pDecPicBufMgr = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265DecPicBufMgr>>();
     bytes_read += wrapper->pDecPicBufMgr->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDecPicBufMgr = wrapper->pDecPicBufMgr->GetPointer();
-    wrapper->pScalingLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ScalingLists>/*@@@PLQ*/>();
+    wrapper->pScalingLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ScalingLists>>();
     bytes_read += wrapper->pScalingLists->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pScalingLists = wrapper->pScalingLists->GetPointer();
-    wrapper->pShortTermRefPicSet = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ShortTermRefPicSet>/*@@@PLQ*/>();
+    wrapper->pShortTermRefPicSet = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ShortTermRefPicSet>>();
     bytes_read += wrapper->pShortTermRefPicSet->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pShortTermRefPicSet = wrapper->pShortTermRefPicSet->GetPointer();
-    wrapper->pLongTermRefPicsSps = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265LongTermRefPicsSps>/*@@@PLQ*/>();
+    wrapper->pLongTermRefPicsSps = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265LongTermRefPicsSps>>();
     bytes_read += wrapper->pLongTermRefPicsSps->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pLongTermRefPicsSps = wrapper->pLongTermRefPicsSps->GetPointer();
-    wrapper->pSequenceParameterSetVui = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265SequenceParameterSetVui>/*@@@PLQ*/>();
+    wrapper->pSequenceParameterSetVui = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265SequenceParameterSetVui>>();
     bytes_read += wrapper->pSequenceParameterSetVui->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSequenceParameterSetVui = wrapper->pSequenceParameterSetVui->GetPointer();
-    wrapper->pPredictorPaletteEntries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265PredictorPaletteEntries>/*@@@PLQ*/>();
+    wrapper->pPredictorPaletteEntries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265PredictorPaletteEntries>>();
     bytes_read += wrapper->pPredictorPaletteEntries->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPredictorPaletteEntries = wrapper->pPredictorPaletteEntries->GetPointer();
 
@@ -1402,10 +1402,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
     wrapper->row_height_minus1.SetExternalMemory(value->row_height_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE);
     bytes_read += wrapper->row_height_minus1.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->reserved3));
-    wrapper->pScalingLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ScalingLists>/*@@@PLQ*/>();
+    wrapper->pScalingLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ScalingLists>>();
     bytes_read += wrapper->pScalingLists->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pScalingLists = wrapper->pScalingLists->GetPointer();
-    wrapper->pPredictorPaletteEntries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265PredictorPaletteEntries>/*@@@PLQ*/>();
+    wrapper->pPredictorPaletteEntries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265PredictorPaletteEntries>>();
     bytes_read += wrapper->pPredictorPaletteEntries->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPredictorPaletteEntries = wrapper->pPredictorPaletteEntries->GetPointer();
 
@@ -1636,7 +1636,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
     bytes_read += ValueDecoder::DecodeInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->slice_act_cr_qp_offset));
     bytes_read += ValueDecoder::DecodeInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->slice_qp_delta));
     bytes_read += ValueDecoder::DecodeUInt16Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->reserved1));
-    wrapper->pWeightTable = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH265WeightTable>/*@@@PLQ*/>();
+    wrapper->pWeightTable = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH265WeightTable>>();
     bytes_read += wrapper->pWeightTable->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pWeightTable = wrapper->pWeightTable->GetPointer();
 
@@ -1747,13 +1747,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->TemporalId));
     wrapper->reserved1.SetExternalMemory(value->reserved1, 7);
     bytes_read += wrapper->reserved1.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->pRefLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceListsInfo>/*@@@PLQ*/>();
+    wrapper->pRefLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceListsInfo>>();
     bytes_read += wrapper->pRefLists->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRefLists = wrapper->pRefLists->GetPointer();
-    wrapper->pShortTermRefPicSet = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ShortTermRefPicSet>/*@@@PLQ*/>();
+    wrapper->pShortTermRefPicSet = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265ShortTermRefPicSet>>();
     bytes_read += wrapper->pShortTermRefPicSet->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pShortTermRefPicSet = wrapper->pShortTermRefPicSet->GetPointer();
-    wrapper->pLongTermRefPics = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH265LongTermRefPics>/*@@@PLQ*/>();
+    wrapper->pLongTermRefPics = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoEncodeH265LongTermRefPics>>();
     bytes_read += wrapper->pLongTermRefPics->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pLongTermRefPics = wrapper->pLongTermRefPics->GetPointer();
 
@@ -2748,7 +2748,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkInstanc
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    wrapper->pApplicationInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkApplicationInfo>/*@@@PLQ*/>();
+    wrapper->pApplicationInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkApplicationInfo>>();
     bytes_read += wrapper->pApplicationInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pApplicationInfo = wrapper->pApplicationInfo->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->enabledLayerCount));
@@ -2984,11 +2984,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     VkPhysicalDeviceMemoryProperties* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->memoryTypeCount));
-    wrapper->memoryTypes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryType>/*@@@PLQ*/>();
+    wrapper->memoryTypes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryType>>();
     wrapper->memoryTypes->SetExternalMemory(value->memoryTypes, VK_MAX_MEMORY_TYPES);
     bytes_read += wrapper->memoryTypes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->memoryHeapCount));
-    wrapper->memoryHeaps = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryHeap>/*@@@PLQ*/>();
+    wrapper->memoryHeaps = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryHeap>>();
     wrapper->memoryHeaps->SetExternalMemory(value->memoryHeaps, VK_MAX_MEMORY_HEAPS);
     bytes_read += wrapper->memoryHeaps->Decode((buffer + bytes_read), (buffer_size - bytes_read));
 
@@ -3085,7 +3085,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceC
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->queueCreateInfoCount));
-    wrapper->pQueueCreateInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDeviceQueueCreateInfo>/*@@@PLQ*/>();
+    wrapper->pQueueCreateInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDeviceQueueCreateInfo>>();
     bytes_read += wrapper->pQueueCreateInfos->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pQueueCreateInfos = wrapper->pQueueCreateInfos->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->enabledLayerCount));
@@ -3094,7 +3094,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceC
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->enabledExtensionCount));
     bytes_read += wrapper->ppEnabledExtensionNames.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->ppEnabledExtensionNames = wrapper->ppEnabledExtensionNames.GetPointer();
-    wrapper->pEnabledFeatures = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures>/*@@@PLQ*/>();
+    wrapper->pEnabledFeatures = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures>>();
     bytes_read += wrapper->pEnabledFeatures->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pEnabledFeatures = wrapper->pEnabledFeatures->GetPointer();
 
@@ -3232,7 +3232,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparseB
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
     value->buffer = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bindCount));
-    wrapper->pBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseMemoryBind>/*@@@PLQ*/>();
+    wrapper->pBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseMemoryBind>>();
     bytes_read += wrapper->pBinds->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBinds = wrapper->pBinds->GetPointer();
 
@@ -3249,7 +3249,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparseI
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
     value->image = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bindCount));
-    wrapper->pBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseMemoryBind>/*@@@PLQ*/>();
+    wrapper->pBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseMemoryBind>>();
     bytes_read += wrapper->pBinds->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBinds = wrapper->pBinds->GetPointer();
 
@@ -3304,7 +3304,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparseI
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
     value->image = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bindCount));
-    wrapper->pBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseImageMemoryBind>/*@@@PLQ*/>();
+    wrapper->pBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseImageMemoryBind>>();
     bytes_read += wrapper->pBinds->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBinds = wrapper->pBinds->GetPointer();
 
@@ -3325,15 +3325,15 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBindSpa
     bytes_read += wrapper->pWaitSemaphores.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pWaitSemaphores = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bufferBindCount));
-    wrapper->pBufferBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseBufferMemoryBindInfo>/*@@@PLQ*/>();
+    wrapper->pBufferBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseBufferMemoryBindInfo>>();
     bytes_read += wrapper->pBufferBinds->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBufferBinds = wrapper->pBufferBinds->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageOpaqueBindCount));
-    wrapper->pImageOpaqueBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseImageOpaqueMemoryBindInfo>/*@@@PLQ*/>();
+    wrapper->pImageOpaqueBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseImageOpaqueMemoryBindInfo>>();
     bytes_read += wrapper->pImageOpaqueBinds->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pImageOpaqueBinds = wrapper->pImageOpaqueBinds->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageBindCount));
-    wrapper->pImageBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseImageMemoryBindInfo>/*@@@PLQ*/>();
+    wrapper->pImageBinds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSparseImageMemoryBindInfo>>();
     bytes_read += wrapper->pImageBinds->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pImageBinds = wrapper->pImageBinds->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->signalSemaphoreCount));
@@ -3625,7 +3625,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSpecial
     VkSpecializationInfo* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->mapEntryCount));
-    wrapper->pMapEntries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSpecializationMapEntry>/*@@@PLQ*/>();
+    wrapper->pMapEntries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSpecializationMapEntry>>();
     bytes_read += wrapper->pMapEntries->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pMapEntries = wrapper->pMapEntries->GetPointer();
     bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dataSize));
@@ -3651,7 +3651,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     value->module = VK_NULL_HANDLE;
     bytes_read += wrapper->pName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pName = wrapper->pName.GetPointer();
-    wrapper->pSpecializationInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSpecializationInfo>/*@@@PLQ*/>();
+    wrapper->pSpecializationInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSpecializationInfo>>();
     bytes_read += wrapper->pSpecializationInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSpecializationInfo = wrapper->pSpecializationInfo->GetPointer();
 
@@ -3722,11 +3722,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->vertexBindingDescriptionCount));
-    wrapper->pVertexBindingDescriptions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVertexInputBindingDescription>/*@@@PLQ*/>();
+    wrapper->pVertexBindingDescriptions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVertexInputBindingDescription>>();
     bytes_read += wrapper->pVertexBindingDescriptions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pVertexBindingDescriptions = wrapper->pVertexBindingDescriptions->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->vertexAttributeDescriptionCount));
-    wrapper->pVertexAttributeDescriptions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVertexInputAttributeDescription>/*@@@PLQ*/>();
+    wrapper->pVertexAttributeDescriptions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVertexInputAttributeDescription>>();
     bytes_read += wrapper->pVertexAttributeDescriptions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pVertexAttributeDescriptions = wrapper->pVertexAttributeDescriptions->GetPointer();
 
@@ -3795,11 +3795,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewportCount));
-    wrapper->pViewports = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkViewport>/*@@@PLQ*/>();
+    wrapper->pViewports = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkViewport>>();
     bytes_read += wrapper->pViewports->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pViewports = wrapper->pViewports->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->scissorCount));
-    wrapper->pScissors = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>/*@@@PLQ*/>();
+    wrapper->pScissors = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>>();
     bytes_read += wrapper->pScissors->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pScissors = wrapper->pScissors->GetPointer();
 
@@ -3932,7 +3932,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->logicOpEnable));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->logicOp));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->attachmentCount));
-    wrapper->pAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineColorBlendAttachmentState>/*@@@PLQ*/>();
+    wrapper->pAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineColorBlendAttachmentState>>();
     bytes_read += wrapper->pAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttachments = wrapper->pAttachments->GetPointer();
     wrapper->blendConstants.SetExternalMemory(value->blendConstants, 4);
@@ -3971,34 +3971,34 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkGraphic
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stageCount));
-    wrapper->pStages = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineShaderStageCreateInfo>/*@@@PLQ*/>();
+    wrapper->pStages = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineShaderStageCreateInfo>>();
     bytes_read += wrapper->pStages->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStages = wrapper->pStages->GetPointer();
-    wrapper->pVertexInputState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineVertexInputStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pVertexInputState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineVertexInputStateCreateInfo>>();
     bytes_read += wrapper->pVertexInputState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pVertexInputState = wrapper->pVertexInputState->GetPointer();
-    wrapper->pInputAssemblyState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineInputAssemblyStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pInputAssemblyState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineInputAssemblyStateCreateInfo>>();
     bytes_read += wrapper->pInputAssemblyState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pInputAssemblyState = wrapper->pInputAssemblyState->GetPointer();
-    wrapper->pTessellationState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineTessellationStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pTessellationState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineTessellationStateCreateInfo>>();
     bytes_read += wrapper->pTessellationState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pTessellationState = wrapper->pTessellationState->GetPointer();
-    wrapper->pViewportState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineViewportStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pViewportState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineViewportStateCreateInfo>>();
     bytes_read += wrapper->pViewportState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pViewportState = wrapper->pViewportState->GetPointer();
-    wrapper->pRasterizationState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineRasterizationStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pRasterizationState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineRasterizationStateCreateInfo>>();
     bytes_read += wrapper->pRasterizationState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRasterizationState = wrapper->pRasterizationState->GetPointer();
-    wrapper->pMultisampleState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineMultisampleStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pMultisampleState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineMultisampleStateCreateInfo>>();
     bytes_read += wrapper->pMultisampleState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pMultisampleState = wrapper->pMultisampleState->GetPointer();
-    wrapper->pDepthStencilState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineDepthStencilStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pDepthStencilState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineDepthStencilStateCreateInfo>>();
     bytes_read += wrapper->pDepthStencilState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDepthStencilState = wrapper->pDepthStencilState->GetPointer();
-    wrapper->pColorBlendState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineColorBlendStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pColorBlendState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineColorBlendStateCreateInfo>>();
     bytes_read += wrapper->pColorBlendState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pColorBlendState = wrapper->pColorBlendState->GetPointer();
-    wrapper->pDynamicState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineDynamicStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pDynamicState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineDynamicStateCreateInfo>>();
     bytes_read += wrapper->pDynamicState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDynamicState = wrapper->pDynamicState->GetPointer();
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->layout));
@@ -4042,7 +4042,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     bytes_read += wrapper->pSetLayouts.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSetLayouts = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->pushConstantRangeCount));
-    wrapper->pPushConstantRanges = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPushConstantRange>/*@@@PLQ*/>();
+    wrapper->pPushConstantRanges = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPushConstantRange>>();
     bytes_read += wrapper->pPushConstantRanges->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPushConstantRanges = wrapper->pPushConstantRanges->GetPointer();
 
@@ -4143,7 +4143,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescrip
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxSets));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->poolSizeCount));
-    wrapper->pPoolSizes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorPoolSize>/*@@@PLQ*/>();
+    wrapper->pPoolSizes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorPoolSize>>();
     bytes_read += wrapper->pPoolSizes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPoolSizes = wrapper->pPoolSizes->GetPointer();
 
@@ -4198,7 +4198,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescrip
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bindingCount));
-    wrapper->pBindings = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorSetLayoutBinding>/*@@@PLQ*/>();
+    wrapper->pBindings = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorSetLayoutBinding>>();
     bytes_read += wrapper->pBindings->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBindings = wrapper->pBindings->GetPointer();
 
@@ -4271,17 +4271,17 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSubpass
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineBindPoint));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->inputAttachmentCount));
-    wrapper->pInputAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference>/*@@@PLQ*/>();
+    wrapper->pInputAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference>>();
     bytes_read += wrapper->pInputAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pInputAttachments = wrapper->pInputAttachments->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->colorAttachmentCount));
-    wrapper->pColorAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference>/*@@@PLQ*/>();
+    wrapper->pColorAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference>>();
     bytes_read += wrapper->pColorAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pColorAttachments = wrapper->pColorAttachments->GetPointer();
-    wrapper->pResolveAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference>/*@@@PLQ*/>();
+    wrapper->pResolveAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference>>();
     bytes_read += wrapper->pResolveAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pResolveAttachments = wrapper->pResolveAttachments->GetPointer();
-    wrapper->pDepthStencilAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference>/*@@@PLQ*/>();
+    wrapper->pDepthStencilAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference>>();
     bytes_read += wrapper->pDepthStencilAttachment->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDepthStencilAttachment = wrapper->pDepthStencilAttachment->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->preserveAttachmentCount));
@@ -4321,15 +4321,15 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderP
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->attachmentCount));
-    wrapper->pAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentDescription>/*@@@PLQ*/>();
+    wrapper->pAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentDescription>>();
     bytes_read += wrapper->pAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttachments = wrapper->pAttachments->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subpassCount));
-    wrapper->pSubpasses = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassDescription>/*@@@PLQ*/>();
+    wrapper->pSubpasses = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassDescription>>();
     bytes_read += wrapper->pSubpasses->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSubpasses = wrapper->pSubpasses->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dependencyCount));
-    wrapper->pDependencies = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassDependency>/*@@@PLQ*/>();
+    wrapper->pDependencies = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassDependency>>();
     bytes_read += wrapper->pDependencies->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDependencies = wrapper->pDependencies->GetPointer();
 
@@ -4403,7 +4403,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCommand
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    wrapper->pInheritanceInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkCommandBufferInheritanceInfo>/*@@@PLQ*/>();
+    wrapper->pInheritanceInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkCommandBufferInheritanceInfo>>();
     bytes_read += wrapper->pInheritanceInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pInheritanceInfo = wrapper->pInheritanceInfo->GetPointer();
 
@@ -4517,13 +4517,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageBl
     wrapper->srcSubresource = DecodeAllocator::Allocate<Decoded_VkImageSubresourceLayers>();
     wrapper->srcSubresource->decoded_value = &(value->srcSubresource);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->srcSubresource);
-    wrapper->srcOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset3D>/*@@@PLQ*/>();
+    wrapper->srcOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset3D>>();
     wrapper->srcOffsets->SetExternalMemory(value->srcOffsets, 2);
     bytes_read += wrapper->srcOffsets->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     wrapper->dstSubresource = DecodeAllocator::Allocate<Decoded_VkImageSubresourceLayers>();
     wrapper->dstSubresource->decoded_value = &(value->dstSubresource);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->dstSubresource);
-    wrapper->dstOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset3D>/*@@@PLQ*/>();
+    wrapper->dstOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset3D>>();
     wrapper->dstOffsets->SetExternalMemory(value->dstOffsets, 2);
     bytes_read += wrapper->dstOffsets->Decode((buffer + bytes_read), (buffer_size - bytes_read));
 
@@ -4600,7 +4600,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderP
     wrapper->renderArea->decoded_value = &(value->renderArea);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->renderArea);
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->clearValueCount));
-    wrapper->pClearValues = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkClearValue>/*@@@PLQ*/>();
+    wrapper->pClearValues = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkClearValue>>();
     bytes_read += wrapper->pClearValues->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pClearValues = wrapper->pClearValues->GetPointer();
 
@@ -4743,7 +4743,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceG
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceMask));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceRenderAreaCount));
-    wrapper->pDeviceRenderAreas = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>/*@@@PLQ*/>();
+    wrapper->pDeviceRenderAreas = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>>();
     bytes_read += wrapper->pDeviceRenderAreas->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDeviceRenderAreas = wrapper->pDeviceRenderAreas->GetPointer();
 
@@ -4835,7 +4835,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBindIma
     bytes_read += wrapper->pDeviceIndices.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDeviceIndices = wrapper->pDeviceIndices.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->splitInstanceBindRegionCount));
-    wrapper->pSplitInstanceBindRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>/*@@@PLQ*/>();
+    wrapper->pSplitInstanceBindRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>>();
     bytes_read += wrapper->pSplitInstanceBindRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSplitInstanceBindRegions = wrapper->pSplitInstanceBindRegions->GetPointer();
 
@@ -5156,7 +5156,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderP
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->aspectReferenceCount));
-    wrapper->pAspectReferences = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkInputAttachmentAspectReference>/*@@@PLQ*/>();
+    wrapper->pAspectReferences = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkInputAttachmentAspectReference>>();
     bytes_read += wrapper->pAspectReferences->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAspectReferences = wrapper->pAspectReferences->GetPointer();
 
@@ -5456,7 +5456,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescrip
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorUpdateEntryCount));
-    wrapper->pDescriptorUpdateEntries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateEntry>/*@@@PLQ*/>();
+    wrapper->pDescriptorUpdateEntries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateEntry>>();
     bytes_read += wrapper->pDescriptorUpdateEntries->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDescriptorUpdateEntries = wrapper->pDescriptorUpdateEntries->GetPointer();
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->templateType));
@@ -6032,17 +6032,17 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSubpass
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineBindPoint));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewMask));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->inputAttachmentCount));
-    wrapper->pInputAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>/*@@@PLQ*/>();
+    wrapper->pInputAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>>();
     bytes_read += wrapper->pInputAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pInputAttachments = wrapper->pInputAttachments->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->colorAttachmentCount));
-    wrapper->pColorAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>/*@@@PLQ*/>();
+    wrapper->pColorAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>>();
     bytes_read += wrapper->pColorAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pColorAttachments = wrapper->pColorAttachments->GetPointer();
-    wrapper->pResolveAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>/*@@@PLQ*/>();
+    wrapper->pResolveAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>>();
     bytes_read += wrapper->pResolveAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pResolveAttachments = wrapper->pResolveAttachments->GetPointer();
-    wrapper->pDepthStencilAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>/*@@@PLQ*/>();
+    wrapper->pDepthStencilAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>>();
     bytes_read += wrapper->pDepthStencilAttachment->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDepthStencilAttachment = wrapper->pDepthStencilAttachment->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->preserveAttachmentCount));
@@ -6086,15 +6086,15 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderP
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->attachmentCount));
-    wrapper->pAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentDescription2>/*@@@PLQ*/>();
+    wrapper->pAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentDescription2>>();
     bytes_read += wrapper->pAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttachments = wrapper->pAttachments->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subpassCount));
-    wrapper->pSubpasses = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassDescription2>/*@@@PLQ*/>();
+    wrapper->pSubpasses = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassDescription2>>();
     bytes_read += wrapper->pSubpasses->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSubpasses = wrapper->pSubpasses->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dependencyCount));
-    wrapper->pDependencies = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassDependency2>/*@@@PLQ*/>();
+    wrapper->pDependencies = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassDependency2>>();
     bytes_read += wrapper->pDependencies->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDependencies = wrapper->pDependencies->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->correlatedViewMaskCount));
@@ -6367,7 +6367,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSubpass
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->depthResolveMode));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->stencilResolveMode));
-    wrapper->pDepthStencilResolveAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>/*@@@PLQ*/>();
+    wrapper->pDepthStencilResolveAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>>();
     bytes_read += wrapper->pDepthStencilResolveAttachment->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDepthStencilResolveAttachment = wrapper->pDepthStencilResolveAttachment->GetPointer();
 
@@ -6518,7 +6518,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkFramebu
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->attachmentImageInfoCount));
-    wrapper->pAttachmentImageInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkFramebufferAttachmentImageInfo>/*@@@PLQ*/>();
+    wrapper->pAttachmentImageInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkFramebufferAttachmentImageInfo>>();
     bytes_read += wrapper->pAttachmentImageInfos->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttachmentImageInfos = wrapper->pAttachmentImageInfos->GetPointer();
 
@@ -6926,11 +6926,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pPipelineCreationFeedback = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineCreationFeedback>/*@@@PLQ*/>();
+    wrapper->pPipelineCreationFeedback = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineCreationFeedback>>();
     bytes_read += wrapper->pPipelineCreationFeedback->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPipelineCreationFeedback = wrapper->pPipelineCreationFeedback->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineStageCreationFeedbackCount));
-    wrapper->pPipelineStageCreationFeedbacks = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineCreationFeedback>/*@@@PLQ*/>();
+    wrapper->pPipelineStageCreationFeedbacks = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineCreationFeedback>>();
     bytes_read += wrapper->pPipelineStageCreationFeedbacks->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPipelineStageCreationFeedbacks = wrapper->pPipelineStageCreationFeedbacks->GetPointer();
 
@@ -7131,15 +7131,15 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDepende
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dependencyFlags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->memoryBarrierCount));
-    wrapper->pMemoryBarriers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryBarrier2>/*@@@PLQ*/>();
+    wrapper->pMemoryBarriers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryBarrier2>>();
     bytes_read += wrapper->pMemoryBarriers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pMemoryBarriers = wrapper->pMemoryBarriers->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bufferMemoryBarrierCount));
-    wrapper->pBufferMemoryBarriers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferMemoryBarrier2>/*@@@PLQ*/>();
+    wrapper->pBufferMemoryBarriers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferMemoryBarrier2>>();
     bytes_read += wrapper->pBufferMemoryBarriers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBufferMemoryBarriers = wrapper->pBufferMemoryBarriers->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageMemoryBarrierCount));
-    wrapper->pImageMemoryBarriers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageMemoryBarrier2>/*@@@PLQ*/>();
+    wrapper->pImageMemoryBarriers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageMemoryBarrier2>>();
     bytes_read += wrapper->pImageMemoryBarriers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pImageMemoryBarriers = wrapper->pImageMemoryBarriers->GetPointer();
 
@@ -7194,15 +7194,15 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSubmitI
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->waitSemaphoreInfoCount));
-    wrapper->pWaitSemaphoreInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>/*@@@PLQ*/>();
+    wrapper->pWaitSemaphoreInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>>();
     bytes_read += wrapper->pWaitSemaphoreInfos->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pWaitSemaphoreInfos = wrapper->pWaitSemaphoreInfos->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->commandBufferInfoCount));
-    wrapper->pCommandBufferInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkCommandBufferSubmitInfo>/*@@@PLQ*/>();
+    wrapper->pCommandBufferInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkCommandBufferSubmitInfo>>();
     bytes_read += wrapper->pCommandBufferInfos->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pCommandBufferInfos = wrapper->pCommandBufferInfos->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->signalSemaphoreInfoCount));
-    wrapper->pSignalSemaphoreInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>/*@@@PLQ*/>();
+    wrapper->pSignalSemaphoreInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>>();
     bytes_read += wrapper->pSignalSemaphoreInfos->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSignalSemaphoreInfos = wrapper->pSignalSemaphoreInfos->GetPointer();
 
@@ -7286,7 +7286,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyBuf
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->dstBuffer));
     value->dstBuffer = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferCopy2>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferCopy2>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -7339,7 +7339,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyIma
     value->dstImage = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstImageLayout));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageCopy2>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageCopy2>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -7388,7 +7388,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyBuf
     value->dstImage = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstImageLayout));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferImageCopy2>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferImageCopy2>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -7411,7 +7411,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyIma
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->dstBuffer));
     value->dstBuffer = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferImageCopy2>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferImageCopy2>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -7431,13 +7431,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageBl
     wrapper->srcSubresource = DecodeAllocator::Allocate<Decoded_VkImageSubresourceLayers>();
     wrapper->srcSubresource->decoded_value = &(value->srcSubresource);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->srcSubresource);
-    wrapper->srcOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset3D>/*@@@PLQ*/>();
+    wrapper->srcOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset3D>>();
     wrapper->srcOffsets->SetExternalMemory(value->srcOffsets, 2);
     bytes_read += wrapper->srcOffsets->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     wrapper->dstSubresource = DecodeAllocator::Allocate<Decoded_VkImageSubresourceLayers>();
     wrapper->dstSubresource->decoded_value = &(value->dstSubresource);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->dstSubresource);
-    wrapper->dstOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset3D>/*@@@PLQ*/>();
+    wrapper->dstOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset3D>>();
     wrapper->dstOffsets->SetExternalMemory(value->dstOffsets, 2);
     bytes_read += wrapper->dstOffsets->Decode((buffer + bytes_read), (buffer_size - bytes_read));
 
@@ -7461,7 +7461,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBlitIma
     value->dstImage = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstImageLayout));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageBlit2>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageBlit2>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->filter));
@@ -7515,7 +7515,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkResolve
     value->dstImage = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstImageLayout));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageResolve2>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageResolve2>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -7696,13 +7696,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderi
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewMask));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->colorAttachmentCount));
-    wrapper->pColorAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderingAttachmentInfo>/*@@@PLQ*/>();
+    wrapper->pColorAttachments = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderingAttachmentInfo>>();
     bytes_read += wrapper->pColorAttachments->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pColorAttachments = wrapper->pColorAttachments->GetPointer();
-    wrapper->pDepthAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderingAttachmentInfo>/*@@@PLQ*/>();
+    wrapper->pDepthAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderingAttachmentInfo>>();
     bytes_read += wrapper->pDepthAttachment->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDepthAttachment = wrapper->pDepthAttachment->GetPointer();
-    wrapper->pStencilAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderingAttachmentInfo>/*@@@PLQ*/>();
+    wrapper->pStencilAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderingAttachmentInfo>>();
     bytes_read += wrapper->pStencilAttachment->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStencilAttachment = wrapper->pStencilAttachment->GetPointer();
 
@@ -7900,7 +7900,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceB
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferCreateInfo>/*@@@PLQ*/>();
+    wrapper->pCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkBufferCreateInfo>>();
     bytes_read += wrapper->pCreateInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pCreateInfo = wrapper->pCreateInfo->GetPointer();
 
@@ -7917,7 +7917,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceI
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageCreateInfo>/*@@@PLQ*/>();
+    wrapper->pCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageCreateInfo>>();
     bytes_read += wrapper->pCreateInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pCreateInfo = wrapper->pCreateInfo->GetPointer();
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->planeAspect));
@@ -8448,7 +8448,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoPr
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->profileCount));
-    wrapper->pProfiles = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoProfileInfoKHR>/*@@@PLQ*/>();
+    wrapper->pProfiles = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoProfileInfoKHR>>();
     bytes_read += wrapper->pProfiles->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pProfiles = wrapper->pProfiles->GetPointer();
 
@@ -8557,7 +8557,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoRe
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->slotIndex));
-    wrapper->pPictureResource = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoPictureResourceInfoKHR>/*@@@PLQ*/>();
+    wrapper->pPictureResource = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoPictureResourceInfoKHR>>();
     bytes_read += wrapper->pPictureResource->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPictureResource = wrapper->pPictureResource->GetPointer();
 
@@ -8613,7 +8613,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoSe
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->queueFamilyIndex));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    wrapper->pVideoProfile = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoProfileInfoKHR>/*@@@PLQ*/>();
+    wrapper->pVideoProfile = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoProfileInfoKHR>>();
     bytes_read += wrapper->pVideoProfile->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pVideoProfile = wrapper->pVideoProfile->GetPointer();
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pictureFormat));
@@ -8623,7 +8623,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoSe
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->referencePictureFormat));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxDpbSlots));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxActiveReferencePictures));
-    wrapper->pStdHeaderVersion = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkExtensionProperties>/*@@@PLQ*/>();
+    wrapper->pStdHeaderVersion = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkExtensionProperties>>();
     bytes_read += wrapper->pStdHeaderVersion->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdHeaderVersion = wrapper->pStdHeaderVersion->GetPointer();
 
@@ -8680,7 +8680,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoBe
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->videoSessionParameters));
     value->videoSessionParameters = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->referenceSlotCount));
-    wrapper->pReferenceSlots = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>/*@@@PLQ*/>();
+    wrapper->pReferenceSlots = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>>();
     bytes_read += wrapper->pReferenceSlots->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pReferenceSlots = wrapper->pReferenceSlots->GetPointer();
 
@@ -8765,11 +8765,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoDe
     wrapper->dstPictureResource = DecodeAllocator::Allocate<Decoded_VkVideoPictureResourceInfoKHR>();
     wrapper->dstPictureResource->decoded_value = &(value->dstPictureResource);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->dstPictureResource);
-    wrapper->pSetupReferenceSlot = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>/*@@@PLQ*/>();
+    wrapper->pSetupReferenceSlot = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>>();
     bytes_read += wrapper->pSetupReferenceSlot->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSetupReferenceSlot = wrapper->pSetupReferenceSlot->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->referenceSlotCount));
-    wrapper->pReferenceSlots = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>/*@@@PLQ*/>();
+    wrapper->pReferenceSlots = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>>();
     bytes_read += wrapper->pReferenceSlots->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pReferenceSlots = wrapper->pReferenceSlots->GetPointer();
 
@@ -9444,11 +9444,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoDe
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stdSPSCount));
-    wrapper->pStdSPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264SequenceParameterSet>/*@@@PLQ*/>();
+    wrapper->pStdSPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264SequenceParameterSet>>();
     bytes_read += wrapper->pStdSPSs->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdSPSs = wrapper->pStdSPSs->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stdPPSCount));
-    wrapper->pStdPPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264PictureParameterSet>/*@@@PLQ*/>();
+    wrapper->pStdPPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH264PictureParameterSet>>();
     bytes_read += wrapper->pStdPPSs->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdPPSs = wrapper->pStdPPSs->GetPointer();
 
@@ -9467,7 +9467,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoDe
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxStdSPSCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxStdPPSCount));
-    wrapper->pParametersAddInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoDecodeH264SessionParametersAddInfoKHR>/*@@@PLQ*/>();
+    wrapper->pParametersAddInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoDecodeH264SessionParametersAddInfoKHR>>();
     bytes_read += wrapper->pParametersAddInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pParametersAddInfo = wrapper->pParametersAddInfo->GetPointer();
 
@@ -9484,7 +9484,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoDe
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pStdPictureInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoDecodeH264PictureInfo>/*@@@PLQ*/>();
+    wrapper->pStdPictureInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoDecodeH264PictureInfo>>();
     bytes_read += wrapper->pStdPictureInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdPictureInfo = wrapper->pStdPictureInfo->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->sliceCount));
@@ -9504,7 +9504,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoDe
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pStdReferenceInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoDecodeH264ReferenceInfo>/*@@@PLQ*/>();
+    wrapper->pStdReferenceInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoDecodeH264ReferenceInfo>>();
     bytes_read += wrapper->pStdReferenceInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdReferenceInfo = wrapper->pStdReferenceInfo->GetPointer();
 
@@ -9611,7 +9611,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExportM
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pAttributes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>/*@@@PLQ*/>();
+    wrapper->pAttributes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>>();
     bytes_read += wrapper->pAttributes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttributes = wrapper->pAttributes->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
@@ -9759,7 +9759,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExportS
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pAttributes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>/*@@@PLQ*/>();
+    wrapper->pAttributes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>>();
     bytes_read += wrapper->pAttributes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttributes = wrapper->pAttributes->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
@@ -9883,7 +9883,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPresent
     VkPresentRegionKHR* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->rectangleCount));
-    wrapper->pRectangles = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRectLayerKHR>/*@@@PLQ*/>();
+    wrapper->pRectangles = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRectLayerKHR>>();
     bytes_read += wrapper->pRectangles->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRectangles = wrapper->pRectangles->GetPointer();
 
@@ -9901,7 +9901,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPresent
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->swapchainCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPresentRegionKHR>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPresentRegionKHR>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -9955,7 +9955,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExportF
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pAttributes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>/*@@@PLQ*/>();
+    wrapper->pAttributes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>>();
     bytes_read += wrapper->pAttributes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttributes = wrapper->pAttributes->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
@@ -10374,15 +10374,15 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoDe
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stdVPSCount));
-    wrapper->pStdVPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265VideoParameterSet>/*@@@PLQ*/>();
+    wrapper->pStdVPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265VideoParameterSet>>();
     bytes_read += wrapper->pStdVPSs->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdVPSs = wrapper->pStdVPSs->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stdSPSCount));
-    wrapper->pStdSPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265SequenceParameterSet>/*@@@PLQ*/>();
+    wrapper->pStdSPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265SequenceParameterSet>>();
     bytes_read += wrapper->pStdSPSs->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdSPSs = wrapper->pStdSPSs->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stdPPSCount));
-    wrapper->pStdPPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265PictureParameterSet>/*@@@PLQ*/>();
+    wrapper->pStdPPSs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoH265PictureParameterSet>>();
     bytes_read += wrapper->pStdPPSs->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdPPSs = wrapper->pStdPPSs->GetPointer();
 
@@ -10402,7 +10402,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoDe
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxStdVPSCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxStdSPSCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxStdPPSCount));
-    wrapper->pParametersAddInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR>/*@@@PLQ*/>();
+    wrapper->pParametersAddInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR>>();
     bytes_read += wrapper->pParametersAddInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pParametersAddInfo = wrapper->pParametersAddInfo->GetPointer();
 
@@ -10419,7 +10419,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoDe
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pStdPictureInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoDecodeH265PictureInfo>/*@@@PLQ*/>();
+    wrapper->pStdPictureInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoDecodeH265PictureInfo>>();
     bytes_read += wrapper->pStdPictureInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdPictureInfo = wrapper->pStdPictureInfo->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->sliceSegmentCount));
@@ -10439,7 +10439,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoDe
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pStdReferenceInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoDecodeH265ReferenceInfo>/*@@@PLQ*/>();
+    wrapper->pStdReferenceInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_StdVideoDecodeH265ReferenceInfo>>();
     bytes_read += wrapper->pStdReferenceInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStdReferenceInfo = wrapper->pStdReferenceInfo->GetPointer();
 
@@ -10503,7 +10503,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkFragmen
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pFragmentShadingRateAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>/*@@@PLQ*/>();
+    wrapper->pFragmentShadingRateAttachment = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentReference2>>();
     bytes_read += wrapper->pFragmentShadingRateAttachment->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pFragmentShadingRateAttachment = wrapper->pFragmentShadingRateAttachment->GetPointer();
     wrapper->shadingRateAttachmentTexelSize = DecodeAllocator::Allocate<Decoded_VkExtent2D>();
@@ -10917,11 +10917,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoEn
     wrapper->srcPictureResource = DecodeAllocator::Allocate<Decoded_VkVideoPictureResourceInfoKHR>();
     wrapper->srcPictureResource->decoded_value = &(value->srcPictureResource);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->srcPictureResource);
-    wrapper->pSetupReferenceSlot = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>/*@@@PLQ*/>();
+    wrapper->pSetupReferenceSlot = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>>();
     bytes_read += wrapper->pSetupReferenceSlot->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSetupReferenceSlot = wrapper->pSetupReferenceSlot->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->referenceSlotCount));
-    wrapper->pReferenceSlots = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>/*@@@PLQ*/>();
+    wrapper->pReferenceSlots = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoReferenceSlotInfoKHR>>();
     bytes_read += wrapper->pReferenceSlots->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pReferenceSlots = wrapper->pReferenceSlots->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->precedingExternallyEncodedBytes));
@@ -11015,7 +11015,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkVideoEn
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->rateControlMode));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerCount));
-    wrapper->pLayers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoEncodeRateControlLayerInfoKHR>/*@@@PLQ*/>();
+    wrapper->pLayers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoEncodeRateControlLayerInfoKHR>>();
     bytes_read += wrapper->pLayers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pLayers = wrapper->pLayers->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->virtualBufferSizeInMs));
@@ -11034,7 +11034,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pVideoProfile = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoProfileInfoKHR>/*@@@PLQ*/>();
+    wrapper->pVideoProfile = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkVideoProfileInfoKHR>>();
     bytes_read += wrapper->pVideoProfile->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pVideoProfile = wrapper->pVideoProfile->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->qualityLevel));
@@ -11353,10 +11353,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceI
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageCreateInfo>/*@@@PLQ*/>();
+    wrapper->pCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageCreateInfo>>();
     bytes_read += wrapper->pCreateInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pCreateInfo = wrapper->pCreateInfo->GetPointer();
-    wrapper->pSubresource = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageSubresource2KHR>/*@@@PLQ*/>();
+    wrapper->pSubresource = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageSubresource2KHR>>();
     bytes_read += wrapper->pSubresource->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSubresource = wrapper->pSubresource->GetPointer();
 
@@ -12343,7 +12343,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExportM
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pAttributes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>/*@@@PLQ*/>();
+    wrapper->pAttributes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>>();
     bytes_read += wrapper->pAttributes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttributes = wrapper->pAttributes->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
@@ -12566,7 +12566,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewportWScalingEnable));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewportCount));
-    wrapper->pViewportWScalings = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkViewportWScalingNV>/*@@@PLQ*/>();
+    wrapper->pViewportWScalings = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkViewportWScalingNV>>();
     bytes_read += wrapper->pViewportWScalings->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pViewportWScalings = wrapper->pViewportWScalings->GetPointer();
 
@@ -12716,7 +12716,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPresent
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->swapchainCount));
-    wrapper->pTimes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPresentTimeGOOGLE>/*@@@PLQ*/>();
+    wrapper->pTimes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPresentTimeGOOGLE>>();
     bytes_read += wrapper->pTimes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pTimes = wrapper->pTimes->GetPointer();
 
@@ -12765,7 +12765,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewportCount));
-    wrapper->pViewportSwizzles = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkViewportSwizzleNV>/*@@@PLQ*/>();
+    wrapper->pViewportSwizzles = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkViewportSwizzleNV>>();
     bytes_read += wrapper->pViewportSwizzles->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pViewportSwizzles = wrapper->pViewportSwizzles->GetPointer();
 
@@ -12800,7 +12800,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->discardRectangleMode));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->discardRectangleCount));
-    wrapper->pDiscardRectangles = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>/*@@@PLQ*/>();
+    wrapper->pDiscardRectangles = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>>();
     bytes_read += wrapper->pDiscardRectangles->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDiscardRectangles = wrapper->pDiscardRectangles->GetPointer();
 
@@ -13024,15 +13024,15 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDebugUt
     bytes_read += wrapper->pMessage.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pMessage = wrapper->pMessage.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->queueLabelCount));
-    wrapper->pQueueLabels = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>/*@@@PLQ*/>();
+    wrapper->pQueueLabels = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>>();
     bytes_read += wrapper->pQueueLabels->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pQueueLabels = wrapper->pQueueLabels->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->cmdBufLabelCount));
-    wrapper->pCmdBufLabels = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>/*@@@PLQ*/>();
+    wrapper->pCmdBufLabels = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>>();
     bytes_read += wrapper->pCmdBufLabels->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pCmdBufLabels = wrapper->pCmdBufLabels->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->objectCount));
-    wrapper->pObjects = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>/*@@@PLQ*/>();
+    wrapper->pObjects = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>>();
     bytes_read += wrapper->pObjects->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pObjects = wrapper->pObjects->GetPointer();
 
@@ -13235,7 +13235,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSampleL
     wrapper->sampleLocationGridSize->decoded_value = &(value->sampleLocationGridSize);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->sampleLocationGridSize);
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->sampleLocationsCount));
-    wrapper->pSampleLocations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSampleLocationEXT>/*@@@PLQ*/>();
+    wrapper->pSampleLocations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSampleLocationEXT>>();
     bytes_read += wrapper->pSampleLocations->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSampleLocations = wrapper->pSampleLocations->GetPointer();
 
@@ -13283,11 +13283,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderP
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->attachmentInitialSampleLocationsCount));
-    wrapper->pAttachmentInitialSampleLocations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentSampleLocationsEXT>/*@@@PLQ*/>();
+    wrapper->pAttachmentInitialSampleLocations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAttachmentSampleLocationsEXT>>();
     bytes_read += wrapper->pAttachmentInitialSampleLocations->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttachmentInitialSampleLocations = wrapper->pAttachmentInitialSampleLocations->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->postSubpassSampleLocationsCount));
-    wrapper->pPostSubpassSampleLocations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassSampleLocationsEXT>/*@@@PLQ*/>();
+    wrapper->pPostSubpassSampleLocations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubpassSampleLocationsEXT>>();
     bytes_read += wrapper->pPostSubpassSampleLocations->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPostSubpassSampleLocations = wrapper->pPostSubpassSampleLocations->GetPointer();
 
@@ -13496,7 +13496,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDrmForm
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->drmFormatModifierCount));
-    wrapper->pDrmFormatModifierProperties = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDrmFormatModifierPropertiesEXT>/*@@@PLQ*/>();
+    wrapper->pDrmFormatModifierProperties = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDrmFormatModifierPropertiesEXT>>();
     bytes_read += wrapper->pDrmFormatModifierProperties->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDrmFormatModifierProperties = wrapper->pDrmFormatModifierProperties->GetPointer();
 
@@ -13551,7 +13551,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageDr
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->drmFormatModifier));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->drmFormatModifierPlaneCount));
-    wrapper->pPlaneLayouts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubresourceLayout>/*@@@PLQ*/>();
+    wrapper->pPlaneLayouts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSubresourceLayout>>();
     bytes_read += wrapper->pPlaneLayouts->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPlaneLayouts = wrapper->pPlaneLayouts->GetPointer();
 
@@ -13598,7 +13598,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDrmForm
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->drmFormatModifierCount));
-    wrapper->pDrmFormatModifierProperties = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDrmFormatModifierProperties2EXT>/*@@@PLQ*/>();
+    wrapper->pDrmFormatModifierProperties = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDrmFormatModifierProperties2EXT>>();
     bytes_read += wrapper->pDrmFormatModifierProperties->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDrmFormatModifierProperties = wrapper->pDrmFormatModifierProperties->GetPointer();
 
@@ -13665,7 +13665,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->shadingRateImageEnable));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewportCount));
-    wrapper->pShadingRatePalettes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkShadingRatePaletteNV>/*@@@PLQ*/>();
+    wrapper->pShadingRatePalettes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkShadingRatePaletteNV>>();
     bytes_read += wrapper->pShadingRatePalettes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pShadingRatePalettes = wrapper->pShadingRatePalettes->GetPointer();
 
@@ -13731,7 +13731,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCoarseS
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->shadingRate));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->sampleCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->sampleLocationCount));
-    wrapper->pSampleLocations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkCoarseSampleLocationNV>/*@@@PLQ*/>();
+    wrapper->pSampleLocations = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkCoarseSampleLocationNV>>();
     bytes_read += wrapper->pSampleLocations->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSampleLocations = wrapper->pSampleLocations->GetPointer();
 
@@ -13750,7 +13750,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sampleOrderType));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->customSampleOrderCount));
-    wrapper->pCustomSampleOrders = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>/*@@@PLQ*/>();
+    wrapper->pCustomSampleOrders = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>>();
     bytes_read += wrapper->pCustomSampleOrders->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pCustomSampleOrders = wrapper->pCustomSampleOrders->GetPointer();
 
@@ -13788,11 +13788,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRayTrac
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stageCount));
-    wrapper->pStages = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineShaderStageCreateInfo>/*@@@PLQ*/>();
+    wrapper->pStages = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineShaderStageCreateInfo>>();
     bytes_read += wrapper->pStages->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStages = wrapper->pStages->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->groupCount));
-    wrapper->pGroups = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRayTracingShaderGroupCreateInfoNV>/*@@@PLQ*/>();
+    wrapper->pGroups = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRayTracingShaderGroupCreateInfoNV>>();
     bytes_read += wrapper->pGroups->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pGroups = wrapper->pGroups->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxRecursionDepth));
@@ -13902,7 +13902,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->instanceCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->geometryCount));
-    wrapper->pGeometries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkGeometryNV>/*@@@PLQ*/>();
+    wrapper->pGeometries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkGeometryNV>>();
     bytes_read += wrapper->pGeometries->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pGeometries = wrapper->pGeometries->GetPointer();
 
@@ -14358,7 +14358,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->exclusiveScissorCount));
-    wrapper->pExclusiveScissors = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>/*@@@PLQ*/>();
+    wrapper->pExclusiveScissors = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>>();
     bytes_read += wrapper->pExclusiveScissors->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pExclusiveScissors = wrapper->pExclusiveScissors->GetPointer();
 
@@ -15208,7 +15208,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyMem
     value->dstImage = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstImageLayout));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryToImageCopyEXT>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMemoryToImageCopyEXT>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -15230,7 +15230,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyIma
     value->srcImage = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->srcImageLayout));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageToMemoryCopyEXT>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageToMemoryCopyEXT>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -15255,7 +15255,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyIma
     value->dstImage = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstImageLayout));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageCopy2>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkImageCopy2>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -15594,13 +15594,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkGraphic
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stageCount));
-    wrapper->pStages = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineShaderStageCreateInfo>/*@@@PLQ*/>();
+    wrapper->pStages = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineShaderStageCreateInfo>>();
     bytes_read += wrapper->pStages->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStages = wrapper->pStages->GetPointer();
-    wrapper->pVertexInputState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineVertexInputStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pVertexInputState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineVertexInputStateCreateInfo>>();
     bytes_read += wrapper->pVertexInputState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pVertexInputState = wrapper->pVertexInputState->GetPointer();
-    wrapper->pTessellationState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineTessellationStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pTessellationState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineTessellationStateCreateInfo>>();
     bytes_read += wrapper->pTessellationState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pTessellationState = wrapper->pTessellationState->GetPointer();
 
@@ -15618,7 +15618,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkGraphic
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->groupCount));
-    wrapper->pGroups = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkGraphicsShaderGroupCreateInfoNV>/*@@@PLQ*/>();
+    wrapper->pGroups = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkGraphicsShaderGroupCreateInfoNV>>();
     bytes_read += wrapper->pGroups->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pGroups = wrapper->pGroups->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineCount));
@@ -15737,7 +15737,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirec
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineBindPoint));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tokenCount));
-    wrapper->pTokens = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectCommandsLayoutTokenNV>/*@@@PLQ*/>();
+    wrapper->pTokens = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectCommandsLayoutTokenNV>>();
     bytes_read += wrapper->pTokens->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pTokens = wrapper->pTokens->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->streamCount));
@@ -15763,7 +15763,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkGenerat
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->indirectCommandsLayout));
     value->indirectCommandsLayout = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->streamCount));
-    wrapper->pStreams = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectCommandsStreamNV>/*@@@PLQ*/>();
+    wrapper->pStreams = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectCommandsStreamNV>>();
     bytes_read += wrapper->pStreams->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStreams = wrapper->pStreams->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->sequencesCount));
@@ -15828,7 +15828,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCommand
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewportScissor2D));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewportDepthCount));
-    wrapper->pViewportDepths = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkViewport>/*@@@PLQ*/>();
+    wrapper->pViewportDepths = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkViewport>>();
     bytes_read += wrapper->pViewportDepths->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pViewportDepths = wrapper->pViewportDepths->GetPointer();
 
@@ -16626,10 +16626,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceF
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     wrapper->description.SetExternalMemory(value->description, VK_MAX_DESCRIPTION_SIZE);
     bytes_read += wrapper->description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->pAddressInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDeviceFaultAddressInfoEXT>/*@@@PLQ*/>();
+    wrapper->pAddressInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDeviceFaultAddressInfoEXT>>();
     bytes_read += wrapper->pAddressInfos->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAddressInfos = wrapper->pAddressInfos->GetPointer();
-    wrapper->pVendorInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDeviceFaultVendorInfoEXT>/*@@@PLQ*/>();
+    wrapper->pVendorInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDeviceFaultVendorInfoEXT>>();
     bytes_read += wrapper->pVendorInfos->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pVendorInfos = wrapper->pVendorInfos->GetPointer();
     bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pVendorBinaryData));
@@ -16752,7 +16752,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMutable
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->mutableDescriptorTypeListCount));
-    wrapper->pMutableDescriptorTypeLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMutableDescriptorTypeListEXT>/*@@@PLQ*/>();
+    wrapper->pMutableDescriptorTypeLists = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMutableDescriptorTypeListEXT>>();
     bytes_read += wrapper->pMutableDescriptorTypeLists->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pMutableDescriptorTypeLists = wrapper->pMutableDescriptorTypeLists->GetPointer();
 
@@ -17379,10 +17379,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMicroma
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->dstMicromap));
     value->dstMicromap = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->usageCountsCount));
-    wrapper->pUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT>/*@@@PLQ*/>();
+    wrapper->pUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT>>();
     bytes_read += wrapper->pUsageCounts->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pUsageCounts = wrapper->pUsageCounts->GetPointer();
-    wrapper->ppUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT*>/*@@@EHI*/>();
+    wrapper->ppUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT*>>();
     bytes_read += wrapper->ppUsageCounts->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->ppUsageCounts = wrapper->ppUsageCounts->GetPointer();
     wrapper->data = DecodeAllocator::Allocate<Decoded_VkDeviceOrHostAddressConstKHR>();
@@ -17562,10 +17562,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->indexStride));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->baseTriangle));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->usageCountsCount));
-    wrapper->pUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT>/*@@@PLQ*/>();
+    wrapper->pUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT>>();
     bytes_read += wrapper->pUsageCounts->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pUsageCounts = wrapper->pUsageCounts->GetPointer();
-    wrapper->ppUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT*>/*@@@EHI*/>();
+    wrapper->ppUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT*>>();
     bytes_read += wrapper->ppUsageCounts->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->ppUsageCounts = wrapper->ppUsageCounts->GetPointer();
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->micromap));
@@ -17649,10 +17649,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->indexStride));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->baseTriangle));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->usageCountsCount));
-    wrapper->pUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT>/*@@@PLQ*/>();
+    wrapper->pUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT>>();
     bytes_read += wrapper->pUsageCounts->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pUsageCounts = wrapper->pUsageCounts->GetPointer();
-    wrapper->ppUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT*>/*@@@EHI*/>();
+    wrapper->ppUsageCounts = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkMicromapUsageEXT*>>();
     bytes_read += wrapper->ppUsageCounts->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->ppUsageCounts = wrapper->ppUsageCounts->GetPointer();
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->micromap));
@@ -18061,7 +18061,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSubpass
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->fragmentDensityOffsetCount));
-    wrapper->pFragmentDensityOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset2D>/*@@@PLQ*/>();
+    wrapper->pFragmentDensityOffsets = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkOffset2D>>();
     bytes_read += wrapper->pFragmentDensityOffsets->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pFragmentDensityOffsets = wrapper->pFragmentDensityOffsets->GetPointer();
 
@@ -18415,7 +18415,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderP
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pRenderPassFeedback = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderPassCreationFeedbackInfoEXT>/*@@@PLQ*/>();
+    wrapper->pRenderPassFeedback = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderPassCreationFeedbackInfoEXT>>();
     bytes_read += wrapper->pRenderPassFeedback->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRenderPassFeedback = wrapper->pRenderPassFeedback->GetPointer();
 
@@ -18447,7 +18447,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRenderP
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    wrapper->pSubpassFeedback = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderPassSubpassFeedbackInfoEXT>/*@@@PLQ*/>();
+    wrapper->pSubpassFeedback = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRenderPassSubpassFeedbackInfoEXT>>();
     bytes_read += wrapper->pSubpassFeedback->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSubpassFeedback = wrapper->pSubpassFeedback->GetPointer();
 
@@ -18483,7 +18483,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDirectD
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->mode));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->driverCount));
-    wrapper->pDrivers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDirectDriverLoadingInfoLUNARG>/*@@@PLQ*/>();
+    wrapper->pDrivers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDirectDriverLoadingInfoLUNARG>>();
     bytes_read += wrapper->pDrivers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDrivers = wrapper->pDrivers->GetPointer();
 
@@ -18678,7 +18678,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkOptical
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->regionCount));
-    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>/*@@@PLQ*/>();
+    wrapper->pRegions = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>>();
     bytes_read += wrapper->pRegions->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pRegions = wrapper->pRegions->GetPointer();
 
@@ -18817,10 +18817,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkShaderC
     bytes_read += wrapper->pSetLayouts.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSetLayouts = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->pushConstantRangeCount));
-    wrapper->pPushConstantRanges = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPushConstantRange>/*@@@PLQ*/>();
+    wrapper->pPushConstantRanges = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPushConstantRange>>();
     bytes_read += wrapper->pPushConstantRanges->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPushConstantRanges = wrapper->pPushConstantRanges->GetPointer();
-    wrapper->pSpecializationInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSpecializationInfo>/*@@@PLQ*/>();
+    wrapper->pSpecializationInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkSpecializationInfo>>();
     bytes_read += wrapper->pSpecializationInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pSpecializationInfo = wrapper->pSpecializationInfo->GetPointer();
 
@@ -19256,7 +19256,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMultivi
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->perViewRenderAreaCount));
-    wrapper->pPerViewRenderAreas = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>/*@@@PLQ*/>();
+    wrapper->pPerViewRenderAreas = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRect2D>>();
     bytes_read += wrapper->pPerViewRenderAreas->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPerViewRenderAreas = wrapper->pPerViewRenderAreas->GetPointer();
 
@@ -19606,10 +19606,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->dstAccelerationStructure));
     value->dstAccelerationStructure = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->geometryCount));
-    wrapper->pGeometries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAccelerationStructureGeometryKHR>/*@@@PLQ*/>();
+    wrapper->pGeometries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAccelerationStructureGeometryKHR>>();
     bytes_read += wrapper->pGeometries->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pGeometries = wrapper->pGeometries->GetPointer();
-    wrapper->ppGeometries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAccelerationStructureGeometryKHR*>/*@@@EHI*/>();
+    wrapper->ppGeometries = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAccelerationStructureGeometryKHR*>>();
     bytes_read += wrapper->ppGeometries->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->ppGeometries = wrapper->ppGeometries->GetPointer();
     wrapper->scratchData = DecodeAllocator::Allocate<Decoded_VkDeviceOrHostAddressKHR>();
@@ -19855,21 +19855,21 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRayTrac
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stageCount));
-    wrapper->pStages = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineShaderStageCreateInfo>/*@@@PLQ*/>();
+    wrapper->pStages = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineShaderStageCreateInfo>>();
     bytes_read += wrapper->pStages->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStages = wrapper->pStages->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->groupCount));
-    wrapper->pGroups = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRayTracingShaderGroupCreateInfoKHR>/*@@@PLQ*/>();
+    wrapper->pGroups = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRayTracingShaderGroupCreateInfoKHR>>();
     bytes_read += wrapper->pGroups->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pGroups = wrapper->pGroups->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxPipelineRayRecursionDepth));
-    wrapper->pLibraryInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineLibraryCreateInfoKHR>/*@@@PLQ*/>();
+    wrapper->pLibraryInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineLibraryCreateInfoKHR>>();
     bytes_read += wrapper->pLibraryInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pLibraryInfo = wrapper->pLibraryInfo->GetPointer();
-    wrapper->pLibraryInterface = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRayTracingPipelineInterfaceCreateInfoKHR>/*@@@PLQ*/>();
+    wrapper->pLibraryInterface = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkRayTracingPipelineInterfaceCreateInfoKHR>>();
     bytes_read += wrapper->pLibraryInterface->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pLibraryInterface = wrapper->pLibraryInterface->GetPointer();
-    wrapper->pDynamicState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineDynamicStateCreateInfo>/*@@@PLQ*/>();
+    wrapper->pDynamicState = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineDynamicStateCreateInfo>>();
     bytes_read += wrapper->pDynamicState->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDynamicState = wrapper->pDynamicState->GetPointer();
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->layout));

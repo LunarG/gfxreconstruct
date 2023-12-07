@@ -125,6 +125,8 @@ const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
+const char kDumpResourcesArgument[]             = "--dump-resources";
+const char kDumpResourcesBeforeDrawOption[]     = "--dump-resources-before-draw";
 
 enum class WsiPlatform
 {
@@ -769,8 +771,12 @@ static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser
     return msgs;
 }
 
-static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
+static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
+                             const gfxrecon::util::ArgumentParser& arg_parser,
+                             const std::string&                    filename)
 {
+    options.filename = filename;
+
     if (arg_parser.IsOptionSet(kValidateOption))
     {
         options.enable_validation_layer = true;
@@ -828,7 +834,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
                        gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
 {
     gfxrecon::decode::VulkanReplayOptions replay_options;
-    GetReplayOptions(replay_options, arg_parser);
+    GetReplayOptions(replay_options, arg_parser, filename);
 
     const auto& override_gpu_group = arg_parser.GetArgumentValue(kOverrideGpuGroupArgument);
     if (!override_gpu_group.empty())
@@ -963,14 +969,88 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.wait_before_present = true;
     }
 
+    const std::string& dump_resources = arg_parser.GetArgumentValue(kDumpResourcesArgument);
+    if (!dump_resources.empty())
+    {
+        std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, ',');
+        if (!values.empty())
+        {
+            bool error = false;
+            if (values.size() % 3 == 0)
+            {
+                for (auto i = 0; i < values.size(); i += 3)
+                {
+                    char* endptr;
+                    struct gfxrecon::decode::ReplayOptionsTripletStruct triplet;
+                    errno = 0;
+                    triplet.opt_BeginCommandBuffer_Index = strtol(values[i + 0].c_str(), &endptr, 10);
+                    error |= (errno != 0 || *endptr != 0);
+                    triplet.opt_CmdDraw_Index = strtol(values[i + 1].c_str(), &endptr, 10);
+                    error |= (errno != 0 || *endptr != 0);
+                    triplet.opt_QueueSubmit_Index = strtol(values[i + 2].c_str(), &endptr, 10);
+                    error |= (errno != 0 || *endptr != 0);
+                    if (!error)
+                    {
+                        replay_options.OrigReplayOptions.push_back(triplet);
+                    }
+                }
+            }
+
+#if !defined(D3D12_SUPPORT)
+            // Ignore dump-resources arg errors if D3D12_SUPPORT is enabled -- args may be for D3D12 replay, so let GetDxReplayOptions generate an error.
+            if (error)
+            {
+                replay_options.OrigReplayOptions.clear();
+                replay_options.BeginCommandBuffer_Index.clear();
+                replay_options.QueueSubmit_indices.clear();
+                replay_options.CmdDraw_Index.clear();
+                replay_options.CmdDispatch_Index.clear();
+                replay_options.CmdTraceRaysKHR_Index.clear();
+                replay_options.RenderPass_Indices.clear();
+                GFXRECON_LOG_ERROR("The parameter to --dump-resources is invalid.");
+            }
+#endif
+            if (!error)
+            {
+                // Transfer dr args to vectors
+                for (auto it=replay_options.OrigReplayOptions.begin(); it != replay_options.OrigReplayOptions.end(); it++)
+                {
+                    replay_options.BeginCommandBuffer_Index.push_back(it->opt_BeginCommandBuffer_Index);
+                    replay_options.QueueSubmit_indices.push_back(it->opt_QueueSubmit_Index);
+
+                    // Get index of BeginCommandBuffer_Index item we just inserted into
+                    size_t cdi = std::find(replay_options.BeginCommandBuffer_Index.begin(),replay_options.BeginCommandBuffer_Index.end(), it->opt_BeginCommandBuffer_Index) -
+                                 replay_options.BeginCommandBuffer_Index.begin();
+
+                    if (replay_options.CmdDraw_Index.size() <= cdi)
+                    {
+                        // Add a row to CommandDraw_Index by pushing new value
+                        replay_options.CmdDraw_Index.push_back({it->opt_CmdDraw_Index});
+                        replay_options.CmdDispatch_Index.push_back({it->opt_CmdDraw_Index});      //TODO: This is a kludge
+                        replay_options.CmdTraceRaysKHR_Index.push_back({it->opt_CmdDraw_Index});  //TODO: This is a kludge
+                        replay_options.RenderPass_Indices.push_back({{it->opt_CmdDraw_Index}});   //TODO: This is a kludge
+                    }
+                    else
+                    {
+                        // Append a new value to existing CommandDraw_Index row
+                        replay_options.CmdDraw_Index[cdi].push_back(it->opt_CmdDraw_Index);
+                    }
+                }
+            }
+        }
+    }
+
+    replay_options.dump_rts_before_dc = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
+
     return replay_options;
 }
 
 #if defined(D3D12_SUPPORT)
-static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
+static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser,
+                                                            const std::string&                    filename)
 {
     gfxrecon::decode::DxReplayOptions replay_options;
-    GetReplayOptions(replay_options, arg_parser);
+    GetReplayOptions(replay_options, arg_parser, filename);
 
     replay_options.DeniedDebugMessages  = GetFilteredMsgs(arg_parser, kDeniedMessages);
     replay_options.AllowedDebugMessages = GetFilteredMsgs(arg_parser, kAllowedMessages);
@@ -994,6 +1074,36 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     if (arg_parser.IsOptionSet(kDxOverrideObjectNames))
     {
         replay_options.override_object_names = true;
+    }
+
+    const std::string& dump_resources = arg_parser.GetArgumentValue(kDumpResourcesArgument);
+    if (!dump_resources.empty())
+    {
+        // Ignore this option is it is of the form --dump-resource i1,i2,i3.  That is the Vulkan
+        // form of this option and the args should have already been parsed in GetVulkanReplayOptions.
+        std::vector<std::string> vvalues = gfxrecon::util::strings::SplitString(dump_resources, ',');
+        bool isVulkanDumpResources = false;
+        if (vvalues.size() % 3 == 0)
+        {
+            isVulkanDumpResources = true;
+        }
+        std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, '-');
+        if (!isVulkanDumpResources && !values.empty())
+        {
+            if (values.size() != 2)
+            {
+                GFXRECON_LOG_ERROR("Ignoring invalid --dump-resources parameter: %s", dump_resources.c_str());
+            }
+            else if (values[0].compare("drawcall") == 0)
+            {
+                replay_options.dump_resources_type     = gfxrecon::decode::DumpResourcesType::kDrawCall;
+                replay_options.dump_resources_argument = std::stoi(values[1]);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Ignoring invalid --dump-resources parameter: %s", dump_resources.c_str());
+            }
+        }
     }
 
     const std::string& memory_usage = arg_parser.GetArgumentValue(kBatchingMemoryUsageArgument);

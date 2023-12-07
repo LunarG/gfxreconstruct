@@ -61,12 +61,27 @@ struct BmpInfoHeader
 
 #pragma pack(pop)
 
+enum DataFormats
+{
+    kFormat_UNSPECIFIED = 0,
+    kFormat_RGB,
+    kFormat_RGBA,
+    kFormat_BGR,
+    kFormat_B10G11R11_UFLOAT,
+    kFormat_BGRA,
+    kFormat_A2B10G10R10,
+    kFormat_D32_FLOAT,
+    kFormat_D24_UNORM,
+    kFormat_D16_UNORM
+};
+
 bool WriteBmpImage(const std::string& filename,
                    uint32_t           width,
                    uint32_t           height,
                    uint64_t           data_size,
                    const void*        data,
-                   uint32_t           pitch = 0);
+                   uint32_t           pitch       = 0,
+                   DataFormats        data_format = kFormat_UNSPECIFIED);
 
 bool WriteBmpImageNoAlpha(const std::string& filename,
                           uint32_t           width,
