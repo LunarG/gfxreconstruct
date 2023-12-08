@@ -687,6 +687,13 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice            
                     result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos);
         }
     }
+    else
+    {
+        GFXRECON_LOG_WARNING("The operation of vkCreateRayTracingPipelinesKHR call is deferred, so the writing of "
+                             "vkCreateRayTracingPipelinesKHR block to capture file will be delayed until the deferred "
+                             "operation (handle = 0x%" PRIx64 ") is finished.",
+                             deferredOperation);
+    }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(
         VulkanCaptureManager::Get(),
