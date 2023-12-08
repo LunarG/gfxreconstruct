@@ -39,7 +39,7 @@ std::string to_binary_fixed_width(const T value)
     std::string ret{ "0b" };
     for (auto i = num_bits; i > 0; --i)
     {
-        ret += ((value >> i - 1) & one) ? '1' : '0';
+        ret += ((value >> (i - 1)) & one) ? '1' : '0';
     }
     return ret;
 }
