@@ -129,7 +129,8 @@ enum CommandHandleType : uint32_t
     VideoSessionKHRHandle,
     VideoSessionParametersKHRHandle,
     ShaderEXTHandle,
-    NumHandleTypes
+
+    NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };
 
 GFXRECON_END_NAMESPACE(encode)
