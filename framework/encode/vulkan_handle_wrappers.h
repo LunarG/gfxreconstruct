@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -346,6 +347,9 @@ struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR
     VkAllocationCallbacks                          allocator{};
     VkAllocationCallbacks*                         p_allocator{ nullptr };
     std::vector<VkPipeline>                        pipelines;
+    VkPipeline*                                    pPipelines;
+    VkPipelineCache                                pipelineCache;
+    bool                                           pending_state = false;
 };
 
 struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>

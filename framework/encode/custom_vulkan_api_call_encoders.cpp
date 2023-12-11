@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -652,24 +653,40 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice            
         omit_output_data = true;
     }
 
-    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(
-        format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
-    if (encoder)
+    auto device_wrapper = GetWrapper<DeviceWrapper>(device);
+    if ((result != VK_OPERATION_DEFERRED_KHR) ||
+        (!device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay))
     {
-        encoder->EncodeHandleValue<DeviceWrapper>(device);
-        encoder->EncodeHandleValue<DeferredOperationKHRWrapper>(deferredOperation);
-        encoder->EncodeHandleValue<PipelineCacheWrapper>(pipelineCache);
-        encoder->EncodeUInt32Value(createInfoCount);
-        EncodeStructArray(encoder, pCreateInfos, createInfoCount);
-        EncodeStructPtr(encoder, pAllocator);
-        encoder->EncodeHandleArray<PipelineWrapper>(pPipelines, createInfoCount, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        VulkanCaptureManager::Get()
-            ->EndGroupCreateApiCallCapture<VkDevice,
-                                           VkDeferredOperationKHR,
-                                           PipelineWrapper,
-                                           VkRayTracingPipelineCreateInfoKHR>(
-                result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos);
+        // If the operation is not deferred by driver. or the system doesn't support
+        // rayTracingPipelineShaderGroupHandleCaptureReplay, we don't need to delay writing the block of
+        // vkCreateRayTracingPipelinesKHR to the capture file.
+        //
+        // If the operation is deferred by driver and the system supports
+        // rayTracingPipelineShaderGroupHandleCaptureReplay, we will need to make sure opaque capture replay data for
+        // pipeline shader group handles are ready when calling vkCreateRayTracingPipelinesKHR during replay. However,
+        // opaque capture replay data for pipeline shader group handles needs pipeline creation to be finished so that
+        // vkGetRayTracingCaptureReplayShaderGroupHandlesKHR may be used. For this reason, we will delay the writing of
+        // vkCreateRayTracingPipelinesKHR block to capture file until the deferred operation is finished.
+
+        auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallCapture(
+            format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
+        if (encoder)
+        {
+            encoder->EncodeHandleValue<DeviceWrapper>(device);
+            encoder->EncodeHandleValue<DeferredOperationKHRWrapper>(deferredOperation);
+            encoder->EncodeHandleValue<PipelineCacheWrapper>(pipelineCache);
+            encoder->EncodeUInt32Value(createInfoCount);
+            EncodeStructArray(encoder, pCreateInfos, createInfoCount);
+            EncodeStructPtr(encoder, pAllocator);
+            encoder->EncodeHandleArray<PipelineWrapper>(pPipelines, createInfoCount, omit_output_data);
+            encoder->EncodeEnumValue(result);
+            VulkanCaptureManager::Get()
+                ->EndGroupCreateApiCallCapture<VkDevice,
+                                               VkDeferredOperationKHR,
+                                               PipelineWrapper,
+                                               VkRayTracingPipelineCreateInfoKHR>(
+                    result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos);
+        }
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(

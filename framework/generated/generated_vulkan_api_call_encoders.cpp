@@ -12958,7 +12958,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeferredOperationResultKHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR>::Dispatch(manager, device, operation);
 
-    VkResult result = GetDeviceTable(device)->GetDeferredOperationResultKHR(device, operation);
+    VkResult result = manager->OverrideGetDeferredOperationResultKHR(device, operation);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR);
     if (encoder)
@@ -12994,7 +12994,7 @@ VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR>::Dispatch(manager, device, operation);
 
-    VkResult result = GetDeviceTable(device)->DeferredOperationJoinKHR(device, operation);
+    VkResult result = manager->OverrideDeferredOperationJoinKHR(device, operation);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR);
     if (encoder)
