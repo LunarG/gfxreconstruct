@@ -204,16 +204,16 @@ int main(int argc, const char** argv)
     {
         GFXRECON_LOG_INFO("D3D12 support for gfxrecon-convert is currently experimental.");
         GFXRECON_LOG_INFO("To enable it, run cmake again with switch -DCONVERT_EXPERIMENTAL_D3D12");
-        ret_code = 1;
-        goto exit;
+        gfxrecon::util::Log::Release();
+        return 1;
     }
 #endif
 
     if (file_per_frame && output_to_stdout)
     {
         GFXRECON_LOG_ERROR("Outputting a file per frame is not consistent with outputting to stdout.");
-        ret_code = 1;
-        goto exit;
+        gfxrecon::util::Log::Release();
+        return 1;
     }
 
     if (dump_binaries)
@@ -224,8 +224,8 @@ int main(int argc, const char** argv)
             if (!gfxrecon::util::filepath::IsDirectory(data_dir))
             {
                 GFXRECON_LOG_ERROR("Failed to create directory for dumping binary blobs into: '%s'.", data_dir.c_str());
-                ret_code = 1;
-                goto exit;
+                gfxrecon::util::Log::Release();
+                return 1;
             }
             else
             {
@@ -260,16 +260,16 @@ int main(int argc, const char** argv)
             if (result != 0)
             {
                 GFXRECON_LOG_ERROR("Error while opening file \"%s\"", json_filename.c_str());
-                ret_code = 1;
-                goto exit;
+                gfxrecon::util::Log::Release();
+                return 1;
             }
         }
 
         if (!out_file_handle)
         {
             GFXRECON_LOG_ERROR("Failed to open/create output file \"%s\"", output_filename.c_str());
-            ret_code = 1;
-            goto exit;
+            gfxrecon::util::Log::Release();
+            return 1;
         }
         else
         {
@@ -318,8 +318,8 @@ int main(int argc, const char** argv)
                     if (close_result != 0)
                     {
                         GFXRECON_LOG_ERROR("Failed to close file: '%s'.", json_filename.c_str());
-                        ret_code = 1;
-                        goto exit;
+                        gfxrecon::util::Log::Release();
+                        return 1;
                     }
                     json_filename = gfxrecon::util::filepath::InsertFilenamePostfix(
                         output_filename, +"_" + FormatFrameNumber(file_processor.GetCurrentFrameNumber()));
@@ -334,8 +334,8 @@ int main(int argc, const char** argv)
                     else
                     {
                         GFXRECON_LOG_ERROR("Failed to open file: '%s'.", json_filename.c_str());
-                        ret_code = 1;
-                        goto exit;
+                        gfxrecon::util::Log::Release();
+                        return 1;
                     }
                 }
             }
@@ -355,8 +355,6 @@ int main(int argc, const char** argv)
             }
         }
     }
-    goto exit; // The other goto is inside an #ifdef and if compiled-out an unreferenced label warning results.
-exit:
     gfxrecon::util::Log::Release();
     return ret_code;
 }
