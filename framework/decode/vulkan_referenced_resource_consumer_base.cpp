@@ -31,7 +31,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReferencedResourceConsumerBase::VulkanReferencedResourceConsumerBase() :
-    loading_state_(false), loaded_state_(false)
+    loading_state_(false), loaded_state_(false), not_optimizable_(false)
 {}
 
 void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallInfo& call_info,
@@ -126,9 +126,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(
         // Stop processing if file did not start with a state block.
         if (!loaded_state_)
         {
-            // There is currently no way for a consumer to indicate that file processing should terminate early, except
-            // by throwing an exception.
-            throw std::runtime_error("File does not contain a state block to optimize");
+            GFXRECON_LOG_INFO("File does not contain a state block to optimize");
+            not_optimizable_ = true;
         }
     }
 }
@@ -182,9 +181,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateImage(
         // Stop processing the file if it did not start with a state block.
         if (!loaded_state_)
         {
-            // There is currently no way for a consumer to indicate that file processing should terminate early, except
-            // by throwing an exception.
-            throw std::runtime_error("File does not contain a state block to optimize");
+            GFXRECON_LOG_INFO("File does not contain a state block to optimize");
+            not_optimizable_ = true;
         }
     }
 }
