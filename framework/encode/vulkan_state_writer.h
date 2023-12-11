@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -135,6 +136,8 @@ class VulkanStateWriter
     void WriteDeviceMemoryState(const VulkanStateTable& state_table);
 
     void WriteAccelerationStructureKHRState(const VulkanStateTable& state_table);
+
+    void WriteDeferredOperationJoinCommand(format::HandleId device_id, format::HandleId deferred_operation_id);
 
     void
     ProcessHardwareBuffer(format::HandleId memory_id, AHardwareBuffer* hardware_buffer, VkDeviceSize allocation_size);

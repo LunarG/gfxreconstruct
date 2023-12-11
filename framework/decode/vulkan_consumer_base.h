@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -75,6 +76,18 @@ class VulkanConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData)
+    {}
+
+    virtual void Process_vkCreateRayTracingPipelinesKHR(
+        const ApiCallInfo&                                               call_info,
+        VkResult                                                         returnValue,
+        format::HandleId                                                 device,
+        format::HandleId                                                 deferredOperation,
+        format::HandleId                                                 pipelineCache,
+        uint32_t                                                         createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                pPipelines)
     {}
 
     virtual void ProcessSetTlasToBlasRelationCommand(format::HandleId tlas, const std::vector<format::HandleId>& blases)

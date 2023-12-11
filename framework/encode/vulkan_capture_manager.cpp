@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
-** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -24,6 +24,7 @@
 
 #include "project_version.h"
 
+#include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_capture_manager.h"
 
 #include "encode/vulkan_handle_wrapper_util.h"
@@ -1178,6 +1179,8 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
         }
         deferred_operation_wrapper->create_infos.resize(createInfoCount);
         deferred_operation_wrapper->pipelines.resize(createInfoCount);
+        deferred_operation_wrapper->pPipelines    = pPipelines;
+        deferred_operation_wrapper->pipelineCache = pipelineCache;
     }
     else
     {
@@ -1208,7 +1211,24 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                                 deferred_operation_wrapper->p_allocator,
                                                                 deferred_operation_wrapper->pipelines.data());
 
-            std::memcpy(pPipelines, deferred_operation_wrapper->pipelines.data(), sizeof(VkPipeline) * createInfoCount);
+            if (result == VK_OPERATION_NOT_DEFERRED_KHR)
+            {
+                // VK_OPERATION_NOT_DEFERRED_KHR means the operation successfully completed immediately, so here we copy
+                // the created pipelines to original array which is used to store them by target application.
+                //
+                // Note:
+                //       VK_OPERATION_DEFERRED_KHR means the operation is successfully deferred, but the pipeline
+                //       creation might not be finished. We must therefore lean on
+                //       vkDeferredOperationJoinKHR/vkGetDeferredOperationResultKHR to get the final result. If the
+                //       result indicated the operation has finished, then the created pipelines are ready for use.
+                std::memcpy(
+                    pPipelines, deferred_operation_wrapper->pipelines.data(), sizeof(VkPipeline) * createInfoCount);
+            }
+            else if (result == VK_OPERATION_DEFERRED_KHR)
+            {
+                const std::lock_guard<std::mutex> lock(deferred_operation_mutex);
+                deferred_operation_wrapper->pending_state = true;
+            }
         }
         else
         {
@@ -1240,8 +1260,18 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                                 deferred_operation_wrapper->create_infos.data(),
                                                                 deferred_operation_wrapper->p_allocator,
                                                                 deferred_operation_wrapper->pipelines.data());
-
-            std::memcpy(pPipelines, deferred_operation_wrapper->pipelines.data(), sizeof(VkPipeline) * createInfoCount);
+            if (result == VK_OPERATION_NOT_DEFERRED_KHR)
+            {
+                // If the driver doesn't defer the command, and instead completed the operation immediately, we copy the
+                // created pipelines to original array which is used to store them by target application.
+                std::memcpy(
+                    pPipelines, deferred_operation_wrapper->pipelines.data(), sizeof(VkPipeline) * createInfoCount);
+            }
+            else if (result == VK_OPERATION_DEFERRED_KHR)
+            {
+                const std::lock_guard<std::mutex> lock(deferred_operation_mutex);
+                deferred_operation_wrapper->pending_state = true;
+            }
         }
         else
         {
@@ -1254,10 +1284,11 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                                 pPipelines);
         }
     }
-    if (((result == VK_SUCCESS) || (result == VK_OPERATION_DEFERRED_KHR) ||
-         (result == VK_OPERATION_NOT_DEFERRED_KHR)) &&
-        (pPipelines != nullptr))
+
+    if (((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR)) && (pPipelines != nullptr))
     {
+        // If the return result show the creation is successfully finished, we do the following process.
+
         CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(
             device, deferredOperation, pPipelines, createInfoCount, GetUniqueId);
 
@@ -1289,6 +1320,139 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                 }
             }
         }
+    }
+
+    return result;
+}
+
+void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               device,
+                                                        VkDeferredOperationKHR deferredOperation,
+                                                        bool                   capture_manager_tracking)
+{
+    const std::lock_guard<std::mutex> lock(deferred_operation_mutex);
+    VkResult                          result      = VK_SUCCESS;
+    auto               deferred_operation_wrapper = GetWrapper<DeferredOperationKHRWrapper>(deferredOperation);
+    auto               device_wrapper             = GetWrapper<DeviceWrapper>(device);
+    const DeviceTable* device_table               = GetDeviceTable(device);
+
+    GFXRECON_ASSERT(device_table != nullptr);
+
+    if ((deferred_operation_wrapper != nullptr) && (deferred_operation_wrapper->pending_state))
+    {
+        deferred_operation_wrapper->pending_state = false;
+        uint32_t create_info_count                = deferred_operation_wrapper->create_infos.size();
+        std::memcpy(deferred_operation_wrapper->pPipelines,
+                    deferred_operation_wrapper->pipelines.data(),
+                    sizeof(VkPipeline) * deferred_operation_wrapper->create_infos.size());
+
+        CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(
+            device, deferredOperation, deferred_operation_wrapper->pPipelines, create_info_count, GetUniqueId);
+
+        for (uint32_t i = 0; i < create_info_count; ++i)
+        {
+            auto pipeline_wrapper = GetWrapper<PipelineWrapper>(deferred_operation_wrapper->pPipelines[i]);
+
+            if (deferred_operation_wrapper)
+            {
+                pipeline_wrapper->deferred_operation.handle_id         = deferred_operation_wrapper->handle_id;
+                pipeline_wrapper->deferred_operation.create_call_id    = deferred_operation_wrapper->create_call_id;
+                pipeline_wrapper->deferred_operation.create_parameters = deferred_operation_wrapper->create_parameters;
+            }
+
+            if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+            {
+                const uint32_t data_size =
+                    device_wrapper->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
+                    deferred_operation_wrapper->create_infos[i].groupCount;
+
+                std::vector<uint8_t> data(data_size);
+                device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(
+                    device_wrapper->handle,
+                    pipeline_wrapper->handle,
+                    0,
+                    deferred_operation_wrapper->create_infos[i].groupCount,
+                    data_size,
+                    data.data());
+
+                WriteSetRayTracingShaderGroupHandlesCommand(
+                    device_wrapper->handle_id, pipeline_wrapper->handle_id, data_size, data.data());
+
+                if (capture_manager_tracking == true)
+                {
+                    state_tracker_->TrackRayTracingShaderGroupHandles(
+                        device, deferred_operation_wrapper->pPipelines[i], data_size, data.data());
+                }
+            }
+        }
+
+        // When the command vkCreateRayTracingPipelinesKHR is deferred at capture time, the created pipelines might not
+        // be ready on the return of the API call, because the pipeline creation workload might not be finished. But for
+        // replay time, we must guarantee the data relevant to vkGetRayTracingCaptureReplayShaderGroupHandlesKHR is
+        // ready before calling vkCreateRaytracingPipelines so shader group handles during playback are the same with
+        // capture time. The special handling needed here that when the command vkCreateRayTracingPipelinesKHR is
+        // deferred, the writing of its block will be delayed writing to file, until it is confirmed that the deferred
+        // command is finished.
+        auto encoder = BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
+
+        if (encoder)
+        {
+            encoder->EncodeHandleValue<DeviceWrapper>(device);
+            encoder->EncodeHandleValue<DeferredOperationKHRWrapper>(deferredOperation);
+            encoder->EncodeHandleValue<PipelineCacheWrapper>(deferred_operation_wrapper->pipelineCache);
+            encoder->EncodeUInt32Value(create_info_count);
+            EncodeStructArray(encoder, deferred_operation_wrapper->create_infos.data(), create_info_count);
+            EncodeStructPtr(encoder, deferred_operation_wrapper->p_allocator);
+            encoder->EncodeHandleArray<PipelineWrapper>(
+                deferred_operation_wrapper->pPipelines, create_info_count, false);
+            encoder->EncodeEnumValue(VK_OPERATION_DEFERRED_KHR);
+            EndGroupCreateApiCallCapture<VkDevice,
+                                         VkDeferredOperationKHR,
+                                         PipelineWrapper,
+                                         VkRayTracingPipelineCreateInfoKHR>(
+                result,
+                device,
+                deferredOperation,
+                create_info_count,
+                deferred_operation_wrapper->pPipelines,
+                deferred_operation_wrapper->create_infos.data());
+        }
+    }
+}
+
+VkResult VulkanCaptureManager::OverrideDeferredOperationJoinKHR(VkDevice device, VkDeferredOperationKHR operation)
+{
+    auto device_table = GetDeviceTable(device);
+    GFXRECON_ASSERT(device_table != nullptr);
+    VkResult result = device_table->DeferredOperationJoinKHR(device, operation);
+
+    if (result == VK_SUCCESS)
+    {
+        // The deferred operation done and we continue to get the deferred command return value.
+        VkResult deferred_command_result = device_table->GetDeferredOperationResultKHR(device, operation);
+
+        if (deferred_command_result == VK_SUCCESS)
+        {
+            // The deferred command return VK_SUCCESS
+            DeferredOperationPostProcess(device, operation, (GetCaptureMode() & kModeTrack) == kModeTrack);
+        }
+    }
+
+    return result;
+}
+
+VkResult VulkanCaptureManager::OverrideGetDeferredOperationResultKHR(VkDevice device, VkDeferredOperationKHR operation)
+{
+    auto device_table = GetDeviceTable(device);
+    GFXRECON_ASSERT(device_table != nullptr);
+    VkResult result = device_table->GetDeferredOperationResultKHR(device, operation);
+
+    if (result == VK_SUCCESS)
+    {
+        // There are the following two cases with VK_SUCCESS for vkGetDeferredOperationResultKHR. Both are covered by
+        // DeferredOperationPostProcess:
+        //    1. The deferred operation finished and returned VK_SUCCESS.
+        //    2. No command has been deferred on the deferred operation object.
+        DeferredOperationPostProcess(device, operation, (GetCaptureMode() & kModeTrack) == kModeTrack);
     }
 
     return result;

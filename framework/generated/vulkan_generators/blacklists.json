@@ -12,6 +12,7 @@
     "vkCmdPushDescriptorSetWithTemplateKHR",
     "vkBuildAccelerationStructuresKHR",
     "vkCopyAccelerationStructureKHR",
+    "vkCreateRayTracingPipelinesKHR",
     "vkSetLatencySleepModeNV",
     "vkLatencySleepNV",
     "vkSetLatencyMarkerNV",
@@ -25,7 +26,6 @@
     "vkCreateRayTracingPipelinesKHR"
   ],
   "functions-decoder": [
-    "vkCreateRayTracingPipelinesKHR",
     "vkDeferredOperationJoinKHR"
   ],
   "structures": [

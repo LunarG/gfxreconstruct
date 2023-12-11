@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2022 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -432,11 +433,13 @@ struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 
 struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR>
 {
-    VkResult join_state{ VK_NOT_READY };
+    bool pending_state{ false };
 
     // Record CreateRayTracingPipelinesKHR parameters for safety.
     std::vector<VkRayTracingPipelineCreateInfoKHR>                 record_modified_create_infos;
     std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>> record_modified_pgroups;
+    std::vector<VkPipeline>                                        replayPipelines;
+    std::vector<format::HandleId>                                  capturePipelines;
 };
 
 struct VideoSessionKHRInfo : VulkanObjectInfo<VkVideoSessionKHR>

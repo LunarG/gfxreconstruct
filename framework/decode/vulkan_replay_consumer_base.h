@@ -178,6 +178,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
+    virtual void Process_vkCreateRayTracingPipelinesKHR(
+        const ApiCallInfo&                                               call_info,
+        VkResult                                                         returnValue,
+        format::HandleId                                                 device,
+        format::HandleId                                                 deferredOperation,
+        format::HandleId                                                 pipelineCache,
+        uint32_t                                                         createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                pPipelines);
 
   protected:
     const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
