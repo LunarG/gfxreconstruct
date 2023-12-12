@@ -2917,6 +2917,8 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
     {
         case CommandHandleType::BufferHandle:
             return IsBufferValid(handle_id, state_table);
+        case CommandHandleType::BufferViewHandle:
+            return IsBufferViewValid(handle_id, state_table);
         case CommandHandleType::CommandBufferHandle:
             return (state_table.GetCommandBufferWrapper(handle_id) != nullptr);
         case CommandHandleType::DescriptorSetHandle:
@@ -2937,6 +2939,8 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
             return (state_table.GetQueryPoolWrapper(handle_id) != nullptr);
         case CommandHandleType::RenderPassHandle:
             return (state_table.GetRenderPassWrapper(handle_id) != nullptr);
+        case CommandHandleType::SamplerHandle:
+            return (state_table.GetSamplerWrapper(handle_id) != nullptr);
         case CommandHandleType::AccelerationStructureNVHandle:
             return (state_table.GetAccelerationStructureNVWrapper(handle_id) != nullptr);
         case CommandHandleType::AccelerationStructureKHRHandle:
@@ -2945,6 +2949,16 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
             return (state_table.GetIndirectCommandsLayoutNVWrapper(handle_id) != nullptr);
         case CommandHandleType::DeferredOperationKHRHandle:
             return (state_table.GetDeferredOperationKHRWrapper(handle_id) != nullptr);
+        case CommandHandleType::MicromapEXTHandle:
+            return (state_table.GetMicromapEXTWrapper(handle_id) != nullptr);
+        case CommandHandleType::OpticalFlowSessionNVHandle:
+            return (state_table.GetOpticalFlowSessionNVWrapper(handle_id) != nullptr);
+        case CommandHandleType::VideoSessionKHRHandle:
+            return (state_table.GetVideoSessionKHRWrapper(handle_id) != nullptr);
+        case CommandHandleType::VideoSessionParametersKHRHandle:
+            return (state_table.GetVideoSessionParametersKHRWrapper(handle_id) != nullptr);
+        case CommandHandleType::ShaderEXTHandle:
+            return (state_table.GetShaderEXTWrapper(handle_id) != nullptr);
         default:
             GFXRECON_LOG_ERROR("State write is skipping unrecognized handle type when checking handles "
                                "referenced by command buffers");
