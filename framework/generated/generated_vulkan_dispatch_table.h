@@ -136,6 +136,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(VkPhysical
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceFragmentShadingRatesKHR(VkPhysicalDevice, uint32_t*, VkPhysicalDeviceFragmentShadingRateKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceFragmentShadingRatesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR*, VkVideoEncodeQualityLevelPropertiesKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesKHR(VkPhysicalDevice, uint32_t*, VkCooperativeMatrixPropertiesKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsKHR(VkPhysicalDevice, uint32_t*, VkTimeDomainKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceCalibrateableTimeDomainsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance, const VkDebugReportCallbackCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugReportCallbackEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateDebugReportCallbackEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance, VkDebugReportCallbackEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyDebugReportCallbackEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(VkInstance, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDebugReportMessageEXT was called, resulting in no-op behavior."); }
@@ -154,7 +155,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(VkInstance, c
 static VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyDebugUtilsMessengerEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(VkInstance, VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSubmitDebugUtilsMessageEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(VkPhysicalDevice, VkSampleCountFlagBits, VkMultisamplePropertiesEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceMultisamplePropertiesEXT was called, resulting in no-op behavior."); }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(VkPhysicalDevice, uint32_t*, VkTimeDomainEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceCalibrateableTimeDomainsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(VkPhysicalDevice, uint32_t*, VkTimeDomainKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceCalibrateableTimeDomainsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(VkInstance, const VkImagePipeSurfaceCreateInfoFUCHSIA*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateImagePipeSurfaceFUCHSIA was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(VkInstance, const VkMetalSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateMetalSurfaceEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice, uint32_t*, VkPhysicalDeviceToolProperties*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPhysicalDeviceToolPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -459,6 +460,7 @@ static VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer2KHR(VkCommandBuffer, VkBuff
 static VKAPI_ATTR void VKAPI_CALL GetRenderingAreaGranularityKHR(VkDevice, const VkRenderingAreaInfoKHR*, VkExtent2D*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetRenderingAreaGranularityKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceImageSubresourceLayoutKHR(VkDevice, const VkDeviceImageSubresourceInfoKHR*, VkSubresourceLayout2KHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageSubresourceLayoutKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2KHR(VkDevice, VkImage, const VkImageSubresource2KHR*, VkSubresourceLayout2KHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsKHR(VkDevice, uint32_t, const VkCalibratedTimestampInfoKHR*, uint64_t*, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetCalibratedTimestampsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL FrameBoundaryANDROID(VkDevice, VkSemaphore, VkImage) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkFrameBoundaryANDROID was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(VkDevice, const VkDebugMarkerObjectTagInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDebugMarkerSetObjectTagEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(VkDevice, const VkDebugMarkerObjectNameInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDebugMarkerSetObjectNameEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -522,7 +524,7 @@ static VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(VkC
 static VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(VkDevice, VkPipeline, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCompileDeferredNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(VkDevice, VkExternalMemoryHandleTypeFlagBits, const void*, VkMemoryHostPointerPropertiesEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetMemoryHostPointerPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(VkCommandBuffer, VkPipelineStageFlagBits, VkBuffer, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdWriteBufferMarkerAMD was called, resulting in no-op behavior."); }
-static VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(VkDevice, uint32_t, const VkCalibratedTimestampInfoEXT*, uint64_t*, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetCalibratedTimestampsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(VkDevice, uint32_t, const VkCalibratedTimestampInfoKHR*, uint64_t*, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetCalibratedTimestampsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksNV(VkCommandBuffer, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawMeshTasksNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(VkCommandBuffer, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawMeshTasksIndirectNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawMeshTasksIndirectCountNV was called, resulting in no-op behavior."); }
@@ -764,6 +766,7 @@ struct InstanceTable
     PFN_vkGetPhysicalDeviceFragmentShadingRatesKHR GetPhysicalDeviceFragmentShadingRatesKHR{ noop::GetPhysicalDeviceFragmentShadingRatesKHR };
     PFN_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR{ noop::GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR };
     PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR GetPhysicalDeviceCooperativeMatrixPropertiesKHR{ noop::GetPhysicalDeviceCooperativeMatrixPropertiesKHR };
+    PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR GetPhysicalDeviceCalibrateableTimeDomainsKHR{ noop::GetPhysicalDeviceCalibrateableTimeDomainsKHR };
     PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallbackEXT{ noop::CreateDebugReportCallbackEXT };
     PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportCallbackEXT{ noop::DestroyDebugReportCallbackEXT };
     PFN_vkDebugReportMessageEXT DebugReportMessageEXT{ noop::DebugReportMessageEXT };
@@ -1091,6 +1094,7 @@ struct DeviceTable
     PFN_vkGetRenderingAreaGranularityKHR GetRenderingAreaGranularityKHR{ noop::GetRenderingAreaGranularityKHR };
     PFN_vkGetDeviceImageSubresourceLayoutKHR GetDeviceImageSubresourceLayoutKHR{ noop::GetDeviceImageSubresourceLayoutKHR };
     PFN_vkGetImageSubresourceLayout2KHR GetImageSubresourceLayout2KHR{ noop::GetImageSubresourceLayout2KHR };
+    PFN_vkGetCalibratedTimestampsKHR GetCalibratedTimestampsKHR{ noop::GetCalibratedTimestampsKHR };
     PFN_vkFrameBoundaryANDROID FrameBoundaryANDROID{ noop::FrameBoundaryANDROID };
     PFN_vkDebugMarkerSetObjectTagEXT DebugMarkerSetObjectTagEXT{ noop::DebugMarkerSetObjectTagEXT };
     PFN_vkDebugMarkerSetObjectNameEXT DebugMarkerSetObjectNameEXT{ noop::DebugMarkerSetObjectNameEXT };
@@ -1401,6 +1405,7 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceFragmentShadingRatesKHR", &table->GetPhysicalDeviceFragmentShadingRatesKHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR", &table->GetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR", &table->GetPhysicalDeviceCooperativeMatrixPropertiesKHR);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceCalibrateableTimeDomainsKHR", &table->GetPhysicalDeviceCalibrateableTimeDomainsKHR);
     LoadFunction(gpa, instance, "vkCreateDebugReportCallbackEXT", &table->CreateDebugReportCallbackEXT);
     LoadFunction(gpa, instance, "vkDestroyDebugReportCallbackEXT", &table->DestroyDebugReportCallbackEXT);
     LoadFunction(gpa, instance, "vkDebugReportMessageEXT", &table->DebugReportMessageEXT);
@@ -1730,6 +1735,7 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetRenderingAreaGranularityKHR", &table->GetRenderingAreaGranularityKHR);
     LoadFunction(gpa, device, "vkGetDeviceImageSubresourceLayoutKHR", &table->GetDeviceImageSubresourceLayoutKHR);
     LoadFunction(gpa, device, "vkGetImageSubresourceLayout2KHR", &table->GetImageSubresourceLayout2KHR);
+    LoadFunction(gpa, device, "vkGetCalibratedTimestampsKHR", &table->GetCalibratedTimestampsKHR);
     LoadFunction(gpa, device, "vkFrameBoundaryANDROID", &table->FrameBoundaryANDROID);
     LoadFunction(gpa, device, "vkDebugMarkerSetObjectTagEXT", &table->DebugMarkerSetObjectTagEXT);
     LoadFunction(gpa, device, "vkDebugMarkerSetObjectNameEXT", &table->DebugMarkerSetObjectNameEXT);

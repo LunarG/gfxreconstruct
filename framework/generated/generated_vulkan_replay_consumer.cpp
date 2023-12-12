@@ -5440,6 +5440,41 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertie
     if (pProperties->IsNull()) { SetOutputArrayCount<PhysicalDeviceInfo>(physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesKHR, *out_pPropertyCount, &VulkanObjectInfoTable::GetPhysicalDeviceInfo); }
 }
 
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    PointerDecoder<uint32_t>*                   pTimeDomainCount,
+    PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+    uint32_t* out_pTimeDomainCount = pTimeDomainCount->IsNull() ? nullptr : pTimeDomainCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, PhysicalDeviceInfo>("vkGetPhysicalDeviceCalibrateableTimeDomainsKHR", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceCalibrateableTimeDomainsKHR, pTimeDomainCount, pTimeDomains, &VulkanObjectInfoTable::GetPhysicalDeviceInfo));
+    VkTimeDomainKHR* out_pTimeDomains = pTimeDomains->IsNull() ? nullptr : pTimeDomains->AllocateOutputData(*out_pTimeDomainCount);
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceCalibrateableTimeDomainsKHR(in_physicalDevice, out_pTimeDomainCount, out_pTimeDomains);
+    CheckResult("vkGetPhysicalDeviceCalibrateableTimeDomainsKHR", returnValue, replay_result, call_info);
+
+    if (pTimeDomains->IsNull()) { SetOutputArrayCount<PhysicalDeviceInfo>(physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceCalibrateableTimeDomainsKHR, *out_pTimeDomainCount, &VulkanObjectInfoTable::GetPhysicalDeviceInfo); }
+}
+
+void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    timestampCount,
+    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
+    PointerDecoder<uint64_t>*                   pTimestamps,
+    PointerDecoder<uint64_t>*                   pMaxDeviation)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = pTimestampInfos->GetPointer();
+    uint64_t* out_pTimestamps = pTimestamps->IsNull() ? nullptr : pTimestamps->AllocateOutputData(timestampCount);
+    uint64_t* out_pMaxDeviation = pMaxDeviation->IsNull() ? nullptr : pMaxDeviation->AllocateOutputData(1, static_cast<uint64_t>(0));
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetCalibratedTimestampsKHR(in_device, timestampCount, in_pTimestampInfos, out_pTimestamps, out_pMaxDeviation);
+    CheckResult("vkGetCalibratedTimestampsKHR", returnValue, replay_result, call_info);
+}
+
 void VulkanReplayConsumer::Process_vkFrameBoundaryANDROID(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -6726,11 +6761,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEX
     VkResult                                    returnValue,
     format::HandleId                            physicalDevice,
     PointerDecoder<uint32_t>*                   pTimeDomainCount,
-    PointerDecoder<VkTimeDomainEXT>*            pTimeDomains)
+    PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
     uint32_t* out_pTimeDomainCount = pTimeDomainCount->IsNull() ? nullptr : pTimeDomainCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, PhysicalDeviceInfo>("vkGetPhysicalDeviceCalibrateableTimeDomainsEXT", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceCalibrateableTimeDomainsEXT, pTimeDomainCount, pTimeDomains, &VulkanObjectInfoTable::GetPhysicalDeviceInfo));
-    VkTimeDomainEXT* out_pTimeDomains = pTimeDomains->IsNull() ? nullptr : pTimeDomains->AllocateOutputData(*out_pTimeDomainCount);
+    VkTimeDomainKHR* out_pTimeDomains = pTimeDomains->IsNull() ? nullptr : pTimeDomains->AllocateOutputData(*out_pTimeDomainCount);
 
     VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceCalibrateableTimeDomainsEXT(in_physicalDevice, out_pTimeDomainCount, out_pTimeDomains);
     CheckResult("vkGetPhysicalDeviceCalibrateableTimeDomainsEXT", returnValue, replay_result, call_info);
@@ -6743,12 +6778,12 @@ void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsEXT(
     VkResult                                    returnValue,
     format::HandleId                            device,
     uint32_t                                    timestampCount,
-    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoEXT>* pTimestampInfos,
+    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
     PointerDecoder<uint64_t>*                   pTimestamps,
     PointerDecoder<uint64_t>*                   pMaxDeviation)
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    const VkCalibratedTimestampInfoEXT* in_pTimestampInfos = pTimestampInfos->GetPointer();
+    const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = pTimestampInfos->GetPointer();
     uint64_t* out_pTimestamps = pTimestamps->IsNull() ? nullptr : pTimestamps->AllocateOutputData(timestampCount);
     uint64_t* out_pMaxDeviation = pMaxDeviation->IsNull() ? nullptr : pMaxDeviation->AllocateOutputData(1, static_cast<uint64_t>(0));
 
@@ -11007,6 +11042,26 @@ static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, V
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixPropertiesKHR>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineVertexInputDivisorStateCreateInfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCalibratedTimestampInfoKHR>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDebugReportCallbackCreateInfoEXT>());
@@ -11382,6 +11437,11 @@ static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, V
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkHdrMetadataEXT>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkIOSSurfaceCreateInfoMVK>());
@@ -11667,11 +11727,6 @@ static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, V
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineCompilerControlCreateInfoAMD>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCalibratedTimestampInfoEXT>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderCorePropertiesAMD>());
@@ -11685,16 +11740,6 @@ static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, V
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineVertexInputDivisorStateCreateInfoEXT>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP:
@@ -12602,6 +12647,11 @@ static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, V
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>());
@@ -12620,6 +12670,21 @@ static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, V
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderCorePropertiesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceQueueShaderCoreControlCreateInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceSchedulingControlsFeaturesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceSchedulingControlsPropertiesARM>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
@@ -12655,6 +12720,31 @@ static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, V
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRenderPassStripedFeaturesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRenderPassStripedPropertiesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkRenderPassStripeInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkRenderPassStripeBeginInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkRenderPassStripeSubmitInfoARM>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM:
@@ -12905,6 +12995,11 @@ static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, V
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkLayerSettingsCreateInfoEXT>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:

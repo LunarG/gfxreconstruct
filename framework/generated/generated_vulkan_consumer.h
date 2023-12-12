@@ -2473,6 +2473,22 @@ class VulkanConsumer : public VulkanConsumerBase
         PointerDecoder<uint32_t>*                   pPropertyCount,
         StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties) {}
 
+    virtual void Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        PointerDecoder<uint32_t>*                   pTimeDomainCount,
+        PointerDecoder<VkTimeDomainKHR>*            pTimeDomains) {}
+
+    virtual void Process_vkGetCalibratedTimestampsKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        uint32_t                                    timestampCount,
+        StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
+        PointerDecoder<uint64_t>*                   pTimestamps,
+        PointerDecoder<uint64_t>*                   pMaxDeviation) {}
+
     virtual void Process_vkFrameBoundaryANDROID(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3072,14 +3088,14 @@ class VulkanConsumer : public VulkanConsumerBase
         VkResult                                    returnValue,
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pTimeDomainCount,
-        PointerDecoder<VkTimeDomainEXT>*            pTimeDomains) {}
+        PointerDecoder<VkTimeDomainKHR>*            pTimeDomains) {}
 
     virtual void Process_vkGetCalibratedTimestampsEXT(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
         format::HandleId                            device,
         uint32_t                                    timestampCount,
-        StructPointerDecoder<Decoded_VkCalibratedTimestampInfoEXT>* pTimestampInfos,
+        StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
         PointerDecoder<uint64_t>*                   pTimestamps,
         PointerDecoder<uint64_t>*                   pMaxDeviation) {}
 
