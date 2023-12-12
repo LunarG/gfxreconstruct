@@ -5090,6 +5090,50 @@ struct Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR;
+
+    VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVertexInputBindingDivisorDescriptionKHR
+{
+    using struct_type = VkVertexInputBindingDivisorDescriptionKHR;
+
+    VkVertexInputBindingDivisorDescriptionKHR* decoded_value{ nullptr };
+};
+
+struct Decoded_VkPipelineVertexInputDivisorStateCreateInfoKHR
+{
+    using struct_type = VkPipelineVertexInputDivisorStateCreateInfoKHR;
+
+    VkPipelineVertexInputDivisorStateCreateInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkVertexInputBindingDivisorDescriptionKHR>* pVertexBindingDivisors{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR;
+
+    VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkCalibratedTimestampInfoKHR
+{
+    using struct_type = VkCalibratedTimestampInfoKHR;
+
+    VkCalibratedTimestampInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
 {
     using struct_type = VkDebugReportCallbackCreateInfoEXT;
@@ -5920,6 +5964,15 @@ struct Decoded_VkHdrMetadataEXT
     Decoded_VkXYColorEXT* whitePoint{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG
+{
+    using struct_type = VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG;
+
+    VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkIOSSurfaceCreateInfoMVK
 {
     using struct_type = VkIOSSurfaceCreateInfoMVK;
@@ -6617,14 +6670,7 @@ struct Decoded_VkPipelineCompilerControlCreateInfoAMD
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkCalibratedTimestampInfoEXT
-{
-    using struct_type = VkCalibratedTimestampInfoEXT;
-
-    VkCalibratedTimestampInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
+typedef Decoded_VkCalibratedTimestampInfoKHR Decoded_VkCalibratedTimestampInfoEXT;
 
 struct Decoded_VkPhysicalDeviceShaderCorePropertiesAMD
 {
@@ -6653,31 +6699,11 @@ struct Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkVertexInputBindingDivisorDescriptionEXT
-{
-    using struct_type = VkVertexInputBindingDivisorDescriptionEXT;
+typedef Decoded_VkVertexInputBindingDivisorDescriptionKHR Decoded_VkVertexInputBindingDivisorDescriptionEXT;
 
-    VkVertexInputBindingDivisorDescriptionEXT* decoded_value{ nullptr };
-};
+typedef Decoded_VkPipelineVertexInputDivisorStateCreateInfoKHR Decoded_VkPipelineVertexInputDivisorStateCreateInfoEXT;
 
-struct Decoded_VkPipelineVertexInputDivisorStateCreateInfoEXT
-{
-    using struct_type = VkPipelineVertexInputDivisorStateCreateInfoEXT;
-
-    VkPipelineVertexInputDivisorStateCreateInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVertexInputBindingDivisorDescriptionEXT>* pVertexBindingDivisors{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT
-{
-    using struct_type = VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT;
-
-    VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
+typedef Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT;
 
 struct Decoded_VkPresentFrameTokenGGP
 {
@@ -8610,6 +8636,15 @@ struct Decoded_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI
     PointerDecoder<uint32_t> maxWorkGroupSize;
 };
 
+struct Decoded_VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI
+{
+    using struct_type = VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI;
+
+    VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceBorderColorSwizzleFeaturesEXT;
@@ -8643,6 +8678,33 @@ struct Decoded_VkPhysicalDeviceShaderCorePropertiesARM
     using struct_type = VkPhysicalDeviceShaderCorePropertiesARM;
 
     VkPhysicalDeviceShaderCorePropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDeviceQueueShaderCoreControlCreateInfoARM
+{
+    using struct_type = VkDeviceQueueShaderCoreControlCreateInfoARM;
+
+    VkDeviceQueueShaderCoreControlCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceSchedulingControlsFeaturesARM
+{
+    using struct_type = VkPhysicalDeviceSchedulingControlsFeaturesARM;
+
+    VkPhysicalDeviceSchedulingControlsFeaturesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceSchedulingControlsPropertiesARM
+{
+    using struct_type = VkPhysicalDeviceSchedulingControlsPropertiesARM;
+
+    VkPhysicalDeviceSchedulingControlsPropertiesARM* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -8709,6 +8771,55 @@ struct Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT
     VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceRenderPassStripedFeaturesARM
+{
+    using struct_type = VkPhysicalDeviceRenderPassStripedFeaturesARM;
+
+    VkPhysicalDeviceRenderPassStripedFeaturesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceRenderPassStripedPropertiesARM
+{
+    using struct_type = VkPhysicalDeviceRenderPassStripedPropertiesARM;
+
+    VkPhysicalDeviceRenderPassStripedPropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* renderPassStripeGranularity{ nullptr };
+};
+
+struct Decoded_VkRenderPassStripeInfoARM
+{
+    using struct_type = VkRenderPassStripeInfoARM;
+
+    VkRenderPassStripeInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkRect2D* stripeArea{ nullptr };
+};
+
+struct Decoded_VkRenderPassStripeBeginInfoARM
+{
+    using struct_type = VkRenderPassStripeBeginInfoARM;
+
+    VkRenderPassStripeBeginInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkRenderPassStripeInfoARM>* pStripeInfos{ nullptr };
+};
+
+struct Decoded_VkRenderPassStripeSubmitInfoARM
+{
+    using struct_type = VkRenderPassStripeSubmitInfoARM;
+
+    VkRenderPassStripeSubmitInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* pStripeSemaphoreInfos{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM
@@ -9224,6 +9335,27 @@ struct Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV
     VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkLayerSettingEXT
+{
+    using struct_type = VkLayerSettingEXT;
+
+    VkLayerSettingEXT* decoded_value{ nullptr };
+
+    StringDecoder pLayerName;
+    StringDecoder pSettingName;
+    PointerDecoder<uint8_t> pValues;
+};
+
+struct Decoded_VkLayerSettingsCreateInfoEXT
+{
+    using struct_type = VkLayerSettingsCreateInfoEXT;
+
+    VkLayerSettingsCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkLayerSettingEXT>* pSettings{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM

@@ -96,6 +96,7 @@ enum DeviceArrayIndices : uint32_t
     kDeviceArrayGetDeviceImageSparseMemoryRequirements                  = 4,
     kDeviceArrayGetEncodedVideoSessionParametersKHR                     = 5,
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesKHR = 6,
+    kPhysicalDeviceArrayGetPhysicalDeviceCalibrateableTimeDomainsKHR    = 7,
 
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,

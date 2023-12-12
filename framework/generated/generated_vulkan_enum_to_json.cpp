@@ -2276,6 +2276,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportObjectTypeEXT
         case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT:
             jdata = "VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT";
             break;
+        case VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_MODULE_NV_EXT:
+            jdata = "VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_MODULE_NV_EXT";
+            break;
+        case VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_FUNCTION_NV_EXT:
+            jdata = "VK_DEBUG_REPORT_OBJECT_TYPE_CUDA_FUNCTION_NV_EXT";
+            break;
         case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA_EXT:
             jdata = "VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA_EXT";
             break;
@@ -5141,6 +5147,39 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkInternalAllocationType& 
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkLayerSettingTypeEXT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
+            jdata = "VK_LAYER_SETTING_TYPE_BOOL32_EXT";
+            break;
+        case VK_LAYER_SETTING_TYPE_INT32_EXT:
+            jdata = "VK_LAYER_SETTING_TYPE_INT32_EXT";
+            break;
+        case VK_LAYER_SETTING_TYPE_INT64_EXT:
+            jdata = "VK_LAYER_SETTING_TYPE_INT64_EXT";
+            break;
+        case VK_LAYER_SETTING_TYPE_UINT32_EXT:
+            jdata = "VK_LAYER_SETTING_TYPE_UINT32_EXT";
+            break;
+        case VK_LAYER_SETTING_TYPE_UINT64_EXT:
+            jdata = "VK_LAYER_SETTING_TYPE_UINT64_EXT";
+            break;
+        case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
+            jdata = "VK_LAYER_SETTING_TYPE_FLOAT32_EXT";
+            break;
+        case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
+            jdata = "VK_LAYER_SETTING_TYPE_FLOAT64_EXT";
+            break;
+        case VK_LAYER_SETTING_TYPE_STRING_EXT:
+            jdata = "VK_LAYER_SETTING_TYPE_STRING_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkLayeredDriverUnderlyingApiMSFT& value, const JsonOptions& options)
 {
     switch (value) {
@@ -5485,6 +5524,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkObjectType& value, const
             break;
         case VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV:
             jdata = "VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV";
+            break;
+        case VK_OBJECT_TYPE_CUDA_MODULE_NV:
+            jdata = "VK_OBJECT_TYPE_CUDA_MODULE_NV";
+            break;
+        case VK_OBJECT_TYPE_CUDA_FUNCTION_NV:
+            jdata = "VK_OBJECT_TYPE_CUDA_FUNCTION_NV";
             break;
         case VK_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA:
             jdata = "VK_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA";
@@ -5866,6 +5911,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceValueTypeINTE
             break;
         case VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL:
             jdata = "VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(VkPhysicalDeviceSchedulingControlsFlagBitsARM_t, nlohmann::ordered_json& jdata, const VkPhysicalDeviceSchedulingControlsFlagBitsARM& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM:
+            jdata = "VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -8760,6 +8817,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_HDR_METADATA_EXT:
             jdata = "VK_STRUCTURE_TYPE_HDR_METADATA_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG";
+            break;
         case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
             jdata = "VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR";
             break;
@@ -9081,9 +9141,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD:
             jdata = "VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD";
             break;
-        case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT:
-            jdata = "VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT";
-            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD";
             break;
@@ -9119,12 +9176,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT";
-            break;
-        case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT:
-            jdata = "VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT";
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT:
-            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT";
             break;
         case VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP:
             jdata = "VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP";
@@ -9525,6 +9576,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
             jdata = "VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV";
             break;
+        case VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV:
+            jdata = "VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV";
+            break;
+        case VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV:
+            jdata = "VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV";
+            break;
+        case VK_STRUCTURE_TYPE_CUDA_LAUNCH_INFO_NV:
+            jdata = "VK_STRUCTURE_TYPE_CUDA_LAUNCH_INFO_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_FEATURES_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_PROPERTIES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_PROPERTIES_NV";
+            break;
         case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
             jdata = "VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV";
             break;
@@ -9894,6 +9960,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT";
             break;
@@ -9905,6 +9974,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT";
@@ -9926,6 +10004,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM";
@@ -10125,6 +10218,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
             jdata = "VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT";
             break;
+        case VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM";
             break;
@@ -10209,6 +10305,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR";
+            break;
         case VK_STRUCTURE_TYPE_SCREEN_BUFFER_PROPERTIES_QNX:
             jdata = "VK_STRUCTURE_TYPE_SCREEN_BUFFER_PROPERTIES_QNX";
             break;
@@ -10226,6 +10331,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT";
+            break;
+        case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV";
@@ -10494,20 +10602,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkTessellationDomainOrigin
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkTimeDomainEXT& value, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkTimeDomainKHR& value, const JsonOptions& options)
 {
     switch (value) {
-        case VK_TIME_DOMAIN_DEVICE_EXT:
-            jdata = "VK_TIME_DOMAIN_DEVICE_EXT";
+        case VK_TIME_DOMAIN_DEVICE_KHR:
+            jdata = "VK_TIME_DOMAIN_DEVICE_KHR";
             break;
-        case VK_TIME_DOMAIN_CLOCK_MONOTONIC_EXT:
-            jdata = "VK_TIME_DOMAIN_CLOCK_MONOTONIC_EXT";
+        case VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR:
+            jdata = "VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR";
             break;
-        case VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_EXT:
-            jdata = "VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_EXT";
+        case VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR:
+            jdata = "VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR";
             break;
-        case VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_EXT:
-            jdata = "VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_EXT";
+        case VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR:
+            jdata = "VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -13430,6 +13538,24 @@ void FieldToJson(VkPerformanceCounterDescriptionFlagsKHR_t, nlohmann::ordered_js
                 return std::string("VK_PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR");
             case VK_PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR:
                 return std::string("VK_PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void FieldToJson(VkPhysicalDeviceSchedulingControlsFlagsARM_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    {
+        switch (flags)
+        {
+            case VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM:
+                return std::string("VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM");
         }
         return to_hex_fixed_width(flags);
     });

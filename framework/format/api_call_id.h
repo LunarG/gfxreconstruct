@@ -700,6 +700,8 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetDeviceImageSubresourceLayoutKHR                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x12da),
     ApiCall_vkGetImageSubresourceLayout2KHR                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x12db),
     ApiCall_vkFrameBoundaryANDROID                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12dc),
+    ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR                                        = MakeApiCallId(ApiFamily_Vulkan, 0x12dd),
+    ApiCall_vkGetCalibratedTimestampsKHR                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x12de),
 
     ApiCall_VulkanLast,
 

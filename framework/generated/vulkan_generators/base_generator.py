@@ -87,6 +87,7 @@ _remove_extensions = [
     "VK_NV_low_latency2",
     "VK_NV_memory_decompression",
     "VK_QNX_external_memory_screen_buffer",
+    "VK_NV_cuda_kernel_launch",
 ]
 
 _supported_subsets = [
