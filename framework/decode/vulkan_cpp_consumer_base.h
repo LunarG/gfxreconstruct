@@ -393,6 +393,55 @@ class VulkanCppConsumerBase : public VulkanConsumer
         format::HandleId                                                           device,
         StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>* pInfo,
         PointerDecoder<uint64_t, void*>*                                           pBuffer);
+    void Generate_vkGetSemaphoreWin32HandleKHR(
+        VkResult                                                        returnValue,
+        format::HandleId                                                device,
+        StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
+        PointerDecoder<uint64_t, void*>*                                pHandle);
+    void Generate_vkImportSemaphoreWin32HandleKHR(
+        VkResult                                                           returnValue,
+        format::HandleId                                                   device,
+        StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>* pImportSemaphoreWin32HandleInfo);
+    void Generate_vkGetSemaphoreFdKHR(VkResult                                               returnValue,
+                                      format::HandleId                                       device,
+                                      StructPointerDecoder<Decoded_VkSemaphoreGetFdInfoKHR>* pGetFdInfo,
+                                      PointerDecoder<int>*                                   pFd);
+    void
+    Generate_vkImportSemaphoreFdKHR(VkResult                                                  returnValue,
+                                    format::HandleId                                          device,
+                                    StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>* pImportSemaphoreFdInfo);
+
+    void Generate_vkQueueSubmit(VkResult                                    returnValue,
+                                format::HandleId                            queue,
+                                uint32_t                                    submitCount,
+                                StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
+                                format::HandleId                            fence);
+
+    void Generate_vkQueueSubmit2(VkResult                                     returnValue,
+                                 format::HandleId                             queue,
+                                 uint32_t                                     submitCount,
+                                 StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                 format::HandleId                             fence,
+                                 const char*                                  extension = "");
+
+    void Generate_vkQueueSubmit2KHR(VkResult                                     returnValue,
+                                    format::HandleId                             queue,
+                                    uint32_t                                     submitCount,
+                                    StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                    format::HandleId                             fence)
+    {
+        Generate_vkQueueSubmit2(returnValue, queue, submitCount, pSubmits, fence, "KHR");
+    }
+
+    void Generate_vkQueueBindSparse(VkResult                                        returnValue,
+                                    format::HandleId                                queue,
+                                    uint32_t                                        bindInfoCount,
+                                    StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
+                                    format::HandleId                                fence);
+
+    void Generate_vkQueuePresentKHR(VkResult                                        returnValue,
+                                    format::HandleId                                queue,
+                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo);
 
     // Intercept commands that perform additional work prior to the standard code generation
     void Intercept_vkCreateDevice(VkResult                                             returnValue,
@@ -416,6 +465,10 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void Intercept_vkCmdBeginRenderPass(format::HandleId                                     commandBuffer,
                                         StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
                                         VkSubpassContents                                    contents);
+
+    void Intercept_vkDestroySemaphore(format::HandleId                                     device,
+                                      format::HandleId                                     semaphore,
+                                      StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     // Complete manual process functions
     void Process_vkCreateRayTracingPipelinesKHR(
@@ -587,6 +640,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
     uint32_t                                                    window_height_;
     uint32_t                                                    max_command_limit_{ 1000 };
     std::vector<GfxToCppVariable>                               variable_data_;
+    std::vector<format::HandleId>                               imported_semaphores_;
     std::map<format::HandleId, DescriptorUpdateTemplateEntries> descriptor_update_template_entry_map_;
     std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>> memory_resource_map_;
     std::map<format::HandleId, std::string>                                           resource_memory_req_map_;

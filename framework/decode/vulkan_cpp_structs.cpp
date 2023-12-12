@@ -191,10 +191,429 @@ std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 ou
     return variable_name;
 }
 
-std::string GenerateStruct_VkPresentInfoKHR(std::ostream&             out,
-                                            const VkPresentInfoKHR*   structInfo,
-                                            Decoded_VkPresentInfoKHR* metaInfo,
-                                            VulkanCppConsumerBase&    consumer)
+// At replay time, there will be no external semaphores, so remove any external
+// semaphores that have been imported from the list during replay.
+void StripImportedSemaphores(std::ostream&                        out,
+                             uint32_t&                            count,
+                             const format::HandleId*              semaphore_array,
+                             const VkPipelineStageFlags*          wait_flags,
+                             const std::vector<format::HandleId>& imported_semaphores,
+                             VulkanCppConsumerBase&               consumer,
+                             std::string&                         semaphore_array_name,
+                             std::string*                         wait_flags_array_name)
+{
+    // Start by setting the arrays to NULL.  This is the fallback in case there are either
+    // no semaphores passed in, or they are all imported.
+    semaphore_array_name = "NULL";
+    if (wait_flags_array_name != nullptr)
+    {
+        *wait_flags_array_name = "NULL";
+    }
+
+    if (semaphore_array != nullptr && count > 0)
+    {
+        uint32_t new_count         = 0;
+        bool     update_wait_flags = (wait_flags != nullptr && wait_flags_array_name != nullptr);
+
+        std::stringstream semaphore_handle_stream;
+        std::string       wait_dst_flags_values;
+        for (uint32_t sem = 0; sem < count; ++sem)
+        {
+            // Check each semaphore, if it is not found in the imported array, add it to the list
+            // of final semaphores.
+            const format::HandleId current = semaphore_array[sem];
+            auto                   it      = std::find(imported_semaphores.begin(), imported_semaphores.end(), current);
+            if (it == imported_semaphores.end())
+            {
+                semaphore_handle_stream << consumer.GetHandle(current) << ", ";
+                new_count++;
+
+                // Add the Wait Destination target flags if present for this semaphore as well.
+                if (update_wait_flags)
+                {
+                    wait_dst_flags_values += util::ToString<VkPipelineStageFlags>(wait_flags[sem]) + ", ";
+                }
+            }
+        }
+
+        // Create the array of semaphores for use by the code following this removal call.
+        if (new_count > 0)
+        {
+            semaphore_array_name = "semaphores_array_" + std::to_string(consumer.GetNextId(VK_OBJECT_TYPE_SEMAPHORE));
+            out << "\t\t"
+                << "VkSemaphore " << semaphore_array_name << "[] = {" << semaphore_handle_stream.str() << "};"
+                << std::endl;
+            if (update_wait_flags)
+            {
+                *wait_flags_array_name = "dst_stg_masks_" + std::to_string(consumer.GetNextId());
+                out << "\t\t"
+                    << "VkPipelineStageFlags " << *wait_flags_array_name << "[] = {" << wait_dst_flags_values << "};"
+                    << std::endl;
+            }
+        }
+        count = new_count;
+    }
+}
+
+// At replay time, there will be no external semaphores, so remove any external
+// SemaphoreInfo for semaphores that have been imported from the list during replay.
+void StripImportedSemaphoreInfos(std::ostream&                        out,
+                                 uint32_t&                            count,
+                                 const VkSemaphoreSubmitInfo*         semaphore_info_array,
+                                 Decoded_VkSemaphoreSubmitInfo*       semaphore_info_meta,
+                                 const std::vector<format::HandleId>& imported_semaphores,
+                                 VulkanCppConsumerBase&               consumer,
+                                 std::string&                         semaphore_info_array_name)
+{
+    // Start by setting the array to NULL.  This is the fallback in case there are either
+    // no semaphores passed in, or they are all imported.
+    semaphore_info_array_name = "NULL";
+
+    if (count > 0 && semaphore_info_array != nullptr && semaphore_info_meta != nullptr)
+    {
+        uint32_t    new_count = 0;
+        std::string variable_name_array_values;
+
+        for (uint32_t sem = 0; sem < count; ++sem)
+        {
+            // Check each semaphore, if it is not found in the imported array, add it to the list
+            // of final semaphores.
+            std::string            variable_name = "NULL";
+            const format::HandleId current       = semaphore_info_meta[sem].semaphore;
+            auto                   it = std::find(imported_semaphores.begin(), imported_semaphores.end(), current);
+            if (it == imported_semaphores.end())
+            {
+                variable_name = GenerateStruct_VkSemaphoreSubmitInfo(
+                    out, semaphore_info_array + sem, semaphore_info_meta + sem, consumer);
+                variable_name_array_values += variable_name + ", ";
+                new_count++;
+            }
+        }
+
+        // Create the array of semaphores for use by the code following this removal call.
+        if (new_count > 0)
+        {
+            semaphore_info_array_name =
+                "semaphores_array_" + std::to_string(consumer.GetNextId(VK_OBJECT_TYPE_SEMAPHORE));
+
+            out << "\t\t"
+                << "VkSemaphoreSubmitInfo " << semaphore_info_array_name << "[] = {" << variable_name_array_values
+                << "};" << std::endl;
+        }
+        count = new_count;
+    }
+}
+
+std::string GenerateStruct_VkSubmitInfo(std::ostream&                        out,
+                                        const VkSubmitInfo*                  structInfo,
+                                        Decoded_VkSubmitInfo*                metaInfo,
+                                        const std::vector<format::HandleId>& imported_semaphores,
+                                        VulkanCppConsumerBase&               consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+
+    std::string wait_semaphores_array_name     = "NULL";
+    std::string wait_dst_stage_mask_array_name = "NULL";
+    std::string signal_semaphores_array_name   = "NULL";
+    uint32_t    wait_semaphores_count          = structInfo->waitSemaphoreCount;
+    uint32_t    signal_semaphores_count        = structInfo->signalSemaphoreCount;
+    if (metaInfo->pWaitSemaphores.GetPointer() != NULL && structInfo->waitSemaphoreCount > 0)
+    {
+        StripImportedSemaphores(out,
+                                wait_semaphores_count,
+                                metaInfo->pWaitSemaphores.GetPointer(),
+                                structInfo->pWaitDstStageMask,
+                                imported_semaphores,
+                                consumer,
+                                wait_semaphores_array_name,
+                                &wait_dst_stage_mask_array_name);
+    }
+    if (metaInfo->pSignalSemaphores.GetPointer() != NULL && structInfo->signalSemaphoreCount > 0)
+    {
+        StripImportedSemaphores(out,
+                                signal_semaphores_count,
+                                metaInfo->pSignalSemaphores.GetPointer(),
+                                nullptr,
+                                imported_semaphores,
+                                consumer,
+                                signal_semaphores_array_name,
+                                nullptr);
+    }
+
+    std::string command_buffers_array = "NULL";
+    if (metaInfo->pCommandBuffers.GetPointer() != NULL && structInfo->commandBufferCount > 0)
+    {
+        command_buffers_array =
+            "command_buffers_array_" + std::to_string(consumer.GetNextId(VK_OBJECT_TYPE_COMMAND_BUFFER));
+        std::string command_buffers_values = toStringJoin(
+            metaInfo->pCommandBuffers.GetPointer(),
+            metaInfo->pCommandBuffers.GetPointer() + structInfo->commandBufferCount,
+            [&](const format::HandleId current) { return consumer.GetHandle(current); },
+            ", ");
+        if (structInfo->commandBufferCount > 0)
+        {
+            out << "\t\t"
+                << "VkCommandBuffer " << command_buffers_array << "[] = {" << command_buffers_values << "};"
+                << std::endl;
+        }
+    }
+    // sType
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    // pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    // waitSemaphoreCount
+    struct_body << "\t\t\t" << wait_semaphores_count << "," << std::endl;
+    // pWaitSemaphores
+    struct_body << "\t\t\t" << wait_semaphores_array_name << "," << std::endl;
+    // pWaitDstStageMask
+    struct_body << "\t\t\t" << wait_dst_stage_mask_array_name << "," << std::endl;
+    // commandBufferCount
+    struct_body << "\t\t\t" << structInfo->commandBufferCount << "," << std::endl;
+    // pCommandBuffers
+    struct_body << "\t\t\t" << command_buffers_array << "," << std::endl;
+    // signalSemaphoreCount
+    struct_body << "\t\t\t" << signal_semaphores_count << "," << std::endl;
+    // pSignalSemaphores
+    struct_body << "\t\t\t" << signal_semaphores_array_name << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "submitInfo");
+    out << "\t\t"
+        << "VkSubmitInfo " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
+std::string GenerateStruct_VkSubmitInfo2(std::ostream&                        out,
+                                         const VkSubmitInfo2*                 structInfo,
+                                         Decoded_VkSubmitInfo2*               metaInfo,
+                                         const std::vector<format::HandleId>& imported_semaphores,
+                                         VulkanCppConsumerBase&               consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string       wait_semaphore_infos_array_name   = "NULL";
+    std::string       signal_semaphore_infos_array_name = "NULL";
+    uint32_t          wait_semaphore_infos_count        = structInfo->waitSemaphoreInfoCount;
+    uint32_t          signal_semaphore_infos_count      = structInfo->signalSemaphoreInfoCount;
+    if (structInfo->pWaitSemaphoreInfos != NULL)
+    {
+        StripImportedSemaphoreInfos(out,
+                                    wait_semaphore_infos_count,
+                                    structInfo->pWaitSemaphoreInfos,
+                                    metaInfo->pWaitSemaphoreInfos->GetMetaStructPointer(),
+                                    imported_semaphores,
+                                    consumer,
+                                    wait_semaphore_infos_array_name);
+    }
+    if (structInfo->pSignalSemaphoreInfos != NULL)
+    {
+        StripImportedSemaphoreInfos(out,
+                                    signal_semaphore_infos_count,
+                                    structInfo->pSignalSemaphoreInfos,
+                                    metaInfo->pSignalSemaphoreInfos->GetMetaStructPointer(),
+                                    imported_semaphores,
+                                    consumer,
+                                    signal_semaphore_infos_array_name);
+    }
+
+    std::string command_buffer_infos_array = "NULL";
+    if (structInfo->pCommandBufferInfos != NULL)
+    {
+        command_buffer_infos_array = "cmd_buffer_infos_" + std::to_string(consumer.GetNextId());
+        std::string command_buffer_infos_names;
+        for (uint32_t idx = 0; idx < structInfo->commandBufferInfoCount; idx++)
+        {
+            std::string variable_name = "NULL";
+            if (structInfo->pCommandBufferInfos + idx != NULL)
+            {
+                variable_name = GenerateStruct_VkCommandBufferSubmitInfo(
+                    out,
+                    structInfo->pCommandBufferInfos + idx,
+                    metaInfo->pCommandBufferInfos->GetMetaStructPointer() + idx,
+                    consumer);
+            }
+            command_buffer_infos_names += variable_name + ", ";
+        }
+        out << "\t\t"
+            << "VkCommandBufferSubmitInfo " << command_buffer_infos_array << "[] = {" << command_buffer_infos_names
+            << "};" << std::endl;
+    }
+
+    // sType
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    // pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    // flags
+    struct_body << "\t\t\t"
+                << "VkSubmitFlags(" << structInfo->flags << ")"
+                << "," << std::endl;
+    // waitSemaphoreInfoCount
+    struct_body << "\t\t\t" << structInfo->waitSemaphoreInfoCount << "," << std::endl;
+    // pWaitSemaphoreInfos
+    struct_body << "\t\t\t" << wait_semaphore_infos_array_name << "," << std::endl;
+    // commandBufferInfoCount
+    struct_body << "\t\t\t" << wait_semaphore_infos_count << "," << std::endl;
+    // pCommandBufferInfos
+    struct_body << "\t\t\t" << command_buffer_infos_array << "," << std::endl;
+    // signalSemaphoreInfoCount
+    struct_body << "\t\t\t" << structInfo->signalSemaphoreInfoCount << "," << std::endl;
+    // pSignalSemaphoreInfos
+    struct_body << "\t\t\t" << signal_semaphore_infos_array_name << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "submitInfo2");
+    out << "\t\t"
+        << "VkSubmitInfo2 " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
+std::string GenerateStruct_VkBindSparseInfo(std::ostream&                        out,
+                                            const VkBindSparseInfo*              structInfo,
+                                            Decoded_VkBindSparseInfo*            metaInfo,
+                                            const std::vector<format::HandleId>& imported_semaphores,
+                                            VulkanCppConsumerBase&               consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+
+    std::string wait_semaphores_array_name   = "NULL";
+    uint32_t    wait_semaphores_count        = structInfo->waitSemaphoreCount;
+    std::string signal_semaphores_array_name = "NULL";
+    uint32_t    signal_semaphores_count      = structInfo->signalSemaphoreCount;
+    if (metaInfo->pWaitSemaphores.GetPointer() != NULL && structInfo->waitSemaphoreCount > 0)
+    {
+        StripImportedSemaphores(out,
+                                wait_semaphores_count,
+                                metaInfo->pWaitSemaphores.GetPointer(),
+                                nullptr,
+                                imported_semaphores,
+                                consumer,
+                                wait_semaphores_array_name,
+                                nullptr);
+    }
+    if (metaInfo->pSignalSemaphores.GetPointer() != NULL && structInfo->signalSemaphoreCount > 0)
+    {
+        StripImportedSemaphores(out,
+                                signal_semaphores_count,
+                                metaInfo->pSignalSemaphores.GetPointer(),
+                                nullptr,
+                                imported_semaphores,
+                                consumer,
+                                signal_semaphores_array_name,
+                                nullptr);
+    }
+
+    std::string buffer_binds_array = "NULL";
+    if (structInfo->pBufferBinds != NULL)
+    {
+        buffer_binds_array = "buffer_binds_" + std::to_string(consumer.GetNextId());
+        std::string buffer_binds_names;
+        for (uint32_t idx = 0; idx < structInfo->bufferBindCount; idx++)
+        {
+            std::string variable_name = "NULL";
+            if (structInfo->pBufferBinds + idx != NULL)
+            {
+                variable_name =
+                    GenerateStruct_VkSparseBufferMemoryBindInfo(out,
+                                                                structInfo->pBufferBinds + idx,
+                                                                metaInfo->pBufferBinds->GetMetaStructPointer() + idx,
+                                                                consumer);
+            }
+            buffer_binds_names += variable_name + ", ";
+        }
+        out << "\t\t"
+            << "VkSparseBufferMemoryBindInfo " << buffer_binds_array << "[] = {" << buffer_binds_names << "};"
+            << std::endl;
+    }
+    std::string image_opaque_binds_array = "NULL";
+    if (structInfo->pImageOpaqueBinds != NULL)
+    {
+        image_opaque_binds_array = "image_opaque_binds_" + std::to_string(consumer.GetNextId());
+        std::string image_opaque_binds_names;
+        for (uint32_t idx = 0; idx < structInfo->imageOpaqueBindCount; idx++)
+        {
+            std::string variable_name = "NULL";
+            if (structInfo->pImageOpaqueBinds + idx != NULL)
+            {
+                variable_name = GenerateStruct_VkSparseImageOpaqueMemoryBindInfo(
+                    out,
+                    structInfo->pImageOpaqueBinds + idx,
+                    metaInfo->pImageOpaqueBinds->GetMetaStructPointer() + idx,
+                    consumer);
+            }
+            image_opaque_binds_names += variable_name + ", ";
+        }
+        out << "\t\t"
+            << "VkSparseImageOpaqueMemoryBindInfo " << image_opaque_binds_array << "[] = {" << image_opaque_binds_names
+            << "};" << std::endl;
+    }
+    std::string image_binds_array = "NULL";
+    if (structInfo->pImageBinds != NULL)
+    {
+        image_binds_array = "pImageBinds_" + std::to_string(consumer.GetNextId());
+        std::string image_binds_names;
+        for (uint32_t idx = 0; idx < structInfo->imageBindCount; idx++)
+        {
+            std::string variable_name = "NULL";
+            if (structInfo->pImageBinds + idx != NULL)
+            {
+                variable_name = GenerateStruct_VkSparseImageMemoryBindInfo(
+                    out, structInfo->pImageBinds + idx, metaInfo->pImageBinds->GetMetaStructPointer() + idx, consumer);
+            }
+            image_binds_names += variable_name + ", ";
+        }
+        out << "\t\t"
+            << "VkSparseImageMemoryBindInfo " << image_binds_array << "[] = {" << image_binds_names << "};"
+            << std::endl;
+    }
+
+    // sType
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    // pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    // waitSemaphoreCount
+    struct_body << "\t\t\t" << wait_semaphores_count << "," << std::endl;
+    // pWaitSemaphores
+    struct_body << "\t\t\t" << wait_semaphores_array_name << "," << std::endl;
+    // bufferBindCount
+    struct_body << "\t\t\t" << structInfo->bufferBindCount << "," << std::endl;
+    // pBufferBinds
+    struct_body << "\t\t\t" << buffer_binds_array << "," << std::endl;
+    // imageOpaqueBindCount
+    struct_body << "\t\t\t" << structInfo->imageOpaqueBindCount << "," << std::endl;
+    // pImageOpaqueBinds
+    struct_body << "\t\t\t" << image_opaque_binds_array << "," << std::endl;
+    // imageBindCount
+    struct_body << "\t\t\t" << structInfo->imageBindCount << "," << std::endl;
+    // pImageBinds
+    struct_body << "\t\t\t" << image_binds_array << "," << std::endl;
+    // signalSemaphoreCount
+    struct_body << "\t\t\t" << signal_semaphores_count << "," << std::endl;
+    // pSignalSemaphores
+    struct_body << "\t\t\t" << signal_semaphores_array_name << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "bindSparseInfo");
+    out << "\t\t"
+        << "VkBindSparseInfo " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
+std::string GenerateStruct_VkPresentInfoKHR(std::ostream&                        out,
+                                            const VkPresentInfoKHR*              structInfo,
+                                            Decoded_VkPresentInfoKHR*            metaInfo,
+                                            const std::vector<format::HandleId>& imported_semaphores,
+                                            VulkanCppConsumerBase&               consumer)
 {
     std::string image_array_indices = "NULL";
     std::string swapchains_array    = "NULL";
@@ -219,8 +638,8 @@ std::string GenerateStruct_VkPresentInfoKHR(std::ostream&             out,
         }
         else if (structInfo->swapchainCount > 1)
         {
-            image_array_indices = "pImageIndices_" + std::to_string(consumer.GetNextId());
-            swapchains_array    = "pSwapchainsArray_" + std::to_string(consumer.GetNextId());
+            image_array_indices = "image_indices_" + std::to_string(consumer.GetNextId());
+            swapchains_array    = "swapchains_array_" + std::to_string(consumer.GetNextId());
 
             out << "\t\tVkSwapchainKHR " << swapchains_array << "[] = {" << swapchain_handle_values << "};"
                 << std::endl;
@@ -233,26 +652,17 @@ std::string GenerateStruct_VkPresentInfoKHR(std::ostream&             out,
     }
 
     std::string wait_semaphore_array_string = "NULL";
-    if (metaInfo->pWaitSemaphores.GetPointer() != NULL)
+    uint32_t    wait_semaphores_count       = structInfo->waitSemaphoreCount;
+    if (metaInfo->pWaitSemaphores.GetPointer() != NULL && structInfo->waitSemaphoreCount > 0)
     {
-        const format::HandleId* wait_semaphore_array  = metaInfo->pWaitSemaphores.GetPointer();
-        std::string             wait_semaphore_values = toStringJoin(
-            wait_semaphore_array,
-            wait_semaphore_array + structInfo->waitSemaphoreCount,
-            [&](const format::HandleId current) { return consumer.GetHandle(current); },
-            ", ");
-
-        if (structInfo->waitSemaphoreCount == 1)
-        {
-            wait_semaphore_array_string = "&" + wait_semaphore_values;
-        }
-        else if (structInfo->waitSemaphoreCount > 1)
-        {
-            wait_semaphore_array_string = "pWaitSemaphoresArray_" + std::to_string(consumer.GetNextId());
-
-            out << "\t\tVkSemaphore " << wait_semaphore_array_string << "[] = {" << wait_semaphore_values << "};"
-                << std::endl;
-        }
+        StripImportedSemaphores(out,
+                                wait_semaphores_count,
+                                metaInfo->pWaitSemaphores.GetPointer(),
+                                nullptr,
+                                imported_semaphores,
+                                consumer,
+                                wait_semaphore_array_string,
+                                nullptr);
     }
 
     std::stringstream struct_body;
@@ -262,7 +672,7 @@ std::string GenerateStruct_VkPresentInfoKHR(std::ostream&             out,
     // pNext
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->waitSemaphoreCount << "," << std::endl;
+    struct_body << "\t\t\t" << wait_semaphores_count << "," << std::endl;
     struct_body << "\t\t\t" << wait_semaphore_array_string << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
     struct_body << "\t\t\t" << swapchains_array << "," << std::endl;

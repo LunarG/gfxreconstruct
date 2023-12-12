@@ -667,7 +667,6 @@ int main(int argc, const char** argv)
     }
 
     cpp_consumer.SetWindowSize(window_width, window_height);
-    resource_tracker.CalculateGlobalVariables();
 
     process_start_time = gfxrecon::util::datetime::GetTimestamp();
     result             = ProcessCapture(cpp_consumer, input_filename, output_filename, target_platform, frame_limit);

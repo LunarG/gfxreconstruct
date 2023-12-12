@@ -47,7 +47,8 @@ struct FrameIdHasher
     {
         // With a 32-bit frame and split number, we can easily just output a 64-bit "hash" which is just both
         // numbers bit-shifted giving a unique value instead of doing an actual 32-bit hash on each number.
-        return (static_cast<uint64_t>(frameId.frame_split) << 32) | (static_cast<uint64_t>(frameId.frame_number) & 0x00000000FFFFFFFF);
+        return (static_cast<uint64_t>(frameId.frame_split) << 32) |
+               (static_cast<uint64_t>(frameId.frame_number) & 0x00000000FFFFFFFF);
     }
 };
 
@@ -73,17 +74,9 @@ class VulkanCppResourceTracker
         }
     }
 
-    void CalculateGlobalVariables();
-
-    bool IsGlobalVariable(format::HandleId handleId)
-    {
-        return true;
-    } // return global_variable_map_[handleId]; } // Brainpain
-
   private:
     // HandleId -> (frame_number, frame_split)
     std::map<format::HandleId, std::unordered_set<FrameId, FrameIdHasher>> handle_id_usage_map_;
-    std::map<format::HandleId, bool>                                       global_variable_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -166,8 +166,6 @@ std::string GenerateStruct_VkAttachmentDescription(std::ostream &out, const VkAt
 
 std::string GenerateStruct_VkAttachmentReference(std::ostream &out, const VkAttachmentReference* structInfo, Decoded_VkAttachmentReference* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkBindSparseInfo(std::ostream &out, const VkBindSparseInfo* structInfo, Decoded_VkBindSparseInfo* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkBufferCopy(std::ostream &out, const VkBufferCopy* structInfo, Decoded_VkBufferCopy* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkBufferCreateInfo(std::ostream &out, const VkBufferCreateInfo* structInfo, Decoded_VkBufferCreateInfo* metaInfo, VulkanCppConsumerBase &consumer);
@@ -351,8 +349,6 @@ std::string GenerateStruct_VkSpecializationInfo(std::ostream &out, const VkSpeci
 std::string GenerateStruct_VkSpecializationMapEntry(std::ostream &out, const VkSpecializationMapEntry* structInfo, Decoded_VkSpecializationMapEntry* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkStencilOpState(std::ostream &out, const VkStencilOpState* structInfo, Decoded_VkStencilOpState* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkSubmitInfo(std::ostream &out, const VkSubmitInfo* structInfo, Decoded_VkSubmitInfo* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkSubpassDependency(std::ostream &out, const VkSubpassDependency* structInfo, Decoded_VkSubpassDependency* metaInfo, VulkanCppConsumerBase &consumer);
 
@@ -703,8 +699,6 @@ std::string GenerateStruct_VkRenderingInfo(std::ostream &out, const VkRenderingI
 std::string GenerateStruct_VkResolveImageInfo2(std::ostream &out, const VkResolveImageInfo2* structInfo, Decoded_VkResolveImageInfo2* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkSemaphoreSubmitInfo(std::ostream &out, const VkSemaphoreSubmitInfo* structInfo, Decoded_VkSemaphoreSubmitInfo* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkSubmitInfo2(std::ostream &out, const VkSubmitInfo2* structInfo, Decoded_VkSubmitInfo2* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkWriteDescriptorSetInlineUniformBlock(std::ostream &out, const VkWriteDescriptorSetInlineUniformBlock* structInfo, Decoded_VkWriteDescriptorSetInlineUniformBlock* metaInfo, VulkanCppConsumerBase &consumer);
 
