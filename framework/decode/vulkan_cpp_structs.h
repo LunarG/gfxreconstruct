@@ -45,10 +45,27 @@ std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 ou
                                                 Decoded_VkWriteDescriptorSet* metaInfo,
                                                 VulkanCppConsumerBase&        consumer);
 
-std::string GenerateStruct_VkPresentInfoKHR(std::ostream&             out,
-                                            const VkPresentInfoKHR*   structInfo,
-                                            Decoded_VkPresentInfoKHR* metainfo,
-                                            VulkanCppConsumerBase&    consumer);
+std::string GenerateStruct_VkSubmitInfo(std::ostream&                        out,
+                                        const VkSubmitInfo*                  structInfo,
+                                        Decoded_VkSubmitInfo*                metaInfo,
+                                        const std::vector<format::HandleId>& imported_semaphores,
+                                        VulkanCppConsumerBase&               consumer);
+std::string GenerateStruct_VkSubmitInfo2(std::ostream&                        out,
+                                         const VkSubmitInfo2*                 structInfo,
+                                         Decoded_VkSubmitInfo2*               metaInfo,
+                                         const std::vector<format::HandleId>& imported_semaphores,
+                                         VulkanCppConsumerBase&               consumer);
+std::string GenerateStruct_VkBindSparseInfo(std::ostream&                        out,
+                                            const VkBindSparseInfo*              structInfo,
+                                            Decoded_VkBindSparseInfo*            metaInfo,
+                                            const std::vector<format::HandleId>& imported_semaphores,
+                                            VulkanCppConsumerBase&               consumer);
+
+std::string GenerateStruct_VkPresentInfoKHR(std::ostream&                        out,
+                                            const VkPresentInfoKHR*              structInfo,
+                                            Decoded_VkPresentInfoKHR*            metainfo,
+                                            const std::vector<format::HandleId>& imported_semaphores,
+                                            VulkanCppConsumerBase&               consumer);
 
 std::string
 GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&                                 out,

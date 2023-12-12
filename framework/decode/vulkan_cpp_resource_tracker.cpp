@@ -40,17 +40,5 @@ void VulkanCppResourceTracker::AddHandleUsage(uint32_t                frame_numb
     }
 }
 
-void VulkanCppResourceTracker::CalculateGlobalVariables()
-{
-    for (const auto& handle_id_usage : handle_id_usage_map_)
-    {
-        // If the resource is used in more than a single frame then it's global
-        uint32_t size      = handle_id_usage.second.size();
-        bool     is_global = size > 1;
-
-        global_variable_map_[handle_id_usage.first] = is_global;
-    }
-}
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

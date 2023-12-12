@@ -2728,6 +2728,7 @@ void VulkanCppConsumer::Process_vkDestroySemaphore(
     format::HandleId                            semaphore,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
+    Intercept_vkDestroySemaphore(device, semaphore, pAllocator);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3386,36 +3387,7 @@ void VulkanCppConsumer::Process_vkQueueBindSparse(
     StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
     format::HandleId                            fence)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// queue
-// bindInfoCount
-// pBindInfo
-    std::stringstream stream_pbind_info;
-    std::string pbind_info_array = "NULL";
-    PointerPairContainer<decltype(pBindInfo->GetPointer()), decltype(pBindInfo->GetMetaStructPointer())> pbind_info_pair{ pBindInfo->GetPointer(), pBindInfo->GetMetaStructPointer(), bindInfoCount };
-    std::string pbind_info_names = toStringJoin(pbind_info_pair.begin(),
-                                                pbind_info_pair.end(),
-                                                [&](auto pair) {{ return GenerateStruct_VkBindSparseInfo(stream_pbind_info, pair.t1, pair.t2, *this); }},
-                                                ", ");
-    if (stream_pbind_info.str().length() > 0) {
-        fprintf(file, "%s", stream_pbind_info.str().c_str());
-        if (bindInfoCount == 1) {
-            pbind_info_array = "&" + pbind_info_names;
-        } else if (bindInfoCount > 1) {
-            pbind_info_array = "pBindInfo_" + std::to_string(this->GetNextId());
-            fprintf(file, "\t\tVkBindSparseInfo %s[] = { %s };\n", pbind_info_array.c_str(), pbind_info_names.c_str());
-        }
-    }
-// fence
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(vkQueueBindSparse(%s, %u, %s, %s), %s);\n",
-            this->GetHandle(queue).c_str(),
-            bindInfoCount,
-            pbind_info_array.c_str(),
-            this->GetHandle(fence).c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkQueueBindSparse(returnValue, queue, bindInfoCount, pBindInfo, fence);
     Post_APICall(format::ApiCallId::ApiCall_vkQueueBindSparse);
 }
 
@@ -3427,36 +3399,7 @@ void VulkanCppConsumer::Process_vkQueueSubmit(
     StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
     format::HandleId                            fence)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// queue
-// submitCount
-// pSubmits
-    std::stringstream stream_psubmits;
-    std::string psubmits_array = "NULL";
-    PointerPairContainer<decltype(pSubmits->GetPointer()), decltype(pSubmits->GetMetaStructPointer())> psubmits_pair{ pSubmits->GetPointer(), pSubmits->GetMetaStructPointer(), submitCount };
-    std::string psubmits_names = toStringJoin(psubmits_pair.begin(),
-                                              psubmits_pair.end(),
-                                              [&](auto pair) {{ return GenerateStruct_VkSubmitInfo(stream_psubmits, pair.t1, pair.t2, *this); }},
-                                              ", ");
-    if (stream_psubmits.str().length() > 0) {
-        fprintf(file, "%s", stream_psubmits.str().c_str());
-        if (submitCount == 1) {
-            psubmits_array = "&" + psubmits_names;
-        } else if (submitCount > 1) {
-            psubmits_array = "pSubmits_" + std::to_string(this->GetNextId());
-            fprintf(file, "\t\tVkSubmitInfo %s[] = { %s };\n", psubmits_array.c_str(), psubmits_names.c_str());
-        }
-    }
-// fence
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(vkQueueSubmit(%s, %u, %s, %s), %s);\n",
-            this->GetHandle(queue).c_str(),
-            submitCount,
-            psubmits_array.c_str(),
-            this->GetHandle(fence).c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkQueueSubmit(returnValue, queue, submitCount, pSubmits, fence);
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSubmit);
 }
 
@@ -5667,36 +5610,7 @@ void VulkanCppConsumer::Process_vkQueueSubmit2(
     StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
     format::HandleId                            fence)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// queue
-// submitCount
-// pSubmits
-    std::stringstream stream_psubmits;
-    std::string psubmits_array = "NULL";
-    PointerPairContainer<decltype(pSubmits->GetPointer()), decltype(pSubmits->GetMetaStructPointer())> psubmits_pair{ pSubmits->GetPointer(), pSubmits->GetMetaStructPointer(), submitCount };
-    std::string psubmits_names = toStringJoin(psubmits_pair.begin(),
-                                              psubmits_pair.end(),
-                                              [&](auto pair) {{ return GenerateStruct_VkSubmitInfo2(stream_psubmits, pair.t1, pair.t2, *this); }},
-                                              ", ");
-    if (stream_psubmits.str().length() > 0) {
-        fprintf(file, "%s", stream_psubmits.str().c_str());
-        if (submitCount == 1) {
-            psubmits_array = "&" + psubmits_names;
-        } else if (submitCount > 1) {
-            psubmits_array = "pSubmits_" + std::to_string(this->GetNextId());
-            fprintf(file, "\t\tVkSubmitInfo2 %s[] = { %s };\n", psubmits_array.c_str(), psubmits_names.c_str());
-        }
-    }
-// fence
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(vkQueueSubmit2(%s, %u, %s, %s), %s);\n",
-            this->GetHandle(queue).c_str(),
-            submitCount,
-            psubmits_array.c_str(),
-            this->GetHandle(fence).c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkQueueSubmit2(returnValue, queue, submitCount, pSubmits, fence);
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSubmit2);
 }
 
@@ -6010,23 +5924,7 @@ void VulkanCppConsumer::Process_vkQueuePresentKHR(
     format::HandleId                            queue,
     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// queue
-// pPresentInfo
-    std::stringstream stream_ppresent_info;
-    std::string ppresent_info_struct = GenerateStruct_VkPresentInfoKHR(stream_ppresent_info,
-                                                                       pPresentInfo->GetPointer(),
-                                                                       pPresentInfo->GetMetaStructPointer(),
-                                                                       *this);
-    fprintf(file, "%s", stream_ppresent_info.str().c_str());
-    pfn_loader_.AddMethodName("vkQueuePresentKHR");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkQueuePresentKHR(%s, &%s), %s);\n",
-            this->GetHandle(queue).c_str(),
-            ppresent_info_struct.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkQueuePresentKHR(returnValue, queue, pPresentInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkQueuePresentKHR);
 }
 void VulkanCppConsumer::Process_vkCreateDisplayModeKHR(
@@ -7417,27 +7315,7 @@ void VulkanCppConsumer::Process_vkGetSemaphoreWin32HandleKHR(
     StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// pGetWin32HandleInfo
-    std::stringstream stream_pget_win32_handle_info;
-    std::string pget_win32_handle_info_struct = GenerateStruct_VkSemaphoreGetWin32HandleInfoKHR(stream_pget_win32_handle_info,
-                                                                                                pGetWin32HandleInfo->GetPointer(),
-                                                                                                pGetWin32HandleInfo->GetMetaStructPointer(),
-                                                                                                *this);
-    fprintf(file, "%s", stream_pget_win32_handle_info.str().c_str());
-// pHandle
-    std::string phandle_name = "pHandle_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t* %s;\n", phandle_name.c_str());
-    pfn_loader_.AddMethodName("vkGetSemaphoreWin32HandleKHR");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreWin32HandleKHR(%s, &%s, &%s), %s);\n",
-            this->GetHandle(device).c_str(),
-            pget_win32_handle_info_struct.c_str(),
-            phandle_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkGetSemaphoreWin32HandleKHR(returnValue, device, pGetWin32HandleInfo, pHandle);
     Post_APICall(format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR);
 }
 
@@ -7447,23 +7325,7 @@ void VulkanCppConsumer::Process_vkImportSemaphoreWin32HandleKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>* pImportSemaphoreWin32HandleInfo)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// pImportSemaphoreWin32HandleInfo
-    std::stringstream stream_pimport_semaphore_win32_handle_info;
-    std::string pimport_semaphore_win32_handle_info_struct = GenerateStruct_VkImportSemaphoreWin32HandleInfoKHR(stream_pimport_semaphore_win32_handle_info,
-                                                                                                                pImportSemaphoreWin32HandleInfo->GetPointer(),
-                                                                                                                pImportSemaphoreWin32HandleInfo->GetMetaStructPointer(),
-                                                                                                                *this);
-    fprintf(file, "%s", stream_pimport_semaphore_win32_handle_info.str().c_str());
-    pfn_loader_.AddMethodName("vkImportSemaphoreWin32HandleKHR");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkImportSemaphoreWin32HandleKHR(%s, &%s), %s);\n",
-            this->GetHandle(device).c_str(),
-            pimport_semaphore_win32_handle_info_struct.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkImportSemaphoreWin32HandleKHR(returnValue, device, pImportSemaphoreWin32HandleInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR);
 }
 void VulkanCppConsumer::Process_vkGetSemaphoreFdKHR(
@@ -7473,27 +7335,7 @@ void VulkanCppConsumer::Process_vkGetSemaphoreFdKHR(
     StructPointerDecoder<Decoded_VkSemaphoreGetFdInfoKHR>* pGetFdInfo,
     PointerDecoder<int>*                        pFd)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// pGetFdInfo
-    std::stringstream stream_pget_fd_info;
-    std::string pget_fd_info_struct = GenerateStruct_VkSemaphoreGetFdInfoKHR(stream_pget_fd_info,
-                                                                             pGetFdInfo->GetPointer(),
-                                                                             pGetFdInfo->GetMetaStructPointer(),
-                                                                             *this);
-    fprintf(file, "%s", stream_pget_fd_info.str().c_str());
-// pFd
-    std::string pfd_name = "pFd_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tint %s;\n", pfd_name.c_str());
-    pfn_loader_.AddMethodName("vkGetSemaphoreFdKHR");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreFdKHR(%s, &%s, &%s), %s);\n",
-            this->GetHandle(device).c_str(),
-            pget_fd_info_struct.c_str(),
-            pfd_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkGetSemaphoreFdKHR(returnValue, device, pGetFdInfo, pFd);
     Post_APICall(format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR);
 }
 
@@ -7503,23 +7345,7 @@ void VulkanCppConsumer::Process_vkImportSemaphoreFdKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>* pImportSemaphoreFdInfo)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// pImportSemaphoreFdInfo
-    std::stringstream stream_pimport_semaphore_fd_info;
-    std::string pimport_semaphore_fd_info_struct = GenerateStruct_VkImportSemaphoreFdInfoKHR(stream_pimport_semaphore_fd_info,
-                                                                                             pImportSemaphoreFdInfo->GetPointer(),
-                                                                                             pImportSemaphoreFdInfo->GetMetaStructPointer(),
-                                                                                             *this);
-    fprintf(file, "%s", stream_pimport_semaphore_fd_info.str().c_str());
-    pfn_loader_.AddMethodName("vkImportSemaphoreFdKHR");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkImportSemaphoreFdKHR(%s, &%s), %s);\n",
-            this->GetHandle(device).c_str(),
-            pimport_semaphore_fd_info_struct.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkImportSemaphoreFdKHR(returnValue, device, pImportSemaphoreFdInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR);
 }
 void VulkanCppConsumer::Process_vkCmdPushDescriptorSetKHR(
@@ -9351,37 +9177,7 @@ void VulkanCppConsumer::Process_vkQueueSubmit2KHR(
     StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
     format::HandleId                            fence)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// queue
-// submitCount
-// pSubmits
-    std::stringstream stream_psubmits;
-    std::string psubmits_array = "NULL";
-    PointerPairContainer<decltype(pSubmits->GetPointer()), decltype(pSubmits->GetMetaStructPointer())> psubmits_pair{ pSubmits->GetPointer(), pSubmits->GetMetaStructPointer(), submitCount };
-    std::string psubmits_names = toStringJoin(psubmits_pair.begin(),
-                                              psubmits_pair.end(),
-                                              [&](auto pair) {{ return GenerateStruct_VkSubmitInfo2(stream_psubmits, pair.t1, pair.t2, *this); }},
-                                              ", ");
-    if (stream_psubmits.str().length() > 0) {
-        fprintf(file, "%s", stream_psubmits.str().c_str());
-        if (submitCount == 1) {
-            psubmits_array = "&" + psubmits_names;
-        } else if (submitCount > 1) {
-            psubmits_array = "pSubmits_" + std::to_string(this->GetNextId());
-            fprintf(file, "\t\tVkSubmitInfo2 %s[] = { %s };\n", psubmits_array.c_str(), psubmits_names.c_str());
-        }
-    }
-// fence
-    pfn_loader_.AddMethodName("vkQueueSubmit2KHR");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkQueueSubmit2KHR(%s, %u, %s, %s), %s);\n",
-            this->GetHandle(queue).c_str(),
-            submitCount,
-            psubmits_array.c_str(),
-            this->GetHandle(fence).c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkQueueSubmit2KHR(returnValue, queue, submitCount, pSubmits, fence);
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSubmit2KHR);
 }
 void VulkanCppConsumer::Process_vkCmdBlitImage2KHR(

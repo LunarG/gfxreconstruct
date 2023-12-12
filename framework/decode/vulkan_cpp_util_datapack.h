@@ -18,7 +18,6 @@
 #ifndef GFXRECON_DECODE_VULKAN_CPP_UTIL_DATAPACK_H
 #define GFXRECON_DECODE_VULKAN_CPP_UTIL_DATAPACK_H
 
-// #include <map> // Brainpain
 #include <unordered_map>
 #include <string>
 

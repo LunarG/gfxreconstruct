@@ -140,6 +140,15 @@ CPP_APICALL_GENERATE = [
     'vkCreateComputePipelines',
     'vkGetAndroidHardwareBufferPropertiesANDROID',
     'vkGetMemoryAndroidHardwareBufferANDROID',
+    'vkGetSemaphoreWin32HandleKHR',
+    'vkImportSemaphoreWin32HandleKHR',
+    'vkGetSemaphoreFdKHR',
+    'vkImportSemaphoreFdKHR',
+    'vkQueueSubmit2KHR',
+    'vkQueueSubmit',
+    'vkQueueSubmit2',
+    'vkQueueBindSparse',
+    'vkQueuePresentKHR',
 ]
 
 CPP_APICALL_INTERCEPT_LIST = [
@@ -147,6 +156,7 @@ CPP_APICALL_INTERCEPT_LIST = [
     'vkCreateDevice',
     'vkCreateFramebuffer',
     'vkCreateSwapchainKHR',
+    'vkDestroySemaphore',
 ]
 
 CPP_CONSUMER_API_POST_CALL = [
