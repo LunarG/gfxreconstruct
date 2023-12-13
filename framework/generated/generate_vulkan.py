@@ -90,7 +90,7 @@ if __name__ == '__main__':
         help='\n'.join(
             [
                 'Path to a directory that holds the Vulkan registry file (vk.xml) used to generate Vulkan source.',
-                'If this option is not provide the registry from the external Khronos Vulkan headers sub module will be used.'
+                'If this option is not provided the registry from the external Khronos Vulkan headers sub module will be used.'
             ]
         )
     )
