@@ -969,21 +969,19 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     const std::string& dump_resources = arg_parser.GetArgumentValue(kDumpResourcesArgument);
     if (!dump_resources.empty())
     {
-        std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, '-');
+        std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, ',');
         if (!values.empty())
         {
-            if (values.size() != 2)
+            if (values.size() != 3)
             {
                 GFXRECON_LOG_ERROR("The parameter to --dump-resources is invalid. Ignore it.");
-            }
-            else if (values[0].compare("drawcall") == 0)
-            {
-                replay_options.dump_resources_type     = gfxrecon::decode::DumpResourcesType::kDrawCall;
-                replay_options.dump_resources_argument = std::stoi(values[1]);
             }
             else
             {
-                GFXRECON_LOG_ERROR("The parameter to --dump-resources is invalid. Ignore it.");
+                replay_options.enable_dump_resources                = true;
+                replay_options.dump_resources_target.submit_index   = std::stoi(values[0]);
+                replay_options.dump_resources_target.command_index  = std::stoi(values[1]);
+                replay_options.dump_resources_target.drawcall_index = std::stoi(values[2]);
             }
         }
     }
