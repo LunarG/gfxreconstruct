@@ -101,13 +101,12 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
         InitializeScreenshotHandler();
     }
 
-    if (options.dump_resources_type != DumpResourcesType::kNone)
+    if (options.enable_dump_resources)
     {
         gfxrecon::graphics::Dx12DumpResourcesConfig config;
-        config.captured_file_name = options.filename;
-        config.type               = options.dump_resources_type;
-        config.argument           = options.dump_resources_argument;
-        dump_resources_           = gfxrecon::graphics::Dx12DumpResources::Create(config);
+        config.captured_file_name    = options.filename;
+        config.dump_resources_target = options.dump_resources_target;
+        dump_resources_              = gfxrecon::graphics::Dx12DumpResources::Create(config);
     }
 
     DetectAdapters();
@@ -1215,8 +1214,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
     auto clear_value_pointer = pOptimizedClearValue->GetPointer();
 
     D3D12_RESOURCE_STATES modified_initial_resource_state = InitialResourceState;
-    if ((options_.dump_resources_type != DumpResourcesType::kNone) &&
-        (modified_initial_resource_state & D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE))
+    if (options_.enable_dump_resources && (modified_initial_resource_state & D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE))
     {
         // shader resources can't change state after SetGraphicsRootDescriptorTable.
         // But even if it changes state and copy resources before SetGraphicsRootDescriptorTable,
@@ -3814,7 +3812,7 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(
         auto resource_object_info = GetObjectInfo(resource_id);
         auto resource_extra_info  = GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
 
-        if (options_.dump_resources_type != DumpResourcesType::kNone)
+        if (options_.enable_dump_resources)
         {
             // This should be in the override functionsince it modifies the parameters. But here is ok.
             barriers[i].Transition->decoded_value->StateBefore = resource_extra_info->current_state;
@@ -3887,8 +3885,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_OMSetRenderTarge
     BOOL                                                       RTsSingleHandleToDescriptorRange,
     StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor)
 {
-    if (options_.dump_resources_type != DumpResourcesType::kNone &&
-        track_dump_resources_.target.set_render_targets_code_index == call_info.index)
+    if (call_info.index == track_dump_resources_.target.set_render_targets_code_index)
     {
         auto rt_handles = pRenderTargetDescriptors->GetMetaStructPointer();
         track_dump_resources_.render_target_heap_ids.resize(NumRenderTargetDescriptors);
@@ -3915,8 +3912,7 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList4_BeginRenderPass(
     StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
     D3D12_RENDER_PASS_FLAGS                                             Flags)
 {
-    if (options_.dump_resources_type != DumpResourcesType::kNone &&
-        call_info.index == track_dump_resources_.target.begin_renderpass_code_index)
+    if (call_info.index == track_dump_resources_.target.begin_renderpass_code_index)
     {
         // This should be in the override function since it modifies the parameters. But the override function
         // doesn't have call_info, so stay here.
@@ -3946,8 +3942,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList4_BeginRenderPass
     StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
     D3D12_RENDER_PASS_FLAGS                                             Flags)
 {
-    if (options_.dump_resources_type != DumpResourcesType::kNone &&
-        call_info.index == track_dump_resources_.target.begin_renderpass_code_index)
+    if (call_info.index == track_dump_resources_.target.begin_renderpass_code_index)
     {
         // Record ending accesses and flags for the inserted BeginRenderPass in after drawcall.
         auto rt_descs = pRenderTargets->GetMetaStructPointer();
@@ -4062,8 +4057,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
     UINT                                      NumCommandLists,
     HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
 {
-    if (options_.dump_resources_type != DumpResourcesType::kNone &&
-        track_dump_resources_.target.execute_code_index == call_info.index)
+    if (track_dump_resources_.target.execute_code_index == call_info.index)
     {
         auto                              queue  = reinterpret_cast<ID3D12CommandQueue*>(object_info->object);
         auto                              device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(queue);
@@ -4081,8 +4075,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
 void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(const ApiCallInfo& call_info,
                                                                       DxObjectInfo*      object_info)
 {
-    if (options_.dump_resources_type != DumpResourcesType::kNone &&
-        track_dump_resources_.target.drawcall_code_index == call_info.index)
+    if (track_dump_resources_.target.drawcall_code_index == call_info.index)
     {
         auto commandlist = reinterpret_cast<ID3D12GraphicsCommandList*>(object_info->object);
         if (track_dump_resources_.target.begin_renderpass_code_index == 0)
@@ -4300,8 +4293,7 @@ void Dx12ReplayConsumerBase::AddCopyDepthStencilCommandForBeforeDrawcall(
 void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(const ApiCallInfo& call_info,
                                                                      DxObjectInfo*      object_info)
 {
-    if (options_.dump_resources_type != DumpResourcesType::kNone &&
-        track_dump_resources_.target.drawcall_code_index == call_info.index)
+    if (track_dump_resources_.target.drawcall_code_index == call_info.index)
     {
         auto commandlist = reinterpret_cast<ID3D12GraphicsCommandList*>(object_info->object);
         if (track_dump_resources_.target.begin_renderpass_code_index == 0)

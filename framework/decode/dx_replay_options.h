@@ -39,24 +39,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
 
-enum class DumpResourcesType
+struct DumpResourcesTarget
 {
-    kNone     = 0,
-    kDrawCall = 1,
+    uint32_t submit_index{ 0 };
+    uint32_t command_index{ 0 };
+    uint32_t drawcall_index{ 0 };
 };
-
-inline std::string GetDumpResourcesType(DumpResourcesType type)
-{
-    switch (type)
-    {
-        case DumpResourcesType::kDrawCall:
-            return "drawcall";
-        default:
-            break;
-    }
-    GFXRECON_LOG_WARNING("Unrecognized DumpResourcesType %d. Return \"none \".", static_cast<int>(type));
-    return "none";
-}
 
 struct DxReplayOptions : public ReplayOptions
 {
@@ -66,8 +54,8 @@ struct DxReplayOptions : public ReplayOptions
     std::vector<int32_t> AllowedDebugMessages;
     std::vector<int32_t> DeniedDebugMessages;
     bool                 override_object_names{ false };
-    DumpResourcesType    dump_resources_type{ DumpResourcesType::kNone };
-    uint64_t             dump_resources_argument{ 0 };
+    bool                 enable_dump_resources{ false };
+    DumpResourcesTarget  dump_resources_target{};
 
     util::ScreenshotFormat       screenshot_format{ util::ScreenshotFormat::kBmp };
     std::vector<ScreenshotRange> screenshot_ranges;

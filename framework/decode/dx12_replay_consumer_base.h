@@ -266,10 +266,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void RemoveObject(DxObjectInfo* info);
 
-    void SetDumpTarget(TrackDumpCommandList& track_dump_commandlist)
-    {
-        track_dump_resources_.target = track_dump_commandlist;
-    }
+    void SetDumpTarget(TrackDumpDrawcall& track_dump_target) { track_dump_resources_.target = track_dump_target; }
 
     IDXGIAdapter* GetAdapter();
 
