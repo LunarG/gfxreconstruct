@@ -29,7 +29,6 @@
 #include "vulkan/vulkan.h"
 
 #include <cstdio>
-#include <map>
 #include <string>
 #include <sstream>
 #include <type_traits>
@@ -49,6 +48,13 @@ struct DescriptorUpdateTemplateEntries
     std::vector<VkDescriptorUpdateTemplateEntry> buffers;
     std::vector<VkDescriptorUpdateTemplateEntry> texels;
     std::vector<VkDescriptorUpdateTemplateEntry> accelerations;
+};
+
+// Track items that are specific to a given device
+struct DeviceInfo
+{
+    format::HandleId                               parent{ 0 };
+    std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
 };
 
 class VulkanCppConsumerBase : public VulkanConsumer
@@ -142,6 +148,12 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                              PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
                                              HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices);
 
+    void Generate_vkCreateSwapchainKHR(VkResult                                                returnValue,
+                                       format::HandleId                                        device,
+                                       StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
+                                       StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
+                                       HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain);
+
     void Generate_vkGetSwapchainImagesKHR(VkResult                       returnValue,
                                           format::HandleId               device,
                                           format::HandleId               swapchain,
@@ -171,6 +183,13 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                                            uint32_t         queueFamilyIndex,
                                                            uint64_t         connection,
                                                            uint32_t         visual_id);
+    void Generate_vkCreateDevice(VkResult                                             returnValue,
+                                 format::HandleId                                     physicalDevice,
+                                 StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
+                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                 HandlePointerDecoder<VkDevice>*                      pDevice);
+    void Generate_vkDestroyDevice(format::HandleId                                     device,
+                                  StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     void Generate_vkGetImageMemoryRequirements(format::HandleId                                    device,
                                                format::HandleId                                    image,
@@ -222,6 +241,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                    StructPointerDecoder<Decoded_VkMemoryAllocateInfo>*  pAllocateInfo,
                                    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                    HandlePointerDecoder<VkDeviceMemory>*                pMemory);
+    void Generate_vkCreateBuffer(VkResult                                             returnValue,
+                                 format::HandleId                                     device,
+                                 StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
+                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                 HandlePointerDecoder<VkBuffer>*                      pBuffer);
 
     void Generate_vkCreateInstance(VkResult                                             returnValue,
                                    StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
@@ -444,18 +468,6 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo);
 
     // Intercept commands that perform additional work prior to the standard code generation
-    void Intercept_vkCreateDevice(VkResult                                             returnValue,
-                                  format::HandleId                                     physicalDevice,
-                                  StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
-                                  StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                  HandlePointerDecoder<VkDevice>*                      pDevice);
-
-    void Intercept_vkCreateSwapchainKHR(VkResult                                                returnValue,
-                                        format::HandleId                                        device,
-                                        StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
-                                        HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain);
-
     void Intercept_vkCreateFramebuffer(VkResult                                               returnValue,
                                        format::HandleId                                       device,
                                        StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* pCreateInfo,
@@ -591,10 +603,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                                     uint32_t                                            layers,
                                                     const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
     virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) override;
+    virtual void
+    ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address) override;
 
   protected:
     FILE* GetFrameFile();
-    FILE* GetHeaderFile() const { return header_file_; };
     FILE* GetGlobalFile() const { return global_file_; };
 
     std::string GenFrameName(uint32_t frameNumber, uint32_t frameSplitNumber, uint32_t fillLength);
@@ -625,25 +638,26 @@ class VulkanCppConsumerBase : public VulkanConsumer
         std::string buffer_name;
     };
 
-    std::unordered_map<VkObjectType, uint32_t>                  counters_;
-    VulkanCppResourceTracker*                                   resource_tracker_;
-    VulkanCppLoaderGenerator                                    pfn_loader_;
-    std::map<format::HandleId, std::string>                     handle_id_map_;
-    std::vector<std::string>                                    func_data_;
-    std::map<uint64_t, std::string>                             memory_id_map_;
-    std::map<uint64_t, VulkanCppAndroidBufferInfo>              android_buffer_id_map_;
-    std::map<uint64_t, VulkanCppAndroidMemoryInfo>              android_memory_id_map_;
-    std::map<format::HandleId, std::queue<std::string>>         next_image_map_;
-    std::map<void*, std::string>                                ptr_map_;
-    std::map<uint64_t, std::string>                             struct_map_; // hash -> name
-    uint32_t                                                    window_width_;
-    uint32_t                                                    window_height_;
-    uint32_t                                                    max_command_limit_{ 1000 };
-    std::vector<GfxToCppVariable>                               variable_data_;
-    std::vector<format::HandleId>                               imported_semaphores_;
-    std::map<format::HandleId, DescriptorUpdateTemplateEntries> descriptor_update_template_entry_map_;
+    std::unordered_map<VkObjectType, uint32_t>                            counters_;
+    VulkanCppResourceTracker*                                             resource_tracker_;
+    VulkanCppLoaderGenerator                                              pfn_loader_;
+    std::unordered_map<format::HandleId, std::string>                     handle_id_map_;
+    std::unordered_map<format::HandleId, DeviceInfo*>                     device_info_map_;
+    std::vector<std::string>                                              func_data_;
+    std::unordered_map<uint64_t, std::string>                             memory_id_map_;
+    std::unordered_map<uint64_t, VulkanCppAndroidBufferInfo>              android_buffer_id_map_;
+    std::unordered_map<uint64_t, VulkanCppAndroidMemoryInfo>              android_memory_id_map_;
+    std::unordered_map<format::HandleId, std::queue<std::string>>         next_image_map_;
+    std::unordered_map<void*, std::string>                                ptr_map_;
+    std::unordered_map<uint64_t, std::string>                             struct_map_; // hash -> name
+    uint32_t                                                              window_width_;
+    uint32_t                                                              window_height_;
+    uint32_t                                                              max_command_limit_{ 1000 };
+    std::vector<GfxToCppVariable>                                         variable_data_;
+    std::vector<format::HandleId>                                         imported_semaphores_;
+    std::unordered_map<format::HandleId, DescriptorUpdateTemplateEntries> descriptor_update_template_entry_map_;
     std::map<format::HandleId, std::queue<std::pair<format::HandleId, VkDeviceSize>>> memory_resource_map_;
-    std::map<format::HandleId, std::string>                                           resource_memory_req_map_;
+    std::unordered_map<format::HandleId, std::string>                                 resource_memory_req_map_;
 
     bool needs_debug_util_callback_ = false;
 

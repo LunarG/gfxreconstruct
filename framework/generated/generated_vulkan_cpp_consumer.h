@@ -2418,6 +2418,21 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pPropertyCount,
         StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties) override;
+    virtual void Process_vkGetCalibratedTimestampsKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        uint32_t                                    timestampCount,
+        StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
+        PointerDecoder<uint64_t>*                   pTimestamps,
+        PointerDecoder<uint64_t>*                   pMaxDeviation) override;
+
+    virtual void Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        PointerDecoder<uint32_t>*                   pTimeDomainCount,
+        PointerDecoder<VkTimeDomainKHR>*            pTimeDomains) override;
     virtual void Process_vkFrameBoundaryANDROID(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -2986,7 +3001,7 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         VkResult                                    returnValue,
         format::HandleId                            device,
         uint32_t                                    timestampCount,
-        StructPointerDecoder<Decoded_VkCalibratedTimestampInfoEXT>* pTimestampInfos,
+        StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
         PointerDecoder<uint64_t>*                   pTimestamps,
         PointerDecoder<uint64_t>*                   pMaxDeviation) override;
 
@@ -2995,7 +3010,7 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         VkResult                                    returnValue,
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pTimeDomainCount,
-        PointerDecoder<VkTimeDomainEXT>*            pTimeDomains) override;
+        PointerDecoder<VkTimeDomainKHR>*            pTimeDomains) override;
     virtual void Process_vkCmdDrawMeshTasksIndirectCountNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

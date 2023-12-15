@@ -21,8 +21,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 // Beginning of common template strings
 static const char* sCommonHeaderOutputHeaders = R"(
-#ifndef GLOBAL_VAR_H
-#define GLOBAL_VAR_H
+#pragma once
 
 #include <cstdio>
 #include <cstdlib>
@@ -32,10 +31,6 @@ static const char* sCommonHeaderOutputHeaders = R"(
 #include <unordered_map>
 
 #include <vulkan/vulkan.h>
-)";
-
-static const char* sCommonHeaderOutputFooter = R"(
-#endif // GLOBAL_VAR_H
 )";
 
 static const char* sCommonOutputHeaderFunctions = R"(
@@ -54,6 +49,7 @@ static const char* sCommonFrameSourceHeader = R"(
 #include "global_var.h"
 #include "loader.h"
 #include "vulkan/vulkan.h"
+#include <cassert>
 )";
 
 static const char* sCommonFrameSourceFooter = R"(

@@ -2880,6 +2880,7 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains,
         StructPointerDecoder<Decoded_VkHdrMetadataEXT>* pMetadata) override;
 
+
     virtual void Process_vkCreateIOSSurfaceMVK(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3952,6 +3953,7 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
 
 
 
+
     virtual void Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3963,6 +3965,7 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         format::HandleId                            device,
         format::HandleId                            descriptorSet,
         PointerDecoder<uint64_t, void*>*            ppData) override;
+
 
 
 
@@ -4251,6 +4254,7 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) override;
+
 
 
 

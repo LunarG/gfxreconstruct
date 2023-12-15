@@ -137,7 +137,7 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
     switch (platform_)
     {
         case GfxToCppPlatform::PLATFORM_ANDROID:
-            fprintf(GetHeaderFile(),
+            fprintf(header_file_,
                     "%s%s%s%s",
                     sAndroidOutputHeadersPlatform,
                     sCommonHeaderOutputHeaders,
@@ -145,7 +145,7 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
                     sCommonOutputHeaderFunctions);
             break;
         case GfxToCppPlatform::PLATFORM_WIN32:
-            fprintf(GetHeaderFile(),
+            fprintf(header_file_,
                     "%s%s%s%s",
                     sWin32OutputHeadersPlatform,
                     sCommonHeaderOutputHeaders,
@@ -153,7 +153,7 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
                     sCommonOutputHeaderFunctions);
             break;
         case GfxToCppPlatform::PLATFORM_XCB:
-            fprintf(GetHeaderFile(),
+            fprintf(header_file_,
                     "%s%s%s%s",
                     sXcbOutputHeadersPlatform,
                     sCommonHeaderOutputHeaders,
@@ -163,7 +163,7 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
         case GfxToCppPlatform::PLATFORM_COUNT:
         default:
         {
-            fprintf(main_file_,
+            fprintf(header_file_,
                     "// Nothing to generate for unknown platform: %s\n",
                     GfxToCppPlatformToString(platform_).c_str());
             assert(false);
@@ -171,20 +171,31 @@ void VulkanCppConsumerBase::WriteGlobalHeaderFile()
         }
     }
 
-    PrintToFile(GetHeaderFile(), "extern %s;\n", GfxToCppVariable::GenerateStringVec(variable_data_));
+    PrintToFile(header_file_, "extern %s;\n", GfxToCppVariable::GenerateStringVec(variable_data_));
 
-    PrintToFile(GetHeaderFile(), "%s", func_data_);
+    PrintToFile(header_file_, "%s", func_data_);
 
     if (needs_debug_util_callback_)
     {
-        fprintf(GetHeaderFile(), "VkBool32 vulkanCppDebugUtilsCallback(\n");
-        fprintf(GetHeaderFile(), "    VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,\n");
-        fprintf(GetHeaderFile(), "    VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,\n");
-        fprintf(GetHeaderFile(), "    const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,\n");
-        fprintf(GetHeaderFile(), "    void*                                            pUserData);\n");
+        fprintf(header_file_, "VkBool32 vulkanCppDebugUtilsCallback(\n");
+        fprintf(header_file_, "    VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,\n");
+        fprintf(header_file_, "    VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,\n");
+        fprintf(header_file_, "    const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,\n");
+        fprintf(header_file_, "    void*                                            pUserData);\n");
     }
 
-    fprintf(GetHeaderFile(), "%s", sCommonHeaderOutputFooter);
+    fprintf(header_file_, "struct DeviceFeatures {\n");
+    fprintf(header_file_, "    VkPhysicalDeviceFeatures                         features_1_0;\n");
+    fprintf(header_file_, "    VkPhysicalDeviceVulkan11Features                 features_1_1;\n");
+    fprintf(header_file_, "    VkPhysicalDeviceVulkan12Features                 features_1_2;\n");
+    fprintf(header_file_, "    VkPhysicalDeviceBufferDeviceAddressFeatures      features_dev_buf_addr;\n");
+    fprintf(header_file_, "#ifndef VK_USE_PLATFORM_ANDROID_KHR\n");
+    fprintf(header_file_, "    VkPhysicalDeviceAccelerationStructureFeaturesKHR features_accel_struct;\n");
+    fprintf(header_file_, "    VkPhysicalDeviceRayTracingPipelineFeaturesKHR    features_ray_trace_pipeline;\n");
+    fprintf(header_file_, "#endif\n");
+    fprintf(header_file_, "};\n");
+    fprintf(header_file_, "extern std::unordered_map<VkDevice, DeviceFeatures*> device_features;\n");
+
     util::platform::FileClose(header_file_);
 }
 
@@ -237,8 +248,11 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
             }
         }
 
+        fprintf(global_file, "\n");
+        fprintf(global_file, "std::unordered_map<VkDevice, DeviceFeatures*> device_features;\n");
+
         fprintf(global_file,
-                "\nVkMemoryType originalMemoryTypes[%" PRId64 "][%" PRId64 "] = {\n",
+                "VkMemoryType originalMemoryTypes[%" PRId64 "][%" PRId64 "] = {\n",
                 original_memory_types_.size(),
                 max_second_dimension);
         for (const auto& pd_mem_types : original_memory_types_)
@@ -558,6 +572,47 @@ void VulkanCppConsumerBase::Generate_vkEnumeratePhysicalDevices(
     }
 }
 
+void VulkanCppConsumerBase::Generate_vkCreateSwapchainKHR(
+    VkResult                                                returnValue,
+    format::HandleId                                        device,
+    StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
+    HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain)
+{
+    FILE* file = GetFrameFile();
+
+    fprintf(file, "\t{\n");
+    // device
+    // pCreateInfo
+    std::stringstream         stream_pcreate_info;
+    VkSwapchainCreateInfoKHR* struct_info = pCreateInfo->GetPointer();
+    if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
+    {
+        struct_info->imageExtent.width  = GetProperWindowWidth(struct_info->imageExtent.width);
+        struct_info->imageExtent.height = GetProperWindowHeight(struct_info->imageExtent.height);
+    }
+    std::string pcreate_info_struct = GenerateStruct_VkSwapchainCreateInfoKHR(
+        stream_pcreate_info, struct_info, pCreateInfo->GetMetaStructPointer(), *this);
+    fprintf(file, "%s", stream_pcreate_info.str().c_str());
+    // pAllocator
+    // pSwapchain
+    std::string pswapchain_name = "pSwapchain_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_SWAPCHAIN_KHR));
+    AddKnownVariables("VkSwapchainKHR", pswapchain_name, pSwapchain->GetPointer());
+    if (returnValue == VK_SUCCESS)
+    {
+        this->AddHandles(pswapchain_name, pSwapchain->GetPointer());
+    }
+    pfn_loader_.AddMethodName("vkCreateSwapchainKHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkCreateSwapchainKHR(%s, &%s, %s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pcreate_info_struct.c_str(),
+            "nullptr",
+            pswapchain_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+}
+
 void VulkanCppConsumerBase::Generate_vkGetSwapchainImagesKHR(VkResult                       returnValue,
                                                              format::HandleId               device,
                                                              format::HandleId               swapchain,
@@ -862,7 +917,7 @@ void VulkanCppConsumerBase::Generate_vkGetFenceStatus(VkResult         returnVal
     if (returnValue == VK_SUCCESS)
     {
         fprintf(GetFrameFile(),
-                "\twhile( vkGetFenceStatus(%s, %s) != VK_SUCCESS) { usleep(5000); }\n",
+                "\twhile (vkGetFenceStatus(%s, %s) != VK_SUCCESS) { usleep(5000); }\n",
                 this->GetHandle(device).c_str(),
                 this->GetHandle(fence).c_str());
     }
@@ -917,6 +972,50 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(VkResult                  
     FILE* file = GetFrameFile();
 
     fprintf(file, "\t{\n");
+
+    // Check to see if we need to worry about opaque memory here.
+    DeviceInfo* dev_info = nullptr;
+    if (device_info_map_.find(device) != device_info_map_.end())
+    {
+        dev_info                       = device_info_map_[device];
+        format::HandleId memory_handle = *pMemory->GetPointer();
+
+        // If we don't have this memory handle in the opaque address list, set it back to NULL since we
+        // won't be using it here.
+        if (dev_info->opaque_addresses.find(memory_handle) == dev_info->opaque_addresses.end())
+        {
+            dev_info = nullptr;
+        }
+        else
+        {
+            // Create a opaque memory struct for use in the pNext chain in case we need it.
+            // and set all the appropriate variables that can be used to track if it is needed.
+            // This way the various pNext structures can just use these variables to determine
+            // the appropriate action.
+            fprintf(file, "\t\tVkMemoryOpaqueCaptureAddressAllocateInfo address_info = {\n");
+            fprintf(file, "\t\t\tVK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,\n");
+            fprintf(file, "\t\t};\n");
+            fprintf(file, "\n");
+
+            fprintf(file, "\t\tbool     can_use_opaque_address = false;\n");
+            fprintf(file, "\t\tbool     uses_opaque_address    = false;\n");
+            fprintf(file, "\t\tbool     imports_memory         = false;\n");
+            fprintf(file, "\n");
+            fprintf(
+                file, "\t\tif (device_features.find(%s) != device_features.end()){\n", this->GetHandle(device).c_str());
+            fprintf(
+                file, "\t\t\tDeviceFeatures* dev_features = device_features[%s];\n", this->GetHandle(device).c_str());
+            fprintf(file, "\t\t\tif (dev_features->features_dev_buf_addr.bufferDeviceAddressCaptureReplay ||\n");
+            fprintf(file, "\t\t\t    dev_features->features_1_2.bufferDeviceAddressCaptureReplay) {\n");
+            fprintf(file, "\t\t\t\tcan_use_opaque_address = true;\n");
+            fprintf(file,
+                    "\t\t\t\taddress_info.opaque_address = %" PRIu64 "ULL;\n",
+                    dev_info->opaque_addresses[memory_handle]);
+            fprintf(file, "\t\t\t}\n");
+            fprintf(file, "\n");
+        }
+    }
+
     std::stringstream stream_alloc_info;
     std::string       alloc_info_struct_var_name = GenerateStruct_VkMemoryAllocateInfo(stream_alloc_info,
                                                                                  *pMemory->GetPointer(),
@@ -930,12 +1029,138 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(VkResult                  
     {
         this->AddHandles(memory_var_name, pMemory->GetPointer());
     }
+
+    // Now that the pNext items are done, perform any work that needs to be done last and update
+    // the vkMemoryAllocationInfo pNext array to start with our custom one.
+    if (dev_info != nullptr)
+    {
+        fprintf(file, "\t\tif (uses_opaque_address) {\n");
+        fprintf(file, "\t\t\tif (imports_memory) {\n");
+        fprintf(file,
+                "\t\t\t\t// The Vulkan spec states: If the pNext chain includes a VkImportMemoryHostPointerInfoEXT\n");
+        fprintf(file,
+                "\t\t\t\t// structure, VkMemoryOpaqueCaptureAddressAllocateInfo::opaqueCaptureAddress must be zer\n");
+        fprintf(file, "\t\t\t\taddress_info.opaque_address = 0;\n");
+        fprintf(file, "\t\t\t}\n");
+        fprintf(file, "\t\t\taddress_info.pNext = %s.pNext;\n", alloc_info_struct_var_name.c_str());
+        fprintf(file, "\t\t\t%s.pNext = &address_info;\n", alloc_info_struct_var_name.c_str());
+        fprintf(file, "\t\t}\n");
+    }
+
     fprintf(file,
             "\t\tVK_CALL_CHECK(vkAllocateMemory(%s, &%s, %s, &%s), %s);\n",
             GetHandle(device).c_str(),
             alloc_info_struct_var_name.c_str(),
             "nullptr",
             memory_var_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+}
+
+void VulkanCppConsumerBase::Generate_vkCreateBuffer(VkResult                                             returnValue,
+                                                    format::HandleId                                     device,
+                                                    StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
+                                                    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                                    HandlePointerDecoder<VkBuffer>*                      pBuffer)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+
+    DeviceInfo*      dev_info      = nullptr;
+    format::HandleId buffer_handle = *pBuffer->GetPointer();
+    if (device_info_map_.find(device) != device_info_map_.end())
+    {
+        dev_info = device_info_map_[device];
+        if (dev_info != nullptr)
+        {
+            // Determine if this buffer uses an opaque address, if so, we need to search through the
+            // buffer usage and set additional flags as necessary and record the appropriate address.
+            if (dev_info->opaque_addresses.find(buffer_handle) != dev_info->opaque_addresses.end())
+            {
+                // This is only used in certain cases, but it needs to be scoped locally to this function for it to be
+                // valid
+                fprintf(file, "\t\tVkBufferOpaqueCaptureAddressCreateInfo address_info = {\n");
+                fprintf(file, "\t\t\tVK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO\n");
+                fprintf(file, "\t\t};\n");
+                fprintf(file, "\n");
+            }
+            else
+            {
+                // Nothing to do here.
+                dev_info = nullptr;
+            }
+        }
+    }
+
+    std::stringstream stream_pcreate_info;
+    std::string       pcreate_info_struct = GenerateStruct_VkBufferCreateInfo(
+        stream_pcreate_info, pCreateInfo->GetPointer(), pCreateInfo->GetMetaStructPointer(), *this);
+    fprintf(file, "%s", stream_pcreate_info.str().c_str());
+    std::string pbuffer_name = "pBuffer_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_BUFFER));
+
+    if (dev_info != nullptr)
+    {
+        fprintf(file, "\t\tif (device_features.find(%s) != device_features.end()){\n", this->GetHandle(device).c_str());
+        fprintf(file, "\t\t\tDeviceFeatures* dev_features = device_features[%s];\n", this->GetHandle(device).c_str());
+        fprintf(file, "\t\t\tif (dev_features->features_dev_buf_addr.bufferDeviceAddressCaptureReplay ||\n");
+        fprintf(file, "\t\t\t    dev_features->features_1_2.bufferDeviceAddressCaptureReplay) {\n");
+        fprintf(file, "\t\t\t\tbool                uses_address         = false;\n");
+        fprintf(file, "\t\t\t\tVkBufferCreateFlags address_create_flags = 0;\n");
+        fprintf(file, "\t\t\t\tVkBufferUsageFlags  address_usage_flags  = 0;\n");
+        fprintf(file, "\n");
+        fprintf(file,
+                "\t\t\t\tif ((%s->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==\n",
+                pcreate_info_struct.c_str());
+        fprintf(file, "\t\t\t\t    VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)\n");
+        fprintf(file, "\t\t\t\t{\n");
+        fprintf(file, "\t\t\t\t    uses_address = true;\n");
+        fprintf(file, "\t\t\t\t    address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;\n");
+        fprintf(file, "\t\t\t\t}\n");
+        fprintf(file,
+                "\t\t\t\tif ((%s->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==\n",
+                pcreate_info_struct.c_str());
+        fprintf(file, "\t\t\t\t    VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)\n");
+        fprintf(file, "\t\t\t\t{\n");
+        fprintf(file, "\t\t\t\t    uses_address = true;\n");
+        fprintf(file, "\t\t\t\t    address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;\n");
+        fprintf(file, "\t\t\t\t    address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;\n");
+        fprintf(file, "\t\t\t\t}\n");
+        fprintf(file, "\n");
+
+        fprintf(file, "\t\t\t\tif (uses_address)\n");
+        fprintf(file, "\t\t\t\t{\n");
+        fprintf(file,
+                "\t\t\t\t\taddress_info.opaqueCaptureAddress = %" PRIu64 "LLU;\n",
+                dev_info->opaque_addresses[buffer_handle]);
+        fprintf(file, "\n");
+        fprintf(file,
+                "\t\t\t\t\t// The shallow copy of VkBufferCreateInfo references the same pNext list from the "
+                "copy source.  We insert\n");
+        fprintf(file,
+                "\t\t\t\t\t// the buffer address extension struct at the start of the list to avoid modifying "
+                "the original by appending\n");
+        fprintf(file, "\t\t\t\t\t// to the end.\n");
+        fprintf(file, "\t\tt\t\taddress_info.pNext = %s.pNext;\n", this->GetHandle(device).c_str());
+        fprintf(file, "\t\t\t\t\t%s.pNext = &address_info;\n", this->GetHandle(device).c_str());
+        fprintf(file, "\n");
+        fprintf(file, "\t\t\t\t\t%s.flags |= address_create_flags;\n", this->GetHandle(device).c_str());
+        fprintf(file, "\t\t\t\t\t%s.usage |= address_usage_flags;\n", this->GetHandle(device).c_str());
+        fprintf(file, "\t\t\t\t}\n");
+        fprintf(file, "\t\t\t}\n");
+        fprintf(file, "\t\t}\n");
+    }
+
+    AddKnownVariables("VkBuffer", pbuffer_name, pBuffer->GetPointer());
+    if (returnValue == VK_SUCCESS)
+    {
+        this->AddHandles(pbuffer_name, pBuffer->GetPointer());
+    }
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(vkCreateBuffer(%s, &%s, %s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pcreate_info_struct.c_str(),
+            "nullptr",
+            pbuffer_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
 }
@@ -976,7 +1201,7 @@ void VulkanCppConsumerBase::Generate_vkGetQueryPoolResults(VkResult             
     if (returnValue == VK_SUCCESS)
     {
         fprintf(file,
-                "\twhile( vkGetQueryPoolResults(%s, %s, %u, %u, %" PRIu64 "UL, %s, %" PRIu64
+                "\twhile (vkGetQueryPoolResults(%s, %s, %u, %u, %" PRIu64 "UL, %s, %" PRIu64
                 "UL, %s) != VK_SUCCESS) { usleep(5000); }\n",
                 GetHandle(device).c_str(),
                 GetHandle(queryPool).c_str(),
@@ -1155,13 +1380,120 @@ void VulkanCppConsumerBase::Generate_vkCreateInstance(VkResult                  
     }
 }
 
-void VulkanCppConsumerBase::Intercept_vkCreateDevice(VkResult                                          returnValue,
-                                                     format::HandleId                                  physicalDevice,
-                                                     StructPointerDecoder<Decoded_VkDeviceCreateInfo>* pCreateInfo,
-                                                     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                                     HandlePointerDecoder<VkDevice>*                      pDevice)
+void VulkanCppConsumerBase::Generate_vkCreateDevice(VkResult                                             returnValue,
+                                                    format::HandleId                                     physicalDevice,
+                                                    StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
+                                                    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                                    HandlePointerDecoder<VkDevice>*                      pDevice)
 {
-    fprintf(GetFrameFile(), "\tQueryPhysicalDeviceMemoryProperties(%s);\n", this->GetHandle(physicalDevice).c_str());
+    FILE* file = GetFrameFile();
+
+    DeviceInfo* new_dev_info                 = new DeviceInfo();
+    new_dev_info->parent                     = physicalDevice;
+    device_info_map_[*pDevice->GetPointer()] = new_dev_info;
+
+    fprintf(file, "\t{\n");
+    fprintf(file, "\t\tQueryPhysicalDeviceMemoryProperties(%s);\n", this->GetHandle(physicalDevice).c_str());
+    // physicalDevice
+    // pCreateInfo
+    std::stringstream stream_pcreate_info;
+    std::string       pcreate_info_struct = GenerateStruct_VkDeviceCreateInfo(
+        stream_pcreate_info, pCreateInfo->GetPointer(), pCreateInfo->GetMetaStructPointer(), *this);
+    fprintf(file, "%s", stream_pcreate_info.str().c_str());
+    // pAllocator
+    // pDevice
+    std::string pdevice_name = "pDevice_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_DEVICE));
+    AddKnownVariables("VkDevice", pdevice_name, pDevice->GetPointer());
+    if (returnValue == VK_SUCCESS)
+    {
+        this->AddHandles(pdevice_name, pDevice->GetPointer());
+    }
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(vkCreateDevice(%s, &%s, %s, &%s), %s);\n",
+            this->GetHandle(physicalDevice).c_str(),
+            pcreate_info_struct.c_str(),
+            "nullptr",
+            pdevice_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+
+    fprintf(file, "\n");
+    fprintf(file, "\t\tDeviceFeatures* dev_features = new DeviceFeatures();\n");
+    fprintf(file, "\t\tassert(dev_features != nullptr);\n");
+    fprintf(file, "\t\tmemset(dev_features, 0, sizeof(DeviceFeatures));\n");
+    fprintf(file, "\t\tif (%s.pEnabledFeatures != nullptr) {\n", pcreate_info_struct.c_str());
+    fprintf(file, "\t\t\tdev_features->features_1_0 = *(%s.pEnabledFeatures);\n", pcreate_info_struct.c_str());
+    fprintf(file, "\t\t}\n");
+    fprintf(file, "\n");
+    fprintf(file,
+            "\t\tconst VkBaseInStructure* cur_next = reinterpret_cast<const VkBaseInStructure*>(%s.pNext);\n",
+            pcreate_info_struct.c_str());
+    fprintf(file, "\t\twhile (cur_next != nullptr) {\n");
+    fprintf(file, "\t\t\tswitch (cur_next->sType) {\n");
+    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:\n");
+    fprintf(file,
+            "\t\t\t\t\tmemcpy(&dev_features->features_1_1, cur_next, sizeof(VkPhysicalDeviceVulkan11Features));\n");
+    fprintf(file, "\t\t\t\t\tdev_features->features_1_1.pNext = nullptr;\n");
+    fprintf(file, "\t\t\t\t\tbreak;\n");
+    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:\n");
+    fprintf(file,
+            "\t\t\t\t\tmemcpy(&dev_features->features_1_2, cur_next, sizeof(VkPhysicalDeviceVulkan12Features));\n");
+    fprintf(file, "\t\t\t\t\tdev_features->features_1_2.pNext = nullptr;\n");
+    fprintf(file, "\t\t\t\t\tbreak;\n");
+    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:\n");
+    fprintf(file,
+            "\t\t\t\t\tmemcpy(&dev_features->features_dev_buf_addr, cur_next, "
+            "sizeof(VkPhysicalDeviceBufferDeviceAddressFeatures));\n");
+    fprintf(file, "\t\t\t\t\tdev_features->features_dev_buf_addr.pNext = nullptr;\n");
+    fprintf(file, "\t\t\t\t\tbreak;\n");
+    fprintf(file, "#ifndef VK_USE_PLATFORM_ANDROID_KHR\n");
+    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:\n");
+    fprintf(file,
+            "\t\t\t\t\tmemcpy(&dev_features->features_accel_struct, cur_next, "
+            "sizeof(VkPhysicalDeviceAccelerationStructureFeaturesKHR));\n");
+    fprintf(file, "\t\t\t\t\tdev_features->features_accel_struct.pNext = nullptr;\n");
+    fprintf(file, "\t\t\t\t\tbreak;\n");
+    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:\n");
+    fprintf(file,
+            "\t\t\t\t\tmemcpy(&dev_features->features_ray_trace_pipeline, cur_next, "
+            "sizeof(VkPhysicalDeviceRayTracingPipelineFeaturesKHR));\n");
+    fprintf(file, "\t\t\t\t\tdev_features->features_ray_trace_pipeline.pNext = nullptr;\n");
+    fprintf(file, "\t\t\t\t\tbreak;\n");
+    fprintf(file, "#endif\n");
+    fprintf(file, "\t\t\t\tdefault: break;\n");
+    fprintf(file, "\t\t\t}\n");
+
+    fprintf(file, "\t\t\tcur_next = cur_next->pNext;\n");
+    fprintf(file, "\t\t}\n");
+    fprintf(file, "\t\t// Save feature information for this device\n");
+    fprintf(file, "\t\tdevice_features[%s] = dev_features;\n", pdevice_name.c_str());
+
+    fprintf(file, "\t}\n");
+}
+
+void VulkanCppConsumerBase::Generate_vkDestroyDevice(format::HandleId                                     device,
+                                                     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    FILE* file = GetFrameFile();
+
+    if (device_info_map_.find(device) != device_info_map_.end())
+    {
+        DeviceInfo* dev_info = device_info_map_[device];
+        delete dev_info;
+        device_info_map_.erase(device);
+    }
+
+    fprintf(file, "\t{\n");
+    fprintf(file, "\t\tif (device_features.find(%s) != device_features.end()){\n", this->GetHandle(device).c_str());
+    fprintf(file, "\t\t\tDeviceFeatures* dev_features = device_features[%s];\n", this->GetHandle(device).c_str());
+    fprintf(file, "\t\t\tdelete dev_features;\n");
+    fprintf(file, "\t\t\tdevice_features.erase(%s);\n", this->GetHandle(device).c_str());
+    fprintf(file, "\t\t}\n");
+    fprintf(file, "\n");
+
+    // device
+    // pAllocator
+    fprintf(file, "\t\tvkDestroyDevice(%s, %s);\n", this->GetHandle(device).c_str(), "nullptr");
+    fprintf(file, "\t}\n");
 }
 
 void VulkanCppConsumerBase::Generate_vkCreateShaderModule(
@@ -1408,21 +1740,6 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxToCppPlatform        plat
             util::ToString<VkResult>(returnValue).c_str());
 
     fprintf(file, "\t}\n");
-}
-
-void VulkanCppConsumerBase::Intercept_vkCreateSwapchainKHR(
-    VkResult                                                returnValue,
-    format::HandleId                                        device,
-    StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
-    HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain)
-{
-    if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
-    {
-        VkSwapchainCreateInfoKHR* struct_info = pCreateInfo->GetPointer();
-        struct_info->imageExtent.width        = GetProperWindowWidth(struct_info->imageExtent.width);
-        struct_info->imageExtent.height       = GetProperWindowHeight(struct_info->imageExtent.height);
-    }
 }
 
 void VulkanCppConsumerBase::Intercept_vkCreateFramebuffer(
@@ -2960,6 +3277,18 @@ std::string VulkanCppConsumerBase::GetAndroidHwBufferName(uint64_t buffer)
         return android_buffer_id_map_[buffer].name;
     }
     return "VK_NULL_HANDLE";
+}
+
+void VulkanCppConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId device_id,
+                                                           format::HandleId object_id,
+                                                           uint64_t         address)
+{
+    if (device_info_map_.find(device_id) != device_info_map_.end())
+    {
+        DeviceInfo* dev_info = device_info_map_[device_id];
+        // Store the opaque address to use at object creation.
+        dev_info->opaque_addresses[object_id] = address;
+    }
 }
 
 void VulkanCppConsumerBase::Generate_vkGetAndroidHardwareBufferPropertiesANDROID(

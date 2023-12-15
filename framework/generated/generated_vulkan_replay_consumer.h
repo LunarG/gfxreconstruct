@@ -2913,6 +2913,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains,
         StructPointerDecoder<Decoded_VkHdrMetadataEXT>* pMetadata) override;
 
+
     virtual void Process_vkCreateIOSSurfaceMVK(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3985,6 +3986,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
 
 
 
+
     virtual void Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3996,6 +3998,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         format::HandleId                            descriptorSet,
         PointerDecoder<uint64_t, void*>*            ppData) override;
+
 
 
 
@@ -4284,6 +4287,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) override;
+
 
 
 

@@ -61,6 +61,11 @@ std::string GenerateStruct_VkBindSparseInfo(std::ostream&                       
                                             const std::vector<format::HandleId>& imported_semaphores,
                                             VulkanCppConsumerBase&               consumer);
 
+std::string GenerateStruct_VkSwapchainCreateInfoKHR(std::ostream&                     out,
+                                                    const VkSwapchainCreateInfoKHR*   structInfo,
+                                                    Decoded_VkSwapchainCreateInfoKHR* metaInfo,
+                                                    VulkanCppConsumerBase&            consumer);
+
 std::string GenerateStruct_VkPresentInfoKHR(std::ostream&                        out,
                                             const VkPresentInfoKHR*              structInfo,
                                             Decoded_VkPresentInfoKHR*            metainfo,
@@ -111,6 +116,16 @@ GenerateStruct_VkImportAndroidHardwareBufferInfoANDROID(std::ostream&           
                                                         const VkImportAndroidHardwareBufferInfoANDROID*   structInfo,
                                                         Decoded_VkImportAndroidHardwareBufferInfoANDROID* metaInfo,
                                                         VulkanCppConsumerBase&                            consumer);
+
+std::string GenerateStruct_VkMemoryAllocateFlagsInfo(std::ostream&                      out,
+                                                     const VkMemoryAllocateFlagsInfo*   structInfo,
+                                                     Decoded_VkMemoryAllocateFlagsInfo* metaInfo,
+                                                     VulkanCppConsumerBase&             consumer);
+
+std::string GenerateStruct_VkImportMemoryHostPointerInfoEXT(std::ostream&                             out,
+                                                            const VkImportMemoryHostPointerInfoEXT*   structInfo,
+                                                            Decoded_VkImportMemoryHostPointerInfoEXT* metaInfo,
+                                                            VulkanCppConsumerBase&                    consumer);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

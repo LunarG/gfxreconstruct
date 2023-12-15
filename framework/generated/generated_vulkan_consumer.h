@@ -2913,6 +2913,7 @@ class VulkanConsumer : public VulkanConsumerBase
         HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains,
         StructPointerDecoder<Decoded_VkHdrMetadataEXT>* pMetadata) {}
 
+
     virtual void Process_vkCreateIOSSurfaceMVK(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3985,6 +3986,7 @@ class VulkanConsumer : public VulkanConsumerBase
 
 
 
+
     virtual void Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3996,6 +3998,7 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         format::HandleId                            descriptorSet,
         PointerDecoder<uint64_t, void*>*            ppData) {}
+
 
 
 
@@ -4284,6 +4287,7 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) {}
+
 
 
 
