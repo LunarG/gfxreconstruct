@@ -130,23 +130,33 @@ class VulkanCppStructGenerator(BaseGenerator):
         ]
 
         self.CUSTOM_GENERATE_STRUCT = [
+            # OS-specific - Alphabetical
+            'GUID',
+            'SECURITY_ATTRIBUTES',
+
+            # Core API - Alphabetical
             'VkBaseInStructure',
             'VkBaseOutStructure',
-            'SECURITY_ATTRIBUTES',
-            'GUID',
-            'VkInstanceCreateInfo'
-            'VkMemoryAllocateInfo',
+            'VkBindSparseInfo',
             'VkClearColorValue',
-            'VkWriteDescriptorSet',
+            'VkDescriptorImageInfo',
+            'VkDescriptorUpdateTemplateCreateInfoKHR',
+            'VkDescriptorUpdateTemplateEntry',
+            'VkInstanceCreateInfo',
+            'VkMemoryAllocateFlagsInfo',
+            'VkMemoryAllocateInfo',
             'VkPresentInfoKHR',
             'VkSubmitInfo',
             'VkSubmitInfo2',
-            'VkBindSparseInfo',
-            'VkDescriptorUpdateTemplateCreateInfoKHR',
-            'VkDescriptorImageInfo',
-            'VkDescriptorUpdateTemplateEntry',
-            'VkAccelerationStructureMotionInstanceNV',
+            'VkSwapchainCreateInfoKHR',
+            'VkWriteDescriptorSet',
+
+            # EXT
             'VkDebugUtilsMessengerCreateInfoEXT',
+            'VkImportMemoryHostPointerInfoEXT',
+
+            # Other extensions
+            'VkAccelerationStructureMotionInstanceNV',
             'VkImportAndroidHardwareBufferInfoANDROID',
         ]
 

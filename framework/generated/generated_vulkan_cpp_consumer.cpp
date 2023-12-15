@@ -1719,32 +1719,7 @@ void VulkanCppConsumer::Process_vkCreateBuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkBuffer>*             pBuffer)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// pCreateInfo
-    std::stringstream stream_pcreate_info;
-    std::string pcreate_info_struct = GenerateStruct_VkBufferCreateInfo(stream_pcreate_info,
-                                                                        pCreateInfo->GetPointer(),
-                                                                        pCreateInfo->GetMetaStructPointer(),
-                                                                        *this);
-    fprintf(file, "%s", stream_pcreate_info.str().c_str());
-// pAllocator
-// pBuffer
-    std::string pbuffer_name = "pBuffer_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_BUFFER));
-    AddKnownVariables("VkBuffer", pbuffer_name, pBuffer->GetPointer());
-    if (returnValue == VK_SUCCESS) {
-        this->AddHandles(pbuffer_name,
-                         pBuffer->GetPointer());
-    }
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(vkCreateBuffer(%s, &%s, %s, &%s), %s);\n",
-            this->GetHandle(device).c_str(),
-            pcreate_info_struct.c_str(),
-            "nullptr",
-            pbuffer_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkCreateBuffer(returnValue, device, pCreateInfo, pAllocator, pBuffer);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateBuffer);
 }
 
@@ -1918,33 +1893,7 @@ void VulkanCppConsumer::Process_vkCreateDevice(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDevice>*             pDevice)
 {
-    Intercept_vkCreateDevice(returnValue, physicalDevice, pCreateInfo, pAllocator, pDevice);
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// physicalDevice
-// pCreateInfo
-    std::stringstream stream_pcreate_info;
-    std::string pcreate_info_struct = GenerateStruct_VkDeviceCreateInfo(stream_pcreate_info,
-                                                                        pCreateInfo->GetPointer(),
-                                                                        pCreateInfo->GetMetaStructPointer(),
-                                                                        *this);
-    fprintf(file, "%s", stream_pcreate_info.str().c_str());
-// pAllocator
-// pDevice
-    std::string pdevice_name = "pDevice_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_DEVICE));
-    AddKnownVariables("VkDevice", pdevice_name, pDevice->GetPointer());
-    if (returnValue == VK_SUCCESS) {
-        this->AddHandles(pdevice_name,
-                         pDevice->GetPointer());
-    }
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(vkCreateDevice(%s, &%s, %s, &%s), %s);\n",
-            this->GetHandle(physicalDevice).c_str(),
-            pcreate_info_struct.c_str(),
-            "nullptr",
-            pdevice_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkCreateDevice(returnValue, physicalDevice, pCreateInfo, pAllocator, pDevice);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDevice);
 }
 
@@ -2473,15 +2422,7 @@ void VulkanCppConsumer::Process_vkDestroyDevice(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// pAllocator
-    fprintf(file,
-            "\t\tvkDestroyDevice(%s, %s);\n",
-            this->GetHandle(device).c_str(),
-            "nullptr");
-    fprintf(file, "\t}\n");
+    Generate_vkDestroyDevice(device, pAllocator);
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDevice);
 }
 
@@ -5771,34 +5712,7 @@ void VulkanCppConsumer::Process_vkCreateSwapchainKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchain)
 {
-    Intercept_vkCreateSwapchainKHR(returnValue, device, pCreateInfo, pAllocator, pSwapchain);
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// pCreateInfo
-    std::stringstream stream_pcreate_info;
-    std::string pcreate_info_struct = GenerateStruct_VkSwapchainCreateInfoKHR(stream_pcreate_info,
-                                                                              pCreateInfo->GetPointer(),
-                                                                              pCreateInfo->GetMetaStructPointer(),
-                                                                              *this);
-    fprintf(file, "%s", stream_pcreate_info.str().c_str());
-// pAllocator
-// pSwapchain
-    std::string pswapchain_name = "pSwapchain_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_SWAPCHAIN_KHR));
-    AddKnownVariables("VkSwapchainKHR", pswapchain_name, pSwapchain->GetPointer());
-    if (returnValue == VK_SUCCESS) {
-        this->AddHandles(pswapchain_name,
-                         pSwapchain->GetPointer());
-    }
-    pfn_loader_.AddMethodName("vkCreateSwapchainKHR");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkCreateSwapchainKHR(%s, &%s, %s, &%s), %s);\n",
-            this->GetHandle(device).c_str(),
-            pcreate_info_struct.c_str(),
-            "nullptr",
-            pswapchain_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkCreateSwapchainKHR(returnValue, device, pCreateInfo, pAllocator, pSwapchain);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateSwapchainKHR);
 }
 
@@ -9603,6 +9517,82 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKH
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR);
 }
+void VulkanCppConsumer::Process_vkGetCalibratedTimestampsKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    timestampCount,
+    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
+    PointerDecoder<uint64_t>*                   pTimestamps,
+    PointerDecoder<uint64_t>*                   pMaxDeviation)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// device
+// timestampCount
+// pTimestampInfos
+    std::stringstream stream_ptimestamp_infos;
+    std::string ptimestamp_infos_array = "NULL";
+    PointerPairContainer<decltype(pTimestampInfos->GetPointer()), decltype(pTimestampInfos->GetMetaStructPointer())> ptimestamp_infos_pair{ pTimestampInfos->GetPointer(), pTimestampInfos->GetMetaStructPointer(), timestampCount };
+    std::string ptimestamp_infos_names = toStringJoin(ptimestamp_infos_pair.begin(),
+                                                      ptimestamp_infos_pair.end(),
+                                                      [&](auto pair) {{ return GenerateStruct_VkCalibratedTimestampInfoKHR(stream_ptimestamp_infos, pair.t1, pair.t2, *this); }},
+                                                      ", ");
+    if (stream_ptimestamp_infos.str().length() > 0) {
+        fprintf(file, "%s", stream_ptimestamp_infos.str().c_str());
+        if (timestampCount == 1) {
+            ptimestamp_infos_array = "&" + ptimestamp_infos_names;
+        } else if (timestampCount > 1) {
+            ptimestamp_infos_array = "pTimestampInfos_" + std::to_string(this->GetNextId());
+            fprintf(file, "\t\tVkCalibratedTimestampInfoKHR %s[] = { %s };\n", ptimestamp_infos_array.c_str(), ptimestamp_infos_names.c_str());
+        }
+    }
+// pTimestamps
+    std::string ptimestamps_name = "pTimestamps_" + std::to_string(this->GetNextId());
+    fprintf(file, "\t\tuint64_t %s[%d];\n", ptimestamps_name.c_str(), timestampCount);
+// pMaxDeviation
+    std::string pmax_deviation_name = "pMaxDeviation_" + std::to_string(this->GetNextId());
+    fprintf(file, "\t\tuint64_t %s;\n", pmax_deviation_name.c_str());
+    pfn_loader_.AddMethodName("vkGetCalibratedTimestampsKHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetCalibratedTimestampsKHR(%s, %u, %s, %s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            timestampCount,
+            ptimestamp_infos_array.c_str(),
+            ptimestamps_name.c_str(),
+            pmax_deviation_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetCalibratedTimestampsKHR);
+}
+
+void VulkanCppConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    PointerDecoder<uint32_t>*                   pTimeDomainCount,
+    PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// physicalDevice
+// pTimeDomainCount
+    std::string ptime_domain_count_name = "pTimeDomainCount_" + std::to_string(this->GetNextId());
+    fprintf(file, "\t\tuint32_t %s;\n", ptime_domain_count_name.c_str());
+// pTimeDomains
+    std::string ptime_domains_name = "pTimeDomains_" + std::to_string(this->GetNextId());
+    const uint32_t* in_ptime_domain_count = pTimeDomainCount->GetPointer();
+    fprintf(file, "\t\tVkTimeDomainKHR %s[%d];\n", ptime_domains_name.c_str(), *in_ptime_domain_count);
+    pfn_loader_.AddMethodName("vkGetPhysicalDeviceCalibrateableTimeDomainsKHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(%s, &%s, %s), %s);\n",
+            this->GetHandle(physicalDevice).c_str(),
+            ptime_domain_count_name.c_str(),
+            ptime_domains_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR);
+}
 void VulkanCppConsumer::Process_vkFrameBoundaryANDROID(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -11998,7 +11988,7 @@ void VulkanCppConsumer::Process_vkGetCalibratedTimestampsEXT(
     VkResult                                    returnValue,
     format::HandleId                            device,
     uint32_t                                    timestampCount,
-    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoEXT>* pTimestampInfos,
+    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
     PointerDecoder<uint64_t>*                   pTimestamps,
     PointerDecoder<uint64_t>*                   pMaxDeviation)
 {
@@ -12012,7 +12002,7 @@ void VulkanCppConsumer::Process_vkGetCalibratedTimestampsEXT(
     PointerPairContainer<decltype(pTimestampInfos->GetPointer()), decltype(pTimestampInfos->GetMetaStructPointer())> ptimestamp_infos_pair{ pTimestampInfos->GetPointer(), pTimestampInfos->GetMetaStructPointer(), timestampCount };
     std::string ptimestamp_infos_names = toStringJoin(ptimestamp_infos_pair.begin(),
                                                       ptimestamp_infos_pair.end(),
-                                                      [&](auto pair) {{ return GenerateStruct_VkCalibratedTimestampInfoEXT(stream_ptimestamp_infos, pair.t1, pair.t2, *this); }},
+                                                      [&](auto pair) {{ return GenerateStruct_VkCalibratedTimestampInfoKHR(stream_ptimestamp_infos, pair.t1, pair.t2, *this); }},
                                                       ", ");
     if (stream_ptimestamp_infos.str().length() > 0) {
         fprintf(file, "%s", stream_ptimestamp_infos.str().c_str());
@@ -12020,7 +12010,7 @@ void VulkanCppConsumer::Process_vkGetCalibratedTimestampsEXT(
             ptimestamp_infos_array = "&" + ptimestamp_infos_names;
         } else if (timestampCount > 1) {
             ptimestamp_infos_array = "pTimestampInfos_" + std::to_string(this->GetNextId());
-            fprintf(file, "\t\tVkCalibratedTimestampInfoEXT %s[] = { %s };\n", ptimestamp_infos_array.c_str(), ptimestamp_infos_names.c_str());
+            fprintf(file, "\t\tVkCalibratedTimestampInfoKHR %s[] = { %s };\n", ptimestamp_infos_array.c_str(), ptimestamp_infos_names.c_str());
         }
     }
 // pTimestamps
@@ -12047,7 +12037,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
     VkResult                                    returnValue,
     format::HandleId                            physicalDevice,
     PointerDecoder<uint32_t>*                   pTimeDomainCount,
-    PointerDecoder<VkTimeDomainEXT>*            pTimeDomains)
+    PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
@@ -12058,7 +12048,7 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
 // pTimeDomains
     std::string ptime_domains_name = "pTimeDomains_" + std::to_string(this->GetNextId());
     const uint32_t* in_ptime_domain_count = pTimeDomainCount->GetPointer();
-    fprintf(file, "\t\tVkTimeDomainEXT %s[%d];\n", ptime_domains_name.c_str(), *in_ptime_domain_count);
+    fprintf(file, "\t\tVkTimeDomainKHR %s[%d];\n", ptime_domains_name.c_str(), *in_ptime_domain_count);
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceCalibrateableTimeDomainsEXT");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(%s, &%s, %s), %s);\n",

@@ -6133,6 +6133,32 @@ void VulkanCppPreProcessConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPr
                                       physicalDevice);
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR);
 }
+void VulkanCppPreProcessConsumer::Process_vkGetCalibratedTimestampsKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    timestampCount,
+    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
+    PointerDecoder<uint64_t>*                   pTimestamps,
+    PointerDecoder<uint64_t>*                   pMaxDeviation)
+{
+    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
+                                      GetCurrentFrameSplitNumber(),
+                                      device);
+    Post_APICall(format::ApiCallId::ApiCall_vkGetCalibratedTimestampsKHR);
+}
+void VulkanCppPreProcessConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    PointerDecoder<uint32_t>*                   pTimeDomainCount,
+    PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
+{
+    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
+                                      GetCurrentFrameSplitNumber(),
+                                      physicalDevice);
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR);
+}
 void VulkanCppPreProcessConsumer::Process_vkFrameBoundaryANDROID(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -7367,7 +7393,7 @@ void VulkanCppPreProcessConsumer::Process_vkGetCalibratedTimestampsEXT(
     VkResult                                    returnValue,
     format::HandleId                            device,
     uint32_t                                    timestampCount,
-    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoEXT>* pTimestampInfos,
+    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR>* pTimestampInfos,
     PointerDecoder<uint64_t>*                   pTimestamps,
     PointerDecoder<uint64_t>*                   pMaxDeviation)
 {
@@ -7381,7 +7407,7 @@ void VulkanCppPreProcessConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDo
     VkResult                                    returnValue,
     format::HandleId                            physicalDevice,
     PointerDecoder<uint32_t>*                   pTimeDomainCount,
-    PointerDecoder<VkTimeDomainEXT>*            pTimeDomains)
+    PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
 {
     resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
                                       GetCurrentFrameSplitNumber(),

@@ -2520,6 +2520,7 @@ class VulkanConsumer : public VulkanConsumerBase
         PointerDecoder<uint32_t>*                   pPropertyCount,
         StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties) {}
 
+
     virtual void Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2899,6 +2900,7 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    swapchainCount,
         HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains,
         StructPointerDecoder<Decoded_VkHdrMetadataEXT>* pMetadata) {}
+
 
     virtual void Process_vkCreateIOSSurfaceMVK(
         const ApiCallInfo&                          call_info,
@@ -3972,6 +3974,7 @@ class VulkanConsumer : public VulkanConsumerBase
 
 
 
+
     virtual void Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -3983,6 +3986,7 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         format::HandleId                            descriptorSet,
         PointerDecoder<uint64_t, void*>*            ppData) {}
+
 
 
 
@@ -4277,6 +4281,7 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) {}
+
 
 
 

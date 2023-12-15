@@ -609,6 +609,87 @@ std::string GenerateStruct_VkBindSparseInfo(std::ostream&                       
     return variable_name;
 }
 
+std::string GenerateStruct_VkSwapchainCreateInfoKHR(std::ostream&                     out,
+                                                    const VkSwapchainCreateInfoKHR*   structInfo,
+                                                    Decoded_VkSwapchainCreateInfoKHR* metaInfo,
+                                                    VulkanCppConsumerBase&            consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string       image_extent_info_var =
+        GenerateStruct_VkExtent2D(out, &structInfo->imageExtent, metaInfo->imageExtent, consumer);
+    std::string pqueue_family_indices_array = "NULL";
+    if (structInfo->pQueueFamilyIndices != NULL)
+    {
+        pqueue_family_indices_array = "pQueueFamilyIndices_" + std::to_string(consumer.GetNextId());
+        out << "\t\t"
+            << "uint32_t " << pqueue_family_indices_array << "[] = "
+            << VulkanCppConsumerBase::BuildValue(structInfo->pQueueFamilyIndices, structInfo->queueFamilyIndexCount)
+            << ";" << std::endl;
+    }
+    // sType
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    // pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    // flags
+    struct_body << "\t\t\t"
+                << "VkSwapchainCreateFlagsKHR(" << structInfo->flags << ")"
+                << "," << std::endl;
+    // surface
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->surface) << "," << std::endl;
+    // minImageCount
+    struct_body << "\t\t\t3,\n"; // structInfo->minImageCount << "," << std::endl;
+    // imageFormat
+    struct_body << "\t\t\t"
+                << "VkFormat(" << structInfo->imageFormat << ")"
+                << "," << std::endl;
+    // imageColorSpace
+    struct_body << "\t\t\t"
+                << "VkColorSpaceKHR(" << structInfo->imageColorSpace << ")"
+                << "," << std::endl;
+    // imageExtent
+    struct_body << "\t\t\t" << image_extent_info_var << "," << std::endl;
+    // imageArrayLayers
+    struct_body << "\t\t\t" << structInfo->imageArrayLayers << "," << std::endl;
+    // imageUsage
+    struct_body << "\t\t\t"
+                << "VkImageUsageFlags(" << structInfo->imageUsage << ")"
+                << "," << std::endl;
+    // imageSharingMode
+    struct_body << "\t\t\t"
+                << "VkSharingMode(" << structInfo->imageSharingMode << ")"
+                << "," << std::endl;
+    // queueFamilyIndexCount
+    struct_body << "\t\t\t" << structInfo->queueFamilyIndexCount << "," << std::endl;
+    // pQueueFamilyIndices
+    struct_body << "\t\t\t" << pqueue_family_indices_array << "," << std::endl;
+    // preTransform
+    struct_body << "\t\t\t"
+                << "VkSurfaceTransformFlagBitsKHR(" << structInfo->preTransform << ")"
+                << "," << std::endl;
+    // compositeAlpha
+    struct_body << "\t\t\t"
+                << "VkCompositeAlphaFlagBitsKHR(" << structInfo->compositeAlpha << ")"
+                << "," << std::endl;
+    // presentMode
+    struct_body << "\t\t\t"
+                << "VkPresentModeKHR(" << structInfo->presentMode << ")"
+                << "," << std::endl;
+    // clipped
+    struct_body << "\t\t\t" << structInfo->clipped << "," << std::endl;
+    // oldSwapchain
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->oldSwapchain) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "swapchainCreateInfoKHR");
+    out << "\t\t"
+        << "VkSwapchainCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
 std::string GenerateStruct_VkPresentInfoKHR(std::ostream&                        out,
                                             const VkPresentInfoKHR*              structInfo,
                                             Decoded_VkPresentInfoKHR*            metaInfo,
@@ -1053,6 +1134,79 @@ GenerateStruct_VkImportAndroidHardwareBufferInfoANDROID(std::ostream&           
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t"
         << "};" << std::endl;
+    return variable_name;
+}
+
+std::string GenerateStruct_VkMemoryAllocateFlagsInfo(std::ostream&                      out,
+                                                     const VkMemoryAllocateFlagsInfo*   structInfo,
+                                                     Decoded_VkMemoryAllocateFlagsInfo* metaInfo,
+                                                     VulkanCppConsumerBase&             consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    // sType
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    // pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    // flags
+    struct_body << "\t\t\t"
+                << "VkMemoryAllocateFlags(" << structInfo->flags << ")"
+                << "," << std::endl;
+    // deviceMask
+    struct_body << "\t\t\t" << structInfo->deviceMask << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "memoryAllocateFlagsInfo");
+    out << "\t\t"
+        << "VkMemoryAllocateFlagsInfo " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+
+    // If we're using opaque addresses and this memory allocation we're on right now is
+    // using an opaque address, we need to add a flag to indicate we're using one.
+    out << "\t\tif (can_use_opaque_address) {" << std::endl;
+    out << "\t\t\tuses_opaque_address = true;" << std::endl;
+    out << "\t\t\t" << variable_name << ".flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;" << std::endl;
+    out << "\t\t}" << std::endl;
+
+    return variable_name;
+}
+
+std::string GenerateStruct_VkImportMemoryHostPointerInfoEXT(std::ostream&                             out,
+                                                            const VkImportMemoryHostPointerInfoEXT*   structInfo,
+                                                            Decoded_VkImportMemoryHostPointerInfoEXT* metaInfo,
+                                                            VulkanCppConsumerBase&                    consumer)
+{
+    std::stringstream struct_body;
+    std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    // sType
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    // pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    // handleType
+    struct_body << "\t\t\t"
+                << "VkExternalMemoryHandleTypeFlagBits(" << structInfo->handleType << ")"
+                << "," << std::endl;
+    // pHostPointer
+    out << "\t\t"
+        << "// TODO: Support pHostPointer (output?) argument." << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "importMemoryHostPointerInfoEXT");
+    out << "\t\t"
+        << "VkImportMemoryHostPointerInfoEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+
+    // If we're using opaque addresses and this memory allocation we're on right now is
+    // using an opaque address, we need to flag this as importing memory as well so we
+    // set the proper address.
+    out << "\t\tif (can_use_opaque_address) {" << std::endl;
+    out << "\t\t\timports_memory = true;" << std::endl;
+    out << "\t\t}" << std::endl;
+
     return variable_name;
 }
 
