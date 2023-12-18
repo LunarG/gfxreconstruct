@@ -640,7 +640,7 @@ std::string GenerateStruct_VkSwapchainCreateInfoKHR(std::ostream&               
     // surface
     struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->surface) << "," << std::endl;
     // minImageCount
-    struct_body << "\t\t\t3,\n"; // structInfo->minImageCount << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->minImageCount << "," << std::endl;
     // imageFormat
     struct_body << "\t\t\t"
                 << "VkFormat(" << structInfo->imageFormat << ")"

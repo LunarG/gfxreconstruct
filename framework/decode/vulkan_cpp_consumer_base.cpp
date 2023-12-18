@@ -582,6 +582,7 @@ void VulkanCppConsumerBase::Generate_vkCreateSwapchainKHR(
     FILE* file = GetFrameFile();
 
     fprintf(file, "\t{\n");
+
     // device
     // pCreateInfo
     std::stringstream         stream_pcreate_info;
@@ -602,6 +603,34 @@ void VulkanCppConsumerBase::Generate_vkCreateSwapchainKHR(
     {
         this->AddHandles(pswapchain_name, pSwapchain->GetPointer());
     }
+
+    DeviceInfo* dev_info = nullptr;
+    if (device_info_map_.find(device) != device_info_map_.end())
+    {
+        dev_info = device_info_map_[device];
+
+        fprintf(file, "\t\tVkSurfaceCapabilitiesKHR surface_caps;\n");
+        fprintf(file,
+                "\t\tif (VK_SUCCESS == loaded_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(%s, %s, &surface_caps)) {\n",
+                this->GetHandle(dev_info->parent).c_str(),
+                this->GetHandle(pCreateInfo->GetMetaStructPointer()->surface).c_str());
+
+        // VkSwapchainCreateInfoKHR modified_create_info = *create_info;
+        // modified_create_info.imageUsage =
+        //     modified_create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+        fprintf(file, "\t\t\tif (%s.minImageCount < surface_caps.minImageCount) {\n", pcreate_info_struct.c_str());
+        fprintf(file, "\t\t\t\t%s.minImageCount = surface_caps.minImageCount;\n", pcreate_info_struct.c_str());
+        fprintf(file, "\t\t\t}\n");
+        fprintf(file,
+                "\t\t\tif ((surface_caps.maxImageCount > 0) && (%s.minImageCount > surface_caps.maxImageCount)) {\n",
+                pcreate_info_struct.c_str());
+        fprintf(file, "\t\t\t\t%s.minImageCount = surface_caps.maxImageCount;\n", pcreate_info_struct.c_str());
+        fprintf(file, "\t\t\t}\n");
+
+        fprintf(file, "\t\t}\n");
+    }
+
     pfn_loader_.AddMethodName("vkCreateSwapchainKHR");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkCreateSwapchainKHR(%s, &%s, %s, &%s), %s);\n",
