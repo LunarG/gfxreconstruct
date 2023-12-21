@@ -5722,18 +5722,7 @@ void VulkanCppConsumer::Process_vkDestroySwapchainKHR(
     format::HandleId                            swapchain,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// swapchain
-// pAllocator
-    pfn_loader_.AddMethodName("vkDestroySwapchainKHR");
-    fprintf(file,
-            "\t\tloaded_vkDestroySwapchainKHR(%s, %s, %s);\n",
-            this->GetHandle(device).c_str(),
-            this->GetHandle(swapchain).c_str(),
-            "nullptr");
-    fprintf(file, "\t}\n");
+    Generate_vkDestroySwapchainKHR(device, swapchain, pAllocator);
     Post_APICall(format::ApiCallId::ApiCall_vkDestroySwapchainKHR);
 }
 

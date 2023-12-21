@@ -136,6 +136,7 @@ CPP_APICALL_GENERATE = [
     'vkCreateAndroidSurfaceKHR',
     'vkCreateDescriptorUpdateTemplateKHR',
     'vkCreateSwapchainKHR',
+    'vkDestroySwapchainKHR',
     'vkCreateWaylandSurfaceKHR',
     'vkCreateWin32SurfaceKHR',
     'vkCreateXcbSurfaceKHR',

@@ -45,7 +45,7 @@ const std::string      GfxToCppPlatformToString(GfxToCppPlatform platform);
 bool                   GfxToCppPlatformIsValid(const GfxToCppPlatform& platform);
 
 VulkanCppConsumerBase::VulkanCppConsumerBase() :
-    frame_file_(nullptr), global_file_(nullptr), header_file_(nullptr), main_file_(nullptr), pfn_loader_()
+    frame_file_(nullptr), global_file_(nullptr), main_file_(nullptr), pfn_loader_()
 {
     counters_[VK_OBJECT_TYPE_UNKNOWN] = 0;
 }
@@ -132,71 +132,70 @@ void VulkanCppConsumerBase::WriteMainFooter()
     }
 }
 
-void VulkanCppConsumerBase::WriteGlobalHeaderFile()
+bool VulkanCppConsumerBase::WriteGlobalHeaderFile()
 {
-    switch (platform_)
+    FILE*       header_file = nullptr;
+    std::string filename    = util::filepath::Join(out_dir_, src_out_dir_ + "/global_var.h");
+    int32_t     result      = util::platform::FileOpen(&header_file, filename.c_str(), "w");
+    if (result == 0)
     {
-        case GfxToCppPlatform::PLATFORM_ANDROID:
-            fprintf(header_file_,
-                    "%s%s%s%s",
-                    sAndroidOutputHeadersPlatform,
-                    sCommonHeaderOutputHeaders,
-                    sAndroidOutputHeader,
-                    sCommonOutputHeaderFunctions);
-            break;
-        case GfxToCppPlatform::PLATFORM_WIN32:
-            fprintf(header_file_,
-                    "%s%s%s%s",
-                    sWin32OutputHeadersPlatform,
-                    sCommonHeaderOutputHeaders,
-                    sWin32OutputHeader,
-                    sCommonOutputHeaderFunctions);
-            break;
-        case GfxToCppPlatform::PLATFORM_XCB:
-            fprintf(header_file_,
-                    "%s%s%s%s",
-                    sXcbOutputHeadersPlatform,
-                    sCommonHeaderOutputHeaders,
-                    sXcbOutputHeader,
-                    sCommonOutputHeaderFunctions);
-            break;
-        case GfxToCppPlatform::PLATFORM_COUNT:
-        default:
+        switch (platform_)
         {
-            fprintf(header_file_,
-                    "// Nothing to generate for unknown platform: %s\n",
-                    GfxToCppPlatformToString(platform_).c_str());
-            assert(false);
-            break;
+            case GfxToCppPlatform::PLATFORM_ANDROID:
+                fprintf(header_file,
+                        "%s%s%s%s",
+                        sAndroidOutputHeadersPlatform,
+                        sCommonHeaderOutputHeaders,
+                        sAndroidOutputHeader,
+                        sCommonOutputHeaderFunctions);
+                break;
+            case GfxToCppPlatform::PLATFORM_WIN32:
+                fprintf(header_file,
+                        "%s%s%s%s",
+                        sWin32OutputHeadersPlatform,
+                        sCommonHeaderOutputHeaders,
+                        sWin32OutputHeader,
+                        sCommonOutputHeaderFunctions);
+                break;
+            case GfxToCppPlatform::PLATFORM_XCB:
+                fprintf(header_file,
+                        "%s%s%s%s",
+                        sXcbOutputHeadersPlatform,
+                        sCommonHeaderOutputHeaders,
+                        sXcbOutputHeader,
+                        sCommonOutputHeaderFunctions);
+                break;
+            case GfxToCppPlatform::PLATFORM_COUNT:
+            default:
+            {
+                fprintf(header_file,
+                        "// Nothing to generate for unknown platform: %s\n",
+                        GfxToCppPlatformToString(platform_).c_str());
+                assert(false);
+                break;
+            }
         }
+
+        PrintToFile(header_file, "extern %s;\n", GfxToCppVariable::GenerateStringVec(variable_data_));
+
+        PrintToFile(header_file, "%s", func_data_);
+
+        if (needs_debug_util_callback_)
+        {
+            fprintf(header_file, "VkBool32 vulkanCppDebugUtilsCallback(\n");
+            fprintf(header_file, "    VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,\n");
+            fprintf(header_file, "    VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,\n");
+            fprintf(header_file, "    const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,\n");
+            fprintf(header_file, "    void*                                            pUserData);\n");
+        }
+
+        util::platform::FileClose(header_file);
     }
-
-    PrintToFile(header_file_, "extern %s;\n", GfxToCppVariable::GenerateStringVec(variable_data_));
-
-    PrintToFile(header_file_, "%s", func_data_);
-
-    if (needs_debug_util_callback_)
+    else
     {
-        fprintf(header_file_, "VkBool32 vulkanCppDebugUtilsCallback(\n");
-        fprintf(header_file_, "    VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,\n");
-        fprintf(header_file_, "    VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,\n");
-        fprintf(header_file_, "    const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,\n");
-        fprintf(header_file_, "    void*                                            pUserData);\n");
+        fprintf(stderr, "Error while opening file: %s\n", filename.c_str());
     }
-
-    fprintf(header_file_, "struct DeviceFeatures {\n");
-    fprintf(header_file_, "    VkPhysicalDeviceFeatures                         features_1_0;\n");
-    fprintf(header_file_, "    VkPhysicalDeviceVulkan11Features                 features_1_1;\n");
-    fprintf(header_file_, "    VkPhysicalDeviceVulkan12Features                 features_1_2;\n");
-    fprintf(header_file_, "    VkPhysicalDeviceBufferDeviceAddressFeatures      features_dev_buf_addr;\n");
-    fprintf(header_file_, "#ifndef VK_USE_PLATFORM_ANDROID_KHR\n");
-    fprintf(header_file_, "    VkPhysicalDeviceAccelerationStructureFeaturesKHR features_accel_struct;\n");
-    fprintf(header_file_, "    VkPhysicalDeviceRayTracingPipelineFeaturesKHR    features_ray_trace_pipeline;\n");
-    fprintf(header_file_, "#endif\n");
-    fprintf(header_file_, "};\n");
-    fprintf(header_file_, "extern std::unordered_map<VkDevice, DeviceFeatures*> device_features;\n");
-
-    util::platform::FileClose(header_file_);
+    return result;
 }
 
 void VulkanCppConsumerBase::PrintOutCMakeFile()
@@ -247,9 +246,6 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
                 max_second_dimension = pd_mem_types.size();
             }
         }
-
-        fprintf(global_file, "\n");
-        fprintf(global_file, "std::unordered_map<VkDevice, DeviceFeatures*> device_features;\n");
 
         fprintf(global_file,
                 "VkMemoryType originalMemoryTypes[%" PRId64 "][%" PRId64 "] = {\n",
@@ -352,6 +348,41 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
     }
 }
 
+bool VulkanCppConsumerBase::WriteSwapchainFiles()
+{
+    FILE*       header_file     = nullptr;
+    FILE*       source_file     = nullptr;
+    std::string header_filename = util::filepath::Join(out_dir_, src_out_dir_ + "/swapchain_common.h");
+    std::string source_filename = util::filepath::Join(out_dir_, src_out_dir_ + "/swapchain_common.cpp");
+
+    int32_t result = util::platform::FileOpen(&header_file, header_filename.c_str(), "w");
+    if (result == 0)
+    {
+        fputs(sSwapchainHeaderCode, header_file);
+
+        util::platform::FileClose(header_file);
+
+        result = util::platform::FileOpen(&source_file, source_filename.c_str(), "w");
+        if (result == 0)
+        {
+            FILE* global_file = GetGlobalFile();
+            fputs(sCommonHeaderOutputHeaders, source_file);
+            fputs(sSwapchainSourceCode, source_file);
+
+            util::platform::FileClose(source_file);
+        }
+        else
+        {
+            fprintf(stderr, "Error while opening swapchain source file: %s\n", source_filename.c_str());
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Error while opening swapchain header file: %s\n", header_filename.c_str());
+    }
+    return result;
+}
+
 bool VulkanCppConsumerBase::Initialize(const std::string&      filename,
                                        const GfxToCppPlatform& platform,
                                        const std::string&      outputDir)
@@ -406,22 +437,16 @@ void VulkanCppConsumerBase::Destroy()
     if (main_file_ != nullptr)
     {
         PrintOutGlobalVar();
-        std::string filename = util::filepath::Join(out_dir_, src_out_dir_ + "/global_var.h");
-        int32_t     result   = util::platform::FileOpen(&header_file_, filename.c_str(), "w");
+        bool result = WriteGlobalHeaderFile();
         if (result == 0)
         {
-            // Close the last frame call.
-            WriteGlobalHeaderFile();
             WriteMainFooter();
             util::platform::FileClose(main_file_);
             if (platform_ != GfxToCppPlatform::PLATFORM_ANDROID)
             {
                 PrintOutCMakeFile();
             }
-        }
-        else
-        {
-            fprintf(stderr, "Error while opening file: %s\n", filename.c_str());
+            WriteSwapchainFiles();
         }
         pfn_loader_.WriteOutLoaderGenerator(util::filepath::Join(out_dir_, src_out_dir_), platform_);
     }
@@ -583,8 +608,6 @@ void VulkanCppConsumerBase::Generate_vkCreateSwapchainKHR(
 
     fprintf(file, "\t{\n");
 
-    // device
-    // pCreateInfo
     std::stringstream         stream_pcreate_info;
     VkSwapchainCreateInfoKHR* struct_info = pCreateInfo->GetPointer();
     if (platform_ == GfxToCppPlatform::PLATFORM_ANDROID)
@@ -595,8 +618,6 @@ void VulkanCppConsumerBase::Generate_vkCreateSwapchainKHR(
     std::string pcreate_info_struct = GenerateStruct_VkSwapchainCreateInfoKHR(
         stream_pcreate_info, struct_info, pCreateInfo->GetMetaStructPointer(), *this);
     fprintf(file, "%s", stream_pcreate_info.str().c_str());
-    // pAllocator
-    // pSwapchain
     std::string pswapchain_name = "pSwapchain_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_SWAPCHAIN_KHR));
     AddKnownVariables("VkSwapchainKHR", pswapchain_name, pSwapchain->GetPointer());
     if (returnValue == VK_SUCCESS)
@@ -604,41 +625,30 @@ void VulkanCppConsumerBase::Generate_vkCreateSwapchainKHR(
         this->AddHandles(pswapchain_name, pSwapchain->GetPointer());
     }
 
-    DeviceInfo* dev_info = nullptr;
-    if (device_info_map_.find(device) != device_info_map_.end())
-    {
-        dev_info = device_info_map_[device];
-
-        fprintf(file, "\t\tVkSurfaceCapabilitiesKHR surface_caps;\n");
-        fprintf(file,
-                "\t\tif (VK_SUCCESS == loaded_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(%s, %s, &surface_caps)) {\n",
-                this->GetHandle(dev_info->parent).c_str(),
-                this->GetHandle(pCreateInfo->GetMetaStructPointer()->surface).c_str());
-
-        // VkSwapchainCreateInfoKHR modified_create_info = *create_info;
-        // modified_create_info.imageUsage =
-        //     modified_create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-        fprintf(file, "\t\t\tif (%s.minImageCount < surface_caps.minImageCount) {\n", pcreate_info_struct.c_str());
-        fprintf(file, "\t\t\t\t%s.minImageCount = surface_caps.minImageCount;\n", pcreate_info_struct.c_str());
-        fprintf(file, "\t\t\t}\n");
-        fprintf(file,
-                "\t\t\tif ((surface_caps.maxImageCount > 0) && (%s.minImageCount > surface_caps.maxImageCount)) {\n",
-                pcreate_info_struct.c_str());
-        fprintf(file, "\t\t\t\t%s.minImageCount = surface_caps.maxImageCount;\n", pcreate_info_struct.c_str());
-        fprintf(file, "\t\t\t}\n");
-
-        fprintf(file, "\t\t}\n");
-    }
-
     pfn_loader_.AddMethodName("vkCreateSwapchainKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkCreateSwapchainKHR(%s, &%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(toCppCreateSwapchainKHR(%s, &%s, %s, &%s), %s);\n",
             this->GetHandle(device).c_str(),
             pcreate_info_struct.c_str(),
             "nullptr",
             pswapchain_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+}
+
+void VulkanCppConsumerBase::Generate_vkDestroySwapchainKHR(
+    format::HandleId                                     device,
+    format::HandleId                                     swapchain,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkDestroySwapchainKHR");
+    fprintf(file,
+            "\t\ttoCppDestroySwapchainKHR(%s, %s, %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(swapchain).c_str(),
+            "nullptr");
     fprintf(file, "\t}\n");
 }
 
@@ -1030,12 +1040,10 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(VkResult                  
             fprintf(file, "\t\tbool     uses_opaque_address    = false;\n");
             fprintf(file, "\t\tbool     imports_memory         = false;\n");
             fprintf(file, "\n");
-            fprintf(
-                file, "\t\tif (device_features.find(%s) != device_features.end()){\n", this->GetHandle(device).c_str());
-            fprintf(
-                file, "\t\t\tDeviceFeatures* dev_features = device_features[%s];\n", this->GetHandle(device).c_str());
-            fprintf(file, "\t\t\tif (dev_features->features_dev_buf_addr.bufferDeviceAddressCaptureReplay ||\n");
-            fprintf(file, "\t\t\t    dev_features->features_1_2.bufferDeviceAddressCaptureReplay) {\n");
+            fprintf(file, "\t\tif (g_device_info.find(%s) != g_device_info.end()){\n", this->GetHandle(device).c_str());
+            fprintf(file, "\t\t\tToCppDeviceInfo* dev_info = g_device_info[%s];\n", this->GetHandle(device).c_str());
+            fprintf(file, "\t\t\tif (dev_info->features.features_dev_buf_addr.bufferDeviceAddressCaptureReplay ||\n");
+            fprintf(file, "\t\t\t    dev_info->features.features_1_2.bufferDeviceAddressCaptureReplay) {\n");
             fprintf(file, "\t\t\t\tcan_use_opaque_address = true;\n");
             fprintf(file,
                     "\t\t\t\taddress_info.opaque_address = %" PRIu64 "ULL;\n",
@@ -1129,10 +1137,10 @@ void VulkanCppConsumerBase::Generate_vkCreateBuffer(VkResult                    
 
     if (dev_info != nullptr)
     {
-        fprintf(file, "\t\tif (device_features.find(%s) != device_features.end()){\n", this->GetHandle(device).c_str());
-        fprintf(file, "\t\t\tDeviceFeatures* dev_features = device_features[%s];\n", this->GetHandle(device).c_str());
-        fprintf(file, "\t\t\tif (dev_features->features_dev_buf_addr.bufferDeviceAddressCaptureReplay ||\n");
-        fprintf(file, "\t\t\t    dev_features->features_1_2.bufferDeviceAddressCaptureReplay) {\n");
+        fprintf(file, "\t\tif (g_device_info.find(%s) != g_device_info.end()){\n", this->GetHandle(device).c_str());
+        fprintf(file, "\t\t\tToCppDeviceInfo* dev_info = g_device_info[%s];\n", this->GetHandle(device).c_str());
+        fprintf(file, "\t\t\tif (dev_info->features.features_dev_buf_addr.bufferDeviceAddressCaptureReplay ||\n");
+        fprintf(file, "\t\t\t    dev_info->features.features_1_2.bufferDeviceAddressCaptureReplay) {\n");
         fprintf(file, "\t\t\t\tbool                uses_address         = false;\n");
         fprintf(file, "\t\t\t\tVkBufferCreateFlags address_create_flags = 0;\n");
         fprintf(file, "\t\t\t\tVkBufferUsageFlags  address_usage_flags  = 0;\n");
@@ -1446,55 +1454,17 @@ void VulkanCppConsumerBase::Generate_vkCreateDevice(VkResult                    
             util::ToString<VkResult>(returnValue).c_str());
 
     fprintf(file, "\n");
-    fprintf(file, "\t\tDeviceFeatures* dev_features = new DeviceFeatures();\n");
-    fprintf(file, "\t\tassert(dev_features != nullptr);\n");
-    fprintf(file, "\t\tmemset(dev_features, 0, sizeof(DeviceFeatures));\n");
-    fprintf(file, "\t\tif (%s.pEnabledFeatures != nullptr) {\n", pcreate_info_struct.c_str());
-    fprintf(file, "\t\t\tdev_features->features_1_0 = *(%s.pEnabledFeatures);\n", pcreate_info_struct.c_str());
-    fprintf(file, "\t\t}\n");
-    fprintf(file, "\n");
     fprintf(file,
-            "\t\tconst VkBaseInStructure* cur_next = reinterpret_cast<const VkBaseInStructure*>(%s.pNext);\n",
+            "\t\tif (!toCppInitDeviceInfo(%s, %s, &%s)) {\n",
+            this->GetHandle(physicalDevice).c_str(),
+            pdevice_name.c_str(),
             pcreate_info_struct.c_str());
-    fprintf(file, "\t\twhile (cur_next != nullptr) {\n");
-    fprintf(file, "\t\t\tswitch (cur_next->sType) {\n");
-    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:\n");
-    fprintf(file,
-            "\t\t\t\t\tmemcpy(&dev_features->features_1_1, cur_next, sizeof(VkPhysicalDeviceVulkan11Features));\n");
-    fprintf(file, "\t\t\t\t\tdev_features->features_1_1.pNext = nullptr;\n");
-    fprintf(file, "\t\t\t\t\tbreak;\n");
-    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:\n");
-    fprintf(file,
-            "\t\t\t\t\tmemcpy(&dev_features->features_1_2, cur_next, sizeof(VkPhysicalDeviceVulkan12Features));\n");
-    fprintf(file, "\t\t\t\t\tdev_features->features_1_2.pNext = nullptr;\n");
-    fprintf(file, "\t\t\t\t\tbreak;\n");
-    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:\n");
-    fprintf(file,
-            "\t\t\t\t\tmemcpy(&dev_features->features_dev_buf_addr, cur_next, "
-            "sizeof(VkPhysicalDeviceBufferDeviceAddressFeatures));\n");
-    fprintf(file, "\t\t\t\t\tdev_features->features_dev_buf_addr.pNext = nullptr;\n");
-    fprintf(file, "\t\t\t\t\tbreak;\n");
-    fprintf(file, "#ifndef VK_USE_PLATFORM_ANDROID_KHR\n");
-    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:\n");
-    fprintf(file,
-            "\t\t\t\t\tmemcpy(&dev_features->features_accel_struct, cur_next, "
-            "sizeof(VkPhysicalDeviceAccelerationStructureFeaturesKHR));\n");
-    fprintf(file, "\t\t\t\t\tdev_features->features_accel_struct.pNext = nullptr;\n");
-    fprintf(file, "\t\t\t\t\tbreak;\n");
-    fprintf(file, "\t\t\t\tcase VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:\n");
-    fprintf(file,
-            "\t\t\t\t\tmemcpy(&dev_features->features_ray_trace_pipeline, cur_next, "
-            "sizeof(VkPhysicalDeviceRayTracingPipelineFeaturesKHR));\n");
-    fprintf(file, "\t\t\t\t\tdev_features->features_ray_trace_pipeline.pNext = nullptr;\n");
-    fprintf(file, "\t\t\t\t\tbreak;\n");
-    fprintf(file, "#endif\n");
-    fprintf(file, "\t\t\t\tdefault: break;\n");
-    fprintf(file, "\t\t\t}\n");
-
-    fprintf(file, "\t\t\tcur_next = cur_next->pNext;\n");
+    fprintf(
+        file,
+        "\t\t\tprintf(\"ERROR: Failed to generate device info for device %s created from physical device %s\\n\");\n",
+        pdevice_name.c_str(),
+        this->GetHandle(physicalDevice).c_str());
     fprintf(file, "\t\t}\n");
-    fprintf(file, "\t\t// Save feature information for this device\n");
-    fprintf(file, "\t\tdevice_features[%s] = dev_features;\n", pdevice_name.c_str());
 
     fprintf(file, "\t}\n");
 }
@@ -1512,15 +1482,8 @@ void VulkanCppConsumerBase::Generate_vkDestroyDevice(format::HandleId           
     }
 
     fprintf(file, "\t{\n");
-    fprintf(file, "\t\tif (device_features.find(%s) != device_features.end()){\n", this->GetHandle(device).c_str());
-    fprintf(file, "\t\t\tDeviceFeatures* dev_features = device_features[%s];\n", this->GetHandle(device).c_str());
-    fprintf(file, "\t\t\tdelete dev_features;\n");
-    fprintf(file, "\t\t\tdevice_features.erase(%s);\n", this->GetHandle(device).c_str());
-    fprintf(file, "\t\t}\n");
+    fprintf(file, "\t\ttoCppDestroyDeviceInfo(%s);\n", this->GetHandle(device).c_str());
     fprintf(file, "\n");
-
-    // device
-    // pAllocator
     fprintf(file, "\t\tvkDestroyDevice(%s, %s);\n", this->GetHandle(device).c_str(), "nullptr");
     fprintf(file, "\t}\n");
 }
