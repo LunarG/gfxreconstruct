@@ -36,6 +36,8 @@ set(GENERATED_FRAMES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/main/assets/src)
 # Base lib
 add_library(${LIBNAME}-base SHARED
             ${JNI_DIR}/ScreenOrientation.cpp
+            ${GENERATED_FRAMES_DIR}/swapchain_common.cpp
+            ${GENERATED_FRAMES_DIR}/swapchain_common.h
             ${GENERATED_FRAMES_DIR}/global_var.cpp
             ${GENERATED_FRAMES_DIR}/global_var.h
             ${GENERATED_FRAMES_DIR}/loader.cpp

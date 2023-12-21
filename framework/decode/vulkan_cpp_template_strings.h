@@ -23,14 +23,15 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 static const char* sCommonHeaderOutputHeaders = R"(
 #pragma once
 
+#include "vulkan/vulkan.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
 #include <unistd.h>
 #include <unordered_map>
-
-#include <vulkan/vulkan.h>
+#include <vector>
 )";
 
 static const char* sCommonOutputHeaderFunctions = R"(
@@ -42,13 +43,17 @@ extern void LogVkError(const char* function, VkResult returnValue, const char* f
 
 static const char* sCommonGlobalCppHeader = R"(
 #include "global_var.h"
-#include "vulkan/vulkan.h"
+#include "loader.h"
+
+#include <cassert>
+#include <numeric>
 )";
 
 static const char* sCommonFrameSourceHeader = R"(
 #include "global_var.h"
 #include "loader.h"
-#include "vulkan/vulkan.h"
+#include "swapchain_common.h"
+
 #include <cassert>
 )";
 
@@ -90,10 +95,10 @@ uint32_t RecalculateMemoryTypeIndex(uint32_t originalMemoryTypeIndex) {
         target_property_flags) {
         memory_type_index = originalMemoryTypeIndex;
     } else {
-        bool     fallback_found         = false;
-        uint32_t fallback_index         = 0;
-        uint8_t fallback_important_bits = 0;
-        uint8_t fallback_normal_bits    = 0;
+        bool     fallback_found          = false;
+        uint32_t fallback_index          = 0;
+        uint8_t  fallback_important_bits = 0;
+        uint8_t  fallback_normal_bits    = 0;
         for (uint32_t i = 0; i < s_physicalDeviceMemoryProperties.memoryTypeCount; i++) {
             if((s_physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & target_property_flags) == target_property_flags) {
               memory_type_index = i;
@@ -733,6 +738,208 @@ target_compile_definitions(vulkan_app PRIVATE
 target_link_libraries(vulkan_app vulkan)
 )";
 // End of Win32 template strings
+
+// Swapchain code
+static const char* sSwapchainHeaderCode = R"(
+#include <cassert>
+#include <numeric>
+
+struct ToCppDeviceFeatures
+{
+    VkPhysicalDeviceFeatures                    features_1_0;
+    VkPhysicalDeviceVulkan11Features            features_1_1;
+    VkPhysicalDeviceVulkan12Features            features_1_2;
+    VkPhysicalDeviceBufferDeviceAddressFeatures features_dev_buf_addr;
+#ifndef VK_USE_PLATFORM_ANDROID_KHR
+    VkPhysicalDeviceAccelerationStructureFeaturesKHR features_accel_struct;
+    VkPhysicalDeviceRayTracingPipelineFeaturesKHR    features_ray_trace_pipeline;
+#endif
+};
+
+struct ToCppDeviceInfo
+{
+    VkPhysicalDevice                                       parent;
+    ToCppDeviceFeatures                                    features;
+    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
+    std::vector<bool>                                      queue_family_index_enabled;
+};
+extern std::unordered_map<VkDevice, ToCppDeviceInfo*> g_device_info;
+
+bool toCppInitDeviceInfo(VkPhysicalDevice physical_device, VkDevice device, VkDeviceCreateInfo* create_info);
+void toCppDestroyDeviceInfo(VkDevice device);
+
+// Swapchain Info
+
+struct ToCppSwapchainInfo
+{
+    VkDevice     parent;
+    VkSurfaceKHR surface;
+};
+extern std::unordered_map<VkSwapchainKHR, ToCppSwapchainInfo*> g_swapchain_info;
+
+VkResult toCppCreateSwapchainKHR(VkDevice                        device,
+                                 const VkSwapchainCreateInfoKHR* create_info,
+                                 const VkAllocationCallbacks*    allocator,
+                                 VkSwapchainKHR*                 swapchain);
+void     toCppDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks* allocator);
+)";
+
+static const char* sSwapchainSourceCode = R"(
+#include "global_var.h"
+#include "loader.h"
+#include "swapchain_common.h"
+
+std::unordered_map<VkDevice, ToCppDeviceInfo*> g_device_info;
+std::unordered_map<VkSwapchainKHR, ToCppSwapchainInfo*> g_swapchain_info;
+bool toCppInitDeviceInfo(VkPhysicalDevice physical_device, VkDevice device, VkDeviceCreateInfo* create_info)
+{
+    bool             success  = false;
+    ToCppDeviceInfo* dev_info = new ToCppDeviceInfo();
+    if (dev_info == nullptr) {
+        printf("ERROR: Failed to create ToCppDeviceInfo for new device.\n");
+        return success;
+    }
+    dev_info->parent = physical_device;
+    memset(&dev_info->features, 0, sizeof(ToCppDeviceFeatures));
+
+    if (create_info->pEnabledFeatures != nullptr)
+    {
+        dev_info->features.features_1_0 = *(create_info->pEnabledFeatures);
+    }
+
+    const VkBaseInStructure* cur_next = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
+    while (cur_next != nullptr)
+    {
+        switch (cur_next->sType)
+        {
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
+                memcpy(&dev_info->features.features_1_1, cur_next, sizeof(VkPhysicalDeviceVulkan11Features));
+                dev_info->features.features_1_1.pNext = nullptr;
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:
+                memcpy(&dev_info->features.features_1_2, cur_next, sizeof(VkPhysicalDeviceVulkan12Features));
+                dev_info->features.features_1_2.pNext = nullptr;
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
+                memcpy(&dev_info->features.features_dev_buf_addr,
+                       cur_next,
+                       sizeof(VkPhysicalDeviceBufferDeviceAddressFeatures));
+                dev_info->features.features_dev_buf_addr.pNext = nullptr;
+                break;
+#ifndef VK_USE_PLATFORM_ANDROID_KHR
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
+                memcpy(&dev_info->features.features_accel_struct,
+                       cur_next,
+                       sizeof(VkPhysicalDeviceAccelerationStructureFeaturesKHR));
+                dev_info->features.features_accel_struct.pNext = nullptr;
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
+                memcpy(&dev_info->features.features_ray_trace_pipeline,
+                       cur_next,
+                       sizeof(VkPhysicalDeviceRayTracingPipelineFeaturesKHR));
+                dev_info->features.features_ray_trace_pipeline.pNext = nullptr;
+                break;
+#endif
+            default:
+                break;
+        } // switch
+        cur_next = cur_next->pNext;
+    } // while
+
+    // Keep track of what queue families this device is planning on using.  This information is
+    // very important if we end up using the VulkanVirtualSwapchain path.
+    auto max = [](uint32_t current_max, const VkDeviceQueueCreateInfo& dqci) {
+        return std::max(current_max, dqci.queueFamilyIndex);
+    };
+    uint32_t max_queue_family = std::accumulate(
+        create_info->pQueueCreateInfos, create_info->pQueueCreateInfos + create_info->queueCreateInfoCount, 0, max);
+    dev_info->queue_family_index_enabled.clear();
+    dev_info->queue_family_index_enabled.resize(max_queue_family + 1, false);
+
+    for (uint32_t q = 0; q < create_info->queueCreateInfoCount; ++q)
+    {
+        const VkDeviceQueueCreateInfo* queue_create_info = &create_info->pQueueCreateInfos[q];
+        assert(dev_info->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
+               dev_info->queue_family_creation_flags.end());
+        dev_info->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
+        dev_info->queue_family_index_enabled[queue_create_info->queueFamilyIndex]  = true;
+    }
+
+    // Save device information for this device
+    g_device_info[device] = dev_info;
+
+    success = true;
+    return success;
+}
+
+void toCppDestroyDeviceInfo(VkDevice device)
+{
+    if (g_device_info.find(device) != g_device_info.end())
+    {
+        ToCppDeviceInfo* dev_info = g_device_info[device];
+        delete dev_info;
+        g_device_info.erase(device);
+    }
+}
+
+VkResult toCppCreateSwapchainKHR(VkDevice                        device,
+                                 const VkSwapchainCreateInfoKHR* create_info,
+                                 const VkAllocationCallbacks*    allocator,
+                                 VkSwapchainKHR*                 swapchain)
+{
+    VkSwapchainCreateInfoKHR modified_create_info = *create_info;
+    ToCppDeviceInfo*         dev_info             = nullptr;
+    ToCppSwapchainInfo*      swapchain_info       = nullptr;
+    if (g_device_info.find(device) != g_device_info.end())
+    {
+        dev_info = g_device_info[device];
+#ifdef USE_VIRTUAL_SWAPCHAIN
+        modified_create_info.imageUsage =
+            modified_create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+#endif // USE_VIRTUAL_SWAPCHAIN
+
+        VkSurfaceCapabilitiesKHR surface_caps;
+        if (VK_SUCCESS ==
+            loaded_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(dev_info->parent, create_info->surface, &surface_caps))
+        {
+            if (modified_create_info.minImageCount < surface_caps.minImageCount)
+            {
+                modified_create_info.minImageCount = surface_caps.minImageCount;
+            }
+            if ((surface_caps.maxImageCount > 0) && (modified_create_info.minImageCount > surface_caps.maxImageCount))
+            {
+                modified_create_info.minImageCount = surface_caps.maxImageCount;
+            }
+        }
+
+        swapchain_info = new ToCppSwapchainInfo();
+        assert(swapchain_info != nullptr);
+
+        memset(swapchain_info, 0, sizeof(ToCppSwapchainInfo));
+        swapchain_info->parent  = device;
+        swapchain_info->surface = create_info->surface;
+    }
+
+    VkResult ret_value = loaded_vkCreateSwapchainKHR(device, &modified_create_info, allocator, swapchain);
+    if (ret_value == VK_SUCCESS && dev_info != nullptr)
+    {
+        // Save swapchain information
+        g_swapchain_info[*swapchain] = swapchain_info;
+    }
+    return ret_value;
+}
+
+void toCppDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks* allocator)
+{
+    if (g_swapchain_info.find(swapchain) != g_swapchain_info.end())
+    {
+        ToCppSwapchainInfo* swapchain_info = g_swapchain_info[swapchain];
+        delete swapchain_info;
+        g_swapchain_info.erase(swapchain);
+    }
+    loaded_vkDestroySwapchainKHR(device, swapchain, allocator);
+}
+)";
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

@@ -154,6 +154,10 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
                                        HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain);
 
+    void Generate_vkDestroySwapchainKHR(format::HandleId                                     device,
+                                        format::HandleId                                     swapchain,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
     void Generate_vkGetSwapchainImagesKHR(VkResult                       returnValue,
                                           format::HandleId               device,
                                           format::HandleId               swapchain,
@@ -664,10 +668,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
   private:
     bool CreateSubOutputDirectories(const std::vector<std::string>& subDirs);
     void PrintOutCMakeFile();
-    void PrintOutGlobalVar();
     void WriteMainHeader();
     void WriteMainFooter();
-    void WriteGlobalHeaderFile();
+    bool WriteGlobalHeaderFile();
+    void PrintOutGlobalVar();
+    bool WriteSwapchainFiles();
 
     struct FrameTempMemory
     {
@@ -682,7 +687,6 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::vector<FrameTempMemory>                       frame_split_temp_memory_;
     FILE*                                              frame_file_;
     FILE*                                              global_file_;
-    FILE*                                              header_file_;
     FILE*                                              main_file_;
     std::string                                        filename_;
     GfxToCppPlatform                                   platform_;
