@@ -59,7 +59,8 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
     if (resource_data.before_resource)
     {
         util::FieldToJson(jdata["resource_id"], resource_data.source_resource_id, json_options_);
-        util::FieldToJson(jdata["size"], resource_data.size, json_options_);
+        util::FieldToJson(jdata["offset"], resource_data.source_offset, json_options_);
+        util::FieldToJson(jdata["size"], resource_data.source_size, json_options_);
 
         std::string file_name =
             prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id) + "_before.bin";
@@ -70,7 +71,7 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
         resource_data.before_resource->Map(0, &read_Range, reinterpret_cast<void**>(&data_begin));
 
         std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name);
-        WriteBinaryFile(filepath, resource_data.size, data_begin);
+        WriteBinaryFile(filepath, resource_data.source_size, data_begin);
 
         resource_data.before_resource->Unmap(0, nullptr);
     }
@@ -86,7 +87,7 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
         resource_data.after_resource->Map(0, &read_Range, reinterpret_cast<void**>(&data_begin));
 
         std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name);
-        WriteBinaryFile(filepath, resource_data.size, data_begin);
+        WriteBinaryFile(filepath, resource_data.source_size, data_begin);
 
         resource_data.after_resource->Unmap(0, nullptr);
     }

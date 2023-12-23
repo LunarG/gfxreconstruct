@@ -65,12 +65,22 @@ struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConstan
 };
 
 template <>
-struct CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConstantBufferView>
 {
     template <typename... Args>
     static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
     {
-        replay->PreCall_ID3D12Device_CreateShaderResourceView(args...);
+        replay->PostCall_ID3D12Device_CreateConstantBufferView(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device_CreateShaderResourceView(args...);
     }
 };
 

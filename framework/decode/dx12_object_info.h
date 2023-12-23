@@ -254,6 +254,36 @@ struct D3D12DeviceInfo : DxObjectExtraInfo
     bool is_uma{ false };
 };
 
+struct ConstantBufferInfo
+{
+    D3D12_CONSTANT_BUFFER_VIEW_DESC captured_view{};
+    D3D12_CPU_DESCRIPTOR_HANDLE     replay_handle{ kNullCpuAddress };
+};
+
+struct ShaderResourceInfo
+{
+    format::HandleId                resource_id{ format::kNullHandleId };
+    D3D12_SHADER_RESOURCE_VIEW_DESC view{};
+    bool                            is_view_null{ false };
+    D3D12_CPU_DESCRIPTOR_HANDLE     replay_handle{ kNullCpuAddress };
+};
+
+struct RenderTargetInfo
+{
+    format::HandleId              resource_id{ format::kNullHandleId };
+    D3D12_RENDER_TARGET_VIEW_DESC view{};
+    bool                          is_view_null{ false };
+    D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
+};
+
+struct DepthStencilInfo
+{
+    format::HandleId              resource_id{ format::kNullHandleId };
+    D3D12_DEPTH_STENCIL_VIEW_DESC view{};
+    bool                          is_view_null{ false };
+    D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
+};
+
 struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
 {
     static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12DescriptorHeapInfo;
@@ -268,12 +298,10 @@ struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
     size_t                                replay_cpu_addr_begin{ kNullCpuAddress };
     uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
 
-    std::vector<D3D12_GPU_VIRTUAL_ADDRESS>   captured_constant_buffer_view_desc_gvas;
-    std::vector<format::HandleId>            shader_resource_ids;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> replay_render_target_handles;
-    std::vector<format::HandleId>            render_target_resource_ids;
-    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> replay_depth_stencil_handles;
-    std::vector<format::HandleId>            depth_stencil_resource_ids;
+    std::vector<ConstantBufferInfo> constant_buffer_infos;
+    std::vector<ShaderResourceInfo> shader_resource_infos;
+    std::vector<RenderTargetInfo>   render_target_infos;
+    std::vector<DepthStencilInfo>   depth_stencil_infos;
 };
 
 struct D3D12FenceInfo : DxObjectExtraInfo
