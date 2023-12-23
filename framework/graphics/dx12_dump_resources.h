@@ -49,11 +49,13 @@ struct Dx12DumpResourcesConfig
 
 struct CopyResourceData
 {
-    format::HandleId           source_resource_id{ format::kNullHandleId };
-    uint64_t                   size{ 0 };
-    D3D12_RESOURCE_DESC        desc{};
-    dx12::ID3D12ResourceComPtr before_resource{ nullptr }; // copy resource before drawcall
-    dx12::ID3D12ResourceComPtr after_resource{ nullptr };  // copy resource after drawcall
+    format::HandleId                   source_resource_id{ format::kNullHandleId };
+    uint64_t                           source_offset{ 0 };
+    uint64_t                           source_size{ 0 };
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT source_footprint{};
+    D3D12_RESOURCE_DESC                desc{};
+    dx12::ID3D12ResourceComPtr         before_resource{ nullptr }; // copy resource before drawcall
+    dx12::ID3D12ResourceComPtr         after_resource{ nullptr };  // copy resource after drawcall
 };
 
 struct DescriptorHeapData

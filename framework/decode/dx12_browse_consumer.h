@@ -35,17 +35,20 @@ struct TrackDumpDrawcall
     uint64_t set_render_targets_code_index{ 0 };
 
     // vertex
-    std::vector<D3D12_GPU_VIRTUAL_ADDRESS> captured_vertex_buffer_view_gvas;
+    std::vector<D3D12_VERTEX_BUFFER_VIEW> captured_vertex_buffer_views;
 
     // index
-    D3D12_GPU_VIRTUAL_ADDRESS captured_index_buffer_view_gva{ decode::kNullGpuAddress };
+    D3D12_INDEX_BUFFER_VIEW captured_index_buffer_view{};
 
     // descriptor
-    std::vector<format::HandleId> descriptor_heap_ids;
+    std::vector<format::HandleId>               descriptor_heap_ids;
+    std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE> captured_descriptor_gpu_handles;
 
     // ExecuteIndirect
     format::HandleId exe_indirect_argument_id{ format::kNullHandleId };
+    uint64_t         exe_indirect_argument_offset{ 0 };
     format::HandleId exe_indirect_count_id{ format::kNullHandleId };
+    uint64_t         exe_indirect_count_offset{ 0 };
 
     uint64_t drawcall_code_index{ 0 };
     uint64_t execute_code_index{ 0 };
@@ -57,13 +60,14 @@ struct TrackDumpCommandList
     uint64_t current_set_render_targets_code_index{ 0 };
 
     // vertex
-    std::vector<D3D12_GPU_VIRTUAL_ADDRESS> current_captured_vertex_buffer_view_gvas;
+    std::vector<D3D12_VERTEX_BUFFER_VIEW> current_captured_vertex_buffer_views;
 
     // index
-    D3D12_GPU_VIRTUAL_ADDRESS current_captured_index_buffer_view_gva{ decode::kNullGpuAddress };
+    D3D12_INDEX_BUFFER_VIEW current_captured_index_buffer_view{};
 
     // descriptor
-    std::vector<format::HandleId> current_descriptor_heap_ids;
+    std::vector<format::HandleId>               current_descriptor_heap_ids;
+    std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE> current_captured_descriptor_gpu_handles;
 
     // render target
     // Track render target info in replay, not here.
@@ -74,9 +78,10 @@ struct TrackDumpCommandList
     void Clear()
     {
         current_begin_renderpass_code_index = 0;
-        current_captured_vertex_buffer_view_gvas.clear();
-        current_captured_index_buffer_view_gva = decode::kNullGpuAddress;
+        current_captured_vertex_buffer_views.clear();
+        current_captured_index_buffer_view = {};
         current_descriptor_heap_ids.clear();
+        current_captured_descriptor_gpu_handles.clear();
         track_dump_drawcalls.clear();
     }
 };
@@ -184,11 +189,11 @@ class Dx12BrowseConsumer : public Dx12Consumer
             auto it = track_commandlist_infos_.find(object_id);
             if (it != track_commandlist_infos_.end())
             {
-                it->second.current_captured_vertex_buffer_view_gvas.resize(NumViews);
+                it->second.current_captured_vertex_buffer_views.resize(NumViews);
                 auto views = pViews->GetMetaStructPointer();
                 for (uint32_t i = 0; i < NumViews; ++i)
                 {
-                    it->second.current_captured_vertex_buffer_view_gvas[i] = views[i].decoded_value->BufferLocation;
+                    it->second.current_captured_vertex_buffer_views[i] = *(views[i].decoded_value);
                 }
             }
         }
@@ -204,8 +209,8 @@ class Dx12BrowseConsumer : public Dx12Consumer
             auto it = track_commandlist_infos_.find(object_id);
             if (it != track_commandlist_infos_.end())
             {
-                auto view                                         = pView->GetMetaStructPointer();
-                it->second.current_captured_index_buffer_view_gva = view->decoded_value->BufferLocation;
+                auto view                                     = pView->GetMetaStructPointer();
+                it->second.current_captured_index_buffer_view = *(view->decoded_value);
             }
         }
     }
@@ -227,6 +232,41 @@ class Dx12BrowseConsumer : public Dx12Consumer
                 {
                     it->second.current_descriptor_heap_ids[i] = heap_ids[i];
                 }
+                it->second.current_captured_descriptor_gpu_handles.clear();
+            }
+        }
+    }
+
+    virtual void
+    Process_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(const ApiCallInfo& call_info,
+                                                                    format::HandleId   object_id,
+                                                                    UINT               RootParameterIndex,
+                                                                    Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
+    {
+        if (target_command_list_ == format::kNullHandleId)
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                it->second.current_captured_descriptor_gpu_handles[RootParameterIndex] =
+                    (*BaseDescriptor.decoded_value);
+            }
+        }
+    }
+
+    virtual void
+    Process_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(const ApiCallInfo& call_info,
+                                                                     format::HandleId   object_id,
+                                                                     UINT               RootParameterIndex,
+                                                                     Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
+    {
+        if (target_command_list_ == format::kNullHandleId)
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                it->second.current_captured_descriptor_gpu_handles[RootParameterIndex] =
+                    (*BaseDescriptor.decoded_value);
             }
         }
     }
@@ -270,7 +310,8 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                                                    format::HandleId   pCountBuffer,
                                                                    UINT64             CountBufferOffset)
     {
-        TrackTargetDrawcall(call_info, object_id, pArgumentBuffer, pCountBuffer);
+        TrackTargetDrawcall(
+            call_info, object_id, pArgumentBuffer, ArgumentBufferOffset, pCountBuffer, CountBufferOffset);
     }
 
     virtual void
@@ -341,23 +382,28 @@ class Dx12BrowseConsumer : public Dx12Consumer
 
     void TrackTargetDrawcall(const ApiCallInfo& call_info,
                              format::HandleId   object_id,
-                             format::HandleId   exe_indirect_argument_id = format::kNullHandleId,
-                             format::HandleId   exe_indirect_count_id    = format::kNullHandleId)
+                             format::HandleId   exe_indirect_argument_id     = format::kNullHandleId,
+                             uint64_t           exe_indirect_argument_offset = 0,
+                             format::HandleId   exe_indirect_count_id        = format::kNullHandleId,
+                             uint64_t           exe_indirect_count_offset    = 0)
     {
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
             if (it != track_commandlist_infos_.end())
             {
-                TrackDumpDrawcall track_drawcall                = {};
-                track_drawcall.drawcall_code_index              = call_info.index;
-                track_drawcall.begin_renderpass_code_index      = it->second.current_begin_renderpass_code_index;
-                track_drawcall.set_render_targets_code_index    = it->second.current_set_render_targets_code_index;
-                track_drawcall.captured_vertex_buffer_view_gvas = it->second.current_captured_vertex_buffer_view_gvas;
-                track_drawcall.captured_index_buffer_view_gva   = it->second.current_captured_index_buffer_view_gva;
-                track_drawcall.descriptor_heap_ids              = it->second.current_descriptor_heap_ids;
-                track_drawcall.exe_indirect_argument_id         = exe_indirect_argument_id;
-                track_drawcall.exe_indirect_count_id            = exe_indirect_count_id;
+                TrackDumpDrawcall track_drawcall               = {};
+                track_drawcall.drawcall_code_index             = call_info.index;
+                track_drawcall.begin_renderpass_code_index     = it->second.current_begin_renderpass_code_index;
+                track_drawcall.set_render_targets_code_index   = it->second.current_set_render_targets_code_index;
+                track_drawcall.captured_vertex_buffer_views    = it->second.current_captured_vertex_buffer_views;
+                track_drawcall.captured_index_buffer_view      = it->second.current_captured_index_buffer_view;
+                track_drawcall.descriptor_heap_ids             = it->second.current_descriptor_heap_ids;
+                track_drawcall.captured_descriptor_gpu_handles = it->second.current_captured_descriptor_gpu_handles;
+                track_drawcall.exe_indirect_argument_id        = exe_indirect_argument_id;
+                track_drawcall.exe_indirect_argument_offset    = exe_indirect_argument_offset;
+                track_drawcall.exe_indirect_count_id           = exe_indirect_count_id;
+                track_drawcall.exe_indirect_count_offset       = exe_indirect_count_offset;
                 it->second.track_dump_drawcalls.emplace_back(std::move(track_drawcall));
             }
         }
