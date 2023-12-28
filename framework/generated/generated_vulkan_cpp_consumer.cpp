@@ -2914,23 +2914,7 @@ void VulkanCppConsumer::Process_vkGetDeviceQueue(
     uint32_t                                    queueIndex,
     HandlePointerDecoder<VkQueue>*              pQueue)
 {
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// queueFamilyIndex
-// queueIndex
-// pQueue
-    std::string pqueue_name = "pQueue_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_QUEUE));
-    AddKnownVariables("VkQueue", pqueue_name, pQueue->GetPointer());
-    this->AddHandles(pqueue_name,
-                     pQueue->GetPointer());
-    fprintf(file,
-            "\t\tvkGetDeviceQueue(%s, %u, %u, &%s);\n",
-            this->GetHandle(device).c_str(),
-            queueFamilyIndex,
-            queueIndex,
-            pqueue_name.c_str());
-    fprintf(file, "\t}\n");
+    Generate_vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, pQueue);
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceQueue);
 }
 
@@ -16797,63 +16781,6 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysKHR(
             depth);
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdTraceRaysKHR);
-}
-
-void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesKHR(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            deferredOperation,
-    format::HandleId                            pipelineCache,
-    uint32_t                                    createInfoCount,
-    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkPipeline>*           pPipelines)
-{
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-// device
-// deferredOperation
-// pipelineCache
-// createInfoCount
-// pCreateInfos
-    std::stringstream stream_pcreate_infos;
-    std::string pcreate_infos_array = "NULL";
-    PointerPairContainer<decltype(pCreateInfos->GetPointer()), decltype(pCreateInfos->GetMetaStructPointer())> pcreate_infos_pair{ pCreateInfos->GetPointer(), pCreateInfos->GetMetaStructPointer(), createInfoCount };
-    std::string pcreate_infos_names = toStringJoin(pcreate_infos_pair.begin(),
-                                                   pcreate_infos_pair.end(),
-                                                   [&](auto pair) {{ return GenerateStruct_VkRayTracingPipelineCreateInfoKHR(stream_pcreate_infos, pair.t1, pair.t2, *this); }},
-                                                   ", ");
-    if (stream_pcreate_infos.str().length() > 0) {
-        fprintf(file, "%s", stream_pcreate_infos.str().c_str());
-        if (createInfoCount == 1) {
-            pcreate_infos_array = "&" + pcreate_infos_names;
-        } else if (createInfoCount > 1) {
-            pcreate_infos_array = "pCreateInfos_" + std::to_string(this->GetNextId());
-            fprintf(file, "\t\tVkRayTracingPipelineCreateInfoKHR %s[] = { %s };\n", pcreate_infos_array.c_str(), pcreate_infos_names.c_str());
-        }
-    }
-// pAllocator
-// pPipelines
-    std::string ppipelines_name = "pPipelines_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_PIPELINE));
-    AddKnownVariables("VkPipeline", ppipelines_name, pPipelines->GetPointer(), createInfoCount);
-    if (returnValue == VK_SUCCESS) {
-        this->AddHandles(ppipelines_name,
-                         pPipelines->GetPointer(), createInfoCount);
-    }
-    pfn_loader_.AddMethodName("vkCreateRayTracingPipelinesKHR");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkCreateRayTracingPipelinesKHR(%s, %s, %s, %u, %s, %s, %s), %s);\n",
-            this->GetHandle(device).c_str(),
-            this->GetHandle(deferredOperation).c_str(),
-            this->GetHandle(pipelineCache).c_str(),
-            createInfoCount,
-            pcreate_infos_array.c_str(),
-            "nullptr",
-            ppipelines_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
-    Post_APICall(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
 }
 
 void VulkanCppConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(

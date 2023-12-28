@@ -9987,60 +9987,6 @@ void VulkanCppPreProcessConsumer::Process_vkCmdTraceRaysKHR(
                                       commandBuffer);
     Post_APICall(format::ApiCallId::ApiCall_vkCmdTraceRaysKHR);
 }
-void VulkanCppPreProcessConsumer::Process_vkCreateRayTracingPipelinesKHR(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            deferredOperation,
-    format::HandleId                            pipelineCache,
-    uint32_t                                    createInfoCount,
-    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkPipeline>*           pPipelines)
-{
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      deferredOperation);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipelineCache);
-
-    for (uint32_t idx = 0; idx < pCreateInfos->GetPointer()->stageCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pCreateInfos->GetMetaStructPointer()->pStages->GetMetaStructPointer()[idx].module);
-    }
-
-    if (pCreateInfos->GetMetaStructPointer()->pLibraryInfo->GetMetaStructPointer() != nullptr) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pCreateInfos->GetMetaStructPointer()->pLibraryInfo->GetMetaStructPointer()->pLibraries.GetPointer(),
-                                              pCreateInfos->GetMetaStructPointer()->pLibraryInfo->GetMetaStructPointer()->pLibraries.GetLength());
-    }
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].layout);
-    }
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].basePipelineHandle);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pPipelines->GetPointer(),
-                                      createInfoCount);
-    Post_APICall(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
-}
 void VulkanCppPreProcessConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

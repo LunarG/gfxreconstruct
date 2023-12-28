@@ -358,15 +358,25 @@ bool VulkanCppConsumerBase::WriteSwapchainFiles()
     int32_t result = util::platform::FileOpen(&header_file, header_filename.c_str(), "w");
     if (result == 0)
     {
+        fputs(sCommonHeaderOutputHeaders, header_file);
         fputs(sSwapchainHeaderCode, header_file);
+
+        if (enable_virtual_swapchain_)
+        {
+            fputs("\n\n// Enable the virtual swapchain code\n", header_file);
+            fputs("#define USE_VIRTUAL_SWAPCHAIN 1\n", header_file);
+        }
+        else
+        {
+            fputs("\n\n// Disable the virtual swapchain code\n", header_file);
+            fputs("#define USE_VIRTUAL_SWAPCHAIN 0\n", header_file);
+        }
 
         util::platform::FileClose(header_file);
 
         result = util::platform::FileOpen(&source_file, source_filename.c_str(), "w");
         if (result == 0)
         {
-            FILE* global_file = GetGlobalFile();
-            fputs(sCommonHeaderOutputHeaders, source_file);
             fputs(sSwapchainSourceCode, source_file);
 
             util::platform::FileClose(source_file);
@@ -683,10 +693,17 @@ void VulkanCppConsumerBase::Generate_vkGetSwapchainImagesKHR(VkResult           
 
     pfn_loader_.AddMethodName("vkGetSwapchainImagesKHR");
 
+    uint32_t captured_swapchain_count = 0;
+    if (pSwapchainImageCount->GetPointer() != nullptr)
+    {
+        captured_swapchain_count = *pSwapchainImageCount->GetPointer();
+    }
+
     fprintf(file,
-            "\tVK_CALL_CHECK(loaded_vkGetSwapchainImagesKHR(%s, %s, &%s, %s), %s);\n",
+            "\tVK_CALL_CHECK(toCppGetSwapchainImagesKHR(%s, %s, %u, &%s, %s), %s);\n",
             GetHandle(device).c_str(),
             handle_id_map_[swapchain].c_str(),
+            captured_swapchain_count,
             ptr_map_[pSwapchainImageCount].c_str(),
             swapchain_images_var_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
@@ -1792,30 +1809,18 @@ void VulkanCppConsumerBase::Generate_vkAcquireNextImageKHR(VkResult             
     AddKnownVariables("uint32_t", image_index_var_name);
 
     pfn_loader_.AddMethodName("vkAcquireNextImageKHR");
-    if (returnValue == VK_SUCCESS)
-    {
-        fprintf(file,
-                "\twhile (loaded_vkAcquireNextImageKHR(%s, %s, %" PRIu64
-                "UL, %s, %s, &%s) != VK_SUCCESS) { usleep(5000); };\n",
-                GetHandle(device).c_str(),
-                GetHandle(swapchain).c_str(),
-                timeout,
-                GetHandle(semaphore).c_str(),
-                GetHandle(fence).c_str(),
-                image_index_var_name.c_str());
-    }
-    else
-    {
-        fprintf(file,
-                "\tVK_CALL_CHECK(loaded_vkAcquireNextImageKHR(%s, %s, %" PRIu64 "UL, %s, %s, &%s), %s);\n",
-                GetHandle(device).c_str(),
-                GetHandle(swapchain).c_str(),
-                timeout,
-                GetHandle(semaphore).c_str(),
-                GetHandle(fence).c_str(),
-                image_index_var_name.c_str(),
-                util::ToString<VkResult>(returnValue).c_str());
-    }
+    fprintf(file,
+            "\tVK_CALL_CHECK(toCppAcquireNextImageKHR(static_cast<VkResult>(0x%08x), %s, %s, %" PRIu64
+            "UL, %s, %s, %u, &%s), %s);\n",
+            returnValue,
+            GetHandle(device).c_str(),
+            GetHandle(swapchain).c_str(),
+            timeout,
+            GetHandle(semaphore).c_str(),
+            GetHandle(fence).c_str(),
+            (*pImageIndex->GetPointer()),
+            image_index_var_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
 }
 
 void VulkanCppConsumerBase::Generate_vkAcquireNextImage2KHR(
@@ -3283,6 +3288,25 @@ void VulkanCppConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId devi
     }
 }
 
+void VulkanCppConsumerBase::Generate_vkGetDeviceQueue(format::HandleId               device,
+                                                      uint32_t                       queueFamilyIndex,
+                                                      uint32_t                       queueIndex,
+                                                      HandlePointerDecoder<VkQueue>* pQueue)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string pqueue_name = "pQueue_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_QUEUE));
+    AddKnownVariables("VkQueue", pqueue_name, pQueue->GetPointer());
+    this->AddHandles(pqueue_name, pQueue->GetPointer());
+    fprintf(file,
+            "\t\ttoCppGetDeviceQueue(%s, %u, %u, &%s);\n",
+            this->GetHandle(device).c_str(),
+            queueFamilyIndex,
+            queueIndex,
+            pqueue_name.c_str());
+    fprintf(file, "\t}\n");
+}
+
 void VulkanCppConsumerBase::Generate_vkGetAndroidHardwareBufferPropertiesANDROID(
     VkResult                                                                returnValue,
     format::HandleId                                                        device,
@@ -3528,20 +3552,18 @@ void VulkanCppConsumerBase::Generate_vkQueuePresentKHR(VkResult                 
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    // queue
-    // pPresentInfo
-    std::stringstream stream_ppresent_info;
-    std::string       ppresent_info_struct = GenerateStruct_VkPresentInfoKHR(stream_ppresent_info,
-                                                                       pPresentInfo->GetPointer(),
-                                                                       pPresentInfo->GetMetaStructPointer(),
-                                                                       imported_semaphores_,
-                                                                       *this);
-    fprintf(file, "%s", stream_ppresent_info.str().c_str());
+    std::stringstream stream_present_info;
+    std::string       present_info_struct = GenerateStruct_VkPresentInfoKHR(stream_present_info,
+                                                                      pPresentInfo->GetPointer(),
+                                                                      pPresentInfo->GetMetaStructPointer(),
+                                                                      imported_semaphores_,
+                                                                      *this);
+    fprintf(file, "%s", stream_present_info.str().c_str());
     pfn_loader_.AddMethodName("vkQueuePresentKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkQueuePresentKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(toCppQueuePresentKHR(%s, &%s), %s);\n",
             this->GetHandle(queue).c_str(),
-            ppresent_info_struct.c_str(),
+            present_info_struct.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
 }

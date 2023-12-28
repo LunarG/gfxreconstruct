@@ -115,6 +115,7 @@ CPP_APICALL_GENERATE = [
     'vkEnumeratePhysicalDevices',
     'vkGetBufferMemoryRequirements',
     'vkGetBufferMemoryRequirements2',
+    'vkGetDeviceQueue',
     'vkGetFenceStatus',
     'vkGetImageMemoryRequirements',
     'vkGetImageMemoryRequirements2',

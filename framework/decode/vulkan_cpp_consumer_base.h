@@ -133,6 +133,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void SetWindowSize(uint32_t appWindowWidth, uint32_t appWindowHeight);
     void SetMaxCommandLimit(uint32_t max) { max_command_limit_ = max; }
 
+    void DisableVirtualSwapchain() { enable_virtual_swapchain_ = false; }
+
     uint32_t GetNextId();
     uint32_t GetNextId(VkObjectType object_type);
 
@@ -416,6 +418,10 @@ class VulkanCppConsumerBase : public VulkanConsumer
         format::HandleId                                                        device,
         uint64_t                                                                buffer,
         StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties);
+    void Generate_vkGetDeviceQueue(format::HandleId               device,
+                                   uint32_t                       queueFamilyIndex,
+                                   uint32_t                       queueIndex,
+                                   HandlePointerDecoder<VkQueue>* pQueue);
     void Generate_vkGetMemoryAndroidHardwareBufferANDROID(
         VkResult                                                                   returnValue,
         format::HandleId                                                           device,
@@ -680,6 +686,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
         size_t      size;
     };
 
+    bool                                               enable_virtual_swapchain_{ true };
     uint32_t                                           frame_number_;
     uint32_t                                           frame_split_number_;
     uint32_t                                           frame_api_call_number_;

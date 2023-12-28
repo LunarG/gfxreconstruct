@@ -22,9 +22,6 @@ known issues which will be worked on over time:
 * The generated cpp code does not handle a window/swapchain resize
 * The generated cpp code only executes on either Android or Linux (XCB)
 * It does not currently support Ray Tracing contents in a capture
-* Flickering can occur on some applications
-  * This may be due to the fact that the virtual swapchain behavior has not yet
-    been implemented in this yet.
 * The generated cpp code expects a system exactly like the capture system:
   * Same number of physical devices
   * The same physical device (think Nvidia GTX 3060) at the same offset in the
@@ -64,6 +61,7 @@ gfxrecon-tocpp <command-line-args> <capture-file>
 | -f <br> --frame-limit              | Optional                | Maximum number of frames to convert to C++ code from the capture file. |
 | -h <br> --help                     | Optional                | Print Usage information and exit.                       |
 | -o <br> --output <dir>             | Required                | Directory path where the output will be generated into. |
+| -s --captured-swapchain            | Optional                | Use the swapchain as it was captured during toCpp replay instead of using the "Virtual Swapchain" path. |
 | -t <br> --target <platform>        | Optional                | Type of target platform to generate the Vulkan source.<br>Available Platforms: android, xcb |
 | -v <br> --version                  | Optional                | Print version information and exit.                     |
 
