@@ -107,6 +107,16 @@ CommandLineArgument g_command_limit_argument = {
     " adjust compilation load per file."
 };
 
+CommandLineArgument g_captured_swapchain_argument = {
+    false,
+    false,
+    "-s",
+    "--captured-swapchain",
+    "\t\t\t\t",
+    "",
+    "Use the swapchain as it was captured during toCpp replay instead of using the \"Virtual Swapchain\" paths."
+};
+
 std::vector<CommandLineArgument> g_argument_list;
 
 #if defined(WIN32)
@@ -485,6 +495,8 @@ int main(int argc, const char** argv)
     g_argument_list.push_back(g_max_window_dimensions_argument);
     g_argument_list.push_back(g_frame_limit_argument);
     g_argument_list.push_back(g_command_limit_argument);
+    g_argument_list.push_back(g_captured_swapchain_argument);
+
     for (auto& argument : g_argument_list)
     {
         if (argument.expects_argument)
@@ -616,6 +628,12 @@ int main(int argc, const char** argv)
 
     pre_process_cpp_consumer.AddResourceTracker(resource_tracker);
     cpp_consumer.AddResourceTracker(resource_tracker);
+
+    // --captured-swapchain
+    if (arg_parser.IsOptionSet(g_captured_swapchain_argument.short_option))
+    {
+        cpp_consumer.DisableVirtualSwapchain();
+    }
 
     // On non-Android platforms, let's not split frames if we can avoid it
     if (command_limit > 0)

@@ -46,7 +46,6 @@ static const char* sCommonGlobalCppHeader = R"(
 #include "loader.h"
 
 #include <cassert>
-#include <numeric>
 )";
 
 static const char* sCommonFrameSourceHeader = R"(
@@ -742,7 +741,8 @@ target_link_libraries(vulkan_app vulkan)
 // Swapchain code
 static const char* sSwapchainHeaderCode = R"(
 #include <cassert>
-#include <numeric>
+
+// Device-specific Info
 
 struct ToCppDeviceFeatures
 {
@@ -756,25 +756,76 @@ struct ToCppDeviceFeatures
 #endif
 };
 
+struct ToCppQueueFamilyInfo
+{
+    VkDeviceQueueCreateFlags creation_flags;
+    VkQueueFamilyProperties  family_props;
+};
+
 struct ToCppDeviceInfo
 {
-    VkPhysicalDevice                                       parent;
-    ToCppDeviceFeatures                                    features;
-    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
-    std::vector<bool>                                      queue_family_index_enabled;
+    VkPhysicalDevice                                   parent{ VK_NULL_HANDLE };
+    ToCppDeviceFeatures                                features;
+    std::unordered_map<uint32_t, ToCppQueueFamilyInfo> queue_family_info;
+    std::vector<bool>                                  queue_family_enabled;
 };
 extern std::unordered_map<VkDevice, ToCppDeviceInfo*> g_device_info;
 
 bool toCppInitDeviceInfo(VkPhysicalDevice physical_device, VkDevice device, VkDeviceCreateInfo* create_info);
 void toCppDestroyDeviceInfo(VkDevice device);
 
-// Swapchain Info
+// Queue-specific Info
+
+struct ToCppQueueInfo
+{
+    VkDevice parent{ VK_NULL_HANDLE };
+    uint32_t family_index{ 0 };
+    uint32_t queue_index{ 0 };
+};
+extern std::unordered_map<VkQueue, ToCppQueueInfo> g_queue_info;
+
+void toCppGetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue);
+
+// Swapchain-specific Info
+
+struct ToCppVirtualImage
+{
+    VkDeviceMemory memory{ VK_NULL_HANDLE };
+    VkImage        image{ VK_NULL_HANDLE };
+};
+
+struct ToCppCopyCmdData
+{
+    VkCommandPool                command_pool{ VK_NULL_HANDLE };
+    std::vector<VkCommandBuffer> command_buffers;
+    std::vector<VkSemaphore>     semaphores;
+};
+
+struct ToCppAcquiredData
+{
+    uint32_t index = { 0 };
+    bool     acquired{ false };
+};
 
 struct ToCppSwapchainInfo
 {
-    VkDevice     parent;
-    VkSurfaceKHR surface;
+    VkDevice                                       parent;
+    VkSurfaceKHR                                   surface;
+    VkSwapchainCreateFlagsKHR                      flags;
+    VkFormat                                       image_format;
+    VkColorSpaceKHR                                image_color_space;
+    VkExtent2D                                     image_extent;
+    uint32_t                                       image_array_layers;
+    VkImageUsageFlags                              image_usage;
+    VkSharingMode                                  image_sharing_mode;
+    VkPresentModeKHR                               present_mode;
+    std::vector<uint32_t>                          queue_family_indices;
+    std::unordered_map<uint32_t, ToCppCopyCmdData> copy_cmd_data;
+    std::vector<ToCppVirtualImage>                 virtual_images;
+    std::vector<VkImage>                           replay_images;
+    std::vector<ToCppAcquiredData>                 acquired_indices;
 };
+
 extern std::unordered_map<VkSwapchainKHR, ToCppSwapchainInfo*> g_swapchain_info;
 
 VkResult toCppCreateSwapchainKHR(VkDevice                        device,
@@ -782,6 +833,20 @@ VkResult toCppCreateSwapchainKHR(VkDevice                        device,
                                  const VkAllocationCallbacks*    allocator,
                                  VkSwapchainKHR*                 swapchain);
 void     toCppDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks* allocator);
+VkResult toCppGetSwapchainImagesKHR(VkDevice       device,
+                                    VkSwapchainKHR swapchain,
+                                    uint32_t       captured_image_count,
+                                    uint32_t*      replay_image_count,
+                                    VkImage*       swapchain_images);
+VkResult toCppAcquireNextImageKHR(VkResult       expected_result,
+                                  VkDevice       device,
+                                  VkSwapchainKHR swapchain,
+                                  uint64_t       timeout,
+                                  VkSemaphore    semaphore,
+                                  VkFence        fence,
+                                  uint32_t       captured_index,
+                                  uint32_t*      replay_index);
+VkResult toCppQueuePresentKHR(VkQueue queue, VkPresentInfoKHR* pPresentInfo);
 )";
 
 static const char* sSwapchainSourceCode = R"(
@@ -789,13 +854,22 @@ static const char* sSwapchainSourceCode = R"(
 #include "loader.h"
 #include "swapchain_common.h"
 
-std::unordered_map<VkDevice, ToCppDeviceInfo*> g_device_info;
+#include <inttypes.h>
+
+#include <limits>
+#include <numeric>
+
+// Global unordered_maps
+std::unordered_map<VkDevice, ToCppDeviceInfo*>          g_device_info;
+std::unordered_map<VkQueue, ToCppQueueInfo>             g_queue_info;
 std::unordered_map<VkSwapchainKHR, ToCppSwapchainInfo*> g_swapchain_info;
+
 bool toCppInitDeviceInfo(VkPhysicalDevice physical_device, VkDevice device, VkDeviceCreateInfo* create_info)
 {
     bool             success  = false;
     ToCppDeviceInfo* dev_info = new ToCppDeviceInfo();
-    if (dev_info == nullptr) {
+    if (dev_info == nullptr)
+    {
         printf("ERROR: Failed to create ToCppDeviceInfo for new device.\n");
         return success;
     }
@@ -853,16 +927,28 @@ bool toCppInitDeviceInfo(VkPhysicalDevice physical_device, VkDevice device, VkDe
     };
     uint32_t max_queue_family = std::accumulate(
         create_info->pQueueCreateInfos, create_info->pQueueCreateInfos + create_info->queueCreateInfoCount, 0, max);
-    dev_info->queue_family_index_enabled.clear();
-    dev_info->queue_family_index_enabled.resize(max_queue_family + 1, false);
+    dev_info->queue_family_enabled.clear();
+    dev_info->queue_family_enabled.resize(max_queue_family + 1, false);
+
+    uint32_t                             property_count = 0;
+    std::vector<VkQueueFamilyProperties> props;
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &property_count, nullptr);
+    props.resize(property_count);
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &property_count, props.data());
 
     for (uint32_t q = 0; q < create_info->queueCreateInfoCount; ++q)
     {
+        ToCppQueueFamilyInfo queue_family_info{};
+
         const VkDeviceQueueCreateInfo* queue_create_info = &create_info->pQueueCreateInfos[q];
-        assert(dev_info->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
-               dev_info->queue_family_creation_flags.end());
-        dev_info->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
-        dev_info->queue_family_index_enabled[queue_create_info->queueFamilyIndex]  = true;
+        assert(dev_info->queue_family_info.find(queue_create_info->queueFamilyIndex) ==
+               dev_info->queue_family_info.end());
+
+        queue_family_info.creation_flags = queue_create_info->flags;
+        queue_family_info.family_props   = props[queue_create_info->queueFamilyIndex];
+
+        dev_info->queue_family_info.emplace(queue_create_info->queueFamilyIndex, std::move(queue_family_info));
+        dev_info->queue_family_enabled[queue_create_info->queueFamilyIndex] = true;
     }
 
     // Save device information for this device
@@ -882,6 +968,20 @@ void toCppDestroyDeviceInfo(VkDevice device)
     }
 }
 
+void toCppGetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue)
+{
+    vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, pQueue);
+
+    if (g_queue_info.find(*pQueue) == g_queue_info.end())
+    {
+        ToCppQueueInfo queue_info;
+        queue_info.parent       = device;
+        queue_info.family_index = queueFamilyIndex;
+        queue_info.queue_index  = queueIndex;
+        g_queue_info.emplace(*pQueue, std::move(queue_info));
+    }
+}
+
 VkResult toCppCreateSwapchainKHR(VkDevice                        device,
                                  const VkSwapchainCreateInfoKHR* create_info,
                                  const VkAllocationCallbacks*    allocator,
@@ -893,7 +993,7 @@ VkResult toCppCreateSwapchainKHR(VkDevice                        device,
     if (g_device_info.find(device) != g_device_info.end())
     {
         dev_info = g_device_info[device];
-#ifdef USE_VIRTUAL_SWAPCHAIN
+#if USE_VIRTUAL_SWAPCHAIN
         modified_create_info.imageUsage =
             modified_create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 #endif // USE_VIRTUAL_SWAPCHAIN
@@ -915,9 +1015,20 @@ VkResult toCppCreateSwapchainKHR(VkDevice                        device,
         swapchain_info = new ToCppSwapchainInfo();
         assert(swapchain_info != nullptr);
 
-        memset(swapchain_info, 0, sizeof(ToCppSwapchainInfo));
-        swapchain_info->parent  = device;
-        swapchain_info->surface = create_info->surface;
+        swapchain_info->parent             = device;
+        swapchain_info->surface            = create_info->surface;
+        swapchain_info->image_format       = create_info->imageFormat;
+        swapchain_info->image_color_space  = create_info->imageColorSpace;
+        swapchain_info->image_array_layers = create_info->imageArrayLayers;
+        swapchain_info->image_usage        = modified_create_info.imageUsage;
+        swapchain_info->image_sharing_mode = modified_create_info.imageSharingMode;
+        swapchain_info->present_mode       = modified_create_info.presentMode;
+
+        memcpy(&swapchain_info->image_extent, &create_info->imageExtent, sizeof(VkExtent2D));
+        for (uint32_t q = 0; q < create_info->queueFamilyIndexCount; ++q)
+        {
+            swapchain_info->queue_family_indices.push_back(create_info->pQueueFamilyIndices[q]);
+        }
     }
 
     VkResult ret_value = loaded_vkCreateSwapchainKHR(device, &modified_create_info, allocator, swapchain);
@@ -934,10 +1045,671 @@ void toCppDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const V
     if (g_swapchain_info.find(swapchain) != g_swapchain_info.end())
     {
         ToCppSwapchainInfo* swapchain_info = g_swapchain_info[swapchain];
+
+        for (auto& image : swapchain_info->virtual_images)
+        {
+            vkFreeMemory(device, image.memory, nullptr);
+            vkDestroyImage(device, image.image, nullptr);
+        }
+
         delete swapchain_info;
         g_swapchain_info.erase(swapchain);
     }
     loaded_vkDestroySwapchainKHR(device, swapchain, allocator);
+}
+
+VkResult toCppCreateVirtualSwapchainImage(VkDevice                 device,
+                                          const ToCppDeviceInfo*   device_info,
+                                          const VkImageCreateInfo& image_create_info,
+                                          ToCppVirtualImage&       image)
+{
+    VkResult result = vkCreateImage(device, &image_create_info, nullptr, &image.image);
+    if (result == VK_SUCCESS)
+    {
+        VkMemoryRequirements memory_reqs;
+        vkGetImageMemoryRequirements(device, image.image, &memory_reqs);
+
+        VkMemoryPropertyFlags property_flags    = VK_QUEUE_FLAG_BITS_MAX_ENUM;
+        uint32_t              memory_type_index = std::numeric_limits<uint32_t>::max();
+        {
+            VkPhysicalDeviceMemoryProperties properties;
+            vkGetPhysicalDeviceMemoryProperties(device_info->parent, &properties);
+            for (uint32_t i = 0; i < properties.memoryTypeCount; i++)
+            {
+                if ((memory_reqs.memoryTypeBits & (1 << i)) &&
+                    ((properties.memoryTypes[i].propertyFlags & property_flags) != 0))
+                {
+                    memory_type_index = i;
+                    break;
+                }
+            }
+            assert(memory_type_index != std::numeric_limits<uint32_t>::max());
+        }
+
+        VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+        alloc_info.pNext                = nullptr;
+        alloc_info.memoryTypeIndex      = memory_type_index;
+        alloc_info.allocationSize       = memory_reqs.size;
+
+        result = vkAllocateMemory(device, &alloc_info, nullptr, &image.memory);
+        if (result == VK_SUCCESS)
+        {
+            result = vkBindImageMemory(device, image.image, image.memory, 0);
+        }
+
+        if (result != VK_SUCCESS)
+        {
+            if (image.memory != VK_NULL_HANDLE)
+            {
+                vkFreeMemory(device, image.memory, nullptr);
+                image.memory = VK_NULL_HANDLE;
+            }
+
+            vkDestroyImage(device, image.image, nullptr);
+            image.image = VK_NULL_HANDLE;
+        }
+    }
+    return result;
+}
+
+VkResult toCppGetSwapchainImagesKHR(VkDevice       device,
+                                    VkSwapchainKHR swapchain,
+                                    uint32_t       captured_image_count,
+                                    uint32_t*      replay_image_count,
+                                    VkImage*       swapchain_images)
+{
+    VkResult result = VK_SUCCESS;
+#if USE_VIRTUAL_SWAPCHAIN
+    if (swapchain_images != nullptr && g_device_info.find(device) != g_device_info.end() &&
+        g_swapchain_info.find(swapchain) != g_swapchain_info.end())
+    {
+        ToCppDeviceInfo*    dev_info       = g_device_info[device];
+        ToCppSwapchainInfo* swapchain_info = g_swapchain_info[swapchain];
+
+        swapchain_info->replay_images.resize(*replay_image_count);
+        result =
+            loaded_vkGetSwapchainImagesKHR(device, swapchain, replay_image_count, swapchain_info->replay_images.data());
+
+        VkQueue  initial_copy_queue                = VK_NULL_HANDLE;
+        bool     found_copy_queue_family           = false;
+        uint32_t copy_queue_family_index           = VK_QUEUE_FAMILY_IGNORED;
+        bool     found_transfer_queue_family_index = false;
+        uint32_t transfer_queue_family_index       = 0;
+        uint32_t max_queues                        = static_cast<uint32_t>(dev_info->queue_family_enabled.size());
+
+        for (uint32_t queue_family = 0; queue_family < max_queues; ++queue_family)
+        {
+            if (dev_info->queue_family_info.find(queue_family) == dev_info->queue_family_info.end())
+            {
+                continue;
+            }
+
+            // If we find a graphics queue, we're good, so grab it and bail
+            if (dev_info->queue_family_info[queue_family].family_props.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            {
+                copy_queue_family_index = queue_family;
+                found_copy_queue_family = true;
+                break;
+            }
+
+            // Find a transfer queue as an alternative, just in case
+            if (!found_transfer_queue_family_index &&
+                dev_info->queue_family_info[queue_family].family_props.queueFlags & VK_QUEUE_TRANSFER_BIT)
+            {
+                transfer_queue_family_index       = queue_family;
+                found_transfer_queue_family_index = true;
+            }
+        }
+        if (!found_copy_queue_family)
+        {
+            if (!found_transfer_queue_family_index)
+            {
+                printf("ERROR: Virtual swapchain failed finding a queue to create initial virtual swapchain "
+                       "images for swapchain %p\n",
+                       static_cast<void*>(swapchain));
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
+            }
+            copy_queue_family_index = transfer_queue_family_index;
+        }
+        vkGetDeviceQueue(device, copy_queue_family_index, 0, &initial_copy_queue);
+        if (initial_copy_queue == VK_NULL_HANDLE)
+        {
+            printf("ERROR: Virtual swapchain failed getting transfer queue %u to create initial virtual swapchain "
+                   "images for swapchain %p\n",
+                   transfer_queue_family_index,
+                   static_cast<void*>(swapchain));
+            return VK_ERROR_INITIALIZATION_FAILED;
+        }
+
+        for (uint32_t queue_family = 0; queue_family < max_queues; ++queue_family)
+        {
+            if (swapchain_info->copy_cmd_data.find(queue_family) == swapchain_info->copy_cmd_data.end())
+            {
+                // We only want to look at a given queue if it was enabled during device creation time
+                // and if it supports present.  Otherwise, we don't need to create a command pool,
+                // command buffers, and semaphores for performing the swapchain copy.
+                if (dev_info->queue_family_enabled.size() <= queue_family ||
+                    !dev_info->queue_family_enabled[queue_family])
+                {
+                    printf("INFO: Virtual swapchain skipping creating blit info for queue family %u because it "
+                           "was not enabled by the device for swapchain %p\n",
+                           queue_family,
+                           static_cast<void*>(swapchain));
+                    continue;
+                }
+
+                VkBool32 supported = VK_FALSE;
+                result             = vkGetPhysicalDeviceSurfaceSupportKHR(
+                    dev_info->parent, queue_family, swapchain_info->surface, &supported);
+                if (result != VK_SUCCESS || supported == VK_FALSE)
+                {
+                    printf("INFO: Virtual swapchain skipping queue family %u since present support is not "
+                           "present for swapchain %p\n",
+                           queue_family,
+                           static_cast<void*>(swapchain));
+                    continue;
+                }
+
+                ToCppCopyCmdData copy_cmd_data = {};
+
+                // Create one command pool per queue.
+                VkCommandPoolCreateInfo command_pool_create_info = {
+                    VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,                                             // sType
+                    nullptr,                                                                                // pNext
+                    VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // flags
+                    queue_family
+                };
+
+                result = vkCreateCommandPool(device, &command_pool_create_info, nullptr, &copy_cmd_data.command_pool);
+                if (result != VK_SUCCESS)
+                {
+                    printf("ERROR: Virtual swapchain failed creating command pool %u for swapchain %p\n",
+                           queue_family,
+                           static_cast<void*>(swapchain));
+                    return result;
+                }
+                swapchain_info->copy_cmd_data.emplace(queue_family, std::move(copy_cmd_data));
+            }
+
+            auto& copy_cmd_data = swapchain_info->copy_cmd_data[queue_family];
+
+            // Make sure we have enough storage for each of our tracked components (Command pools,
+            // Command Buffers, Semaphores, etc) as many queue families that are available.
+            // This is because at any point, the application may get a Device queue from that family and
+            // use it during the present.
+            uint32_t start_size = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
+            uint32_t new_count  = max_queues;
+            if (start_size < new_count)
+            {
+                // Create one command buffer per queue per swapchain image so that we don't reset a command buffer
+                // that may be in active use.
+                uint32_t command_buffer_count = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
+                if (command_buffer_count < captured_image_count)
+                {
+                    copy_cmd_data.command_buffers.resize(captured_image_count);
+
+                    uint32_t                    new_count     = captured_image_count - command_buffer_count;
+                    VkCommandBufferAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                                                                  nullptr,
+                                                                  copy_cmd_data.command_pool,
+                                                                  VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                                                                  new_count };
+
+                    result = vkAllocateCommandBuffers(
+                        device, &allocate_info, &copy_cmd_data.command_buffers[command_buffer_count]);
+                    if (result != VK_SUCCESS)
+                    {
+                        printf("ERROR: Virtual swapchain failed allocating internal command buffer %u for "
+                               "swapchain %p\n",
+                               queue_family,
+                               static_cast<void*>(swapchain));
+                        return result;
+                    }
+                }
+                uint32_t semaphore_count = static_cast<uint32_t>(copy_cmd_data.semaphores.size());
+                if (semaphore_count < captured_image_count)
+                {
+                    copy_cmd_data.semaphores.resize(captured_image_count);
+
+                    for (uint32_t ii = semaphore_count; ii < captured_image_count; ++ii)
+                    {
+                        VkSemaphoreCreateInfo semaphore_create_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+                                                                        nullptr,
+                                                                        0 };
+
+                        VkSemaphore semaphore = 0;
+                        result                = vkCreateSemaphore(device, &semaphore_create_info, nullptr, &semaphore);
+                        if (result != VK_SUCCESS)
+                        {
+                            printf("ERROR: Virtual swapchain failed creating internal copy semaphore for "
+                                   "swapchain %p\n",
+                                   static_cast<void*>(swapchain));
+                            return result;
+                        }
+                        copy_cmd_data.semaphores[ii] = semaphore;
+                    }
+                }
+            }
+        }
+
+        uint32_t virtual_swapchain_count = static_cast<uint32_t>(swapchain_info->virtual_images.size());
+
+        // If the call was made more than once because the first call returned VK_INCOMPLETE, only the new images
+        // returned by the second call will have virtual images created and appended to the end of the virtual image
+        // array.
+        if (virtual_swapchain_count < captured_image_count)
+        {
+            //  Create an image for the virtual swapchain.  Based on vkspec.html#swapchain-wsi-image-create-info.
+            VkImageCreateInfo image_create_info = {
+                VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+                nullptr,
+                0,
+                VK_IMAGE_TYPE_2D,
+                swapchain_info->image_format,
+                VkExtent3D{ swapchain_info->image_extent.width, swapchain_info->image_extent.height, 1 },
+                1,
+                swapchain_info->image_array_layers,
+                VK_SAMPLE_COUNT_1_BIT,
+                VK_IMAGE_TILING_OPTIMAL,
+                swapchain_info->image_usage,
+                swapchain_info->image_sharing_mode,
+                max_queues,
+                swapchain_info->queue_family_indices.data(),
+                VK_IMAGE_LAYOUT_UNDEFINED
+            };
+
+            if ((swapchain_info->flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
+                VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
+            {
+                image_create_info.flags |= VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
+            }
+
+            for (uint32_t i = virtual_swapchain_count; i < captured_image_count; ++i)
+            {
+                ToCppVirtualImage image;
+                result = toCppCreateVirtualSwapchainImage(device, dev_info, image_create_info, image);
+                if (result != VK_SUCCESS)
+                {
+                    printf("ERROR: Failed to create virtual swapchain image for swapchain %p\n",
+                           static_cast<void*>(swapchain));
+                    break;
+                }
+                swapchain_info->virtual_images.emplace_back(std::move(image));
+            }
+
+            VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+            begin_info.pNext                    = nullptr;
+            begin_info.flags                    = 0;
+            begin_info.pInheritanceInfo         = nullptr;
+
+            auto command_buffer = swapchain_info->copy_cmd_data[copy_queue_family_index].command_buffers[0];
+
+            result = vkResetCommandBuffer(command_buffer, 0);
+            if (result != VK_SUCCESS)
+            {
+                printf("ERROR: Virtual swapchain failed resetting internal command buffer %u for swapchain %p\n",
+                       copy_queue_family_index,
+                       static_cast<void*>(swapchain));
+                return result;
+            }
+
+            result = vkBeginCommandBuffer(command_buffer, &begin_info);
+            if (result != VK_SUCCESS)
+            {
+                printf("ERROR: Virtual swapchain failed starting internal command buffer %u for swapchain %p\n",
+                       copy_queue_family_index,
+                       static_cast<void*>(swapchain));
+                return result;
+            }
+
+            VkImageMemoryBarrier barrier = {
+                VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, // sType
+                nullptr,                                // pNext
+                0,                                      // srcAccessMask (VK_ACCESS_NONE)
+                0,                                      // dstAccessMask (VK_ACCESS_NONE)
+                VK_IMAGE_LAYOUT_UNDEFINED,              // oldLayout
+                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,        // newLayout
+                VK_QUEUE_FAMILY_IGNORED,                // srcQueueFamilyIndex
+                VK_QUEUE_FAMILY_IGNORED,                // dstQueueFamilyIndex
+                VK_NULL_HANDLE,                         // image
+                VkImageSubresourceRange{
+                    VK_IMAGE_ASPECT_COLOR_BIT,
+                    0,
+                    image_create_info.mipLevels,
+                    0,
+                    image_create_info.arrayLayers,
+                }, // subResourceRange
+            };
+
+            for (uint32_t i = 0; i < *replay_image_count; ++i)
+            {
+                barrier.image = swapchain_info->replay_images[i];
+                vkCmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &barrier);
+            }
+
+            result = vkEndCommandBuffer(command_buffer);
+            if (result != VK_SUCCESS)
+            {
+                printf("ERROR: Virtual swapchain failed ending internal command buffer %u for swapchain %p\n",
+                       copy_queue_family_index,
+                       static_cast<void*>(swapchain));
+                return result;
+            }
+
+            VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+            submit_info.commandBufferCount = 1;
+            submit_info.pCommandBuffers    = &command_buffer;
+
+            result = vkQueueSubmit(initial_copy_queue, 1, &submit_info, VK_NULL_HANDLE);
+            if (result != VK_SUCCESS)
+            {
+                printf("ERROR: Virtual swapchain failed submitting internal command buffer %u for swapchain %p\n",
+                       copy_queue_family_index,
+                       static_cast<void*>(swapchain));
+                return result;
+            }
+            result = vkQueueWaitIdle(initial_copy_queue);
+            if (result != VK_SUCCESS)
+            {
+                printf("ERROR: Virtual swapchain failed waiting for internal command buffer %u for swapchain %p\n",
+                       copy_queue_family_index,
+                       static_cast<void*>(swapchain));
+                return result;
+            }
+        }
+
+        for (uint32_t i = 0; i < captured_image_count; ++i)
+        {
+            swapchain_images[i] = swapchain_info->virtual_images[i].image;
+        }
+    }
+    else
+    {
+        result = loaded_vkGetSwapchainImagesKHR(device, swapchain, replay_image_count, swapchain_images);
+    }
+#else  // USE_VIRTUAL_SWAPCHAIN
+    result = loaded_vkGetSwapchainImagesKHR(device, swapchain, replay_image_count, swapchain_images);
+#endif // USE_VIRTUAL_SWAPCHAIN
+
+    return result;
+}
+
+VkResult toCppAcquireNextImageKHR(VkResult       expected_result,
+                                  VkDevice       device,
+                                  VkSwapchainKHR swapchain,
+                                  uint64_t       timeout,
+                                  VkSemaphore    semaphore,
+                                  VkFence        fence,
+                                  uint32_t       captured_index,
+                                  uint32_t*      replay_index)
+{
+    VkResult result = VK_SUCCESS;
+    if (expected_result == VK_SUCCESS)
+    {
+        while ((result = loaded_vkAcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, replay_index)) !=
+               VK_SUCCESS)
+        {
+            usleep(5000);
+        };
+    }
+    else
+    {
+        result = loaded_vkAcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, replay_index);
+    }
+
+#if USE_VIRTUAL_SWAPCHAIN
+    // Record the capture versus replay indices
+    if (result == VK_SUCCESS && g_swapchain_info.find(swapchain) != g_swapchain_info.end())
+    {
+        ToCppSwapchainInfo* swapchain_info     = g_swapchain_info[swapchain];
+        uint32_t            replay_image_index = *replay_index;
+        if (replay_image_index >= static_cast<uint32_t>(swapchain_info->acquired_indices.size()))
+        {
+            swapchain_info->acquired_indices.resize(replay_image_index + 1);
+        }
+
+        swapchain_info->acquired_indices[replay_image_index].index    = captured_index;
+        swapchain_info->acquired_indices[replay_image_index].acquired = true;
+    }
+#endif // USE_VIRTUAL_SWAPCHAIN
+    return result;
+}
+
+VkResult toCppQueuePresentKHR(VkQueue queue, VkPresentInfoKHR* pPresentInfo)
+{
+#if USE_VIRTUAL_SWAPCHAIN
+    VkResult result = VK_SUCCESS;
+
+    if (g_queue_info.find(queue) != g_queue_info.end())
+    {
+        ToCppQueueInfo&          queue_info = g_queue_info[queue];
+        VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, 0, nullptr };
+
+        VkImageMemoryBarrier initial_barrier_virtual_image;
+        VkImageMemoryBarrier initial_barrier_swapchain_image;
+        VkImageMemoryBarrier final_barrier_virtual_image;
+        VkImageMemoryBarrier final_barrier_swapchain_image;
+
+        initial_barrier_virtual_image = {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            0, // VK_ACCESS_NONE,
+            VK_ACCESS_TRANSFER_READ_BIT,
+            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_NULL_HANDLE,
+            VkImageSubresourceRange{
+                VK_IMAGE_ASPECT_COLOR_BIT,
+                0,
+                1,
+                0,
+                0,
+            },
+        };
+
+        final_barrier_virtual_image               = initial_barrier_virtual_image;
+        final_barrier_virtual_image.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        final_barrier_virtual_image.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        final_barrier_virtual_image.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        final_barrier_virtual_image.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        initial_barrier_swapchain_image               = initial_barrier_virtual_image;
+        initial_barrier_swapchain_image.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        initial_barrier_swapchain_image.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+        final_barrier_swapchain_image           = final_barrier_virtual_image;
+        final_barrier_swapchain_image.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+        VkImageSubresourceLayers subresource     = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 0 };
+        VkOffset3D               offset          = { 0, 0, 0 };
+        auto                     swapchain_count = pPresentInfo->swapchainCount;
+        std::vector<VkSemaphore> present_wait_semaphores;
+
+        // TODO: There is a potential issue here where a vkQueuePresent comes in on a queue (let's call
+        // it QueueX) which does not support vkCmdCopyImage (i.e. a video-only queue).  In that case,
+        // we would need to insert an emtpy command buffer into the command stream of QueueX which
+        // triggers a semaphore (let's say SemA), then we would need to submit the vkCmdCopyImage in a
+        // command buffer on a queue that supports it (let's say QueueY) which will wait on SemA to
+        // start and signaling another semaphore (SemB) when it is done.  Then, we need to add the
+        // QueuePresent to QueueX, but waiting on SemB before it executes.  And that is assuming that
+        // the buffer image is even accessible on both Queues!
+
+        for (uint32_t i = 0; i < swapchain_count; ++i)
+        {
+            VkSwapchainKHR swapchain = pPresentInfo->pSwapchains[i];
+            if (g_swapchain_info.find(swapchain) == g_swapchain_info.end())
+            {
+                continue;
+            }
+            ToCppSwapchainInfo* swapchain_info      = g_swapchain_info[swapchain];
+            uint32_t            replay_image_index  = pPresentInfo->pImageIndices[i];
+            uint32_t            capture_image_index = swapchain_info->acquired_indices[replay_image_index].index;
+
+            // Find the appropriate CommandCopyData struct for this queue family
+            if (swapchain_info->copy_cmd_data.find(queue_info.family_index) == swapchain_info->copy_cmd_data.end())
+            {
+                printf("ERROR: Virtual swapchain vkQueuePresentKHR missing swapchain resource copy command data for "
+                       "queue %p in swapchain %p\n",
+                       static_cast<void*>(queue),
+                       static_cast<void*>(swapchain));
+                continue;
+            }
+
+            const auto& virtual_image = swapchain_info->virtual_images[capture_image_index];
+            const auto& replay_image  = swapchain_info->replay_images[replay_image_index];
+
+            // Use a command buffer and semaphore from the same queue index
+            auto& copy_cmd_data  = swapchain_info->copy_cmd_data[queue_info.family_index];
+            auto  command_buffer = copy_cmd_data.command_buffers[capture_image_index];
+            auto  copy_semaphore = copy_cmd_data.semaphores[capture_image_index];
+
+            std::vector<VkSemaphore> wait_semaphores;
+            std::vector<VkSemaphore> signal_semaphores;
+
+            // Only wait for the present semaphore dependencies on the first copy command buffer.
+            // The others will automatically inherit that dependency because of their order in the
+            // command buffer.
+            if (i == 0 && pPresentInfo->waitSemaphoreCount > 0)
+            {
+                wait_semaphores.assign(pPresentInfo->pWaitSemaphores,
+                                       pPresentInfo->pWaitSemaphores + pPresentInfo->waitSemaphoreCount);
+            }
+
+            // Only trigger a semaphore on the last copy
+            if (i == swapchain_count - 1)
+            {
+                signal_semaphores.push_back(copy_semaphore);
+                present_wait_semaphores.emplace_back(copy_semaphore);
+            }
+
+            result = vkResetCommandBuffer(command_buffer, 0);
+            if (result != VK_SUCCESS)
+            {
+                return result;
+            }
+            result = vkBeginCommandBuffer(command_buffer, &begin_info);
+            if (result != VK_SUCCESS)
+            {
+                return result;
+            }
+
+            initial_barrier_virtual_image.image                         = virtual_image.image;
+            initial_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
+            initial_barrier_swapchain_image.image                       = replay_image;
+            initial_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
+
+            vkCmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 0,
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &initial_barrier_virtual_image);
+
+            vkCmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 0,
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &initial_barrier_swapchain_image);
+
+            subresource.layerCount   = swapchain_info->image_array_layers;
+            VkExtent3D  image_extent = { swapchain_info->image_extent.width, swapchain_info->image_extent.height, 1 };
+            VkImageCopy image_copy   = { subresource, offset, subresource, offset, image_extent };
+
+            // NOTE: vkCmdCopyImage works on Queues of types including Graphics, Compute
+            //       and Transfer.  So should work on any queues we get a vkQueuePresentKHR from.
+            vkCmdCopyImage(command_buffer,
+                           virtual_image.image,
+                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           replay_image,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           1,
+                           &image_copy);
+
+            final_barrier_virtual_image.image                         = virtual_image.image;
+            final_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
+            final_barrier_swapchain_image.image                       = replay_image;
+            final_barrier_swapchain_image.subresourceRange.layerCount = swapchain_info->image_array_layers;
+
+            vkCmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                 0,
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &final_barrier_virtual_image);
+
+            vkCmdPipelineBarrier(command_buffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                 0,
+                                 0,
+                                 nullptr,
+                                 0,
+                                 nullptr,
+                                 1,
+                                 &final_barrier_swapchain_image);
+
+            result = vkEndCommandBuffer(command_buffer);
+            if (result != VK_SUCCESS)
+            {
+                return result;
+            }
+
+            VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+            VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+            submit_info.waitSemaphoreCount = static_cast<uint32_t>(wait_semaphores.size());
+            if (pPresentInfo->waitSemaphoreCount > 0)
+            {
+                submit_info.pWaitSemaphores = wait_semaphores.data();
+            }
+            else
+            {
+                submit_info.pWaitSemaphores = nullptr;
+            }
+            submit_info.pWaitDstStageMask    = &wait_stage;
+            submit_info.signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size());
+            submit_info.pSignalSemaphores    = signal_semaphores.data();
+            submit_info.commandBufferCount   = 1;
+            submit_info.pCommandBuffers      = &command_buffer;
+
+            result = vkQueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+            if (result != VK_SUCCESS)
+            {
+                return result;
+            }
+        }
+
+        VkPresentInfoKHR modified_present_info   = *pPresentInfo;
+        modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(present_wait_semaphores.size());
+        modified_present_info.pWaitSemaphores    = present_wait_semaphores.data();
+        return loaded_vkQueuePresentKHR(queue, &modified_present_info);
+    }
+#endif
+    return loaded_vkQueuePresentKHR(queue, pPresentInfo);
 }
 )";
 
