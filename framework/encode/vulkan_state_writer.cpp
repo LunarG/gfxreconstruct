@@ -549,7 +549,7 @@ void VulkanStateWriter::WritePipelineLayoutState(const VulkanStateTable& state_t
 void VulkanStateWriter::WritePipelineCacheState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const PipelineCacheWrapper* wrapper) {
-        assert(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper != nullptr);
 
         // Pipeline cache data can be indirectly changed by pipeline creation command or directly changed by calls like
         // vkMergePipelineCaches. So here we query and write its latest state, not the state when the pipeline cache was

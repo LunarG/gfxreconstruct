@@ -4919,31 +4919,27 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
 
             GFXRECON_ASSERT(replay_result == VK_SUCCESS);
 
-            bool     new_cache_data                   = false;
-            uint32_t capture_pipeline_cache_data_hash = gfxrecon::util::hash::CheckSum(
-                reinterpret_cast<const uint32_t*>(pData->GetPointer()), *pDataSize->GetPointer());
+            bool          new_cache_data                   = true;
+            VkDeviceSize* cache_data_size                  = reinterpret_cast<VkDeviceSize*>(pDataSize->GetPointer());
+            uint32_t      capture_pipeline_cache_data_hash = gfxrecon::util::hash::CheckSum(
+                reinterpret_cast<const uint32_t*>(pData->GetPointer()), *cache_data_size);
 
             auto iterator = pipeline_cache_info->pipeline_cache_data.find(capture_pipeline_cache_data_hash);
-            if (iterator == pipeline_cache_info->pipeline_cache_data.end())
-            {
-                new_cache_data = true;
-            }
-            else
+            if (iterator != pipeline_cache_info->pipeline_cache_data.end())
             {
                 // We found some existing pipeline cache data has same hash, so we continue to check if it's same with
                 // current pipeline cache data
 
-                new_cache_data = true;
                 const std::vector<PipelineCacheData>& cache_data =
                     const_cast<PipelineCacheInfo*>(pipeline_cache_info)
                         ->pipeline_cache_data[capture_pipeline_cache_data_hash];
                 for (auto& existing_cache_data : cache_data)
                 {
-                    if (*pDataSize->GetPointer() == existing_cache_data.capture_cache_data.size())
+                    if (*cache_data_size == existing_cache_data.capture_cache_data.size())
                     {
                         if (memcmp(existing_cache_data.capture_cache_data.data(),
                                    pData->GetPointer(),
-                                   *pDataSize->GetPointer()) == 0)
+                                   *cache_data_size) == 0)
                         {
                             // The pipeline cache data is not new. This is possible, by doc, two calls to
                             // vkGetPipelineCacheData with the same parameters must retrieve the same data unless a
@@ -4959,14 +4955,13 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
             {
                 std::vector<PipelineCacheData>& item = const_cast<PipelineCacheInfo*>(pipeline_cache_info)
                                                            ->pipeline_cache_data[capture_pipeline_cache_data_hash];
-
+                VkDeviceSize* output_cache_data_size = reinterpret_cast<VkDeviceSize*>(pDataSize->GetOutputPointer());
                 PipelineCacheData pipeline_cache_data;
-                pipeline_cache_data.capture_cache_data.resize(*pDataSize->GetPointer());
-                memcpy(pipeline_cache_data.capture_cache_data.data(), pData->GetPointer(), *pDataSize->GetPointer());
-                pipeline_cache_data.replay_cache_data.resize(*pDataSize->GetOutputPointer());
-                memcpy(pipeline_cache_data.replay_cache_data.data(),
-                       pData->GetOutputPointer(),
-                       *pDataSize->GetOutputPointer());
+                pipeline_cache_data.capture_cache_data.resize(*cache_data_size);
+                memcpy(pipeline_cache_data.capture_cache_data.data(), pData->GetPointer(), *cache_data_size);
+                pipeline_cache_data.replay_cache_data.resize(*output_cache_data_size);
+                memcpy(
+                    pipeline_cache_data.replay_cache_data.data(), pData->GetOutputPointer(), *output_cache_data_size);
                 item.push_back(std::move(pipeline_cache_data));
             }
         }
@@ -5036,8 +5031,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
 
                     for (auto& existing_cache_data : cache_data)
                     {
-                        if ((matched_replay_cache_data_exist_ == false) &&
-                            (capture_pipeline_cache_data_size_ == existing_cache_data.capture_cache_data.size()))
+                        if (capture_pipeline_cache_data_size_ == existing_cache_data.capture_cache_data.size())
                         {
                             // Target pipeline cache data has same size, we continue to check if it also has same data.
                             if (memcmp(existing_cache_data.capture_cache_data.data(),
@@ -5051,6 +5045,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
                                 memcpy(matched_replay_cache_data_.data(),
                                        existing_cache_data.replay_cache_data.data(),
                                        existing_cache_data.replay_cache_data.size());
+                                break;
                             }
                         }
                     }
@@ -5075,20 +5070,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
                     "replay time cache data!");
 
                 omitted_pipeline_cache_data_ = true;
-
-                return func(device_info->handle,
-                            replay_create_info,
-                            GetAllocationCallbacks(pAllocator),
-                            pPipelineCache->GetHandlePointer());
             }
         }
-        else
-        {
-            return func(device_info->handle,
-                        replay_create_info,
-                        GetAllocationCallbacks(pAllocator),
-                        pPipelineCache->GetHandlePointer());
-        }
+
+        return func(device_info->handle,
+                    replay_create_info,
+                    GetAllocationCallbacks(pAllocator),
+                    pPipelineCache->GetHandlePointer());
     }
 }
 
