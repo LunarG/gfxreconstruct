@@ -133,7 +133,7 @@ void GetUnreferencedResources(const std::string&                              in
         {
             GFXRECON_WRITE_CONSOLE("File did not contain trim state setup - no optimization was performed");
             gfxrecon::util::Log::Release();
-            exit(0);
+            exit(65);
         }
         else if ((file_processor.GetCurrentFrameNumber() > 0) &&
                  (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
