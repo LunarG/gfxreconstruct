@@ -21,6 +21,7 @@ known issues which will be worked on over time:
 
 * The generated cpp code does not handle a window/swapchain resize
 * The generated cpp code only executes on either Android or Linux (XCB)
+* The generated cpp code does not support multi-window capture on Android
 * It does not currently support Ray Tracing contents in a capture
 * The generated cpp code expects a system exactly like the capture system:
   * Same number of physical devices
