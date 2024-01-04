@@ -349,7 +349,8 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
 
         auto layouts = std::make_unique<D3D12_PLACED_SUBRESOURCE_FOOTPRINT[]>(num_subresources);
 
-        device->GetCopyableFootprints(&full_desc, 0, num_subresources, 0, layouts.get(), nullptr, nullptr, nullptr);
+        graphics::dx12::RobustGetCopyableFootprint(
+            device, resource, &full_desc, 0, num_subresources, 0, layouts.get(), nullptr, nullptr, nullptr);
 
         info->num_subresources    = num_subresources;
         info->mapped_subresources = std::make_unique<MappedSubresource[]>(num_subresources);
