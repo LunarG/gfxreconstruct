@@ -394,8 +394,6 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
 
     GFXRECON_ASSERT(MapObject<ID3D12Resource>(command_header.resource_id) == resource);
 
-    uint64_t total_size_in_bytes = graphics::dx12::GetResourceSizeInBytes(device, &resource->GetDesc());
-
     // System has enough memory to batch the next Copy()
     ResourceInitInfo resource_init_info = {};
     resource_init_info.resource         = resource;
@@ -418,15 +416,7 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
         // If no entry exists in resource_init_infos_, this is the first subresource of a new resource.
         GFXRECON_ASSERT(command_header.subresource == 0);
 
-        const double max_mem_usage = static_cast<double>(options_.memory_usage) / 100.0;
-        if (!graphics::dx12::IsMemoryAvailable(
-                total_size_in_bytes, extra_device_info->adapter3, max_mem_usage, extra_device_info->is_uma))
-        {
-            // If neither system memory or GPU memory are able to accommodate next resource,
-            // execute the Copy() calls and release temp buffer to free memory
-            ApplyBatchedResourceInitInfo(resource_init_infos_);
-        }
-        // Prepare Staging buffer for next resource
+        // Query staging buffer size info.
         size_t                                          subresource_count;
         uint64_t                                        required_data_size;
         std::vector<uint64_t>                           subresource_offsets;
@@ -439,7 +429,17 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
                                                  temp_subresource_layouts,
                                                  required_data_size);
 
-        resource_init_info.staging_resource  = resource_data_util_->CreateStagingBuffer(
+        const double max_mem_usage = static_cast<double>(options_.memory_usage) / 100.0;
+        if (!graphics::dx12::IsMemoryAvailable(
+                required_data_size, extra_device_info->adapter3, max_mem_usage, extra_device_info->is_uma))
+        {
+            // If neither system memory or GPU memory are able to accommodate next resource,
+            // execute the Copy() calls and release temp buffer to free memory
+            ApplyBatchedResourceInitInfo(resource_init_infos_);
+        }
+
+        // Prepare Staging buffer for next resource
+        resource_init_info.staging_resource = resource_data_util_->CreateStagingBuffer(
             graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeWrite, required_data_size);
         SetResourceInitInfoState(resource_init_info, command_header, data);
 

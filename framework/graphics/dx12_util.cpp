@@ -1240,6 +1240,59 @@ bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTUR
     return is_texture_with_unknown_layout;
 }
 
+void RobustGetCopyableFootprint(ID3D12Device*                       device,
+                                ID3D12Resource*                     resource,
+                                const D3D12_RESOURCE_DESC*          pResourceDesc,
+                                UINT                                FirstSubresource,
+                                UINT                                NumSubresources,
+                                UINT64                              BaseOffset,
+                                D3D12_PLACED_SUBRESOURCE_FOOTPRINT* pLayouts,
+                                UINT*                               pNumRows,
+                                UINT64*                             pRowSizeInBytes,
+                                UINT64*                             pTotalBytes)
+{
+    UINT64 total_bytes = 0;
+
+    device->GetCopyableFootprints(pResourceDesc,
+                                  FirstSubresource,
+                                  NumSubresources,
+                                  BaseOffset,
+                                  pLayouts,
+                                  pNumRows,
+                                  pRowSizeInBytes,
+                                  &total_bytes);
+
+    if ((total_bytes == UINT64_MAX) && ((pResourceDesc->Flags & D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS) ==
+                                        D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS))
+    {
+        // Not all resource formats are compatible with the D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS flag, so remove
+        // it before querying the copyable footprint. This handles the case where a resource is created with castable
+        // formats but the format in the resource desc is not compatible with
+        // D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS.
+        D3D12_RESOURCE_DESC modified_desc = *pResourceDesc;
+        modified_desc.Flags               = (modified_desc.Flags & ~D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+        device->GetCopyableFootprints(&modified_desc,
+                                      FirstSubresource,
+                                      NumSubresources,
+                                      BaseOffset,
+                                      pLayouts,
+                                      pNumRows,
+                                      pRowSizeInBytes,
+                                      &total_bytes);
+    }
+
+    if (total_bytes == UINT64_MAX)
+    {
+        GFXRECON_LOG_ERROR("Call to GetCopyableFootprints failed. GFXReconstruct may fail.");
+    }
+
+    if (pTotalBytes != nullptr)
+    {
+        *pTotalBytes = total_bytes;
+    }
+}
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

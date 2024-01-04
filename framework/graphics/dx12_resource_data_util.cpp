@@ -184,14 +184,16 @@ void Dx12ResourceDataUtil::GetResourceCopyInfo(ID3D12Resource*                  
         temp_subresource_row_size_bytes_.clear();
         temp_subresource_row_size_bytes_.resize(num_subresources);
 
-        device_->GetCopyableFootprints(&resource_desc,
-                                       0,
-                                       num_subresources,
-                                       0,
-                                       layouts.data(),
-                                       temp_subresource_row_counts_.data(),
-                                       temp_subresource_row_size_bytes_.data(),
-                                       &total_size);
+        graphics::dx12::RobustGetCopyableFootprint(device_,
+                                                   resource,
+                                                   &resource_desc,
+                                                   0,
+                                                   num_subresources,
+                                                   0,
+                                                   layouts.data(),
+                                                   temp_subresource_row_counts_.data(),
+                                                   temp_subresource_row_size_bytes_.data(),
+                                                   &total_size);
 
         subresource_count = num_subresources;
         subresource_sizes.resize(num_subresources);
