@@ -82,6 +82,9 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     uint32_t GetProperWindowWidth(uint32_t width) { return std::min(width, window_width_); };
     uint32_t GetProperWindowHeight(uint32_t height) { return std::min(height, window_height_); };
+    uint32_t GetCurrentFrameNumber() { return frame_number_; }
+    uint32_t GetCurrentFrameSplitNumber() { return frame_split_number_; }
+    uint32_t GetCurrentApiCallNumber() { return api_call_number_; }
 
     const std::string GetHandle(const format::HandleId& handleId)
     {
@@ -137,8 +140,6 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     uint32_t GetNextId();
     uint32_t GetNextId(VkObjectType object_type);
-
-    uint32_t GetCurrentApiCallNumber() { return api_call_number_; }
 
     std::string GetAndroidHwBufferName(uint64_t buffer);
 
@@ -478,15 +479,59 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo);
 
     // Intercept commands that perform additional work prior to the standard code generation
+    void Intercept_vkBindImageMemory(VkResult         returnValue,
+                                     format::HandleId device,
+                                     format::HandleId image,
+                                     format::HandleId memory,
+                                     VkDeviceSize     memoryOffset);
+
+    void Intercept_vkBindImageMemory2(VkResult                                             returnValue,
+                                      format::HandleId                                     device,
+                                      uint32_t                                             bindInfoCount,
+                                      StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos);
+
+    void Intercept_vkBindImageMemory2KHR(VkResult                                             returnValue,
+                                         format::HandleId                                     device,
+                                         uint32_t                                             bindInfoCount,
+                                         StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
+    {
+        Intercept_vkBindImageMemory2(returnValue, device, bindInfoCount, pBindInfos);
+    }
+
+    void Intercept_vkBindBufferMemory(VkResult         returnValue,
+                                      format::HandleId device,
+                                      format::HandleId buffer,
+                                      format::HandleId memory,
+                                      VkDeviceSize     memoryOffset);
+
+    void Intercept_vkBindBufferMemory2(VkResult                                              returnValue,
+                                       format::HandleId                                      device,
+                                       uint32_t                                              bindInfoCount,
+                                       StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos);
+
+    void Intercept_vkBindBufferMemory2KHR(VkResult                                              returnValue,
+                                          format::HandleId                                      device,
+                                          uint32_t                                              bindInfoCount,
+                                          StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
+    {
+        Intercept_vkBindBufferMemory2(returnValue, device, bindInfoCount, pBindInfos);
+    }
+
+    void Intercept_vkCmdBeginRenderPass(format::HandleId                                     commandBuffer,
+                                        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
+                                        VkSubpassContents                                    contents);
+
     void Intercept_vkCreateFramebuffer(VkResult                                               returnValue,
                                        format::HandleId                                       device,
                                        StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* pCreateInfo,
                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
                                        HandlePointerDecoder<VkFramebuffer>*                   pFramebuffer);
 
-    void Intercept_vkCmdBeginRenderPass(format::HandleId                                     commandBuffer,
-                                        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-                                        VkSubpassContents                                    contents);
+    void Intercept_vkCreateSwapchainKHR(VkResult                                                returnValue,
+                                        format::HandleId                                        device,
+                                        StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain);
 
     void Intercept_vkDestroySemaphore(format::HandleId                                     device,
                                       format::HandleId                                     semaphore,
@@ -603,15 +648,17 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                              uint32_t         height,
                                              uint32_t         pre_transform) override;
     virtual void
-                 ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
-                                                    uint64_t                                            buffer_id,
-                                                    uint32_t                                            format,
-                                                    uint32_t                                            width,
-                                                    uint32_t                                            height,
-                                                    uint32_t                                            stride,
-                                                    uint64_t                                            usage,
-                                                    uint32_t                                            layers,
-                                                    const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
+    ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+                                       uint64_t                                            buffer_id,
+                                       uint32_t                                            format,
+                                       uint32_t                                            width,
+                                       uint32_t                                            height,
+                                       uint32_t                                            stride,
+                                       uint64_t                                            usage,
+                                       uint32_t                                            layers,
+                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
+
+    virtual void ProcessDisplayMessageCommand(const std::string& message) override;
     virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) override;
     virtual void
     ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address) override;
@@ -630,6 +677,17 @@ class VulkanCppConsumerBase : public VulkanConsumer
 
     void AddHandles(const std::string& outputName, const format::HandleId* ptrs, uint32_t count);
     void AddHandles(const std::string& outputName, const format::HandleId* ptrs);
+
+    void AddHandles_vkUpdateDescriptorSets(format::HandleId                                    device,
+                                           uint32_t                                            descriptorWriteCount,
+                                           StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites,
+                                           uint32_t                                            descriptorCopyCount,
+                                           StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  pDescriptorCopies);
+
+    void AddHandles_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+                                                      format::HandleId                 descriptorSet,
+                                                      format::HandleId                 descriptorUpdateTemplate,
+                                                      DescriptorUpdateTemplateDecoder* pData);
 
     void GenerateDescriptorUpdateTemplateData(DescriptorUpdateTemplateDecoder* decoder,
                                               format::HandleId                 desc_update_template,

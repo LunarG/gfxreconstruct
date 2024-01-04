@@ -61,8 +61,6 @@ from decode_pnext_struct_generator import DecodePNextStructGenerator, DecodePNex
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
 from vulkan_cpp_consumer_body_generator import VulkanCppConsumerBodyGenerator,VulkanCppConsumerBodyGeneratorOptions
 from vulkan_cpp_consumer_header_generator import VulkanCppConsumerHeaderGenerator, VulkanCppConsumerHeaderGeneratorOptions
-from vulkan_cpp_pre_process_consumer_header_generator import VulkanCppPreProcessConsumerHeaderGenerator, VulkanCppPreProcessConsumerHeaderGeneratorOptions
-from vulkan_cpp_pre_process_consumer_body_generator import VulkanCppPreProcessConsumerBodyGenerator, VulkanCppPreProcessConsumerBodyGeneratorOptions
 from vulkan_json_consumer_header_generator import VulkanExportJsonConsumerHeaderGenerator, VulkanExportJsonConsumerHeaderGeneratorOptions
 from vulkan_json_consumer_body_generator import VulkanExportJsonConsumerBodyGenerator, VulkanExportJsonConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator, VulkanReplayConsumerBodyGeneratorOptions
@@ -409,33 +407,6 @@ def make_gen_opts(args):
             protect_file       = False,
             protect_feature    = False,
             extraVulkanHeaders=extraVulkanHeaders)
-    ]
-
-    gen_opts['generated_vulkan_cpp_pre_process_consumer.h'] = [
-        VulkanCppPreProcessConsumerHeaderGenerator,
-        VulkanCppPreProcessConsumerHeaderGeneratorOptions(
-            class_name         = 'VulkanCppConsumerPreProcessHeaderGenerator',
-            base_class_header   = 'vulkan_cpp_pre_process_consumer_base.h',
-            is_override        = True,
-            filename          = 'generated_vulkan_cpp_pre_process_consumer.h',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-    ]
-
-    gen_opts['generated_vulkan_cpp_pre_process_consumer.cpp'] = [
-        VulkanCppPreProcessConsumerBodyGenerator,
-        VulkanCppPreProcessConsumerBodyGeneratorOptions(
-            filename          = 'generated_vulkan_cpp_pre_process_consumer.cpp',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
     ]
 
     gen_opts['generated_vulkan_cpp_structs.h'] = [

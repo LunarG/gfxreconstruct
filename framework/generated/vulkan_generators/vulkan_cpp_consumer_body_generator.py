@@ -164,10 +164,21 @@ CPP_APICALL_GENERATE = [
     'vkGetMemoryAndroidHardwareBufferANDROID',
 ]
 
+CPP_ADD_HANDLES_LIST = [
+    'vkUpdateDescriptorSets',
+]
+
 CPP_APICALL_INTERCEPT_LIST = [
+    'vkBindBufferMemory',
+    'vkBindBufferMemory2',
+    'vkBindImageMemory',
+    'vkBindImageMemory2',
     'vkCmdBeginRenderPass',
     'vkCreateFramebuffer',
     'vkDestroySemaphore',
+
+    'vkBindImageMemory2KHR',
+    'vkBindBufferMemory2KHR',
 ]
 
 CPP_CONSUMER_API_POST_CALL = [
@@ -573,6 +584,13 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             'vkGetPhysicalDeviceXcbPresentationSupportKHR',
         ]
 
+        # TODO: Don't currently support Nvidia raytracing entrypoints
+        self.APICALL_BLACKLIST = [
+            'vkCmdBuildAccelerationStructureNV',
+            'vkCmdTraceRaysNV',
+            'vkCreateAccelerationStructureNV'
+        ]
+
         self.stype_values = dict()
         self.structs_with_handle_ptrs = []
         self.structs_with_handles = dict()
@@ -666,6 +684,12 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 paramList = makeParamList(info, [])
                 cmddef += makeGen('Intercept_{cmd}({paramList});', locals(), indent=4)
 
+
+            if cmd in CPP_ADD_HANDLES_LIST:
+                paramList = makeParamList(info, [])
+                cmddef += makeGen('AddHandles_{cmd}({paramList});', locals(), indent=4)
+            else:
+                cmddef += self.makeAddHandleBody(cmd, values) or ''
 
             # If we have a manually generated function, use that, otherwise generate the appropriate
             # information.
@@ -1091,3 +1115,95 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             params.append(arg.name)
 
         return (' ' * indent) + object + 'AddKnownVariables(%s);\n' % ', '.join(params)
+
+    def reverseReplace(self, string, oldString, newString, occurrence):
+        reverseSplitString = string.rsplit(oldString, occurrence)
+        return newString.join(reverseSplitString)
+
+    def makeAddHandleBody(self, name, values):
+        body = []
+
+        for arg in values:
+            if self.is_struct(arg.base_type):
+
+                array_len_arg = None
+                if arg.array_length is not None:
+                    array_len_arg = next((x for x in values if x.name == arg.array_length), None)
+
+                body.extend(self.makeAddStructHandleBody(arg, array_len_arg))
+
+            if not self.is_handle(arg.base_type):
+                continue
+
+            arguments = ['GetCurrentFrameNumber()',
+                         'GetCurrentFrameSplitNumber()']
+
+            if self.is_output_parameter(arg) or arg.is_pointer:
+                argument = '{arg.name}->GetPointer()'
+
+                if arg.is_array:
+                    arguments.append(argument)
+                    arguments.append(arg.array_length.replace('->', '->GetPointer()->'))
+                else:
+                    arguments.append('*' + argument)
+            else:
+                arguments.append('{arg.name}')
+
+            body.append(makeGenCall('resource_tracker_->AddHandleUsage', arguments, locals(), indent=4))
+
+        return '\n'.join(body)
+
+    def makeAddStructHandleBody(self, arg, array_len_arg, recursivePointerAccess='', recursionDepth=1):
+        body = []
+
+        members = self.feature_struct_members.get(arg.base_type)
+        if not members:
+            return body
+
+        for member in members:
+            # If the struct member is a struct, recursively traverse it
+            if self.is_struct(member.base_type):
+                member_array_len_arg = None
+                if member.array_length is not None:
+                    member_array_len_arg = next((x for x in members if x.name == member.array_length), None)
+
+                body.extend(self.makeAddStructHandleBody(member,
+                                                         member_array_len_arg,
+                                                         recursivePointerAccess + arg.name + '->GetMetaStructPointer()->',
+                                                         recursionDepth + 1))
+            if self.is_handle(member.base_type):
+                # Resolve how the handle is accessed through pointers
+                pointerAccess = recursivePointerAccess + arg.name
+                if arg.is_array:
+                    pointerAccess += '->GetMetaStructPointer()[idx]'
+                    argument = '%s.%s' % (pointerAccess, member.name)
+                elif not arg.is_pointer and arg.is_dynamic:
+                    argument = '%s->%s' % (pointerAccess, member.name)
+                else:
+                    pointerAccess += '->GetMetaStructPointer()'
+                    argument = '%s->%s' % (pointerAccess, member.name)
+
+                arguments = ['GetCurrentFrameNumber()',
+                             'GetCurrentFrameSplitNumber()',]
+                if member.is_pointer or member.is_array:
+                    arguments.append(argument + '.GetPointer()')
+                    if member.is_array:
+                        arguments.append(argument + '.GetLength()')
+                else: # elif not member.is_array and not member.is_pointer:
+                    arguments.append(argument)
+
+                # If the parent is an array iterate through it
+                if arg.is_array:
+                    forConditionAccess = self.reverseReplace(recursivePointerAccess, 'MetaStruct', '', 1)
+                    loop_counter1 = f'{forConditionAccess}{arg.array_length}'
+                    if array_len_arg is not None and array_len_arg.is_pointer:
+                        loop_counter1 = f'*({array_len_arg.name}->GetPointer())'
+                    body.append(makeGenLoop('idx', '{loop_counter1}',
+                                             [makeGenCall('resource_tracker_->AddHandleUsage', arguments, locals(),
+                                                         indent=4 + recursionDepth * 4)], locals(), indent=4))
+                else:
+                    body.append(makeGenCond('{pointerAccess} != nullptr',
+                                            [makeGenCall('resource_tracker_->AddHandleUsage', arguments, locals(),
+                                                         indent=4 + recursionDepth * 4)], [], locals(), indent=4))
+
+        return body

@@ -92,8 +92,6 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_consumer_base.cpp>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_loader_generator.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_loader_generator.cpp>
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_pre_process_consumer_base.h>
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_pre_process_consumer_base.cpp>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_resource_tracker.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_resource_tracker.cpp>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/vulkan_cpp_structs.h>
@@ -187,8 +185,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.cpp>
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_pre_process_consumer.h>
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_pre_process_consumer.cpp>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_structs.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_structs.cpp>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.h>

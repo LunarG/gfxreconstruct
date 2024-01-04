@@ -29,7 +29,6 @@
 #include "decode/vulkan_cpp_utilities.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_cpp_consumer.h"
-#include "generated/generated_vulkan_cpp_pre_process_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "util/argument_parser.h"
 #include "util/file_path.h"
@@ -414,38 +413,6 @@ static std::string GetOutputFilename(const std::string& capture_file)
     return gfxrecon::util::filepath::Join(output_dirname, output_filename);
 }
 
-bool PreProcessCapture(gfxrecon::decode::VulkanCppPreProcessConsumer& cpp_consumer,
-                       const std::string&                             input_filename,
-                       const uint32_t                                 frame_limit)
-{
-    gfxrecon::decode::FileProcessor file_processor;
-    gfxrecon::decode::VulkanDecoder decoder;
-
-    if (!file_processor.Initialize(input_filename))
-    {
-        GFXRECON_LOG_ERROR("Initialization of file processor has failed");
-        return false;
-    }
-
-    if (!cpp_consumer.Initialize())
-    {
-        GFXRECON_LOG_ERROR("Initialization of cpp pre process consumer has failed");
-        return false;
-    }
-
-    file_processor.AddDecoder(&decoder);
-    decoder.AddConsumer(&cpp_consumer);
-
-    bool success;
-
-    do
-    {
-        success = file_processor.ProcessNextFrame();
-    } while (success && file_processor.GetCurrentFrameNumber() <= frame_limit);
-
-    return (file_processor.GetErrorState() == file_processor.kErrorNone);
-}
-
 bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
                     const std::string&                        input_filename,
                     const std::string&                        output_filename,
@@ -621,12 +588,10 @@ int main(int argc, const char** argv)
     std::vector<uint32_t> dimensions;
     ValidateAndConvertDimensionArgument(max_dimensions_argument, dimensions);
 
-    gfxrecon::decode::VulkanCppResourceTracker    resource_tracker;
-    gfxrecon::decode::VulkanCppPreProcessConsumer pre_process_cpp_consumer;
-    gfxrecon::decode::VulkanCppConsumer           cpp_consumer;
-    bool                                          result;
+    gfxrecon::decode::VulkanCppResourceTracker resource_tracker;
+    gfxrecon::decode::VulkanCppConsumer        cpp_consumer;
+    bool                                       result;
 
-    pre_process_cpp_consumer.AddResourceTracker(resource_tracker);
     cpp_consumer.AddResourceTracker(resource_tracker);
 
     // --captured-swapchain
@@ -639,56 +604,11 @@ int main(int argc, const char** argv)
     if (command_limit > 0)
     {
         cpp_consumer.SetMaxCommandLimit(command_limit);
-        pre_process_cpp_consumer.SetMaxCommandLimit(command_limit);
     }
 
-    int64_t process_start_time         = gfxrecon::util::datetime::GetTimestamp();
-    result                             = PreProcessCapture(pre_process_cpp_consumer, input_filename, frame_limit);
-    int64_t  process_end_time          = gfxrecon::util::datetime::GetTimestamp();
-    uint32_t pre_process_apicall_count = pre_process_cpp_consumer.GetCurrentApiCallNumber();
-    if (result)
-    {
-        GFXRECON_LOG_INFO("Capture file pre processed %u calls in %lf seconds",
-                          pre_process_apicall_count,
-                          gfxrecon::util::datetime::ConvertTimestampToSeconds(
-                              gfxrecon::util::datetime::DiffTimestamps(process_start_time, process_end_time)));
-    }
-    else
-    {
-        GFXRECON_LOG_INFO("Failed to process capture file")
-    }
-
-    cpp_consumer.SetMemoryResourceMap(pre_process_cpp_consumer.GetMemoryImageMappings());
-    cpp_consumer.SetWindowSize(pre_process_cpp_consumer.GetCaptureWindowWidth(),
-                               pre_process_cpp_consumer.GetCaptureWindowHeight());
-
-    uint32_t window_width  = pre_process_cpp_consumer.GetCaptureWindowWidth();
-    uint32_t window_height = pre_process_cpp_consumer.GetCaptureWindowHeight();
-
-    if (dimensions.size() > 1)
-    {
-        if (window_width > dimensions[0])
-        {
-            GFXRECON_LOG_INFO("Window width (%u) exceeds the given maximum value (%u), falling back to maximum value.",
-                              window_width,
-                              dimensions[0]);
-            window_width = dimensions[0];
-        }
-
-        if (window_height > dimensions[1])
-        {
-            GFXRECON_LOG_INFO("Window height (%u) exceeds the given maximum value (%u), falling back to maximum value.",
-                              window_height,
-                              dimensions[1]);
-            window_height = dimensions[1];
-        }
-    }
-
-    cpp_consumer.SetWindowSize(window_width, window_height);
-
-    process_start_time = gfxrecon::util::datetime::GetTimestamp();
-    result             = ProcessCapture(cpp_consumer, input_filename, output_filename, target_platform, frame_limit);
-    process_end_time   = gfxrecon::util::datetime::GetTimestamp();
+    int64_t process_start_time = gfxrecon::util::datetime::GetTimestamp();
+    result = ProcessCapture(cpp_consumer, input_filename, output_filename, target_platform, frame_limit);
+    int64_t  process_end_time           = gfxrecon::util::datetime::GetTimestamp();
     uint32_t cpp_consumer_apicall_count = cpp_consumer.GetCurrentApiCallNumber();
     if (result)
     {
@@ -700,13 +620,6 @@ int main(int argc, const char** argv)
     else
     {
         GFXRECON_LOG_INFO("Failed to process capture file")
-    }
-
-    if (pre_process_apicall_count != cpp_consumer_apicall_count)
-    {
-        GFXRECON_LOG_WARNING("Pre process consumer and cpp consumer apicall count mismatch: %u != %u",
-                             pre_process_apicall_count,
-                             cpp_consumer_apicall_count);
     }
 
     gfxrecon::util::Log::Release();

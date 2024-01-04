@@ -109,6 +109,13 @@ class VulkanCppConsumerHeaderGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
+        # TODO: Don't currently support Nvidia raytracing entrypoints
+        self.APICALL_BLACKLIST = [
+            'vkCmdBuildAccelerationStructureNV',
+            'vkCmdTraceRaysNV',
+            'vkCreateAccelerationStructureNV'
+        ]
+
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
