@@ -10239,40 +10239,108 @@ std::string GenerateStruct_VkDisplayPresentInfoKHR(std::ostream &out, const VkDi
 
 
 std::string GenerateStruct_VkXlibSurfaceCreateInfoKHR(std::ostream &out, const VkXlibSurfaceCreateInfoKHR* structInfo, Decoded_VkXlibSurfaceCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::string variable_name = "override_" + std::to_string(consumer.GetNextId());
-    out << "\t\t" << "VkXlibSurfaceCreateInfoKHR " << variable_name << " {};" << std::endl;
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// flags
+    struct_body << "\t\t\t" << "VkXlibSurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
+// dpy
+    struct_body << "\t\t\t" << structInfo->dpy << "," << std::endl;
+// window
+    struct_body << "\t\t\t" << structInfo->window << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "xlibSurfaceCreateInfoKHR");
+    out << "\t\t" << "VkXlibSurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
     out << "\t\t" << "OverrideVkXlibSurfaceCreateInfoKHR(&" << variable_name << ", " << "appdata" << ");" << std::endl;
     return variable_name;
 }
 
 
 std::string GenerateStruct_VkXcbSurfaceCreateInfoKHR(std::ostream &out, const VkXcbSurfaceCreateInfoKHR* structInfo, Decoded_VkXcbSurfaceCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::string variable_name = "override_" + std::to_string(consumer.GetNextId());
-    out << "\t\t" << "VkXcbSurfaceCreateInfoKHR " << variable_name << " {};" << std::endl;
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// flags
+    struct_body << "\t\t\t" << "VkXcbSurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
+// connection
+    struct_body << "\t\t\t" << structInfo->connection << "," << std::endl;
+// window
+    struct_body << "\t\t\t" << structInfo->window << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "xcbSurfaceCreateInfoKHR");
+    out << "\t\t" << "VkXcbSurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
     out << "\t\t" << "OverrideVkXcbSurfaceCreateInfoKHR(&" << variable_name << ", " << "appdata" << ");" << std::endl;
     return variable_name;
 }
 
 
 std::string GenerateStruct_VkWaylandSurfaceCreateInfoKHR(std::ostream &out, const VkWaylandSurfaceCreateInfoKHR* structInfo, Decoded_VkWaylandSurfaceCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::string variable_name = "override_" + std::to_string(consumer.GetNextId());
-    out << "\t\t" << "VkWaylandSurfaceCreateInfoKHR " << variable_name << " {};" << std::endl;
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// flags
+    struct_body << "\t\t\t" << "VkWaylandSurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
+// display
+    struct_body << "\t\t\t" << structInfo->display << "," << std::endl;
+// surface
+    struct_body << "\t\t\t" << structInfo->surface << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "waylandSurfaceCreateInfoKHR");
+    out << "\t\t" << "VkWaylandSurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
     out << "\t\t" << "OverrideVkWaylandSurfaceCreateInfoKHR(&" << variable_name << ", " << "appdata" << ");" << std::endl;
     return variable_name;
 }
 
 
 std::string GenerateStruct_VkAndroidSurfaceCreateInfoKHR(std::ostream &out, const VkAndroidSurfaceCreateInfoKHR* structInfo, Decoded_VkAndroidSurfaceCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::string variable_name = "override_" + std::to_string(consumer.GetNextId());
-    out << "\t\t" << "VkAndroidSurfaceCreateInfoKHR " << variable_name << " {};" << std::endl;
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// flags
+    struct_body << "\t\t\t" << "VkAndroidSurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
+// window
+    struct_body << "\t\t\t" << structInfo->window << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "androidSurfaceCreateInfoKHR");
+    out << "\t\t" << "VkAndroidSurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
     out << "\t\t" << "OverrideVkAndroidSurfaceCreateInfoKHR(&" << variable_name << ", " << "appdata" << ");" << std::endl;
     return variable_name;
 }
 
 
 std::string GenerateStruct_VkWin32SurfaceCreateInfoKHR(std::ostream &out, const VkWin32SurfaceCreateInfoKHR* structInfo, Decoded_VkWin32SurfaceCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::string variable_name = "override_" + std::to_string(consumer.GetNextId());
-    out << "\t\t" << "VkWin32SurfaceCreateInfoKHR " << variable_name << " {};" << std::endl;
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// flags
+    struct_body << "\t\t\t" << "VkWin32SurfaceCreateFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
+// hinstance
+    struct_body << "\t\t\t" << structInfo->hinstance << "," << std::endl;
+// hwnd
+    struct_body << "\t\t\t" << structInfo->hwnd << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "win32SurfaceCreateInfoKHR");
+    out << "\t\t" << "VkWin32SurfaceCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
     out << "\t\t" << "OverrideVkWin32SurfaceCreateInfoKHR(&" << variable_name << ", " << "appdata" << ");" << std::endl;
     return variable_name;
 }
@@ -18066,8 +18134,20 @@ std::string GenerateStruct_VkImagePipeSurfaceCreateInfoFUCHSIA(std::ostream &out
 
 
 std::string GenerateStruct_VkMetalSurfaceCreateInfoEXT(std::ostream &out, const VkMetalSurfaceCreateInfoEXT* structInfo, Decoded_VkMetalSurfaceCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::string variable_name = "override_" + std::to_string(consumer.GetNextId());
-    out << "\t\t" << "VkMetalSurfaceCreateInfoEXT " << variable_name << " {};" << std::endl;
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// flags
+    struct_body << "\t\t\t" << "VkMetalSurfaceCreateFlagsEXT(" << structInfo->flags << ")" << "," << std::endl;
+// pLayer
+    struct_body << "\t\t\t" << structInfo->pLayer << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "metalSurfaceCreateInfoEXT");
+    out << "\t\t" << "VkMetalSurfaceCreateInfoEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
     out << "\t\t" << "OverrideVkMetalSurfaceCreateInfoEXT(&" << variable_name << ", " << "appdata" << ");" << std::endl;
     return variable_name;
 }

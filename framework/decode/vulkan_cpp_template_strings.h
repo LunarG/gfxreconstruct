@@ -180,9 +180,13 @@ static const char* sXcbOutputHeader = R"(
     LogVkError(#VK_CALL, (VK_CALL), __FILE__, __LINE__, VK_RESULT)
 
 struct XCBApp {
-    uint32_t width;
-    uint32_t height;
-    xcb_connection_t *connection;
+    XCBApp(uint32_t w, uint32_t h) {
+        width = w;
+        height = h;
+    }
+    uint32_t width { 320 };
+    uint32_t height { 240 };
+    xcb_connection_t *connection { nullptr };
     xcb_window_t window;
 };
 
@@ -306,7 +310,7 @@ size_t LoadBinaryData(const char* filename,
     return read_size;
 }
 
-XCBApp appdata = { %d, %d };
+XCBApp appdata(%d, %d);
 )";
 
 static const char* sXcbCMakeFile = R"(
@@ -628,8 +632,12 @@ static const char* sWin32OutputHeader = R"(
     LogVkError(#VK_CALL, (VK_CALL), __FILE__, __LINE__, VK_RESULT)
 
 struct Win32App {
-    uint32_t width;
-    uint32_t height;
+    Win32App(uint32_t w, uint32_t h) {
+        width = w;
+        height = h;
+    }
+    uint32_t width { 320 };
+    uint32_t height { 240 };
     GLFWwindow* window;
     HINSTANCE hInstance;
     HWND hWnd;
@@ -716,7 +724,7 @@ size_t LoadBinaryData(const char* filename,
     return read_size;
 }
 
-Win32App appdata = { %d, %d };
+Win32App appdata(%d, %d);
 )";
 
 static const char* sWin32CMakeFile = R"(

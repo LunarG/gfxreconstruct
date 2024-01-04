@@ -2872,42 +2872,12 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         uint32_t                                    bindInfoCount,
         StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>* pBindInfos) override;
 
-    virtual void Process_vkCmdBuildAccelerationStructureNV(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkAccelerationStructureInfoNV>* pInfo,
-        format::HandleId                            instanceData,
-        VkDeviceSize                                instanceOffset,
-        VkBool32                                    update,
-        format::HandleId                            dst,
-        format::HandleId                            src,
-        format::HandleId                            scratch,
-        VkDeviceSize                                scratchOffset) override;
-
     virtual void Process_vkCmdCopyAccelerationStructureNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         format::HandleId                            dst,
         format::HandleId                            src,
         VkCopyAccelerationStructureModeKHR          mode) override;
-
-    virtual void Process_vkCmdTraceRaysNV(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        format::HandleId                            raygenShaderBindingTableBuffer,
-        VkDeviceSize                                raygenShaderBindingOffset,
-        format::HandleId                            missShaderBindingTableBuffer,
-        VkDeviceSize                                missShaderBindingOffset,
-        VkDeviceSize                                missShaderBindingStride,
-        format::HandleId                            hitShaderBindingTableBuffer,
-        VkDeviceSize                                hitShaderBindingOffset,
-        VkDeviceSize                                hitShaderBindingStride,
-        format::HandleId                            callableShaderBindingTableBuffer,
-        VkDeviceSize                                callableShaderBindingOffset,
-        VkDeviceSize                                callableShaderBindingStride,
-        uint32_t                                    width,
-        uint32_t                                    height,
-        uint32_t                                    depth) override;
 
     virtual void Process_vkCmdWriteAccelerationStructuresPropertiesNV(
         const ApiCallInfo&                          call_info,
@@ -2924,14 +2894,6 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         format::HandleId                            device,
         format::HandleId                            pipeline,
         uint32_t                                    shader) override;
-
-    virtual void Process_vkCreateAccelerationStructureNV(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoNV>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructure) override;
 
     virtual void Process_vkCreateRayTracingPipelinesNV(
         const ApiCallInfo&                          call_info,

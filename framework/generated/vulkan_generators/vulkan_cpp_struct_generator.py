@@ -600,12 +600,13 @@ class VulkanCppStructGenerator(BaseGenerator):
         header.append(makeGen('std::stringstream struct_body;', locals(), indent))
         struct_prefix = 'structInfo->'
 
-        if structName in self.overrideStructs:
-            body.append(makeGenVar('variable_name', 'override', None, locals(), indent, useThis=False))
-            body.append(printOutStream(['"{structName} "', 'variable_name', '" {{}};"'], locals(), indent))
-            body.append(printOutStream(['"Override{structName}(&"', 'variable_name', '", "', '"appdata"', '");"'], locals(), indent))
-            body.append(makeGen('return variable_name;', locals(), indent))
-            return body
+        # Brainpain
+        #if structName in self.overrideStructs:
+        #    body.append(makeGenVar('variable_name', 'override', None, locals(), indent, useThis=False))
+        #    body.append(printOutStream(['"{structName} "', 'variable_name', '" {{}};"'], locals(), indent))
+        #    body.append(printOutStream(['"Override{structName}(&"', 'variable_name', '", "', '"appdata"', '");"'], locals(), indent))
+        #    body.append(makeGen('return variable_name;', locals(), indent))
+        #    return body
 
         for arg in structMembers:
             isFirstArg = (arg == structMembers[0])
@@ -865,6 +866,10 @@ class VulkanCppStructGenerator(BaseGenerator):
         body.append(printOutStream(var_list, locals(), indent))
         body.append(printOutStream(['struct_body.str()'], locals(), indent))
         body.append(printOutStream(['"}};"'], locals(), indent))
+
+        if structName in self.overrideStructs:
+            body.append(printOutStream(['"Override{structName}(&"', 'variable_name', '", "', '"appdata"', '");"'], locals(), indent))
+
         body.append(makeGen('return variable_name;', locals(), indent))
 
         func = []
