@@ -140,7 +140,7 @@ WaylandContext::~WaylandContext()
 
     if (xdg_wm_base_)
     {
-        wl.xdg_wm_base_destroy(xdg_wm_base_);
+        wl.xdg->xdg_wm_base_destroy(xdg_wm_base_);
     }
 
     if (compositor_)
@@ -217,11 +217,11 @@ void WaylandContext::HandleRegistryGlobal(
     {
         wayland_context->shell_ = reinterpret_cast<wl_shell*>(wl.registry_bind(registry, id, wl.shell_interface, 1));
     }
-    else if (util::platform::StringCompare(interface, wl.wm_base_xdg_interface->name) == 0)
+    else if (util::platform::StringCompare(interface, wl.xdg->xdg_wm_base_interface.name) == 0)
     {
         wayland_context->xdg_wm_base_ =
-            reinterpret_cast<xdg_wm_base*>(wl.registry_bind(registry, id, wl.wm_base_xdg_interface, 1));
-        wl.xdg_wm_base_add_listener(wayland_context->xdg_wm_base_, &xdg_wm_base_listener_, wayland_context);
+            reinterpret_cast<xdg_wm_base*>(wl.registry_bind(registry, id, &wl.xdg->xdg_wm_base_interface, 1));
+        wl.xdg->xdg_wm_base_add_listener(wayland_context->xdg_wm_base_, &xdg_wm_base_listener_, wayland_context);
     }
     else if (util::platform::StringCompare(interface, wl.seat_interface->name) == 0)
     {
@@ -415,7 +415,7 @@ void WaylandContext::HandleOutputScale(void* data, struct wl_output* wl_output, 
 void WaylandContext::HandleXdgWmBasePing(void* data, struct xdg_wm_base* xdg_wm_base, uint32_t serial)
 {
     auto& wl = reinterpret_cast<WaylandContext*>(data)->GetWaylandFunctionTable();
-    wl.xdg_wm_base_pong(xdg_wm_base, serial);
+    wl.xdg->xdg_wm_base_pong(xdg_wm_base, serial);
 }
 
 GFXRECON_END_NAMESPACE(application)

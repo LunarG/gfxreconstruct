@@ -104,9 +104,9 @@ bool WaylandLoader::Initialize()
             function_table_.shell_surface_interface = reinterpret_cast<decltype(wl_shell_surface_interface)*>(
                 util::platform::GetProcAddress(libwayland_, "wl_shell_surface_interface"));
 
-            function_table_.wm_base_xdg_interface  = &xdg_wm_base_interface;
-            function_table_.surface_xdg_interface  = &xdg_surface_interface;
-            function_table_.toplevel_xdg_interface = &xdg_toplevel_interface;
+            // additional protocols
+            function_table_.xdg = std::make_unique<wayland_xdg_shell_table>();
+            function_table_.xdg->initialize(this);
         }
         else
         {

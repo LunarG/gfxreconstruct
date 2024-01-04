@@ -64,8 +64,8 @@ WaylandWindow::~WaylandWindow()
 
         if (xdg_toplevel_ != nullptr)
         {
-            wl.xdg_toplevel_destroy(xdg_toplevel_);
-            wl.xdg_surface_destroy(xdg_surface_);
+            wl.xdg->xdg_toplevel_destroy(xdg_toplevel_);
+            wl.xdg->xdg_surface_destroy(xdg_surface_);
         }
         else if (shell_surface_ != nullptr)
         {
@@ -95,11 +95,11 @@ bool WaylandWindow::Create(
 
     if (wayland_context_->GetXdgWmBase() != nullptr)
     {
-        xdg_surface_ = wl.xdg_wm_base_get_xdg_surface(wayland_context_->GetXdgWmBase(), surface_);
+        xdg_surface_ = wl.xdg->xdg_wm_base_get_xdg_surface(wayland_context_->GetXdgWmBase(), surface_);
         if (xdg_surface_ != nullptr)
         {
-            wl.xdg_surface_add_listener(xdg_surface_, &WaylandWindow::xdg_surface_listener_, this);
-            xdg_toplevel_ = wl.xdg_surface_get_toplevel(xdg_surface_);
+            wl.xdg->xdg_surface_add_listener(xdg_surface_, &WaylandWindow::xdg_surface_listener_, this);
+            xdg_toplevel_ = wl.xdg->xdg_surface_get_toplevel(xdg_surface_);
         }
     }
 
@@ -114,7 +114,7 @@ bool WaylandWindow::Create(
 
     if (xdg_toplevel_ != nullptr)
     {
-        wl.xdg_toplevel_add_listener(xdg_toplevel_, &WaylandWindow::xdg_toplevel_listener_, this);
+        wl.xdg->xdg_toplevel_add_listener(xdg_toplevel_, &WaylandWindow::xdg_toplevel_listener_, this);
     }
     else if (shell_surface_ != nullptr)
     {
@@ -124,7 +124,7 @@ bool WaylandWindow::Create(
     {
         if (xdg_surface_ != nullptr)
         {
-            wl.xdg_surface_destroy(xdg_surface_);
+            wl.xdg->xdg_surface_destroy(xdg_surface_);
             xdg_surface_ = nullptr;
         }
 
@@ -162,9 +162,9 @@ bool WaylandWindow::Destroy()
 
         if (xdg_toplevel_ != nullptr)
         {
-            wl.xdg_toplevel_destroy(xdg_toplevel_);
+            wl.xdg->xdg_toplevel_destroy(xdg_toplevel_);
             xdg_toplevel_ = nullptr;
-            wl.xdg_surface_destroy(xdg_surface_);
+            wl.xdg->xdg_surface_destroy(xdg_surface_);
             xdg_surface_ = nullptr;
 
             xdg_surface_configured_ = false;
@@ -189,7 +189,7 @@ void WaylandWindow::SetTitle(const std::string& title)
     auto& wl = wayland_context_->GetWaylandFunctionTable();
     if (xdg_toplevel_ != nullptr)
     {
-        wl.xdg_toplevel_set_title(xdg_toplevel_, title.c_str());
+        wl.xdg->xdg_toplevel_set_title(xdg_toplevel_, title.c_str());
     }
     else if (shell_surface_ != nullptr)
     {
@@ -290,7 +290,7 @@ void WaylandWindow::UpdateWindowSize()
         {
             if (xdg_toplevel_ != nullptr)
             {
-                wl.xdg_toplevel_set_fullscreen(xdg_toplevel_, output_);
+                wl.xdg->xdg_toplevel_set_fullscreen(xdg_toplevel_, output_);
             }
             else if (shell_surface_ != nullptr)
             {
@@ -336,7 +336,7 @@ void WaylandWindow::HandleXdgSurfaceConfigure(void* data, struct xdg_surface* xd
 
     auto& wl = window->wayland_context_->GetWaylandFunctionTable();
 
-    wl.xdg_surface_ack_configure(xdg_surface, serial);
+    wl.xdg->xdg_surface_ack_configure(xdg_surface, serial);
     window->xdg_surface_configured_ = true;
 }
 

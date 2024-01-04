@@ -29,7 +29,6 @@
 #include "util/defines.h"
 
 #include <wayland-client.h>
-#include "util/xdg-shell-client.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
