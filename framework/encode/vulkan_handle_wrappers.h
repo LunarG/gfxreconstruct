@@ -162,9 +162,11 @@ struct EventWrapper : public HandleWrapper<VkEvent>
 
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 {
-    uint32_t         memory_type_index{ std::numeric_limits<uint32_t>::max() };
-    VkDeviceSize     allocation_size{ 0 };
-    DeviceWrapper*   map_device{ nullptr };
+    uint32_t     memory_type_index{ std::numeric_limits<uint32_t>::max() };
+    VkDeviceSize allocation_size{ 0 };
+    // This is the device which was used to allocate the memory. By doc,
+    // if the memory can be mapped, map device must be this device.
+    DeviceWrapper*   device{ nullptr };
     const void*      mapped_data{ nullptr };
     VkDeviceSize     mapped_offset{ 0 };
     VkDeviceSize     mapped_size{ 0 };
