@@ -591,82 +591,6 @@ void VulkanCppConsumerBase::AddHandles(const std::string& outputName, const form
     handle_id_map_[*ptrs] = outputName;
 }
 
-void VulkanCppConsumerBase::AddHandles_vkUpdateDescriptorSets(
-    format::HandleId                                    device,
-    uint32_t                                            descriptorWriteCount,
-    StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites,
-    uint32_t                                            descriptorCopyCount,
-    StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  pDescriptorCopies)
-{
-    resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, device);
-
-    Decoded_VkWriteDescriptorSet* decoded_desc_writes = pDescriptorWrites->GetMetaStructPointer();
-    for (uint32_t idx = 0; idx < descriptorWriteCount; idx++)
-    {
-        resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, decoded_desc_writes[idx].dstSet);
-
-        const VkWriteDescriptorSet* struct_info          = pDescriptorWrites->GetPointer() + idx;
-        uint32_t                    cur_descriptor_count = pDescriptorWrites->GetPointer()[idx].descriptorCount;
-
-        switch (struct_info->descriptorType)
-        {
-            case VK_DESCRIPTOR_TYPE_SAMPLER:
-            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-            {
-                Decoded_VkDescriptorImageInfo* imageInfo = decoded_desc_writes[idx].pImageInfo->GetMetaStructPointer();
-                for (uint32_t jdx = 0; jdx < cur_descriptor_count; jdx++)
-                {
-                    if ((struct_info->descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) ||
-                        (struct_info->descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
-                    {
-                        resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, imageInfo[jdx].sampler);
-                    }
-                    resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, imageInfo[jdx].imageView);
-                }
-                break;
-            }
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-            {
-                Decoded_VkDescriptorBufferInfo* bufferInfo =
-                    decoded_desc_writes[idx].pBufferInfo->GetMetaStructPointer();
-                for (uint32_t jdx = 0; jdx < cur_descriptor_count; jdx++)
-                {
-                    resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, bufferInfo[jdx].buffer);
-                }
-                break;
-            }
-            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-            {
-                for (uint32_t jdx = 0; jdx < struct_info->descriptorCount; jdx++)
-                {
-                    resource_tracker_->AddHandleUsage(frame_number_,
-                                                      frame_split_number_,
-                                                      decoded_desc_writes[idx].pTexelBufferView.GetPointer()[jdx]);
-                }
-                break;
-            }
-            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-            case VK_DESCRIPTOR_TYPE_MAX_ENUM:
-            {
-                // Nothing to do.
-                break;
-            }
-            default:
-            {
-                assert(false);
-            }
-        }
-    }
-}
-
 void VulkanCppConsumerBase::Generate_vkEnumeratePhysicalDevices(
     VkResult                                returnValue,
     format::HandleId                        instance,
@@ -2472,37 +2396,6 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
     template_data_var_name = struct_implement_name;
 }
 
-void VulkanCppConsumerBase::AddHandles_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
-                                                                         format::HandleId descriptorSet,
-                                                                         format::HandleId descriptorUpdateTemplate,
-                                                                         DescriptorUpdateTemplateDecoder* pData)
-{
-    resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, device);
-    resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, descriptorSet);
-    resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, descriptorUpdateTemplate);
-
-    for (uint32_t idx = 0; idx < pData->GetImageInfoCount(); idx++)
-    {
-        Decoded_VkDescriptorImageInfo* imageInfo = pData->GetImageInfoMetaStructPointer() + idx;
-
-        resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, imageInfo->imageView);
-        resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, imageInfo->sampler);
-    }
-
-    for (uint32_t idx = 0; idx < pData->GetBufferInfoCount(); idx++)
-    {
-        Decoded_VkDescriptorBufferInfo* bufferInfo = pData->GetBufferInfoMetaStructPointer() + idx;
-
-        resource_tracker_->AddHandleUsage(frame_number_, frame_split_number_, bufferInfo->buffer);
-    }
-
-    for (uint32_t idx = 0; idx < pData->GetTexelBufferViewCount(); idx++)
-    {
-        resource_tracker_->AddHandleUsage(
-            frame_number_, frame_split_number_, *(pData->GetTexelBufferViewHandleIdsPointer() + idx));
-    }
-}
-
 void VulkanCppConsumerBase::Generate_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
                                                                        format::HandleId descriptorSet,
                                                                        format::HandleId descriptorUpdateTemplate,
@@ -2514,7 +2407,6 @@ void VulkanCppConsumerBase::Generate_vkUpdateDescriptorSetWithTemplate(format::H
 
     fprintf(file, "\t{\n");
 
-    AddHandles_vkUpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData);
     GenerateDescriptorUpdateTemplateData(pData, descriptorUpdateTemplate, file, var_name);
 
     std::string method_name = "vkUpdateDescriptorSetWithTemplate";

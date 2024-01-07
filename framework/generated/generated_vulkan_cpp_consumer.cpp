@@ -57,20 +57,6 @@ void VulkanCppConsumer::Process_vkAllocateCommandBuffers(
     StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pAllocateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pAllocateInfo->GetMetaStructPointer()->commandPool);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pCommandBuffers->GetPointer(),
-                                      pAllocateInfo->GetPointer()->commandBufferCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -105,27 +91,6 @@ void VulkanCppConsumer::Process_vkAllocateDescriptorSets(
     StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
     HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pAllocateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pAllocateInfo->GetMetaStructPointer()->descriptorPool);
-    }
-
-    if (pAllocateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pAllocateInfo->GetMetaStructPointer()->pSetLayouts.GetPointer(),
-                                          pAllocateInfo->GetMetaStructPointer()->pSetLayouts.GetLength());
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pDescriptorSets->GetPointer(),
-                                      pAllocateInfo->GetPointer()->descriptorSetCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -161,13 +126,6 @@ void VulkanCppConsumer::Process_vkAllocateMemory(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDeviceMemory>*       pMemory)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pMemory->GetPointer());
     Generate_vkAllocateMemory(returnValue, device, pAllocateInfo, pAllocator, pMemory);
     Post_APICall(format::ApiCallId::ApiCall_vkAllocateMemory);
 }
@@ -178,21 +136,6 @@ void VulkanCppConsumer::Process_vkBeginCommandBuffer(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pBeginInfo->GetMetaStructPointer()->pInheritanceInfo->GetMetaStructPointer() != nullptr) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pBeginInfo->GetMetaStructPointer()->pInheritanceInfo->GetMetaStructPointer()->renderPass);
-    }
-
-    if (pBeginInfo->GetMetaStructPointer()->pInheritanceInfo->GetMetaStructPointer() != nullptr) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pBeginInfo->GetMetaStructPointer()->pInheritanceInfo->GetMetaStructPointer()->framebuffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -221,17 +164,6 @@ void VulkanCppConsumer::Process_vkBindBufferMemory(
     VkDeviceSize                                memoryOffset)
 {
     Intercept_vkBindBufferMemory(returnValue, device, buffer, memory, memoryOffset);
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      memory);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -258,17 +190,6 @@ void VulkanCppConsumer::Process_vkBindImageMemory(
     VkDeviceSize                                memoryOffset)
 {
     Intercept_vkBindImageMemory(returnValue, device, image, memory, memoryOffset);
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      memory);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -293,13 +214,6 @@ void VulkanCppConsumer::Process_vkCmdBeginQuery(
     uint32_t                                    query,
     VkQueryControlFlags                         flags)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -323,21 +237,6 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderPass(
     VkSubpassContents                           contents)
 {
     Intercept_vkCmdBeginRenderPass(commandBuffer, pRenderPassBegin, contents);
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pRenderPassBegin->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pRenderPassBegin->GetMetaStructPointer()->renderPass);
-    }
-
-    if (pRenderPassBegin->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pRenderPassBegin->GetMetaStructPointer()->framebuffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -369,18 +268,6 @@ void VulkanCppConsumer::Process_vkCmdBindDescriptorSets(
     uint32_t                                    dynamicOffsetCount,
     PointerDecoder<uint32_t>*                   pDynamicOffsets)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      layout);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pDescriptorSets->GetPointer(),
-                                      descriptorSetCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -433,13 +320,6 @@ void VulkanCppConsumer::Process_vkCmdBindIndexBuffer(
     VkDeviceSize                                offset,
     VkIndexType                                 indexType)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -462,13 +342,6 @@ void VulkanCppConsumer::Process_vkCmdBindPipeline(
     VkPipelineBindPoint                         pipelineBindPoint,
     format::HandleId                            pipeline)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -491,14 +364,6 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers(
     HandlePointerDecoder<VkBuffer>*             pBuffers,
     PointerDecoder<VkDeviceSize>*               pOffsets)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pBuffers->GetPointer(),
-                                      bindingCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -549,17 +414,6 @@ void VulkanCppConsumer::Process_vkCmdBlitImage(
     StructPointerDecoder<Decoded_VkImageBlit>*  pRegions,
     VkFilter                                    filter)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      srcImage);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstImage);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -608,9 +462,6 @@ void VulkanCppConsumer::Process_vkCmdClearAttachments(
     uint32_t                                    rectCount,
     StructPointerDecoder<Decoded_VkClearRect>*  pRects)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -670,13 +521,6 @@ void VulkanCppConsumer::Process_vkCmdClearColorImage(
     uint32_t                                    rangeCount,
     StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -728,13 +572,6 @@ void VulkanCppConsumer::Process_vkCmdClearDepthStencilImage(
     uint32_t                                    rangeCount,
     StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -785,17 +622,6 @@ void VulkanCppConsumer::Process_vkCmdCopyBuffer(
     uint32_t                                    regionCount,
     StructPointerDecoder<Decoded_VkBufferCopy>* pRegions)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      srcBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -839,17 +665,6 @@ void VulkanCppConsumer::Process_vkCmdCopyBufferToImage(
     uint32_t                                    regionCount,
     StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      srcBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstImage);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -896,17 +711,6 @@ void VulkanCppConsumer::Process_vkCmdCopyImage(
     uint32_t                                    regionCount,
     StructPointerDecoder<Decoded_VkImageCopy>*  pRegions)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      srcImage);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstImage);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -954,17 +758,6 @@ void VulkanCppConsumer::Process_vkCmdCopyImageToBuffer(
     uint32_t                                    regionCount,
     StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      srcImage);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1012,17 +805,6 @@ void VulkanCppConsumer::Process_vkCmdCopyQueryPoolResults(
     VkDeviceSize                                stride,
     VkQueryResultFlags                          flags)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1054,9 +836,6 @@ void VulkanCppConsumer::Process_vkCmdDispatch(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1079,13 +858,6 @@ void VulkanCppConsumer::Process_vkCmdDispatchIndirect(
     format::HandleId                            buffer,
     VkDeviceSize                                offset)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1108,9 +880,6 @@ void VulkanCppConsumer::Process_vkCmdDraw(
     uint32_t                                    firstVertex,
     uint32_t                                    firstInstance)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1138,9 +907,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexed(
     int32_t                                     vertexOffset,
     uint32_t                                    firstInstance)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1169,13 +935,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirect(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1202,13 +961,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirect(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1233,13 +985,6 @@ void VulkanCppConsumer::Process_vkCmdEndQuery(
     format::HandleId                            queryPool,
     uint32_t                                    query)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1258,9 +1003,6 @@ void VulkanCppConsumer::Process_vkCmdEndRenderPass(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1277,14 +1019,6 @@ void VulkanCppConsumer::Process_vkCmdExecuteCommands(
     uint32_t                                    commandBufferCount,
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pCommandBuffers->GetPointer(),
-                                      commandBufferCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1318,13 +1052,6 @@ void VulkanCppConsumer::Process_vkCmdFillBuffer(
     VkDeviceSize                                size,
     uint32_t                                    data)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1348,9 +1075,6 @@ void VulkanCppConsumer::Process_vkCmdNextSubpass(
     format::HandleId                            commandBuffer,
     VkSubpassContents                           contents)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1376,21 +1100,6 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier(
     uint32_t                                    imageMemoryBarrierCount,
     StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    for (uint32_t idx = 0; idx < bufferMemoryBarrierCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBufferMemoryBarriers->GetMetaStructPointer()[idx].buffer);
-    }
-
-    for (uint32_t idx = 0; idx < imageMemoryBarrierCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pImageMemoryBarriers->GetMetaStructPointer()[idx].image);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1476,13 +1185,6 @@ void VulkanCppConsumer::Process_vkCmdPushConstants(
     uint32_t                                    size,
     PointerDecoder<uint8_t>*                    pValues)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      layout);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1519,13 +1221,6 @@ void VulkanCppConsumer::Process_vkCmdResetEvent(
     format::HandleId                            event,
     VkPipelineStageFlags                        stageMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1547,13 +1242,6 @@ void VulkanCppConsumer::Process_vkCmdResetQueryPool(
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1580,17 +1268,6 @@ void VulkanCppConsumer::Process_vkCmdResolveImage(
     uint32_t                                    regionCount,
     StructPointerDecoder<Decoded_VkImageResolve>* pRegions)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      srcImage);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstImage);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1634,9 +1311,6 @@ void VulkanCppConsumer::Process_vkCmdSetBlendConstants(
     format::HandleId                            commandBuffer,
     PointerDecoder<float>*                      blendConstants)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1666,9 +1340,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBias(
     float                                       depthBiasClamp,
     float                                       depthBiasSlopeFactor)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1691,9 +1362,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBounds(
     float                                       minDepthBounds,
     float                                       maxDepthBounds)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1714,13 +1382,6 @@ void VulkanCppConsumer::Process_vkCmdSetEvent(
     format::HandleId                            event,
     VkPipelineStageFlags                        stageMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1740,9 +1401,6 @@ void VulkanCppConsumer::Process_vkCmdSetLineWidth(
     format::HandleId                            commandBuffer,
     float                                       lineWidth)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1762,9 +1420,6 @@ void VulkanCppConsumer::Process_vkCmdSetScissor(
     uint32_t                                    scissorCount,
     StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1803,9 +1458,6 @@ void VulkanCppConsumer::Process_vkCmdSetStencilCompareMask(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    compareMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1826,9 +1478,6 @@ void VulkanCppConsumer::Process_vkCmdSetStencilReference(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    reference)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1849,9 +1498,6 @@ void VulkanCppConsumer::Process_vkCmdSetStencilWriteMask(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    writeMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1873,9 +1519,6 @@ void VulkanCppConsumer::Process_vkCmdSetViewport(
     uint32_t                                    viewportCount,
     StructPointerDecoder<Decoded_VkViewport>*   pViewports)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1916,13 +1559,6 @@ void VulkanCppConsumer::Process_vkCmdUpdateBuffer(
     VkDeviceSize                                dataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -1965,26 +1601,6 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents(
     uint32_t                                    imageMemoryBarrierCount,
     StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pEvents->GetPointer(),
-                                      eventCount);
-
-    for (uint32_t idx = 0; idx < bufferMemoryBarrierCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBufferMemoryBarriers->GetMetaStructPointer()[idx].buffer);
-    }
-
-    for (uint32_t idx = 0; idx < imageMemoryBarrierCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pImageMemoryBarriers->GetMetaStructPointer()[idx].image);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -2081,13 +1697,6 @@ void VulkanCppConsumer::Process_vkCmdWriteTimestamp(
     format::HandleId                            queryPool,
     uint32_t                                    query)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -2112,13 +1721,6 @@ void VulkanCppConsumer::Process_vkCreateBuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkBuffer>*             pBuffer)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pBuffer->GetPointer());
     Generate_vkCreateBuffer(returnValue, device, pCreateInfo, pAllocator, pBuffer);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateBuffer);
 }
@@ -2131,19 +1733,6 @@ void VulkanCppConsumer::Process_vkCreateBufferView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkBufferView>*         pView)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->buffer);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pView->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2181,13 +1770,6 @@ void VulkanCppConsumer::Process_vkCreateCommandPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkCommandPool>*        pCommandPool)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pCommandPool->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2227,36 +1809,6 @@ void VulkanCppConsumer::Process_vkCreateComputePipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipelineCache);
-
-    if (pCreateInfos->GetMetaStructPointer()->stage != nullptr) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pCreateInfos->GetMetaStructPointer()->stage->module);
-    }
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].layout);
-    }
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].basePipelineHandle);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pPipelines->GetPointer(),
-                                      createInfoCount);
     Generate_vkCreateComputePipelines(returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateComputePipelines);
 }
@@ -2269,13 +1821,6 @@ void VulkanCppConsumer::Process_vkCreateDescriptorPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorPool>*     pDescriptorPool)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pDescriptorPool->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2313,20 +1858,6 @@ void VulkanCppConsumer::Process_vkCreateDescriptorSetLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    for (uint32_t idx = 0; idx < pCreateInfo->GetPointer()->bindingCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pCreateInfo->GetMetaStructPointer()->pBindings->GetMetaStructPointer()[idx].pImmutableSamplers.GetPointer(),
-                                              pCreateInfo->GetMetaStructPointer()->pBindings->GetMetaStructPointer()[idx].pImmutableSamplers.GetLength());
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSetLayout->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2364,13 +1895,6 @@ void VulkanCppConsumer::Process_vkCreateDevice(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDevice>*             pDevice)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pDevice->GetPointer());
     Generate_vkCreateDevice(returnValue, physicalDevice, pCreateInfo, pAllocator, pDevice);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDevice);
 }
@@ -2383,13 +1907,6 @@ void VulkanCppConsumer::Process_vkCreateEvent(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkEvent>*              pEvent)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pEvent->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2427,13 +1944,6 @@ void VulkanCppConsumer::Process_vkCreateFence(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkFence>*              pFence)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pFence->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2472,26 +1982,6 @@ void VulkanCppConsumer::Process_vkCreateFramebuffer(
     HandlePointerDecoder<VkFramebuffer>*        pFramebuffer)
 {
     Intercept_vkCreateFramebuffer(returnValue, device, pCreateInfo, pAllocator, pFramebuffer);
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->renderPass);
-    }
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->pAttachments.GetPointer(),
-                                          pCreateInfo->GetMetaStructPointer()->pAttachments.GetLength());
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pFramebuffer->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2531,42 +2021,6 @@ void VulkanCppConsumer::Process_vkCreateGraphicsPipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipelineCache);
-
-    for (uint32_t idx = 0; idx < pCreateInfos->GetPointer()->stageCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pCreateInfos->GetMetaStructPointer()->pStages->GetMetaStructPointer()[idx].module);
-    }
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].layout);
-    }
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].renderPass);
-    }
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].basePipelineHandle);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pPipelines->GetPointer(),
-                                      createInfoCount);
     Generate_vkCreateGraphicsPipelines(returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateGraphicsPipelines);
 }
@@ -2579,13 +2033,6 @@ void VulkanCppConsumer::Process_vkCreateImage(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkImage>*              pImage)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pImage->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2623,19 +2070,6 @@ void VulkanCppConsumer::Process_vkCreateImageView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkImageView>*          pView)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->image);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pView->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2672,9 +2106,6 @@ void VulkanCppConsumer::Process_vkCreateInstance(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkInstance>*           pInstance)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pInstance->GetPointer());
     Generate_vkCreateInstance(returnValue, pCreateInfo, pAllocator, pInstance);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateInstance);
 }
@@ -2687,13 +2118,6 @@ void VulkanCppConsumer::Process_vkCreatePipelineCache(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipelineCache>*      pPipelineCache)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pPipelineCache->GetPointer());
     Generate_vkCreatePipelineCache(returnValue, device, pCreateInfo, pAllocator, pPipelineCache);
     Post_APICall(format::ApiCallId::ApiCall_vkCreatePipelineCache);
 }
@@ -2706,20 +2130,6 @@ void VulkanCppConsumer::Process_vkCreatePipelineLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipelineLayout>*     pPipelineLayout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->pSetLayouts.GetPointer(),
-                                          pCreateInfo->GetMetaStructPointer()->pSetLayouts.GetLength());
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pPipelineLayout->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2757,13 +2167,6 @@ void VulkanCppConsumer::Process_vkCreateQueryPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkQueryPool>*          pQueryPool)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pQueryPool->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2801,13 +2204,6 @@ void VulkanCppConsumer::Process_vkCreateRenderPass(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pRenderPass->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2845,13 +2241,6 @@ void VulkanCppConsumer::Process_vkCreateSampler(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSampler>*            pSampler)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSampler->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2889,13 +2278,6 @@ void VulkanCppConsumer::Process_vkCreateSemaphore(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSemaphore>*          pSemaphore)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSemaphore->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2933,13 +2315,6 @@ void VulkanCppConsumer::Process_vkCreateShaderModule(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkShaderModule>*       pShaderModule)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pShaderModule->GetPointer());
     Generate_vkCreateShaderModule(returnValue, device, pCreateInfo, pAllocator, pShaderModule);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateShaderModule);
 }
@@ -2950,13 +2325,6 @@ void VulkanCppConsumer::Process_vkDestroyBuffer(
     format::HandleId                            buffer,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -2977,13 +2345,6 @@ void VulkanCppConsumer::Process_vkDestroyBufferView(
     format::HandleId                            bufferView,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      bufferView);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3004,13 +2365,6 @@ void VulkanCppConsumer::Process_vkDestroyCommandPool(
     format::HandleId                            commandPool,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3031,13 +2385,6 @@ void VulkanCppConsumer::Process_vkDestroyDescriptorPool(
     format::HandleId                            descriptorPool,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      descriptorPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3058,13 +2405,6 @@ void VulkanCppConsumer::Process_vkDestroyDescriptorSetLayout(
     format::HandleId                            descriptorSetLayout,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      descriptorSetLayout);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3084,9 +2424,6 @@ void VulkanCppConsumer::Process_vkDestroyDevice(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     Generate_vkDestroyDevice(device, pAllocator);
     Post_APICall(format::ApiCallId::ApiCall_vkDestroyDevice);
 }
@@ -3097,13 +2434,6 @@ void VulkanCppConsumer::Process_vkDestroyEvent(
     format::HandleId                            event,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3124,13 +2454,6 @@ void VulkanCppConsumer::Process_vkDestroyFence(
     format::HandleId                            fence,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      fence);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3151,13 +2474,6 @@ void VulkanCppConsumer::Process_vkDestroyFramebuffer(
     format::HandleId                            framebuffer,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      framebuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3178,13 +2494,6 @@ void VulkanCppConsumer::Process_vkDestroyImage(
     format::HandleId                            image,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3205,13 +2514,6 @@ void VulkanCppConsumer::Process_vkDestroyImageView(
     format::HandleId                            imageView,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      imageView);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3231,9 +2533,6 @@ void VulkanCppConsumer::Process_vkDestroyInstance(
     format::HandleId                            instance,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -3252,13 +2551,6 @@ void VulkanCppConsumer::Process_vkDestroyPipeline(
     format::HandleId                            pipeline,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3279,13 +2571,6 @@ void VulkanCppConsumer::Process_vkDestroyPipelineCache(
     format::HandleId                            pipelineCache,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipelineCache);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3306,13 +2591,6 @@ void VulkanCppConsumer::Process_vkDestroyPipelineLayout(
     format::HandleId                            pipelineLayout,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipelineLayout);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3333,13 +2611,6 @@ void VulkanCppConsumer::Process_vkDestroyQueryPool(
     format::HandleId                            queryPool,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3360,13 +2631,6 @@ void VulkanCppConsumer::Process_vkDestroyRenderPass(
     format::HandleId                            renderPass,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      renderPass);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3387,13 +2651,6 @@ void VulkanCppConsumer::Process_vkDestroySampler(
     format::HandleId                            sampler,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      sampler);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3415,13 +2672,6 @@ void VulkanCppConsumer::Process_vkDestroySemaphore(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     Intercept_vkDestroySemaphore(device, semaphore, pAllocator);
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      semaphore);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3442,13 +2692,6 @@ void VulkanCppConsumer::Process_vkDestroyShaderModule(
     format::HandleId                            shaderModule,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      shaderModule);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3468,9 +2711,6 @@ void VulkanCppConsumer::Process_vkDeviceWaitIdle(
     VkResult                                    returnValue,
     format::HandleId                            device)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3487,9 +2727,6 @@ void VulkanCppConsumer::Process_vkEndCommandBuffer(
     VkResult                                    returnValue,
     format::HandleId                            commandBuffer)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -3508,14 +2745,6 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDevices(
     PointerDecoder<uint32_t>*                   pPhysicalDeviceCount,
     HandlePointerDecoder<VkPhysicalDevice>*     pPhysicalDevices)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pPhysicalDevices->GetPointer(),
-                                      pPhysicalDeviceCount);
     Generate_vkEnumeratePhysicalDevices(returnValue, instance, pPhysicalDeviceCount, pPhysicalDevices);
     Post_APICall(format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices);
 }
@@ -3527,15 +2756,6 @@ void VulkanCppConsumer::Process_vkFlushMappedMemoryRanges(
     uint32_t                                    memoryRangeCount,
     StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    for (uint32_t idx = 0; idx < memoryRangeCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pMemoryRanges->GetMetaStructPointer()[idx].memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3574,18 +2794,6 @@ void VulkanCppConsumer::Process_vkFreeCommandBuffers(
     uint32_t                                    commandBufferCount,
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandPool);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pCommandBuffers->GetPointer(),
-                                      commandBufferCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3621,18 +2829,6 @@ void VulkanCppConsumer::Process_vkFreeDescriptorSets(
     uint32_t                                    descriptorSetCount,
     HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      descriptorPool);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pDescriptorSets->GetPointer(),
-                                      descriptorSetCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3667,13 +2863,6 @@ void VulkanCppConsumer::Process_vkFreeMemory(
     format::HandleId                            memory,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      memory);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3694,13 +2883,6 @@ void VulkanCppConsumer::Process_vkGetBufferMemoryRequirements(
     format::HandleId                            buffer,
     StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     Generate_vkGetBufferMemoryRequirements(device, buffer, pMemoryRequirements);
     Post_APICall(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements);
 }
@@ -3711,13 +2893,6 @@ void VulkanCppConsumer::Process_vkGetDeviceMemoryCommitment(
     format::HandleId                            memory,
     PointerDecoder<VkDeviceSize>*               pCommittedMemoryInBytes)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      memory);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3741,13 +2916,6 @@ void VulkanCppConsumer::Process_vkGetDeviceQueue(
     uint32_t                                    queueIndex,
     HandlePointerDecoder<VkQueue>*              pQueue)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pQueue->GetPointer());
     Generate_vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, pQueue);
     Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceQueue);
 }
@@ -3758,13 +2926,6 @@ void VulkanCppConsumer::Process_vkGetEventStatus(
     format::HandleId                            device,
     format::HandleId                            event)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3784,13 +2945,6 @@ void VulkanCppConsumer::Process_vkGetFenceStatus(
     format::HandleId                            device,
     format::HandleId                            fence)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      fence);
     Generate_vkGetFenceStatus(returnValue, device, fence);
     Post_APICall(format::ApiCallId::ApiCall_vkGetFenceStatus);
 }
@@ -3801,13 +2955,6 @@ void VulkanCppConsumer::Process_vkGetImageMemoryRequirements(
     format::HandleId                            image,
     StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     Generate_vkGetImageMemoryRequirements(device, image, pMemoryRequirements);
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements);
 }
@@ -3819,13 +2966,6 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements(
     PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements>* pSparseMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     Generate_vkGetImageSparseMemoryRequirements(device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements);
 }
@@ -3837,13 +2977,6 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout(
     StructPointerDecoder<Decoded_VkImageSubresource>* pSubresource,
     StructPointerDecoder<Decoded_VkSubresourceLayout>* pLayout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -3873,9 +3006,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures>* pFeatures)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -3896,9 +3026,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties(
     VkFormat                                    format,
     StructPointerDecoder<Decoded_VkFormatProperties>* pFormatProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -3926,9 +3053,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties(
     VkImageCreateFlags                          flags,
     StructPointerDecoder<Decoded_VkImageFormatProperties>* pImageFormatProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -3958,9 +3082,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties>* pMemoryProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -3980,9 +3101,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -4003,9 +3121,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties(
     PointerDecoder<uint32_t>*                   pQueueFamilyPropertyCount,
     StructPointerDecoder<Decoded_VkQueueFamilyProperties>* pQueueFamilyProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     Generate_vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties);
 }
@@ -4021,9 +3136,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties(
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -4061,13 +3173,6 @@ void VulkanCppConsumer::Process_vkGetPipelineCacheData(
     PointerDecoder<size_t>*                     pDataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipelineCache);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
     fprintf(file, "// TODO: Support vkGetPipelineCacheData function.\n");
@@ -4087,13 +3192,6 @@ void VulkanCppConsumer::Process_vkGetQueryPoolResults(
     VkDeviceSize                                stride,
     VkQueryResultFlags                          flags)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     Generate_vkGetQueryPoolResults(returnValue, device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
     Post_APICall(format::ApiCallId::ApiCall_vkGetQueryPoolResults);
 }
@@ -4104,13 +3202,6 @@ void VulkanCppConsumer::Process_vkGetRenderAreaGranularity(
     format::HandleId                            renderPass,
     StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      renderPass);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4134,15 +3225,6 @@ void VulkanCppConsumer::Process_vkInvalidateMappedMemoryRanges(
     uint32_t                                    memoryRangeCount,
     StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    for (uint32_t idx = 0; idx < memoryRangeCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pMemoryRanges->GetMetaStructPointer()[idx].memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4184,13 +3266,6 @@ void VulkanCppConsumer::Process_vkMapMemory(
     VkMemoryMapFlags                            flags,
     PointerDecoder<uint64_t, void*>*            ppData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      memory);
     Generate_vkMapMemory(returnValue, device, memory, offset, size, flags, ppData);
     Post_APICall(format::ApiCallId::ApiCall_vkMapMemory);
 }
@@ -4203,18 +3278,6 @@ void VulkanCppConsumer::Process_vkMergePipelineCaches(
     uint32_t                                    srcCacheCount,
     HandlePointerDecoder<VkPipelineCache>*      pSrcCaches)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstCache);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pSrcCaches->GetPointer(),
-                                      srcCacheCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4251,63 +3314,6 @@ void VulkanCppConsumer::Process_vkQueueBindSparse(
     StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
     format::HandleId                            fence)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
-
-    for (uint32_t idx = 0; idx < bindInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindInfo->GetMetaStructPointer()[idx].pWaitSemaphores.GetPointer(),
-                                          pBindInfo->GetMetaStructPointer()[idx].pWaitSemaphores.GetLength());
-    }
-
-    for (uint32_t idx = 0; idx < pBindInfo->GetPointer()->bufferBindCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pBindInfo->GetMetaStructPointer()->pBufferBinds->GetMetaStructPointer()[idx].buffer);
-    }
-
-    for (uint32_t idx = 0; idx < pBindInfo->GetMetaStructPointer()->pBufferBinds->GetPointer()->bindCount; idx++) {
-                resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                                  GetCurrentFrameSplitNumber(),
-                                                  pBindInfo->GetMetaStructPointer()->pBufferBinds->GetMetaStructPointer()->pBinds->GetMetaStructPointer()[idx].memory);
-    }
-
-    for (uint32_t idx = 0; idx < pBindInfo->GetPointer()->imageOpaqueBindCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pBindInfo->GetMetaStructPointer()->pImageOpaqueBinds->GetMetaStructPointer()[idx].image);
-    }
-
-    for (uint32_t idx = 0; idx < pBindInfo->GetMetaStructPointer()->pImageOpaqueBinds->GetPointer()->bindCount; idx++) {
-                resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                                  GetCurrentFrameSplitNumber(),
-                                                  pBindInfo->GetMetaStructPointer()->pImageOpaqueBinds->GetMetaStructPointer()->pBinds->GetMetaStructPointer()[idx].memory);
-    }
-
-    for (uint32_t idx = 0; idx < pBindInfo->GetPointer()->imageBindCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pBindInfo->GetMetaStructPointer()->pImageBinds->GetMetaStructPointer()[idx].image);
-    }
-
-    for (uint32_t idx = 0; idx < pBindInfo->GetMetaStructPointer()->pImageBinds->GetPointer()->bindCount; idx++) {
-                resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                                  GetCurrentFrameSplitNumber(),
-                                                  pBindInfo->GetMetaStructPointer()->pImageBinds->GetMetaStructPointer()->pBinds->GetMetaStructPointer()[idx].memory);
-    }
-
-    for (uint32_t idx = 0; idx < bindInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindInfo->GetMetaStructPointer()[idx].pSignalSemaphores.GetPointer(),
-                                          pBindInfo->GetMetaStructPointer()[idx].pSignalSemaphores.GetLength());
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      fence);
     Generate_vkQueueBindSparse(returnValue, queue, bindInfoCount, pBindInfo, fence);
     Post_APICall(format::ApiCallId::ApiCall_vkQueueBindSparse);
 }
@@ -4320,34 +3326,6 @@ void VulkanCppConsumer::Process_vkQueueSubmit(
     StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
     format::HandleId                            fence)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
-
-    for (uint32_t idx = 0; idx < submitCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pSubmits->GetMetaStructPointer()[idx].pWaitSemaphores.GetPointer(),
-                                          pSubmits->GetMetaStructPointer()[idx].pWaitSemaphores.GetLength());
-    }
-
-    for (uint32_t idx = 0; idx < submitCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pSubmits->GetMetaStructPointer()[idx].pCommandBuffers.GetPointer(),
-                                          pSubmits->GetMetaStructPointer()[idx].pCommandBuffers.GetLength());
-    }
-
-    for (uint32_t idx = 0; idx < submitCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pSubmits->GetMetaStructPointer()[idx].pSignalSemaphores.GetPointer(),
-                                          pSubmits->GetMetaStructPointer()[idx].pSignalSemaphores.GetLength());
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      fence);
     Generate_vkQueueSubmit(returnValue, queue, submitCount, pSubmits, fence);
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSubmit);
 }
@@ -4357,9 +3335,6 @@ void VulkanCppConsumer::Process_vkQueueWaitIdle(
     VkResult                                    returnValue,
     format::HandleId                            queue)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // queue
@@ -4377,9 +3352,6 @@ void VulkanCppConsumer::Process_vkResetCommandBuffer(
     format::HandleId                            commandBuffer,
     VkCommandBufferResetFlags                   flags)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -4400,13 +3372,6 @@ void VulkanCppConsumer::Process_vkResetCommandPool(
     format::HandleId                            commandPool,
     VkCommandPoolResetFlags                     flags)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4429,13 +3394,6 @@ void VulkanCppConsumer::Process_vkResetDescriptorPool(
     format::HandleId                            descriptorPool,
     VkDescriptorPoolResetFlags                  flags)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      descriptorPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4457,13 +3415,6 @@ void VulkanCppConsumer::Process_vkResetEvent(
     format::HandleId                            device,
     format::HandleId                            event)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4484,14 +3435,6 @@ void VulkanCppConsumer::Process_vkResetFences(
     uint32_t                                    fenceCount,
     HandlePointerDecoder<VkFence>*              pFences)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pFences->GetPointer(),
-                                      fenceCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4524,13 +3467,6 @@ void VulkanCppConsumer::Process_vkSetEvent(
     format::HandleId                            device,
     format::HandleId                            event)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4549,13 +3485,6 @@ void VulkanCppConsumer::Process_vkUnmapMemory(
     format::HandleId                            device,
     format::HandleId                            memory)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      memory);
     Generate_vkUnmapMemory(device, memory);
     Post_APICall(format::ApiCallId::ApiCall_vkUnmapMemory);
 }
@@ -4568,7 +3497,6 @@ void VulkanCppConsumer::Process_vkUpdateDescriptorSets(
     uint32_t                                    descriptorCopyCount,
     StructPointerDecoder<Decoded_VkCopyDescriptorSet>* pDescriptorCopies)
 {
-    AddHandles_vkUpdateDescriptorSets(device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4628,14 +3556,6 @@ void VulkanCppConsumer::Process_vkWaitForFences(
     VkBool32                                    waitAll,
     uint64_t                                    timeout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pFences->GetPointer(),
-                                      fenceCount);
     Generate_vkWaitForFences(returnValue, device, fenceCount, pFences, waitAll, timeout);
     Post_APICall(format::ApiCallId::ApiCall_vkWaitForFences);
 }
@@ -4647,21 +3567,6 @@ void VulkanCppConsumer::Process_vkBindBufferMemory2(
     StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
 {
     Intercept_vkBindBufferMemory2(returnValue, device, bindInfoCount, pBindInfos);
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    for (uint32_t idx = 0; idx < bindInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindInfos->GetMetaStructPointer()[idx].buffer);
-    }
-
-    for (uint32_t idx = 0; idx < bindInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindInfos->GetMetaStructPointer()[idx].memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4701,21 +3606,6 @@ void VulkanCppConsumer::Process_vkBindImageMemory2(
     StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
 {
     Intercept_vkBindImageMemory2(returnValue, device, bindInfoCount, pBindInfos);
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    for (uint32_t idx = 0; idx < bindInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindInfos->GetMetaStructPointer()[idx].image);
-    }
-
-    for (uint32_t idx = 0; idx < bindInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindInfos->GetMetaStructPointer()[idx].memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4757,9 +3647,6 @@ void VulkanCppConsumer::Process_vkCmdDispatchBase(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -4787,9 +3674,6 @@ void VulkanCppConsumer::Process_vkCmdSetDeviceMask(
     format::HandleId                            commandBuffer,
     uint32_t                                    deviceMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -4810,25 +3694,6 @@ void VulkanCppConsumer::Process_vkCreateDescriptorUpdateTemplate(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->descriptorSetLayout);
-    }
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->pipelineLayout);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pDescriptorUpdateTemplate->GetPointer());
     Generate_vkCreateDescriptorUpdateTemplate(returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate);
 }
@@ -4841,13 +3706,6 @@ void VulkanCppConsumer::Process_vkCreateSamplerYcbcrConversion(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pYcbcrConversion->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4883,13 +3741,6 @@ void VulkanCppConsumer::Process_vkDestroyDescriptorUpdateTemplate(
     format::HandleId                            descriptorUpdateTemplate,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      descriptorUpdateTemplate);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4910,13 +3761,6 @@ void VulkanCppConsumer::Process_vkDestroySamplerYcbcrConversion(
     format::HandleId                            ycbcrConversion,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      ycbcrConversion);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -4938,16 +3782,6 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceGroups(
     PointerDecoder<uint32_t>*                   pPhysicalDeviceGroupCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    for (uint32_t idx = 0; idx < *(pPhysicalDeviceGroupCount->GetPointer()); idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pPhysicalDeviceGroupProperties->GetMetaStructPointer()[idx].physicalDevices.GetPointer(),
-                                          pPhysicalDeviceGroupProperties->GetMetaStructPointer()[idx].physicalDevices.GetLength());
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -4978,15 +3812,6 @@ void VulkanCppConsumer::Process_vkGetBufferMemoryRequirements2(
     StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->buffer);
-    }
     Generate_vkGetBufferMemoryRequirements2(device, pInfo, pMemoryRequirements);
     Post_APICall(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2);
 }
@@ -4997,9 +3822,6 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupport(
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport>* pSupport)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5035,9 +3857,6 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPeerMemoryFeatures(
     uint32_t                                    remoteDeviceIndex,
     PointerDecoder<VkPeerMemoryFeatureFlags>*   pPeerMemoryFeatures)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5064,13 +3883,6 @@ void VulkanCppConsumer::Process_vkGetDeviceQueue2(
     StructPointerDecoder<Decoded_VkDeviceQueueInfo2>* pQueueInfo,
     HandlePointerDecoder<VkQueue>*              pQueue)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pQueue->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5101,15 +3913,6 @@ void VulkanCppConsumer::Process_vkGetImageMemoryRequirements2(
     StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->image);
-    }
     Generate_vkGetImageMemoryRequirements2(device, pInfo, pMemoryRequirements);
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2);
 }
@@ -5121,15 +3924,6 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2(
     PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->image);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5167,9 +3961,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo>* pExternalBufferInfo,
     StructPointerDecoder<Decoded_VkExternalBufferProperties>* pExternalBufferProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5203,9 +3994,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFenceProperties(
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalFenceInfo>* pExternalFenceInfo,
     StructPointerDecoder<Decoded_VkExternalFenceProperties>* pExternalFenceProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5239,9 +4027,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphoreProperties(
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalSemaphoreInfo>* pExternalSemaphoreInfo,
     StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>* pExternalSemaphoreProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5274,9 +4059,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures2(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>* pFeatures)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5302,9 +4084,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties2(
     VkFormat                                    format,
     StructPointerDecoder<Decoded_VkFormatProperties2>* pFormatProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5333,9 +4112,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2(
     StructPointerDecoder<Decoded_VkPhysicalDeviceImageFormatInfo2>* pImageFormatInfo,
     StructPointerDecoder<Decoded_VkImageFormatProperties2>* pImageFormatProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5369,9 +4145,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties2(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5396,9 +4169,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties2(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5424,9 +4194,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2(
     PointerDecoder<uint32_t>*                   pQueueFamilyPropertyCount,
     StructPointerDecoder<Decoded_VkQueueFamilyProperties2>* pQueueFamilyProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5457,9 +4224,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2(
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties2>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -5497,13 +4261,6 @@ void VulkanCppConsumer::Process_vkTrimCommandPool(
     format::HandleId                            commandPool,
     VkCommandPoolTrimFlags                      flags)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5523,9 +4280,6 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderPass2(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -5562,17 +4316,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCount(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      countBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -5605,17 +4348,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCount(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      countBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -5643,9 +4375,6 @@ void VulkanCppConsumer::Process_vkCmdEndRenderPass2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -5670,9 +4399,6 @@ void VulkanCppConsumer::Process_vkCmdNextSubpass2(
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -5707,13 +4433,6 @@ void VulkanCppConsumer::Process_vkCreateRenderPass2(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pRenderPass->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5749,15 +4468,6 @@ void VulkanCppConsumer::Process_vkGetBufferDeviceAddress(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->buffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5782,15 +4492,6 @@ void VulkanCppConsumer::Process_vkGetBufferOpaqueCaptureAddress(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->buffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5815,15 +4516,6 @@ void VulkanCppConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddress(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5849,13 +4541,6 @@ void VulkanCppConsumer::Process_vkGetSemaphoreCounterValue(
     format::HandleId                            semaphore,
     PointerDecoder<uint64_t>*                   pValue)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      semaphore);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5880,13 +4565,6 @@ void VulkanCppConsumer::Process_vkResetQueryPool(
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5909,15 +4587,6 @@ void VulkanCppConsumer::Process_vkSignalSemaphore(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pSignalInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pSignalInfo->GetMetaStructPointer()->semaphore);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5944,16 +4613,6 @@ void VulkanCppConsumer::Process_vkWaitSemaphores(
     StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pWaitInfo,
     uint64_t                                    timeout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pWaitInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pWaitInfo->GetMetaStructPointer()->pSemaphores.GetPointer(),
-                                          pWaitInfo->GetMetaStructPointer()->pSemaphores.GetLength());
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -5979,45 +4638,6 @@ void VulkanCppConsumer::Process_vkCmdBeginRendering(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    for (uint32_t idx = 0; idx < pRenderingInfo->GetPointer()->colorAttachmentCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pRenderingInfo->GetMetaStructPointer()->pColorAttachments->GetMetaStructPointer()[idx].imageView);
-    }
-
-    for (uint32_t idx = 0; idx < pRenderingInfo->GetPointer()->colorAttachmentCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pRenderingInfo->GetMetaStructPointer()->pColorAttachments->GetMetaStructPointer()[idx].resolveImageView);
-    }
-
-    if (pRenderingInfo->GetMetaStructPointer()->pDepthAttachment->GetMetaStructPointer() != nullptr) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pRenderingInfo->GetMetaStructPointer()->pDepthAttachment->GetMetaStructPointer()->imageView);
-    }
-
-    if (pRenderingInfo->GetMetaStructPointer()->pDepthAttachment->GetMetaStructPointer() != nullptr) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pRenderingInfo->GetMetaStructPointer()->pDepthAttachment->GetMetaStructPointer()->resolveImageView);
-    }
-
-    if (pRenderingInfo->GetMetaStructPointer()->pStencilAttachment->GetMetaStructPointer() != nullptr) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pRenderingInfo->GetMetaStructPointer()->pStencilAttachment->GetMetaStructPointer()->imageView);
-    }
-
-    if (pRenderingInfo->GetMetaStructPointer()->pStencilAttachment->GetMetaStructPointer() != nullptr) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pRenderingInfo->GetMetaStructPointer()->pStencilAttachment->GetMetaStructPointer()->resolveImageView);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6046,14 +4666,6 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2(
     PointerDecoder<VkDeviceSize>*               pSizes,
     PointerDecoder<VkDeviceSize>*               pStrides)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pBuffers->GetPointer(),
-                                      bindingCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6122,21 +4734,6 @@ void VulkanCppConsumer::Process_vkCmdBlitImage2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pBlitImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBlitImageInfo->GetMetaStructPointer()->srcImage);
-    }
-
-    if (pBlitImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBlitImageInfo->GetMetaStructPointer()->dstImage);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6160,21 +4757,6 @@ void VulkanCppConsumer::Process_vkCmdCopyBuffer2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pCopyBufferInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyBufferInfo->GetMetaStructPointer()->srcBuffer);
-    }
-
-    if (pCopyBufferInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyBufferInfo->GetMetaStructPointer()->dstBuffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6198,21 +4780,6 @@ void VulkanCppConsumer::Process_vkCmdCopyBufferToImage2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pCopyBufferToImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyBufferToImageInfo->GetMetaStructPointer()->srcBuffer);
-    }
-
-    if (pCopyBufferToImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyBufferToImageInfo->GetMetaStructPointer()->dstImage);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6236,21 +4803,6 @@ void VulkanCppConsumer::Process_vkCmdCopyImage2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pCopyImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyImageInfo->GetMetaStructPointer()->srcImage);
-    }
-
-    if (pCopyImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyImageInfo->GetMetaStructPointer()->dstImage);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6274,21 +4826,6 @@ void VulkanCppConsumer::Process_vkCmdCopyImageToBuffer2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pCopyImageToBufferInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyImageToBufferInfo->GetMetaStructPointer()->srcImage);
-    }
-
-    if (pCopyImageToBufferInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyImageToBufferInfo->GetMetaStructPointer()->dstBuffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6311,9 +4848,6 @@ void VulkanCppConsumer::Process_vkCmdEndRendering(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6329,21 +4863,6 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    for (uint32_t idx = 0; idx < pDependencyInfo->GetPointer()->bufferMemoryBarrierCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pDependencyInfo->GetMetaStructPointer()->pBufferMemoryBarriers->GetMetaStructPointer()[idx].buffer);
-    }
-
-    for (uint32_t idx = 0; idx < pDependencyInfo->GetPointer()->imageMemoryBarrierCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pDependencyInfo->GetMetaStructPointer()->pImageMemoryBarriers->GetMetaStructPointer()[idx].image);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6368,13 +4887,6 @@ void VulkanCppConsumer::Process_vkCmdResetEvent2(
     format::HandleId                            event,
     VkPipelineStageFlags2                       stageMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6394,21 +4906,6 @@ void VulkanCppConsumer::Process_vkCmdResolveImage2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pResolveImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pResolveImageInfo->GetMetaStructPointer()->srcImage);
-    }
-
-    if (pResolveImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pResolveImageInfo->GetMetaStructPointer()->dstImage);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6432,9 +4929,6 @@ void VulkanCppConsumer::Process_vkCmdSetCullMode(
     format::HandleId                            commandBuffer,
     VkCullModeFlags                             cullMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6452,9 +4946,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBiasEnable(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthBiasEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6472,9 +4963,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBoundsTestEnable(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthBoundsTestEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6492,9 +4980,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthCompareOp(
     format::HandleId                            commandBuffer,
     VkCompareOp                                 depthCompareOp)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6512,9 +4997,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthTestEnable(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthTestEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6532,9 +5014,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthWriteEnable(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthWriteEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6553,25 +5032,6 @@ void VulkanCppConsumer::Process_vkCmdSetEvent2(
     format::HandleId                            event,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
-
-    for (uint32_t idx = 0; idx < pDependencyInfo->GetPointer()->bufferMemoryBarrierCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pDependencyInfo->GetMetaStructPointer()->pBufferMemoryBarriers->GetMetaStructPointer()[idx].buffer);
-    }
-
-    for (uint32_t idx = 0; idx < pDependencyInfo->GetPointer()->imageMemoryBarrierCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pDependencyInfo->GetMetaStructPointer()->pImageMemoryBarriers->GetMetaStructPointer()[idx].image);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6597,9 +5057,6 @@ void VulkanCppConsumer::Process_vkCmdSetFrontFace(
     format::HandleId                            commandBuffer,
     VkFrontFace                                 frontFace)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6617,9 +5074,6 @@ void VulkanCppConsumer::Process_vkCmdSetPrimitiveRestartEnable(
     format::HandleId                            commandBuffer,
     VkBool32                                    primitiveRestartEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6637,9 +5091,6 @@ void VulkanCppConsumer::Process_vkCmdSetPrimitiveTopology(
     format::HandleId                            commandBuffer,
     VkPrimitiveTopology                         primitiveTopology)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6657,9 +5108,6 @@ void VulkanCppConsumer::Process_vkCmdSetRasterizerDiscardEnable(
     format::HandleId                            commandBuffer,
     VkBool32                                    rasterizerDiscardEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6678,9 +5126,6 @@ void VulkanCppConsumer::Process_vkCmdSetScissorWithCount(
     uint32_t                                    scissorCount,
     StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6720,9 +5165,6 @@ void VulkanCppConsumer::Process_vkCmdSetStencilOp(
     VkStencilOp                                 depthFailOp,
     VkCompareOp                                 compareOp)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6748,9 +5190,6 @@ void VulkanCppConsumer::Process_vkCmdSetStencilTestEnable(
     format::HandleId                            commandBuffer,
     VkBool32                                    stencilTestEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6769,9 +5208,6 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWithCount(
     uint32_t                                    viewportCount,
     StructPointerDecoder<Decoded_VkViewport>*   pViewports)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6809,26 +5245,6 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents2(
     HandlePointerDecoder<VkEvent>*              pEvents,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pEvents->GetPointer(),
-                                      eventCount);
-
-    for (uint32_t idx = 0; idx < pDependencyInfos->GetPointer()->bufferMemoryBarrierCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pDependencyInfos->GetMetaStructPointer()->pBufferMemoryBarriers->GetMetaStructPointer()[idx].buffer);
-    }
-
-    for (uint32_t idx = 0; idx < pDependencyInfos->GetPointer()->imageMemoryBarrierCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pDependencyInfos->GetMetaStructPointer()->pImageMemoryBarriers->GetMetaStructPointer()[idx].image);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6879,13 +5295,6 @@ void VulkanCppConsumer::Process_vkCmdWriteTimestamp2(
     format::HandleId                            queryPool,
     uint32_t                                    query)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -6910,13 +5319,6 @@ void VulkanCppConsumer::Process_vkCreatePrivateDataSlot(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pPrivateDataSlot->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -6952,13 +5354,6 @@ void VulkanCppConsumer::Process_vkDestroyPrivateDataSlot(
     format::HandleId                            privateDataSlot,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      privateDataSlot);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -6979,9 +5374,6 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirements(
     StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirements>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -7015,9 +5407,6 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirements(
     StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -7052,9 +5441,6 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirements(
     PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -7093,9 +5479,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceToolProperties(
     PointerDecoder<uint32_t>*                   pToolCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7128,13 +5511,6 @@ void VulkanCppConsumer::Process_vkGetPrivateData(
     format::HandleId                            privateDataSlot,
     PointerDecoder<uint64_t>*                   pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      privateDataSlot);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -7163,31 +5539,6 @@ void VulkanCppConsumer::Process_vkQueueSubmit2(
     StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
     format::HandleId                            fence)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
-
-    for (uint32_t idx = 0; idx < pSubmits->GetPointer()->waitSemaphoreInfoCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pSubmits->GetMetaStructPointer()->pWaitSemaphoreInfos->GetMetaStructPointer()[idx].semaphore);
-    }
-
-    for (uint32_t idx = 0; idx < pSubmits->GetPointer()->commandBufferInfoCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pSubmits->GetMetaStructPointer()->pCommandBufferInfos->GetMetaStructPointer()[idx].commandBuffer);
-    }
-
-    for (uint32_t idx = 0; idx < pSubmits->GetPointer()->signalSemaphoreInfoCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pSubmits->GetMetaStructPointer()->pSignalSemaphoreInfos->GetMetaStructPointer()[idx].semaphore);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      fence);
     Generate_vkQueueSubmit2(returnValue, queue, submitCount, pSubmits, fence);
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSubmit2);
 }
@@ -7201,13 +5552,6 @@ void VulkanCppConsumer::Process_vkSetPrivateData(
     format::HandleId                            privateDataSlot,
     uint64_t                                    data)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      privateDataSlot);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -7232,13 +5576,6 @@ void VulkanCppConsumer::Process_vkDestroySurfaceKHR(
     format::HandleId                            surface,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      surface);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -7261,13 +5598,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
     format::HandleId                            surface,
     StructPointerDecoder<Decoded_VkSurfaceCapabilitiesKHR>* pSurfaceCapabilities)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      surface);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7294,13 +5624,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceFormatsKHR(
     PointerDecoder<uint32_t>*                   pSurfaceFormatCount,
     StructPointerDecoder<Decoded_VkSurfaceFormatKHR>* pSurfaceFormats)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      surface);
     Generate_vkGetPhysicalDeviceSurfaceFormatsKHR(returnValue, physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR);
 }
@@ -7313,13 +5636,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfacePresentModesKHR(
     PointerDecoder<uint32_t>*                   pPresentModeCount,
     PointerDecoder<VkPresentModeKHR>*           pPresentModes)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      surface);
     Generate_vkGetPhysicalDeviceSurfacePresentModesKHR(returnValue, physicalDevice, surface, pPresentModeCount, pPresentModes);
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR);
 }
@@ -7332,13 +5648,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceSupportKHR(
     format::HandleId                            surface,
     PointerDecoder<VkBool32>*                   pSupported)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      surface);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7365,27 +5674,6 @@ void VulkanCppConsumer::Process_vkAcquireNextImage2KHR(
     StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>* pAcquireInfo,
     PointerDecoder<uint32_t>*                   pImageIndex)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pAcquireInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pAcquireInfo->GetMetaStructPointer()->swapchain);
-    }
-
-    if (pAcquireInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pAcquireInfo->GetMetaStructPointer()->semaphore);
-    }
-
-    if (pAcquireInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pAcquireInfo->GetMetaStructPointer()->fence);
-    }
     Generate_vkAcquireNextImage2KHR(returnValue, device, pAcquireInfo, pImageIndex);
     Post_APICall(format::ApiCallId::ApiCall_vkAcquireNextImage2KHR);
 }
@@ -7400,21 +5688,6 @@ void VulkanCppConsumer::Process_vkAcquireNextImageKHR(
     format::HandleId                            fence,
     PointerDecoder<uint32_t>*                   pImageIndex)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      semaphore);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      fence);
     Generate_vkAcquireNextImageKHR(returnValue, device, swapchain, timeout, semaphore, fence, pImageIndex);
     Post_APICall(format::ApiCallId::ApiCall_vkAcquireNextImageKHR);
 }
@@ -7427,25 +5700,6 @@ void VulkanCppConsumer::Process_vkCreateSwapchainKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchain)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->surface);
-    }
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->oldSwapchain);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSwapchain->GetPointer());
     Generate_vkCreateSwapchainKHR(returnValue, device, pCreateInfo, pAllocator, pSwapchain);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateSwapchainKHR);
 }
@@ -7456,13 +5710,6 @@ void VulkanCppConsumer::Process_vkDestroySwapchainKHR(
     format::HandleId                            swapchain,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
     Generate_vkDestroySwapchainKHR(device, swapchain, pAllocator);
     Post_APICall(format::ApiCallId::ApiCall_vkDestroySwapchainKHR);
 }
@@ -7473,9 +5720,6 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPresentCapabilitiesKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDeviceGroupPresentCapabilitiesKHR>* pDeviceGroupPresentCapabilities)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -7504,13 +5748,6 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupSurfacePresentModesKHR(
     format::HandleId                            surface,
     PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>* pModes)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      surface);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -7537,13 +5774,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDevicePresentRectanglesKHR(
     PointerDecoder<uint32_t>*                   pRectCount,
     StructPointerDecoder<Decoded_VkRect2D>*     pRects)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      surface);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7575,18 +5805,6 @@ void VulkanCppConsumer::Process_vkGetSwapchainImagesKHR(
     PointerDecoder<uint32_t>*                   pSwapchainImageCount,
     HandlePointerDecoder<VkImage>*              pSwapchainImages)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pSwapchainImages->GetPointer(),
-                                      pSwapchainImageCount);
     Generate_vkGetSwapchainImagesKHR(returnValue, device, swapchain, pSwapchainImageCount, pSwapchainImages);
     Post_APICall(format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR);
 }
@@ -7597,23 +5815,6 @@ void VulkanCppConsumer::Process_vkQueuePresentKHR(
     format::HandleId                            queue,
     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
-
-    if (pPresentInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pPresentInfo->GetMetaStructPointer()->pWaitSemaphores.GetPointer(),
-                                          pPresentInfo->GetMetaStructPointer()->pWaitSemaphores.GetLength());
-    }
-
-    if (pPresentInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pPresentInfo->GetMetaStructPointer()->pSwapchains.GetPointer(),
-                                          pPresentInfo->GetMetaStructPointer()->pSwapchains.GetLength());
-    }
     Generate_vkQueuePresentKHR(returnValue, queue, pPresentInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkQueuePresentKHR);
 }
@@ -7626,17 +5827,6 @@ void VulkanCppConsumer::Process_vkCreateDisplayModeKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDisplayModeKHR>*     pMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      display);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pMode->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7677,19 +5867,6 @@ void VulkanCppConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->displayMode);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -7728,19 +5905,6 @@ void VulkanCppConsumer::Process_vkGetDisplayModePropertiesKHR(
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkDisplayModePropertiesKHR>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      display);
-
-    for (uint32_t idx = 0; idx < *(pPropertyCount->GetPointer()); idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pProperties->GetMetaStructPointer()[idx].displayMode);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7772,13 +5936,6 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneCapabilitiesKHR(
     uint32_t                                    planeIndex,
     StructPointerDecoder<Decoded_VkDisplayPlaneCapabilitiesKHR>* pCapabilities)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      mode);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7807,14 +5964,6 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
     PointerDecoder<uint32_t>*                   pDisplayCount,
     HandlePointerDecoder<VkDisplayKHR>*         pDisplays)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pDisplays->GetPointer(),
-                                      pDisplayCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7848,15 +5997,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkDisplayPlanePropertiesKHR>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    for (uint32_t idx = 0; idx < *(pPropertyCount->GetPointer()); idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pProperties->GetMetaStructPointer()[idx].currentDisplay);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7885,15 +6025,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPropertiesKHR(
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkDisplayPropertiesKHR>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    for (uint32_t idx = 0; idx < *(pPropertyCount->GetPointer()); idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pProperties->GetMetaStructPointer()[idx].display);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -7923,14 +6054,6 @@ void VulkanCppConsumer::Process_vkCreateSharedSwapchainsKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pSwapchains->GetPointer(),
-                                      swapchainCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -7980,13 +6103,6 @@ void VulkanCppConsumer::Process_vkCreateXlibSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     Generate_vkCreateXlibSurfaceKHR(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR);
 }
@@ -7999,9 +6115,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(
     uint64_t                                    dpy,
     size_t                                      visualID)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8028,13 +6141,6 @@ void VulkanCppConsumer::Process_vkCreateXcbSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     Generate_vkCreateXcbSurfaceKHR(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR);
 }
@@ -8047,9 +6153,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
     uint64_t                                    connection,
     uint32_t                                    visual_id)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
     fprintf(file, "// TODO: Support vkGetPhysicalDeviceXcbPresentationSupportKHR function.\n");
@@ -8064,13 +6167,6 @@ void VulkanCppConsumer::Process_vkCreateWaylandSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     Generate_vkCreateWaylandSurfaceKHR(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR);
 }
@@ -8082,9 +6178,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupportKHR
     uint32_t                                    queueFamilyIndex,
     uint64_t                                    display)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8109,13 +6202,6 @@ void VulkanCppConsumer::Process_vkCreateAndroidSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     Generate_vkCreateAndroidSurfaceKHR(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR);
 }
@@ -8127,13 +6213,6 @@ void VulkanCppConsumer::Process_vkCreateWin32SurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     Generate_vkCreateWin32SurfaceKHR(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR);
 }
@@ -8144,9 +6223,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKHR(
     format::HandleId                            physicalDevice,
     uint32_t                                    queueFamilyIndex)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8167,19 +6243,6 @@ void VulkanCppConsumer::Process_vkBindVideoSessionMemoryKHR(
     uint32_t                                    bindSessionMemoryInfoCount,
     StructPointerDecoder<Decoded_VkBindVideoSessionMemoryInfoKHR>* pBindSessionMemoryInfos)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      videoSession);
-
-    for (uint32_t idx = 0; idx < bindSessionMemoryInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindSessionMemoryInfos->GetMetaStructPointer()[idx].memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -8219,27 +6282,6 @@ void VulkanCppConsumer::Process_vkCmdBeginVideoCodingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pBeginInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBeginInfo->GetMetaStructPointer()->videoSession);
-    }
-
-    if (pBeginInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBeginInfo->GetMetaStructPointer()->videoSessionParameters);
-    }
-
-    if (pBeginInfo->GetMetaStructPointer()->pReferenceSlots->GetMetaStructPointer()->pPictureResource->GetMetaStructPointer() != nullptr) {
-                resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                                  GetCurrentFrameSplitNumber(),
-                                                  pBeginInfo->GetMetaStructPointer()->pReferenceSlots->GetMetaStructPointer()->pPictureResource->GetMetaStructPointer()->imageViewBinding);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -8264,9 +6306,6 @@ void VulkanCppConsumer::Process_vkCmdControlVideoCodingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR>* pCodingControlInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -8291,9 +6330,6 @@ void VulkanCppConsumer::Process_vkCmdEndVideoCodingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR>* pEndCodingInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -8321,13 +6357,6 @@ void VulkanCppConsumer::Process_vkCreateVideoSessionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pVideoSession->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -8366,25 +6395,6 @@ void VulkanCppConsumer::Process_vkCreateVideoSessionParametersKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkVideoSessionParametersKHR>* pVideoSessionParameters)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->videoSessionParametersTemplate);
-    }
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->videoSession);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pVideoSessionParameters->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -8421,13 +6431,6 @@ void VulkanCppConsumer::Process_vkDestroyVideoSessionKHR(
     format::HandleId                            videoSession,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      videoSession);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -8449,13 +6452,6 @@ void VulkanCppConsumer::Process_vkDestroyVideoSessionParametersKHR(
     format::HandleId                            videoSessionParameters,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      videoSessionParameters);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -8478,9 +6474,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
     StructPointerDecoder<Decoded_VkVideoProfileInfoKHR>* pVideoProfile,
     StructPointerDecoder<Decoded_VkVideoCapabilitiesKHR>* pCapabilities)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8518,9 +6511,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
     PointerDecoder<uint32_t>*                   pVideoFormatPropertyCount,
     StructPointerDecoder<Decoded_VkVideoFormatPropertiesKHR>* pVideoFormatProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8562,13 +6552,6 @@ void VulkanCppConsumer::Process_vkGetVideoSessionMemoryRequirementsKHR(
     PointerDecoder<uint32_t>*                   pMemoryRequirementsCount,
     StructPointerDecoder<Decoded_VkVideoSessionMemoryRequirementsKHR>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      videoSession);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -8603,13 +6586,6 @@ void VulkanCppConsumer::Process_vkUpdateVideoSessionParametersKHR(
     format::HandleId                            videoSessionParameters,
     StructPointerDecoder<Decoded_VkVideoSessionParametersUpdateInfoKHR>* pUpdateInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      videoSessionParameters);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -8636,15 +6612,6 @@ void VulkanCppConsumer::Process_vkCmdDecodeVideoKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pDecodeInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pDecodeInfo->GetMetaStructPointer()->srcBuffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -8668,9 +6635,6 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -8694,9 +6658,6 @@ void VulkanCppConsumer::Process_vkCmdEndRenderingKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -8712,9 +6673,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>* pFeatures)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8741,9 +6699,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties2KHR(
     VkFormat                                    format,
     StructPointerDecoder<Decoded_VkFormatProperties2>* pFormatProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8773,9 +6728,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2KHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceImageFormatInfo2>* pImageFormatInfo,
     StructPointerDecoder<Decoded_VkImageFormatProperties2>* pImageFormatProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8810,9 +6762,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties2KHR(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8838,9 +6787,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8867,9 +6813,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
     PointerDecoder<uint32_t>*                   pQueueFamilyPropertyCount,
     StructPointerDecoder<Decoded_VkQueueFamilyProperties2>* pQueueFamilyProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8901,9 +6844,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2K
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties2>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -8945,9 +6885,6 @@ void VulkanCppConsumer::Process_vkCmdDispatchBaseKHR(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -8976,9 +6913,6 @@ void VulkanCppConsumer::Process_vkCmdSetDeviceMaskKHR(
     format::HandleId                            commandBuffer,
     uint32_t                                    deviceMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -9000,9 +6934,6 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPeerMemoryFeaturesKHR(
     uint32_t                                    remoteDeviceIndex,
     PointerDecoder<VkPeerMemoryFeatureFlags>*   pPeerMemoryFeatures)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9029,13 +6960,6 @@ void VulkanCppConsumer::Process_vkTrimCommandPoolKHR(
     format::HandleId                            commandPool,
     VkCommandPoolTrimFlags                      flags)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9057,9 +6981,6 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceGroupsKHR(
     PointerDecoder<uint32_t>*                   pPhysicalDeviceGroupCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -9090,9 +7011,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo>* pExternalBufferInfo,
     StructPointerDecoder<Decoded_VkExternalBufferProperties>* pExternalBufferProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -9127,15 +7045,6 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandleKHR(
     StructPointerDecoder<Decoded_VkMemoryGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pGetWin32HandleInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGetWin32HandleInfo->GetMetaStructPointer()->memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9168,9 +7077,6 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     uint64_t                                    handle,
     StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>* pMemoryWin32HandleProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9204,15 +7110,6 @@ void VulkanCppConsumer::Process_vkGetMemoryFdKHR(
     StructPointerDecoder<Decoded_VkMemoryGetFdInfoKHR>* pGetFdInfo,
     PointerDecoder<int>*                        pFd)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pGetFdInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGetFdInfo->GetMetaStructPointer()->memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9245,9 +7142,6 @@ void VulkanCppConsumer::Process_vkGetMemoryFdPropertiesKHR(
     int                                         fd,
     StructPointerDecoder<Decoded_VkMemoryFdPropertiesKHR>* pMemoryFdProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9278,9 +7172,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePropertiesKH
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalSemaphoreInfo>* pExternalSemaphoreInfo,
     StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>* pExternalSemaphoreProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -9315,15 +7206,6 @@ void VulkanCppConsumer::Process_vkGetSemaphoreWin32HandleKHR(
     StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pGetWin32HandleInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGetWin32HandleInfo->GetMetaStructPointer()->semaphore);
-    }
     Generate_vkGetSemaphoreWin32HandleKHR(returnValue, device, pGetWin32HandleInfo, pHandle);
     Post_APICall(format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR);
 }
@@ -9334,15 +7216,6 @@ void VulkanCppConsumer::Process_vkImportSemaphoreWin32HandleKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>* pImportSemaphoreWin32HandleInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pImportSemaphoreWin32HandleInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pImportSemaphoreWin32HandleInfo->GetMetaStructPointer()->semaphore);
-    }
     Generate_vkImportSemaphoreWin32HandleKHR(returnValue, device, pImportSemaphoreWin32HandleInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR);
 }
@@ -9353,15 +7226,6 @@ void VulkanCppConsumer::Process_vkGetSemaphoreFdKHR(
     StructPointerDecoder<Decoded_VkSemaphoreGetFdInfoKHR>* pGetFdInfo,
     PointerDecoder<int>*                        pFd)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pGetFdInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGetFdInfo->GetMetaStructPointer()->semaphore);
-    }
     Generate_vkGetSemaphoreFdKHR(returnValue, device, pGetFdInfo, pFd);
     Post_APICall(format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR);
 }
@@ -9372,15 +7236,6 @@ void VulkanCppConsumer::Process_vkImportSemaphoreFdKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>* pImportSemaphoreFdInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pImportSemaphoreFdInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pImportSemaphoreFdInfo->GetMetaStructPointer()->semaphore);
-    }
     Generate_vkImportSemaphoreFdKHR(returnValue, device, pImportSemaphoreFdInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR);
 }
@@ -9393,13 +7248,6 @@ void VulkanCppConsumer::Process_vkCmdPushDescriptorSetKHR(
     uint32_t                                    descriptorWriteCount,
     StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      layout);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -9444,13 +7292,6 @@ void VulkanCppConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pDescriptorUpdateTemplate->GetPointer());
     Generate_vkCreateDescriptorUpdateTemplateKHR(returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR);
 }
@@ -9461,13 +7302,6 @@ void VulkanCppConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
     format::HandleId                            descriptorUpdateTemplate,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      descriptorUpdateTemplate);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9488,9 +7322,6 @@ void VulkanCppConsumer::Process_vkCmdBeginRenderPass2KHR(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -9523,9 +7354,6 @@ void VulkanCppConsumer::Process_vkCmdEndRenderPass2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -9551,9 +7379,6 @@ void VulkanCppConsumer::Process_vkCmdNextSubpass2KHR(
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -9589,13 +7414,6 @@ void VulkanCppConsumer::Process_vkCreateRenderPass2KHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pRenderPass->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9631,13 +7449,6 @@ void VulkanCppConsumer::Process_vkGetSwapchainStatusKHR(
     format::HandleId                            device,
     format::HandleId                            swapchain)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9657,9 +7468,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceExternalFenceInfo>* pExternalFenceInfo,
     StructPointerDecoder<Decoded_VkExternalFenceProperties>* pExternalFenceProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -9694,15 +7502,6 @@ void VulkanCppConsumer::Process_vkGetFenceWin32HandleKHR(
     StructPointerDecoder<Decoded_VkFenceGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pGetWin32HandleInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGetWin32HandleInfo->GetMetaStructPointer()->fence);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9733,15 +7532,6 @@ void VulkanCppConsumer::Process_vkImportFenceWin32HandleKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkImportFenceWin32HandleInfoKHR>* pImportFenceWin32HandleInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pImportFenceWin32HandleInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pImportFenceWin32HandleInfo->GetMetaStructPointer()->fence);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9768,15 +7558,6 @@ void VulkanCppConsumer::Process_vkGetFenceFdKHR(
     StructPointerDecoder<Decoded_VkFenceGetFdInfoKHR>* pGetFdInfo,
     PointerDecoder<int>*                        pFd)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pGetFdInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGetFdInfo->GetMetaStructPointer()->fence);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9807,15 +7588,6 @@ void VulkanCppConsumer::Process_vkImportFenceFdKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkImportFenceFdInfoKHR>* pImportFenceFdInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pImportFenceFdInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pImportFenceFdInfo->GetMetaStructPointer()->fence);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9841,9 +7613,6 @@ void VulkanCppConsumer::Process_vkAcquireProfilingLockKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9873,9 +7642,6 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQ
     StructPointerDecoder<Decoded_VkPerformanceCounterKHR>* pCounters,
     StructPointerDecoder<Decoded_VkPerformanceCounterDescriptionKHR>* pCounterDescriptions)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -9918,9 +7684,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPa
     StructPointerDecoder<Decoded_VkQueryPoolPerformanceCreateInfoKHR>* pPerformanceQueryCreateInfo,
     PointerDecoder<uint32_t>*                   pNumPasses)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -9948,9 +7711,6 @@ void VulkanCppConsumer::Process_vkReleaseProfilingLockKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -9968,15 +7728,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* pSurfaceInfo,
     StructPointerDecoder<Decoded_VkSurfaceCapabilities2KHR>* pSurfaceCapabilities)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    if (pSurfaceInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pSurfaceInfo->GetMetaStructPointer()->surface);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -10014,15 +7765,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
     PointerDecoder<uint32_t>*                   pSurfaceFormatCount,
     StructPointerDecoder<Decoded_VkSurfaceFormat2KHR>* pSurfaceFormats)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    if (pSurfaceInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pSurfaceInfo->GetMetaStructPointer()->surface);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -10063,13 +7805,6 @@ void VulkanCppConsumer::Process_vkGetDisplayModeProperties2KHR(
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkDisplayModeProperties2KHR>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      display);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -10104,15 +7839,6 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneCapabilities2KHR(
     StructPointerDecoder<Decoded_VkDisplayPlaneInfo2KHR>* pDisplayPlaneInfo,
     StructPointerDecoder<Decoded_VkDisplayPlaneCapabilities2KHR>* pCapabilities)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    if (pDisplayPlaneInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pDisplayPlaneInfo->GetMetaStructPointer()->mode);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -10149,9 +7875,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkDisplayPlaneProperties2KHR>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -10184,9 +7907,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayProperties2KHR(
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkDisplayProperties2KHR>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -10217,9 +7937,6 @@ void VulkanCppConsumer::Process_vkGetBufferMemoryRequirements2KHR(
     StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     Generate_vkGetBufferMemoryRequirements2KHR(device, pInfo, pMemoryRequirements);
     Post_APICall(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR);
 }
@@ -10230,9 +7947,6 @@ void VulkanCppConsumer::Process_vkGetImageMemoryRequirements2KHR(
     StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     Generate_vkGetImageMemoryRequirements2KHR(device, pInfo, pMemoryRequirements);
     Post_APICall(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR);
 }
@@ -10244,9 +7958,6 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2KHR(
     PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10286,13 +7997,6 @@ void VulkanCppConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pYcbcrConversion->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10329,13 +8033,6 @@ void VulkanCppConsumer::Process_vkDestroySamplerYcbcrConversionKHR(
     format::HandleId                            ycbcrConversion,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      ycbcrConversion);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10358,9 +8055,6 @@ void VulkanCppConsumer::Process_vkBindBufferMemory2KHR(
     StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
 {
     Intercept_vkBindBufferMemory2KHR(returnValue, device, bindInfoCount, pBindInfos);
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10401,9 +8095,6 @@ void VulkanCppConsumer::Process_vkBindImageMemory2KHR(
     StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
 {
     Intercept_vkBindImageMemory2KHR(returnValue, device, bindInfoCount, pBindInfos);
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10441,9 +8132,6 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupportKHR(
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport>* pSupport)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10481,17 +8169,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      countBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -10525,17 +8202,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCountKHR(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      countBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -10565,13 +8231,6 @@ void VulkanCppConsumer::Process_vkGetSemaphoreCounterValueKHR(
     format::HandleId                            semaphore,
     PointerDecoder<uint64_t>*                   pValue)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      semaphore);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10596,9 +8255,6 @@ void VulkanCppConsumer::Process_vkSignalSemaphoreKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10626,9 +8282,6 @@ void VulkanCppConsumer::Process_vkWaitSemaphoresKHR(
     StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pWaitInfo,
     uint64_t                                    timeout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10656,9 +8309,6 @@ void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateKHR(
     StructPointerDecoder<Decoded_VkExtent2D>*   pFragmentSize,
     PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -10693,9 +8343,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(
     PointerDecoder<uint32_t>*                   pFragmentShadingRateCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceFragmentShadingRateKHR>* pFragmentShadingRates)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -10728,13 +8375,6 @@ void VulkanCppConsumer::Process_vkWaitForPresentKHR(
     uint64_t                                    presentId,
     uint64_t                                    timeout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10758,9 +8398,6 @@ void VulkanCppConsumer::Process_vkGetBufferDeviceAddressKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10786,9 +8423,6 @@ void VulkanCppConsumer::Process_vkGetBufferOpaqueCaptureAddressKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10814,9 +8448,6 @@ void VulkanCppConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddressKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10842,13 +8473,6 @@ void VulkanCppConsumer::Process_vkCreateDeferredOperationKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDeferredOperationKHR>* pDeferredOperation)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pDeferredOperation->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10877,13 +8501,6 @@ void VulkanCppConsumer::Process_vkDeferredOperationJoinKHR(
     format::HandleId                            device,
     format::HandleId                            operation)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      operation);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10904,13 +8521,6 @@ void VulkanCppConsumer::Process_vkDestroyDeferredOperationKHR(
     format::HandleId                            operation,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      operation);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10932,13 +8542,6 @@ void VulkanCppConsumer::Process_vkGetDeferredOperationMaxConcurrencyKHR(
     format::HandleId                            device,
     format::HandleId                            operation)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      operation);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10958,13 +8561,6 @@ void VulkanCppConsumer::Process_vkGetDeferredOperationResultKHR(
     format::HandleId                            device,
     format::HandleId                            operation)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      operation);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -10986,15 +8582,6 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableInternalRepresentationsKH
     PointerDecoder<uint32_t>*                   pInternalRepresentationCount,
     StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>* pInternalRepresentations)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pExecutableInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pExecutableInfo->GetMetaStructPointer()->pipeline);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11036,15 +8623,6 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
     PointerDecoder<uint32_t>*                   pExecutableCount,
     StructPointerDecoder<Decoded_VkPipelineExecutablePropertiesKHR>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pPipelineInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pPipelineInfo->GetMetaStructPointer()->pipeline);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11086,15 +8664,6 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableStatisticsKHR(
     PointerDecoder<uint32_t>*                   pStatisticCount,
     StructPointerDecoder<Decoded_VkPipelineExecutableStatisticKHR>* pStatistics)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pExecutableInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pExecutableInfo->GetMetaStructPointer()->pipeline);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11134,15 +8703,6 @@ void VulkanCppConsumer::Process_vkMapMemory2KHR(
     StructPointerDecoder<Decoded_VkMemoryMapInfoKHR>* pMemoryMapInfo,
     PointerDecoder<uint64_t, void*>*            ppData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pMemoryMapInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pMemoryMapInfo->GetMetaStructPointer()->memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11173,15 +8733,6 @@ void VulkanCppConsumer::Process_vkUnmapMemory2KHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkMemoryUnmapInfoKHR>* pMemoryUnmapInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pMemoryUnmapInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pMemoryUnmapInfo->GetMetaStructPointer()->memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11206,15 +8757,6 @@ void VulkanCppConsumer::Process_vkCmdEncodeVideoKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pEncodeInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pEncodeInfo->GetMetaStructPointer()->dstBuffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11243,15 +8785,6 @@ void VulkanCppConsumer::Process_vkGetEncodedVideoSessionParametersKHR(
     PointerDecoder<size_t>*                     pDataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pVideoSessionParametersInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pVideoSessionParametersInfo->GetMetaStructPointer()->videoSessionParameters);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11297,9 +8830,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoEncodeQualityLevelProper
     StructPointerDecoder<Decoded_VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR>* pQualityLevelInfo,
     StructPointerDecoder<Decoded_VkVideoEncodeQualityLevelPropertiesKHR>* pQualityLevelProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -11333,9 +8863,6 @@ void VulkanCppConsumer::Process_vkCmdPipelineBarrier2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11361,13 +8888,6 @@ void VulkanCppConsumer::Process_vkCmdResetEvent2KHR(
     format::HandleId                            event,
     VkPipelineStageFlags2                       stageMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11389,13 +8909,6 @@ void VulkanCppConsumer::Process_vkCmdSetEvent2KHR(
     format::HandleId                            event,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      event);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11424,14 +8937,6 @@ void VulkanCppConsumer::Process_vkCmdWaitEvents2KHR(
     HandlePointerDecoder<VkEvent>*              pEvents,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pEvents->GetPointer(),
-                                      eventCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11484,13 +8989,6 @@ void VulkanCppConsumer::Process_vkCmdWriteBufferMarker2AMD(
     VkDeviceSize                                dstOffset,
     uint32_t                                    marker)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11517,13 +9015,6 @@ void VulkanCppConsumer::Process_vkCmdWriteTimestamp2KHR(
     format::HandleId                            queryPool,
     uint32_t                                    query)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11547,9 +9038,6 @@ void VulkanCppConsumer::Process_vkGetQueueCheckpointData2NV(
     PointerDecoder<uint32_t>*                   pCheckpointDataCount,
     StructPointerDecoder<Decoded_VkCheckpointData2NV>* pCheckpointData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // queue
@@ -11582,13 +9070,6 @@ void VulkanCppConsumer::Process_vkQueueSubmit2KHR(
     StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
     format::HandleId                            fence)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      fence);
     Generate_vkQueueSubmit2KHR(returnValue, queue, submitCount, pSubmits, fence);
     Post_APICall(format::ApiCallId::ApiCall_vkQueueSubmit2KHR);
 }
@@ -11597,9 +9078,6 @@ void VulkanCppConsumer::Process_vkCmdBlitImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11624,9 +9102,6 @@ void VulkanCppConsumer::Process_vkCmdCopyBuffer2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11651,9 +9126,6 @@ void VulkanCppConsumer::Process_vkCmdCopyBufferToImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11678,9 +9150,6 @@ void VulkanCppConsumer::Process_vkCmdCopyImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11705,9 +9174,6 @@ void VulkanCppConsumer::Process_vkCmdCopyImageToBuffer2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11732,9 +9198,6 @@ void VulkanCppConsumer::Process_vkCmdResolveImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11758,9 +9221,6 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysIndirect2KHR(
     format::HandleId                            commandBuffer,
     VkDeviceAddress                             indirectDeviceAddress)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11779,9 +9239,6 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
     StructPointerDecoder<Decoded_VkDeviceBufferMemoryRequirements>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11816,9 +9273,6 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirementsKHR(
     StructPointerDecoder<Decoded_VkDeviceImageMemoryRequirements>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11854,9 +9308,6 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
     PointerDecoder<uint32_t>*                   pSparseMemoryRequirementCount,
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11896,13 +9347,6 @@ void VulkanCppConsumer::Process_vkCmdBindIndexBuffer2KHR(
     VkDeviceSize                                size,
     VkIndexType                                 indexType)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -11928,9 +9372,6 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSubresourceLayoutKHR(
     StructPointerDecoder<Decoded_VkDeviceImageSubresourceInfoKHR>* pInfo,
     StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -11966,13 +9407,6 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2KHR(
     StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource,
     StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -12009,9 +9443,6 @@ void VulkanCppConsumer::Process_vkGetRenderingAreaGranularityKHR(
     StructPointerDecoder<Decoded_VkRenderingAreaInfoKHR>* pRenderingAreaInfo,
     StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -12041,9 +9472,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKH
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -12077,9 +9505,6 @@ void VulkanCppConsumer::Process_vkGetCalibratedTimestampsKHR(
     PointerDecoder<uint64_t>*                   pTimestamps,
     PointerDecoder<uint64_t>*                   pMaxDeviation)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -12127,9 +9552,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
     PointerDecoder<uint32_t>*                   pTimeDomainCount,
     PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -12156,17 +9578,6 @@ void VulkanCppConsumer::Process_vkFrameBoundaryANDROID(
     format::HandleId                            semaphore,
     format::HandleId                            image)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      semaphore);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -12189,13 +9600,6 @@ void VulkanCppConsumer::Process_vkCreateDebugReportCallbackEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDebugReportCallbackEXT>* pCallback)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pCallback->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -12237,9 +9641,6 @@ void VulkanCppConsumer::Process_vkDebugReportMessageEXT(
     StringDecoder*                              pLayerPrefix,
     StringDecoder*                              pMessage)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -12271,13 +9672,6 @@ void VulkanCppConsumer::Process_vkDestroyDebugReportCallbackEXT(
     format::HandleId                            callback,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      callback);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -12297,9 +9691,6 @@ void VulkanCppConsumer::Process_vkCmdDebugMarkerBeginEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12323,9 +9714,6 @@ void VulkanCppConsumer::Process_vkCmdDebugMarkerEndEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12342,9 +9730,6 @@ void VulkanCppConsumer::Process_vkCmdDebugMarkerInsertEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12370,9 +9755,6 @@ void VulkanCppConsumer::Process_vkDebugMarkerSetObjectNameEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDebugMarkerObjectNameInfoEXT>* pNameInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     Generate_vkDebugMarkerSetObjectNameEXT(returnValue, device, pNameInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT);
 }
@@ -12383,9 +9765,6 @@ void VulkanCppConsumer::Process_vkDebugMarkerSetObjectTagEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDebugMarkerObjectTagInfoEXT>* pTagInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     Generate_vkDebugMarkerSetObjectTagEXT(returnValue, device, pTagInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT);
 }
@@ -12397,13 +9776,6 @@ void VulkanCppConsumer::Process_vkCmdBeginQueryIndexedEXT(
     VkQueryControlFlags                         flags,
     uint32_t                                    index)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12431,14 +9803,6 @@ void VulkanCppConsumer::Process_vkCmdBeginTransformFeedbackEXT(
     HandlePointerDecoder<VkBuffer>*             pCounterBuffers,
     PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pCounterBuffers->GetPointer(),
-                                      counterBufferCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12488,14 +9852,6 @@ void VulkanCppConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     PointerDecoder<VkDeviceSize>*               pOffsets,
     PointerDecoder<VkDeviceSize>*               pSizes)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pBuffers->GetPointer(),
-                                      bindingCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12558,13 +9914,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectByteCountEXT(
     uint32_t                                    counterOffset,
     uint32_t                                    vertexStride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      counterBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12595,13 +9944,6 @@ void VulkanCppConsumer::Process_vkCmdEndQueryIndexedEXT(
     uint32_t                                    query,
     uint32_t                                    index)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12627,14 +9969,6 @@ void VulkanCppConsumer::Process_vkCmdEndTransformFeedbackEXT(
     HandlePointerDecoder<VkBuffer>*             pCounterBuffers,
     PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pCounterBuffers->GetPointer(),
-                                      counterBufferCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12681,13 +10015,6 @@ void VulkanCppConsumer::Process_vkGetImageViewAddressNVX(
     format::HandleId                            imageView,
     StructPointerDecoder<Decoded_VkImageViewAddressPropertiesNVX>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      imageView);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -12717,21 +10044,6 @@ void VulkanCppConsumer::Process_vkGetImageViewHandleNVX(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkImageViewHandleInfoNVX>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->imageView);
-    }
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->sampler);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -12760,17 +10072,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      countBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12804,17 +10105,6 @@ void VulkanCppConsumer::Process_vkCmdDrawIndirectCountAMD(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      countBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -12847,13 +10137,6 @@ void VulkanCppConsumer::Process_vkGetShaderInfoAMD(
     PointerDecoder<size_t>*                     pInfoSize,
     PointerDecoder<uint8_t>*                    pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -12888,13 +10171,6 @@ void VulkanCppConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -12936,9 +10212,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalImageFormatProperties
     VkExternalMemoryHandleTypeFlagsNV           externalHandleType,
     StructPointerDecoder<Decoded_VkExternalImageFormatPropertiesNV>* pExternalImageFormatProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -12974,13 +10247,6 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandleNV(
     VkExternalMemoryHandleTypeFlagsNV           handleType,
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      memory);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -13008,13 +10274,6 @@ void VulkanCppConsumer::Process_vkCreateViSurfaceNN(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -13049,15 +10308,6 @@ void VulkanCppConsumer::Process_vkCmdBeginConditionalRenderingEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>* pConditionalRenderingBegin)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pConditionalRenderingBegin->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pConditionalRenderingBegin->GetMetaStructPointer()->buffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -13081,9 +10331,6 @@ void VulkanCppConsumer::Process_vkCmdEndConditionalRenderingEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -13101,9 +10348,6 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWScalingNV(
     uint32_t                                    viewportCount,
     StructPointerDecoder<Decoded_VkViewportWScalingNV>* pViewportWScalings)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -13142,13 +10386,6 @@ void VulkanCppConsumer::Process_vkReleaseDisplayEXT(
     format::HandleId                            physicalDevice,
     format::HandleId                            display)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      display);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -13169,13 +10406,6 @@ void VulkanCppConsumer::Process_vkAcquireXlibDisplayEXT(
     uint64_t                                    dpy,
     format::HandleId                            display)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      display);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -13202,13 +10432,6 @@ void VulkanCppConsumer::Process_vkGetRandROutputDisplayEXT(
     size_t                                      rrOutput,
     HandlePointerDecoder<VkDisplayKHR>*         pDisplay)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pDisplay->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -13241,13 +10464,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
     format::HandleId                            surface,
     StructPointerDecoder<Decoded_VkSurfaceCapabilities2EXT>* pSurfaceCapabilities)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      surface);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -13277,13 +10493,6 @@ void VulkanCppConsumer::Process_vkDisplayPowerControlEXT(
     format::HandleId                            display,
     StructPointerDecoder<Decoded_VkDisplayPowerInfoEXT>* pDisplayPowerInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      display);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -13314,13 +10523,6 @@ void VulkanCppConsumer::Process_vkGetSwapchainCounterEXT(
     VkSurfaceCounterFlagBitsEXT                 counter,
     PointerDecoder<uint64_t>*                   pCounterValue)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -13349,13 +10551,6 @@ void VulkanCppConsumer::Process_vkRegisterDeviceEventEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkFence>*              pFence)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pFence->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -13395,17 +10590,6 @@ void VulkanCppConsumer::Process_vkRegisterDisplayEventEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkFence>*              pFence)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      display);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pFence->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -13445,13 +10629,6 @@ void VulkanCppConsumer::Process_vkGetPastPresentationTimingGOOGLE(
     PointerDecoder<uint32_t>*                   pPresentationTimingCount,
     StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>* pPresentationTimings)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -13482,13 +10659,6 @@ void VulkanCppConsumer::Process_vkGetRefreshCycleDurationGOOGLE(
     format::HandleId                            swapchain,
     StructPointerDecoder<Decoded_VkRefreshCycleDurationGOOGLE>* pDisplayTimingProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -13513,9 +10683,6 @@ void VulkanCppConsumer::Process_vkCmdSetDiscardRectangleEXT(
     uint32_t                                    discardRectangleCount,
     StructPointerDecoder<Decoded_VkRect2D>*     pDiscardRectangles)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -13554,9 +10721,6 @@ void VulkanCppConsumer::Process_vkCmdSetDiscardRectangleEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    discardRectangleEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -13575,9 +10739,6 @@ void VulkanCppConsumer::Process_vkCmdSetDiscardRectangleModeEXT(
     format::HandleId                            commandBuffer,
     VkDiscardRectangleModeEXT                   discardRectangleMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -13597,14 +10758,6 @@ void VulkanCppConsumer::Process_vkSetHdrMetadataEXT(
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains,
     StructPointerDecoder<Decoded_VkHdrMetadataEXT>* pMetadata)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pSwapchains->GetPointer(),
-                                      swapchainCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -13656,13 +10809,6 @@ void VulkanCppConsumer::Process_vkCreateIOSSurfaceMVK(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -13700,13 +10846,6 @@ void VulkanCppConsumer::Process_vkCreateMacOSSurfaceMVK(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -13741,9 +10880,6 @@ void VulkanCppConsumer::Process_vkCmdBeginDebugUtilsLabelEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -13767,9 +10903,6 @@ void VulkanCppConsumer::Process_vkCmdEndDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -13786,9 +10919,6 @@ void VulkanCppConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -13816,13 +10946,6 @@ void VulkanCppConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDebugUtilsMessengerEXT>* pMessenger)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pMessenger->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -13859,13 +10982,6 @@ void VulkanCppConsumer::Process_vkDestroyDebugUtilsMessengerEXT(
     format::HandleId                            messenger,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      messenger);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -13886,9 +11002,6 @@ void VulkanCppConsumer::Process_vkQueueBeginDebugUtilsLabelEXT(
     format::HandleId                            queue,
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // queue
@@ -13912,9 +11025,6 @@ void VulkanCppConsumer::Process_vkQueueEndDebugUtilsLabelEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            queue)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // queue
@@ -13931,9 +11041,6 @@ void VulkanCppConsumer::Process_vkQueueInsertDebugUtilsLabelEXT(
     format::HandleId                            queue,
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // queue
@@ -13959,9 +11066,6 @@ void VulkanCppConsumer::Process_vkSetDebugUtilsObjectNameEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     Generate_vkSetDebugUtilsObjectNameEXT(returnValue, device, pNameInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT);
 }
@@ -13972,9 +11076,6 @@ void VulkanCppConsumer::Process_vkSetDebugUtilsObjectTagEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* pTagInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     Generate_vkSetDebugUtilsObjectTagEXT(returnValue, device, pTagInfo);
     Post_APICall(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT);
 }
@@ -13986,9 +11087,6 @@ void VulkanCppConsumer::Process_vkSubmitDebugUtilsMessageEXT(
     VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
     StructPointerDecoder<Decoded_VkDebugUtilsMessengerCallbackDataEXT>* pCallbackData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -14018,9 +11116,6 @@ void VulkanCppConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     uint64_t                                    buffer,
     StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     Generate_vkGetAndroidHardwareBufferPropertiesANDROID(returnValue, device, buffer, pProperties);
     Post_APICall(format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID);
 }
@@ -14032,15 +11127,6 @@ void VulkanCppConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>* pInfo,
     PointerDecoder<uint64_t, void*>*            pBuffer)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->memory);
-    }
     Generate_vkGetMemoryAndroidHardwareBufferANDROID(returnValue, device, pInfo, pBuffer);
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID);
 }
@@ -14049,9 +11135,6 @@ void VulkanCppConsumer::Process_vkCmdSetSampleLocationsEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkSampleLocationsInfoEXT>* pSampleLocationsInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -14077,9 +11160,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMultisamplePropertiesEXT(
     VkSampleCountFlagBits                       samples,
     StructPointerDecoder<Decoded_VkMultisamplePropertiesEXT>* pMultisampleProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -14108,13 +11188,6 @@ void VulkanCppConsumer::Process_vkGetImageDrmFormatModifierPropertiesEXT(
     format::HandleId                            image,
     StructPointerDecoder<Decoded_VkImageDrmFormatModifierPropertiesEXT>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14145,13 +11218,6 @@ void VulkanCppConsumer::Process_vkCreateValidationCacheEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkValidationCacheEXT>* pValidationCache)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pValidationCache->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14188,13 +11254,6 @@ void VulkanCppConsumer::Process_vkDestroyValidationCacheEXT(
     format::HandleId                            validationCache,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      validationCache);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14218,13 +11277,6 @@ void VulkanCppConsumer::Process_vkGetValidationCacheDataEXT(
     PointerDecoder<size_t>*                     pDataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      validationCache);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14256,18 +11308,6 @@ void VulkanCppConsumer::Process_vkMergeValidationCachesEXT(
     uint32_t                                    srcCacheCount,
     HandlePointerDecoder<VkValidationCacheEXT>* pSrcCaches)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstCache);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pSrcCaches->GetPointer(),
-                                      srcCacheCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14302,13 +11342,6 @@ void VulkanCppConsumer::Process_vkCmdBindShadingRateImageNV(
     format::HandleId                            imageView,
     VkImageLayout                               imageLayout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      imageView);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -14331,9 +11364,6 @@ void VulkanCppConsumer::Process_vkCmdSetCoarseSampleOrderNV(
     uint32_t                                    customSampleOrderCount,
     StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>* pCustomSampleOrders)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -14374,9 +11404,6 @@ void VulkanCppConsumer::Process_vkCmdSetViewportShadingRatePaletteNV(
     uint32_t                                    viewportCount,
     StructPointerDecoder<Decoded_VkShadingRatePaletteNV>* pShadingRatePalettes)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -14416,21 +11443,6 @@ void VulkanCppConsumer::Process_vkBindAccelerationStructureMemoryNV(
     uint32_t                                    bindInfoCount,
     StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>* pBindInfos)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    for (uint32_t idx = 0; idx < bindInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindInfos->GetMetaStructPointer()[idx].accelerationStructure);
-    }
-
-    for (uint32_t idx = 0; idx < bindInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindInfos->GetMetaStructPointer()[idx].memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14470,17 +11482,6 @@ void VulkanCppConsumer::Process_vkCmdCopyAccelerationStructureNV(
     format::HandleId                            src,
     VkCopyAccelerationStructureModeKHR          mode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dst);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      src);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -14507,18 +11508,6 @@ void VulkanCppConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     format::HandleId                            queryPool,
     uint32_t                                    firstQuery)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pAccelerationStructures->GetPointer(),
-                                      accelerationStructureCount);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -14558,13 +11547,6 @@ void VulkanCppConsumer::Process_vkCompileDeferredNV(
     format::HandleId                            pipeline,
     uint32_t                                    shader)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14591,30 +11573,6 @@ void VulkanCppConsumer::Process_vkCreateRayTracingPipelinesNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipelineCache);
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].layout);
-    }
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].basePipelineHandle);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pPipelines->GetPointer(),
-                                      createInfoCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14665,13 +11623,6 @@ void VulkanCppConsumer::Process_vkDestroyAccelerationStructureNV(
     format::HandleId                            accelerationStructure,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      accelerationStructure);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14695,13 +11646,6 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureHandleNV(
     size_t                                      dataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      accelerationStructure);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14728,15 +11672,6 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureMemoryRequirementsNV(
     StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->accelerationStructure);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14770,13 +11705,6 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(
     size_t                                      dataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14811,13 +11739,6 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesNV(
     size_t                                      dataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14849,9 +11770,6 @@ void VulkanCppConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
     uint64_t                                    pHostPointer,
     StructPointerDecoder<Decoded_VkMemoryHostPointerPropertiesEXT>* pMemoryHostPointerProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14886,13 +11804,6 @@ void VulkanCppConsumer::Process_vkCmdWriteBufferMarkerAMD(
     VkDeviceSize                                dstOffset,
     uint32_t                                    marker)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      dstBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -14920,9 +11831,6 @@ void VulkanCppConsumer::Process_vkGetCalibratedTimestampsEXT(
     PointerDecoder<uint64_t>*                   pTimestamps,
     PointerDecoder<uint64_t>*                   pMaxDeviation)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -14970,9 +11878,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
     PointerDecoder<uint32_t>*                   pTimeDomainCount,
     PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -15003,17 +11908,6 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      countBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15045,13 +11939,6 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15077,9 +11964,6 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksNV(
     uint32_t                                    taskCount,
     uint32_t                                    firstTask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15101,9 +11985,6 @@ void VulkanCppConsumer::Process_vkCmdSetExclusiveScissorEnableNV(
     uint32_t                                    exclusiveScissorCount,
     PointerDecoder<VkBool32>*                   pExclusiveScissorEnables)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15138,9 +12019,6 @@ void VulkanCppConsumer::Process_vkCmdSetExclusiveScissorNV(
     uint32_t                                    exclusiveScissorCount,
     StructPointerDecoder<Decoded_VkRect2D>*     pExclusiveScissors)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15178,9 +12056,6 @@ void VulkanCppConsumer::Process_vkCmdSetCheckpointNV(
     format::HandleId                            commandBuffer,
     uint64_t                                    pCheckpointMarker)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15202,9 +12077,6 @@ void VulkanCppConsumer::Process_vkGetQueueCheckpointDataNV(
     PointerDecoder<uint32_t>*                   pCheckpointDataCount,
     StructPointerDecoder<Decoded_VkCheckpointDataNV>* pCheckpointData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // queue
@@ -15235,13 +12107,6 @@ void VulkanCppConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
     StructPointerDecoder<Decoded_VkPerformanceConfigurationAcquireInfoINTEL>* pAcquireInfo,
     HandlePointerDecoder<VkPerformanceConfigurationINTEL>* pConfiguration)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pConfiguration->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15276,9 +12141,6 @@ void VulkanCppConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkPerformanceMarkerInfoINTEL>* pMarkerInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15305,9 +12167,6 @@ void VulkanCppConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkPerformanceOverrideInfoINTEL>* pOverrideInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15334,9 +12193,6 @@ void VulkanCppConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkPerformanceStreamMarkerInfoINTEL>* pMarkerInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15364,9 +12220,6 @@ void VulkanCppConsumer::Process_vkGetPerformanceParameterINTEL(
     VkPerformanceParameterTypeINTEL             parameter,
     StructPointerDecoder<Decoded_VkPerformanceValueINTEL>* pValue)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15391,9 +12244,6 @@ void VulkanCppConsumer::Process_vkInitializePerformanceApiINTEL(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkInitializePerformanceApiInfoINTEL>* pInitializeInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15420,13 +12270,6 @@ void VulkanCppConsumer::Process_vkQueueSetPerformanceConfigurationINTEL(
     format::HandleId                            queue,
     format::HandleId                            configuration)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queue);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      configuration);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // queue
@@ -15447,13 +12290,6 @@ void VulkanCppConsumer::Process_vkReleasePerformanceConfigurationINTEL(
     format::HandleId                            device,
     format::HandleId                            configuration)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      configuration);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15472,9 +12308,6 @@ void VulkanCppConsumer::Process_vkUninitializePerformanceApiINTEL(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15491,13 +12324,6 @@ void VulkanCppConsumer::Process_vkSetLocalDimmingAMD(
     format::HandleId                            swapChain,
     VkBool32                                    localDimmingEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapChain);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15520,13 +12346,6 @@ void VulkanCppConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -15564,13 +12383,6 @@ void VulkanCppConsumer::Process_vkCreateMetalSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     Generate_vkCreateMetalSurfaceEXT(returnValue, instance, pCreateInfo, pAllocator, pSurface);
     Post_APICall(format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT);
 }
@@ -15580,9 +12392,6 @@ void VulkanCppConsumer::Process_vkGetBufferDeviceAddressEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15608,9 +12417,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(
     PointerDecoder<uint32_t>*                   pToolCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -15642,9 +12448,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV
     PointerDecoder<uint32_t>*                   pPropertyCount,
     StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesNV>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -15676,9 +12479,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamp
     PointerDecoder<uint32_t>*                   pCombinationCount,
     StructPointerDecoder<Decoded_VkFramebufferMixedSamplesCombinationNV>* pCombinations)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -15709,13 +12509,6 @@ void VulkanCppConsumer::Process_vkAcquireFullScreenExclusiveModeEXT(
     format::HandleId                            device,
     format::HandleId                            swapchain)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15737,9 +12530,6 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
     StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* pSurfaceInfo,
     PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>* pModes)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15772,9 +12562,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
     PointerDecoder<uint32_t>*                   pPresentModeCount,
     PointerDecoder<VkPresentModeKHR>*           pPresentModes)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -15810,13 +12597,6 @@ void VulkanCppConsumer::Process_vkReleaseFullScreenExclusiveModeEXT(
     format::HandleId                            device,
     format::HandleId                            swapchain)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      swapchain);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15838,13 +12618,6 @@ void VulkanCppConsumer::Process_vkCreateHeadlessSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -15880,9 +12653,6 @@ void VulkanCppConsumer::Process_vkCmdSetLineStippleEXT(
     uint32_t                                    lineStippleFactor,
     uint16_t                                    lineStipplePattern)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -15904,13 +12674,6 @@ void VulkanCppConsumer::Process_vkResetQueryPoolEXT(
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -15937,14 +12700,6 @@ void VulkanCppConsumer::Process_vkCmdBindVertexBuffers2EXT(
     PointerDecoder<VkDeviceSize>*               pSizes,
     PointerDecoder<VkDeviceSize>*               pStrides)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pBuffers->GetPointer(),
-                                      bindingCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16014,9 +12769,6 @@ void VulkanCppConsumer::Process_vkCmdSetCullModeEXT(
     format::HandleId                            commandBuffer,
     VkCullModeFlags                             cullMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16035,9 +12787,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBoundsTestEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthBoundsTestEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16056,9 +12805,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthCompareOpEXT(
     format::HandleId                            commandBuffer,
     VkCompareOp                                 depthCompareOp)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16077,9 +12823,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthTestEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthTestEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16098,9 +12841,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthWriteEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthWriteEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16119,9 +12859,6 @@ void VulkanCppConsumer::Process_vkCmdSetFrontFaceEXT(
     format::HandleId                            commandBuffer,
     VkFrontFace                                 frontFace)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16140,9 +12877,6 @@ void VulkanCppConsumer::Process_vkCmdSetPrimitiveTopologyEXT(
     format::HandleId                            commandBuffer,
     VkPrimitiveTopology                         primitiveTopology)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16162,9 +12896,6 @@ void VulkanCppConsumer::Process_vkCmdSetScissorWithCountEXT(
     uint32_t                                    scissorCount,
     StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16205,9 +12936,6 @@ void VulkanCppConsumer::Process_vkCmdSetStencilOpEXT(
     VkStencilOp                                 depthFailOp,
     VkCompareOp                                 compareOp)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16234,9 +12962,6 @@ void VulkanCppConsumer::Process_vkCmdSetStencilTestEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    stencilTestEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16256,9 +12981,6 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWithCountEXT(
     uint32_t                                    viewportCount,
     StructPointerDecoder<Decoded_VkViewport>*   pViewports)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16295,21 +13017,6 @@ void VulkanCppConsumer::Process_vkCopyImageToImageEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkCopyImageToImageInfoEXT>* pCopyImageToImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCopyImageToImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyImageToImageInfo->GetMetaStructPointer()->srcImage);
-    }
-
-    if (pCopyImageToImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyImageToImageInfo->GetMetaStructPointer()->dstImage);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16336,15 +13043,6 @@ void VulkanCppConsumer::Process_vkCopyImageToMemoryEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkCopyImageToMemoryInfoEXT>* pCopyImageToMemoryInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCopyImageToMemoryInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyImageToMemoryInfo->GetMetaStructPointer()->srcImage);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16371,15 +13069,6 @@ void VulkanCppConsumer::Process_vkCopyMemoryToImageEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkCopyMemoryToImageInfoEXT>* pCopyMemoryToImageInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCopyMemoryToImageInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCopyMemoryToImageInfo->GetMetaStructPointer()->dstImage);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16407,13 +13096,6 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2EXT(
     StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource,
     StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      image);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16451,15 +13133,6 @@ void VulkanCppConsumer::Process_vkTransitionImageLayoutEXT(
     uint32_t                                    transitionCount,
     StructPointerDecoder<Decoded_VkHostImageLayoutTransitionInfoEXT>* pTransitions)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    for (uint32_t idx = 0; idx < transitionCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pTransitions->GetMetaStructPointer()[idx].image);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16497,15 +13170,6 @@ void VulkanCppConsumer::Process_vkReleaseSwapchainImagesEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pReleaseInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pReleaseInfo->GetMetaStructPointer()->swapchain);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16532,13 +13196,6 @@ void VulkanCppConsumer::Process_vkCmdBindPipelineShaderGroupNV(
     format::HandleId                            pipeline,
     uint32_t                                    groupIndex)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16562,45 +13219,6 @@ void VulkanCppConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
     VkBool32                                    isPreprocessed,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->pipeline);
-    }
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->indirectCommandsLayout);
-    }
-
-    for (uint32_t idx = 0; idx < pGeneratedCommandsInfo->GetPointer()->streamCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pGeneratedCommandsInfo->GetMetaStructPointer()->pStreams->GetMetaStructPointer()[idx].buffer);
-    }
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->preprocessBuffer);
-    }
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->sequencesCountBuffer);
-    }
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->sequencesIndexBuffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16627,45 +13245,6 @@ void VulkanCppConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->pipeline);
-    }
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->indirectCommandsLayout);
-    }
-
-    for (uint32_t idx = 0; idx < pGeneratedCommandsInfo->GetPointer()->streamCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pGeneratedCommandsInfo->GetMetaStructPointer()->pStreams->GetMetaStructPointer()[idx].buffer);
-    }
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->preprocessBuffer);
-    }
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->sequencesCountBuffer);
-    }
-
-    if (pGeneratedCommandsInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGeneratedCommandsInfo->GetMetaStructPointer()->sequencesIndexBuffer);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16693,19 +13272,6 @@ void VulkanCppConsumer::Process_vkCreateIndirectCommandsLayoutNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectCommandsLayoutNV>* pIndirectCommandsLayout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    for (uint32_t idx = 0; idx < pCreateInfo->GetPointer()->tokenCount; idx++) {
-            resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                              GetCurrentFrameSplitNumber(),
-                                              pCreateInfo->GetMetaStructPointer()->pTokens->GetMetaStructPointer()[idx].pushconstantPipelineLayout);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pIndirectCommandsLayout->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16742,13 +13308,6 @@ void VulkanCppConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
     format::HandleId                            indirectCommandsLayout,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      indirectCommandsLayout);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16770,21 +13329,6 @@ void VulkanCppConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsNV(
     StructPointerDecoder<Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->pipeline);
-    }
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->indirectCommandsLayout);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16817,9 +13361,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBias2EXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDepthBiasInfoEXT>* pDepthBiasInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -16845,13 +13386,6 @@ void VulkanCppConsumer::Process_vkAcquireDrmDisplayEXT(
     int32_t                                     drmFd,
     format::HandleId                            display)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      display);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -16876,13 +13410,6 @@ void VulkanCppConsumer::Process_vkGetDrmDisplayEXT(
     uint32_t                                    connectorId,
     HandlePointerDecoder<VkDisplayKHR>*         display)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *display->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -16914,13 +13441,6 @@ void VulkanCppConsumer::Process_vkCreatePrivateDataSlotEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pPrivateDataSlot->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16957,13 +13477,6 @@ void VulkanCppConsumer::Process_vkDestroyPrivateDataSlotEXT(
     format::HandleId                            privateDataSlot,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      privateDataSlot);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -16987,13 +13500,6 @@ void VulkanCppConsumer::Process_vkGetPrivateDataEXT(
     format::HandleId                            privateDataSlot,
     PointerDecoder<uint64_t>*                   pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      privateDataSlot);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -17024,13 +13530,6 @@ void VulkanCppConsumer::Process_vkSetPrivateDataEXT(
     format::HandleId                            privateDataSlot,
     uint64_t                                    data)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      privateDataSlot);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -17056,9 +13555,6 @@ void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     VkFragmentShadingRateNV                     shadingRate,
     PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17086,9 +13582,6 @@ void VulkanCppConsumer::Process_vkGetDeviceFaultInfoEXT(
     StructPointerDecoder<Decoded_VkDeviceFaultCountsEXT>* pFaultCounts,
     StructPointerDecoder<Decoded_VkDeviceFaultInfoEXT>* pFaultInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -17124,13 +13617,6 @@ void VulkanCppConsumer::Process_vkAcquireWinrtDisplayNV(
     format::HandleId                            physicalDevice,
     format::HandleId                            display)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      display);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -17152,13 +13638,6 @@ void VulkanCppConsumer::Process_vkGetWinrtDisplayNV(
     uint32_t                                    deviceRelativeId,
     HandlePointerDecoder<VkDisplayKHR>*         pDisplay)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pDisplay->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -17188,13 +13667,6 @@ void VulkanCppConsumer::Process_vkCreateDirectFBSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -17232,9 +13704,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDirectFBPresentationSupportEX
     uint32_t                                    queueFamilyIndex,
     uint64_t                                    dfb)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -17259,9 +13728,6 @@ void VulkanCppConsumer::Process_vkCmdSetVertexInputEXT(
     uint32_t                                    vertexAttributeDescriptionCount,
     StructPointerDecoder<Decoded_VkVertexInputAttributeDescription2EXT>* pVertexAttributeDescriptions)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17319,15 +13785,6 @@ void VulkanCppConsumer::Process_vkGetMemoryZirconHandleFUCHSIA(
     StructPointerDecoder<Decoded_VkMemoryGetZirconHandleInfoFUCHSIA>* pGetZirconHandleInfo,
     PointerDecoder<uint32_t>*                   pZirconHandle)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pGetZirconHandleInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGetZirconHandleInfo->GetMetaStructPointer()->memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -17360,9 +13817,6 @@ void VulkanCppConsumer::Process_vkGetMemoryZirconHandlePropertiesFUCHSIA(
     uint32_t                                    zirconHandle,
     StructPointerDecoder<Decoded_VkMemoryZirconHandlePropertiesFUCHSIA>* pMemoryZirconHandleProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -17394,15 +13848,6 @@ void VulkanCppConsumer::Process_vkGetSemaphoreZirconHandleFUCHSIA(
     StructPointerDecoder<Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA>* pGetZirconHandleInfo,
     PointerDecoder<uint32_t>*                   pZirconHandle)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pGetZirconHandleInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pGetZirconHandleInfo->GetMetaStructPointer()->semaphore);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -17433,15 +13878,6 @@ void VulkanCppConsumer::Process_vkImportSemaphoreZirconHandleFUCHSIA(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA>* pImportSemaphoreZirconHandleInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pImportSemaphoreZirconHandleInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pImportSemaphoreZirconHandleInfo->GetMetaStructPointer()->semaphore);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -17467,13 +13903,6 @@ void VulkanCppConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
     format::HandleId                            imageView,
     VkImageLayout                               imageLayout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      imageView);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17495,15 +13924,6 @@ void VulkanCppConsumer::Process_vkGetMemoryRemoteAddressNV(
     StructPointerDecoder<Decoded_VkMemoryGetRemoteAddressInfoNV>* pMemoryGetRemoteAddressInfo,
     PointerDecoder<uint64_t, void*>*            pAddress)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pMemoryGetRemoteAddressInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pMemoryGetRemoteAddressInfo->GetMetaStructPointer()->memory);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -17532,9 +13952,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthBiasEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthBiasEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17553,9 +13970,6 @@ void VulkanCppConsumer::Process_vkCmdSetLogicOpEXT(
     format::HandleId                            commandBuffer,
     VkLogicOp                                   logicOp)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17574,9 +13988,6 @@ void VulkanCppConsumer::Process_vkCmdSetPatchControlPointsEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    patchControlPoints)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17595,9 +14006,6 @@ void VulkanCppConsumer::Process_vkCmdSetPrimitiveRestartEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    primitiveRestartEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17616,9 +14024,6 @@ void VulkanCppConsumer::Process_vkCmdSetRasterizerDiscardEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    rasterizerDiscardEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17639,13 +14044,6 @@ void VulkanCppConsumer::Process_vkCreateScreenSurfaceQNX(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      instance);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSurface->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // instance
@@ -17683,9 +14081,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceScreenPresentationSupportQNX(
     uint32_t                                    queueFamilyIndex,
     uint64_t                                    window)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -17708,9 +14103,6 @@ void VulkanCppConsumer::Process_vkCmdSetColorWriteEnableEXT(
     uint32_t                                    attachmentCount,
     PointerDecoder<VkBool32>*                   pColorWriteEnables)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17744,9 +14136,6 @@ void VulkanCppConsumer::Process_vkCmdDrawMultiEXT(
     uint32_t                                    firstInstance,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17794,9 +14183,6 @@ void VulkanCppConsumer::Process_vkCmdDrawMultiIndexedEXT(
     uint32_t                                    stride,
     PointerDecoder<int32_t>*                    pVertexOffset)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17843,19 +14229,6 @@ void VulkanCppConsumer::Process_vkBuildMicromapsEXT(
     uint32_t                                    infoCount,
     StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      deferredOperation);
-
-    for (uint32_t idx = 0; idx < infoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfos->GetMetaStructPointer()[idx].dstMicromap);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -17896,15 +14269,6 @@ void VulkanCppConsumer::Process_vkCmdBuildMicromapsEXT(
     uint32_t                                    infoCount,
     StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    for (uint32_t idx = 0; idx < infoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfos->GetMetaStructPointer()[idx].dstMicromap);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17941,15 +14305,6 @@ void VulkanCppConsumer::Process_vkCmdCopyMemoryToMicromapEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->dst);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -17974,21 +14329,6 @@ void VulkanCppConsumer::Process_vkCmdCopyMicromapEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->src);
-    }
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->dst);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18013,15 +14353,6 @@ void VulkanCppConsumer::Process_vkCmdCopyMicromapToMemoryEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->src);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18050,18 +14381,6 @@ void VulkanCppConsumer::Process_vkCmdWriteMicromapsPropertiesEXT(
     format::HandleId                            queryPool,
     uint32_t                                    firstQuery)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pMicromaps->GetPointer(),
-                                      micromapCount);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18101,19 +14420,6 @@ void VulkanCppConsumer::Process_vkCopyMemoryToMicromapEXT(
     format::HandleId                            deferredOperation,
     StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      deferredOperation);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->dst);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18143,25 +14449,6 @@ void VulkanCppConsumer::Process_vkCopyMicromapEXT(
     format::HandleId                            deferredOperation,
     StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      deferredOperation);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->src);
-    }
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->dst);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18191,19 +14478,6 @@ void VulkanCppConsumer::Process_vkCopyMicromapToMemoryEXT(
     format::HandleId                            deferredOperation,
     StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      deferredOperation);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->src);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18234,19 +14508,6 @@ void VulkanCppConsumer::Process_vkCreateMicromapEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkMicromapEXT>*        pMicromap)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->buffer);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pMicromap->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18283,13 +14544,6 @@ void VulkanCppConsumer::Process_vkDestroyMicromapEXT(
     format::HandleId                            micromap,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      micromap);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18311,9 +14565,6 @@ void VulkanCppConsumer::Process_vkGetDeviceMicromapCompatibilityEXT(
     StructPointerDecoder<Decoded_VkMicromapVersionInfoEXT>* pVersionInfo,
     PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18344,15 +14595,6 @@ void VulkanCppConsumer::Process_vkGetMicromapBuildSizesEXT(
     StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pBuildInfo,
     StructPointerDecoder<Decoded_VkMicromapBuildSizesInfoEXT>* pSizeInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pBuildInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBuildInfo->GetMetaStructPointer()->dstMicromap);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18394,14 +14636,6 @@ void VulkanCppConsumer::Process_vkWriteMicromapsPropertiesEXT(
     PointerDecoder<uint8_t>*                    pData,
     size_t                                      stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pMicromaps->GetPointer(),
-                                      micromapCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18445,9 +14679,6 @@ void VulkanCppConsumer::Process_vkCmdDrawClusterHUAWEI(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18471,13 +14702,6 @@ void VulkanCppConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
     format::HandleId                            buffer,
     VkDeviceSize                                offset)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18498,13 +14722,6 @@ void VulkanCppConsumer::Process_vkSetDeviceMemoryPriorityEXT(
     format::HandleId                            memory,
     float                                       priority)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      memory);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18525,13 +14742,6 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetHostMappingVALVE(
     format::HandleId                            descriptorSet,
     PointerDecoder<uint64_t, void*>*            ppData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      descriptorSet);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18555,15 +14765,6 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
     StructPointerDecoder<Decoded_VkDescriptorSetBindingReferenceVALVE>* pBindingReference,
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE>* pHostMapping)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pBindingReference->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBindingReference->GetMetaStructPointer()->descriptorSetLayout);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18597,13 +14798,6 @@ void VulkanCppConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
     VkPipelineBindPoint                         pipelineBindPoint,
     format::HandleId                            pipeline)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18625,15 +14819,6 @@ void VulkanCppConsumer::Process_vkGetPipelineIndirectDeviceAddressNV(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkPipelineIndirectDeviceAddressInfoNV>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->pipeline);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18659,9 +14844,6 @@ void VulkanCppConsumer::Process_vkGetPipelineIndirectMemoryRequirementsNV(
     StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -18694,9 +14876,6 @@ void VulkanCppConsumer::Process_vkCmdSetAlphaToCoverageEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    alphaToCoverageEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18715,9 +14894,6 @@ void VulkanCppConsumer::Process_vkCmdSetAlphaToOneEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    alphaToOneEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18738,9 +14914,6 @@ void VulkanCppConsumer::Process_vkCmdSetColorBlendAdvancedEXT(
     uint32_t                                    attachmentCount,
     StructPointerDecoder<Decoded_VkColorBlendAdvancedEXT>* pColorBlendAdvanced)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18781,9 +14954,6 @@ void VulkanCppConsumer::Process_vkCmdSetColorBlendEnableEXT(
     uint32_t                                    attachmentCount,
     PointerDecoder<VkBool32>*                   pColorBlendEnables)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18818,9 +14988,6 @@ void VulkanCppConsumer::Process_vkCmdSetColorBlendEquationEXT(
     uint32_t                                    attachmentCount,
     StructPointerDecoder<Decoded_VkColorBlendEquationEXT>* pColorBlendEquations)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18861,9 +15028,6 @@ void VulkanCppConsumer::Process_vkCmdSetColorWriteMaskEXT(
     uint32_t                                    attachmentCount,
     PointerDecoder<VkColorComponentFlags>*      pColorWriteMasks)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18897,9 +15061,6 @@ void VulkanCppConsumer::Process_vkCmdSetConservativeRasterizationModeEXT(
     format::HandleId                            commandBuffer,
     VkConservativeRasterizationModeEXT          conservativeRasterizationMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18918,9 +15079,6 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageModulationModeNV(
     format::HandleId                            commandBuffer,
     VkCoverageModulationModeNV                  coverageModulationMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18939,9 +15097,6 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageModulationTableEnableNV(
     format::HandleId                            commandBuffer,
     VkBool32                                    coverageModulationTableEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18961,9 +15116,6 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageModulationTableNV(
     uint32_t                                    coverageModulationTableCount,
     PointerDecoder<float>*                      pCoverageModulationTable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -18994,9 +15146,6 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageReductionModeNV(
     format::HandleId                            commandBuffer,
     VkCoverageReductionModeNV                   coverageReductionMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19015,9 +15164,6 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageToColorEnableNV(
     format::HandleId                            commandBuffer,
     VkBool32                                    coverageToColorEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19036,9 +15182,6 @@ void VulkanCppConsumer::Process_vkCmdSetCoverageToColorLocationNV(
     format::HandleId                            commandBuffer,
     uint32_t                                    coverageToColorLocation)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19057,9 +15200,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthClampEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthClampEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19078,9 +15218,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthClipEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    depthClipEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19099,9 +15236,6 @@ void VulkanCppConsumer::Process_vkCmdSetDepthClipNegativeOneToOneEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    negativeOneToOne)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19120,9 +15254,6 @@ void VulkanCppConsumer::Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(
     format::HandleId                            commandBuffer,
     float                                       extraPrimitiveOverestimationSize)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19141,9 +15272,6 @@ void VulkanCppConsumer::Process_vkCmdSetLineRasterizationModeEXT(
     format::HandleId                            commandBuffer,
     VkLineRasterizationModeEXT                  lineRasterizationMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19162,9 +15290,6 @@ void VulkanCppConsumer::Process_vkCmdSetLineStippleEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    stippledLineEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19183,9 +15308,6 @@ void VulkanCppConsumer::Process_vkCmdSetLogicOpEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    logicOpEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19204,9 +15326,6 @@ void VulkanCppConsumer::Process_vkCmdSetPolygonModeEXT(
     format::HandleId                            commandBuffer,
     VkPolygonMode                               polygonMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19225,9 +15344,6 @@ void VulkanCppConsumer::Process_vkCmdSetProvokingVertexModeEXT(
     format::HandleId                            commandBuffer,
     VkProvokingVertexModeEXT                    provokingVertexMode)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19246,9 +15362,6 @@ void VulkanCppConsumer::Process_vkCmdSetRasterizationSamplesEXT(
     format::HandleId                            commandBuffer,
     VkSampleCountFlagBits                       rasterizationSamples)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19267,9 +15380,6 @@ void VulkanCppConsumer::Process_vkCmdSetRasterizationStreamEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    rasterizationStream)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19288,9 +15398,6 @@ void VulkanCppConsumer::Process_vkCmdSetRepresentativeFragmentTestEnableNV(
     format::HandleId                            commandBuffer,
     VkBool32                                    representativeFragmentTestEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19309,9 +15416,6 @@ void VulkanCppConsumer::Process_vkCmdSetSampleLocationsEnableEXT(
     format::HandleId                            commandBuffer,
     VkBool32                                    sampleLocationsEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19331,9 +15435,6 @@ void VulkanCppConsumer::Process_vkCmdSetSampleMaskEXT(
     VkSampleCountFlagBits                       samples,
     PointerDecoder<VkSampleMask>*               pSampleMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19364,9 +15465,6 @@ void VulkanCppConsumer::Process_vkCmdSetShadingRateImageEnableNV(
     format::HandleId                            commandBuffer,
     VkBool32                                    shadingRateImageEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19385,9 +15483,6 @@ void VulkanCppConsumer::Process_vkCmdSetTessellationDomainOriginEXT(
     format::HandleId                            commandBuffer,
     VkTessellationDomainOrigin                  domainOrigin)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19408,9 +15503,6 @@ void VulkanCppConsumer::Process_vkCmdSetViewportSwizzleNV(
     uint32_t                                    viewportCount,
     StructPointerDecoder<Decoded_VkViewportSwizzleNV>* pViewportSwizzles)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19449,9 +15541,6 @@ void VulkanCppConsumer::Process_vkCmdSetViewportWScalingEnableNV(
     format::HandleId                            commandBuffer,
     VkBool32                                    viewportWScalingEnable)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19470,9 +15559,6 @@ void VulkanCppConsumer::Process_vkGetShaderModuleCreateInfoIdentifierEXT(
     StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
     StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19507,13 +15593,6 @@ void VulkanCppConsumer::Process_vkGetShaderModuleIdentifierEXT(
     format::HandleId                            shaderModule,
     StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      shaderModule);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19544,17 +15623,6 @@ void VulkanCppConsumer::Process_vkBindOpticalFlowSessionImageNV(
     format::HandleId                            view,
     VkImageLayout                               layout)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      session);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      view);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19581,13 +15649,6 @@ void VulkanCppConsumer::Process_vkCmdOpticalFlowExecuteNV(
     format::HandleId                            session,
     StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      session);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19617,13 +15678,6 @@ void VulkanCppConsumer::Process_vkCreateOpticalFlowSessionNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkOpticalFlowSessionNV>* pSession)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pSession->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19660,13 +15714,6 @@ void VulkanCppConsumer::Process_vkDestroyOpticalFlowSessionNV(
     format::HandleId                            session,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      session);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19690,9 +15737,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
     PointerDecoder<uint32_t>*                   pFormatCount,
     StructPointerDecoder<Decoded_VkOpticalFlowImageFormatPropertiesNV>* pImageFormatProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      physicalDevice);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // physicalDevice
@@ -19732,14 +15776,6 @@ void VulkanCppConsumer::Process_vkCmdBindShadersEXT(
     PointerDecoder<VkShaderStageFlagBits>*      pStages,
     HandlePointerDecoder<VkShaderEXT>*          pShaders)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pShaders->GetPointer(),
-                                      stageCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -19788,21 +15824,6 @@ void VulkanCppConsumer::Process_vkCreateShadersEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkShaderEXT>*          pShaders)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    for (uint32_t idx = 0; idx < createInfoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].pSetLayouts.GetPointer(),
-                                          pCreateInfos->GetMetaStructPointer()[idx].pSetLayouts.GetLength());
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pShaders->GetPointer(),
-                                      createInfoCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19851,13 +15872,6 @@ void VulkanCppConsumer::Process_vkDestroyShaderEXT(
     format::HandleId                            shader,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      shader);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19881,13 +15895,6 @@ void VulkanCppConsumer::Process_vkGetShaderBinaryDataEXT(
     PointerDecoder<size_t>*                     pDataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      shader);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19917,9 +15924,6 @@ void VulkanCppConsumer::Process_vkGetDynamicRenderingTilePropertiesQCOM(
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
     StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19957,13 +15961,6 @@ void VulkanCppConsumer::Process_vkGetFramebufferTilePropertiesQCOM(
     PointerDecoder<uint32_t>*                   pPropertiesCount,
     StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      framebuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -19995,9 +15992,6 @@ void VulkanCppConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     format::HandleId                            commandBuffer,
     VkImageAspectFlags                          aspectMask)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20019,21 +16013,6 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     PointerDecoder<uint32_t>*                   pIndirectStrides,
     PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    for (uint32_t idx = 0; idx < infoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfos->GetMetaStructPointer()[idx].srcAccelerationStructure);
-    }
-
-    for (uint32_t idx = 0; idx < infoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfos->GetMetaStructPointer()[idx].dstAccelerationStructure);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20108,21 +16087,6 @@ void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    for (uint32_t idx = 0; idx < infoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfos->GetMetaStructPointer()[idx].srcAccelerationStructure);
-    }
-
-    for (uint32_t idx = 0; idx < infoCount; idx++) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfos->GetMetaStructPointer()[idx].dstAccelerationStructure);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20177,21 +16141,6 @@ void VulkanCppConsumer::Process_vkCmdCopyAccelerationStructureKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->src);
-    }
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->dst);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20216,15 +16165,6 @@ void VulkanCppConsumer::Process_vkCmdCopyAccelerationStructureToMemoryKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->src);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20249,15 +16189,6 @@ void VulkanCppConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->dst);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20286,18 +16217,6 @@ void VulkanCppConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
     format::HandleId                            queryPool,
     uint32_t                                    firstQuery)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pAccelerationStructures->GetPointer(),
-                                      accelerationStructureCount);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      queryPool);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20337,19 +16256,6 @@ void VulkanCppConsumer::Process_vkCopyAccelerationStructureToMemoryKHR(
     format::HandleId                            deferredOperation,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      deferredOperation);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->src);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20379,19 +16285,6 @@ void VulkanCppConsumer::Process_vkCopyMemoryToAccelerationStructureKHR(
     format::HandleId                            deferredOperation,
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      deferredOperation);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->dst);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20422,19 +16315,6 @@ void VulkanCppConsumer::Process_vkCreateAccelerationStructureKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructure)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pCreateInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pCreateInfo->GetMetaStructPointer()->buffer);
-    }
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      *pAccelerationStructure->GetPointer());
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20471,13 +16351,6 @@ void VulkanCppConsumer::Process_vkDestroyAccelerationStructureKHR(
     format::HandleId                            accelerationStructure,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      accelerationStructure);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20501,21 +16374,6 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureBuildSizesKHR(
     PointerDecoder<uint32_t>*                   pMaxPrimitiveCounts,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>* pSizeInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pBuildInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBuildInfo->GetMetaStructPointer()->srcAccelerationStructure);
-    }
-
-    if (pBuildInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pBuildInfo->GetMetaStructPointer()->dstAccelerationStructure);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20564,15 +16422,6 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureDeviceAddressKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    if (pInfo->GetMetaStructPointer() != nullptr) {
-        resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                          GetCurrentFrameSplitNumber(),
-                                          pInfo->GetMetaStructPointer()->accelerationStructure);
-    }
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20598,9 +16447,6 @@ void VulkanCppConsumer::Process_vkGetDeviceAccelerationStructureCompatibilityKHR
     StructPointerDecoder<Decoded_VkAccelerationStructureVersionInfoKHR>* pVersionInfo,
     PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20635,14 +16481,6 @@ void VulkanCppConsumer::Process_vkWriteAccelerationStructuresPropertiesKHR(
     PointerDecoder<uint8_t>*                    pData,
     size_t                                      stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pAccelerationStructures->GetPointer(),
-                                      accelerationStructureCount);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20684,9 +16522,6 @@ void VulkanCppConsumer::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
     format::HandleId                            commandBuffer,
     uint32_t                                    pipelineStackSize)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20709,9 +16544,6 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysIndirectKHR(
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
     VkDeviceAddress                             indirectDeviceAddress)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20768,9 +16600,6 @@ void VulkanCppConsumer::Process_vkCmdTraceRaysKHR(
     uint32_t                                    height,
     uint32_t                                    depth)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20830,13 +16659,6 @@ void VulkanCppConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKH
     size_t                                      dataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20869,13 +16691,6 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupStackSizeKHR(
     uint32_t                                    group,
     VkShaderGroupShaderKHR                      groupShader)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      device);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      pipeline);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // device
@@ -20899,9 +16714,6 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksEXT(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20929,17 +16741,6 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      countBuffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer
@@ -20971,13 +16772,6 @@ void VulkanCppConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      commandBuffer);
-
-    resource_tracker_->AddHandleUsage(GetCurrentFrameNumber(),
-                                      GetCurrentFrameSplitNumber(),
-                                      buffer);
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 // commandBuffer

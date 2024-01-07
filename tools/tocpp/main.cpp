@@ -422,6 +422,8 @@ bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
     gfxrecon::decode::FileProcessor file_processor;
     gfxrecon::decode::VulkanDecoder decoder;
 
+    printf("Processing capture file %s contents\n", input_filename.c_str());
+
     if (!file_processor.Initialize(input_filename))
     {
         GFXRECON_LOG_ERROR("Initialization of file processor has failed");
@@ -441,8 +443,11 @@ bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
 
     do
     {
+        printf("  Processing Frame %u\r", file_processor.GetCurrentFrameNumber());
+        fflush(stdout);
         success = file_processor.ProcessNextFrame();
     } while (success && file_processor.GetCurrentFrameNumber() <= frame_limit);
+    printf("\nDone processing file\n");
 
     return (file_processor.GetErrorState() == file_processor.kErrorNone);
 }
@@ -588,11 +593,8 @@ int main(int argc, const char** argv)
     std::vector<uint32_t> dimensions;
     ValidateAndConvertDimensionArgument(max_dimensions_argument, dimensions);
 
-    gfxrecon::decode::VulkanCppResourceTracker resource_tracker;
     gfxrecon::decode::VulkanCppConsumer        cpp_consumer;
     bool                                       result;
-
-    cpp_consumer.AddResourceTracker(resource_tracker);
 
     // --captured-swapchain
     if (arg_parser.IsOptionSet(g_captured_swapchain_argument.short_option))

@@ -36,7 +36,6 @@
 #include <queue>
 
 #include "decode/vulkan_cpp_util_datapack.h"
-#include "vulkan_cpp_resource_tracker.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -123,7 +122,6 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::string AddStruct(const std::stringstream& content, const std::string& varnamePrefix);
     std::string
          AddMemoryFilePath(const std::string& fileName, const std::string& outDir, const uint8_t* data, uint64_t size);
-    void AddResourceTracker(VulkanCppResourceTracker& resourceTracker) { resource_tracker_ = &resourceTracker; }
     void AddKnownVariables(const std::string& type, const std::string& name);
     void AddKnownVariables(const std::string& type, const std::string& name, uint32_t count);
     void AddKnownVariables(const std::string& type, const std::string& name, const format::HandleId* handleId);
@@ -678,17 +676,6 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void AddHandles(const std::string& outputName, const format::HandleId* ptrs, uint32_t count);
     void AddHandles(const std::string& outputName, const format::HandleId* ptrs);
 
-    void AddHandles_vkUpdateDescriptorSets(format::HandleId                                    device,
-                                           uint32_t                                            descriptorWriteCount,
-                                           StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites,
-                                           uint32_t                                            descriptorCopyCount,
-                                           StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  pDescriptorCopies);
-
-    void AddHandles_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
-                                                      format::HandleId                 descriptorSet,
-                                                      format::HandleId                 descriptorUpdateTemplate,
-                                                      DescriptorUpdateTemplateDecoder* pData);
-
     void GenerateDescriptorUpdateTemplateData(DescriptorUpdateTemplateDecoder* decoder,
                                               format::HandleId                 desc_update_template,
                                               FILE*                            frame_file,
@@ -707,7 +694,6 @@ class VulkanCppConsumerBase : public VulkanConsumer
     };
 
     std::unordered_map<VkObjectType, uint32_t>                            counters_;
-    VulkanCppResourceTracker*                                             resource_tracker_;
     VulkanCppLoaderGenerator                                              pfn_loader_;
     std::unordered_map<format::HandleId, std::string>                     handle_id_map_;
     std::unordered_map<format::HandleId, DeviceInfo*>                     device_info_map_;

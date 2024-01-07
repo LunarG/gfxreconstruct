@@ -164,10 +164,6 @@ CPP_APICALL_GENERATE = [
     'vkGetMemoryAndroidHardwareBufferANDROID',
 ]
 
-CPP_ADD_HANDLES_LIST = [
-    'vkUpdateDescriptorSets',
-]
-
 CPP_APICALL_INTERCEPT_LIST = [
     'vkBindBufferMemory',
     'vkBindBufferMemory2',
@@ -685,12 +681,6 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 cmddef += makeGen('Intercept_{cmd}({paramList});', locals(), indent=4)
 
 
-            if cmd in CPP_ADD_HANDLES_LIST:
-                paramList = makeParamList(info, [])
-                cmddef += makeGen('AddHandles_{cmd}({paramList});', locals(), indent=4)
-            else:
-                cmddef += self.makeAddHandleBody(cmd, values) or ''
-
             # If we have a manually generated function, use that, otherwise generate the appropriate
             # information.
             if cmd in CPP_APICALL_GENERATE:
@@ -1120,39 +1110,6 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         reverseSplitString = string.rsplit(oldString, occurrence)
         return newString.join(reverseSplitString)
 
-    def makeAddHandleBody(self, name, values):
-        body = []
-
-        for arg in values:
-            if self.is_struct(arg.base_type):
-
-                array_len_arg = None
-                if arg.array_length is not None:
-                    array_len_arg = next((x for x in values if x.name == arg.array_length), None)
-
-                body.extend(self.makeAddStructHandleBody(arg, array_len_arg))
-
-            if not self.is_handle(arg.base_type):
-                continue
-
-            arguments = ['GetCurrentFrameNumber()',
-                         'GetCurrentFrameSplitNumber()']
-
-            if self.is_output_parameter(arg) or arg.is_pointer:
-                argument = '{arg.name}->GetPointer()'
-
-                if arg.is_array:
-                    arguments.append(argument)
-                    arguments.append(arg.array_length.replace('->', '->GetPointer()->'))
-                else:
-                    arguments.append('*' + argument)
-            else:
-                arguments.append('{arg.name}')
-
-            body.append(makeGenCall('resource_tracker_->AddHandleUsage', arguments, locals(), indent=4))
-
-        return '\n'.join(body)
-
     def makeAddStructHandleBody(self, arg, array_len_arg, recursivePointerAccess='', recursionDepth=1):
         body = []
 
@@ -1191,19 +1148,5 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                         arguments.append(argument + '.GetLength()')
                 else: # elif not member.is_array and not member.is_pointer:
                     arguments.append(argument)
-
-                # If the parent is an array iterate through it
-                if arg.is_array:
-                    forConditionAccess = self.reverseReplace(recursivePointerAccess, 'MetaStruct', '', 1)
-                    loop_counter1 = f'{forConditionAccess}{arg.array_length}'
-                    if array_len_arg is not None and array_len_arg.is_pointer:
-                        loop_counter1 = f'*({array_len_arg.name}->GetPointer())'
-                    body.append(makeGenLoop('idx', '{loop_counter1}',
-                                             [makeGenCall('resource_tracker_->AddHandleUsage', arguments, locals(),
-                                                         indent=4 + recursionDepth * 4)], locals(), indent=4))
-                else:
-                    body.append(makeGenCond('{pointerAccess} != nullptr',
-                                            [makeGenCall('resource_tracker_->AddHandleUsage', arguments, locals(),
-                                                         indent=4 + recursionDepth * 4)], [], locals(), indent=4))
 
         return body
