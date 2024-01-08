@@ -177,12 +177,6 @@ CPP_APICALL_INTERCEPT_LIST = [
     'vkBindBufferMemory2KHR',
 ]
 
-CPP_CONSUMER_API_POST_CALL = [
-    'vkGetBufferMemoryRequirements',
-    'vkGetImageMemoryRequirements',
-    'vkGetSparseImageMemoryRequirements',
-]
-
 # Disabled wrapping function call into the 'VK_CALL_CHECK' macro call
 CPP_APICALL_DO_NOT_CHECK = ['vkGetPhysicalDeviceImageFormatProperties']
 
@@ -1054,18 +1048,6 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
         ]
         fprintfArgs.extend(callArgs)
         body += makeGenCall('fprintf', fprintfArgs, locals(), indent=4)
-
-        if name in CPP_CONSUMER_API_POST_CALL:
-            # Arguments order for POST api calls:
-            # first part: normal api call arguments (just like for the Process_... api calls)
-            # second part: strings containing the value/variable name of the arguments
-            postArguments = [arg.name for arg in values]
-            postArguments.extend([
-                arg[:-len(".c_str()")] if arg.endswith(".c_str()") else arg
-                for arg in callArgs
-            ])
-
-            body += makeGenCall('Post_{}'.format(name), postArguments, locals(), indent=4)
 
         return body
 
