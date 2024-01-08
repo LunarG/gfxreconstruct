@@ -129,6 +129,8 @@ enum CommandHandleType : uint32_t
     VideoSessionKHRHandle,
     VideoSessionParametersKHRHandle,
     ShaderEXTHandle,
+    DescriptorSetLayoutHandle,
+    DescriptorUpdateTemplateHandle,
 
     NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };
