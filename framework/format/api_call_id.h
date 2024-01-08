@@ -702,6 +702,12 @@ enum ApiCallId : uint32_t
     ApiCall_vkFrameBoundaryANDROID                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12dc),
     ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR                                        = MakeApiCallId(ApiFamily_Vulkan, 0x12dd),
     ApiCall_vkGetCalibratedTimestampsKHR                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x12de),
+    ApiCall_vkCmdBindDescriptorSets2KHR                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x12df),
+    ApiCall_vkCmdPushConstants2KHR                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12e0),
+    ApiCall_vkCmdPushDescriptorSet2KHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12e1),
+    ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12e2),
+    ApiCall_vkCmdSetDescriptorBufferOffsets2EXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12e3),
+    ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT                                         = MakeApiCallId(ApiFamily_Vulkan, 0x12e4),
 
     ApiCall_VulkanLast,
 

@@ -647,6 +647,22 @@ void TrackCmdDecodeVideoKHRHandles(CommandBufferWrapper* wrapper, const VkVideoD
 
     if (pDecodeInfo != nullptr)
     {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDecodeInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(pnext_header);
+                    if(pnext_value->queryPool != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::QueryPoolHandle].insert(GetWrappedId<QueryPoolWrapper>(pnext_value->queryPool));
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
         if(pDecodeInfo->srcBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId<BufferWrapper>(pDecodeInfo->srcBuffer));
         if(pDecodeInfo->dstPictureResource.imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId<ImageViewWrapper>(pDecodeInfo->dstPictureResource.imageViewBinding));
 
@@ -778,6 +794,22 @@ void TrackCmdEncodeVideoKHRHandles(CommandBufferWrapper* wrapper, const VkVideoE
 
     if (pEncodeInfo != nullptr)
     {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pEncodeInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(pnext_header);
+                    if(pnext_value->queryPool != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::QueryPoolHandle].insert(GetWrappedId<QueryPoolWrapper>(pnext_value->queryPool));
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
         if(pEncodeInfo->dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId<BufferWrapper>(pEncodeInfo->dstBuffer));
         if(pEncodeInfo->srcPictureResource.imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId<ImageViewWrapper>(pEncodeInfo->srcPictureResource.imageViewBinding));
 
@@ -979,6 +1011,274 @@ void TrackCmdBindIndexBuffer2KHRHandles(CommandBufferWrapper* wrapper, VkBuffer 
     assert(wrapper != nullptr);
 
     if(buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId<BufferWrapper>(buffer));
+}
+
+void TrackCmdBindDescriptorSets2KHRHandles(CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pBindDescriptorSetsInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorSetsInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::DescriptorSetLayoutHandle].insert(GetWrappedId<DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pBindDescriptorSetsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::PipelineLayoutHandle].insert(GetWrappedId<PipelineLayoutWrapper>(pBindDescriptorSetsInfo->layout));
+
+        if (pBindDescriptorSetsInfo->pDescriptorSets != nullptr)
+        {
+            for (uint32_t pDescriptorSets_index = 0; pDescriptorSets_index < pBindDescriptorSetsInfo->descriptorSetCount; ++pDescriptorSets_index)
+            {
+                if(pBindDescriptorSetsInfo->pDescriptorSets[pDescriptorSets_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::DescriptorSetHandle].insert(GetWrappedId<DescriptorSetWrapper>(pBindDescriptorSetsInfo->pDescriptorSets[pDescriptorSets_index]));
+            }
+        }
+    }
+}
+
+void TrackCmdPushConstants2KHRHandles(CommandBufferWrapper* wrapper, const VkPushConstantsInfoKHR* pPushConstantsInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pPushConstantsInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushConstantsInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::DescriptorSetLayoutHandle].insert(GetWrappedId<DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pPushConstantsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::PipelineLayoutHandle].insert(GetWrappedId<PipelineLayoutWrapper>(pPushConstantsInfo->layout));
+    }
+}
+
+void TrackCmdPushDescriptorSet2KHRHandles(CommandBufferWrapper* wrapper, const VkPushDescriptorSetInfoKHR* pPushDescriptorSetInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pPushDescriptorSetInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::DescriptorSetLayoutHandle].insert(GetWrappedId<DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pPushDescriptorSetInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::PipelineLayoutHandle].insert(GetWrappedId<PipelineLayoutWrapper>(pPushDescriptorSetInfo->layout));
+
+        if (pPushDescriptorSetInfo->pDescriptorWrites != nullptr)
+        {
+            for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pPushDescriptorSetInfo->descriptorWriteCount; ++pDescriptorWrites_index)
+            {
+                auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites->pNext);
+                while (pnext_header)
+                {
+                    switch (pnext_header->sType)
+                    {
+                        default:
+                            break;
+                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                        {
+                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
+                            if (pnext_value->pAccelerationStructures != nullptr)
+                            {
+                                for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
+                                {
+                                    if(pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(GetWrappedId<AccelerationStructureKHRWrapper>(pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
+                                }
+                            }
+                            break;
+                        }
+                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+                        {
+                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
+                            if (pnext_value->pAccelerationStructures != nullptr)
+                            {
+                                for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
+                                {
+                                    if(pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::AccelerationStructureNVHandle].insert(GetWrappedId<AccelerationStructureNVWrapper>(pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    pnext_header = pnext_header->pNext;
+                }
+                if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].dstSet != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::DescriptorSetHandle].insert(GetWrappedId<DescriptorSetWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].dstSet));
+
+                if (pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo != nullptr)
+                {
+                    for (uint32_t pImageInfo_index = 0; pImageInfo_index < pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].descriptorCount; ++pImageInfo_index)
+                    {
+                        if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].sampler != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::SamplerHandle].insert(GetWrappedId<SamplerWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].sampler));
+                        if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].imageView != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId<ImageViewWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pImageInfo[pImageInfo_index].imageView));
+                    }
+                }
+
+                if (pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pBufferInfo != nullptr)
+                {
+                    for (uint32_t pBufferInfo_index = 0; pBufferInfo_index < pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].descriptorCount; ++pBufferInfo_index)
+                    {
+                        if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pBufferInfo[pBufferInfo_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId<BufferWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pBufferInfo[pBufferInfo_index].buffer));
+                    }
+                }
+
+                if (pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pTexelBufferView != nullptr)
+                {
+                    for (uint32_t pTexelBufferView_index = 0; pTexelBufferView_index < pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].descriptorCount; ++pTexelBufferView_index)
+                    {
+                        if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pTexelBufferView[pTexelBufferView_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::BufferViewHandle].insert(GetWrappedId<BufferViewWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].pTexelBufferView[pTexelBufferView_index]));
+                    }
+                }
+            }
+        }
+    }
+}
+
+void TrackCmdPushDescriptorSetWithTemplate2KHRHandles(CommandBufferWrapper* wrapper, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pPushDescriptorSetWithTemplateInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetWithTemplateInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::DescriptorSetLayoutHandle].insert(GetWrappedId<DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pPushDescriptorSetWithTemplateInfo->descriptorUpdateTemplate != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::DescriptorUpdateTemplateHandle].insert(GetWrappedId<DescriptorUpdateTemplateWrapper>(pPushDescriptorSetWithTemplateInfo->descriptorUpdateTemplate));
+        if(pPushDescriptorSetWithTemplateInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::PipelineLayoutHandle].insert(GetWrappedId<PipelineLayoutWrapper>(pPushDescriptorSetWithTemplateInfo->layout));
+    }
+}
+
+void TrackCmdSetDescriptorBufferOffsets2EXTHandles(CommandBufferWrapper* wrapper, const VkSetDescriptorBufferOffsetsInfoEXT* pSetDescriptorBufferOffsetsInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pSetDescriptorBufferOffsetsInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pSetDescriptorBufferOffsetsInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::DescriptorSetLayoutHandle].insert(GetWrappedId<DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pSetDescriptorBufferOffsetsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::PipelineLayoutHandle].insert(GetWrappedId<PipelineLayoutWrapper>(pSetDescriptorBufferOffsetsInfo->layout));
+    }
+}
+
+void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(CommandBufferWrapper* wrapper, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pBindDescriptorBufferEmbeddedSamplersInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorBufferEmbeddedSamplersInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    if (pnext_value->pSetLayouts != nullptr)
+                    {
+                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
+                        {
+                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::DescriptorSetLayoutHandle].insert(GetWrappedId<DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pBindDescriptorBufferEmbeddedSamplersInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::PipelineLayoutHandle].insert(GetWrappedId<PipelineLayoutWrapper>(pBindDescriptorBufferEmbeddedSamplersInfo->layout));
+    }
 }
 
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers)

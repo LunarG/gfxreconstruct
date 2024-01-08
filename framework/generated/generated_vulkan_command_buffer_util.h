@@ -178,6 +178,18 @@ void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkReso
 
 void TrackCmdBindIndexBuffer2KHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
 
+void TrackCmdBindDescriptorSets2KHRHandles(CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+
+void TrackCmdPushConstants2KHRHandles(CommandBufferWrapper* wrapper, const VkPushConstantsInfoKHR* pPushConstantsInfo);
+
+void TrackCmdPushDescriptorSet2KHRHandles(CommandBufferWrapper* wrapper, const VkPushDescriptorSetInfoKHR* pPushDescriptorSetInfo);
+
+void TrackCmdPushDescriptorSetWithTemplate2KHRHandles(CommandBufferWrapper* wrapper, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);
+
+void TrackCmdSetDescriptorBufferOffsets2EXTHandles(CommandBufferWrapper* wrapper, const VkSetDescriptorBufferOffsetsInfoEXT* pSetDescriptorBufferOffsetsInfo);
+
+void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(CommandBufferWrapper* wrapper, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
+
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
 void TrackCmdBeginTransformFeedbackEXTHandles(CommandBufferWrapper* wrapper, uint32_t counterBufferCount, const VkBuffer* pCounterBuffers);

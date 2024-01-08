@@ -94,6 +94,10 @@ class VulkanStructHandleMappersHeaderGenerator(
         )
         write('#include "format/platform_types.h"', file=self.outFile)
         write(
+            '#include "decode/custom_vulkan_struct_handle_mappers.h"',
+            file=self.outFile
+        )
+        write(
             '#include "generated/generated_vulkan_struct_decoders_forward.h"',
             file=self.outFile
         )
