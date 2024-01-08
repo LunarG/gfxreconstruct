@@ -51,10 +51,50 @@ static const VkCommandPool    kTempCommandPool =
     UINT64_TO_VK_HANDLE(VkCommandPool, std::numeric_limits<uint64_t>::max() - 2);
 static const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
 static const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
-
 typedef format::HandleId (*PFN_GetHandleId)();
 
 extern VulkanStateHandleTable state_handle_table_;
+
+/*
+About mutex_for_create_destroy_handle_ and related lock/unlock functions
+
+    1. mutex_for_create_destroy_handle_ is used for the following race condition issue, the issue caused some title
+crash during capturing :
+
+       On default GFXR setting, target title destroy some Vulkan handles in one thread (A) and create same type of
+Vulkan handle in another thread (B). At the time when is after real handles were destroyed and before their wrappers
+were deleted from map in thread A, if thread B got CPU and create same type of handles and if anyone of the new created
+handles was same value of previously destroyed handles. The crash happens.
+
+       For example, In thread A target title call  vkFreeCommandBuffers , in thread B it calls vkAllocateCommandBuffers.
+
+       Because with default GFXR setting, API lock is AcquireSharedApiCallLock(), and every API handling only request
+shared lock, that mean actually no lock for them. So, running can be switched from one thread to another thread during
+GFXR API handling. If thread A, after calling real API of vkFreeCommandBuffers to free command buffer group GC-X, those
+real Vulkan handles were destroyed by driver, the following post process of GFXR will be delete wrapper objects
+of GC-X from corresponding map. At this time, thread B got CPU and call vkAllocateCommandBuffers to create a group of
+command buffer GC-Y. Because GC-X were already destroyed, driver may return some handle values of GC-X that were
+previously destroyed, but wrapper still exist, at this time GFXR insert new wrapper into map will fail. And thread B
+will delete the wrapper later, so for any following process, no wrapper for the real handle. This will cause crash
+later.
+
+       Note, potentially destroying also has this issue, for example, replace above  vkFreeCommandBuffers  with
+       vkDestroyCommandPool, this call will free all command buffers of this command pool.
+
+    2. The usage of mutex_for_create_destroy_handle_
+
+       For any create wrapper operation, the operation which delete real Vulkan handle and its wrapper in
+map must be atomic which mean a real handle and its wrapper must both exist or both not exist for any create wrapper
+operation.
+
+       In the following code, shared lock were alread added to create wrapper functions.
+LockForDestroyHandle/UnlockForDestroyHandle should be used in capturing process to add exclusive lock to the real API
+call of deteting handle and deleting its wrapper.
+*/
+
+extern std::shared_mutex mutex_for_create_destroy_handle_;
+void                     LockForDestroyHandle();
+void                     UnlockForDestroyHandle();
 
 template <typename Wrapper>
 format::HandleId GetTempWrapperId(const typename Wrapper::HandleType& handle)
@@ -170,6 +210,7 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
                                  typename Wrapper::HandleType*      handle,
                                  PFN_GetHandleId                    get_id)
 {
+    const std::shared_lock<std::shared_mutex> lock(mutex_for_create_destroy_handle_);
     assert(handle != nullptr);
     if ((*handle) != VK_NULL_HANDLE)
     {
@@ -199,6 +240,7 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
 template <typename Wrapper>
 void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
 {
+    const std::shared_lock<std::shared_mutex> lock(mutex_for_create_destroy_handle_);
     assert(handle != nullptr);
     if ((*handle) != VK_NULL_HANDLE)
     {
