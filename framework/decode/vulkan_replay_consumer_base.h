@@ -187,7 +187,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         uint32_t                                                         createInfoCount,
         StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-        HandlePointerDecoder<VkPipeline>*                                pPipelines);
+        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
   protected:
     const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
