@@ -300,6 +300,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 body += unwrap_expr
                 body += '\n'
 
+            if self.lock_for_destroy_handle_is_needed(name):
+                body += indent + 'LockForDestroyHandle();\n'
+
             # Construct the function call to dispatch to the next layer.
             (call_setup_expr, call_expr) = self.make_layer_dispatch_call(
                 name, values, unwrapped_arg_list
@@ -355,6 +358,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if cleanup_expr:
             body += '\n'
             body += cleanup_expr
+
+        if self.lock_for_destroy_handle_is_needed(name):
+            body += indent + 'UnlockForDestroyHandle();\n'
 
         if return_type and return_type != 'void':
             body += '\n'
@@ -673,6 +679,14 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                             )
             args.append(arg_name)
         return expr, ', '.join(args), need_unwrap_memory
+
+    def lock_for_destroy_handle_is_needed(self, name):
+        if name.startswith('vkDestroy') or name.startswith('vkFree') or (
+            name == 'vkReleasePerformanceConfigurationINTEL'
+        ) or (name == 'vkResetDescriptorPool'):
+            return True
+        else:
+            return False
 
     def make_handle_cleanup(self, name, values, indent):
         expr = ''

@@ -27,6 +27,18 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 VulkanStateHandleTable state_handle_table_;
 
+std::shared_mutex mutex_for_create_destroy_handle_;
+
+void LockForDestroyHandle()
+{
+    mutex_for_create_destroy_handle_.lock();
+}
+
+void UnlockForDestroyHandle()
+{
+    mutex_for_create_destroy_handle_.unlock();
+}
+
 uint64_t GetWrappedId(uint64_t object, VkObjectType object_type)
 {
     switch (object_type)
