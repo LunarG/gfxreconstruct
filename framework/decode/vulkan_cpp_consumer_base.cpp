@@ -536,7 +536,8 @@ void VulkanCppConsumerBase::NextFrame(bool isSplit)
 void VulkanCppConsumerBase::Post_APICall(format::ApiCallId callId)
 {
     // Replicate FileProcessor's frame counter increment process
-    if (callId == format::ApiCallId::ApiCall_vkQueuePresentKHR)
+    if (callId == format::ApiCallId::ApiCall_vkQueuePresentKHR ||
+        callId == format::ApiCallId::ApiCall_vkFrameBoundaryANDROID)
     {
         NextFrame(false);
     }
