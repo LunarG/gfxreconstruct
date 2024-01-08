@@ -30,14 +30,9 @@ VulkanStateHandleTable state_handle_table_;
 
 std::shared_mutex mutex_for_create_destroy_handle_;
 
-void LockForDestroyHandle()
+std::unique_lock<std::shared_mutex> ScopedDestroyLock()
 {
-    mutex_for_create_destroy_handle_.lock();
-}
-
-void UnlockForDestroyHandle()
-{
-    mutex_for_create_destroy_handle_.unlock();
+    return std::move(std::unique_lock<std::shared_mutex>(mutex_for_create_destroy_handle_));
 }
 
 uint64_t GetWrappedId(uint64_t object, VkObjectType object_type)

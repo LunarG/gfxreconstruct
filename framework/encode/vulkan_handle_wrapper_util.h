@@ -90,8 +90,8 @@ lock to the deletion of handles and their wrapper.
 */
 
 extern std::shared_mutex mutex_for_create_destroy_handle_;
-void                     LockForDestroyHandle();
-void                     UnlockForDestroyHandle();
+
+std::unique_lock<std::shared_mutex> ScopedDestroyLock();
 
 template <typename Wrapper>
 format::HandleId GetTempWrapperId(const typename Wrapper::HandleType& handle)
