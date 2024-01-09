@@ -1007,19 +1007,19 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void AddCopyResourceCommandsForBeforeDrawcall(const ApiCallInfo& call_info, DxObjectInfo* object_info);
 
-    void AddCopyResourceCommandsForBeforeDrawcall(ID3D12GraphicsCommandList* copy_command_list);
+    void AddCopyResourceCommandsForBeforeDrawcall(format::HandleId copy_command_list_id);
 
     bool MatchDescriptorCPUGPUHandle(size_t                                      replay_cpu_addr_begin,
                                      size_t                                      replay_target_cpu_addr,
                                      uint64_t                                    capture_gpu_addr_begin,
                                      std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE> captured_gpu_addrs);
 
-    void AddCopyResourceCommandForBeforeDrawcallByGPUVA(ID3D12GraphicsCommandList*  copy_command_list,
+    void AddCopyResourceCommandForBeforeDrawcallByGPUVA(format::HandleId            command_list_id,
                                                         D3D12_GPU_VIRTUAL_ADDRESS   capture_source_gpu_va,
                                                         uint64_t                    source_size,
                                                         graphics::CopyResourceData& copy_resource_data);
 
-    void AddCopyResourceCommandForBeforeDrawcall(ID3D12GraphicsCommandList*  copy_command_list,
+    void AddCopyResourceCommandForBeforeDrawcall(format::HandleId            command_list_id,
                                                  format::HandleId            source_resource_id,
                                                  uint64_t                    source_offset,
                                                  uint64_t                    source_size,
@@ -1027,16 +1027,16 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void AddCopyResourceCommandsForAfterDrawcall(const ApiCallInfo& call_info, DxObjectInfo* object_info);
 
-    void AddCopyResourceCommandsForAfterDrawcall(ID3D12GraphicsCommandList* copy_command_list);
+    void AddCopyResourceCommandsForAfterDrawcall(format::HandleId command_list_id);
 
     // source_resource_id have been saved in CopyResourceData in AddCopyResourceCommandForBeforeDrawcall.
-    void AddCopyResourceCommandsForAfterDrawcall(ID3D12GraphicsCommandList*               copy_command_list,
+    void AddCopyResourceCommandsForAfterDrawcall(format::HandleId                         command_list_id,
                                                  std::vector<graphics::CopyResourceData>& copy_resource_datas);
 
-    void AddCopyResourceCommandForAfterDrawcall(ID3D12GraphicsCommandList*  copy_command_list,
+    void AddCopyResourceCommandForAfterDrawcall(format::HandleId            command_list_id,
                                                 graphics::CopyResourceData& copy_resource_data);
 
-    void AddCopyResourceCommand(ID3D12GraphicsCommandList*            copy_command_list,
+    void AddCopyResourceCommand(format::HandleId                      command_list_id,
                                 graphics::CopyResourceData&           copy_resource_data,
                                 graphics::dx12::ID3D12ResourceComPtr& copy_resource);
 
