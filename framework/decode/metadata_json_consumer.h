@@ -184,12 +184,12 @@ class MetadataJsonConsumer : public Base
                                                                const uint8_t*   data) override
     {
         const JsonOptions& json_options = GetJsonOptions();
-        auto&              jdata        = WriteMetaCommandStart("SetRayTracingShaderGroupHandleCommand");
+        auto&              jdata        = WriteMetaCommandStart("SetRayTracingShaderGroupHandlesCommand");
         HandleToJson(jdata["device_id"], device_id, json_options);
         HandleToJson(jdata["pipeline_id"], pipeline_id, json_options);
         FieldToJson(jdata["data_size"], data_size, json_options);
         RepresentBinaryFile(
-            *(this->writer_), jdata[format::kNameData], "set_raytracing_shader_group_handle.bin", data_size, data);
+            *(this->writer_), jdata[format::kNameData], "set_raytracing_shader_group_handles.bin", data_size, data);
         WriteBlockEnd();
     }
 
