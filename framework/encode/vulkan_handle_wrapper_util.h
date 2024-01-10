@@ -286,8 +286,8 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeviceMemoryWrap
                                                                                      PFN_GetHandleId get_id)
 {
     CreateWrappedNonDispatchHandle<DeviceMemoryWrapper>(handle, get_id);
-    auto memory_wrapper    = GetWrapper<DeviceMemoryWrapper>(*handle);
-    memory_wrapper->device = GetWrapper<DeviceWrapper>(device);
+    auto memory_wrapper           = GetWrapper<DeviceMemoryWrapper>(*handle);
+    memory_wrapper->parent_device = GetWrapper<DeviceWrapper>(device);
 }
 
 template <>

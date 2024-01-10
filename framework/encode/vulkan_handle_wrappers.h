@@ -164,9 +164,12 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 {
     uint32_t     memory_type_index{ std::numeric_limits<uint32_t>::max() };
     VkDeviceSize allocation_size{ 0 };
-    // This is the device which was used to allocate the memory. By doc,
-    // if the memory can be mapped, map device must be this device.
-    DeviceWrapper*   device{ nullptr };
+    // This is the device which was used to allocate the memory.
+    // Spec states if the memory can be mapped, the mapping device must be this device.
+    // The device wrapper will be initialized when allocating the memory. Some handling
+    // like VulkanStateTracker::TrackTlasToBlasDependencies may use it before mapping
+    // the memory.
+    DeviceWrapper*   parent_device{ nullptr };
     const void*      mapped_data{ nullptr };
     VkDeviceSize     mapped_offset{ 0 };
     VkDeviceSize     mapped_size{ 0 };
