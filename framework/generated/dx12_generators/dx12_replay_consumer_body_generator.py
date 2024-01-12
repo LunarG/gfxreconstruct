@@ -225,8 +225,8 @@ class Dx12ReplayConsumerBodyGenerator(
                     code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
                             .format(value.name, handle_length)
                     if is_override:
-                        code += '    DxObjectInfo object_info{{}};\n'\
-                                '    {0}->SetConsumerData(0, &object_info);\n'\
+                        code += '    DxObjectInfo object_info_{0}{{}};\n'\
+                                '    {0}->SetConsumerData(0, &object_info_{0});\n'\
                                 .format(value.name)
                     else:
                         code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
@@ -240,7 +240,7 @@ class Dx12ReplayConsumerBodyGenerator(
 
                     if is_override:
                         add_object_list.append(
-                            'AddObject({0}->GetPointer(), {0}->GetHandlePointer(), std::move(object_info), format::ApiCall_{1});\n'.format(value.name, name)
+                            'AddObject({0}->GetPointer(), {0}->GetHandlePointer(), std::move(object_info_{0}), format::ApiCall_{1});\n'.format(value.name, name)
                         )
                     else:
                         add_object_list.append(

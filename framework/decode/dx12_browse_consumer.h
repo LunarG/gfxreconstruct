@@ -31,8 +31,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct TrackDumpDrawcall
 {
-    uint64_t begin_renderpass_code_index{ 0 };
-    uint64_t set_render_targets_code_index{ 0 };
+    uint64_t         begin_renderpass_code_index{ 0 };
+    uint64_t         set_render_targets_code_index{ 0 };
+    format::HandleId root_signature_handle_id{ format::kNullHandleId };
 
     // vertex
     std::vector<D3D12_VERTEX_BUFFER_VIEW> captured_vertex_buffer_views;
@@ -56,8 +57,9 @@ struct TrackDumpDrawcall
 
 struct TrackDumpCommandList
 {
-    uint64_t current_begin_renderpass_code_index{ 0 };
-    uint64_t current_set_render_targets_code_index{ 0 };
+    uint64_t         current_begin_renderpass_code_index{ 0 };
+    uint64_t         current_set_render_targets_code_index{ 0 };
+    format::HandleId current_root_signature_handle_id{ format::kNullHandleId };
 
     // vertex
     std::vector<D3D12_VERTEX_BUFFER_VIEW> current_captured_vertex_buffer_views;
@@ -77,7 +79,8 @@ struct TrackDumpCommandList
 
     void Clear()
     {
-        current_begin_renderpass_code_index = 0;
+        current_begin_renderpass_code_index   = 0;
+        current_set_render_targets_code_index = 0;
         current_captured_vertex_buffer_views.clear();
         current_captured_index_buffer_view = {};
         current_descriptor_heap_ids.clear();
@@ -173,6 +176,34 @@ class Dx12BrowseConsumer : public Dx12Consumer
             {
                 it->second.current_set_render_targets_code_index = call_info.index;
                 it->second.current_begin_renderpass_code_index   = 0;
+            }
+        }
+    }
+
+    virtual void Process_ID3D12GraphicsCommandList_SetComputeRootSignature(const ApiCallInfo& call_info,
+                                                                           format::HandleId   object_id,
+                                                                           format::HandleId   pRootSignature)
+    {
+        if (target_command_list_ == format::kNullHandleId)
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                it->second.current_root_signature_handle_id = pRootSignature;
+            }
+        }
+    }
+
+    virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(const ApiCallInfo& call_info,
+                                                                            format::HandleId   object_id,
+                                                                            format::HandleId   pRootSignature)
+    {
+        if (target_command_list_ == format::kNullHandleId)
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                it->second.current_root_signature_handle_id = pRootSignature;
             }
         }
     }
@@ -396,6 +427,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                 track_drawcall.drawcall_code_index             = call_info.index;
                 track_drawcall.begin_renderpass_code_index     = it->second.current_begin_renderpass_code_index;
                 track_drawcall.set_render_targets_code_index   = it->second.current_set_render_targets_code_index;
+                track_drawcall.root_signature_handle_id        = it->second.current_root_signature_handle_id;
                 track_drawcall.captured_vertex_buffer_views    = it->second.current_captured_vertex_buffer_views;
                 track_drawcall.captured_index_buffer_view      = it->second.current_captured_index_buffer_view;
                 track_drawcall.descriptor_heap_ids             = it->second.current_descriptor_heap_ids;

@@ -97,6 +97,9 @@ struct TrackDumpResources
     CopyResourceData copy_exe_indirect_argument;
     CopyResourceData copy_exe_indirect_count;
 
+    // pair: captured_buffer, modified_buffer
+    std::vector<std::pair<std::vector<uint8_t>, std::vector<uint8_t>>> signature_buffers;
+
     ~TrackDumpResources() {}
 };
 
