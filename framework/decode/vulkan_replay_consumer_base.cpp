@@ -4919,10 +4919,10 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
 
             GFXRECON_ASSERT(replay_result == VK_SUCCESS);
 
-            bool          new_cache_data                   = true;
-            VkDeviceSize* cache_data_size                  = reinterpret_cast<VkDeviceSize*>(pDataSize->GetPointer());
-            uint32_t      capture_pipeline_cache_data_hash = gfxrecon::util::hash::CheckSum(
-                reinterpret_cast<const uint32_t*>(pData->GetPointer()), *cache_data_size);
+            bool     new_cache_data  = true;
+            auto     cache_data_size = *pDataSize->GetPointer();
+            uint32_t capture_pipeline_cache_data_hash =
+                gfxrecon::util::hash::CheckSum(reinterpret_cast<const uint32_t*>(pData->GetPointer()), cache_data_size);
 
             auto iterator = pipeline_cache_info->pipeline_cache_data.find(capture_pipeline_cache_data_hash);
             if (iterator != pipeline_cache_info->pipeline_cache_data.end())
@@ -4935,11 +4935,11 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
                         ->pipeline_cache_data[capture_pipeline_cache_data_hash];
                 for (auto& existing_cache_data : cache_data)
                 {
-                    if (*cache_data_size == existing_cache_data.capture_cache_data.size())
+                    if (cache_data_size == existing_cache_data.capture_cache_data.size())
                     {
                         if (memcmp(existing_cache_data.capture_cache_data.data(),
                                    pData->GetPointer(),
-                                   *cache_data_size) == 0)
+                                   cache_data_size) == 0)
                         {
                             // The pipeline cache data is not new. This is possible, by doc, two calls to
                             // vkGetPipelineCacheData with the same parameters must retrieve the same data unless a
@@ -4957,8 +4957,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
                                                            ->pipeline_cache_data[capture_pipeline_cache_data_hash];
                 VkDeviceSize* output_cache_data_size = reinterpret_cast<VkDeviceSize*>(pDataSize->GetOutputPointer());
                 PipelineCacheData pipeline_cache_data;
-                pipeline_cache_data.capture_cache_data.resize(*cache_data_size);
-                memcpy(pipeline_cache_data.capture_cache_data.data(), pData->GetPointer(), *cache_data_size);
+                pipeline_cache_data.capture_cache_data.resize(cache_data_size);
+                memcpy(pipeline_cache_data.capture_cache_data.data(), pData->GetPointer(), cache_data_size);
                 pipeline_cache_data.replay_cache_data.resize(*output_cache_data_size);
                 memcpy(
                     pipeline_cache_data.replay_cache_data.data(), pData->GetOutputPointer(), *output_cache_data_size);
