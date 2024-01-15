@@ -26,6 +26,7 @@
 #include "util/platform.h"
 #include "util/logging.h"
 #include "util/image_writer.h"
+#include "util/json_util.h"
 #include "graphics/dx12_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -57,11 +58,11 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
     // before
     if (resource_data.before_resource)
     {
-        decode::FieldToJson(jdata["size"], resource_data.size, json_options_);
+        util::FieldToJson(jdata["size"], resource_data.size, json_options_);
 
         std::string file_name =
             prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id) + "_before.bin";
-        decode::FieldToJson(jdata["before_file_name"], file_name.c_str(), json_options_);
+        util::FieldToJson(jdata["before_file_name"], file_name.c_str(), json_options_);
 
         uint8_t*    data_begin;
         D3D12_RANGE read_Range = { 0, 0 };
@@ -77,7 +78,7 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
     {
         std::string file_name =
             prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id) + "_after.bin";
-        decode::FieldToJson(jdata["after_file_name"], file_name.c_str(), json_options_);
+        util::FieldToJson(jdata["after_file_name"], file_name.c_str(), json_options_);
 
         uint8_t*    data_begin;
         D3D12_RANGE read_Range = { 0, 0 };
