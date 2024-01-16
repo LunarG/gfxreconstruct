@@ -3293,7 +3293,7 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
                         i,
                         i);
                 fprintf(file,
-                        "\t\t\t%s.plane_info[%u].capture_row_pitch = %" PRId64 ";\n",
+                        "\t\t\t%s.plane_info[%u].capture_row_pitch = %u;\n",
                         memory_info.name.c_str(),
                         i,
                         plane_info[i].row_pitch);
@@ -3302,11 +3302,11 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
                         memory_info.name.c_str(),
                         i,
                         i);
-                fprintf(file, "\t\t\t%s.plane_info[%u].height            = %u;\n", i, memory_info.name.c_str(), height);
+                fprintf(file, "\t\t\t%s.plane_info[%u].height            = %u;\n", memory_info.name.c_str(), i, height);
                 fprintf(file, "\n");
                 fprintf(file, "\t\t\tif ((%" PRIu64 " != replay_plane_info[%u].offset) ||\n", plane_info[i].offset, i);
                 fprintf(
-                    file, "\t\t\t\t(%" PRIu64 " != replay_plane_info[%u].row_pitch))\n", plane_info[i].row_pitch, i);
+                    file, "\t\t\t\t(%u != replay_plane_info[%u].row_pitch))\n", plane_info[i].row_pitch, i);
                 fprintf(file, "\t\t\t{\n");
                 fprintf(file, "\t\t\t\t%s.compatible_strides = false;\n", memory_info.name.c_str());
                 fprintf(file, "\t\t\t}\n");

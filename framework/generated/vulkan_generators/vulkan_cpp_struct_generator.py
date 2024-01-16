@@ -130,10 +130,6 @@ class VulkanCppStructGenerator(BaseGenerator):
         ]
 
         self.CUSTOM_GENERATE_STRUCT = [
-            # OS-specific - Alphabetical
-            'GUID',
-            'SECURITY_ATTRIBUTES',
-
             # Core API - Alphabetical
             'VkBaseInStructure',
             'VkBaseOutStructure',
@@ -238,8 +234,6 @@ class VulkanCppStructGenerator(BaseGenerator):
     #
     # Generate the "GenerateStruct_" function for the given structure name
     def makeStructGenerateFunction(self, struct_type):
-        if struct_type in self.CUSTOM_GENERATE_STRUCT:
-            return
         body = f'std::string GenerateStruct_{struct_type}(std::ostream &out, const {struct_type}* structInfo, ' \
                         f'Decoded_{struct_type}* metaInfo, VulkanCppConsumerBase &consumer)'
         if self.is_header:
@@ -599,14 +593,6 @@ class VulkanCppStructGenerator(BaseGenerator):
         header = []
         header.append(makeGen('std::stringstream struct_body;', locals(), indent))
         struct_prefix = 'structInfo->'
-
-        # Brainpain
-        #if structName in self.overrideStructs:
-        #    body.append(makeGenVar('variable_name', 'override', None, locals(), indent, useThis=False))
-        #    body.append(printOutStream(['"{structName} "', 'variable_name', '" {{}};"'], locals(), indent))
-        #    body.append(printOutStream(['"Override{structName}(&"', 'variable_name', '", "', '"appdata"', '");"'], locals(), indent))
-        #    body.append(makeGen('return variable_name;', locals(), indent))
-        #    return body
 
         for arg in structMembers:
             isFirstArg = (arg == structMembers[0])
