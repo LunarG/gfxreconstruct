@@ -4073,13 +4073,39 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_OMSetRenderTarge
 {
     if (call_info.index == track_dump_resources_.target.set_render_targets_code_index)
     {
+        auto descriptor_increment = 0;
+        if (RTsSingleHandleToDescriptorRange)
+        {
+            // Determine descriptor increment for contiguous render target descriptors.
+            auto cmd_list = reinterpret_cast<ID3D12GraphicsCommandList*>(object_info->object);
+            auto device   = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
+            if (device != nullptr)
+            {
+                descriptor_increment = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to get Device for GetDescriptorHandleIncrementSize in OMSetRenderTargets.");
+            }
+        }
+
         auto rt_handles = pRenderTargetDescriptors->GetMetaStructPointer();
         track_dump_resources_.render_target_heap_ids.resize(NumRenderTargetDescriptors);
         track_dump_resources_.replay_render_target_handles.resize(NumRenderTargetDescriptors);
         for (uint32_t i = 0; i < NumRenderTargetDescriptors; ++i)
         {
-            track_dump_resources_.render_target_heap_ids[i]       = rt_handles[i].heap_id;
-            track_dump_resources_.replay_render_target_handles[i] = *rt_handles[i].decoded_value;
+            if (RTsSingleHandleToDescriptorRange)
+            {
+                // All render target descriptors are contiguous in the same descriptor heap.
+                track_dump_resources_.render_target_heap_ids[i] = rt_handles[0].heap_id;
+                track_dump_resources_.replay_render_target_handles[i] =
+                    D3D12_CPU_DESCRIPTOR_HANDLE{ (*rt_handles[0].decoded_value).ptr + descriptor_increment * i };
+            }
+            else
+            {
+                track_dump_resources_.render_target_heap_ids[i]       = rt_handles[i].heap_id;
+                track_dump_resources_.replay_render_target_handles[i] = *rt_handles[i].decoded_value;
+            }
         }
         auto ds_handle = pDepthStencilDescriptor->GetMetaStructPointer();
         if (ds_handle)
