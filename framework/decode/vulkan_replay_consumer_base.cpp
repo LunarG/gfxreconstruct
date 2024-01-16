@@ -4955,13 +4955,12 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
             {
                 std::vector<PipelineCacheData>& item = const_cast<PipelineCacheInfo*>(pipeline_cache_info)
                                                            ->pipeline_cache_data[capture_pipeline_cache_data_hash];
-                VkDeviceSize* output_cache_data_size = reinterpret_cast<VkDeviceSize*>(pDataSize->GetOutputPointer());
+                auto              output_cache_data_size = *pDataSize->GetOutputPointer();
                 PipelineCacheData pipeline_cache_data;
                 pipeline_cache_data.capture_cache_data.resize(cache_data_size);
                 memcpy(pipeline_cache_data.capture_cache_data.data(), pData->GetPointer(), cache_data_size);
-                pipeline_cache_data.replay_cache_data.resize(*output_cache_data_size);
-                memcpy(
-                    pipeline_cache_data.replay_cache_data.data(), pData->GetOutputPointer(), *output_cache_data_size);
+                pipeline_cache_data.replay_cache_data.resize(output_cache_data_size);
+                memcpy(pipeline_cache_data.replay_cache_data.data(), pData->GetOutputPointer(), output_cache_data_size);
                 item.push_back(std::move(pipeline_cache_data));
             }
         }
