@@ -1772,6 +1772,8 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo) override;
 
 
+
+
     virtual void Process_vkCmdBeginRenderingKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -2488,6 +2490,7 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties) override;
 
 
+
     virtual void Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2681,8 +2684,6 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         VkDeviceSize                                countBufferOffset,
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
-
-
 
 
 
@@ -4248,6 +4249,7 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) override;
+
 
 
 

@@ -1805,6 +1805,8 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo) {}
 
 
+
+
     virtual void Process_vkCmdBeginRenderingKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -2521,6 +2523,7 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties) {}
 
 
+
     virtual void Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2714,8 +2717,6 @@ class VulkanConsumer : public VulkanConsumerBase
         VkDeviceSize                                countBufferOffset,
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) {}
-
-
 
 
 
@@ -4281,6 +4282,7 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) {}
+
 
 
 
