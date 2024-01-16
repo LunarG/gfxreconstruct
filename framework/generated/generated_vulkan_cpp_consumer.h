@@ -2433,6 +2433,35 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pTimeDomainCount,
         PointerDecoder<VkTimeDomainKHR>*            pTimeDomains) override;
+    virtual void Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT>* pBindDescriptorBufferEmbeddedSamplersInfo) override;
+
+    virtual void Process_vkCmdBindDescriptorSets2KHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkBindDescriptorSetsInfoKHR>* pBindDescriptorSetsInfo) override;
+
+    virtual void Process_vkCmdPushConstants2KHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkPushConstantsInfoKHR>* pPushConstantsInfo) override;
+
+    virtual void Process_vkCmdPushDescriptorSet2KHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkPushDescriptorSetInfoKHR>* pPushDescriptorSetInfo) override;
+
+    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo) override;
+
+    virtual void Process_vkCmdSetDescriptorBufferOffsets2EXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkSetDescriptorBufferOffsetsInfoEXT>* pSetDescriptorBufferOffsetsInfo) override;
     virtual void Process_vkFrameBoundaryANDROID(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,

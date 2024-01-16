@@ -9572,6 +9572,149 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR);
 }
+void VulkanCppConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT>* pBindDescriptorBufferEmbeddedSamplersInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// commandBuffer
+// pBindDescriptorBufferEmbeddedSamplersInfo
+    std::stringstream stream_pbind_descriptor_buffer_embedded_samplers_info;
+    std::string pbind_descriptor_buffer_embedded_samplers_info_struct = GenerateStruct_VkBindDescriptorBufferEmbeddedSamplersInfoEXT(stream_pbind_descriptor_buffer_embedded_samplers_info,
+                                                                                                                                     pBindDescriptorBufferEmbeddedSamplersInfo->GetPointer(),
+                                                                                                                                     pBindDescriptorBufferEmbeddedSamplersInfo->GetMetaStructPointer(),
+                                                                                                                                     *this);
+    fprintf(file, "%s", stream_pbind_descriptor_buffer_embedded_samplers_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdBindDescriptorBufferEmbeddedSamplers2EXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pbind_descriptor_buffer_embedded_samplers_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT);
+}
+
+void VulkanCppConsumer::Process_vkCmdBindDescriptorSets2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfoKHR>* pBindDescriptorSetsInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// commandBuffer
+// pBindDescriptorSetsInfo
+    std::stringstream stream_pbind_descriptor_sets_info;
+    std::string pbind_descriptor_sets_info_struct = GenerateStruct_VkBindDescriptorSetsInfoKHR(stream_pbind_descriptor_sets_info,
+                                                                                               pBindDescriptorSetsInfo->GetPointer(),
+                                                                                               pBindDescriptorSetsInfo->GetMetaStructPointer(),
+                                                                                               *this);
+    fprintf(file, "%s", stream_pbind_descriptor_sets_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdBindDescriptorSets2KHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdBindDescriptorSets2KHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pbind_descriptor_sets_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBindDescriptorSets2KHR);
+}
+
+void VulkanCppConsumer::Process_vkCmdPushConstants2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkPushConstantsInfoKHR>* pPushConstantsInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// commandBuffer
+// pPushConstantsInfo
+    std::stringstream stream_ppush_constants_info;
+    std::string ppush_constants_info_struct = GenerateStruct_VkPushConstantsInfoKHR(stream_ppush_constants_info,
+                                                                                    pPushConstantsInfo->GetPointer(),
+                                                                                    pPushConstantsInfo->GetMetaStructPointer(),
+                                                                                    *this);
+    fprintf(file, "%s", stream_ppush_constants_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdPushConstants2KHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdPushConstants2KHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            ppush_constants_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushConstants2KHR);
+}
+
+void VulkanCppConsumer::Process_vkCmdPushDescriptorSet2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkPushDescriptorSetInfoKHR>* pPushDescriptorSetInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// commandBuffer
+// pPushDescriptorSetInfo
+    std::stringstream stream_ppush_descriptor_set_info;
+    std::string ppush_descriptor_set_info_struct = GenerateStruct_VkPushDescriptorSetInfoKHR(stream_ppush_descriptor_set_info,
+                                                                                             pPushDescriptorSetInfo->GetPointer(),
+                                                                                             pPushDescriptorSetInfo->GetMetaStructPointer(),
+                                                                                             *this);
+    fprintf(file, "%s", stream_ppush_descriptor_set_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdPushDescriptorSet2KHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdPushDescriptorSet2KHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            ppush_descriptor_set_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSet2KHR);
+}
+
+void VulkanCppConsumer::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// commandBuffer
+// pPushDescriptorSetWithTemplateInfo
+    std::stringstream stream_ppush_descriptor_set_with_template_info;
+    std::string ppush_descriptor_set_with_template_info_struct = GenerateStruct_VkPushDescriptorSetWithTemplateInfoKHR(stream_ppush_descriptor_set_with_template_info,
+                                                                                                                       pPushDescriptorSetWithTemplateInfo->GetPointer(),
+                                                                                                                       pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer(),
+                                                                                                                       *this);
+    fprintf(file, "%s", stream_ppush_descriptor_set_with_template_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdPushDescriptorSetWithTemplate2KHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdPushDescriptorSetWithTemplate2KHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            ppush_descriptor_set_with_template_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR);
+}
+
+void VulkanCppConsumer::Process_vkCmdSetDescriptorBufferOffsets2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkSetDescriptorBufferOffsetsInfoEXT>* pSetDescriptorBufferOffsetsInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// commandBuffer
+// pSetDescriptorBufferOffsetsInfo
+    std::stringstream stream_pset_descriptor_buffer_offsets_info;
+    std::string pset_descriptor_buffer_offsets_info_struct = GenerateStruct_VkSetDescriptorBufferOffsetsInfoEXT(stream_pset_descriptor_buffer_offsets_info,
+                                                                                                                pSetDescriptorBufferOffsetsInfo->GetPointer(),
+                                                                                                                pSetDescriptorBufferOffsetsInfo->GetMetaStructPointer(),
+                                                                                                                *this);
+    fprintf(file, "%s", stream_pset_descriptor_buffer_offsets_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdSetDescriptorBufferOffsets2EXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdSetDescriptorBufferOffsets2EXT(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pset_descriptor_buffer_offsets_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDescriptorBufferOffsets2EXT);
+}
 void VulkanCppConsumer::Process_vkFrameBoundaryANDROID(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,

@@ -778,6 +778,70 @@ std::string GenerateStruct_VkVideoDecodeInfoKHR(std::ostream &out, const VkVideo
 
 std::string GenerateStruct_VkVideoDecodeUsageInfoKHR(std::ostream &out, const VkVideoDecodeUsageInfoKHR* structInfo, Decoded_VkVideoDecodeUsageInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkVideoEncodeH264CapabilitiesKHR(std::ostream &out, const VkVideoEncodeH264CapabilitiesKHR* structInfo, Decoded_VkVideoEncodeH264CapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264DpbSlotInfoKHR(std::ostream &out, const VkVideoEncodeH264DpbSlotInfoKHR* structInfo, Decoded_VkVideoEncodeH264DpbSlotInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264FrameSizeKHR(std::ostream &out, const VkVideoEncodeH264FrameSizeKHR* structInfo, Decoded_VkVideoEncodeH264FrameSizeKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264GopRemainingFrameInfoKHR(std::ostream &out, const VkVideoEncodeH264GopRemainingFrameInfoKHR* structInfo, Decoded_VkVideoEncodeH264GopRemainingFrameInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264NaluSliceInfoKHR(std::ostream &out, const VkVideoEncodeH264NaluSliceInfoKHR* structInfo, Decoded_VkVideoEncodeH264NaluSliceInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264PictureInfoKHR(std::ostream &out, const VkVideoEncodeH264PictureInfoKHR* structInfo, Decoded_VkVideoEncodeH264PictureInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264ProfileInfoKHR(std::ostream &out, const VkVideoEncodeH264ProfileInfoKHR* structInfo, Decoded_VkVideoEncodeH264ProfileInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264QpKHR(std::ostream &out, const VkVideoEncodeH264QpKHR* structInfo, Decoded_VkVideoEncodeH264QpKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264QualityLevelPropertiesKHR(std::ostream &out, const VkVideoEncodeH264QualityLevelPropertiesKHR* structInfo, Decoded_VkVideoEncodeH264QualityLevelPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264RateControlInfoKHR(std::ostream &out, const VkVideoEncodeH264RateControlInfoKHR* structInfo, Decoded_VkVideoEncodeH264RateControlInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264RateControlLayerInfoKHR(std::ostream &out, const VkVideoEncodeH264RateControlLayerInfoKHR* structInfo, Decoded_VkVideoEncodeH264RateControlLayerInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264SessionCreateInfoKHR(std::ostream &out, const VkVideoEncodeH264SessionCreateInfoKHR* structInfo, Decoded_VkVideoEncodeH264SessionCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264SessionParametersAddInfoKHR(std::ostream &out, const VkVideoEncodeH264SessionParametersAddInfoKHR* structInfo, Decoded_VkVideoEncodeH264SessionParametersAddInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264SessionParametersCreateInfoKHR(std::ostream &out, const VkVideoEncodeH264SessionParametersCreateInfoKHR* structInfo, Decoded_VkVideoEncodeH264SessionParametersCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264SessionParametersFeedbackInfoKHR(std::ostream &out, const VkVideoEncodeH264SessionParametersFeedbackInfoKHR* structInfo, Decoded_VkVideoEncodeH264SessionParametersFeedbackInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH264SessionParametersGetInfoKHR(std::ostream &out, const VkVideoEncodeH264SessionParametersGetInfoKHR* structInfo, Decoded_VkVideoEncodeH264SessionParametersGetInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265CapabilitiesKHR(std::ostream &out, const VkVideoEncodeH265CapabilitiesKHR* structInfo, Decoded_VkVideoEncodeH265CapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265DpbSlotInfoKHR(std::ostream &out, const VkVideoEncodeH265DpbSlotInfoKHR* structInfo, Decoded_VkVideoEncodeH265DpbSlotInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265FrameSizeKHR(std::ostream &out, const VkVideoEncodeH265FrameSizeKHR* structInfo, Decoded_VkVideoEncodeH265FrameSizeKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265GopRemainingFrameInfoKHR(std::ostream &out, const VkVideoEncodeH265GopRemainingFrameInfoKHR* structInfo, Decoded_VkVideoEncodeH265GopRemainingFrameInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265NaluSliceSegmentInfoKHR(std::ostream &out, const VkVideoEncodeH265NaluSliceSegmentInfoKHR* structInfo, Decoded_VkVideoEncodeH265NaluSliceSegmentInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265PictureInfoKHR(std::ostream &out, const VkVideoEncodeH265PictureInfoKHR* structInfo, Decoded_VkVideoEncodeH265PictureInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265ProfileInfoKHR(std::ostream &out, const VkVideoEncodeH265ProfileInfoKHR* structInfo, Decoded_VkVideoEncodeH265ProfileInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265QpKHR(std::ostream &out, const VkVideoEncodeH265QpKHR* structInfo, Decoded_VkVideoEncodeH265QpKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265QualityLevelPropertiesKHR(std::ostream &out, const VkVideoEncodeH265QualityLevelPropertiesKHR* structInfo, Decoded_VkVideoEncodeH265QualityLevelPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265RateControlInfoKHR(std::ostream &out, const VkVideoEncodeH265RateControlInfoKHR* structInfo, Decoded_VkVideoEncodeH265RateControlInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265RateControlLayerInfoKHR(std::ostream &out, const VkVideoEncodeH265RateControlLayerInfoKHR* structInfo, Decoded_VkVideoEncodeH265RateControlLayerInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265SessionCreateInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionCreateInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265SessionParametersAddInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionParametersAddInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265SessionParametersCreateInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionParametersCreateInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionParametersCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265SessionParametersFeedbackInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionParametersFeedbackInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeH265SessionParametersGetInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionParametersGetInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionParametersGetInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkVideoDecodeH264CapabilitiesKHR(std::ostream &out, const VkVideoDecodeH264CapabilitiesKHR* structInfo, Decoded_VkVideoDecodeH264CapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkVideoDecodeH264DpbSlotInfoKHR(std::ostream &out, const VkVideoDecodeH264DpbSlotInfoKHR* structInfo, Decoded_VkVideoDecodeH264DpbSlotInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
@@ -998,6 +1062,10 @@ std::string GenerateStruct_VkPhysicalDeviceCooperativeMatrixFeaturesKHR(std::ost
 
 std::string GenerateStruct_VkPhysicalDeviceCooperativeMatrixPropertiesKHR(std::ostream &out, const VkPhysicalDeviceCooperativeMatrixPropertiesKHR* structInfo, Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkPhysicalDeviceVideoMaintenance1FeaturesKHR(std::ostream &out, const VkPhysicalDeviceVideoMaintenance1FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoInlineQueryInfoKHR(std::ostream &out, const VkVideoInlineQueryInfoKHR* structInfo, Decoded_VkVideoInlineQueryInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR(std::ostream &out, const VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR(std::ostream &out, const VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR* structInfo, Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
@@ -1007,6 +1075,24 @@ std::string GenerateStruct_VkPipelineVertexInputDivisorStateCreateInfoKHR(std::o
 std::string GenerateStruct_VkVertexInputBindingDivisorDescriptionKHR(std::ostream &out, const VkVertexInputBindingDivisorDescriptionKHR* structInfo, Decoded_VkVertexInputBindingDivisorDescriptionKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkCalibratedTimestampInfoKHR(std::ostream &out, const VkCalibratedTimestampInfoKHR* structInfo, Decoded_VkCalibratedTimestampInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkBindDescriptorBufferEmbeddedSamplersInfoEXT(std::ostream &out, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* structInfo, Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkBindDescriptorSetsInfoKHR(std::ostream &out, const VkBindDescriptorSetsInfoKHR* structInfo, Decoded_VkBindDescriptorSetsInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkBindMemoryStatusKHR(std::ostream &out, const VkBindMemoryStatusKHR* structInfo, Decoded_VkBindMemoryStatusKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceMaintenance6FeaturesKHR(std::ostream &out, const VkPhysicalDeviceMaintenance6FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceMaintenance6FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceMaintenance6PropertiesKHR(std::ostream &out, const VkPhysicalDeviceMaintenance6PropertiesKHR* structInfo, Decoded_VkPhysicalDeviceMaintenance6PropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPushConstantsInfoKHR(std::ostream &out, const VkPushConstantsInfoKHR* structInfo, Decoded_VkPushConstantsInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPushDescriptorSetInfoKHR(std::ostream &out, const VkPushDescriptorSetInfoKHR* structInfo, Decoded_VkPushDescriptorSetInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPushDescriptorSetWithTemplateInfoKHR(std::ostream &out, const VkPushDescriptorSetWithTemplateInfoKHR* structInfo, Decoded_VkPushDescriptorSetWithTemplateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSetDescriptorBufferOffsetsInfoEXT(std::ostream &out, const VkSetDescriptorBufferOffsetsInfoEXT* structInfo, Decoded_VkSetDescriptorBufferOffsetsInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkDebugReportCallbackCreateInfoEXT(std::ostream &out, const VkDebugReportCallbackCreateInfoEXT* structInfo, Decoded_VkDebugReportCallbackCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
@@ -1033,70 +1119,6 @@ std::string GenerateStruct_VkPipelineRasterizationStateStreamCreateInfoEXT(std::
 std::string GenerateStruct_VkImageViewAddressPropertiesNVX(std::ostream &out, const VkImageViewAddressPropertiesNVX* structInfo, Decoded_VkImageViewAddressPropertiesNVX* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkImageViewHandleInfoNVX(std::ostream &out, const VkImageViewHandleInfoNVX* structInfo, Decoded_VkImageViewHandleInfoNVX* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264CapabilitiesEXT(std::ostream &out, const VkVideoEncodeH264CapabilitiesEXT* structInfo, Decoded_VkVideoEncodeH264CapabilitiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264DpbSlotInfoEXT(std::ostream &out, const VkVideoEncodeH264DpbSlotInfoEXT* structInfo, Decoded_VkVideoEncodeH264DpbSlotInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264FrameSizeEXT(std::ostream &out, const VkVideoEncodeH264FrameSizeEXT* structInfo, Decoded_VkVideoEncodeH264FrameSizeEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264GopRemainingFrameInfoEXT(std::ostream &out, const VkVideoEncodeH264GopRemainingFrameInfoEXT* structInfo, Decoded_VkVideoEncodeH264GopRemainingFrameInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264NaluSliceInfoEXT(std::ostream &out, const VkVideoEncodeH264NaluSliceInfoEXT* structInfo, Decoded_VkVideoEncodeH264NaluSliceInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264PictureInfoEXT(std::ostream &out, const VkVideoEncodeH264PictureInfoEXT* structInfo, Decoded_VkVideoEncodeH264PictureInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264ProfileInfoEXT(std::ostream &out, const VkVideoEncodeH264ProfileInfoEXT* structInfo, Decoded_VkVideoEncodeH264ProfileInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264QpEXT(std::ostream &out, const VkVideoEncodeH264QpEXT* structInfo, Decoded_VkVideoEncodeH264QpEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264QualityLevelPropertiesEXT(std::ostream &out, const VkVideoEncodeH264QualityLevelPropertiesEXT* structInfo, Decoded_VkVideoEncodeH264QualityLevelPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264RateControlInfoEXT(std::ostream &out, const VkVideoEncodeH264RateControlInfoEXT* structInfo, Decoded_VkVideoEncodeH264RateControlInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264RateControlLayerInfoEXT(std::ostream &out, const VkVideoEncodeH264RateControlLayerInfoEXT* structInfo, Decoded_VkVideoEncodeH264RateControlLayerInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264SessionCreateInfoEXT(std::ostream &out, const VkVideoEncodeH264SessionCreateInfoEXT* structInfo, Decoded_VkVideoEncodeH264SessionCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264SessionParametersAddInfoEXT(std::ostream &out, const VkVideoEncodeH264SessionParametersAddInfoEXT* structInfo, Decoded_VkVideoEncodeH264SessionParametersAddInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264SessionParametersCreateInfoEXT(std::ostream &out, const VkVideoEncodeH264SessionParametersCreateInfoEXT* structInfo, Decoded_VkVideoEncodeH264SessionParametersCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264SessionParametersFeedbackInfoEXT(std::ostream &out, const VkVideoEncodeH264SessionParametersFeedbackInfoEXT* structInfo, Decoded_VkVideoEncodeH264SessionParametersFeedbackInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH264SessionParametersGetInfoEXT(std::ostream &out, const VkVideoEncodeH264SessionParametersGetInfoEXT* structInfo, Decoded_VkVideoEncodeH264SessionParametersGetInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265CapabilitiesEXT(std::ostream &out, const VkVideoEncodeH265CapabilitiesEXT* structInfo, Decoded_VkVideoEncodeH265CapabilitiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265DpbSlotInfoEXT(std::ostream &out, const VkVideoEncodeH265DpbSlotInfoEXT* structInfo, Decoded_VkVideoEncodeH265DpbSlotInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265FrameSizeEXT(std::ostream &out, const VkVideoEncodeH265FrameSizeEXT* structInfo, Decoded_VkVideoEncodeH265FrameSizeEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265GopRemainingFrameInfoEXT(std::ostream &out, const VkVideoEncodeH265GopRemainingFrameInfoEXT* structInfo, Decoded_VkVideoEncodeH265GopRemainingFrameInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265NaluSliceSegmentInfoEXT(std::ostream &out, const VkVideoEncodeH265NaluSliceSegmentInfoEXT* structInfo, Decoded_VkVideoEncodeH265NaluSliceSegmentInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265PictureInfoEXT(std::ostream &out, const VkVideoEncodeH265PictureInfoEXT* structInfo, Decoded_VkVideoEncodeH265PictureInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265ProfileInfoEXT(std::ostream &out, const VkVideoEncodeH265ProfileInfoEXT* structInfo, Decoded_VkVideoEncodeH265ProfileInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265QpEXT(std::ostream &out, const VkVideoEncodeH265QpEXT* structInfo, Decoded_VkVideoEncodeH265QpEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265QualityLevelPropertiesEXT(std::ostream &out, const VkVideoEncodeH265QualityLevelPropertiesEXT* structInfo, Decoded_VkVideoEncodeH265QualityLevelPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265RateControlInfoEXT(std::ostream &out, const VkVideoEncodeH265RateControlInfoEXT* structInfo, Decoded_VkVideoEncodeH265RateControlInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265RateControlLayerInfoEXT(std::ostream &out, const VkVideoEncodeH265RateControlLayerInfoEXT* structInfo, Decoded_VkVideoEncodeH265RateControlLayerInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265SessionCreateInfoEXT(std::ostream &out, const VkVideoEncodeH265SessionCreateInfoEXT* structInfo, Decoded_VkVideoEncodeH265SessionCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265SessionParametersAddInfoEXT(std::ostream &out, const VkVideoEncodeH265SessionParametersAddInfoEXT* structInfo, Decoded_VkVideoEncodeH265SessionParametersAddInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265SessionParametersCreateInfoEXT(std::ostream &out, const VkVideoEncodeH265SessionParametersCreateInfoEXT* structInfo, Decoded_VkVideoEncodeH265SessionParametersCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265SessionParametersFeedbackInfoEXT(std::ostream &out, const VkVideoEncodeH265SessionParametersFeedbackInfoEXT* structInfo, Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkVideoEncodeH265SessionParametersGetInfoEXT(std::ostream &out, const VkVideoEncodeH265SessionParametersGetInfoEXT* structInfo, Decoded_VkVideoEncodeH265SessionParametersGetInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkTextureLODGatherFormatPropertiesAMD(std::ostream &out, const VkTextureLODGatherFormatPropertiesAMD* structInfo, Decoded_VkTextureLODGatherFormatPropertiesAMD* metaInfo, VulkanCppConsumerBase &consumer);
 
@@ -1885,6 +1907,8 @@ std::string GenerateStruct_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeat
 std::string GenerateStruct_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM(std::ostream &out, const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* structInfo, Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM(std::ostream &out, const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDevicePerStageDescriptorSetFeaturesNV(std::ostream &out, const VkPhysicalDevicePerStageDescriptorSetFeaturesNV* structInfo, Decoded_VkPhysicalDevicePerStageDescriptorSetFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceImageProcessing2FeaturesQCOM(std::ostream &out, const VkPhysicalDeviceImageProcessing2FeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer);
 

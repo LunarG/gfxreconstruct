@@ -53,6 +53,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
         const VkBaseInStructure* base_struct = reinterpret_cast<const VkBaseInStructure*>(struct_info);
         PNextNode* pnext_meta_data = reinterpret_cast<PNextNode*>(meta_info);
         switch (base_struct->sType) {
+            case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO: {
+                auto casted_struct = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPipelineLayoutCreateInfo*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPipelineLayoutCreateInfo(out,
+                                           casted_struct,
+                                           decoded_struct,
+                                           consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO: {
                 auto casted_struct = reinterpret_cast<const VkShaderModuleCreateInfo*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkShaderModuleCreateInfo*>(pnext_meta_data->GetMetaStructPointer());
@@ -1233,6 +1243,266 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264CapabilitiesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264CapabilitiesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264CapabilitiesKHR(out,
+                                                 casted_struct,
+                                                 decoded_struct,
+                                                 consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264DpbSlotInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264DpbSlotInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264DpbSlotInfoKHR(out,
+                                                casted_struct,
+                                                decoded_struct,
+                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264GopRemainingFrameInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264GopRemainingFrameInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264GopRemainingFrameInfoKHR(out,
+                                                          casted_struct,
+                                                          decoded_struct,
+                                                          consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264PictureInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264PictureInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264PictureInfoKHR(out,
+                                                casted_struct,
+                                                decoded_struct,
+                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264ProfileInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264ProfileInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264ProfileInfoKHR(out,
+                                                casted_struct,
+                                                decoded_struct,
+                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUALITY_LEVEL_PROPERTIES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264QualityLevelPropertiesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264QualityLevelPropertiesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264QualityLevelPropertiesKHR(out,
+                                                           casted_struct,
+                                                           decoded_struct,
+                                                           consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264RateControlInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264RateControlInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264RateControlInfoKHR(out,
+                                                    casted_struct,
+                                                    decoded_struct,
+                                                    consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264RateControlLayerInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264RateControlLayerInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264RateControlLayerInfoKHR(out,
+                                                         casted_struct,
+                                                         decoded_struct,
+                                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_CREATE_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionCreateInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionCreateInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionCreateInfoKHR(out,
+                                                      casted_struct,
+                                                      decoded_struct,
+                                                      consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionParametersAddInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionParametersAddInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionParametersAddInfoKHR(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionParametersCreateInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionParametersCreateInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionParametersCreateInfoKHR(out,
+                                                                casted_struct,
+                                                                decoded_struct,
+                                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_FEEDBACK_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionParametersFeedbackInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionParametersFeedbackInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionParametersFeedbackInfoKHR(out,
+                                                                  casted_struct,
+                                                                  decoded_struct,
+                                                                  consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionParametersGetInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionParametersGetInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionParametersGetInfoKHR(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265CapabilitiesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265CapabilitiesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265CapabilitiesKHR(out,
+                                                 casted_struct,
+                                                 decoded_struct,
+                                                 consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265DpbSlotInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265DpbSlotInfoKHR(out,
+                                                casted_struct,
+                                                decoded_struct,
+                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265GopRemainingFrameInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265GopRemainingFrameInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265GopRemainingFrameInfoKHR(out,
+                                                          casted_struct,
+                                                          decoded_struct,
+                                                          consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265PictureInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265PictureInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265PictureInfoKHR(out,
+                                                casted_struct,
+                                                decoded_struct,
+                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265ProfileInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265ProfileInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265ProfileInfoKHR(out,
+                                                casted_struct,
+                                                decoded_struct,
+                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265QualityLevelPropertiesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265QualityLevelPropertiesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265QualityLevelPropertiesKHR(out,
+                                                           casted_struct,
+                                                           decoded_struct,
+                                                           consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265RateControlInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265RateControlInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265RateControlInfoKHR(out,
+                                                    casted_struct,
+                                                    decoded_struct,
+                                                    consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265RateControlLayerInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265RateControlLayerInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265RateControlLayerInfoKHR(out,
+                                                         casted_struct,
+                                                         decoded_struct,
+                                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionCreateInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionCreateInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionCreateInfoKHR(out,
+                                                      casted_struct,
+                                                      decoded_struct,
+                                                      consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionParametersAddInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionParametersAddInfoKHR(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionParametersCreateInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionParametersCreateInfoKHR(out,
+                                                                casted_struct,
+                                                                decoded_struct,
+                                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionParametersFeedbackInfoKHR(out,
+                                                                  casted_struct,
+                                                                  decoded_struct,
+                                                                  consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionParametersGetInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionParametersGetInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionParametersGetInfoKHR(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR: {
                 auto casted_struct = reinterpret_cast<const VkVideoDecodeH264CapabilitiesKHR*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkVideoDecodeH264CapabilitiesKHR*>(pnext_meta_data->GetMetaStructPointer());
@@ -1873,6 +2143,26 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceVideoMaintenance1FeaturesKHR(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoInlineQueryInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoInlineQueryInfoKHR(out,
+                                          casted_struct,
+                                          decoded_struct,
+                                          consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
@@ -1900,6 +2190,36 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                casted_struct,
                                                                decoded_struct,
                                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS_KHR: {
+                auto casted_struct = reinterpret_cast<const VkBindMemoryStatusKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkBindMemoryStatusKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkBindMemoryStatusKHR(out,
+                                      casted_struct,
+                                      decoded_struct,
+                                      consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceMaintenance6FeaturesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceMaintenance6FeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceMaintenance6FeaturesKHR(out,
+                                                        casted_struct,
+                                                        decoded_struct,
+                                                        consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceMaintenance6PropertiesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceMaintenance6PropertiesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceMaintenance6PropertiesKHR(out,
+                                                          casted_struct,
+                                                          decoded_struct,
+                                                          consumer);
 
                 break;
             }
@@ -1980,266 +2300,6 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                 casted_struct,
                                                                 decoded_struct,
                                                                 consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264CapabilitiesEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264CapabilitiesEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264CapabilitiesEXT(out,
-                                                 casted_struct,
-                                                 decoded_struct,
-                                                 consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264DpbSlotInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264DpbSlotInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264DpbSlotInfoEXT(out,
-                                                casted_struct,
-                                                decoded_struct,
-                                                consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264GopRemainingFrameInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264GopRemainingFrameInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264GopRemainingFrameInfoEXT(out,
-                                                          casted_struct,
-                                                          decoded_struct,
-                                                          consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264PictureInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264PictureInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264PictureInfoEXT(out,
-                                                casted_struct,
-                                                decoded_struct,
-                                                consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264ProfileInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264ProfileInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264ProfileInfoEXT(out,
-                                                casted_struct,
-                                                decoded_struct,
-                                                consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUALITY_LEVEL_PROPERTIES_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264QualityLevelPropertiesEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264QualityLevelPropertiesEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264QualityLevelPropertiesEXT(out,
-                                                           casted_struct,
-                                                           decoded_struct,
-                                                           consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264RateControlInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264RateControlInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264RateControlInfoEXT(out,
-                                                    casted_struct,
-                                                    decoded_struct,
-                                                    consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264RateControlLayerInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264RateControlLayerInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264RateControlLayerInfoEXT(out,
-                                                         casted_struct,
-                                                         decoded_struct,
-                                                         consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_CREATE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionCreateInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionCreateInfoEXT(out,
-                                                      casted_struct,
-                                                      decoded_struct,
-                                                      consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_ADD_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionParametersAddInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionParametersAddInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionParametersAddInfoEXT(out,
-                                                             casted_struct,
-                                                             decoded_struct,
-                                                             consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_CREATE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionParametersCreateInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionParametersCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionParametersCreateInfoEXT(out,
-                                                                casted_struct,
-                                                                decoded_struct,
-                                                                consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_FEEDBACK_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionParametersFeedbackInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionParametersFeedbackInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionParametersFeedbackInfoEXT(out,
-                                                                  casted_struct,
-                                                                  decoded_struct,
-                                                                  consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH264SessionParametersGetInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH264SessionParametersGetInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH264SessionParametersGetInfoEXT(out,
-                                                             casted_struct,
-                                                             decoded_struct,
-                                                             consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265CapabilitiesEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265CapabilitiesEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265CapabilitiesEXT(out,
-                                                 casted_struct,
-                                                 decoded_struct,
-                                                 consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265DpbSlotInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265DpbSlotInfoEXT(out,
-                                                casted_struct,
-                                                decoded_struct,
-                                                consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265GopRemainingFrameInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265GopRemainingFrameInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265GopRemainingFrameInfoEXT(out,
-                                                          casted_struct,
-                                                          decoded_struct,
-                                                          consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265PictureInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265PictureInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265PictureInfoEXT(out,
-                                                casted_struct,
-                                                decoded_struct,
-                                                consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265ProfileInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265ProfileInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265ProfileInfoEXT(out,
-                                                casted_struct,
-                                                decoded_struct,
-                                                consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265QualityLevelPropertiesEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265QualityLevelPropertiesEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265QualityLevelPropertiesEXT(out,
-                                                           casted_struct,
-                                                           decoded_struct,
-                                                           consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265RateControlInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265RateControlInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265RateControlInfoEXT(out,
-                                                    casted_struct,
-                                                    decoded_struct,
-                                                    consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265RateControlLayerInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265RateControlLayerInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265RateControlLayerInfoEXT(out,
-                                                         casted_struct,
-                                                         decoded_struct,
-                                                         consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionCreateInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionCreateInfoEXT(out,
-                                                      casted_struct,
-                                                      decoded_struct,
-                                                      consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionParametersAddInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionParametersAddInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionParametersAddInfoEXT(out,
-                                                             casted_struct,
-                                                             decoded_struct,
-                                                             consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionParametersCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionParametersCreateInfoEXT(out,
-                                                                casted_struct,
-                                                                decoded_struct,
-                                                                consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionParametersFeedbackInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionParametersFeedbackInfoEXT(out,
-                                                                  casted_struct,
-                                                                  decoded_struct,
-                                                                  consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_EXT: {
-                auto casted_struct = reinterpret_cast<const VkVideoEncodeH265SessionParametersGetInfoEXT*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeH265SessionParametersGetInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkVideoEncodeH265SessionParametersGetInfoEXT(out,
-                                                             casted_struct,
-                                                             decoded_struct,
-                                                             consumer);
 
                 break;
             }
@@ -4940,6 +5000,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                         casted_struct,
                                                                         decoded_struct,
                                                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PER_STAGE_DESCRIPTOR_SET_FEATURES_NV: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDevicePerStageDescriptorSetFeaturesNV*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePerStageDescriptorSetFeaturesNV*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDevicePerStageDescriptorSetFeaturesNV(out,
+                                                                casted_struct,
+                                                                decoded_struct,
+                                                                consumer);
 
                 break;
             }
