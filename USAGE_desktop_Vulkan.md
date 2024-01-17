@@ -703,12 +703,23 @@ Optional arguments:
               command buffer, during the specific queuesubmit call.
               This option can be repeated to initiate multiple dumps of
               gpu resources.
+  --dump-resources BeginCommandBuffer=<n>,CmdDraw=<m>,RenderPass=<n>,NextSubpass=<o>,CmdDispatch=<p>,CmdTraceRays=<q>,QueueSubmit=<r>
+              Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
+              each is block index from the capture file. The additional parameters are used to identify during which occurance
+              of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped. Note that the minimal set of parameters
+              must be one of:
+                  BeginCmdBuffer, CmdDraw,BeginRenderPass,NextSubpass, and QueueSubmit
+                  BeginCmdBuffer, CmdDispatch and QueueSubmit
+                  BeginCmdBuffer, CmdTraceRays and QueueSubmit
   --dump-resources <filename>
-              Extract --dump-resources args from the specified file.
-
+              Extract --dump-resources args from the specified file, with each line in the file containing a comma or space separated
+              list of the parameters to --dump-resources. The file can contain multiple lines specifying multiple dumps.
+  --dump-resources <filename>.json
+              Extract --dump-resource args from the specified json file. The format for the json file is documented in detail
+              in the gfxreconstruct documenation.
   --dump-resources-before-draw
-              In addition to dumping gpu resources after the Vulkan draw calls specified by the
-              --dump-resources argument, also dump resources before the draw calls.
+              In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls specified by the
+              --dump-resources argument, also dump resources before those calls.
 
 ```
 

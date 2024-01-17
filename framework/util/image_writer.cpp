@@ -28,7 +28,9 @@
 
 #include <limits>
 #include <math.h>
+#if !defined(WIN32)
 #include <unistd.h>
+#endif
 
 #if defined(GFXRECON_ENABLE_ZLIB_COMPRESSION) && defined(GFXRECON_ENABLE_PNG_SCREENSHOT)
 #include <zlib.h>

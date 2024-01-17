@@ -445,15 +445,6 @@ static const std::vector<std::vector<std::vector<uint64_t>>> g_RenderPass_indice
 //       { 2901254, 2901264 } }
 // };
 
-// Structure/vector that holds dump resources command line args.
-// TODO: Delete this struct? It might be used only as temp variable holding intermediate results.
-struct ReplayOptionsTripletStruct
-{
-    uint64_t opt_BeginCommandBuffer_Index;
-    uint64_t opt_CmdDraw_Index;
-    uint64_t opt_QueueSubmit_Index;
-};
-
 struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };
@@ -478,17 +469,19 @@ struct VulkanReplayOptions : public ReplayOptions
     SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
     std::vector<util::UintRange> skip_get_fence_ranges;
     bool                         wait_before_present{ false };
+    std::string                  dump_resources;
 
-    std::vector<struct ReplayOptionsTripletStruct>  OrigReplayOptions;
-    std::vector<uint64_t>                           BeginCommandBuffer_Index{ g_BeginCommandBuffer_indices };
-    std::vector<std::vector<uint64_t>>              CmdDraw_Index{ g_CmdDraw_indices };
-    std::vector<std::vector<std::vector<uint64_t>>> RenderPass_Indices{ g_RenderPass_indices };
-    std::vector<std::vector<uint64_t>>              CmdDispatch_Index{ g_CmdDispatch_indices };
-    std::vector<std::vector<uint64_t>>              CmdTraceRaysKHR_Index{ g_CmdTraceRaysKHR_indices };
-    std::vector<uint64_t>                           QueueSubmit_indices{ g_QueueSubmit_indices };
+    std::vector<uint64_t>                           BeginCommandBuffer_Indices;
+    std::vector<std::vector<uint64_t>>              CmdDraw_Indices;
+    std::vector<std::vector<std::vector<uint64_t>>> RenderPass_Indices;
+    std::vector<std::vector<std::vector<uint64_t>>> NextSubPass_Indices;
+    std::vector<std::vector<uint64_t>>              CmdDispatch_Indices;
+    std::vector<std::vector<uint64_t>>              CmdTraceRaysKHR_Indices;
+    std::vector<uint64_t>                           QueueSubmit_Indices;
+
     bool                                            dump_rts_before_dc{ false };
     bool                                            isolate_draw{ false }; // How should this be set?
-    bool                                            dump_resource_enabled{ true };
+    bool                                            dump_resource_enabled{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)
