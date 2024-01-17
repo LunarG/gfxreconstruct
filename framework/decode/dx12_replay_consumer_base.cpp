@@ -1214,16 +1214,6 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
 
     auto clear_value_pointer = pOptimizedClearValue->GetPointer();
 
-    D3D12_RESOURCE_STATES modified_initial_resource_state = InitialResourceState;
-    if (options_.enable_dump_resources && (modified_initial_resource_state & D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE))
-    {
-        // shader resources can't change state after SetGraphicsRootDescriptorTable.
-        // But even if it changes state and copy resources before SetGraphicsRootDescriptorTable,
-        // it can't solve it, because it also has to copy resources after drawcall.
-        // In this case, adding a COPY_SOURCE state here, so it doesn't need to change state for copy resources.
-        modified_initial_resource_state |= D3D12_RESOURCE_STATE_COPY_SOURCE;
-    }
-
     // Create an equivalent but temporary dummy resource
     // This allows us to further validate GFXR, since playback will now use a resource located at a different address
     HRESULT         dummy_result   = E_FAIL;
@@ -1233,7 +1223,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
         dummy_result = replay_object->CreateCommittedResource(heap_properties_pointer,
                                                               HeapFlags,
                                                               desc_pointer,
-                                                              modified_initial_resource_state,
+                                                              InitialResourceState,
                                                               clear_value_pointer,
                                                               IID_PPV_ARGS(&dummy_resource));
 
@@ -1247,7 +1237,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
     auto replay_result = replay_object->CreateCommittedResource(heap_properties_pointer,
                                                                 HeapFlags,
                                                                 desc_pointer,
-                                                                modified_initial_resource_state,
+                                                                InitialResourceState,
                                                                 clear_value_pointer,
                                                                 *riid.decoded_value,
                                                                 resource->GetHandlePointer());
@@ -1263,7 +1253,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
     if (SUCCEEDED(replay_result))
     {
         auto extra_info           = std::make_unique<D3D12ResourceInfo>();
-        extra_info->current_state = modified_initial_resource_state;
+        extra_info->current_state = InitialResourceState;
         SetExtraInfo(resource, std::move(extra_info));
     }
 
@@ -3938,20 +3928,6 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(
             auto resource_object_info = GetObjectInfo(resource_id);
             auto resource_extra_info  = GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
 
-            if (options_.enable_dump_resources)
-            {
-                // This should be in the override functionsince it modifies the parameters. But here is ok.
-                if (barriers[i].Transition->decoded_value->StateBefore & D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE)
-                {
-                    barriers[i].Transition->decoded_value->StateBefore |= D3D12_RESOURCE_STATE_COPY_SOURCE;
-                }
-                if (barriers[i].Transition->decoded_value->StateAfter & D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE)
-                {
-                    // shader resources can't change state after SetGraphicsRootDescriptorTable.
-                    // Adding a COPY_SOURCE state here, so it doesn't need to change state for copy resources.
-                    barriers[i].Transition->decoded_value->StateAfter |= D3D12_RESOURCE_STATE_COPY_SOURCE;
-                }
-            }
             resource_extra_info->track_resource_barrier_state_after[command_list_id] =
                 barriers[i].Transition->decoded_value->StateAfter;
         }
@@ -4693,7 +4669,8 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId            
     }
     if (!(current_state & D3D12_RESOURCE_STATE_COPY_SOURCE))
     {
-        // shader resources can't change state after SetGraphicsRootDescriptorTable.
+        // shader resources that use D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC can't change state after
+        // SetGraphicsRootDescriptorTable.
         D3D12_RESOURCE_BARRIER barrier{};
         barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
         barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -4726,7 +4703,8 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId            
 
     if (!(current_state & D3D12_RESOURCE_STATE_COPY_SOURCE))
     {
-        // shader resources can't change state after SetGraphicsRootDescriptorTable.
+        // shader resources that use D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC can't change state after
+        // SetGraphicsRootDescriptorTable.
         D3D12_RESOURCE_BARRIER barrier{};
         barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
         barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
