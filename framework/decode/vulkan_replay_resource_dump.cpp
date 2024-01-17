@@ -30,7 +30,9 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <sstream>
+#if !defined(WIN32)
 #include <dirent.h>
+#endif
 
 //#define TIME_DUMPING
 #define DELETE_STALE_DUMP_FILES
@@ -109,9 +111,9 @@ static uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memor
 
 VulkanReplayResourceDumpBase::VulkanReplayResourceDumpBase(const VulkanReplayOptions&   options,
                                                            const VulkanObjectInfoTable& object_info_table) :
-    QueueSubmit_indices_(options.QueueSubmit_indices),
+    QueueSubmit_indices_(options.QueueSubmit_Indices),
     recording_(false), dump_rts_before_dc_(options.dump_rts_before_dc), isolate_draw_call_(options.isolate_draw),
-    object_info_table_(object_info_table), ignore_storeOps_(true), enabled_(options.BeginCommandBuffer_Index.size()),
+    object_info_table_(object_info_table), ignore_storeOps_(true), enabled_(options.BeginCommandBuffer_Indices.size()),
 #if defined(__ANDROID__)
     dump_resource_path_("/storage/emulated/0/Download/dump_resources/")
 #else
@@ -119,19 +121,19 @@ VulkanReplayResourceDumpBase::VulkanReplayResourceDumpBase(const VulkanReplayOpt
 #endif
 {
     // These should match
-    assert(options.BeginCommandBuffer_Index.size() == options.CmdDraw_Index.size());
+    assert(options.BeginCommandBuffer_Indices.size() == options.CmdDraw_Indices.size());
 
-    for (size_t i = 0; i < options.BeginCommandBuffer_Index.size(); ++i)
+    for (size_t i = 0; i < options.BeginCommandBuffer_Indices.size(); ++i)
     {
-        const uint64_t bcb_index = options.BeginCommandBuffer_Index[i];
+        const uint64_t bcb_index = options.BeginCommandBuffer_Indices[i];
         cmd_buf_stacks_.emplace(
             bcb_index,
             CommandBufferStack(
-                options.CmdDraw_Index.size() ? options.CmdDraw_Index[i] : std::vector<uint64_t>(),
+                options.CmdDraw_Indices.size() ? options.CmdDraw_Indices[i] : std::vector<uint64_t>(),
                 options.RenderPass_Indices.size() ? options.RenderPass_Indices[i]
                                                   : std::vector<std::vector<uint64_t>>(),
-                options.CmdDispatch_Index.size() ? options.CmdDispatch_Index[i] : std::vector<uint64_t>(),
-                options.CmdTraceRaysKHR_Index.size() ? options.CmdTraceRaysKHR_Index[i] : std::vector<uint64_t>(),
+                options.CmdDispatch_Indices.size() ? options.CmdDispatch_Indices[i] : std::vector<uint64_t>(),
+                options.CmdTraceRaysKHR_Indices.size() ? options.CmdTraceRaysKHR_Indices[i] : std::vector<uint64_t>(),
                 object_info_table,
                 options.dump_rts_before_dc,
                 dump_resource_path_));

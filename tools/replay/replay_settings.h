@@ -264,6 +264,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tOutput gpu resources after the specified draw call in the specific command buffer, during");
     GFXRECON_WRITE_CONSOLE("          \t\tthe specific queuesubmit call. Can use index of vulkan api call following the draw call");
     GFXRECON_WRITE_CONSOLE("          \t\tto dump resources after the draw call. Option can be repeated to initiate multiple dumps.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources BeginCommandBuffer=<n>,CmdDraw=<m>,RenderPass=<n>,NextSubpass=<o>,CmdDispatch=<p>,CmdTraceRays=<q>,QueueSubmit=<r>");
+    GFXRECON_WRITE_CONSOLE("          \t\tDump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources <filename>");
     GFXRECON_WRITE_CONSOLE("          \t\tExtract --dump-resources args from the specified file.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-before-draw");

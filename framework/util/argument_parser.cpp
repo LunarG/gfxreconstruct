@@ -28,9 +28,6 @@
 #include <cinttypes>
 #include <cstring>
 #include <sstream>
-#include <fstream>
-#include <iostream>
-#include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -248,55 +245,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
                                 }
                             }
                             arguments_present_[cur_argument.second] = true;
-
-                            // Check to see if arg to --dump-resources is a file. If it is, read the file
-                            // and put its contents into argument_value, substituting spaces with commas.
-                            if (current_argument == "--dump-resources" && !argument_value.empty()) {
-                                std::ifstream infile(argument_value);
-                                if (!infile.fail()) {
-                                    std::string newargvalue;
-                                    bool err = false;
-                                    for (std::string line; std::getline(infile, line); )
-                                    {
-                                        // Remove leading and trailing spaces
-                                        line.erase(0, line.find_first_not_of(" "));
-                                        line.erase(line.find_last_not_of(" ")+1);
-
-                                        // Remove instances of multiple spaces.
-                                        // This is slow and inefficient, but it's compact code
-                                        // and the loop should be executed only a few times.
-                                        while (line.find("  ") != std::string::npos)
-                                        {
-                                            line.replace(line.find("  "), 2, " ");
-                                        }
-
-                                        // Make sure there are two spaces separating the three numbers and
-                                        // that there are only spaces and digits in the line.
-                                        err = (std::count(line.begin(), line.end(), ' ') != 2) ||
-                                              (line.find_first_not_of("0123456789 ") != std::string::npos);
-
-                                        // Replace spaces with commas
-                                        std::replace(line.begin(), line.end(), ' ', ',');
-
-                                        // Append line to previous lines
-                                        newargvalue = (newargvalue.empty()) ? line : (newargvalue + "," + line);
-                                    }
-                                    if (!err)
-                                        argument_value = newargvalue;
-                                }
-                            }
-
-                            if (current_argument == "--dump-resources" && argument_values_[cur_argument.second].length() > 0)
-                            {
-                                // We allow multiple instances of --dump-resource arg.
-                                // Accumulate the option strings as one long comma separated list.
-                                argument_values_[cur_argument.second] += ",";
-                                argument_values_[cur_argument.second] += argument_value;
-                            }
-                            else
-                            {
-                                argument_values_[cur_argument.second] = argument_value;
-                            }
+                            argument_values_[cur_argument.second]   = argument_value;
                         }
 
                         is_argument = true;

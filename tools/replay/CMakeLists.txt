@@ -37,7 +37,22 @@ target_sources(gfxrecon-replay
                     $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
 )
 
-target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR})
+if (WIN32)
+    target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR} ../../external/json/win64/include)
+else()
+    target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR} ../../external/json/linux/include)
+endif()
+
+if (WIN32)
+    target_link_directories(gfxrecon_decode
+                            PUBLIC
+                                ${CMAKE_SOURCE_DIR}/external/json/win64/lib)
+else()
+    target_link_directories(gfxrecon_decode
+                            PUBLIC
+                                ${CMAKE_SOURCE_DIR}/external/json/linux/lib/x86_64)
+endif()
+
 
 target_link_libraries(gfxrecon-replay
                           gfxrecon_application
@@ -45,6 +60,7 @@ target_link_libraries(gfxrecon-replay
                           gfxrecon_graphics
                           gfxrecon_format
                           gfxrecon_util
+                          jsoncpp.lib
                           platform_specific
                           $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                           $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
