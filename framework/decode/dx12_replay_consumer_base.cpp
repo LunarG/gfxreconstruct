@@ -3387,7 +3387,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCommandListReset(DxObjectInfo* command_l
 
     auto command_list_extra_info                         = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
     command_list_extra_info->requires_sync_after_execute = false;
-    command_list_extra_info->track_resource_barriers.clear();
+    command_list_extra_info->pending_resource_states.clear();
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3923,12 +3923,7 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(
         if (barriers[i].decoded_value->Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION)
         {
             // It shouldn't change the state here. It should save the AfterState until ExecuteCommandList to change it.
-            auto resource_id = barriers[i].Transition->pResource;
-            extra_info->track_resource_barriers.insert(resource_id);
-            auto resource_object_info = GetObjectInfo(resource_id);
-            auto resource_extra_info  = GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
-
-            resource_extra_info->track_resource_barrier_state_after[command_list_id] =
+            extra_info->pending_resource_states[barriers[i].Transition->pResource] =
                 barriers[i].Transition->decoded_value->StateAfter;
         }
     }
@@ -4250,28 +4245,21 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
         auto commandlist_id          = ppCommandLists->GetPointer()[i];
         auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(GetObjectInfo(commandlist_id));
 
-        for (auto resource_id : command_list_extra_info->track_resource_barriers)
+        for (const auto& pair : command_list_extra_info->pending_resource_states)
         {
-            auto resource_object_info = GetObjectInfo(resource_id);
+            auto resource_object_info = GetObjectInfo(pair.first);
             if (resource_object_info == nullptr)
             {
                 GFXRECON_LOG_WARNING("resource id %" PRIu64
                                      " can't found for update state in ExecuteCommandLists. It could be released",
-                                     resource_id);
+                                     pair.first);
             }
             else
             {
-                auto resource_extra_info = GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
-
-                auto it = resource_extra_info->track_resource_barrier_state_after.find(commandlist_id);
-                if (it != resource_extra_info->track_resource_barrier_state_after.end())
-                {
-                    resource_extra_info->current_state = it->second;
-                    resource_extra_info->track_resource_barrier_state_after.erase(it);
-                }
+                auto resource_extra_info           = GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
+                resource_extra_info->current_state = pair.second;
             }
         }
-        command_list_extra_info->track_resource_barriers.clear();
     }
 
     if (track_dump_resources_.target.execute_code_index == call_info.index)
@@ -4645,6 +4633,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId            
                                                     graphics::dx12::ID3D12ResourceComPtr& copy_resource)
 {
     auto        commandlist                 = MapObject<ID3D12GraphicsCommandList>(command_list_id);
+    auto        cmd_list_extra_info         = GetExtraInfo<D3D12CommandListInfo>(GetObjectInfo(command_list_id));
     auto        source_resource_object_info = GetObjectInfo(copy_resource_data.source_resource_id);
     auto        source_resource             = reinterpret_cast<ID3D12Resource*>(source_resource_object_info->object);
     auto        device                      = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(source_resource);
@@ -4662,12 +4651,14 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId            
     //       If the state is changed in another commandlist, and the commandlist is executed
     //       after the target drawcall, we couldn't know the correct state.
     D3D12_RESOURCE_STATES current_state = source_resource_extra_info->current_state;
-    auto                  it = source_resource_extra_info->track_resource_barrier_state_after.find(command_list_id);
-    if (it != source_resource_extra_info->track_resource_barrier_state_after.end())
+    auto                  pending_state_iter =
+        cmd_list_extra_info->pending_resource_states.find(source_resource_object_info->capture_id);
+    if (pending_state_iter != cmd_list_extra_info->pending_resource_states.end())
     {
-        current_state = it->second;
+        current_state = pending_state_iter->second;
     }
-    if (!(current_state & D3D12_RESOURCE_STATE_COPY_SOURCE))
+    bool changed_state = false;
+    if (!(current_state & D3D12_RESOURCE_STATE_COPY_SOURCE) && (current_state != D3D12_RESOURCE_STATE_COMMON))
     {
         // shader resources that use D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC can't change state after
         // SetGraphicsRootDescriptorTable.
@@ -4676,9 +4667,10 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId            
         barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
         barrier.Transition.pResource   = source_resource;
         barrier.Transition.StateBefore = current_state;
-        barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE;
+        barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COMMON;
         barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
         commandlist->ResourceBarrier(1, &barrier);
+        changed_state = true;
     }
 
     if (source_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
@@ -4701,7 +4693,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId            
         commandlist->CopyTextureRegion(&dst_location, 0, 0, 0, &src_location, nullptr);
     }
 
-    if (!(current_state & D3D12_RESOURCE_STATE_COPY_SOURCE))
+    if (changed_state)
     {
         // shader resources that use D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC can't change state after
         // SetGraphicsRootDescriptorTable.
