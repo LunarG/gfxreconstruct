@@ -268,6 +268,14 @@ if (TARGET ZLIB::ZLIB)
                                    GFXRECON_ENABLE_PNG_SCREENSHOT)
 endif()
 
+if (WIN32)
+target_include_directories(gfxrecon_decode
+                           PUBLIC
+                               ${CMAKE_SOURCE_DIR}/framework
+                               ${CMAKE_SOURCE_DIR}/external
+                               ${CMAKE_SOURCE_DIR}/external/precompiled/win64/include/
+                               $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+else()
 target_include_directories(gfxrecon_decode
                            PRIVATE
                                ${CMAKE_BINARY_DIR}
@@ -276,6 +284,7 @@ target_include_directories(gfxrecon_decode
                                ${CMAKE_SOURCE_DIR}/external
                                ${CMAKE_SOURCE_DIR}/external/precompiled/linux/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+endif()
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if (WIN32)
