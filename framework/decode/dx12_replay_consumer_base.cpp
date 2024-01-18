@@ -3826,7 +3826,7 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12Device_CreateConstantBufferView(
     ConstantBufferInfo info;
     info.captured_view = *(desc->decoded_value);
 
-    heap_extra_info->constant_buffer_infos.emplace_back(std::move(info));
+    heap_extra_info->constant_buffer_infos[DestDescriptor.index] = std::move(info);
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateConstantBufferView(
@@ -3838,7 +3838,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateConstantBufferView(
     auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
     auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
 
-    heap_extra_info->constant_buffer_infos.back().replay_handle = (*DestDescriptor.decoded_value);
+    heap_extra_info->constant_buffer_infos[DestDescriptor.index].replay_handle = (*DestDescriptor.decoded_value);
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
@@ -3864,7 +3864,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
         info.is_view_null = false;
     }
 
-    heap_extra_info->shader_resource_infos.emplace_back(std::move(info));
+    heap_extra_info->shader_resource_infos[DestDescriptor.index] = std::move(info);
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateRenderTargetView(
@@ -3890,7 +3890,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateRenderTargetView(
         info.is_view_null = false;
     }
 
-    heap_extra_info->render_target_infos.emplace_back(std::move(info));
+    heap_extra_info->render_target_infos[DestDescriptor.index] = std::move(info);
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateDepthStencilView(
@@ -3915,7 +3915,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateDepthStencilView(
         info.view         = *(pDesc->GetMetaStructPointer()->decoded_value);
         info.is_view_null = false;
     }
-    heap_extra_info->depth_stencil_infos.emplace_back(std::move(info));
+    heap_extra_info->depth_stencil_infos[DestDescriptor.index] = std::move(info);
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_OMSetRenderTargets(
@@ -4236,8 +4236,9 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
         auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
 
         // constant buffer
-        for (const auto& info : heap_extra_info->constant_buffer_infos)
+        for (const auto& info_pair : heap_extra_info->constant_buffer_infos)
         {
+            const auto& info = info_pair.second;
             if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
                                             info.replay_handle.ptr,
                                             heap_extra_info->capture_gpu_addr_begin,
@@ -4257,8 +4258,9 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
         if (TEST_SHADER_RES)
         {
             // shader resource
-            for (const auto& info : heap_extra_info->shader_resource_infos)
+            for (const auto& info_pair : heap_extra_info->shader_resource_infos)
             {
+                const auto& info = info_pair.second;
                 if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
                                                 info.replay_handle.ptr,
                                                 heap_extra_info->capture_gpu_addr_begin,
@@ -4297,8 +4299,9 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
         auto heap_object_info = GetObjectInfo(track_dump_resources_.render_target_heap_ids[i]);
         auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
 
-        for (const auto& info : heap_extra_info->render_target_infos)
+        for (const auto& info_pair : heap_extra_info->render_target_infos)
         {
+            const auto& info = info_pair.second;
             if (info.replay_handle.ptr == track_dump_resources_.replay_render_target_handles[i].ptr)
             {
                 // TODO: Set offset and size by info.view.ViewDimension.
@@ -4315,8 +4318,9 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
         auto heap_object_info = GetObjectInfo(track_dump_resources_.depth_stencil_heap_id);
         auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
 
-        for (const auto& info : heap_extra_info->depth_stencil_infos)
+        for (const auto& info_pair : heap_extra_info->depth_stencil_infos)
         {
+            const auto& info = info_pair.second;
             if (info.replay_handle.ptr == track_dump_resources_.replay_depth_stencil_handle.ptr)
             {
                 // TODO: Set offset and size by info.view.ViewDimension.

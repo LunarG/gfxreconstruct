@@ -298,10 +298,11 @@ struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
     size_t                                replay_cpu_addr_begin{ kNullCpuAddress };
     uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
 
-    std::vector<ConstantBufferInfo> constant_buffer_infos;
-    std::vector<ShaderResourceInfo> shader_resource_infos;
-    std::vector<RenderTargetInfo>   render_target_infos;
-    std::vector<DepthStencilInfo>   depth_stencil_infos;
+    // Descriptor info maps. Key is descriptor's uint32_t heap index.
+    std::map<uint32_t, ConstantBufferInfo> constant_buffer_infos;
+    std::map<uint32_t, ShaderResourceInfo> shader_resource_infos;
+    std::map<uint32_t, RenderTargetInfo>   render_target_infos;
+    std::map<uint32_t, DepthStencilInfo>   depth_stencil_infos;
 };
 
 struct D3D12FenceInfo : DxObjectExtraInfo
