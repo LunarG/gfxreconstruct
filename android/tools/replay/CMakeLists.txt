@@ -28,6 +28,7 @@ add_library(gfxrecon-replay
 target_include_directories(gfxrecon-replay
                            PUBLIC
                                ${ANDROID_NDK}/sources/android/native_app_glue
+                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
 target_link_libraries(
@@ -37,6 +38,7 @@ target_link_libraries(
         gfxrecon_graphics
         gfxrecon_format
         gfxrecon_util
+        ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libjsoncpp.a
         platform_specific
         native_app_glue
         android
