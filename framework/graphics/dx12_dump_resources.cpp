@@ -72,9 +72,13 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
             prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id) + "_before.bin";
         util::FieldToJson(jdata["before_file_name"], file_name.c_str(), json_options_);
 
-        uint8_t*    data_begin;
-        D3D12_RANGE read_Range = { 0, 0 };
-        resource_data.before_resource->Map(0, &read_Range, reinterpret_cast<void**>(&data_begin));
+        uint8_t* data_begin;
+        auto     hr = resource_data.before_resource->Map(0, nullptr, reinterpret_cast<void**>(&data_begin));
+        if (!SUCCEEDED(hr))
+        {
+            GFXRECON_LOG_ERROR("Failed to map resource data for before resource %" PRIu64,
+                               resource_data.source_resource_id);
+        }
 
         std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name);
         WriteBinaryFile(filepath, resource_data.source_size, data_begin);
@@ -88,9 +92,13 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
             prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id) + "_after.bin";
         util::FieldToJson(jdata["after_file_name"], file_name.c_str(), json_options_);
 
-        uint8_t*    data_begin;
-        D3D12_RANGE read_Range = { 0, 0 };
-        resource_data.after_resource->Map(0, &read_Range, reinterpret_cast<void**>(&data_begin));
+        uint8_t* data_begin;
+        auto     hr = resource_data.after_resource->Map(0, nullptr, reinterpret_cast<void**>(&data_begin));
+        if (!SUCCEEDED(hr))
+        {
+            GFXRECON_LOG_ERROR("Failed to map resource data for after resource %" PRIu64,
+                               resource_data.source_resource_id);
+        }
 
         std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name);
         WriteBinaryFile(filepath, resource_data.source_size, data_begin);
@@ -250,6 +258,21 @@ void Dx12DumpResources::TestWriteImageResource(const std::string&      prefix_fi
                                                const CopyResourceData& resource_data)
 {
     std::string file_name = prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id);
+
+    // WriteBmpImage expects 4 bytes per pixel.
+    double bytes_per_pixel = static_cast<double>(resource_data.source_size) /
+                             (static_cast<double>(resource_data.source_footprint.Footprint.RowPitch / 4) *
+                              resource_data.source_footprint.Footprint.Height);
+    if (bytes_per_pixel != 4.0)
+    {
+        GFXRECON_LOG_WARNING("Dump images could not be created for before and after resource of '%s'. Only formats "
+                             "with 4 bytes per pixel are supported. Current format %" PRIu32
+                             " is %.2f bytes per pixel.",
+                             file_name.c_str(),
+                             resource_data.source_footprint.Footprint.Format,
+                             bytes_per_pixel);
+        return;
+    }
 
     if (resource_data.before_resource)
     {
