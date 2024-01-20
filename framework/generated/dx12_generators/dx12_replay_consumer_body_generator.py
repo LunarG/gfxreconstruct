@@ -449,6 +449,38 @@ class Dx12ReplayConsumerBodyGenerator(
 
         code += ');\n'
 
+        if is_object and not is_override and ('ID3D12GraphicsCommandList' in class_name):
+            code += (
+                "    auto dump_command_sets = GetCommandListsForDumpResources(replay_object);\n"
+                "    for (auto& command_set : dump_command_sets)\n"
+                "    {\n"
+            )
+            if class_name != 'ID3D12GraphicsCommandList':
+                code += (
+                    "        {0}* command_list{1};\n"
+                    "        command_set.list->QueryInterface(IID_PPV_ARGS(&command_list{1}));\n".format(class_name, class_name[-1])
+                )
+                indent_length = len(code)
+                code += "        command_list{}".format(class_name[-1])
+                
+            else:
+                indent_length = len(code)
+                code += "        command_set.list"
+            code += "->{}(".format(method_name)
+
+            first = True
+            indent_length = len(code) - indent_length
+            for arg in arg_list:
+                if not first:
+                    code += ',\n{}'.format(' ' * indent_length)
+                first = False
+                code += arg
+
+            code += (
+                ");\n"
+                "    }\n"
+            )
+           
         if return_type == 'HRESULT':
             if len(add_object_list) or len(struct_add_object_list):
                 code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")

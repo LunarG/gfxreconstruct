@@ -31,6 +31,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct TrackDumpDrawcall
 {
+    format::HandleId command_list_id{ format::kNullHandleId };
+    uint64_t         begin_code_index{ 0 };
+    uint64_t         close_code_index{ 0 };
     uint64_t         begin_renderpass_code_index{ 0 };
     uint64_t         set_render_targets_code_index{ 0 };
     format::HandleId root_signature_handle_id{ format::kNullHandleId };
@@ -57,6 +60,7 @@ struct TrackDumpDrawcall
 
 struct TrackDumpCommandList
 {
+    uint64_t         begin_code_index{ 0 };
     uint64_t         current_begin_renderpass_code_index{ 0 };
     uint64_t         current_set_render_targets_code_index{ 0 };
     format::HandleId current_root_signature_handle_id{ format::kNullHandleId };
@@ -79,6 +83,7 @@ struct TrackDumpCommandList
 
     void Clear()
     {
+        begin_code_index                      = 0;
         current_begin_renderpass_code_index   = 0;
         current_set_render_targets_code_index = 0;
         current_captured_vertex_buffer_views.clear();
@@ -130,7 +135,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                                         Decoded_GUID                 riid,
                                                         HandlePointerDecoder<void*>* ppCommandList)
     {
-        InitializeTracking(*ppCommandList->GetPointer());
+        InitializeTracking(call_info, *ppCommandList->GetPointer());
     }
 
     virtual void Process_ID3D12GraphicsCommandList_Reset(const ApiCallInfo& call_info,
@@ -139,7 +144,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                                          format::HandleId   pAllocator,
                                                          format::HandleId   pInitialState)
     {
-        InitializeTracking(object_id);
+        InitializeTracking(call_info, object_id);
     }
 
     virtual void Process_ID3D12GraphicsCommandList4_BeginRenderPass(
@@ -345,6 +350,23 @@ class Dx12BrowseConsumer : public Dx12Consumer
             call_info, object_id, pArgumentBuffer, ArgumentBufferOffset, pCountBuffer, CountBufferOffset);
     }
 
+    virtual void Process_ID3D12GraphicsCommandList_Close(const ApiCallInfo& call_info,
+                                                         format::HandleId   object_id,
+                                                         HRESULT            return_value)
+    {
+        if (target_command_list_ == format::kNullHandleId)
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                for (auto& drawcall : it->second.track_dump_drawcalls)
+                {
+                    drawcall.close_code_index = call_info.index;
+                }
+            }
+        }
+    }
+
     virtual void
     Process_ID3D12CommandQueue_ExecuteCommandLists(const ApiCallInfo&                        call_info,
                                                    format::HandleId                          object_id,
@@ -394,7 +416,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
     // between reset and close, it might have the other commandlist's commands.
     std::map<format::HandleId, TrackDumpCommandList> track_commandlist_infos_;
 
-    void InitializeTracking(format::HandleId object_id)
+    void InitializeTracking(const ApiCallInfo& call_info, format::HandleId object_id)
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -402,10 +424,12 @@ class Dx12BrowseConsumer : public Dx12Consumer
             if (it != track_commandlist_infos_.end())
             {
                 it->second.Clear();
+                it->second.begin_code_index = call_info.index;
             }
             else
             {
                 TrackDumpCommandList info = {};
+                info.begin_code_index     = call_info.index;
                 track_commandlist_infos_.insert({ object_id, std::move(info) });
             }
         }
@@ -424,7 +448,9 @@ class Dx12BrowseConsumer : public Dx12Consumer
             if (it != track_commandlist_infos_.end())
             {
                 TrackDumpDrawcall track_drawcall               = {};
+                track_drawcall.command_list_id                 = object_id;
                 track_drawcall.drawcall_code_index             = call_info.index;
+                track_drawcall.begin_code_index                = it->second.begin_code_index;
                 track_drawcall.begin_renderpass_code_index     = it->second.current_begin_renderpass_code_index;
                 track_drawcall.set_render_targets_code_index   = it->second.current_set_render_targets_code_index;
                 track_drawcall.root_signature_handle_id        = it->second.current_root_signature_handle_id;

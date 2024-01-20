@@ -1981,7 +1981,21 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
         }
     }
 
-    replay_object->ExecuteCommandLists(num_command_lists, command_lists->GetHandlePointer());
+    std::vector<ID3D12CommandList*> modified_command_lists;
+    modified_command_lists.resize(num_command_lists);
+    std::memcpy(modified_command_lists.data(),
+                command_lists->GetHandlePointer(),
+                num_command_lists * sizeof(ID3D12CommandList*));
+    if (options_.enable_dump_resources)
+    {
+        if (track_dump_resources_.target.execute_code_index == GetCurrentBlockIndex())
+        {
+            modified_command_lists[options_.dump_resources_target.command_index] =
+                track_dump_resources_.command_set.list;
+        }
+    }
+
+    replay_object->ExecuteCommandLists(num_command_lists, modified_command_lists.data());
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3385,6 +3399,12 @@ HRESULT Dx12ReplayConsumerBase::OverrideCommandListReset(DxObjectInfo* command_l
 
     HRESULT replay_result = command_list->Reset(allocator, initial_state);
 
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        command_set.list->Reset(command_set.allocator, initial_state);
+    }
+
     auto command_list_extra_info                         = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
     command_list_extra_info->requires_sync_after_execute = false;
     command_list_extra_info->pending_resource_states.clear();
@@ -3406,6 +3426,12 @@ void Dx12ReplayConsumerBase::OverrideCopyResource(DxObjectInfo* command_list_obj
     auto src_resource = static_cast<ID3D12Resource*>(src_resource_object_info->object);
     command_list->CopyResource(dst_resource, src_resource);
 
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        command_set.list->CopyResource(dst_resource, src_resource);
+    }
+
     if (resource_value_mapper_ != nullptr)
     {
         resource_value_mapper_->PostProcessCopyResource(
@@ -3424,6 +3450,12 @@ void Dx12ReplayConsumerBase::OverrideCopyBufferRegion(DxObjectInfo* command_list
     auto dst_buffer   = static_cast<ID3D12Resource*>(dst_buffer_object_info->object);
     auto src_buffer   = static_cast<ID3D12Resource*>(src_buffer_object_info->object);
     command_list->CopyBufferRegion(dst_buffer, dst_offset, src_buffer, src_offset, num_bytes);
+
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        command_set.list->CopyBufferRegion(dst_buffer, dst_offset, src_buffer, src_offset, num_bytes);
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3497,6 +3529,17 @@ void Dx12ReplayConsumerBase::OverrideExecuteIndirect(DxObjectInfo* command_list_
                                   count_buffer,
                                   count_buffer_offset);
 
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        command_set.list->ExecuteIndirect(command_signature,
+                                          max_command_count,
+                                          argument_buffer,
+                                          argument_buffer_offset,
+                                          count_buffer,
+                                          count_buffer_offset);
+    }
+
     auto command_list_extra_info                         = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
     command_list_extra_info->requires_sync_after_execute = true;
 
@@ -3527,6 +3570,15 @@ void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
 
     command_list4->BuildRaytracingAccelerationStructure(
         desc->GetPointer(), num_post_build_info_descs, post_build_info_descs->GetPointer());
+
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list4_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        ID3D12GraphicsCommandList4* command_list4;
+        command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+        command_list4->BuildRaytracingAccelerationStructure(
+            desc->GetPointer(), num_post_build_info_descs, post_build_info_descs->GetPointer());
+    }
 
     auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
     command_list_extra_info->requires_sync_after_execute = true;
@@ -3719,6 +3771,14 @@ void Dx12ReplayConsumerBase::OverrideDispatchRays(DxObjectInfo* command_list4_ob
     auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
     command_list4->DispatchRays(desc_decoder->GetPointer());
 
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list4_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        ID3D12GraphicsCommandList4* command_list4;
+        command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+        command_list4->DispatchRays(desc_decoder->GetPointer());
+    }
+
     auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
     command_list_extra_info->requires_sync_after_execute = true;
 
@@ -3736,6 +3796,14 @@ void Dx12ReplayConsumerBase::OverrideSetPipelineState1(DxObjectInfo* command_lis
     auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
     auto state_object  = static_cast<ID3D12StateObject*>(state_object_object_info->object);
     command_list4->SetPipelineState1(state_object);
+
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list4_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        ID3D12GraphicsCommandList4* command_list4;
+        command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+        command_list4->SetPipelineState1(state_object);
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3759,6 +3827,13 @@ void Dx12ReplayConsumerBase::OverrideCopyTextureRegion(
     command_list->CopyTextureRegion(
         dst_decoder->GetPointer(), dst_x, dst_y, dst_z, src_decoder->GetPointer(), src_box_decoder->GetPointer());
 
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        command_set.list->CopyTextureRegion(
+            dst_decoder->GetPointer(), dst_x, dst_y, dst_z, src_decoder->GetPointer(), src_box_decoder->GetPointer());
+    }
+
     if (resource_value_mapper_ != nullptr)
     {
         resource_value_mapper_->PostProcessCopyTextureRegion(
@@ -3774,6 +3849,12 @@ void Dx12ReplayConsumerBase::OverrideIASetIndexBuffer(
     auto command_list = reinterpret_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
 
     command_list->IASetIndexBuffer(views_decoder->GetPointer());
+
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        command_set.list->IASetIndexBuffer(views_decoder->GetPointer());
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3792,6 +3873,12 @@ void Dx12ReplayConsumerBase::OverrideIASetVertexBuffers(
     auto command_list = reinterpret_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
 
     command_list->IASetVertexBuffers(start_slot, num_views, views_decoder->GetPointer());
+
+    auto dump_command_sets = GetCommandListsForDumpResources(command_list_object_info);
+    for (auto& command_set : dump_command_sets)
+    {
+        command_set.list->IASetVertexBuffers(start_slot, num_views, views_decoder->GetPointer());
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -4529,20 +4616,23 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(const ApiC
 {
     if (track_dump_resources_.target.drawcall_code_index == call_info.index)
     {
+        auto dump_command_sets = GetCommandListsForDumpResources(object_info);
+        GFXRECON_ASSERT(!dump_command_sets.empty());
+        auto dump_cmd_list = dump_command_sets[0].list;
+
         if (track_dump_resources_.target.begin_renderpass_code_index == 0)
         {
             // The program doesn't use renderpass.
-            AddCopyResourceCommandsForBeforeDrawcall(object_info->capture_id);
+            AddCopyResourceCommandsForBeforeDrawcall(object_info->capture_id, dump_cmd_list);
         }
         else
         {
             // Insert renderpass
-            auto commandlist = reinterpret_cast<ID3D12GraphicsCommandList*>(object_info->object);
             graphics::dx12::ID3D12GraphicsCommandList4ComPtr commandlist4;
-            commandlist->QueryInterface(IID_PPV_ARGS(&commandlist4));
+            dump_cmd_list->QueryInterface(IID_PPV_ARGS(&commandlist4));
             commandlist4->EndRenderPass();
 
-            AddCopyResourceCommandsForBeforeDrawcall(object_info->capture_id);
+            AddCopyResourceCommandsForBeforeDrawcall(object_info->capture_id, dump_cmd_list);
 
             std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs;
             auto rt_descs_size = track_dump_resources_.replay_render_target_handles.size();
@@ -4571,14 +4661,15 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(const ApiC
     }
 }
 
-void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::HandleId command_list_id)
+void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::HandleId           command_list_id,
+                                                                      ID3D12GraphicsCommandList* dump_command_list)
 {
     // vertex
     for (const auto& view : track_dump_resources_.target.captured_vertex_buffer_views)
     {
         graphics::CopyResourceData copy_resource_data;
         AddCopyResourceCommandForBeforeDrawcallByGPUVA(
-            command_list_id, view.BufferLocation, view.SizeInBytes, copy_resource_data);
+            command_list_id, dump_command_list, view.BufferLocation, view.SizeInBytes, copy_resource_data);
 
         track_dump_resources_.copy_vertex_resources.emplace_back(std::move(copy_resource_data));
     }
@@ -4586,6 +4677,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
     // index
     AddCopyResourceCommandForBeforeDrawcallByGPUVA(
         command_list_id,
+        dump_command_list,
         track_dump_resources_.target.captured_index_buffer_view.BufferLocation,
         track_dump_resources_.target.captured_index_buffer_view.SizeInBytes,
         track_dump_resources_.copy_index_resource);
@@ -4609,6 +4701,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
             {
                 graphics::CopyResourceData copy_resource_data;
                 AddCopyResourceCommandForBeforeDrawcallByGPUVA(command_list_id,
+                                                               dump_command_list,
                                                                info.captured_view.BufferLocation,
                                                                info.captured_view.SizeInBytes,
                                                                copy_resource_data);
@@ -4644,7 +4737,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
 
                     graphics::CopyResourceData copy_resource_data;
                     AddCopyResourceCommandForBeforeDrawcall(
-                        command_list_id, info.resource_id, offset, size, copy_resource_data);
+                        command_list_id, dump_command_list, info.resource_id, offset, size, copy_resource_data);
 
                     track_dump_resources_.descriptor_heap_datas[heap_index].copy_shader_resources.emplace_back(
                         std::move(copy_resource_data));
@@ -4668,8 +4761,12 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
             if (info.replay_handle.ptr == track_dump_resources_.replay_render_target_handles[i].ptr)
             {
                 // TODO: Set offset and size by info.view.ViewDimension.
-                AddCopyResourceCommandForBeforeDrawcall(
-                    command_list_id, info.resource_id, 0, 0, track_dump_resources_.copy_render_target_resources[i]);
+                AddCopyResourceCommandForBeforeDrawcall(command_list_id,
+                                                        dump_command_list,
+                                                        info.resource_id,
+                                                        0,
+                                                        0,
+                                                        track_dump_resources_.copy_render_target_resources[i]);
                 break;
             }
         }
@@ -4687,8 +4784,12 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
             if (info.replay_handle.ptr == track_dump_resources_.replay_depth_stencil_handle.ptr)
             {
                 // TODO: Set offset and size by info.view.ViewDimension.
-                AddCopyResourceCommandForBeforeDrawcall(
-                    command_list_id, info.resource_id, 0, 0, track_dump_resources_.copy_depth_stencil_resource);
+                AddCopyResourceCommandForBeforeDrawcall(command_list_id,
+                                                        dump_command_list,
+                                                        info.resource_id,
+                                                        0,
+                                                        0,
+                                                        track_dump_resources_.copy_depth_stencil_resource);
                 break;
             }
         }
@@ -4696,11 +4797,13 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForBeforeDrawcall(format::Ha
 
     // ExecuteIndirect
     AddCopyResourceCommandForBeforeDrawcall(command_list_id,
+                                            dump_command_list,
                                             track_dump_resources_.target.exe_indirect_argument_id,
                                             track_dump_resources_.target.exe_indirect_argument_offset,
                                             0,
                                             track_dump_resources_.copy_exe_indirect_argument);
     AddCopyResourceCommandForBeforeDrawcall(command_list_id,
+                                            dump_command_list,
                                             track_dump_resources_.target.exe_indirect_count_id,
                                             track_dump_resources_.target.exe_indirect_count_offset,
                                             0,
@@ -4725,6 +4828,7 @@ bool Dx12ReplayConsumerBase::MatchDescriptorCPUGPUHandle(size_t   replay_cpu_add
 
 void Dx12ReplayConsumerBase::AddCopyResourceCommandForBeforeDrawcallByGPUVA(
     format::HandleId            command_list_id,
+    ID3D12GraphicsCommandList*  dump_command_list,
     D3D12_GPU_VIRTUAL_ADDRESS   captured_source_gpu_va,
     uint64_t                    source_size,
     graphics::CopyResourceData& copy_resource_data)
@@ -4739,6 +4843,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandForBeforeDrawcallByGPUVA(
     auto source_resource_extra_info  = GetExtraInfo<D3D12ResourceInfo>(source_resource_object_info);
 
     AddCopyResourceCommandForBeforeDrawcall(command_list_id,
+                                            dump_command_list,
                                             copy_resource_data.source_resource_id,
                                             (captured_source_gpu_va - source_resource_extra_info->capture_address_),
                                             source_size,
@@ -4747,6 +4852,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandForBeforeDrawcallByGPUVA(
 
 // If source_size = 0, the meaning is the whole after offset.
 void Dx12ReplayConsumerBase::AddCopyResourceCommandForBeforeDrawcall(format::HandleId            command_list_id,
+                                                                     ID3D12GraphicsCommandList*  dump_command_list,
                                                                      format::HandleId            source_resource_id,
                                                                      uint64_t                    source_offset,
                                                                      uint64_t                    source_size,
@@ -4777,7 +4883,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandForBeforeDrawcall(format::Han
         copy_resource_data.source_size = total_bytes - copy_resource_data.source_offset;
     }
 
-    AddCopyResourceCommand(command_list_id, copy_resource_data, copy_resource_data.before_resource);
+    AddCopyResourceCommand(command_list_id, dump_command_list, copy_resource_data, copy_resource_data.before_resource);
 }
 
 void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(const ApiCallInfo& call_info,
@@ -4785,20 +4891,23 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(const ApiCa
 {
     if (track_dump_resources_.target.drawcall_code_index == call_info.index)
     {
+        auto dump_command_sets = GetCommandListsForDumpResources(object_info);
+        GFXRECON_ASSERT(!dump_command_sets.empty());
+        auto dump_cmd_list = dump_command_sets[0].list;
+
         if (track_dump_resources_.target.begin_renderpass_code_index == 0)
         {
             // The program doesn't use renderpass.
-            AddCopyResourceCommandsForAfterDrawcall(object_info->capture_id);
+            AddCopyResourceCommandsForAfterDrawcall(object_info->capture_id, dump_cmd_list);
         }
         else
         {
             // Insert renderpass
-            auto commandlist = reinterpret_cast<ID3D12GraphicsCommandList*>(object_info->object);
             graphics::dx12::ID3D12GraphicsCommandList4ComPtr commandlist4;
-            commandlist->QueryInterface(IID_PPV_ARGS(&commandlist4));
+            dump_cmd_list->QueryInterface(IID_PPV_ARGS(&commandlist4));
             commandlist4->EndRenderPass();
 
-            AddCopyResourceCommandsForAfterDrawcall(object_info->capture_id);
+            AddCopyResourceCommandsForAfterDrawcall(object_info->capture_id, dump_cmd_list);
 
             std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> rt_descs;
             auto rt_descs_size = track_dump_resources_.replay_render_target_handles.size();
@@ -4830,60 +4939,72 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(const ApiCa
     }
 }
 
-void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(format::HandleId command_list_id)
+void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(format::HandleId           command_list_id,
+                                                                     ID3D12GraphicsCommandList* dump_command_list)
 {
     // vertex
-    AddCopyResourceCommandsForAfterDrawcall(command_list_id, track_dump_resources_.copy_vertex_resources);
+    AddCopyResourceCommandsForAfterDrawcall(
+        command_list_id, dump_command_list, track_dump_resources_.copy_vertex_resources);
 
     // index
-    AddCopyResourceCommandForAfterDrawcall(command_list_id, track_dump_resources_.copy_index_resource);
+    AddCopyResourceCommandForAfterDrawcall(
+        command_list_id, dump_command_list, track_dump_resources_.copy_index_resource);
 
     // descriptor
     for (auto& heap_data : track_dump_resources_.descriptor_heap_datas)
     {
         // constant buffer
-        AddCopyResourceCommandsForAfterDrawcall(command_list_id, heap_data.copy_constant_buffer_resources);
+        AddCopyResourceCommandsForAfterDrawcall(
+            command_list_id, dump_command_list, heap_data.copy_constant_buffer_resources);
 
         if (TEST_SHADER_RES)
         {
             // shader resource
-            AddCopyResourceCommandsForAfterDrawcall(command_list_id, heap_data.copy_shader_resources);
+            AddCopyResourceCommandsForAfterDrawcall(
+                command_list_id, dump_command_list, heap_data.copy_shader_resources);
         }
     }
 
     // render target
-    AddCopyResourceCommandsForAfterDrawcall(command_list_id, track_dump_resources_.copy_render_target_resources);
-    AddCopyResourceCommandForAfterDrawcall(command_list_id, track_dump_resources_.copy_depth_stencil_resource);
+    AddCopyResourceCommandsForAfterDrawcall(
+        command_list_id, dump_command_list, track_dump_resources_.copy_render_target_resources);
+    AddCopyResourceCommandForAfterDrawcall(
+        command_list_id, dump_command_list, track_dump_resources_.copy_depth_stencil_resource);
 
     // ExecuteIndirect
-    AddCopyResourceCommandForAfterDrawcall(command_list_id, track_dump_resources_.copy_exe_indirect_argument);
-    AddCopyResourceCommandForAfterDrawcall(command_list_id, track_dump_resources_.copy_exe_indirect_count);
+    AddCopyResourceCommandForAfterDrawcall(
+        command_list_id, dump_command_list, track_dump_resources_.copy_exe_indirect_argument);
+    AddCopyResourceCommandForAfterDrawcall(
+        command_list_id, dump_command_list, track_dump_resources_.copy_exe_indirect_count);
 }
 
 void Dx12ReplayConsumerBase::AddCopyResourceCommandsForAfterDrawcall(
-    format::HandleId command_list_id, std::vector<graphics::CopyResourceData>& copy_resource_datas)
+    format::HandleId                         command_list_id,
+    ID3D12GraphicsCommandList*               dump_command_list,
+    std::vector<graphics::CopyResourceData>& copy_resource_datas)
 {
     for (auto& copy_resource : copy_resource_datas)
     {
-        AddCopyResourceCommandForAfterDrawcall(command_list_id, copy_resource);
+        AddCopyResourceCommandForAfterDrawcall(command_list_id, dump_command_list, copy_resource);
     }
 }
 
 void Dx12ReplayConsumerBase::AddCopyResourceCommandForAfterDrawcall(format::HandleId            command_list_id,
+                                                                    ID3D12GraphicsCommandList*  dump_command_list,
                                                                     graphics::CopyResourceData& copy_resource_data)
 {
     if (copy_resource_data.source_resource_id == 0)
     {
         return;
     }
-    AddCopyResourceCommand(command_list_id, copy_resource_data, copy_resource_data.after_resource);
+    AddCopyResourceCommand(command_list_id, dump_command_list, copy_resource_data, copy_resource_data.after_resource);
 }
 
 void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId                      command_list_id,
+                                                    ID3D12GraphicsCommandList*            dump_command_list,
                                                     graphics::CopyResourceData&           copy_resource_data,
                                                     graphics::dx12::ID3D12ResourceComPtr& copy_resource)
 {
-    auto        commandlist                 = MapObject<ID3D12GraphicsCommandList>(command_list_id);
     auto        cmd_list_extra_info         = GetExtraInfo<D3D12CommandListInfo>(GetObjectInfo(command_list_id));
     auto        source_resource_object_info = GetObjectInfo(copy_resource_data.source_resource_id);
     auto        source_resource             = reinterpret_cast<ID3D12Resource*>(source_resource_object_info->object);
@@ -4920,13 +5041,13 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId            
         barrier.Transition.StateBefore = current_state;
         barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COMMON;
         barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-        commandlist->ResourceBarrier(1, &barrier);
+        dump_command_list->ResourceBarrier(1, &barrier);
         changed_state = true;
     }
 
     if (source_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
-        commandlist->CopyBufferRegion(
+        dump_command_list->CopyBufferRegion(
             copy_resource, 0, source_resource, copy_resource_data.source_offset, copy_resource_data.source_size);
     }
     else
@@ -4941,7 +5062,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId            
         src_location.pResource                   = source_resource;
         src_location.Type                        = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
         src_location.SubresourceIndex            = 0;
-        commandlist->CopyTextureRegion(&dst_location, 0, 0, 0, &src_location, nullptr);
+        dump_command_list->CopyTextureRegion(&dst_location, 0, 0, 0, &src_location, nullptr);
     }
 
     if (changed_state)
@@ -4955,7 +5076,7 @@ void Dx12ReplayConsumerBase::AddCopyResourceCommand(format::HandleId            
         barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
         barrier.Transition.StateAfter  = current_state;
         barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-        commandlist->ResourceBarrier(1, &barrier);
+        dump_command_list->ResourceBarrier(1, &barrier);
     }
 }
 

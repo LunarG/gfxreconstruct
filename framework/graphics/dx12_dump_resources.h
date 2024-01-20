@@ -64,6 +64,12 @@ struct DescriptorHeapData
     std::vector<CopyResourceData> copy_shader_resources;
 };
 
+struct CommandSet
+{
+    dx12::ID3D12CommandAllocatorComPtr    allocator;
+    dx12::ID3D12GraphicsCommandListComPtr list;
+};
+
 // TODO: The required data could be a piece of the ID3D12Resource, not the whole ID3D12Resource.
 //       we need to handle resource's views' offset, byte stride, count, ...
 struct TrackDumpResources
@@ -99,6 +105,8 @@ struct TrackDumpResources
 
     // pair: captured_buffer, modified_buffer
     std::vector<std::pair<std::vector<uint8_t>, std::vector<uint8_t>>> signature_buffers;
+
+    CommandSet command_set;
 
     ~TrackDumpResources() {}
 };

@@ -900,6 +900,46 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
 
+    std::vector<graphics::CommandSet> GetCommandListsForDumpResources(DxObjectInfo* command_list_object_info)
+    {
+        std::vector<graphics::CommandSet> cmd_sets;
+        if (options_.enable_dump_resources)
+        {
+            auto code_index  = GetCurrentBlockIndex();
+            auto api_call_id = GetCurrentApiCallId();
+            if (track_dump_resources_.target.begin_code_index == code_index)
+            {
+                auto cmd_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+                auto device   = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
+
+                device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
+                                               IID_PPV_ARGS(&track_dump_resources_.command_set.allocator));
+                device->CreateCommandList(0,
+                                          D3D12_COMMAND_LIST_TYPE_DIRECT,
+                                          track_dump_resources_.command_set.allocator,
+                                          nullptr,
+                                          IID_PPV_ARGS(&track_dump_resources_.command_set.list));
+            }
+
+            if ((command_list_object_info->capture_id == track_dump_resources_.target.command_list_id) &&
+                (track_dump_resources_.target.begin_code_index <= code_index) &&
+                (track_dump_resources_.target.close_code_index >= code_index))
+            {
+                switch (api_call_id)
+                {
+                    case format::ApiCall_ID3D12GraphicsCommandList_Reset:
+                        track_dump_resources_.command_set.list->Close();
+                        track_dump_resources_.command_set.allocator->Reset();
+                        break;
+                    default:
+                        break;
+                }
+                cmd_sets.emplace_back(track_dump_resources_.command_set);
+            }
+        }
+        return cmd_sets;
+    }
+
   private:
     struct MappedMemoryEntry
     {
@@ -1020,7 +1060,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void AddCopyResourceCommandsForBeforeDrawcall(const ApiCallInfo& call_info, DxObjectInfo* object_info);
 
-    void AddCopyResourceCommandsForBeforeDrawcall(format::HandleId copy_command_list_id);
+    void AddCopyResourceCommandsForBeforeDrawcall(format::HandleId           copy_command_list_id,
+                                                  ID3D12GraphicsCommandList* dump_command_list);
 
     bool MatchDescriptorCPUGPUHandle(size_t                                      replay_cpu_addr_begin,
                                      size_t                                      replay_target_cpu_addr,
@@ -1028,11 +1069,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                      std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE> captured_gpu_addrs);
 
     void AddCopyResourceCommandForBeforeDrawcallByGPUVA(format::HandleId            command_list_id,
+                                                        ID3D12GraphicsCommandList*  dump_command_list,
                                                         D3D12_GPU_VIRTUAL_ADDRESS   capture_source_gpu_va,
                                                         uint64_t                    source_size,
                                                         graphics::CopyResourceData& copy_resource_data);
 
     void AddCopyResourceCommandForBeforeDrawcall(format::HandleId            command_list_id,
+                                                 ID3D12GraphicsCommandList*  dump_command_list,
                                                  format::HandleId            source_resource_id,
                                                  uint64_t                    source_offset,
                                                  uint64_t                    source_size,
@@ -1040,16 +1083,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void AddCopyResourceCommandsForAfterDrawcall(const ApiCallInfo& call_info, DxObjectInfo* object_info);
 
-    void AddCopyResourceCommandsForAfterDrawcall(format::HandleId command_list_id);
+    void AddCopyResourceCommandsForAfterDrawcall(format::HandleId           command_list_id,
+                                                 ID3D12GraphicsCommandList* dump_command_list);
 
     // source_resource_id have been saved in CopyResourceData in AddCopyResourceCommandForBeforeDrawcall.
     void AddCopyResourceCommandsForAfterDrawcall(format::HandleId                         command_list_id,
+                                                 ID3D12GraphicsCommandList*               dump_command_list,
                                                  std::vector<graphics::CopyResourceData>& copy_resource_datas);
 
     void AddCopyResourceCommandForAfterDrawcall(format::HandleId            command_list_id,
+                                                ID3D12GraphicsCommandList*  dump_command_list,
                                                 graphics::CopyResourceData& copy_resource_data);
 
     void AddCopyResourceCommand(format::HandleId                      command_list_id,
+                                ID3D12GraphicsCommandList*            dump_command_list,
                                 graphics::CopyResourceData&           copy_resource_data,
                                 graphics::dx12::ID3D12ResourceComPtr& copy_resource);
 
