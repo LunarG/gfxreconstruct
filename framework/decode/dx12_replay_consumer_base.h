@@ -900,45 +900,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
 
-    std::vector<graphics::CommandSet> GetCommandListsForDumpResources(DxObjectInfo* command_list_object_info)
-    {
-        std::vector<graphics::CommandSet> cmd_sets;
-        if (options_.enable_dump_resources)
-        {
-            auto code_index  = GetCurrentBlockIndex();
-            auto api_call_id = GetCurrentApiCallId();
-            if (track_dump_resources_.target.begin_code_index == code_index)
-            {
-                auto cmd_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
-                auto device   = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
-
-                device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
-                                               IID_PPV_ARGS(&track_dump_resources_.command_set.allocator));
-                device->CreateCommandList(0,
-                                          D3D12_COMMAND_LIST_TYPE_DIRECT,
-                                          track_dump_resources_.command_set.allocator,
-                                          nullptr,
-                                          IID_PPV_ARGS(&track_dump_resources_.command_set.list));
-            }
-
-            if ((command_list_object_info->capture_id == track_dump_resources_.target.command_list_id) &&
-                (track_dump_resources_.target.begin_code_index <= code_index) &&
-                (track_dump_resources_.target.close_code_index >= code_index))
-            {
-                switch (api_call_id)
-                {
-                    case format::ApiCall_ID3D12GraphicsCommandList_Reset:
-                        track_dump_resources_.command_set.list->Close();
-                        track_dump_resources_.command_set.allocator->Reset();
-                        break;
-                    default:
-                        break;
-                }
-                cmd_sets.emplace_back(track_dump_resources_.command_set);
-            }
-        }
-        return cmd_sets;
-    }
+    std::vector<graphics::CommandSet> GetCommandListsForDumpResources(DxObjectInfo* command_list_object_info);
 
   private:
     struct MappedMemoryEntry

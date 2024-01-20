@@ -1981,21 +1981,39 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
         }
     }
 
+    auto                            captured_command_lists     = command_lists->GetHandlePointer();
+    uint32_t                        modified_num_command_lists = num_command_lists;
     std::vector<ID3D12CommandList*> modified_command_lists;
     modified_command_lists.resize(num_command_lists);
-    std::memcpy(modified_command_lists.data(),
-                command_lists->GetHandlePointer(),
-                num_command_lists * sizeof(ID3D12CommandList*));
+    std::memcpy(modified_command_lists.data(), captured_command_lists, num_command_lists * sizeof(ID3D12CommandList*));
     if (options_.enable_dump_resources)
     {
         if (track_dump_resources_.target.execute_code_index == GetCurrentBlockIndex())
         {
-            modified_command_lists[options_.dump_resources_target.command_index] =
-                track_dump_resources_.command_set.list;
+            modified_num_command_lists += 2;
+            modified_command_lists.resize(modified_num_command_lists);
+            uint32_t modified_index = 0;
+            for (uint32_t i = 0; i < num_command_lists; ++i)
+            {
+                if (i == options_.dump_resources_target.command_index)
+                {
+                    modified_command_lists[modified_index] = track_dump_resources_.split_command_sets[0].list;
+                    ++modified_index;
+                    modified_command_lists[modified_index] = track_dump_resources_.split_command_sets[1].list;
+                    ++modified_index;
+                    modified_command_lists[modified_index] = track_dump_resources_.split_command_sets[2].list;
+                    ++modified_index;
+                }
+                else
+                {
+                    modified_command_lists[modified_index] = captured_command_lists[i];
+                    ++modified_index;
+                }
+            }
         }
     }
 
-    replay_object->ExecuteCommandLists(num_command_lists, modified_command_lists.data());
+    replay_object->ExecuteCommandLists(modified_num_command_lists, modified_command_lists.data());
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -4566,6 +4584,127 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_ExecuteIndirect(
                                                                                 UINT64             CountBufferOffset)
 {
     AddCopyResourceCommandsForAfterDrawcall(call_info, object_info);
+}
+
+std::vector<graphics::CommandSet>
+Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_list_object_info)
+{
+    std::vector<graphics::CommandSet> cmd_sets;
+    if (options_.enable_dump_resources)
+    {
+        auto code_index  = GetCurrentBlockIndex();
+        auto api_call_id = GetCurrentApiCallId();
+        if (track_dump_resources_.target.begin_code_index == code_index)
+        {
+            auto cmd_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+            auto device   = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
+
+            for (auto& command_set : track_dump_resources_.split_command_sets)
+            {
+                device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&command_set.allocator));
+                device->CreateCommandList(
+                    0, D3D12_COMMAND_LIST_TYPE_DIRECT, command_set.allocator, nullptr, IID_PPV_ARGS(&command_set.list));
+            }
+        }
+
+        if ((command_list_object_info->capture_id == track_dump_resources_.target.command_list_id) &&
+            (track_dump_resources_.target.begin_code_index <= code_index) &&
+            (track_dump_resources_.target.close_code_index >= code_index))
+        {
+            graphics::TrackDumpResources::SplitCommandType split_type =
+                graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall;
+
+            if (code_index == track_dump_resources_.target.drawcall_code_index)
+            {
+                split_type = graphics::TrackDumpResources::SplitCommandType::kDrawCall;
+            }
+            else if (code_index >= track_dump_resources_.target.drawcall_code_index)
+            {
+                split_type = graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall;
+            }
+
+            // Here is to split command lists.
+            switch (api_call_id)
+            {
+                case format::ApiCall_ID3D12GraphicsCommandList_Reset:
+                {
+                    for (auto& command_set : track_dump_resources_.split_command_sets)
+                    {
+                        command_set.list->Close();
+                        command_set.allocator->Reset();
+                        cmd_sets.emplace_back(command_set);
+                    }
+                    break;
+                }
+                case format::ApiCall_ID3D12GraphicsCommandList_Close:
+                {
+                    cmd_sets.insert(cmd_sets.end(),
+                                    track_dump_resources_.split_command_sets.begin(),
+                                    track_dump_resources_.split_command_sets.end());
+                    break;
+                }
+                // binding and Set. These commands are the three command lists need.
+                case format::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer:
+                case format::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology:
+                case format::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers:
+                case format::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor:
+                case format::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds:
+                case format::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets:
+                case format::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef:
+                case format::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects:
+                case format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
+                case format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage:
+                case format::ApiCall_ID3D12GraphicsCommandList_RSSetViewports:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetPipelineState:
+                case format::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1:
+                case format::ApiCall_ID3D12GraphicsCommandList_SetPredication:
+                case format::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession:
+                case format::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions:
+                case format::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask:
+                case format::ApiCall_ID3D12GraphicsCommandList_SOSetTargets:
+                case format::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate:
+                {
+                    switch (split_type)
+                    {
+                        case graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall:
+                            cmd_sets.insert(cmd_sets.end(),
+                                            track_dump_resources_.split_command_sets.begin(),
+                                            track_dump_resources_.split_command_sets.end());
+                            break;
+                        case graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall:
+                            cmd_sets.emplace_back(track_dump_resources_.split_command_sets
+                                                      [graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall]);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                default:
+                {
+                    // command type could be changed data, drawcalls.
+                    cmd_sets.emplace_back(track_dump_resources_.split_command_sets[split_type]);
+                    break;
+                }
+            }
+        }
+    }
+    return cmd_sets;
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(

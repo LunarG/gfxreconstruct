@@ -106,7 +106,13 @@ struct TrackDumpResources
     // pair: captured_buffer, modified_buffer
     std::vector<std::pair<std::vector<uint8_t>, std::vector<uint8_t>>> signature_buffers;
 
-    CommandSet command_set;
+    enum SplitCommandType
+    {
+        kBeforeDrawCall,
+        kDrawCall,
+        kAfterDrawCall,
+    };
+    std::array<CommandSet, 3> split_command_sets;
 
     ~TrackDumpResources() {}
 };
