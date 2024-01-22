@@ -214,7 +214,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void
     Generate_vkGetImageMemoryRequirements2(format::HandleId                                              device,
                                            StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
-                                           StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements);
+                                           StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements,
+                                           const char*                                          extension = "");
     void
     Generate_vkGetImageMemoryRequirements2KHR(format::HandleId                                              device,
                                               StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
@@ -223,7 +224,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
     void
          Generate_vkGetBufferMemoryRequirements2(format::HandleId                                               device,
                                                  StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
-                                                 StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements);
+                                                 StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements,
+                                                 const char*                                          extension = "");
     void Generate_vkGetBufferMemoryRequirements2KHR(
         format::HandleId                                               device,
         StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
