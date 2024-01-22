@@ -54,8 +54,14 @@ struct CopyResourceData
     uint64_t                           source_size{ 0 };
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT source_footprint{};
     D3D12_RESOURCE_DESC                desc{};
-    dx12::ID3D12ResourceComPtr         before_resource{ nullptr }; // copy resource before drawcall
-    dx12::ID3D12ResourceComPtr         after_resource{ nullptr };  // copy resource after drawcall
+    std::vector<uint8_t>               before_data; // copy resource before drawcall
+    std::vector<uint8_t>               after_data;  // copy resource after drawcall
+
+    void Clear()
+    {
+        before_data.clear();
+        after_data.clear();
+    }
 };
 
 struct DescriptorHeapData
@@ -114,7 +120,23 @@ struct TrackDumpResources
     };
     std::array<CommandSet, 3> split_command_sets;
 
-    ~TrackDumpResources() {}
+    graphics::dx12::ID3D12FenceComPtr fence;
+
+    void Clear()
+    {
+        target.Clear();
+        copy_vertex_resources.clear();
+        copy_index_resource.Clear();
+        descriptor_heap_datas.clear();
+        render_target_heap_ids.clear();
+        replay_render_target_handles.clear();
+        copy_render_target_resources.clear();
+        copy_depth_stencil_resource.Clear();
+        record_render_target_ending_accesses.clear();
+        copy_exe_indirect_argument.Clear();
+        copy_exe_indirect_count.Clear();
+        signature_buffers.clear();
+    }
 };
 
 // TODO: This class copys a lot of code to write json from VulkanExportJsonConsumerBase.
@@ -163,7 +185,7 @@ class Dx12DumpResources
         WriteBlockEnd();
     }
 
-    bool WriteBinaryFile(const std::string& filename, uint64_t buffer_size, const uint8_t* data);
+    bool WriteBinaryFile(const std::string& filename, const std::vector<uint8_t>& data);
 
     void TestWriteFloatResources(const std::string&                   prefix_file_name,
                                  const std::vector<CopyResourceData>& resource_datas);

@@ -56,6 +56,13 @@ struct TrackDumpDrawcall
 
     uint64_t drawcall_code_index{ 0 };
     uint64_t execute_code_index{ 0 };
+
+    void Clear()
+    {
+        captured_vertex_buffer_views.clear();
+        descriptor_heap_ids.clear();
+        captured_descriptor_gpu_handles.clear();
+    }
 };
 
 struct TrackDumpCommandList

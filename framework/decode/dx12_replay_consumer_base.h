@@ -188,66 +188,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
         D3D12_RENDER_PASS_FLAGS                                             Flags);
 
-    void PreCall_ID3D12GraphicsCommandList_DrawInstanced(const ApiCallInfo& call_info,
-                                                         DxObjectInfo*      object_info,
-                                                         UINT               VertexCountPerInstance,
-                                                         UINT               InstanceCount,
-                                                         UINT               StartVertexLocation,
-                                                         UINT               StartInstanceLocation);
-
-    void PostCall_ID3D12GraphicsCommandList_DrawInstanced(const ApiCallInfo& call_info,
-                                                          DxObjectInfo*      object_info,
-                                                          UINT               VertexCountPerInstance,
-                                                          UINT               InstanceCount,
-                                                          UINT               StartVertexLocation,
-                                                          UINT               StartInstanceLocation);
-
-    void PreCall_ID3D12GraphicsCommandList_DrawIndexedInstanced(const ApiCallInfo& call_info,
-                                                                DxObjectInfo*      object_info,
-                                                                UINT               IndexCountPerInstance,
-                                                                UINT               InstanceCount,
-                                                                UINT               StartIndexLocation,
-                                                                INT                BaseVertexLocation,
-                                                                UINT               StartInstanceLocation);
-
-    void PostCall_ID3D12GraphicsCommandList_DrawIndexedInstanced(const ApiCallInfo& call_info,
-                                                                 DxObjectInfo*      object_info,
-                                                                 UINT               IndexCountPerInstance,
-                                                                 UINT               InstanceCount,
-                                                                 UINT               StartIndexLocation,
-                                                                 INT                BaseVertexLocation,
-                                                                 UINT               StartInstanceLocation);
-
-    void PreCall_ID3D12GraphicsCommandList_Dispatch(const ApiCallInfo& call_info,
-                                                    DxObjectInfo*      object_info,
-                                                    UINT               ThreadGroupCountX,
-                                                    UINT               ThreadGroupCountY,
-                                                    UINT               ThreadGroupCountZ);
-
-    void PostCall_ID3D12GraphicsCommandList_Dispatch(const ApiCallInfo& call_info,
-                                                     DxObjectInfo*      object_info,
-                                                     UINT               ThreadGroupCountX,
-                                                     UINT               ThreadGroupCountY,
-                                                     UINT               ThreadGroupCountZ);
-
-    void PreCall_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
-                                                           DxObjectInfo*      object_info,
-                                                           format::HandleId   pCommandSignature,
-                                                           UINT               MaxCommandCount,
-                                                           format::HandleId   pArgumentBuffer,
-                                                           UINT64             ArgumentBufferOffset,
-                                                           format::HandleId   pCountBuffer,
-                                                           UINT64             CountBufferOffset);
-
-    void PostCall_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
-                                                            DxObjectInfo*      object_info,
-                                                            format::HandleId   pCommandSignature,
-                                                            UINT               MaxCommandCount,
-                                                            format::HandleId   pArgumentBuffer,
-                                                            UINT64             ArgumentBufferOffset,
-                                                            format::HandleId   pCountBuffer,
-                                                            UINT64             CountBufferOffset);
-
     void PostCall_ID3D12CommandQueue_ExecuteCommandLists(const ApiCallInfo&                        call_info,
                                                          DxObjectInfo*                             object_info,
                                                          UINT                                      NumCommandLists,
@@ -1020,47 +960,36 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
-    void AddCopyResourceCommandsForBeforeDrawcall(const ApiCallInfo& call_info, DxObjectInfo* object_info);
-
-    void AddCopyResourceCommandsForBeforeDrawcall(format::HandleId           copy_command_list_id,
-                                                  ID3D12GraphicsCommandList* dump_command_list);
+    void CopyResourcesForBeforeDrawcall(const std::vector<format::HandleId>& front_command_list_ids);
 
     bool MatchDescriptorCPUGPUHandle(size_t                                      replay_cpu_addr_begin,
                                      size_t                                      replay_target_cpu_addr,
                                      uint64_t                                    capture_gpu_addr_begin,
                                      std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE> captured_gpu_addrs);
 
-    void AddCopyResourceCommandForBeforeDrawcallByGPUVA(format::HandleId            command_list_id,
-                                                        ID3D12GraphicsCommandList*  dump_command_list,
-                                                        D3D12_GPU_VIRTUAL_ADDRESS   capture_source_gpu_va,
-                                                        uint64_t                    source_size,
-                                                        graphics::CopyResourceData& copy_resource_data);
+    void CopyResourceForBeforeDrawcallByGPUVA(const std::vector<format::HandleId>& front_command_list_ids,
+                                              D3D12_GPU_VIRTUAL_ADDRESS            capture_source_gpu_va,
+                                              uint64_t                             source_size,
+                                              graphics::CopyResourceData&          copy_resource_data);
 
-    void AddCopyResourceCommandForBeforeDrawcall(format::HandleId            command_list_id,
-                                                 ID3D12GraphicsCommandList*  dump_command_list,
-                                                 format::HandleId            source_resource_id,
-                                                 uint64_t                    source_offset,
-                                                 uint64_t                    source_size,
-                                                 graphics::CopyResourceData& copy_resource_data);
+    void CopyResourceForBeforeDrawcall(const std::vector<format::HandleId>& front_command_list_ids,
+                                       format::HandleId                     source_resource_id,
+                                       uint64_t                             source_offset,
+                                       uint64_t                             source_size,
+                                       graphics::CopyResourceData&          copy_resource_data);
 
-    void AddCopyResourceCommandsForAfterDrawcall(const ApiCallInfo& call_info, DxObjectInfo* object_info);
+    void CopyResourcesForAfterDrawcall(const std::vector<format::HandleId>& front_command_list_ids);
 
-    void AddCopyResourceCommandsForAfterDrawcall(format::HandleId           command_list_id,
-                                                 ID3D12GraphicsCommandList* dump_command_list);
+    // source_resource_id have been saved in CopyResourceData in CopyResourcesForBeforeDrawcall.
+    void CopyResourcesForAfterDrawcall(const std::vector<format::HandleId>&     front_command_list_ids,
+                                       std::vector<graphics::CopyResourceData>& copy_resource_datas);
 
-    // source_resource_id have been saved in CopyResourceData in AddCopyResourceCommandForBeforeDrawcall.
-    void AddCopyResourceCommandsForAfterDrawcall(format::HandleId                         command_list_id,
-                                                 ID3D12GraphicsCommandList*               dump_command_list,
-                                                 std::vector<graphics::CopyResourceData>& copy_resource_datas);
+    void CopyResourceForAfterDrawcall(const std::vector<format::HandleId>& front_command_list_ids,
+                                      graphics::CopyResourceData&          copy_resource_data);
 
-    void AddCopyResourceCommandForAfterDrawcall(format::HandleId            command_list_id,
-                                                ID3D12GraphicsCommandList*  dump_command_list,
-                                                graphics::CopyResourceData& copy_resource_data);
-
-    void AddCopyResourceCommand(format::HandleId                      command_list_id,
-                                ID3D12GraphicsCommandList*            dump_command_list,
-                                graphics::CopyResourceData&           copy_resource_data,
-                                graphics::dx12::ID3D12ResourceComPtr& copy_resource);
+    void CopyResource(const std::vector<format::HandleId>& front_command_list_ids,
+                      graphics::CopyResourceData&          copy_resource_data,
+                      std::vector<uint8_t>&                copy_data);
 
     std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
     Dx12ObjectInfoTable                                   object_info_table_;

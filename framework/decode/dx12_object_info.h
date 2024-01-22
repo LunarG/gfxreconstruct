@@ -339,8 +339,8 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
     std::map<uint64_t, uint64_t>                       mapped_gpu_addresses;
     std::map<uint64_t, graphics::Dx12ShaderIdentifier> mapped_shader_ids;
 
-    D3D12_RESOURCE_DESC1                              desc = {};
-    D3D12_RESOURCE_STATES                             current_state{ D3D12_RESOURCE_STATE_COMMON };
+    D3D12_RESOURCE_DESC1  desc = {};
+    D3D12_RESOURCE_STATES current_state{ D3D12_RESOURCE_STATE_COMMON };
 };
 
 struct D3D12CommandSignatureInfo : DxObjectExtraInfo
@@ -351,6 +351,12 @@ struct D3D12CommandSignatureInfo : DxObjectExtraInfo
 
     std::set<ResourceValueInfo> resource_value_infos;
     UINT                        byte_stride{ 0 };
+};
+
+struct ResourceStatesOrder
+{
+    D3D12_RESOURCE_STATES states{ D3D12_RESOURCE_STATE_COMMON };
+    uint64_t              code_index{ 0 };
 };
 
 struct D3D12CommandListInfo : DxObjectExtraInfo
@@ -366,7 +372,7 @@ struct D3D12CommandListInfo : DxObjectExtraInfo
     ResourceValueInfoMap          resource_value_info_map;
     DxObjectInfo*                 active_state_object{ nullptr };
 
-    std::map<format::HandleId, D3D12_RESOURCE_STATES> pending_resource_states; // HandleId is Resource.
+    std::map<format::HandleId, std::vector<ResourceStatesOrder>> pending_resource_states; // HandleId is Resource.
 };
 
 struct D3D12RootSignatureInfo : DxObjectExtraInfo
