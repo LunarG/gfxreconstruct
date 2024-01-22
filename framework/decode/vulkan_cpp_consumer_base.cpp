@@ -874,7 +874,8 @@ void VulkanCppConsumerBase::Generate_vkGetImageMemoryRequirements(
 void VulkanCppConsumerBase::Generate_vkGetBufferMemoryRequirements2(
     format::HandleId                                               device,
     StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
-    StructPointerDecoder<Decoded_VkMemoryRequirements2>*           pMemoryRequirements)
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>*           pMemoryRequirements,
+    const char*                                                    extension)
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
@@ -893,8 +894,14 @@ void VulkanCppConsumerBase::Generate_vkGetBufferMemoryRequirements2(
                                                                         *this);
     fprintf(file, "%s", stream_memory_requirements.str().c_str());
     AddKnownVariables("VkMemoryRequirements2", memory_requirements_var_name);
+
+    std::string method_name = "vkGetBufferMemoryRequirements2";
+    method_name += extension;
+    pfn_loader_.AddMethodName(method_name);
+
     fprintf(file,
-            "\t\tvkGetBufferMemoryRequirements2(%s, &%s, &%s);\n",
+            "\t\tloaded_%s(%s, &%s, &%s);\n",
+            method_name.c_str(),
             this->GetHandle(device).c_str(),
             info_struct_name.c_str(),
             memory_requirements_var_name.c_str());
@@ -907,13 +914,14 @@ void VulkanCppConsumerBase::Generate_vkGetBufferMemoryRequirements2KHR(
     StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>*           pMemoryRequirements)
 {
-    return Generate_vkGetBufferMemoryRequirements2(device, pInfo, pMemoryRequirements);
+    return Generate_vkGetBufferMemoryRequirements2(device, pInfo, pMemoryRequirements, "KHR");
 }
 
 void VulkanCppConsumerBase::Generate_vkGetImageMemoryRequirements2(
     format::HandleId                                              device,
     StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
-    StructPointerDecoder<Decoded_VkMemoryRequirements2>*          pMemoryRequirements)
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>*          pMemoryRequirements,
+    const char*                                                   extension)
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
@@ -932,8 +940,14 @@ void VulkanCppConsumerBase::Generate_vkGetImageMemoryRequirements2(
                                                                         *this);
     fprintf(file, "%s", stream_memory_requirements.str().c_str());
     AddKnownVariables("VkMemoryRequirements2", memory_requirements_var_name);
+
+    std::string method_name = "vkGetImageMemoryRequirements2";
+    method_name += extension;
+    pfn_loader_.AddMethodName(method_name);
+
     fprintf(file,
-            "\t\tvkGetImageMemoryRequirements2(%s, &%s, &%s);\n",
+            "\t\tloaded_%s(%s, &%s, &%s);\n",
+            method_name.c_str(),
             this->GetHandle(device).c_str(),
             info_struct_name.c_str(),
             memory_requirements_var_name.c_str());
@@ -946,7 +960,7 @@ void VulkanCppConsumerBase::Generate_vkGetImageMemoryRequirements2KHR(
     StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>* pInfo,
     StructPointerDecoder<Decoded_VkMemoryRequirements2>*          pMemoryRequirements)
 {
-    return Generate_vkGetImageMemoryRequirements2(device, pInfo, pMemoryRequirements);
+    return Generate_vkGetImageMemoryRequirements2(device, pInfo, pMemoryRequirements, "KHR");
 }
 
 void VulkanCppConsumerBase::Generate_vkGetImageSparseMemoryRequirements(
@@ -3305,8 +3319,7 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
                 fprintf(file, "\t\t\t%s.plane_info[%u].height            = %u;\n", memory_info.name.c_str(), i, height);
                 fprintf(file, "\n");
                 fprintf(file, "\t\t\tif ((%" PRIu64 " != replay_plane_info[%u].offset) ||\n", plane_info[i].offset, i);
-                fprintf(
-                    file, "\t\t\t\t(%u != replay_plane_info[%u].row_pitch))\n", plane_info[i].row_pitch, i);
+                fprintf(file, "\t\t\t\t(%u != replay_plane_info[%u].row_pitch))\n", plane_info[i].row_pitch, i);
                 fprintf(file, "\t\t\t{\n");
                 fprintf(file, "\t\t\t\t%s.compatible_strides = false;\n", memory_info.name.c_str());
                 fprintf(file, "\t\t\t}\n");
