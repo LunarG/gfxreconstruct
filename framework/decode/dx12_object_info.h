@@ -341,6 +341,7 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
 
     D3D12_RESOURCE_DESC1  desc = {};
     D3D12_RESOURCE_STATES current_state{ D3D12_RESOURCE_STATE_COMMON };
+    format::HandleId      swap_chain_id{ format::kNullHandleId };
 };
 
 struct D3D12CommandSignatureInfo : DxObjectExtraInfo

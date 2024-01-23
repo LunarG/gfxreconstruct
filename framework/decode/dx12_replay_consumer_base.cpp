@@ -2267,6 +2267,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
                 auto object_info          = static_cast<DxObjectInfo*>(surface->GetConsumerData(0));
                 auto extra_info           = std::make_unique<D3D12ResourceInfo>();
                 extra_info->current_state = D3D12_RESOURCE_STATE_PRESENT;
+                extra_info->swap_chain_id = replay_object_info->capture_id;
                 SetExtraInfo(surface, std::move(extra_info));
 
                 // Increment the replay reference to prevent the swapchain image info entry from being removed from the
@@ -4990,10 +4991,17 @@ void Dx12ReplayConsumerBase::CopyResource(const std::vector<format::HandleId>& f
             }
         }
     }
+    graphics::dx12::ID3D12CommandQueueComPtr queue = nullptr;
+    if (source_resource_extra_info->swap_chain_id != format::kNullHandleId)
+    {
+        auto swapchain_extra_info =
+            GetExtraInfo<DxgiSwapchainInfo>(GetObjectInfo(source_resource_extra_info->swap_chain_id));
+        queue = swapchain_extra_info->command_queue;
+    }
 
     auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(source_resource);
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util =
-        std::make_unique<graphics::Dx12ResourceDataUtil>(device, copy_resource_data.source_size);
+        std::make_unique<graphics::Dx12ResourceDataUtil>(device, copy_resource_data.source_size, queue);
 
     std::vector<graphics::dx12::ResourceStateInfo> current_states{ current_state };
     std::vector<uint64_t>                          offsets{ copy_resource_data.source_offset };
