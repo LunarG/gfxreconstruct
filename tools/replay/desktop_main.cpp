@@ -327,7 +327,7 @@ void parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions &vulkan_repl
           vulkan_replay_options.Dispatch_Indices.size() == 0 &&
           vulkan_replay_options.TraceRays_Indices.size() == 0);
     if (vulkan_replay_options.Draw_Indices.size() > 0)
-        parse_error |= (vulkan_replay_options.RenderPass_Indices.size() < 2);
+        parse_error |= (vulkan_replay_options.RenderPass_Indices.size() == 0);
     else 
         if (vulkan_replay_options.Dispatch_Indices.size() == 0)
             parse_error |= (vulkan_replay_options.TraceRays_Indices.size() == 0);
