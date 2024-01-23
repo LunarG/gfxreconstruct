@@ -703,20 +703,20 @@ Optional arguments:
               command buffer, during the specific queuesubmit call.
               This option can be repeated to initiate multiple dumps of
               gpu resources.
-  --dump-resources BeginCommandBuffer=<n>,CmdDraw=<m>,RenderPass=<n>,NextSubpass=<o>,CmdDispatch=<p>,CmdTraceRays=<q>,QueueSubmit=<r>
+  --dump-resources BeginCommandBuffer=<n>,Draw=<n>,BeginRenderPass=<n>,NextSubPass=<n>,EndRenderPass=<n>,Dispatch=<n>,TraceRays=<n>,QueueSubmit=<n>
               Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
-              each is block index from the capture file. The additional parameters are used to identify during which occurance
-              of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped. Note that the minimal set of parameters
-              must be one of:
-                  BeginCmdBuffer, CmdDraw,BeginRenderPass,NextSubpass, and QueueSubmit
-                  BeginCmdBuffer, CmdDispatch and QueueSubmit
-                  BeginCmdBuffer, CmdTraceRays and QueueSubmit
+              each is a block index from the capture file.  The additional parameters are used to identify during which occurence
+              of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
+              indicate subpasses withing a render pass.  Note that the minimal set of parameters must be one of:
+                  BeginCmdBuffer, Draw, BeginRenderPass, EndRenderPass, and QueueSubmit
+                  BeginCmdBuffer, Dispatch and QueueSubmit
+                  BeginCmdBuffer, TraceRays and QueueSubmit
   --dump-resources <filename>
               Extract --dump-resources args from the specified file, with each line in the file containing a comma or space separated
               list of the parameters to --dump-resources. The file can contain multiple lines specifying multiple dumps.
   --dump-resources <filename>.json
               Extract --dump-resource args from the specified json file. The format for the json file is documented in detail
-              in the gfxreconstruct documenation.
+              in the gfxreconstruct documentation.
   --dump-resources-before-draw
               In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls specified by the
               --dump-resources argument, also dump resources before those calls.
