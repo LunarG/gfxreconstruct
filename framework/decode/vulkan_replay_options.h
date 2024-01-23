@@ -472,11 +472,10 @@ struct VulkanReplayOptions : public ReplayOptions
     std::string                  dump_resources;
 
     std::vector<uint64_t>                           BeginCommandBuffer_Indices;
-    std::vector<std::vector<uint64_t>>              CmdDraw_Indices;
+    std::vector<std::vector<uint64_t>>              Draw_Indices;
     std::vector<std::vector<std::vector<uint64_t>>> RenderPass_Indices;
-    std::vector<std::vector<std::vector<uint64_t>>> NextSubPass_Indices;
-    std::vector<std::vector<uint64_t>>              CmdDispatch_Indices;
-    std::vector<std::vector<uint64_t>>              CmdTraceRaysKHR_Indices;
+    std::vector<std::vector<uint64_t>>              Dispatch_Indices;
+    std::vector<std::vector<uint64_t>>              TraceRays_Indices;
     std::vector<uint64_t>                           QueueSubmit_Indices;
 
     bool                                            dump_rts_before_dc{ false };

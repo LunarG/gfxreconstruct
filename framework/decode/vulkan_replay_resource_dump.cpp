@@ -121,7 +121,7 @@ VulkanReplayResourceDumpBase::VulkanReplayResourceDumpBase(const VulkanReplayOpt
 #endif
 {
     // These should match
-    assert(options.BeginCommandBuffer_Indices.size() == options.CmdDraw_Indices.size());
+    assert(options.BeginCommandBuffer_Indices.size() == options.Draw_Indices.size());
 
     for (size_t i = 0; i < options.BeginCommandBuffer_Indices.size(); ++i)
     {
@@ -129,11 +129,11 @@ VulkanReplayResourceDumpBase::VulkanReplayResourceDumpBase(const VulkanReplayOpt
         cmd_buf_stacks_.emplace(
             bcb_index,
             CommandBufferStack(
-                options.CmdDraw_Indices.size() ? options.CmdDraw_Indices[i] : std::vector<uint64_t>(),
+                options.Draw_Indices.size() ? options.Draw_Indices[i] : std::vector<uint64_t>(),
                 options.RenderPass_Indices.size() ? options.RenderPass_Indices[i]
                                                   : std::vector<std::vector<uint64_t>>(),
-                options.CmdDispatch_Indices.size() ? options.CmdDispatch_Indices[i] : std::vector<uint64_t>(),
-                options.CmdTraceRaysKHR_Indices.size() ? options.CmdTraceRaysKHR_Indices[i] : std::vector<uint64_t>(),
+                options.Dispatch_Indices.size() ? options.Dispatch_Indices[i] : std::vector<uint64_t>(),
+                options.TraceRays_Indices.size() ? options.TraceRays_Indices[i] : std::vector<uint64_t>(),
                 object_info_table,
                 options.dump_rts_before_dc,
                 dump_resource_path_));
