@@ -213,8 +213,6 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dr_command_buffer_util.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dr_command_buffer_util.cpp
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_forward.h>

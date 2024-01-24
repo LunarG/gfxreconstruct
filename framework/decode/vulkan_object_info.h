@@ -308,11 +308,12 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
     // The following values are only used for memory portability.
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
 
-    // The following values are only used when loading the initial state for trimmed files.
+    // This is only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
-    VkBufferUsageFlags    usage{ 0 };
-    VkDeviceSize          size{ 0 };
-    uint32_t              queue_family_index{ 0 };
+
+    VkBufferUsageFlags usage{ 0 };
+    VkDeviceSize       size{ 0 };
+    uint32_t           queue_family_index{ 0 };
 };
 
 struct BufferViewInfo : public VulkanObjectInfo<VkBufferView>
@@ -329,21 +330,22 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
     // The following values are only used for memory portability.
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
 
-    // The following values are used when loading the initial state for trimmed files, and for null-swapchain/surface
-    // creation.
     VkDeviceMemory                      memory{ VK_NULL_HANDLE };
     VulkanResourceAllocator::MemoryData memory_allocator_data{ 0 };
-    VkMemoryPropertyFlags               memory_property_flags{ 0 };
-    VkImageUsageFlags                   usage{ 0 };
-    VkImageType                         type{};
-    VkFormat                            format{};
-    VkExtent3D                          extent{ 0, 0, 0 };
-    VkImageTiling                       tiling{};
-    VkSampleCountFlagBits               sample_count{};
-    VkImageLayout                       initial_layout{};
-    uint32_t                            layer_count{ 0 };
-    uint32_t                            level_count{ 0 };
-    uint32_t                            queue_family_index{ 0 };
+
+    // This is only used when loading the initial state for trimmed files.
+    VkMemoryPropertyFlags memory_property_flags{ 0 };
+
+    VkImageUsageFlags     usage{ 0 };
+    VkImageType           type{};
+    VkFormat              format{};
+    VkExtent3D            extent{ 0, 0, 0 };
+    VkImageTiling         tiling{};
+    VkSampleCountFlagBits sample_count{};
+    VkImageLayout         initial_layout{};
+    uint32_t              layer_count{ 0 };
+    uint32_t              level_count{ 0 };
+    uint32_t              queue_family_index{ 0 };
 
     VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 };

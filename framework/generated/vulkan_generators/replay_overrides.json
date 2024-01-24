@@ -104,6 +104,9 @@
     "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",
     "vkWaitForPresentKHR": "OverrideWaitForPresentKHR",
     "vkWaitSemaphores": "OverrideWaitSemaphores",
-    "vkFrameBoundaryANDROID": "OverrideFrameBoundaryANDROID"
+    "vkFrameBoundaryANDROID": "OverrideFrameBoundaryANDROID",
+    "vkUpdateDescriptorSets": "OverrideUpdateDescriptorSets",
+    "vkCreateGraphicsPipelines": "OverrideCreateGraphicsPipelines",
+    "vkCreateComputePipelines": "OverrideCreateComputePipelines"
   }
 }

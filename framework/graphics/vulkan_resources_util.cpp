@@ -1179,34 +1179,51 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
                                                            std::vector<uint8_t>&  data,
                                                            std::vector<uint64_t>& subresource_offsets,
                                                            std::vector<uint64_t>& subresource_sizes,
-                                                           bool                   all_layers_per_level)
+                                                           bool                   all_layers_per_level,
+                                                           float                  scale)
 {
+    VkResult           result = VK_SUCCESS;
+    VkImage            resolve_image  = VK_NULL_HANDLE;
+    VkDeviceMemory     resolve_memory = VK_NULL_HANDLE;
+    VkImage            scaled_image = VK_NULL_HANDLE;
+    VkDeviceMemory     scaled_image_mem = VK_NULL_HANDLE;
+    VkExtent3D         scaled_extent = extent;
+    VkQueue            queue;
+    uint64_t           resource_size;
+    VkImageAspectFlags transition_aspect;
+    VkImage            copy_image;
+
     assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+    assert((aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
+           (aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
 
     subresource_offsets.clear();
     subresource_sizes.clear();
 
-    const uint64_t resource_size = GetImageResourceSizesOptimal(image,
-                                                                format,
-                                                                type,
-                                                                extent,
-                                                                mip_levels,
-                                                                array_layers,
-                                                                tiling,
-                                                                aspect,
-                                                                &subresource_offsets,
-                                                                &subresource_sizes,
-                                                                all_layers_per_level);
+    if (scale != 1.0f)
+    {
+        scaled_extent.width *= scale;
+        scaled_extent.height *= scale;
+    }
 
-    const VkQueue queue = GetQueue(queue_family_index, 0);
+    resource_size = GetImageResourceSizesOptimal(image,
+                                                 format,
+                                                 type,
+                                                 scaled_extent,
+                                                 mip_levels,
+                                                 array_layers,
+                                                 tiling,
+                                                 aspect,
+                                                 &subresource_offsets,
+                                                 &subresource_sizes,
+                                                 all_layers_per_level);
+
+    queue = GetQueue(queue_family_index, 0);
     if (queue == VK_NULL_HANDLE)
     {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    VkResult       result;
-    VkImage        resolve_image  = VK_NULL_HANDLE;
-    VkDeviceMemory resolve_memory = VK_NULL_HANDLE;
     if (samples != VK_SAMPLE_COUNT_1_BIT)
     {
         result = ResolveImage(image,
@@ -1243,7 +1260,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         return result;
     }
 
-    VkImageAspectFlags transition_aspect = aspect;
+    transition_aspect = aspect;
     if ((transition_aspect == VK_IMAGE_ASPECT_DEPTH_BIT) || (transition_aspect == VK_IMAGE_ASPECT_STENCIL_BIT))
     {
         // Depth and stencil aspects need to be transitioned together, so get full aspect
@@ -1251,7 +1268,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         transition_aspect = GetFormatAspectMask(format);
     }
 
-    VkImage copy_image = image;
+    copy_image = image;
     if (samples != VK_SAMPLE_COUNT_1_BIT)
     {
         copy_image = resolve_image;
@@ -1261,9 +1278,101 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         TransitionImageToTransferOptimal(image, layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, transition_aspect);
     }
 
-    CopyImageBuffer(copy_image,
+    if (scale != 1.0f)
+    {
+        // Create a scaled image and then blit to scaled image
+
+        VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+        create_info.pNext                 = nullptr;
+        create_info.flags                 = 0;
+        create_info.imageType             = type;
+        create_info.format                = format;
+        create_info.extent                = scaled_extent;
+        create_info.mipLevels             = 1;
+        create_info.arrayLayers           = array_layers;
+        create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+        create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
+        create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+        create_info.queueFamilyIndexCount = 0;
+        create_info.pQueueFamilyIndices   = nullptr;
+        create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+        result                            = device_table_.CreateImage(device_, &create_info, nullptr, &scaled_image);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        // Get image mem requirements, allocate image memory, and bind image memory
+
+        VkMemoryRequirements scaled_image_mem_requirements;
+        uint32_t             memory_type_index = std::numeric_limits<uint32_t>::max();
+        device_table_.GetImageMemoryRequirements(device_, scaled_image, &scaled_image_mem_requirements);
+        bool found = FindMemoryTypeIndex(memory_properties_,
+                                         scaled_image_mem_requirements.memoryTypeBits,
+                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                         &memory_type_index,
+                                         nullptr);
+        if (!found)
+        {
+            device_table_.DestroyImage(device_, scaled_image, nullptr);
+            return VK_ERROR_UNKNOWN;
+        }
+
+        VkMemoryAllocateInfo allocate_info = {
+            VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, nullptr, scaled_image_mem_requirements.size, memory_type_index
+        };
+        result = device_table_.AllocateMemory(device_, &allocate_info, nullptr, &scaled_image_mem);
+        if (result != VK_SUCCESS)
+        {
+            device_table_.DestroyImage(device_, scaled_image, nullptr);
+            return result;
+        }
+        result = device_table_.BindImageMemory(device_, scaled_image, scaled_image_mem, 0);
+        if (result != VK_SUCCESS)
+        {
+            device_table_.FreeMemory(device_, scaled_image_mem, nullptr);
+            device_table_.DestroyImage(device_, scaled_image, nullptr);
+            return result;
+        }
+
+        VkImageAspectFlags aspectMask = static_cast<VkImageAspectFlagBits>(aspect);
+        VkImageBlit        blit_region;
+        blit_region.srcSubresource = { aspectMask, 0, 0, 1};
+        blit_region.srcOffsets[0].x = 0;
+        blit_region.srcOffsets[0].y = 0;
+        blit_region.srcOffsets[0].z = 0;
+        blit_region.srcOffsets[1].x = (int32_t)extent.width;
+        blit_region.srcOffsets[1].y = (int32_t)extent.height;
+        blit_region.srcOffsets[1].z = 1;
+
+        blit_region.dstSubresource = { aspectMask, 0, 0, 1};
+        blit_region.dstOffsets[0].x = 0;
+        blit_region.dstOffsets[0].y = 0;
+        blit_region.dstOffsets[0].z = 0;
+        blit_region.dstOffsets[1].x = (int32_t)scaled_extent.width;
+        blit_region.dstOffsets[1].y = (int32_t)scaled_extent.height;
+        blit_region.dstOffsets[1].z = 1;
+
+        VkFilter filter = VK_FILTER_LINEAR;
+        if (format >= VK_FORMAT_D16_UNORM && format <= VK_FORMAT_D32_SFLOAT_S8_UINT)
+            filter = VK_FILTER_NEAREST;
+
+        device_table_.CmdBlitImage(command_buffer_,
+                                   copy_image,
+                                   VK_IMAGE_LAYOUT_GENERAL,
+                                   scaled_image,
+                                   VK_IMAGE_LAYOUT_GENERAL,
+                                   1,
+                                   &blit_region, filter);
+
+    } else {
+        scaled_image = copy_image;
+    }
+
+    CopyImageBuffer(scaled_image,
                     staging_buffer_.buffer,
-                    extent,
+                    scaled_extent,
                     mip_levels,
                     array_layers,
                     aspect,
@@ -1298,8 +1407,13 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         device_table_.DestroyImage(device_, resolve_image, nullptr);
         device_table_.FreeMemory(device_, resolve_memory, nullptr);
     }
+    if (scale != 1.0f)
+    {
+        device_table_.DestroyImage(device_, scaled_image, nullptr);
+        device_table_.FreeMemory(device_, scaled_image_mem, nullptr);
+    }
 
-    return VK_SUCCESS;
+    return result;
 }
 
 void VulkanResourcesUtil::ReadFromImageResourceLinear(VkImage                image,

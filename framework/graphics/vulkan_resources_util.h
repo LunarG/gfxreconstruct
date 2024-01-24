@@ -133,7 +133,8 @@ class VulkanResourcesUtil
                                           std::vector<uint8_t>&  data,
                                           std::vector<uint64_t>& subresource_offsets,
                                           std::vector<uint64_t>& subresource_sizes,
-                                          bool                   all_layers_per_level = false);
+                                          bool                   all_layers_per_level = false,
+                                          float                  scale                = 1.0f);
 
     // Use this function to dump an image sub resources into data vector.
     // This function is intented to be used when the image content can be accessed directly and expects to received a

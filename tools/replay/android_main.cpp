@@ -35,6 +35,7 @@
 #include "util/logging.h"
 #include "util/platform.h"
 #include "json/json.h"
+#include "parse_dump_resources_cli.h"
 
 #include <android_native_app_glue.h>
 #include <android/log.h>
@@ -116,6 +117,11 @@ void android_main(struct android_app* app)
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
                     GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+
+                // Process --dump-resources arg. We do it here so that other gfxr tools that use
+                // the VulkanReplayOptions class won't have to link in the json library.
+                gfxrecon::parse_dump_resources::parse_dump_resources_arg(replay_options);
+
                 gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        decoder;
                 uint32_t                               start_frame, end_frame;
