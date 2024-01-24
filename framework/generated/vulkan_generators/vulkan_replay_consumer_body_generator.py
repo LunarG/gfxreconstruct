@@ -364,6 +364,8 @@ class VulkanReplayConsumerBodyGenerator(
                                 dump_resource_arglist += val.name
                             else:
                                 dump_resource_arglist += 'in_' + val.name
+                        elif val.base_type == 'VkPipeline':
+                            dump_resource_arglist += 'GetObjectInfoTable().GetPipelineInfo(pipeline)'
                         elif self.is_handle(val.base_type) and not val.is_pointer:
                             dump_resource_arglist += 'in_' + val.name
                         else:
@@ -625,7 +627,7 @@ class VulkanReplayConsumerBodyGenerator(
                                 .format(length_name, paramname=value.name)
                             )
                             if name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV':
-                                preexpr.append('if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, in_pCreateInfos);}}'.format(length_name))
+                                preexpr.append('if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, pCreateInfos->GetPointer());}}'.format(length_name))
                             if need_temp_value:
                                 expr += '{}->GetHandlePointer();'.format(
                                     value.name

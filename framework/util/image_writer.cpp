@@ -28,6 +28,7 @@
 
 #include <limits>
 #include <math.h>
+#include <memory>
 #if !defined(WIN32)
 #include <unistd.h>
 #endif
@@ -75,6 +76,9 @@ const uint32_t kImageBpp    = 4;  // Expecting 4 bytes per pixel for 32-bit BGRA
 
 const uint16_t kBmpBitCountNoAlpha = 24; // Expecting 24-bit BGR bitmap data.
 const uint32_t kImageBppNoAlpha    = 3;  // Expecting 3 bytes per pixel for 32-bit BGRA bitmap data; alpha removed.
+
+static std::unique_ptr<uint8_t[]> temporary_buffer;
+static size_t                     temporary_buffer_size = 0;
 
 static float Ufloat11ToFloat(uint16_t val)
 {
@@ -163,6 +167,185 @@ static float Ufloat10ToFloat(uint16_t val)
         }                                                                              \
     }
 
+static void
+ConvertIntoTemporaryBuffer(uint32_t width, uint32_t height, const void* data, uint32_t *row_pitch, DataFormats format)
+{
+    const uint32_t output_size = width * height * kImageBpp;
+    if (output_size > temporary_buffer_size)
+    {
+        temporary_buffer_size = output_size;
+        temporary_buffer      = std::make_unique<uint8_t[]>(output_size);
+    }
+
+    uint32_t* temp_buffer = reinterpret_cast<uint32_t*>(temporary_buffer.get());
+
+    switch (format)
+    {
+        case kFormat_RGB:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const uint8_t r = bytes[y * 3 * width + (3 * x) + 0];
+                    const uint8_t g = bytes[y * 3 * width + (3 * x) + 1];
+                    const uint8_t b = bytes[y * 3 * width + (3 * x) + 2];
+
+                    const uint32_t rgba = (0xff << 24) | (r << 16) | (g << 8) | b;
+                    *(temp_buffer++)    = rgba;
+                }
+            }
+            break;
+
+        case kFormat_RGBA:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const uint8_t r = bytes[y * 4 * width + (4 * x) + 0];
+                    const uint8_t g = bytes[y * 4 * width + (4 * x) + 1];
+                    const uint8_t b = bytes[y * 4 * width + (4 * x) + 2];
+                    const uint8_t a = bytes[y * 4 * width + (4 * x) + 3];
+
+                    const uint32_t rgba = (a << 24) | (r << 16) | (g << 8) | b;
+                    *(temp_buffer++)    = rgba;
+                }
+            }
+            break;
+
+        case kFormat_BGR:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const uint8_t r = bytes[y * 3 * width + (3 * x) + 0];
+                    const uint8_t g = bytes[y * 3 * width + (3 * x) + 1];
+                    const uint8_t b = bytes[y * 3 * width + (3 * x) + 2];
+
+                    const uint32_t rgba = (0xff << 24) | (r << 16) | (g << 8) | b;
+                    *(temp_buffer++)    = rgba;
+                }
+            }
+            break;
+
+        case kFormat_BGRA:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const uint8_t r = bytes[y * 4 * width + (4 * x) + 0];
+                    const uint8_t g = bytes[y * 4 * width + (4 * x) + 1];
+                    const uint8_t b = bytes[y * 4 * width + (4 * x) + 2];
+                    const uint8_t a = bytes[y * 4 * width + (4 * x) + 3];
+
+                    const uint32_t rgba = (a << 24) | (r << 16) | (g << 8) | b;
+                    *(temp_buffer++)    = rgba;
+                }
+            }
+            break;
+
+        case kFormat_B10G11R11_UFLOAT:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const uint32_t* u32_vals = reinterpret_cast<const uint32_t*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    // clang-format off
+                        const float b = Ufloat10ToFloat(static_cast<uint16_t>((u32_vals[y * width + x] & (0xFFC00000)) >> 22));
+                        const float g = Ufloat11ToFloat(static_cast<uint16_t>((u32_vals[y * width + x] & (0x003FF800)) >> 11));
+                        const float r = Ufloat11ToFloat(static_cast<uint16_t>((u32_vals[y * width + x] & (0x000007FF)) >> 0));
+                    // clang-format on
+
+                    const uint8_t b_u8 = static_cast<uint8_t>(std::min(b, 1.0f) * 255.0f);
+                    const uint8_t g_u8 = static_cast<uint8_t>(std::min(g, 1.0f) * 255.0f);
+                    const uint8_t r_u8 = static_cast<uint8_t>(std::min(r, 1.0f) * 255.0f);
+
+                    const uint32_t rgba = (0xff << 24) | (r_u8 << 16) | (g_u8 << 8) | b_u8;
+                    *(temp_buffer++)    = rgba;
+                }
+            }
+            break;
+
+        case kFormat_A2B10G10R10:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const uint32_t* u32_vals = reinterpret_cast<const uint32_t*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    uint8_t a = static_cast<uint8_t>((u32_vals[y * width + x] & 0xC0000000) >> 30);
+                    uint8_t b = static_cast<uint8_t>((u32_vals[y * width + x] & 0x3FF00000) >> 20);
+                    uint8_t g = static_cast<uint8_t>((u32_vals[y * width + x] & 0x000FFC00) >> 10);
+                    uint8_t r = static_cast<uint8_t>((u32_vals[y * width + x] & 0x000003FF) >> 0);
+
+                    r = static_cast<uint8_t>(static_cast<float>(r) / 1023.0f * 255.0f);
+                    g = static_cast<uint8_t>(static_cast<float>(g) / 1023.0f * 255.0f);
+                    b = static_cast<uint8_t>(static_cast<float>(b) / 1023.0f * 255.0f);
+                    a = static_cast<uint8_t>(static_cast<float>(a) / 3.0f * 255.0f);
+
+                    const uint32_t rgba = (a << 24) | (r << 16) | (g << 8) | b;
+                    *(temp_buffer++)    = rgba;
+                }
+            }
+            break;
+
+        case kFormat_D32_FLOAT:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const float* bytes_float = reinterpret_cast<const float*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const float   float_depth = bytes_float[y * width + x];
+                    const uint8_t depth       = static_cast<uint8_t>(float_depth * 255.0f);
+
+                    uint32_t rgba    = (0xff << 24) | (depth << 16) | (depth << 8) | depth;
+                    *(temp_buffer++) = rgba;
+                }
+            }
+            break;
+
+        case kFormat_D24_UNORM:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const uint32_t* bytes_u32 = reinterpret_cast<const uint32_t*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const uint32_t normalized_depth = bytes_u32[y * width + x] & 0x00FFFFFF;
+                    const float    float_depth      = static_cast<float>(normalized_depth) / 8388607.0f;
+                    const uint8_t  depth            = static_cast<uint8_t>(float_depth * 255.0f);
+
+                    uint32_t rgba    = (0xff << 24) | (depth << 16) | (depth << 8) | depth;
+                    *(temp_buffer++) = rgba;
+                }
+            }
+            break;
+
+        case kFormat_D16_UNORM:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const uint16_t* bytes_u16 = reinterpret_cast<const uint16_t*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const uint16_t normalized_depth = bytes_u16[y * width + x];
+                    const float    float_depth      = static_cast<float>(normalized_depth) / 32767.0f;
+                    const uint8_t  depth            = static_cast<uint8_t>(float_depth * 255.0f);
+
+                    uint32_t rgba    = (0xff << 24) | (depth << 16) | (depth << 8) | depth;
+                    *(temp_buffer++) = rgba;
+                }
+            }
+            break;
+
+        default:
+            GFXRECON_LOG_ERROR("Format %u not handled", format);
+            assert(0);
+            break;
+    }
+    *row_pitch = width * sizeof(uint32_t);
+}
+
 bool WriteBmpImage(const std::string& filename,
                    uint32_t           width,
                    uint32_t           height,
@@ -235,129 +418,24 @@ bool WriteBmpImage(const std::string& filename,
             // Y needs to be inverted when writing the bitmap data.
             auto height_1 = height - 1;
 
-            for (uint32_t y = 0; y < height; ++y)
+            if (format == kFormat_BGR || format == kFormat_BGRA)
             {
-                if (format == kFormat_D16_UNORM)
-                {
-                    const uint16_t* bytes_u16 = reinterpret_cast<const uint16_t*>(data);
-                    for (uint32_t x = 0; x < width; ++x)
-                    {
-                        const uint16_t normalized_depth = bytes_u16[(height_1 - y) * width + x];
-                        const float    float_depth      = static_cast<float>(normalized_depth) / 32767.0f;
-                        const uint8_t  depth            = static_cast<uint8_t>(float_depth * 255.0f);
-
-                        uint32_t rgba = (0xff << 24) | (depth << 16) | (depth << 8) | depth;
-
-                        ret = util::platform::FileWrite(&rgba, sizeof(uint32_t), 1, file);
-                        CheckFwriteRetVal(ret, 1, file);
-                    }
-                }
-                else if (format == kFormat_D32_FLOAT)
-                {
-                    const float* bytes_float = reinterpret_cast<const float*>(data);
-                    for (uint32_t x = 0; x < width; ++x)
-                    {
-                        const float   float_depth = bytes_float[(height_1 - y) * width + x];
-                        const uint8_t depth       = static_cast<uint8_t>(float_depth * 255.0f);
-
-                        uint32_t rgba = (0xff << 24) | (depth << 16) | (depth << 8) | depth;
-
-                        ret = util::platform::FileWrite(&rgba, sizeof(uint32_t), 1, file);
-                        CheckFwriteRetVal(ret, 1, file);
-                    }
-                }
-                else if (format == kFormat_D24_UNORM)
-                {
-                    const uint32_t* bytes_u32 = reinterpret_cast<const uint32_t*>(data);
-                    for (uint32_t x = 0; x < width; ++x)
-                    {
-                        const uint32_t normalized_depth = bytes_u32[(height_1 - y) * width + x] & 0x00FFFFFF;
-                        const float    float_depth      = static_cast<float>(normalized_depth) / 8388607.0f;
-                        const uint8_t  depth            = static_cast<uint8_t>(float_depth * 255.0f);
-
-                        uint32_t rgba = (0xff << 24) | (depth << 16) | (depth << 8) | depth;
-
-                        ret = util::platform::FileWrite(&rgba, sizeof(uint32_t), 1, file);
-                        CheckFwriteRetVal(ret, 1, file);
-                    }
-                }
-                else if (format == kFormat_RGBA)
-                {
-                    const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
-                    for (uint32_t x = 0; x < width; ++x)
-                    {
-                        const uint8_t r = bytes[(height_1 - y) * 4 * width + (4 * x) + 0];
-                        const uint8_t g = bytes[(height_1 - y) * 4 * width + (4 * x) + 1];
-                        const uint8_t b = bytes[(height_1 - y) * 4 * width + (4 * x) + 2];
-                        const uint8_t a = bytes[(height_1 - y) * 4 * width + (4 * x) + 3];
-
-                        const uint32_t rgba = (a << 24) | (r << 16) | (g << 8) | b;
-
-                        ret = util::platform::FileWrite(&rgba, sizeof(uint32_t), 1, file);
-                        CheckFwriteRetVal(ret, 1, file);
-                    }
-                }
-                else if (format == kFormat_RGB)
-                {
-                    const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
-                    for (uint32_t x = 0; x < width; ++x)
-                    {
-                        const uint8_t r = bytes[(height_1 - y) * 3 * width + (3 * x) + 0];
-                        const uint8_t g = bytes[(height_1 - y) * 3 * width + (3 * x) + 1];
-                        const uint8_t b = bytes[(height_1 - y) * 3 * width + (3 * x) + 2];
-
-                        const uint32_t rgba = (0xff << 24) | (r << 16) | (g << 8) | b;
-
-                        ret = util::platform::FileWrite(&rgba, sizeof(uint32_t), 1, file);
-                        CheckFwriteRetVal(ret, 1, file);
-                    }
-                }
-                else if (format == kFormat_A2B10G10R10)
-                {
-                    const uint32_t* u32_vals = reinterpret_cast<const uint32_t*>(data);
-                    for (uint32_t x = 0; x < width; ++x)
-                    {
-                        uint8_t a = static_cast<uint8_t>((u32_vals[(height_1 - y) * width + x] & 0xC0000000) >> 30);
-                        uint8_t b = static_cast<uint8_t>((u32_vals[(height_1 - y) * width + x] & 0x3FF00000) >> 20);
-                        uint8_t g = static_cast<uint8_t>((u32_vals[(height_1 - y) * width + x] & 0x000FFC00) >> 10);
-                        uint8_t r = static_cast<uint8_t>((u32_vals[(height_1 - y) * width + x] & 0x000003FF) >> 0);
-
-                        r = static_cast<uint8_t>(static_cast<float>(r) / 1023.0f * 255.0f);
-                        g = static_cast<uint8_t>(static_cast<float>(g) / 1023.0f * 255.0f);
-                        b = static_cast<uint8_t>(static_cast<float>(b) / 1023.0f * 255.0f);
-                        a = static_cast<uint8_t>(static_cast<float>(a) / 3.0f * 255.0f);
-
-                        const uint32_t rgba = (a << 24) | (r << 16) | (g << 8) | b;
-
-                        ret = util::platform::FileWrite(&rgba, sizeof(uint32_t), 1, file);
-                        CheckFwriteRetVal(ret, 1, file);
-                    }
-                }
-                else if (format == kFormat_B10G11R11_UFLOAT)
-                {
-                    const uint32_t* u32_vals = reinterpret_cast<const uint32_t*>(data);
-                    for (uint32_t x = 0; x < width; ++x)
-                    {
-                        // clang-format off
-                        const float b = Ufloat10ToFloat(static_cast<uint16_t>((u32_vals[(height_1 - y) * width + x] & (0xFFC00000)) >> 22));
-                        const float g = Ufloat11ToFloat(static_cast<uint16_t>((u32_vals[(height_1 - y) * width + x] & (0x003FF800)) >> 11));
-                        const float r = Ufloat11ToFloat(static_cast<uint16_t>((u32_vals[(height_1 - y) * width + x] & (0x000007FF)) >> 0));
-                        // clang-format on
-
-                        const uint8_t b_u8 = static_cast<uint8_t>(std::min(b, 1.0f) * 255.0f);
-                        const uint8_t g_u8 = static_cast<uint8_t>(std::min(g, 1.0f) * 255.0f);
-                        const uint8_t r_u8 = static_cast<uint8_t>(std::min(r, 1.0f) * 255.0f);
-
-                        const uint32_t rgba = (0xff << 24) | (r_u8 << 16) | (g_u8 << 8) | b_u8;
-
-                        ret = util::platform::FileWrite(&rgba, sizeof(uint32_t), 1, file);
-                        CheckFwriteRetVal(ret, 1, file);
-                    }
-                }
-                else
+                for (uint32_t y = 0; y < height; ++y)
                 {
                     const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
                     ret = util::platform::FileWrite(&bytes[(height_1 - y) * row_pitch], 1, width * kImageBpp, file);
+
+                    CheckFwriteRetVal(ret, width * kImageBpp, file);
+                }
+            }
+            else
+            {
+                ConvertIntoTemporaryBuffer(width, height, data, &row_pitch, format);
+                for (uint32_t y = 0; y < height; ++y)
+                {
+                    const uint8_t* bytes = reinterpret_cast<const uint8_t*>(temporary_buffer.get());
+                    ret                  = util::platform::FileWrite(
+                        &bytes[(height_1 - y) * width * kImageBpp], 1, width * kImageBpp, file);
 
                     CheckFwriteRetVal(ret, width * kImageBpp, file);
                 }
@@ -453,15 +531,39 @@ bool WriteBmpImageNoAlpha(
     return success;
 }
 
-bool WritePngImage(
-    const std::string& filename, uint32_t width, uint32_t height, uint64_t data_size, const void* data, uint32_t pitch)
+bool WritePngImage(const std::string& filename,
+                   uint32_t           width,
+                   uint32_t           height,
+                   uint64_t           data_size,
+                   const void*        data,
+                   uint32_t           pitch,
+                   DataFormats        format)
 {
     bool success = false;
 
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
     uint32_t row_pitch               = pitch == 0 ? width * kImageBpp : pitch;
     stbi_write_png_compression_level = 4;
-    if (1 == stbi_write_png(filename.c_str(), width, height, kImageBpp, data, row_pitch))
+
+    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
+
+#if defined(__ANDROID__)
+    // In Android there is an issue with files which are manually deleted (for example from adb shell) then fopen with
+    // "wb" will fail with the error that the file already exists. Deleting the file from the code can workaround this
+    // problem
+    if (access(filename.c_str(), F_OK) != -1)
+    {
+        GFXRECON_LOG_INFO("File already exists. Will attempt to delete it");
+        if (remove(filename.c_str()) != -1)
+        {
+            GFXRECON_LOG_ERROR("Failed to delete file %s (%s)", filename.c_str(), strerror(errno));
+        }
+    }
+#endif
+    assert(pitch);
+    ConvertIntoTemporaryBuffer(width, height, data, &pitch, format);
+    if (1 == stbi_write_png(
+                 filename.c_str(), width, height, kImageBpp, static_cast<const void*>(temporary_buffer.get()), pitch))
     {
         success = true;
     }

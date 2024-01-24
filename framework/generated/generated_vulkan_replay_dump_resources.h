@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -57,7 +58,7 @@ void Process_vkCmdBindPipeline(
     PFN_vkCmdBindPipeline                       func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
-    VkPipeline                                  pipeline);
+    const PipelineInfo*                         pipeline);
 
 void Process_vkCmdSetViewport(
     const ApiCallInfo&                          call_info,
@@ -944,6 +945,44 @@ void Process_vkCmdBindIndexBuffer2KHR(
     VkDeviceSize                                size,
     VkIndexType                                 indexType);
 
+
+
+
+void Process_vkCmdBindDescriptorSets2KHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBindDescriptorSets2KHR             func,
+    VkCommandBuffer                             commandBuffer,
+    const VkBindDescriptorSetsInfoKHR*          pBindDescriptorSetsInfo);
+
+void Process_vkCmdPushConstants2KHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPushConstants2KHR                  func,
+    VkCommandBuffer                             commandBuffer,
+    const VkPushConstantsInfoKHR*               pPushConstantsInfo);
+
+void Process_vkCmdPushDescriptorSet2KHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPushDescriptorSet2KHR              func,
+    VkCommandBuffer                             commandBuffer,
+    const VkPushDescriptorSetInfoKHR*           pPushDescriptorSetInfo);
+
+void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPushDescriptorSetWithTemplate2KHR  func,
+    VkCommandBuffer                             commandBuffer,
+    const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);
+
+void Process_vkCmdSetDescriptorBufferOffsets2EXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetDescriptorBufferOffsets2EXT     func,
+    VkCommandBuffer                             commandBuffer,
+    const VkSetDescriptorBufferOffsetsInfoEXT*  pSetDescriptorBufferOffsetsInfo);
+
+void Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT func,
+    VkCommandBuffer                             commandBuffer,
+    const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
 
 
 
@@ -1858,10 +1897,10 @@ void Process_vkCmdTraceRaysKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdTraceRaysKHR                       func,
     VkCommandBuffer                             commandBuffer,
-    const VkStridedDeviceAddressRegionKHR*      pRaygenShaderBindingTable,
-    const VkStridedDeviceAddressRegionKHR*      pMissShaderBindingTable,
-    const VkStridedDeviceAddressRegionKHR*      pHitShaderBindingTable,
-    const VkStridedDeviceAddressRegionKHR*      pCallableShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
     uint32_t                                    width,
     uint32_t                                    height,
     uint32_t                                    depth);

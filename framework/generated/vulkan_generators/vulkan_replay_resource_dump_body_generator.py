@@ -150,18 +150,30 @@ class VulkanReplayResourceDumpBodyGenerator(
             body += '    if (IsRecording(commandBuffer))\n'
             body += '    {\n'
             body += '        VulkanReplayResourceDumpBase::cmd_buf_it first, last;\n'
-            body += '        GetActiveCommandBuffers(commandBuffer, first, last);\n'
-            body += '        for (VulkanReplayResourceDumpBase::cmd_buf_it it = first; it < last; ++it)\n'
+            body += '        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);\n'
+            body += '        if (found)\n'
             body += '        {\n'
+            body += '            for (VulkanReplayResourceDumpBase::cmd_buf_it it = first; it < last; ++it)\n'
+            body += '            {\n'
 
-            dispatchfunc = 'func' + '(*it, '
+            dispatchfunc = 'func(*it, '
 
             call_expr = ''
             for val in values[1:]:
                 call_expr += '{}, '.format(val.name)
 
             dispatchfunc += call_expr
+            body += '                 ' + dispatchfunc[:-2] + ');\n'
+            body += '            }\n'
+            body += '        }\n'
+            body += '\n'
+            body += '        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);\n'
+            body += '        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)\n'
+            body += '        {\n'
+
+            dispatchfunc = 'func(dispatch_rays_command_buffer, ' + call_expr
             body += '             ' + dispatchfunc[:-2] + ');\n'
+
             body += '        }\n'
             body += '    }\n'
         else:
@@ -177,7 +189,10 @@ class VulkanReplayResourceDumpBodyGenerator(
                     override_call_expr += '{}, '.format(val.name)
 
             override_call_expr = override_call_expr[:-2]
-            body += '    {}({});\n'.format(self.DUMP_RESOURCES_OVERRIDES[name], override_call_expr)
+            body += '    if (IsRecording(commandBuffer))\n'
+            body += '    {\n'
+            body += '        {}({});\n'.format(self.DUMP_RESOURCES_OVERRIDES[name], override_call_expr)
+            body += '    }\n'
 
 
         return body

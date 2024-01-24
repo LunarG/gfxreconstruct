@@ -1376,7 +1376,10 @@ class BaseGenerator(OutputGenerator):
                     else:
                         param_type = 'const ' + type_name + '*'
                 else:
-                    param_type = type_name
+                    if value.base_type == 'VkPipeline':
+                        param_type = 'const PipelineInfo*'
+                    else:
+                        param_type = type_name
             else:
                 if value.is_pointer or value.is_array:
                     count = value.pointer_count

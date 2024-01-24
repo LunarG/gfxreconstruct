@@ -1,5 +1,6 @@
 {
   "functions": {
+    "vkCmdBindPipeline": "OverrideCmdBindPipeline",
     "vkCmdBeginRenderPass": "OverrideCmdBeginRenderPass",
     "vkCmdNextSubpass": "OverrideCmdNextSubpass",
     "vkCmdEndRenderPass": "OverrideCmdEndRenderPass",
@@ -10,6 +11,9 @@
     "vkCmdEndRenderPass2": "OverrideCmdEndRenderPass2",
     "vkCmdEndRenderPass2KHR": "OverrideCmdEndRenderPass2",
     "vkCmdBindDescriptorSets": "OverrideCmdBindDescriptorSets",
+    "vkCmdDispatch": "OverrideCmdDispatch",
+    "vkCmdDispatchIndirect": "OverrideCmdDispatchIndirect",
+    "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR",
     "vkCmdDraw": "OverrideCmdDraw",
     "vkCmdDrawIndexed": "OverrideCmdDrawIndexed",
     "vkCmdDrawIndirect": "OverrideCmdDrawIndirect",

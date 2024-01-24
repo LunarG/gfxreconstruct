@@ -125,8 +125,10 @@ const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
-const char kDumpResourcesArgument[]             = "--dump-resources";
-const char kDumpResourcesBeforeDrawOption[]     = "--dump-resources-before-draw";
+const char kDumpResourcesArgument[]         = "--dump-resources";
+const char kDumpResourcesBeforeDrawOption[] = "--dump-resources-before-draw";
+const char kDumpResourcesImageFormat[]      = "--dump-resources-image-format";
+const char kDumpResourcesScaleArgument[]    = "--dump-resources-scale";
 
 enum class WsiPlatform
 {
@@ -506,6 +508,30 @@ static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util
     return format;
 }
 
+static gfxrecon::util::ScreenshotFormat GetDumpresourcesImageFormat(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    gfxrecon::util::ScreenshotFormat format = gfxrecon::util::ScreenshotFormat::kBmp;
+    const auto&                      value  = arg_parser.GetArgumentValue(kDumpResourcesImageFormat);
+
+    if (!value.empty())
+    {
+        if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatBmp, value.c_str()) == 0)
+        {
+            format = gfxrecon::util::ScreenshotFormat::kBmp;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatPng, value.c_str()) == 0)
+        {
+            format = gfxrecon::util::ScreenshotFormat::kPng;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Ignoring unrecognized dump resources image format option \"%s\"", value.c_str());
+        }
+    }
+
+    return format;
+}
+
 static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     const auto& value = arg_parser.GetArgumentValue(kScreenshotDirArgument);
@@ -566,6 +592,36 @@ static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser
         {
             GFXRECON_LOG_WARNING(
                 "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
+        }
+    }
+
+    return scale;
+}
+
+static float GetDumpResourcesScale(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const auto& value = arg_parser.GetArgumentValue(kDumpResourcesScaleArgument);
+
+    float scale = 1.0f;
+
+    if (!value.empty())
+    {
+        try
+        {
+            scale = std::stof(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid dump resources scale option.");
+        }
+        if (scale <= 0.0f)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid dump resources scale option. Value must > 0.0.");
+            scale = 1.0f;
+        }
+        if (scale >= 10.0f)
+        {
+            scale = 10.0f;
         }
     }
 
@@ -1040,9 +1096,10 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         }
     }
 
-
-    replay_options.dump_resources = arg_parser.GetArgumentValue(kDumpResourcesArgument);
-    replay_options.dump_rts_before_dc = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
+    replay_options.dump_resources              = arg_parser.GetArgumentValue(kDumpResourcesArgument);
+    replay_options.dump_resources_before       = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
+    replay_options.dump_resources_image_format = GetDumpresourcesImageFormat(arg_parser);
+    replay_options.dump_resources_scale        = GetDumpResourcesScale(arg_parser);
 
     return replay_options;
 }
@@ -1084,7 +1141,7 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
         // If this option does not start with "drawcall-", consider it a Vulkan option. It should
         // have already been processed by GetVulkanReplayOptions.
         std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, '-');
-        if ((dump_resources.find("drawcall-")  == 0) && !values.empty())
+        if ((dump_resources.find("drawcall-") == 0) && !values.empty())
         {
             if (values.size() != 2)
             {

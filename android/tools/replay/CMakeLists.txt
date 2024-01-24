@@ -22,6 +22,8 @@ add_subdirectory(../../framework/application ${CMAKE_SOURCE_DIR}/../../framework
 add_library(gfxrecon-replay
             SHARED
                 ${GFXRECON_SOURCE_DIR}/tools/tool_settings.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.cpp
                 ${GFXRECON_SOURCE_DIR}/tools/replay/replay_settings.h
                 ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
 

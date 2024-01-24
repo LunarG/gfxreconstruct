@@ -103,6 +103,9 @@
     "vkCreateFramebuffer": "OverrideCreateFramebuffer",
     "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",
     "vkWaitForPresentKHR": "OverrideWaitForPresentKHR",
-    "vkWaitSemaphores": "OverrideWaitSemaphores"
+    "vkWaitSemaphores": "OverrideWaitSemaphores",
+    "vkUpdateDescriptorSets": "OverrideUpdateDescriptorSets",
+    "vkCreateGraphicsPipelines": "OverrideCreateGraphicsPipelines",
+    "vkCreateComputePipelines": "OverrideCreateComputePipelines"
   }
 }

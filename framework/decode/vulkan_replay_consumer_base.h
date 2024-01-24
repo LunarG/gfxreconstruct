@@ -1047,8 +1047,32 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*   allocator_decoder,
                                        HandlePointerDecoder<VkFramebuffer>*                   frame_buffer_decoder);
 
-    void UpdateDescriptorSets(uint32_t                                            descriptor_write_count,
-                              StructPointerDecoder<Decoded_VkWriteDescriptorSet>* descriptor_writes_p);
+    void OverrideUpdateDescriptorSets(PFN_vkUpdateDescriptorSets                          func,
+                                      const DeviceInfo*                                   device_info,
+                                      uint32_t                                            descriptor_write_count,
+                                      StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes,
+                                      uint32_t                                            descriptor_copy_count,
+                                      StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  p_pescriptor_copies);
+
+    VkResult
+    OverrideCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines func,
+                                    VkResult                      original_result,
+                                    const DeviceInfo*             device_info,
+                                    const PipelineCacheInfo*      pipeline_cache_info,
+                                    uint32_t                      create_info_count,
+                                    const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+                                    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
+                                    HandlePointerDecoder<VkPipeline>*                                 pPipelines);
+
+    VkResult
+    OverrideCreateComputePipelines(PFN_vkCreateComputePipelines                                     func,
+                                   VkResult                                                         original_result,
+                                   const DeviceInfo*                                                device_info,
+                                   const PipelineCacheInfo*                                         pipeline_cache_info,
+                                   uint32_t                                                         create_info_count,
+                                   const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+                                   const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                   HandlePointerDecoder<VkPipeline>*                                pPipelines);
 
     const VulkanReplayOptions options_;
 
