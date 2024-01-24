@@ -373,13 +373,13 @@ class Dx12BaseGenerator(BaseGenerator):
         )
 
     def genType(self, typeinfo, name, alias):
-        """Methond override."""
+        """Method override."""
         self.genStruct(None, None, None)
         self.genCmd(None, None, None)
         self.gen_method()
 
     def genStruct(self, typeinfo, typename, alias):
-        """Methond override."""
+        """Method override."""
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for class_name, class_value in v.classes.items():
@@ -390,7 +390,7 @@ class Dx12BaseGenerator(BaseGenerator):
                         )
 
     def genCmd(self, cmdinfo, name, alias):
-        """Methond override."""
+        """Method override."""
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for m in v.functions:
@@ -420,14 +420,14 @@ class Dx12BaseGenerator(BaseGenerator):
         ]
 
     def make_value_info(self, params):
-        """Methond override."""
+        """Method override."""
         values = []
         for p in params:
             values.append(self.get_value_info(p))
         return values
 
     def get_filtered_struct_names(self):
-        """Methond override."""
+        """Method override."""
         if self.check_blacklist:
             return [
                 key for key in self.source_dict['struct_dict']
@@ -535,7 +535,7 @@ class Dx12BaseGenerator(BaseGenerator):
         return None
 
     def is_struct(self, type):
-        """Methond override."""
+        """Method override."""
         # This type is from winnt.h. It isn't parsed. It's in custom classes.
         if type == 'LARGE_INTEGER':
             return True
@@ -558,7 +558,7 @@ class Dx12BaseGenerator(BaseGenerator):
         return type in class_dict
 
     def is_class(self, value):
-        """Methond override. Use value, not type because it needs to check void** case."""
+        """Method override. Use value, not type because it needs to check void** case."""
         if value.base_type == 'void' and value.pointer_count == 2 and value.is_com_outptr:
             return True
 
@@ -572,7 +572,7 @@ class Dx12BaseGenerator(BaseGenerator):
         return ''
 
     def is_enum(self, type):
-        """Methond override."""
+        """Method override."""
         enum_dict = self.source_dict['enum_dict']
         return type in enum_dict
 
@@ -611,7 +611,7 @@ class Dx12BaseGenerator(BaseGenerator):
         return type
 
     def make_invocation_type_name(self, base_type):
-        """Methond override."""
+        """Method override."""
         type = self.convert_function(base_type)
         type = BaseGenerator.make_invocation_type_name(self, type)
         if type == 'Function':

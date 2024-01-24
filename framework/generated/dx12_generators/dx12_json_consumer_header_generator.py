@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2021, 2023 LunarG, Inc.
+# Copyright (c) 2023 Valve Corporation
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -25,10 +26,10 @@ from dx12_base_generator import Dx12BaseGenerator
 from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator, Dx12ConsumerHeaderGeneratorOptions
 
 
-class Dx12AsciiConsumerHeaderGeneratorOptions(
+class Dx12JsonConsumerHeaderGeneratorOptions(
     Dx12ConsumerHeaderGeneratorOptions
 ):
-    """Options for generating a ASCII dump file for Dx12 capture file replay."""
+    """Options for generating a stream of JSON from a decoded Dx12 capture."""
 
     def __init__(
         self,
@@ -50,17 +51,19 @@ class Dx12AsciiConsumerHeaderGeneratorOptions(
         )
 
 
-class Dx12AsciiConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
+class Dx12JsonConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
     """Generates C++ functions responsible for consuming Dx12 API calls."""
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.generate_feature(self)
-        self.write_dx12_consumer_class('Ascii')
+        self.write_dx12_consumer_class('Json')
 
     def write_include(self):
-        code = ("\n" "#include \"decode/dx12_ascii_consumer_base.h\"\n" "\n")
+        code = ("\n" "#include \"decode/dx12_json_consumer_base.h\"\n" "\n")
         write(code, file=self.outFile)
 
-    def get_consumer_function_body(self, class_name, method_info, return_type):
-        return ';'
+    def get_consumer_function_body(self, class_name, method_info, return_type, return_value):
+        # Marking functions as override helps to ensure the code gen for
+        # base and derived classes never gets out of sync.
+        return ' override;'

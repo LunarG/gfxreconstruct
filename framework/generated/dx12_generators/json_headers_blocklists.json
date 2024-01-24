@@ -1,0 +1,21 @@
+{
+  "description": "Block codegen of features for header files used in DX12 to JSON conversion. While many features such as structs containing unions need custom implementations of their FieldToJson functions, the function prototypes for them can still be generated, so we use this file to block generation of far fewer header features than body ones. (this is just a comment on the current file for human eyes)",
+  "functions-all": [],
+  "functions-encoder": [],
+  "functions-decoder": [],
+  "classmethods": {
+    "ID3D12Device": [
+      "CheckFeatureSupport"
+    ],
+    "IDXGIFactory5": [
+      "CheckFeatureSupport"
+    ],
+    "ID3D12Resource": [
+      "Comment: WriteToSubresource is needed because codegen gives pSrcData as the wrong type and because the manual signature in the base class defining it doesn't match what correct codegen would produce.",
+      "WriteToSubresource"
+    ]
+  },
+  "structures-comment": "We don't want to disable any structs from header generation. Even if we make custom bodies, the function protoypes in the headers will be the same so there's no need to type them all out.",
+  "structures": [
+  ]
+}

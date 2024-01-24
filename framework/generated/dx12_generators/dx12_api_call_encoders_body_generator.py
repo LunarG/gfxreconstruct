@@ -71,7 +71,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         Dx12ApiCallEncodersHeaderGenerator.generate_feature(self)
 
     def write_include(self):
-        """Methond override."""
+        """Method override."""
         code = (
             "#include \"generated/generated_dx12_api_call_encoders.h\"\n"
             "#include \"generated/generated_dx12_command_list_util.h\"\n"
@@ -88,7 +88,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         write(code, file=self.outFile)
 
     def get_encode_struct(self, value, is_generating_struct, is_result):
-        """Methond override."""
+        """Method override."""
         write_parameter_value = ''
         if is_generating_struct:
             write_parameter_value = 'value.'
@@ -147,7 +147,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         self, value, caller_values, function_name, function_value, is_generating_struct,
         is_result
     ):
-        """Methond override."""
+        """Method override."""
         write_parameter_value = ''
         if is_generating_struct:
             write_parameter_value = 'value.'
@@ -283,7 +283,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         return rtn
 
     def get_encode_struct_body(self, properties):
-        """Methond override."""
+        """Method override."""
         body = '\n'\
                '{\n'
         for k, v in properties.items():
@@ -296,7 +296,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         return body
 
     def get_encode_function_body(self, class_name, method_info, is_result):
-        """Methond override."""
+        """Method override."""
         body = '\n'\
                '{\n'
 

@@ -23,7 +23,7 @@
 
 import sys
 from base_generator import *
-from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_empty_lines
+from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_newlines
 
 class VulkanStructToJsonBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for serializing Vulkan structures to JSON"""
@@ -103,10 +103,14 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
         body = format_cpp_code('''
             #include "generated_vulkan_struct_to_json.h"
             #include "generated_vulkan_enum_to_json.h"
+            #include "util/to_string.h"
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
-            ''')
+            using util::JsonOptions;
+            using util::to_hex_variable_width;
+            using util::uuid_to_string;
+        ''')
         body += "\n"
         write(body, file=self.outFile)
     # yapf: enable
@@ -135,7 +139,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
         '''
-        body = remove_trailing_empty_lines(indent_cpp_code(body))
+        body = remove_trailing_newlines(indent_cpp_code(body))
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -170,7 +174,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                         }
                     }
                     ''')
-                body = remove_trailing_empty_lines(indent_cpp_code(body))
+                body = remove_trailing_newlines(indent_cpp_code(body))
                 write(body, file=self.outFile)
     # yapf: enable
 
@@ -200,7 +204,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                 elif self.is_handle(value.base_type):
                     to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
                 elif 'VkBool32' == value.base_type:
-                    to_json = 'VkBool32ToJson(jdata["{0}"], &meta_struct.{0})'
+                    to_json = 'Bool32ToJson(jdata["{0}"], &meta_struct.{0})'
                 else:
                     to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
             else:
@@ -215,7 +219,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif 'VkBool32' == value.base_type:
                         # Currently unused:
-                        to_json = 'VkBool32ToJson(jdata["{0}"], &meta_struct.{0})'
+                        to_json = 'Bool32ToJson(jdata["{0}"], &meta_struct.{0})'
                     elif not value.is_dynamic:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     else:

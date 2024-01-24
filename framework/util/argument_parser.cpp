@@ -130,7 +130,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
     uint32_t option_index = 0;
     if (!options.empty())
     {
-        std::stringstream option_strstr(options);
+        std::istringstream option_strstr(options);
         while (option_strstr.good())
         {
             std::getline(option_strstr, sub_string, ',');
@@ -140,7 +140,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
             // of the values to point to the same option flag.
             if (sub_string.find('|') != std::string::npos)
             {
-                std::stringstream option_strstr_2(sub_string);
+                std::istringstream option_strstr_2(sub_string);
                 while (option_strstr_2.good())
                 {
                     std::getline(option_strstr_2, sub_string2, '|');
@@ -160,7 +160,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
     uint32_t argument_index = 0;
     if (!arguments.empty())
     {
-        std::stringstream arguments_strstr(arguments);
+        std::istringstream arguments_strstr(arguments);
         while (arguments_strstr.good())
         {
             std::getline(arguments_strstr, sub_string, ',');
@@ -170,7 +170,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
             // of the values to point to the same argument.
             if (sub_string.find('|') != std::string::npos)
             {
-                std::stringstream arguments_strstr_2(sub_string);
+                std::istringstream arguments_strstr_2(sub_string);
                 while (arguments_strstr_2.good())
                 {
                     std::getline(arguments_strstr_2, sub_string2, '|');

@@ -35,7 +35,7 @@ void ReferencedResourceTable::AddResource(format::HandleId resource_id)
     }
 }
 
-void ReferencedResourceTable::AddResource(format::HandleId parent_id, format::HandleId resource_id)
+void ReferencedResourceTable::AddResource(format::HandleId parent_id, format::HandleId resource_id, bool add_children)
 {
     if ((parent_id != format::kNullHandleId) && (resource_id != format::kNullHandleId))
     {
@@ -53,14 +53,25 @@ void ReferencedResourceTable::AddResource(format::HandleId parent_id, format::Ha
                 auto resource_info      = std::make_shared<ResourceInfo>();
                 resource_info->is_child = true;
 
-                parent_info->child_infos.emplace_back(std::weak_ptr<ResourceInfo>{ resource_info });
+                parent_info->child_infos.emplace(
+                    std::make_pair(resource_id, std::weak_ptr<ResourceInfo>{ resource_info }));
                 resources_.emplace(resource_id, resource_info);
             }
             else
             {
                 // The resource has already been added to the table, but has multiple parent objects (e.g. a framebuffer
                 // is created from multiple image views), so we add it to the parent's child list.
-                parent_info->child_infos.emplace_back(std::weak_ptr<ResourceInfo>{ resource_entry->second });
+                parent_info->child_infos.emplace(
+                    std::make_pair(resource_id, std::weak_ptr<ResourceInfo>{ resource_entry->second }));
+
+                if (add_children)
+                {
+                    for (const auto& child : resource_entry->second->child_infos)
+                    {
+                        parent_info->child_infos.emplace(
+                            std::make_pair(child.first, std::weak_ptr<ResourceInfo>{ child.second }));
+                    }
+                }
             }
         }
     }
@@ -373,6 +384,12 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                 {
                     auto resource_info_ptr  = resource_info.second.lock();
                     resource_info_ptr->used = true;
+
+                    for (auto& child : resource_info_ptr->child_infos)
+                    {
+                        auto child_info_ptr  = child.second.lock();
+                        child_info_ptr->used = true;
+                    }
                 }
             }
 
@@ -387,6 +404,12 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                         {
                             auto resource_info_ptr  = resource_info.second.lock();
                             resource_info_ptr->used = true;
+
+                            for (auto& child : resource_info_ptr->child_infos)
+                            {
+                                auto child_info_ptr  = child.second.lock();
+                                child_info_ptr->used = true;
+                            }
                         }
                     }
                 }
@@ -409,6 +432,11 @@ void ReferencedResourceTable::GetReferencedResourceIds(std::unordered_set<format
             if (used && (referenced_ids != nullptr))
             {
                 referenced_ids->insert(resource_entry.first);
+
+                for (const auto& child : resource_entry.second->child_infos)
+                {
+                    referenced_ids->insert(child.first);
+                }
             }
             else if (!used && (unreferenced_ids != nullptr))
             {
@@ -431,9 +459,9 @@ bool ReferencedResourceTable::IsUsed(const ResourceInfo* resource_info) const
         // If the resource was not used directly, check to see if it was used indirectly through a child.
         for (const auto& child_info : resource_info->child_infos)
         {
-            if (!child_info.expired())
+            if (!child_info.second.expired())
             {
-                const auto child_info_ptr = child_info.lock();
+                const auto child_info_ptr = child_info.second.lock();
                 if (IsUsed(child_info_ptr.get()))
                 {
                     return true;

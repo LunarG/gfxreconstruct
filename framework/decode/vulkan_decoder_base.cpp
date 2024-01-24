@@ -294,6 +294,9 @@ void VulkanDecoderBase::DispatchInitImageCommand(format::ThreadId             th
     }
 }
 
+/// @note Dead code, never called.
+/// @note The Vulkan Layer does not encode this and no Vulkan consumers process it. It is one of several DX12-specific
+/// metablocks which could have stubbed ({}) versions of their dispatch functions in ApiDecoder.
 void VulkanDecoderBase::DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                        const uint8_t*                              data)
 {
@@ -500,6 +503,15 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
             break;
         default:
             break;
+    }
+}
+
+void VulkanDecoderBase::DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
+                                                               const std::vector<format::HandleId>& blases)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetTlasToBlasRelationCommand(tlas, blases);
     }
 }
 

@@ -29,6 +29,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -165,6 +166,25 @@ void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& prope
         else
         {
             ++extensionIter;
+        }
+    }
+}
+
+void RemoveExtensionIfUnsupported(const std::vector<VkExtensionProperties>& properties,
+                                  std::vector<const char*>*                 extensions,
+                                  const char*                               extension_to_remove)
+{
+    if (!feature_util::IsSupportedExtension(properties, extension_to_remove))
+    {
+        auto extension_iter =
+            std::find_if(extensions->begin(), extensions->end(), [&extension_to_remove](const char* extension) {
+                return util::platform::StringCompare(extension_to_remove, extension) == 0;
+            });
+        if (extension_iter != extensions->end())
+        {
+            GFXRECON_LOG_WARNING("Extension %s, which is not supported by the replay device, will not be enabled",
+                                 *extension_iter);
+            extensions->erase(extension_iter);
         }
     }
 }

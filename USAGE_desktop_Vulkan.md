@@ -395,6 +395,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--flush-measurement-range]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--api <api>] [--no-debug-popup] <file>
+                        [--use-colorspace-fallback]
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -531,6 +532,10 @@ Optional arguments:
               If this is specified the replayer will flush
               and wait for all current GPU work to finish at the
               start and end of the measurement range.
+  --use-colorspace-fallback
+              Swap the swapchain color space if unsupported by replay device.
+              Check if color space is not supported by replay device and
+              fallback to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR.
 ```
 
 ### Key Controls

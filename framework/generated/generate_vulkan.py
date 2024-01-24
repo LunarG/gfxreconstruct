@@ -72,12 +72,13 @@ generate_targets = [
     'generated_vulkan_enum_to_string.cpp',
     'generated_vulkan_object_info_table_base2.h',
     'generated_vulkan_state_table.h',
-    'generated_vulkan_export_json_consumer.h',
-    'generated_vulkan_export_json_consumer.cpp',
+    'generated_vulkan_json_consumer.h',
+    'generated_vulkan_json_consumer.cpp',
     'generated_vulkan_struct_to_json.h',
     'generated_vulkan_struct_to_json.cpp',
     'generated_vulkan_enum_to_json.h',
     'generated_vulkan_enum_to_json.cpp',
+    'generated_vulkan_constant_maps.h'
 ]
 
 if __name__ == '__main__':
@@ -89,7 +90,7 @@ if __name__ == '__main__':
         help='\n'.join(
             [
                 'Path to a directory that holds the Vulkan registry file (vk.xml) used to generate Vulkan source.',
-                'If this option is not provide the registry from the external Khronos Vulkan headers sub module will be used.'
+                'If this option is not provided the registry from the external Khronos Vulkan headers sub module will be used.'
             ]
         )
     )

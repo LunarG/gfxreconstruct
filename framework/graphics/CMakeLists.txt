@@ -41,6 +41,8 @@ target_sources(gfxrecon_graphics
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
@@ -50,6 +52,7 @@ target_sources(gfxrecon_graphics
 target_include_directories(gfxrecon_graphics
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework
+                               ${CMAKE_SOURCE_DIR}/external
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 
 target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific $<$<BOOL:${D3D12_SUPPORT}>:D3DCompiler.lib>)

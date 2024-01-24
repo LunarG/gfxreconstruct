@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2018-2019 Valve Corporation
 # Copyright (c) 2018-2019 LunarG, Inc.
+# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -299,6 +300,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     body += indent + f'auto handle_unwrap_memory = {capture_manager}->GetHandleUnwrapMemory();\n'
                 body += unwrap_expr
                 body += '\n'
+
+            if self.lock_for_destroy_handle_is_needed(name):
+                body += indent + 'ScopedDestroyLock exclusive_scoped_lock;\n'
 
             # Construct the function call to dispatch to the next layer.
             (call_setup_expr, call_expr) = self.make_layer_dispatch_call(
@@ -673,6 +677,14 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                             )
             args.append(arg_name)
         return expr, ', '.join(args), need_unwrap_memory
+
+    def lock_for_destroy_handle_is_needed(self, name):
+        if name.startswith('vkDestroy') or name.startswith('vkFree') or (
+            name == 'vkReleasePerformanceConfigurationINTEL'
+        ) or (name == 'vkResetDescriptorPool'):
+            return True
+        else:
+            return False
 
     def make_handle_cleanup(self, name, values, indent):
         expr = ''

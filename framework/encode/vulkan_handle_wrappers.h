@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -264,6 +265,7 @@ struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
     std::vector<VkImageLayout> attachment_final_layouts;
 };
 
+struct AccelerationStructureKHRWrapper;
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 {
@@ -296,6 +298,21 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 
     // Treat the sumbission of this command buffer as a frame boundary.
     bool is_frame_boundary{ false };
+
+    // Corellation between TLASes that are being build in this command buffer and the device addresses
+    // used to reference BLASes.
+    struct tlas_build_info
+    {
+        // The device address that points to the VkAccelerationStructureInstanceKHR used to build this TLAS
+        VkDeviceAddress address;
+
+        // The number of BLASes this TLAS is using
+        uint32_t blas_count;
+
+        // The offset from the above address to start reading the VkAccelerationStructureInstanceKHR structures
+        uint32_t offset;
+    };
+    std::vector<std::pair<AccelerationStructureKHRWrapper*, tlas_build_info>> tlas_build_info_map;
 };
 
 struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
@@ -330,6 +347,9 @@ struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR
     VkAllocationCallbacks                          allocator{};
     VkAllocationCallbacks*                         p_allocator{ nullptr };
     std::vector<VkPipeline>                        pipelines;
+    VkPipeline*                                    pPipelines;
+    VkPipelineCache                                pipelineCache;
+    bool                                           pending_state = false;
 };
 
 struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>
@@ -458,6 +478,9 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
+
+    // List of BLASes this AS references. Used only while tracking.
+    std::vector<AccelerationStructureKHRWrapper*> blas;
 };
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>

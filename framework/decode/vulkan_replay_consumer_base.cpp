@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -33,6 +34,7 @@
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
+#include "generated/generated_vulkan_constant_maps.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
 #include "util/file_path.h"
@@ -158,7 +160,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
                                                    const VulkanReplayOptions&                options) :
     loader_handle_(nullptr),
     get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), application_(application), options_(options),
-    loading_trim_state_(false), have_imported_semaphores_(false), fps_info_(nullptr)
+    loading_trim_state_(false), replaying_trimmed_capture_(false), have_imported_semaphores_(false), fps_info_(nullptr)
 {
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -245,6 +247,9 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 {
     GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = true;
+
+    // If a trace file has the state begin marker, it must be a trim trace file.
+    replaying_trimmed_capture_ = true;
 }
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
@@ -1790,25 +1795,37 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     functions.get_physical_device_memory_properties = instance_table->GetPhysicalDeviceMemoryProperties;
     functions.get_instance_proc_addr                = instance_table->GetInstanceProcAddr;
 
-    functions.allocate_memory                = device_table->AllocateMemory;
-    functions.free_memory                    = device_table->FreeMemory;
-    functions.get_device_memory_commitment   = device_table->GetDeviceMemoryCommitment;
-    functions.map_memory                     = device_table->MapMemory;
-    functions.unmap_memory                   = device_table->UnmapMemory;
-    functions.flush_memory_ranges            = device_table->FlushMappedMemoryRanges;
-    functions.invalidate_memory_ranges       = device_table->InvalidateMappedMemoryRanges;
-    functions.create_buffer                  = device_table->CreateBuffer;
-    functions.destroy_buffer                 = device_table->DestroyBuffer;
-    functions.get_buffer_memory_requirements = device_table->GetBufferMemoryRequirements;
-    functions.bind_buffer_memory             = device_table->BindBufferMemory;
-    functions.cmd_copy_buffer                = device_table->CmdCopyBuffer;
-    functions.create_image                   = device_table->CreateImage;
-    functions.destroy_image                  = device_table->DestroyImage;
-    functions.get_image_memory_requirements  = device_table->GetImageMemoryRequirements;
-    functions.get_image_subresource_layout   = device_table->GetImageSubresourceLayout;
-    functions.bind_image_memory              = device_table->BindImageMemory;
-    functions.get_device_proc_addr           = device_table->GetDeviceProcAddr;
-
+    functions.allocate_memory                             = device_table->AllocateMemory;
+    functions.free_memory                                 = device_table->FreeMemory;
+    functions.get_device_memory_commitment                = device_table->GetDeviceMemoryCommitment;
+    functions.map_memory                                  = device_table->MapMemory;
+    functions.unmap_memory                                = device_table->UnmapMemory;
+    functions.flush_memory_ranges                         = device_table->FlushMappedMemoryRanges;
+    functions.invalidate_memory_ranges                    = device_table->InvalidateMappedMemoryRanges;
+    functions.create_buffer                               = device_table->CreateBuffer;
+    functions.destroy_buffer                              = device_table->DestroyBuffer;
+    functions.get_buffer_memory_requirements              = device_table->GetBufferMemoryRequirements;
+    functions.bind_buffer_memory                          = device_table->BindBufferMemory;
+    functions.cmd_copy_buffer                             = device_table->CmdCopyBuffer;
+    functions.create_image                                = device_table->CreateImage;
+    functions.destroy_image                               = device_table->DestroyImage;
+    functions.get_image_memory_requirements               = device_table->GetImageMemoryRequirements;
+    functions.get_image_subresource_layout                = device_table->GetImageSubresourceLayout;
+    functions.bind_image_memory                           = device_table->BindImageMemory;
+    functions.get_device_proc_addr                        = device_table->GetDeviceProcAddr;
+    functions.get_device_queue                            = device_table->GetDeviceQueue;
+    functions.create_command_pool                         = device_table->CreateCommandPool;
+    functions.allocate_command_buffers                    = device_table->AllocateCommandBuffers;
+    functions.begin_command_buffer                        = device_table->BeginCommandBuffer;
+    functions.cmd_copy_buffer                             = device_table->CmdCopyBuffer;
+    functions.cmd_copy_buffer_to_image                    = device_table->CmdCopyBufferToImage;
+    functions.end_command_buffer                          = device_table->EndCommandBuffer;
+    functions.queue_submit                                = device_table->QueueSubmit;
+    functions.queue_wait_idle                             = device_table->QueueWaitIdle;
+    functions.reset_command_buffer                        = device_table->ResetCommandBuffer;
+    functions.free_command_buffers                        = device_table->FreeCommandBuffers;
+    functions.destroy_command_pool                        = device_table->DestroyCommandPool;
+    functions.get_physical_device_queue_family_properties = instance_table->GetPhysicalDeviceQueueFamilyProperties;
     if (physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2;
@@ -2290,6 +2307,14 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                     // Remove enabled extensions that are not available from the replay instance.
                     feature_util::RemoveUnsupportedExtensions(available_extensions, &filtered_extensions);
                 }
+                else if (options_.use_colorspace_fallback)
+                {
+                    for (auto& extension_name : kColorSpaceExtensionNames)
+                    {
+                        feature_util::RemoveExtensionIfUnsupported(
+                            available_extensions, &filtered_extensions, extension_name);
+                    }
+                }
                 else
                 {
                     // Remove enabled extensions that are ignorable from the replay instance.
@@ -2443,6 +2468,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
     PFN_vkGetDeviceProcAddr get_device_proc_addr = GetDeviceAddrProc(physical_device);
     PFN_vkCreateDevice      create_device_proc   = GetCreateDeviceProc(physical_device);
     VkResult                result               = VK_ERROR_INITIALIZATION_FAILED;
+    auto                    instance_table       = GetInstanceTable(physical_device);
 
     if ((get_device_proc_addr != nullptr) && (create_device_proc != nullptr))
     {
@@ -4325,6 +4351,17 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     bool                uses_address         = false;
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
+
+    if (replaying_trimmed_capture_)
+    {
+        // The GFXR trimmed capture process sets VK_BUFFER_USAGE_TRANSFER_SRC_BIT flag for buffer VkBufferCreateInfo.
+        // Since buffer memory requirements can differ when VK_BUFFER_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
+        // vkBindBufferMemory failures due to memory requirement mismatch during replay. So here we add
+        // VK_BUFFER_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
+        auto modified_create_info = const_cast<VkBufferCreateInfo*>(replay_create_info);
+        modified_create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    }
+
     if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
         if ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
@@ -4447,6 +4484,16 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     VulkanResourceAllocator::ResourceData allocator_data;
     auto                                  replay_image = pImage->GetHandlePointer();
     auto                                  capture_id   = (*pImage->GetPointer());
+
+    if (replaying_trimmed_capture_)
+    {
+        // The GFXR trimmed capture process sets VK_IMAGE_USAGE_TRANSFER_SRC_BIT flag for image VkImageCreateInfo.
+        // Since image memory requirements can differ when VK_IMAGE_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
+        // vkBindImageMemory failures due to memory requirement mismatch during replay. So here we add
+        // VK_IMAGE_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
+        auto modified_create_info = const_cast<VkImageCreateInfo*>(pCreateInfo->GetPointer());
+        modified_create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
 
     VkResult result = allocator->CreateImage(
         pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
@@ -5016,29 +5063,51 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
 
-        if (screenshot_handler_ == nullptr)
-        {
-            result = swapchain_->CreateSwapchainKHR(original_result,
-                                                    func,
-                                                    device_info,
-                                                    replay_create_info,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    pSwapchain,
-                                                    GetDeviceTable(device_info->handle));
-        }
-        else
+        VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
+
+        if (screenshot_handler_ != nullptr)
         {
             // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
-            VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
             modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-            result = swapchain_->CreateSwapchainKHR(original_result,
-                                                    func,
-                                                    device_info,
-                                                    &modified_create_info,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    pSwapchain,
-                                                    GetDeviceTable(device_info->handle));
         }
+
+        bool                colorspace_extension_used_unsupported = false;
+        PhysicalDeviceInfo* physical_device_info = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
+        InstanceInfo*       instance_info        = object_info_table_.GetInstanceInfo(physical_device_info->parent_id);
+
+        auto colorspace_extension_map_iterator = kColorSpaceExtensionMap.find(replay_create_info->imageColorSpace);
+        if (colorspace_extension_map_iterator != kColorSpaceExtensionMap.end())
+        {
+            auto supported_extension_iterator = std::find(instance_info->enabled_extensions.begin(),
+                                                          instance_info->enabled_extensions.end(),
+                                                          colorspace_extension_map_iterator->second);
+            colorspace_extension_used_unsupported =
+                supported_extension_iterator == instance_info->enabled_extensions.end();
+        }
+
+        if (colorspace_extension_used_unsupported)
+        {
+            if (options_.use_colorspace_fallback)
+            {
+                modified_create_info.imageColorSpace = VkColorSpaceKHR::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+                GFXRECON_LOG_INFO("Forcing supported color space for swapchain (ID = %" PRIu64 ")",
+                                  swapchain_info->capture_id);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Swapchain (ID = %" PRIu64
+                                   ") uses color space provided by unsupported VK_EXT_swapchain_colorspace",
+                                   swapchain_info->capture_id);
+            }
+        }
+
+        result = swapchain_->CreateSwapchainKHR(original_result,
+                                                func,
+                                                device_info,
+                                                &modified_create_info,
+                                                GetAllocationCallbacks(pAllocator),
+                                                pSwapchain,
+                                                GetDeviceTable(device_info->handle));
     }
     else
     {
@@ -6377,9 +6446,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
     if (deferred_operation_info)
     {
-        deferred_operation_info->join_state = VK_NOT_READY;
+        deferred_operation_info->pending_state = true;
         deferred_operation_info->record_modified_create_infos.clear();
         deferred_operation_info->record_modified_pgroups.clear();
+        deferred_operation_info->replayPipelines.resize(createInfoCount);
+        deferred_operation_info->capturePipelines.clear();
+        deferred_operation_info->capturePipelines.insert(deferred_operation_info->capturePipelines.end(),
+                                                         &pPipelines->GetPointer()[0],
+                                                         &pPipelines->GetPointer()[createInfoCount]);
     }
 
     if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
@@ -6438,13 +6512,52 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             // Use modified shader group infos.
             modified_create_infos[create_info_i].pGroups = modified_group_infos.data();
         }
+
+        VkPipeline* created_pipelines = nullptr;
+
+        if (deferred_operation_info)
+        {
+            created_pipelines = deferred_operation_info->replayPipelines.data();
+        }
+        else
+        {
+            created_pipelines = out_pPipelines;
+        }
+
         result = device_table->CreateRayTracingPipelinesKHR(device,
                                                             in_deferredOperation,
                                                             in_pipelineCache,
                                                             createInfoCount,
                                                             modified_create_infos.data(),
                                                             in_pAllocator,
-                                                            out_pPipelines);
+                                                            created_pipelines);
+
+        if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
+            (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
+        {
+            // The above return values mean the command is not deferred and driver will finish all workload in current
+            // thread. Therefore the created pipelines can be read and copied to out_pPipelines which will be
+            // referenced later.
+            //
+            // Note:
+            //     Some pipelines might actually fail creation if the return value is VK_PIPELINE_COMPILE_REQUIRED_EXT.
+            //     These failed pipelines will generate VK_NULL_HANDLE.
+            //
+            //     If the return value is VK_OPERATION_DEFERRED_KHR, it means the command is deferred, and thus pipeline
+            //     creation is not finished. Subsequent handling will be done by
+            //     vkDeferredOperationJoinKHR/vkGetDeferredOperationResultKHR after pipeline creation is finished.
+
+            if (deferred_operation_info)
+            {
+                memcpy(out_pPipelines, created_pipelines, createInfoCount * sizeof(VkPipeline));
+
+                // Eventhough vkCreateRayTracingPipelinesKHR was called with a valid deferred operation object, the
+                // driver may opt to not defer the command. In this case, set pending_state flag to false to skip
+                // vkDeferredOperationJoinKHR handling.
+                deferred_operation_info->pending_state = false;
+            }
+        }
+
         if (deferred_operation_info)
         {
             deferred_operation_info->record_modified_create_infos = std::move(modified_create_infos);
@@ -6457,13 +6570,35 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                                 "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and "
                                 "replay. The replay device does not support this feature, so replay may fail.");
 
+        VkPipeline* created_pipelines = nullptr;
+
+        if (deferred_operation_info)
+        {
+            created_pipelines = deferred_operation_info->replayPipelines.data();
+        }
+        else
+        {
+            created_pipelines = out_pPipelines;
+        }
+
         result = device_table->CreateRayTracingPipelinesKHR(device,
                                                             in_deferredOperation,
                                                             in_pipelineCache,
                                                             createInfoCount,
                                                             in_pCreateInfos,
                                                             in_pAllocator,
-                                                            out_pPipelines);
+                                                            created_pipelines);
+
+        if ((result == VK_SUCCESS) || (result == VK_OPERATION_NOT_DEFERRED_KHR) ||
+            (result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
+        {
+
+            if (deferred_operation_info)
+            {
+                memcpy(out_pPipelines, created_pipelines, createInfoCount * sizeof(VkPipeline));
+                deferred_operation_info->pending_state = false;
+            }
+        }
     }
 
     return result;
@@ -6474,8 +6609,9 @@ VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferr
                                                                     const DeviceInfo*              device_info,
                                                                     DeferredOperationKHRInfo* deferred_operation_info)
 {
-    if (deferred_operation_info->join_state == VK_SUCCESS)
+    if (deferred_operation_info->pending_state == false)
     {
+        // The deferred operation object has no deferred command or its deferred command has been finished.
         return VK_SUCCESS;
     }
 
@@ -6513,9 +6649,19 @@ VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferr
         j.get();
     }
 
-    deferred_operation_info->join_state = VK_SUCCESS;
+    AddHandles<PipelineInfo>(device_info->capture_id,
+                             deferred_operation_info->capturePipelines.data(),
+                             deferred_operation_info->capturePipelines.size(),
+                             deferred_operation_info->replayPipelines.data(),
+                             deferred_operation_info->replayPipelines.size(),
+                             &VulkanObjectInfoTable::AddPipelineInfo);
+
+    deferred_operation_info->pending_state = false;
     deferred_operation_info->record_modified_create_infos.clear();
     deferred_operation_info->record_modified_pgroups.clear();
+    deferred_operation_info->capturePipelines.clear();
+    deferred_operation_info->replayPipelines.clear();
+
     return VK_SUCCESS;
 }
 
@@ -7321,6 +7467,59 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(cons
 
     GetDeviceTable(in_device)->UpdateDescriptorSetWithTemplateKHR(
         in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData->GetPointer());
+}
+
+void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
+    const ApiCallInfo&                                               call_info,
+    VkResult                                                         returnValue,
+    format::HandleId                                                 device,
+    format::HandleId                                                 deferredOperation,
+    format::HandleId                                                 pipelineCache,
+    uint32_t                                                         createInfoCount,
+    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+    HandlePointerDecoder<VkPipeline>*                                pPipelines)
+{
+    auto in_device            = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_deferredOperation = GetObjectInfoTable().GetDeferredOperationKHRInfo(deferredOperation);
+    auto in_pipelineCache     = GetObjectInfoTable().GetPipelineCacheInfo(pipelineCache);
+    MapStructArrayHandles(pCreateInfos->GetMetaStructPointer(), pCreateInfos->GetLength(), GetObjectInfoTable());
+
+    if (!pPipelines->IsNull())
+    {
+        pPipelines->SetHandleLength(createInfoCount);
+    }
+
+    std::vector<PipelineInfo> handle_info(createInfoCount);
+
+    for (size_t i = 0; i < createInfoCount; ++i)
+    {
+        pPipelines->SetConsumerData(i, &handle_info[i]);
+    }
+
+    VkResult replay_result =
+        OverrideCreateRayTracingPipelinesKHR(GetDeviceTable(in_device->handle)->CreateRayTracingPipelinesKHR,
+                                             returnValue,
+                                             in_device,
+                                             in_deferredOperation,
+                                             in_pipelineCache,
+                                             createInfoCount,
+                                             pCreateInfos,
+                                             pAllocator,
+                                             pPipelines);
+    CheckResult("vkCreateRayTracingPipelinesKHR", returnValue, replay_result, call_info);
+
+    if ((replay_result == VK_SUCCESS) || (replay_result == VK_OPERATION_NOT_DEFERRED_KHR) ||
+        (replay_result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
+    {
+        AddHandles<PipelineInfo>(device,
+                                 pPipelines->GetPointer(),
+                                 pPipelines->GetLength(),
+                                 pPipelines->GetHandlePointer(),
+                                 createInfoCount,
+                                 std::move(handle_info),
+                                 &VulkanObjectInfoTable::AddPipelineInfo);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

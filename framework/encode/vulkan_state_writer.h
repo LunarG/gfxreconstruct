@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -29,6 +30,7 @@
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_resources_util.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_output_stream.h"
@@ -135,27 +137,18 @@ class VulkanStateWriter
 
     void WriteAccelerationStructureKHRState(const VulkanStateTable& state_table);
 
+    void WriteDeferredOperationJoinCommand(format::HandleId device_id, format::HandleId deferred_operation_id);
+
     void
     ProcessHardwareBuffer(format::HandleId memory_id, AHardwareBuffer* hardware_buffer, VkDeviceSize allocation_size);
 
     void ProcessBufferMemory(const DeviceWrapper*                   device_wrapper,
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
-                             uint32_t                               queue_family_index,
-                             VkQueue                                queue,
-                             VkCommandBuffer                        command_buffer,
-                             VkBuffer                               staging_buffer,
-                             VkDeviceMemory                         staging_memory,
-                             bool                                   is_staging_memory_coherent);
+                             graphics::VulkanResourcesUtil&         resource_util);
 
     void ProcessImageMemory(const DeviceWrapper*                  device_wrapper,
                             const std::vector<ImageSnapshotInfo>& image_snapshot_info,
-                            uint32_t                              queue_family_index,
-                            VkQueue                               queue,
-                            VkCommandBuffer                       command_buffer,
-                            VkBuffer                              staging_buffer,
-                            VkDeviceMemory                        staging_memory,
-                            bool                                  is_staging_memory_coherent,
-                            const VulkanStateTable&               state_table);
+                            graphics::VulkanResourcesUtil&        resource_util);
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
@@ -307,15 +300,7 @@ class VulkanStateWriter
     }
 
     VkMemoryPropertyFlags GetMemoryProperties(const DeviceWrapper*       device_wrapper,
-                                              const DeviceMemoryWrapper* memory_wrapper,
-                                              const VulkanStateTable&    state_table);
-
-    bool FindMemoryTypeIndex(const DeviceWrapper*    device_wrapper,
-                             uint32_t                memory_type_bits,
-                             VkMemoryPropertyFlags   desired_flags,
-                             uint32_t*               found_index,
-                             VkMemoryPropertyFlags*  found_flags,
-                             const VulkanStateTable& state_table) const;
+                                              const DeviceMemoryWrapper* memory_wrapper);
 
     void InvalidateMappedMemoryRange(const DeviceWrapper* device_wrapper,
                                      VkDeviceMemory       memory,
@@ -323,37 +308,6 @@ class VulkanStateWriter
                                      VkDeviceSize         size);
 
     void GetFenceStatus(const DeviceWrapper* device_wrapper, VkFence fence, bool* result);
-
-    VkQueue GetQueue(const DeviceWrapper* device_wrapper, uint32_t queue_family_index, uint32_t queue_index);
-
-    VkCommandPool GetCommandPool(const DeviceWrapper* device_wrapper, uint32_t queue_family_index);
-
-    VkCommandBuffer GetCommandBuffer(const DeviceWrapper* device_wrapper, VkCommandPool command_pool);
-
-    VkResult SubmitCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer, const DeviceTable* device_table);
-
-    VkResult CreateStagingBuffer(const DeviceWrapper*    device_wrapper,
-                                 VkDeviceSize            size,
-                                 VkBuffer*               buffer,
-                                 VkDeviceMemory*         memory,
-                                 VkMemoryPropertyFlags*  memory_property_flags,
-                                 const VulkanStateTable& state_table);
-
-    VkResult ResolveImage(const DeviceWrapper*    device_wrapper,
-                          const ImageWrapper*     image_wrapper,
-                          VkQueue                 queue,
-                          VkCommandBuffer         command_buffer,
-                          VkImage*                resolve_image,
-                          VkDeviceMemory*         resolve_memory,
-                          const VulkanStateTable& state_table);
-
-    VkImageAspectFlags GetFormatAspectMask(VkFormat format);
-
-    void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects, bool* combined_depth_stencil);
-
-    VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect);
-
-    void GetImageSizes(const ImageWrapper* image_wrapper, ImageSnapshotInfo* info);
 
     bool CheckCommandHandles(const CommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
 
@@ -376,6 +330,8 @@ class VulkanStateWriter
     bool IsFramebufferValid(format::HandleId framebuffer_id, const VulkanStateTable& state_table);
 
     bool IsFramebufferValid(const FramebufferWrapper* framebuffer_wrapper, const VulkanStateTable& state_table);
+
+    void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
 
   private:
     util::FileOutputStream*  output_stream_;

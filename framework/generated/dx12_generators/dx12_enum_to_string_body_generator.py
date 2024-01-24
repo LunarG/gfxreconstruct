@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Valve Corporation
+# Copyright (c) 2021, 2023 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -23,14 +24,12 @@
 import sys
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
+from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator # For the list of substrings in bitflag
 
 class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
     """TODO : Generates C++ functions responsible for Convert to texts."""
 
-    BITS_LIST = [
-        '_FLAGS', '_STATES', '_STATUS', 'D3D12_SHADER_MIN_PRECISION_SUPPORT',
-        'D3D12_FORMAT_SUPPORT1', 'D3D12_FORMAT_SUPPORT2'
-    ]
+    BITS_LIST = Dx12EnumToStringHeaderGenerator.BITS_LIST
 
     def __init__(
         self,
@@ -46,7 +45,7 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
         )
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         code = '#include "generated_dx12_enum_to_string.h"\n'
@@ -59,24 +58,24 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
     def generate_feature(self):
         for k, v in self.source_dict['enum_dict'].items():
             # Generate enum handler for all enums
-            body = 'std::string ToString(const {0}& value)\n'
+            body = 'std::string ToString(const {0} value)\n'
             body += '{{\n'
+            body += '    const char* ret = "Unhandled {0}";\n'
             body += '    switch (value) {{\n'
             processed_values = set()
             for value in v['values']:
                 if not value['value'] in processed_values:
-                    body += '    case {0}: return "{0}";\n'.format(value['name'])
+                    body += '        case {0}: ret = "{0}"; break;\n'.format(value['name'])
                     processed_values.add(value['name'])
                     processed_values.add(value['value'])
-            body += '    default: break;\n'
             body += '    }}\n'
-            body += '    return "Unhandled {0}";\n'
+            body += '    return ret;\n'
             body += '}}\n'
 
             # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:
                 if k.find(bits) >= 0:
-                    body += '\nstd::string ToString_{0}(uint32_t flags)\n'
+                    body += '\nstd::string ToString_{0}(const uint32_t flags)\n'
                     body += '{{\n'
                     body += '    return BitmaskToString<{0}>(flags);\n'
                     body += '}}\n'
@@ -90,19 +89,18 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
                     if 'DEFINE_GUID' in m['type']:
                         index = m['type'].find(',')
                         iids.append(m['type'][len('DEFINE_GUID ( '):index])
-        body = 'template <> std::string ToString<IID>(const IID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize) { return ToString(obj); }\n'
-        body += 'std::string ToString(const IID& iid)\n'
+        body = 'std::string ToString(const IID& iid)\n'
         body += '{\n'
         if not "IID_IUnknown" in iids:
             iids.append("IID_IUnknown")
         for iid in iids:
-            body += '    if (iid == {0}) return "\\\"{0}\\\"";\n'.format(iid)
-        body += '    return "\\\"Invalid IID\\\"";\n'
+            body += '    if (iid == {0}) return "{0}";\n'.format(iid)
+        body += '    return "Invalid IID";\n'
         body += '}\n'
         write(body, file=self.outFile)
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

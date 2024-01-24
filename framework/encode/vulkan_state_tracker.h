@@ -387,6 +387,11 @@ class VulkanStateTracker
                                                     VkAccelerationStructureKHR accel_struct,
                                                     VkDeviceAddress            address);
 
+    void TrackTLASBuildCommand(VkCommandBuffer                                        command_buffer,
+                               uint32_t                                               info_count,
+                               const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
+                               const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
+
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
 
     void TrackRayTracingShaderGroupHandles(VkDevice device, VkPipeline pipeline, size_t data_size, const void* data);
@@ -402,6 +407,8 @@ class VulkanStateTracker
                              uint64_t          data);
 
     void TrackSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable);
+
+    void TrackTlasToBlasDependencies(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
@@ -464,11 +471,20 @@ class VulkanStateTracker
 
     void DestroyState(SwapchainKHRWrapper* wrapper);
 
-  private:
+    void DestroyState(DeviceMemoryWrapper* wrapper);
+
+    void DestroyState(AccelerationStructureKHRWrapper* wrapper);
+
     void TrackQuerySubmissions(CommandBufferWrapper* command_wrapper);
 
     std::mutex       state_table_mutex_;
     VulkanStateTable state_table_;
+
+    // Keeps track of device memories' device addresses
+    std::unordered_map<VkDeviceAddress, const DeviceMemoryWrapper*> device_memory_addresses_map;
+
+    // Keeps track of acceleration structures' device addresses
+    std::unordered_map<VkDeviceAddress, AccelerationStructureKHRWrapper*> as_device_addresses_map;
 };
 
 GFXRECON_END_NAMESPACE(encode)

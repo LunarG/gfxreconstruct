@@ -44,7 +44,7 @@ class Dx12StructWrapperHeaderGenerator(Dx12BaseGenerator):
         )
 
     def beginFile(self, genOpts):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.beginFile(self, genOpts)
         self.write_include()
 
@@ -52,7 +52,7 @@ class Dx12StructWrapperHeaderGenerator(Dx12BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -60,7 +60,7 @@ class Dx12StructWrapperHeaderGenerator(Dx12BaseGenerator):
         Dx12BaseGenerator.endFile(self)
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.generate_feature(self)
 
         header_dict = self.source_dict['header_dict']

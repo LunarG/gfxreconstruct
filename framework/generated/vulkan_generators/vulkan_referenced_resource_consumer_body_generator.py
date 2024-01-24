@@ -61,7 +61,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
     # All resource and resource associated handle types to be processed.
     RESOURCE_HANDLE_TYPES = [
         'VkBuffer', 'VkImage', 'VkBufferView', 'VkImageView', 'VkFramebuffer',
-        'VkDescriptorSet', 'VkCommandBuffer'
+        'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR'
     ]
 
     # Handle types that contain resource and child resource handle types.

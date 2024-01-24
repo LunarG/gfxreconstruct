@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -177,6 +178,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
+    virtual void Process_vkCreateRayTracingPipelinesKHR(
+        const ApiCallInfo&                                               call_info,
+        VkResult                                                         returnValue,
+        format::HandleId                                                 device,
+        format::HandleId                                                 deferredOperation,
+        format::HandleId                                                 pipelineCache,
+        uint32_t                                                         createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
   protected:
     const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
@@ -1166,6 +1177,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::shared_ptr<application::Application>                        application_;
     VulkanObjectInfoTable                                            object_info_table_;
     bool                                                             loading_trim_state_;
+    bool                                                             replaying_trimmed_capture_;
     SwapchainImageTracker                                            swapchain_image_tracker_;
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;

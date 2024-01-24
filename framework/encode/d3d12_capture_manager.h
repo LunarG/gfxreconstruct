@@ -710,7 +710,6 @@ class D3D12CaptureManager : public CaptureManager
                                       D3D12_RESOURCE_DIMENSION dimension,
                                       D3D12_TEXTURE_LAYOUT     layout,
                                       UINT64                   width,
-                                      UINT64                   size,
                                       D3D12_HEAP_TYPE          heap_type,
                                       D3D12_CPU_PAGE_PROPERTY  page_property,
                                       D3D12_MEMORY_POOL        memory_pool,

@@ -1,6 +1,7 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -24,7 +25,8 @@
 #ifndef GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 #define GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 
-#include "format/platform_types.h"
+#include "decode/metadata_consumer_base.h"
+#include "decode/marker_consumer_base.h"
 #include "decode/api_decoder.h"
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/descriptor_update_template_decoder.h"
@@ -33,6 +35,7 @@
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "format/platform_types.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -40,7 +43,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanConsumerBase
+class VulkanConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 {
   public:
     VulkanConsumerBase() {}
@@ -52,104 +55,6 @@ class VulkanConsumerBase
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
     virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
-
-    virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
-
-    virtual void ProcessStateEndMarker(uint64_t frame_number) {}
-
-    virtual void ProcessFrameEndMarker(uint64_t frame_number) {}
-
-    virtual void ProcessDisplayMessageCommand(const std::string& message) {}
-
-    virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
-
-    virtual void
-    ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
-                                          const uint8_t*                                      data)
-    {}
-
-    virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
-
-    virtual void
-    ProcessResizeWindowCommand2(format::HandleId surface_id, uint32_t width, uint32_t height, uint32_t pre_transform)
-    {}
-
-    virtual void ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
-                                                    uint64_t                                            buffer_id,
-                                                    uint32_t                                            format,
-                                                    uint32_t                                            width,
-                                                    uint32_t                                            height,
-                                                    uint32_t                                            stride,
-                                                    uint64_t                                            usage,
-                                                    uint32_t                                            layers,
-                                                    const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
-    {}
-
-    virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) {}
-
-    virtual void ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size) {}
-
-    virtual void ProcessSetDevicePropertiesCommand(format::HandleId   physical_device_id,
-                                                   uint32_t           api_version,
-                                                   uint32_t           driver_version,
-                                                   uint32_t           vendor_id,
-                                                   uint32_t           device_id,
-                                                   uint32_t           device_type,
-                                                   const uint8_t      pipeline_cache_uuid[format::kUuidSize],
-                                                   const std::string& device_name)
-    {}
-
-    virtual void ProcessSetDeviceMemoryPropertiesCommand(format::HandleId physical_device_id,
-                                                         const std::vector<format::DeviceMemoryType>& memory_types,
-                                                         const std::vector<format::DeviceMemoryHeap>& memory_heaps)
-    {}
-
-    virtual void
-    ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address)
-    {}
-
-    virtual void ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
-                                                               format::HandleId pipeline_id,
-                                                               size_t           data_size,
-                                                               const uint8_t*   data)
-    {}
-
-    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,
-                                                      format::HandleId swapchain_id,
-                                                      uint32_t         last_presented_image,
-                                                      const std::vector<format::SwapchainImageStateInfo>& image_state)
-    {}
-
-    virtual void
-    ProcessBeginResourceInitCommand(format::HandleId device_id, uint64_t max_resource_size, uint64_t max_copy_size)
-    {}
-
-    virtual void ProcessEndResourceInitCommand(format::HandleId device_id) {}
-
-    virtual void ProcessInitBufferCommand(format::HandleId device_id,
-                                          format::HandleId buffer_id,
-                                          uint64_t         data_size,
-                                          const uint8_t*   data)
-    {}
-
-    virtual void ProcessInitImageCommand(format::HandleId             device_id,
-                                         format::HandleId             image_id,
-                                         uint64_t                     data_size,
-                                         uint32_t                     aspect,
-                                         uint32_t                     layout,
-                                         const std::vector<uint64_t>& level_sizes,
-                                         const uint8_t*               data)
-    {}
-
-    virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
-                                               const uint8_t*                              data)
-    {}
-
-    virtual void ProcessInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                  build_inputs_data)
-    {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
                                                            format::HandleId                 device,
@@ -171,6 +76,21 @@ class VulkanConsumerBase
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData)
+    {}
+
+    virtual void Process_vkCreateRayTracingPipelinesKHR(
+        const ApiCallInfo&                                               call_info,
+        VkResult                                                         returnValue,
+        format::HandleId                                                 device,
+        format::HandleId                                                 deferredOperation,
+        format::HandleId                                                 pipelineCache,
+        uint32_t                                                         createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                pPipelines)
+    {}
+
+    virtual void ProcessSetTlasToBlasRelationCommand(format::HandleId tlas, const std::vector<format::HandleId>& blases)
     {}
 };
 

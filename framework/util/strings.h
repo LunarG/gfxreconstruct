@@ -50,6 +50,10 @@ std::vector<std::string> SplitString(const std::string_view compound, const char
 /// @note This will turn a space separated list of numbers into one long number.
 void RemoveWhitespace(std::string& str);
 
+/// Create a string from a char array limiting the search for a null terminator
+/// to the given capacity as a protection against ill-formed input.
+std::string_view ViewOfCharArray(const char* array, const size_t capacity);
+
 GFXRECON_END_NAMESPACE(strings)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

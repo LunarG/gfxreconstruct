@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -7699,6 +7700,162 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(c
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId physicalDevice;
+    PointerDecoder<uint32_t> pTimeDomainCount;
+    PointerDecoder<VkTimeDomainKHR> pTimeDomains;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
+    bytes_read += pTimeDomainCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pTimeDomains.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(call_info, return_value, physicalDevice, &pTimeDomainCount, &pTimeDomains);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetCalibratedTimestampsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    uint32_t timestampCount;
+    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR> pTimestampInfos;
+    PointerDecoder<uint64_t> pTimestamps;
+    PointerDecoder<uint64_t> pMaxDeviation;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &timestampCount);
+    bytes_read += pTimestampInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pTimestamps.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMaxDeviation.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetCalibratedTimestampsKHR(call_info, return_value, device, timestampCount, &pTimestampInfos, &pTimestamps, &pMaxDeviation);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBindDescriptorSets2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfoKHR> pBindDescriptorSetsInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pBindDescriptorSetsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBindDescriptorSets2KHR(call_info, commandBuffer, &pBindDescriptorSetsInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdPushConstants2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkPushConstantsInfoKHR> pPushConstantsInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pPushConstantsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdPushConstants2KHR(call_info, commandBuffer, &pPushConstantsInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdPushDescriptorSet2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkPushDescriptorSetInfoKHR> pPushDescriptorSetInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pPushDescriptorSetInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdPushDescriptorSet2KHR(call_info, commandBuffer, &pPushDescriptorSetInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR> pPushDescriptorSetWithTemplateInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pPushDescriptorSetWithTemplateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdPushDescriptorSetWithTemplate2KHR(call_info, commandBuffer, &pPushDescriptorSetWithTemplateInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetDescriptorBufferOffsets2EXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkSetDescriptorBufferOffsetsInfoEXT> pSetDescriptorBufferOffsetsInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pSetDescriptorBufferOffsetsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetDescriptorBufferOffsets2EXT(call_info, commandBuffer, &pSetDescriptorBufferOffsetsInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT> pBindDescriptorBufferEmbeddedSamplersInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pBindDescriptorBufferEmbeddedSamplersInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(call_info, commandBuffer, &pBindDescriptorBufferEmbeddedSamplersInfo);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkFrameBoundaryANDROID(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -9541,7 +9698,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(cons
 
     format::HandleId physicalDevice;
     PointerDecoder<uint32_t> pTimeDomainCount;
-    PointerDecoder<VkTimeDomainEXT> pTimeDomains;
+    PointerDecoder<VkTimeDomainKHR> pTimeDomains;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
@@ -9563,7 +9720,7 @@ size_t VulkanDecoder::Decode_vkGetCalibratedTimestampsEXT(const ApiCallInfo& cal
 
     format::HandleId device;
     uint32_t timestampCount;
-    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoEXT> pTimestampInfos;
+    StructPointerDecoder<Decoded_VkCalibratedTimestampInfoKHR> pTimestampInfos;
     PointerDecoder<uint64_t> pTimestamps;
     PointerDecoder<uint64_t> pMaxDeviation;
     VkResult return_value;
@@ -14296,6 +14453,30 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR:
         Decode_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR:
+        Decode_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetCalibratedTimestampsKHR:
+        Decode_vkGetCalibratedTimestampsKHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBindDescriptorSets2KHR:
+        Decode_vkCmdBindDescriptorSets2KHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdPushConstants2KHR:
+        Decode_vkCmdPushConstants2KHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdPushDescriptorSet2KHR:
+        Decode_vkCmdPushDescriptorSet2KHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR:
+        Decode_vkCmdPushDescriptorSetWithTemplate2KHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetDescriptorBufferOffsets2EXT:
+        Decode_vkCmdSetDescriptorBufferOffsets2EXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT:
+        Decode_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkFrameBoundaryANDROID:
         Decode_vkFrameBoundaryANDROID(call_info, parameter_buffer, buffer_size);

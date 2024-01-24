@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -177,6 +178,18 @@ void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitIma
 void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo);
 
 void TrackCmdBindIndexBuffer2KHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+
+void TrackCmdBindDescriptorSets2KHRHandles(CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+
+void TrackCmdPushConstants2KHRHandles(CommandBufferWrapper* wrapper, const VkPushConstantsInfoKHR* pPushConstantsInfo);
+
+void TrackCmdPushDescriptorSet2KHRHandles(CommandBufferWrapper* wrapper, const VkPushDescriptorSetInfoKHR* pPushDescriptorSetInfo);
+
+void TrackCmdPushDescriptorSetWithTemplate2KHRHandles(CommandBufferWrapper* wrapper, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);
+
+void TrackCmdSetDescriptorBufferOffsets2EXTHandles(CommandBufferWrapper* wrapper, const VkSetDescriptorBufferOffsetsInfoEXT* pSetDescriptorBufferOffsetsInfo);
+
+void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(CommandBufferWrapper* wrapper, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
 
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 

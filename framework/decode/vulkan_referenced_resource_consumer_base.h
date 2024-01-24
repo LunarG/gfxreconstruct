@@ -129,6 +129,14 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
         HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate) override;
 
+    virtual void Process_vkCreateAccelerationStructureKHR(
+        const ApiCallInfo&                                                  call_info,
+        VkResult                                                            returnValue,
+        format::HandleId                                                    device,
+        StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
+        HandlePointerDecoder<VkAccelerationStructureKHR>*                   pAccelerationStructure) override;
+
     virtual void
     Process_vkDestroyDescriptorPool(const ApiCallInfo&                                   call_info,
                                     format::HandleId                                     device,
@@ -217,6 +225,34 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                               format::HandleId          commandBuffer,
                                               VkCommandBufferResetFlags flags) override;
 
+    virtual void ProcessSetTlasToBlasRelationCommand(format::HandleId                     tlas,
+                                                     const std::vector<format::HandleId>& blases) override;
+
+    virtual void Process_vkCmdTraceRaysKHR(
+        const ApiCallInfo&                                             call_info,
+        format::HandleId                                               commandBuffer,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+        uint32_t                                                       width,
+        uint32_t                                                       height,
+        uint32_t                                                       depth) override;
+
+    virtual void
+    ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address) override;
+
+    virtual void Process_vkBindBufferMemory(const ApiCallInfo& call_info,
+                                            VkResult           returnValue,
+                                            format::HandleId   device,
+                                            format::HandleId   buffer,
+                                            format::HandleId   memory,
+                                            VkDeviceSize       memoryOffset) override;
+
+    bool IsComplete(uint64_t current_block_index) override { return not_optimizable_; }
+
+    bool WasNotOptimizable() { return not_optimizable_; }
+
   protected:
     bool IsStateLoading() const { return loading_state_; }
 
@@ -237,6 +273,7 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         std::vector<UpdateTemplateEntryInfo> image_infos;
         std::vector<UpdateTemplateEntryInfo> buffer_infos;
         std::vector<UpdateTemplateEntryInfo> texel_buffer_view_infos;
+        std::vector<UpdateTemplateEntryInfo> acceleration_structure_infos;
     };
 
     // Table of descriptor update template info, keyed by VkDescriptorUpdateTemplate ID.
@@ -271,11 +308,11 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                uint32_t                              count,
                                const Decoded_VkDescriptorBufferInfo* buffer_infos);
 
-    void AddTexelBufferViewsToContainer(format::HandleId        container_id,
-                                        int32_t                 binding,
-                                        uint32_t                element,
-                                        uint32_t                count,
-                                        const format::HandleId* view_ids);
+    void AddResourcesToContainer(format::HandleId        container_id,
+                                 int32_t                 binding,
+                                 uint32_t                element,
+                                 uint32_t                count,
+                                 const format::HandleId* resource_ids);
 
     void AddImagesToUser(format::HandleId user_id, size_t count, const Decoded_VkDescriptorImageInfo* image_info);
 
@@ -302,6 +339,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     LayoutBindingCounts     layout_binding_counts_;
     SetLayouts              set_layouts_;
     UpdateTemplateInfos     template_infos_;
+    bool                    not_optimizable_;
+
+    std::unordered_map<format::HandleId, VkDeviceAddress> dev_address_to_resource_map;
+    std::unordered_map<VkDeviceAddress, format::HandleId> dev_address_to_buffers_map;
 };
 
 GFXRECON_END_NAMESPACE(decode)

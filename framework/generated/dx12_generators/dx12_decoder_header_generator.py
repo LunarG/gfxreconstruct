@@ -45,7 +45,7 @@ class Dx12DecoderHeaderGenerator(
         )
 
     def beginFile(self, gen_opts):
-        """Methond override."""
+        """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
@@ -54,12 +54,12 @@ class Dx12DecoderHeaderGenerator(
         self.newline()
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.generate_feature(self)
         self.write_dx12_decoder_class()
 
     def write_include(self):
-        """Methond override."""
+        """Method override."""
         code = ("\n" "#include \"decode/dx12_decoder_base.h\"\n" "\n")
         write(code, file=self.outFile)
 
@@ -157,7 +157,7 @@ class Dx12DecoderHeaderGenerator(
         write(code, file=self.outFile)
 
     def endFile(self):
-        """Methond override."""
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

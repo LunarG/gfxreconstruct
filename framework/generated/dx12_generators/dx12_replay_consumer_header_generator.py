@@ -51,7 +51,7 @@ class Dx12ReplayConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
     """Generates C++ functions responsible for consuming Dx12 API calls."""
 
     def generate_feature(self):
-        """Methond override."""
+        """Method override."""
         Dx12BaseGenerator.generate_feature(self)
         self.write_dx12_consumer_class('Replay')
 
@@ -59,5 +59,5 @@ class Dx12ReplayConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
         code = ("\n" "#include \"decode/dx12_replay_consumer_base.h\"\n" "\n")
         write(code, file=self.outFile)
 
-    def get_consumer_function_body(self, class_name, method_info, return_type):
-        return ';'
+    def get_consumer_function_body(self, class_name, method_info, return_type, return_value):
+        return ' override;'

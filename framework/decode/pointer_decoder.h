@@ -244,7 +244,7 @@ class PointerDecoder<T*> : public PointerDecoderBase
 
     T** GetPointer() { return data_; }
 
-    const T** GetPointer() const { return data_; }
+    const T* const* GetPointer() const { return data_; }
 
     size_t GetInnerLength(size_t i) const
     {

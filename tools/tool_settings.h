@@ -106,6 +106,7 @@ const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
+const char kColorspaceFallback[]    = "--use-colorspace-fallback";
 const char kFormatArgument[]        = "--format";
 const char kIncludeBinariesOption[] = "--include-binaries";
 const char kExpandFlagsOption[]     = "--expand-flags";
@@ -885,6 +886,11 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         {
             GFXRECON_LOG_WARNING("Ignoring unrecognized \"--swapchain\" option: %s", swapchain_option.c_str());
         }
+    }
+
+    if (arg_parser.IsOptionSet(kColorspaceFallback))
+    {
+        replay_options.use_colorspace_fallback = true;
     }
 
     replay_options.replace_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);

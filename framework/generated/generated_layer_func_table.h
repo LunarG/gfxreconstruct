@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -410,6 +411,14 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetDeviceImageSubresourceLayoutKHR",                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::GetDeviceImageSubresourceLayoutKHR) },
     { "vkGetImageSubresourceLayout2KHR",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::GetImageSubresourceLayout2KHR) },
     { "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR",                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceCooperativeMatrixPropertiesKHR) },
+    { "vkGetPhysicalDeviceCalibrateableTimeDomainsKHR",                                                      reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceCalibrateableTimeDomainsKHR) },
+    { "vkGetCalibratedTimestampsKHR",                                                                        reinterpret_cast<PFN_vkVoidFunction>(encode::GetCalibratedTimestampsKHR) },
+    { "vkCmdBindDescriptorSets2KHR",                                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::CmdBindDescriptorSets2KHR) },
+    { "vkCmdPushConstants2KHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::CmdPushConstants2KHR) },
+    { "vkCmdPushDescriptorSet2KHR",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::CmdPushDescriptorSet2KHR) },
+    { "vkCmdPushDescriptorSetWithTemplate2KHR",                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::CmdPushDescriptorSetWithTemplate2KHR) },
+    { "vkCmdSetDescriptorBufferOffsets2EXT",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetDescriptorBufferOffsets2EXT) },
+    { "vkCmdBindDescriptorBufferEmbeddedSamplers2EXT",                                                       reinterpret_cast<PFN_vkVoidFunction>(encode::CmdBindDescriptorBufferEmbeddedSamplers2EXT) },
     { "vkFrameBoundaryANDROID",                                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::FrameBoundaryANDROID) },
     { "vkCreateDebugReportCallbackEXT",                                                                      reinterpret_cast<PFN_vkVoidFunction>(encode::CreateDebugReportCallbackEXT) },
     { "vkDestroyDebugReportCallbackEXT",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::DestroyDebugReportCallbackEXT) },

@@ -438,7 +438,7 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
                                                  subresource_sizes,
                                                  temp_subresource_layouts,
                                                  required_data_size);
-        resource_init_info.subresource_sizes = subresource_sizes;
+
         resource_init_info.staging_resource  = resource_data_util_->CreateStagingBuffer(
             graphics::Dx12ResourceDataUtil::CopyType::kCopyTypeWrite, required_data_size);
         SetResourceInitInfoState(resource_init_info, command_header, data);

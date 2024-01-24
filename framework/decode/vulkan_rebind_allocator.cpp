@@ -135,6 +135,43 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
         create_info.instance         = instance;
         create_info.vulkanApiVersion = api_version;
 
+        uint32_t queue_family_count = 0;
+        functions_.get_physical_device_queue_family_properties(physical_device, &queue_family_count, nullptr);
+
+        std::vector<VkQueueFamilyProperties> queue_family_properties(queue_family_count);
+        functions_.get_physical_device_queue_family_properties(
+            physical_device, &queue_family_count, queue_family_properties.data());
+
+        staging_queue_family_ = 0;
+        for (const VkQueueFamilyProperties& elt : queue_family_properties)
+        {
+            if (elt.queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
+            {
+                break;
+            }
+            staging_queue_family_++;
+        }
+
+        VkCommandPoolCreateInfo cmd_pool_info = {};
+        cmd_pool_info.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        cmd_pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        cmd_pool_info.queueFamilyIndex        = staging_queue_family_;
+
+        result = functions_.create_command_pool(device_, &cmd_pool_info, NULL, &cmd_pool_);
+        assert(result == VK_SUCCESS);
+
+        VkCommandBufferAllocateInfo cmd_buff_alloc_info = {};
+        cmd_buff_alloc_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        cmd_buff_alloc_info.pNext                       = NULL;
+        cmd_buff_alloc_info.commandPool                 = cmd_pool_;
+        cmd_buff_alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        cmd_buff_alloc_info.commandBufferCount          = 1;
+
+        functions_.get_device_queue(device_, staging_queue_family_, 0, &staging_queue_);
+
+        result = functions_.allocate_command_buffers(device_, &cmd_buff_alloc_info, &cmd_buffer_);
+        assert(result == VK_SUCCESS);
+
         // Select creation flags from enabled extensions.
         bool have_memory_reqs2         = false;
         bool have_dedicated_allocation = false;
@@ -178,6 +215,9 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 
 void VulkanRebindAllocator::Destroy()
 {
+    functions_.free_command_buffers(device_, cmd_pool_, 1, &cmd_buffer_);
+    functions_.destroy_command_pool(device_, cmd_pool_, nullptr);
+
     if (allocator_ != VK_NULL_HANDLE)
     {
         vmaDestroyAllocator(allocator_);
@@ -467,6 +507,8 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
                     resource_alloc_info->is_host_visible = true;
                 }
 
+                memory_alloc_info->original_buffers.insert(std::make_pair(buffer, resource_alloc_info));
+
                 if (memory_alloc_info->original_content != nullptr)
                 {
                     // Memory has been mapped and written prior to bind.  Copy the original content to the new
@@ -477,8 +519,6 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
                                        allocation_info.size,
                                        memory_alloc_info->original_content.get());
                 }
-
-                memory_alloc_info->original_buffers.insert(std::make_pair(buffer, resource_alloc_info));
 
                 (*bind_memory_properties) = property_flags;
             }
@@ -635,6 +675,8 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
                     resource_alloc_info->is_host_visible = true;
                 }
 
+                memory_alloc_info->original_images.insert(std::make_pair(image, resource_alloc_info));
+
                 if (memory_alloc_info->original_content != nullptr)
                 {
                     // Memory has been mapped and written prior to bind.  Copy the original content to the new
@@ -645,8 +687,6 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
                                        allocation_info.size,
                                        memory_alloc_info->original_content.get());
                 }
-
-                memory_alloc_info->original_images.insert(std::make_pair(image, resource_alloc_info));
 
                 (*bind_memory_properties) = property_flags;
             }
@@ -899,6 +939,193 @@ void VulkanRebindAllocator::ReportBindImage2Incompatibility(uint32_t            
     ReportBindIncompatibility(allocator_resource_datas, bind_info_count);
 }
 
+void VulkanRebindAllocator::WriteBoundResourceDirect(
+    ResourceAllocInfo* resource_alloc_info, size_t src_offset, size_t dst_offset, size_t data_size, const uint8_t* data)
+{
+    if (!resource_alloc_info->is_image)
+    {
+        util::platform::MemoryCopy(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer) + dst_offset,
+                                   data_size,
+                                   data + src_offset,
+                                   data_size);
+    }
+    else
+    {
+        if (!resource_alloc_info->layouts.empty())
+        {
+            if (resource_alloc_info->layouts.size() == 1)
+            {
+                const auto& layouts = resource_alloc_info->layouts[0];
+
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, layouts.original.rowPitch);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, layouts.rebind.rowPitch);
+
+                size_t original_row_pitch = static_cast<size_t>(layouts.original.rowPitch);
+                size_t rebind_row_pitch   = static_cast<size_t>(layouts.rebind.rowPitch);
+
+                resource::CopyImageSubresourceMemory(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer),
+                                                     data + src_offset,
+                                                     dst_offset,
+                                                     data_size,
+                                                     rebind_row_pitch,
+                                                     original_row_pitch,
+                                                     resource_alloc_info->height);
+            }
+            else
+            {
+                // TODO: multi-plane image format support when strides do not match.
+                GFXRECON_LOG_ERROR("Skipping mapped memory write for image with multiple subresources: support "
+                                   "not yet implemented");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Image subresource layout info is not available for mapped memory write; "
+                                 "capture/replay memory alignment differences will not be handled properly");
+
+            util::platform::MemoryCopy(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer) + dst_offset,
+                                       data_size,
+                                       data + src_offset,
+                                       data_size);
+        }
+    }
+}
+
+void VulkanRebindAllocator::WriteBoundResourceStaging(
+    ResourceAllocInfo* resource_alloc_info, size_t src_offset, size_t dst_offset, size_t data_size, const uint8_t* data)
+{
+    if (resource_alloc_info->is_image && dst_offset != 0)
+    {
+        // TODO: implement offset based stagging image copy
+        GFXRECON_LOG_WARNING("Skipping image with offset in staging write: support not yet implemented");
+        return;
+    }
+
+    VkBuffer           staging_buf{};
+    VkBufferCreateInfo staging_buf_create_info{};
+    staging_buf_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    staging_buf_create_info.size  = data_size;
+    staging_buf_create_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+    VmaAllocation           staging_alloc{};
+    VmaAllocationInfo       staging_alloc_info{};
+    VmaAllocationCreateInfo staging_alloc_create_info = {};
+    staging_alloc_create_info.flags =
+        VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    staging_alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+
+    VkResult result = vmaCreateBuffer(allocator_,
+                                      &staging_buf_create_info,
+                                      &staging_alloc_create_info,
+                                      &staging_buf,
+                                      &staging_alloc,
+                                      &staging_alloc_info);
+
+    void* copy_mapped_pointer{ resource_alloc_info->mapped_pointer };
+
+    if (result == VK_SUCCESS)
+    {
+        result = vmaMapMemory(allocator_, staging_alloc, &resource_alloc_info->mapped_pointer);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        WriteBoundResourceDirect(resource_alloc_info, src_offset, 0, data_size, data);
+        resource_alloc_info->mapped_pointer = copy_mapped_pointer;
+        vmaFlushAllocation(allocator_, staging_alloc, 0, VK_WHOLE_SIZE);
+        vmaUnmapMemory(allocator_, staging_alloc);
+
+        VkCommandBufferBeginInfo cmd_buf_begin_info = {};
+        cmd_buf_begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        result = functions_.begin_command_buffer(cmd_buffer_, &cmd_buf_begin_info);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        if (resource_alloc_info->is_image)
+        {
+            VkImage original_image{};
+
+            for (const std::pair<const VkImage, VulkanRebindAllocator::ResourceAllocInfo*>& elt :
+                 resource_alloc_info->memory_info->original_images)
+            {
+                if (elt.second == resource_alloc_info)
+                {
+                    original_image = elt.first;
+                    break;
+                }
+            }
+
+            if (original_image)
+            {
+                // TODO: handle mip maps/array layers
+                GFXRECON_LOG_WARNING(
+                    "Ignoring potential mip maps/array layers in staging buffer to image copy: support "
+                    "not yet implemented");
+
+                VkBufferImageCopy region{};
+                region.bufferOffset      = 0;
+                region.bufferRowLength   = 0;
+                region.bufferImageHeight = 0;
+                region.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+                region.imageOffset       = { 0, 0, 0 };
+                region.imageExtent       = { 1, 1, 1 };
+
+                functions_.cmd_copy_buffer_to_image(
+                    cmd_buffer_, staging_buf, original_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+                result = functions_.end_command_buffer(cmd_buffer_);
+            }
+        }
+        else
+        {
+            VkBuffer original_buffer{};
+            for (const std::pair<const VkBuffer, VulkanRebindAllocator::ResourceAllocInfo*>& elt :
+                 resource_alloc_info->memory_info->original_buffers)
+            {
+                if (elt.second == resource_alloc_info)
+                {
+                    original_buffer = elt.first;
+                    break;
+                }
+            }
+
+            if (original_buffer)
+            {
+                VkBufferCopy copy_region{};
+                copy_region.srcOffset = 0;
+                copy_region.dstOffset = dst_offset;
+                copy_region.size      = data_size;
+
+                functions_.cmd_copy_buffer(cmd_buffer_, staging_buf, original_buffer, 1, &copy_region);
+                result = functions_.end_command_buffer(cmd_buffer_);
+            }
+        }
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        VkSubmitInfo compute_submit_info{};
+        compute_submit_info.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        compute_submit_info.commandBufferCount = 1;
+        compute_submit_info.pCommandBuffers    = &cmd_buffer_;
+
+        result = functions_.queue_submit(staging_queue_, 1, &compute_submit_info, VK_NULL_HANDLE);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        result = functions_.queue_wait_idle(staging_queue_);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        result = functions_.reset_command_buffer(cmd_buffer_, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+    }
+
+    vmaDestroyBuffer(allocator_, staging_buf, staging_alloc);
+}
+
 void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc_info,
                                                VkDeviceSize       src_offset,
                                                VkDeviceSize       dst_offset,
@@ -906,6 +1133,14 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
                                                const uint8_t*     data)
 {
     assert(resource_alloc_info != nullptr);
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, src_offset);
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, dst_offset);
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
+
+    size_t copy_src_offset = static_cast<size_t>(src_offset);
+    size_t copy_dst_offset = static_cast<size_t>(dst_offset);
+    size_t copy_size       = static_cast<size_t>(data_size);
 
     if (resource_alloc_info->is_host_visible)
     {
@@ -917,64 +1152,9 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
             result = vmaMapMemory(allocator_, resource_alloc_info->allocation, &resource_alloc_info->mapped_pointer);
         }
 
-        if ((result == VK_SUCCESS) && (resource_alloc_info->mapped_pointer != nullptr))
+        if (result == VK_SUCCESS)
         {
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, src_offset);
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, dst_offset);
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
-
-            size_t copy_src_offset = static_cast<size_t>(src_offset);
-            size_t copy_dst_offset = static_cast<size_t>(dst_offset);
-            size_t copy_size       = static_cast<size_t>(data_size);
-
-            if (!resource_alloc_info->is_image)
-            {
-                util::platform::MemoryCopy(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer) + copy_dst_offset,
-                                           copy_size,
-                                           data + copy_src_offset,
-                                           copy_size);
-            }
-            else
-            {
-                if (!resource_alloc_info->layouts.empty())
-                {
-                    if (resource_alloc_info->layouts.size() == 1)
-                    {
-                        const auto& layouts = resource_alloc_info->layouts[0];
-
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, layouts.original.rowPitch);
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, layouts.rebind.rowPitch);
-
-                        size_t original_row_pitch = static_cast<size_t>(layouts.original.rowPitch);
-                        size_t rebind_row_pitch   = static_cast<size_t>(layouts.rebind.rowPitch);
-
-                        resource::CopyImageSubresourceMemory(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer),
-                                                             data + copy_src_offset,
-                                                             copy_dst_offset,
-                                                             copy_size,
-                                                             rebind_row_pitch,
-                                                             original_row_pitch,
-                                                             resource_alloc_info->height);
-                    }
-                    else
-                    {
-                        // TODO: multi-plane image format support when strides do not match.
-                        GFXRECON_LOG_ERROR("Skipping mapped memory write for image with multiple subresources: support "
-                                           "not yet implemented");
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_WARNING("Image subresource layout info is not available for mapped memory write; "
-                                         "capture/replay memory alignment differences will not be handled properly");
-
-                    util::platform::MemoryCopy(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer) +
-                                                   copy_dst_offset,
-                                               copy_size,
-                                               data + copy_src_offset,
-                                               copy_size);
-                }
-            }
+            WriteBoundResourceDirect(resource_alloc_info, copy_src_offset, copy_dst_offset, copy_size, data);
         }
         else
         {
@@ -984,8 +1164,7 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
     }
     else
     {
-        // TODO: Staging copy.
-        GFXRECON_LOG_WARNING("Skipping mapped memory write the needs to be converted to a staging copy");
+        WriteBoundResourceStaging(resource_alloc_info, copy_src_offset, copy_dst_offset, copy_size, data);
     }
 }
 

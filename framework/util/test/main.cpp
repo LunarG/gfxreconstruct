@@ -113,6 +113,42 @@ TEST_CASE("Enum64ToString", "[to_string]")
     gfxrecon::util::Log::Release();
 }
 
+TEST_CASE("to_binary_fixed_width", "[to_string]")
+{
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(0)) == "0b00000000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(255)) == "0b11111111");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(1)) == "0b00000001");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(2)) == "0b00000010");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(4)) == "0b00000100");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(8)) == "0b00001000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(16)) == "0b00010000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(32)) == "0b00100000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(64)) == "0b01000000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(128)) == "0b10000000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(41)) == "0b00101001");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(83)) == "0b01010011");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(137)) == "0b10001001");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(173)) == "0b10101101");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(179)) == "0b10110011");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(241)) == "0b11110001");
+
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint16_t(0)) == "0b0000000000000000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint16_t(65535)) == "0b1111111111111111");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint16_t(4096)) == "0b0001000000000000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint16_t(32768 + 1024 + 8)) == "0b1000010000001000");
+
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint32_t(0)) == "0b00000000000000000000000000000000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint32_t(4294967295)) == "0b11111111111111111111111111111111");
+
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint64_t(0)) ==
+            "0b0000000000000000000000000000000000000000000000000000000000000000");
+    REQUIRE(gfxrecon::util::to_binary_fixed_width(uint64_t(4294967295ULL * 4294967296ULL + 4294967295ULL)) ==
+            "0b1111111111111111111111111111111111111111111111111111111111111111");
+
+    gfxrecon::util::Log::Release();
+}
+
 TEST_CASE("TabRight", "[strings]")
 {
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);

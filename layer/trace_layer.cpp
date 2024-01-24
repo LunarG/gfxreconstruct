@@ -63,7 +63,7 @@ struct LayerExtensionProps
 
 const std::vector<struct LayerExtensionProps> kDeviceExtensionProps = {
     { VkExtensionProperties{ "VK_EXT_tooling_info", 1 }, { "vkGetPhysicalDeviceToolPropertiesEXT" }, {} },
-    { VkExtensionProperties{ "VK_EXT_DEBUG_MARKER_EXTENSION_NAME", VK_EXT_DEBUG_MARKER_SPEC_VERSION },
+    { VkExtensionProperties{ VK_EXT_DEBUG_MARKER_EXTENSION_NAME, VK_EXT_DEBUG_MARKER_SPEC_VERSION },
       {},
       { "vkCmdDebugMarkerBeginEXT",
         "vkCmdDebugMarkerEndEXT",
@@ -75,19 +75,18 @@ const std::vector<struct LayerExtensionProps> kDeviceExtensionProps = {
 
 /// An alphabetical list of device extensions which we do not report upstream if
 /// other layers or ICDs expose them to us.
-const char* const kUnsupportedDeviceExtensions[] = {
-    VK_AMDX_SHADER_ENQUEUE_EXTENSION_NAME,
-    VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
-    VK_EXT_PIPELINE_PROPERTIES_EXTENSION_NAME,
-    VK_EXT_SHADER_MODULE_IDENTIFIER_EXTENSION_NAME,
-    VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME,
-    VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
-    VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
-    VK_NV_COPY_MEMORY_INDIRECT_EXTENSION_NAME,
-    VK_NV_LOW_LATENCY_2_EXTENSION_NAME,
-    VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
-    VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
-};
+const char* const kUnsupportedDeviceExtensions[] = { VK_AMDX_SHADER_ENQUEUE_EXTENSION_NAME,
+                                                     VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
+                                                     VK_EXT_PIPELINE_PROPERTIES_EXTENSION_NAME,
+                                                     VK_EXT_SHADER_MODULE_IDENTIFIER_EXTENSION_NAME,
+                                                     VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME,
+                                                     VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
+                                                     VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
+                                                     VK_NV_COPY_MEMORY_INDIRECT_EXTENSION_NAME,
+                                                     VK_NV_LOW_LATENCY_2_EXTENSION_NAME,
+                                                     VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
+                                                     VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
+                                                     VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME };
 
 static void remove_extensions(std::vector<VkExtensionProperties>& extensionProps,
                               const char* const                   screenedExtensions[],

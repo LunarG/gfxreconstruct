@@ -128,8 +128,11 @@ enum CommandHandleType : uint32_t
     OpticalFlowSessionNVHandle,
     VideoSessionKHRHandle,
     VideoSessionParametersKHRHandle,
-    NumHandleTypes,
-    ShaderEXTHandle
+    ShaderEXTHandle,
+    DescriptorSetLayoutHandle,
+    DescriptorUpdateTemplateHandle,
+
+    NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };
 
 GFXRECON_END_NAMESPACE(encode)
