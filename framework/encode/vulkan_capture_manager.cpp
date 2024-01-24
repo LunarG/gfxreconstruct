@@ -1320,15 +1320,19 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                      pCreateInfos[i].groupCount;
                 std::vector<uint8_t> data(data_size);
 
-                device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(
+                result = device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(
                     device, pipeline_wrapper->handle, 0, pCreateInfos[i].groupCount, data_size, data.data());
 
-                WriteSetRayTracingShaderGroupHandlesCommand(
-                    device_wrapper->handle_id, pipeline_wrapper->handle_id, data_size, data.data());
-
-                if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+                if (result == VK_SUCCESS)
                 {
-                    state_tracker_->TrackRayTracingShaderGroupHandles(device, pPipelines[i], data_size, data.data());
+                    WriteSetRayTracingShaderGroupHandlesCommand(
+                        device_wrapper->handle_id, pipeline_wrapper->handle_id, data_size, data.data());
+
+                    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+                    {
+                        state_tracker_->TrackRayTracingShaderGroupHandles(
+                            device, pPipelines[i], data_size, data.data());
+                    }
                 }
             }
         }
@@ -1382,7 +1386,7 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
                     deferred_operation_wrapper->create_infos[i].groupCount;
 
                 std::vector<uint8_t> data(data_size);
-                device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(
+                result = device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(
                     device_wrapper->handle,
                     pipeline_wrapper->handle,
                     0,
@@ -1390,13 +1394,16 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
                     data_size,
                     data.data());
 
-                WriteSetRayTracingShaderGroupHandlesCommand(
-                    device_wrapper->handle_id, pipeline_wrapper->handle_id, data_size, data.data());
-
-                if (capture_manager_tracking == true)
+                if (result == VK_SUCCESS)
                 {
-                    state_tracker_->TrackRayTracingShaderGroupHandles(
-                        device, deferred_operation_wrapper->pPipelines[i], data_size, data.data());
+                    WriteSetRayTracingShaderGroupHandlesCommand(
+                        device_wrapper->handle_id, pipeline_wrapper->handle_id, data_size, data.data());
+
+                    if (capture_manager_tracking == true)
+                    {
+                        state_tracker_->TrackRayTracingShaderGroupHandles(
+                            device, deferred_operation_wrapper->pPipelines[i], data_size, data.data());
+                    }
                 }
             }
         }
