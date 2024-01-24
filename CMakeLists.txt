@@ -218,6 +218,10 @@ else(MSVC)
     endif()
 endif(MSVC)
 
+if(APPLE)
+    add_link_options(-Wl,-dead_strip -Wl,-dead_strip_dylibs)
+endif()
+
 # GFXReconstruct provided find modules
 if(WIN32)
 find_package(Detours)
@@ -226,7 +230,7 @@ endif() # WIN32
 find_package(LZ4)
 find_package(ZSTD)
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
     option(BUILD_WSI_DISPLAY_SUPPORT "Build direct-to-display swapchain support" ON)
@@ -238,7 +242,7 @@ if(UNIX)
     if(BUILD_WSI_WAYLAND_SUPPORT)
         find_package(WAYLAND)
     endif()
-endif(UNIX)
+endif(UNIX AND NOT APPLE)
 
 # CMake provided find modules
 if(BUILD_STATIC)
@@ -246,12 +250,12 @@ if(BUILD_STATIC)
 else()
     find_package(ZLIB)
 endif()
-if(UNIX)
+if(UNIX AND NOT APPLE)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     if(BUILD_WSI_XLIB_SUPPORT)
         find_package(X11)
     endif()
-endif(UNIX)
+endif(UNIX AND NOT APPLE)
 
 add_library(windows_specific INTERFACE)
 
@@ -275,16 +279,26 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
+add_library(macos_specific INTERFACE)
+target_compile_definitions(macos_specific INTERFACE
+    VK_USE_PLATFORM_METAL_EXT
+    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
+
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE
     $<$<BOOL:${WIN32}>:windows_specific>
-    $<$<NOT:$<BOOL:${WIN32}>>:linux_specific>)
+    $<$<BOOL:${APPLE}>:macos_specific>
+    $<$<NOT:$<OR:$<BOOL:${WIN32}>,$<BOOL:${APPLE}>>>:linux_specific>)
 
 if(BUILD_WERROR)
     if(MSVC)
         target_compile_options(platform_specific INTERFACE /WX)
     else()
         target_compile_options(platform_specific INTERFACE -Werror)
+        if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+            # TODO: Actually fix these warnings
+            target_compile_options(platform_specific INTERFACE -Wno-error=switch)
+        endif()
     endif()
 endif()
 

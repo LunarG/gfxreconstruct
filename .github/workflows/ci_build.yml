@@ -111,6 +111,61 @@ jobs:
         name: ${{ matrix.config.artifact }}
         path: .\gfxreconstruct-dev
 
+  macOS:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "macOS Release",
+            os: macos-latest,
+            artifact: "gfxreconstruct-dev-macOS-release",
+            type: "release",
+            build_dir: "build"
+          }
+        - {
+            name: "macOS Debug",
+            os: macos-latest,
+            artifact: "gfxreconstruct-dev-macOS-debug",
+            type: "debug",
+            build_dir: "dbuild"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v3
+      with:
+        path: ~/deps
+        key: ${{ matrix.config.os }} deps ${{ hashFiles('.github/workflows/scripts/build-dependencies-macos.sh') }}
+    - name: Build dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: .github/workflows/scripts/build-dependencies-macos.sh
+    - name: Run build script
+      run: |
+        python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0
+    - name: Prepare artifacts
+      run: |
+        cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+        cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+        cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+        mv ${{ matrix.config.build_dir }}/darwin/universal/output/bin gfxreconstruct-dev
+        mv ${{ matrix.config.build_dir }}/darwin/universal/output/lib*/*.dylib gfxreconstruct-dev/
+        mv ${{ matrix.config.build_dir }}/darwin/universal/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
+        # GitHub's artifact uploader doesn't preserve permissions, so zip everything ourselves
+        # This will result in a zip in a zip, but Finder's unzip will conveniently unzip both at once, so it's not too bad
+        cd gfxreconstruct-dev
+        zip -r9 "../${{ matrix.config.artifact }}.zip" *
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ${{ matrix.config.artifact }}.zip
+
   android:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}

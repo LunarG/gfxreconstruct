@@ -102,6 +102,12 @@ static LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS exception_point
 #include <signal.h>
 #include <unistd.h>
 
+#ifdef __APPLE__
+static constexpr uint32_t MEMPROT_SIGNAL = SIGBUS;
+#else
+static constexpr uint32_t MEMPROT_SIGNAL = SIGSEGV;
+#endif
+
 const uint32_t kGuardReadWriteProtect = PROT_NONE;
 const uint32_t kGuardReadOnlyProtect  = PROT_READ;
 const uint32_t kGuardNoProtect        = PROT_READ | PROT_WRITE;
@@ -116,7 +122,7 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 {
     bool              handled = false;
     PageGuardManager* manager = PageGuardManager::Get();
-    if ((id == SIGSEGV) && (info->si_addr != nullptr) && (manager != nullptr))
+    if ((id == MEMPROT_SIGNAL) && (info->si_addr != nullptr) && (manager != nullptr))
     {
         bool is_write = true;
 #if defined(PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION)
@@ -125,7 +131,11 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
             // This is a machine-specific method for detecting read vs. write access, and is not portable.
             auto ucontext = reinterpret_cast<const ucontext_t*>(data);
 #if (defined(__x86_64__) || defined(__i386__))
+#ifdef __APPLE__
+            if ((ucontext->uc_mcontext->__es.__err & 0x2) == 0)
+#else
             if ((ucontext->uc_mcontext.gregs[REG_ERR] & 0x2) == 0)
+#endif
             {
                 is_write = false;
             }
@@ -139,7 +149,12 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 #elif defined(__aarch64__)
             // Check WnR bit of the ESR_EL1 register, which indicates write when 1 and read when 0.
             static const uint32_t kEsrElxWnRBit = 1u << 6;
-
+#ifdef __APPLE__
+            if ((ucontext->uc_mcontext->__es.__esr & kEsrElxWnRBit) == 0)
+            {
+                is_write = false;
+            }
+#else
             const uint8_t* reserved = ucontext->uc_mcontext.__reserved;
             auto           ctx      = reinterpret_cast<const _aarch64_ctx*>(reserved);
 
@@ -160,6 +175,7 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
                     ctx = reinterpret_cast<const _aarch64_ctx*>(reserved);
                 }
             }
+#endif
 #endif
         }
 #endif
@@ -263,7 +279,7 @@ bool PageGuardManager::CheckSignalHandler()
         assert(instance_->exception_handler_count_);
 
         struct sigaction current_handler;
-        int              result = sigaction(SIGSEGV, nullptr, &current_handler);
+        int              result = sigaction(MEMPROT_SIGNAL, nullptr, &current_handler);
 
         if (result != -1)
         {
@@ -453,7 +469,7 @@ void PageGuardManager::AddExceptionHandler()
 #else
         // Retrieve the current SIGSEGV handler info before replacing the current signal handler to determine if our
         // replacement signal handler should use an alternate signal stack.
-        int result = sigaction(SIGSEGV, nullptr, &s_old_sigaction);
+        int result = sigaction(MEMPROT_SIGNAL, nullptr, &s_old_sigaction);
 
         if (result != -1)
         {
@@ -477,7 +493,7 @@ void PageGuardManager::AddExceptionHandler()
                 sa.sa_flags |= SA_ONSTACK;
             }
 
-            result = sigaction(SIGSEGV, &sa, nullptr);
+            result = sigaction(MEMPROT_SIGNAL, &sa, nullptr);
         }
 
         if (result != -1)
@@ -538,7 +554,7 @@ void PageGuardManager::ClearExceptionHandler(void* exception_handler)
     }
 
     // Restore the old signal handler.
-    if (sigaction(SIGSEGV, &s_old_sigaction, nullptr) == -1)
+    if (sigaction(MEMPROT_SIGNAL, &s_old_sigaction, nullptr) == -1)
     {
         GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (errno= %d)", errno);
     }
@@ -616,7 +632,7 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
         sigprocmask(SIG_SETMASK, nullptr, &x);
 
         // Check if SIGSEGV is blocked
-        int ret = sigismember(&x, SIGSEGV);
+        int ret = sigismember(&x, MEMPROT_SIGNAL);
         if (ret == 1)
         {
             if (!unblock_sigsegv_)
@@ -629,11 +645,12 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
             {
                 // Unblock SIGSEGV
                 sigemptyset(&x);
-                sigaddset(&x, SIGSEGV);
+                sigaddset(&x, MEMPROT_SIGNAL);
                 if (sigprocmask(SIG_UNBLOCK, &x, nullptr))
                 {
-                    GFXRECON_LOG_ERROR(
-                        "sigprocmask failed to unblock SIGSEGV on thread %d (errno: %d)", syscall(__NR_gettid), errno);
+                    GFXRECON_LOG_ERROR("sigprocmask failed to unblock SIGSEGV on thread %lld (errno: %d)",
+                                       platform::GetCurrentThreadId(),
+                                       errno);
                 }
             }
         }

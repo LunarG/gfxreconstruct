@@ -911,6 +911,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                            uint32_t                  queueFamilyIndex,
                                                            struct wl_display*        display);
 
+    VkResult OverrideCreateMetalSurfaceEXT(PFN_vkCreateMetalSurfaceEXT func,
+                                           VkResult                    original_result,
+                                           InstanceInfo*               instance_info,
+                                           const StructPointerDecoder<Decoded_VkMetalSurfaceCreateInfoEXT>* pCreateInfo,
+                                           const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                           HandlePointerDecoder<VkSurfaceKHR>*                              pSurface);
+
     void OverrideDestroySurfaceKHR(PFN_vkDestroySurfaceKHR                                    func,
                                    InstanceInfo*                                              instance_info,
                                    const SurfaceKHRInfo*                                      surface_info,

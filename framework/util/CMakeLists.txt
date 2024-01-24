@@ -134,6 +134,11 @@ if (UNIX AND NOT APPLE)
     endif()
 endif()
 
+if (APPLE)
+    find_library(COREGRAPHICS_LIBRARY CoreGraphics)
+    target_link_libraries(gfxrecon_util ${COREGRAPHICS_LIBRARY})
+endif()
+
 if (XCB_LIBRARY)
     target_compile_definitions(gfxrecon_util PUBLIC "XCB_LIBRARY=\"${XCB_LIBRARY}\"")
 endif()
@@ -177,7 +182,7 @@ if (TARGET ZLIB::ZLIB)
     target_link_libraries(gfxrecon_util ZLIB::ZLIB)
 
     target_include_directories(gfxrecon_util
-                               PUBLIC
+                               SYSTEM PUBLIC
                                    ${CMAKE_SOURCE_DIR}/external/stb)
 endif()
 

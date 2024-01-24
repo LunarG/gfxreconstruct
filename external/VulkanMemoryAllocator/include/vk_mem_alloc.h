@@ -5686,8 +5686,7 @@ class VmaJsonWriter
     // Writes a number value.
     void WriteNumber(uint32_t n);
     void WriteNumber(uint64_t n);
-    void WriteSize(uint32_t n);
-    void WriteSize(uint64_t n);
+    void WriteSize(size_t n);
     // Writes a boolean value - false or true.
     void WriteBool(bool b);
     // Writes a null value.
@@ -5713,9 +5712,9 @@ class VmaJsonWriter
     bool                                             m_InsideString;
 
     // Write size_t for less than 64bits
-    void WriteSize(uint32_t n, std::integral_constant<bool, false>) { m_SB.AddNumber(static_cast<uint32_t>(n)); }
+    void WriteSize(size_t n, std::integral_constant<bool, false>) { m_SB.AddNumber(static_cast<uint32_t>(n)); }
     // Write size_t for 64bits
-    void WriteSize(uint64_t n, std::integral_constant<bool, true>) { m_SB.AddNumber(static_cast<uint64_t>(n)); }
+    void WriteSize(size_t n, std::integral_constant<bool, true>) { m_SB.AddNumber(static_cast<uint64_t>(n)); }
 
     void BeginValue(bool isString);
     void WriteIndent(bool oneLess = false);
@@ -5898,22 +5897,13 @@ void VmaJsonWriter::WriteNumber(uint64_t n)
     m_SB.AddNumber(n);
 }
 
-void VmaJsonWriter::WriteSize(uint32_t n)
+void VmaJsonWriter::WriteSize(size_t n)
 {
     VMA_ASSERT(!m_InsideString);
     BeginValue(false);
     // Fix for AppleClang incorrect type casting
     // TODO: Change to if constexpr when C++17 used as minimal standard
-    WriteSize(n, std::is_same<uint32_t, uint64_t>{});
-}
-
-void VmaJsonWriter::WriteSize(uint64_t n)
-{
-    VMA_ASSERT(!m_InsideString);
-    BeginValue(false);
-    // Fix for AppleClang incorrect type casting
-    // TODO: Change to if constexpr when C++17 used as minimal standard
-    WriteSize(n, std::is_same<uint64_t, uint64_t>{});
+    WriteSize(n, std::is_same<size_t, uint64_t>{});
 }
 
 void VmaJsonWriter::WriteBool(bool b)

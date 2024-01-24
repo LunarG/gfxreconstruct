@@ -58,6 +58,10 @@ target_sources(gfxrecon_application
                     $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/win32_window.h>
                     $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/win32_context.cpp>
                     $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/win32_window.cpp>
+                    $<$<BOOL:${APPLE}>:${CMAKE_CURRENT_LIST_DIR}/metal_context.h>
+                    $<$<BOOL:${APPLE}>:${CMAKE_CURRENT_LIST_DIR}/metal_window.h>
+                    $<$<BOOL:${APPLE}>:${CMAKE_CURRENT_LIST_DIR}/metal_context.mm>
+                    $<$<BOOL:${APPLE}>:${CMAKE_CURRENT_LIST_DIR}/metal_window.mm>
               )
 
 target_include_directories(gfxrecon_application
@@ -74,6 +78,13 @@ target_link_libraries(gfxrecon_application
                      )
 
 common_build_directives(gfxrecon_application)
+
+if (APPLE)
+    find_library(APPKIT_LIBRARY AppKit)
+    find_library(QUARTZCORE_LIBRARY QuartzCore)
+    target_compile_options(gfxrecon_application PRIVATE -fobjc-arc)
+    target_link_libraries(gfxrecon_application ${APPKIT_LIBRARY} ${QUARTZCORE_LIBRARY})
+endif(APPLE)
 
 if (${RUN_TESTS})
     add_executable(gfxrecon_application_test "")

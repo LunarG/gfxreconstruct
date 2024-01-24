@@ -81,6 +81,7 @@
     "vkCreateDisplayPlaneSurfaceKHR": "OverrideCreateDisplayPlaneSurfaceKHR",
     "vkCreateHeadlessSurfaceEXT": "OverrideCreateHeadlessSurfaceEXT",
     "vkGetPhysicalDeviceWaylandPresentationSupportKHR": "OverrideGetPhysicalDeviceWaylandPresentationSupportKHR",
+    "vkCreateMetalSurfaceEXT": "OverrideCreateMetalSurfaceEXT",
     "vkDestroySurfaceKHR": "OverrideDestroySurfaceKHR",
     "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
     "vkGetRandROutputDisplayEXT": "OverrideGetRandROutputDisplayEXT",

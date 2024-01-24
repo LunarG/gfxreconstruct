@@ -33,6 +33,10 @@
 #endif
 #endif
 
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+#include <Carbon/Carbon.h>
+#endif
+
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -154,6 +158,34 @@ bool Keyboard::GetKeyState(const std::string& key)
                 xcb_keysyms.key_symbols_free(hot_key_symbol);
             }
         }
+    }
+#endif
+
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+    static const std::unordered_map<std::string, CGKeyCode> carbon_key_code_map = {
+        { "F1", kVK_F1 },
+        { "F2", kVK_F2 },
+        { "F3", kVK_F3 },
+        { "F4", kVK_F4 },
+        { "F5", kVK_F5 },
+        { "F6", kVK_F6 },
+        { "F7", kVK_F7 },
+        { "F8", kVK_F8 },
+        { "F9", kVK_F9 },
+        { "F10", kVK_F10 },
+        { "F11", kVK_F11 },
+        { "F12", kVK_F12 },
+        { "Tab", kVK_Tab },
+        { "ControlLeft", kVK_Control },
+        { "ControlRight", kVK_RightControl },
+        { "CommandLeft", kVK_Command },
+        { "CommandRight", kVK_RightCommand },
+    };
+
+    auto iterator_key_code = carbon_key_code_map.find(key);
+    if (iterator_key_code != carbon_key_code_map.end())
+    {
+        result |= CGEventSourceKeyState(kCGEventSourceStateHIDSystemState, iterator_key_code->second);
     }
 #endif
 
