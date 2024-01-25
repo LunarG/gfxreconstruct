@@ -93,6 +93,7 @@ def CreateReplayParser():
     parser.add_argument('--flush-inside-measurement-range', action='store_true', default=False, help='If this is specified the replayer will flush and wait for all current GPU work to finish at end of each frame inside the measurement range. (forwarded to replay tool)')
     parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
     parser.add_argument('--swapchain', metavar='MODE', choices=['virtual', 'captured', 'offscreen'], help='Choose a swapchain mode to replay. Available modes are: virtual, captured, offscreen (forwarded to replay tool)')
+    parser.add_argument('--vssb', '--virtual-swapchain-skip-blit', action='store_true', default=False, help='Skip blit to real swapchain to gain performance during replay.')
     parser.add_argument('--use-captured-swapchain-indices', action='store_true', default=False, help='Same as "--swapchain captured". Ignored if the "--swapchain" option is used.')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
     return parser
@@ -198,6 +199,9 @@ def MakeExtrasString(args):
     
     if args.offscreen_swapchain_frame_boundary:
         arg_list.append('--offscreen-swapchain-frame-boundary')
+
+    if args.vssb:
+        arg_list.append('--vssb')
 
     if args.memory_translation:
         arg_list.append('-m')

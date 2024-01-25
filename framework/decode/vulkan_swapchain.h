@@ -47,6 +47,7 @@ class VulkanSwapchain
     virtual ~VulkanSwapchain() {}
 
     virtual void Clean();
+    virtual void SetPerformanceMode(bool performance_mode) {}
 
     virtual VkResult CreateSurface(VkResult                            original_result,
                                    InstanceInfo*                       instance_info,

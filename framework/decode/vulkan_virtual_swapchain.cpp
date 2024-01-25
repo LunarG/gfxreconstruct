@@ -665,6 +665,11 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
     VkQueue  queue              = queue_info->handle;
     uint32_t queue_family_index = queue_info->family_index;
 
+    if (performance_mode_)
+    {
+        return func(queue, present_info);
+    }
+
     // TODO: Note that this copy could also be used to scale the image, which would allow replay to support an option
     // for changing the window/swapchain size when the virtual swapchain mode is active.  The virtual image would
     // continue to use the captured swapchain image size, and be scaled to the replay swapchain image size with
@@ -820,15 +825,18 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         VkExtent3D  image_extent = { swapchain_info->width, swapchain_info->height, 1 };
         VkImageCopy image_copy   = { subresource, offset, subresource, offset, image_extent };
 
-        // NOTE: vkCmdCopyImage works on Queues of types including Graphics, Compute
-        //       and Transfer.  So should work on any queues we get a vkQueuePresentKHR from.
-        device_table_->CmdCopyImage(command_buffer,
-                                    virtual_image.image,
-                                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                    replay_image,
-                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                    1,
-                                    &image_copy);
+        if (!performance_mode_)
+        {
+            // NOTE: vkCmdCopyImage works on Queues of types including Graphics, Compute
+            //       and Transfer.  So should work on any queues we get a vkQueuePresentKHR from.
+            device_table_->CmdCopyImage(command_buffer,
+                                        virtual_image.image,
+                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                        replay_image,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                        1,
+                                        &image_copy);
+        }
 
         final_barrier_virtual_image.image                         = virtual_image.image;
         final_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
