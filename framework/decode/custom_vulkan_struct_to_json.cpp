@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022-2023 LunarG, Inc.
+** Copyright (c) 2022-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -245,8 +245,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 HandleToJson(jdata["pTexelBufferView"], &meta_struct.pTexelBufferView, options);
                 break;
-            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                // Nothing to do here for acceleration structures as the rest of the data is stored
+                // in the pNext chain
+                break;
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             case VK_DESCRIPTOR_TYPE_MUTABLE_EXT:
                 GFXRECON_LOG_WARNING("Descriptor type not supported at " __FILE__ ", line: %d.", __LINE__);
