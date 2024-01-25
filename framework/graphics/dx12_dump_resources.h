@@ -99,12 +99,6 @@ struct TrackDumpResources
     D3D12_CPU_DESCRIPTOR_HANDLE              replay_depth_stencil_handle{ decode::kNullCpuAddress };
     CopyResourceData                         copy_depth_stencil_resource;
 
-    // record BeginRenderPass parameters
-    std::vector<D3D12_RENDER_PASS_ENDING_ACCESS> record_render_target_ending_accesses;
-    D3D12_RENDER_PASS_ENDING_ACCESS              record_depth_ending_access{};
-    D3D12_RENDER_PASS_ENDING_ACCESS              record_stencil_ending_access{};
-    D3D12_RENDER_PASS_FLAGS                      record_render_pass_flags{ D3D12_RENDER_PASS_FLAG_NONE };
-
     // ExecuteIndirect
     CopyResourceData copy_exe_indirect_argument;
     CopyResourceData copy_exe_indirect_count;
@@ -132,7 +126,6 @@ struct TrackDumpResources
         replay_render_target_handles.clear();
         copy_render_target_resources.clear();
         copy_depth_stencil_resource.Clear();
-        record_render_target_ending_accesses.clear();
         copy_exe_indirect_argument.Clear();
         copy_exe_indirect_count.Clear();
         signature_buffers.clear();

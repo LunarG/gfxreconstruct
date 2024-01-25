@@ -11528,20 +11528,11 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
             Flags);
         MapStructArrayObjects(pRenderTargets->GetMetaStructPointer(), pRenderTargets->GetLength(), GetObjectInfoTable(), GetGpuVaTable());
         MapStructObjects(pDepthStencil->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
-        reinterpret_cast<ID3D12GraphicsCommandList4*>(replay_object->object)->BeginRenderPass(NumRenderTargets,
-                                                                                              pRenderTargets->GetPointer(),
-                                                                                              pDepthStencil->GetPointer(),
-                                                                                              Flags);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
-        {
-            ID3D12GraphicsCommandList4* command_list4;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-            command_list4->BeginRenderPass(NumRenderTargets,
-                                           pRenderTargets->GetPointer(),
-                                           pDepthStencil->GetPointer(),
-                                           Flags);
-        }
+        OverrideBeginRenderPass(replay_object,
+                                NumRenderTargets,
+                                pRenderTargets,
+                                pDepthStencil,
+                                Flags);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass>::Dispatch(
             this,
             call_info,
