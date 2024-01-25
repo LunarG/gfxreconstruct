@@ -31,6 +31,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanVirtualSwapchain : public VulkanSwapchain
 {
   public:
+    virtual void SetPerformanceMode(bool performance_mode) override { performance_mode_ = performance_mode; }
+
     virtual ~VulkanVirtualSwapchain() override {}
 
     virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
@@ -163,6 +165,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
+
+    bool performance_mode_{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

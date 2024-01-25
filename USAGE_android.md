@@ -922,6 +922,9 @@ optional arguments:
                         AHardwareBuffer*.  (forwarded to replay tool)
   --swapchain MODE      Choose a swapchain mode to replay. Available modes are:
                         virtual, captured, offscreen (forwarded to replay tool)
+  --vssb, --virtual-swapchain-skip-blit
+                        Skip blit to real swapchain to gain performance during
+                        replay. (forwarded to replay tool)
   --use-captured-swapchain-indices
                         Same as "--swapchain captured". Ignored if the "--swapchain" option is used.
   --mfr START-END, --measurement-frame-range START-END

@@ -181,6 +181,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
             break;
         default:
             swapchain_ = std::make_unique<VulkanVirtualSwapchain>();
+            swapchain_->SetPerformanceMode(options.virtual_swapchain_skip_blit);
     }
     if (options_.enable_debug_device_lost)
     {
