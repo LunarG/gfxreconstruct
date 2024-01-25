@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -4169,6 +4170,454 @@ VkVideoDecodeInfoKHR* TrackStruct(const VkVideoDecodeInfoKHR* value, HandleUnwra
     return unwrapped_struct;
 }
 
+VkVideoEncodeH264CapabilitiesKHR* TrackStruct(const VkVideoEncodeH264CapabilitiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264CapabilitiesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264QualityLevelPropertiesKHR* TrackStruct(const VkVideoEncodeH264QualityLevelPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264QualityLevelPropertiesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264SessionCreateInfoKHR* TrackStruct(const VkVideoEncodeH264SessionCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264SessionCreateInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264SessionParametersAddInfoKHR* TrackStruct(const VkVideoEncodeH264SessionParametersAddInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264SessionParametersAddInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pStdSPSs)
+    {
+        unwrapped_struct->pStdSPSs = MakeUnwrapStructs(unwrapped_struct->pStdSPSs, unwrapped_struct->stdSPSCount, unwrap_memory);
+    }
+    if (unwrapped_struct->pStdPPSs)
+    {
+        unwrapped_struct->pStdPPSs = MakeUnwrapStructs(unwrapped_struct->pStdPPSs, unwrapped_struct->stdPPSCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264SessionParametersCreateInfoKHR* TrackStruct(const VkVideoEncodeH264SessionParametersCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264SessionParametersCreateInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264SessionParametersGetInfoKHR* TrackStruct(const VkVideoEncodeH264SessionParametersGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264SessionParametersGetInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264SessionParametersFeedbackInfoKHR* TrackStruct(const VkVideoEncodeH264SessionParametersFeedbackInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264SessionParametersFeedbackInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264NaluSliceInfoKHR* TrackStruct(const VkVideoEncodeH264NaluSliceInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264NaluSliceInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264PictureInfoKHR* TrackStruct(const VkVideoEncodeH264PictureInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264PictureInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pNaluSliceEntries)
+    {
+        unwrapped_struct->pNaluSliceEntries = MakeUnwrapStructs(unwrapped_struct->pNaluSliceEntries, unwrapped_struct->naluSliceEntryCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264DpbSlotInfoKHR* TrackStruct(const VkVideoEncodeH264DpbSlotInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264DpbSlotInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264ProfileInfoKHR* TrackStruct(const VkVideoEncodeH264ProfileInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264ProfileInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264RateControlInfoKHR* TrackStruct(const VkVideoEncodeH264RateControlInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264RateControlInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264RateControlLayerInfoKHR* TrackStruct(const VkVideoEncodeH264RateControlLayerInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264RateControlLayerInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH264GopRemainingFrameInfoKHR* TrackStruct(const VkVideoEncodeH264GopRemainingFrameInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH264GopRemainingFrameInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265CapabilitiesKHR* TrackStruct(const VkVideoEncodeH265CapabilitiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265CapabilitiesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265SessionCreateInfoKHR* TrackStruct(const VkVideoEncodeH265SessionCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265SessionCreateInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265QualityLevelPropertiesKHR* TrackStruct(const VkVideoEncodeH265QualityLevelPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265QualityLevelPropertiesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265SessionParametersAddInfoKHR* TrackStruct(const VkVideoEncodeH265SessionParametersAddInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265SessionParametersAddInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pStdVPSs)
+    {
+        unwrapped_struct->pStdVPSs = MakeUnwrapStructs(unwrapped_struct->pStdVPSs, unwrapped_struct->stdVPSCount, unwrap_memory);
+    }
+    if (unwrapped_struct->pStdSPSs)
+    {
+        unwrapped_struct->pStdSPSs = MakeUnwrapStructs(unwrapped_struct->pStdSPSs, unwrapped_struct->stdSPSCount, unwrap_memory);
+    }
+    if (unwrapped_struct->pStdPPSs)
+    {
+        unwrapped_struct->pStdPPSs = MakeUnwrapStructs(unwrapped_struct->pStdPPSs, unwrapped_struct->stdPPSCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265SessionParametersCreateInfoKHR* TrackStruct(const VkVideoEncodeH265SessionParametersCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265SessionParametersCreateInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265SessionParametersGetInfoKHR* TrackStruct(const VkVideoEncodeH265SessionParametersGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265SessionParametersGetInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265SessionParametersFeedbackInfoKHR* TrackStruct(const VkVideoEncodeH265SessionParametersFeedbackInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265SessionParametersFeedbackInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265NaluSliceSegmentInfoKHR* TrackStruct(const VkVideoEncodeH265NaluSliceSegmentInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265NaluSliceSegmentInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265PictureInfoKHR* TrackStruct(const VkVideoEncodeH265PictureInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265PictureInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pNaluSliceSegmentEntries)
+    {
+        unwrapped_struct->pNaluSliceSegmentEntries = MakeUnwrapStructs(unwrapped_struct->pNaluSliceSegmentEntries, unwrapped_struct->naluSliceSegmentEntryCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265DpbSlotInfoKHR* TrackStruct(const VkVideoEncodeH265DpbSlotInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265DpbSlotInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265ProfileInfoKHR* TrackStruct(const VkVideoEncodeH265ProfileInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265ProfileInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265RateControlInfoKHR* TrackStruct(const VkVideoEncodeH265RateControlInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265RateControlInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265RateControlLayerInfoKHR* TrackStruct(const VkVideoEncodeH265RateControlLayerInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265RateControlLayerInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoEncodeH265GopRemainingFrameInfoKHR* TrackStruct(const VkVideoEncodeH265GopRemainingFrameInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoEncodeH265GopRemainingFrameInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
 VkVideoDecodeH264ProfileInfoKHR* TrackStruct(const VkVideoDecodeH264ProfileInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -5866,6 +6315,259 @@ VkPhysicalDeviceCooperativeMatrixPropertiesKHR* TrackStruct(const VkPhysicalDevi
     return unwrapped_struct;
 }
 
+VkPhysicalDeviceVideoMaintenance1FeaturesKHR* TrackStruct(const VkPhysicalDeviceVideoMaintenance1FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceVideoMaintenance1FeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkVideoInlineQueryInfoKHR* TrackStruct(const VkVideoInlineQueryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkVideoInlineQueryInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR* TrackStruct(const VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPipelineVertexInputDivisorStateCreateInfoKHR* TrackStruct(const VkPipelineVertexInputDivisorStateCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPipelineVertexInputDivisorStateCreateInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pVertexBindingDivisors)
+    {
+        unwrapped_struct->pVertexBindingDivisors = MakeUnwrapStructs(unwrapped_struct->pVertexBindingDivisors, unwrapped_struct->vertexBindingDivisorCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR* TrackStruct(const VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkCalibratedTimestampInfoKHR* TrackStruct(const VkCalibratedTimestampInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkCalibratedTimestampInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceMaintenance6FeaturesKHR* TrackStruct(const VkPhysicalDeviceMaintenance6FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceMaintenance6FeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceMaintenance6PropertiesKHR* TrackStruct(const VkPhysicalDeviceMaintenance6PropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceMaintenance6PropertiesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkBindMemoryStatusKHR* TrackStruct(const VkBindMemoryStatusKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkBindMemoryStatusKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkBindDescriptorSetsInfoKHR* TrackStruct(const VkBindDescriptorSetsInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkBindDescriptorSetsInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pDescriptorSets)
+    {
+        unwrapped_struct->pDescriptorSets = MakeUnwrapStructs(unwrapped_struct->pDescriptorSets, unwrapped_struct->descriptorSetCount, unwrap_memory);
+    }
+    if (unwrapped_struct->pDynamicOffsets)
+    {
+        unwrapped_struct->pDynamicOffsets = MakeUnwrapStructs(unwrapped_struct->pDynamicOffsets, unwrapped_struct->dynamicOffsetCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPushConstantsInfoKHR* TrackStruct(const VkPushConstantsInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPushConstantsInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pValues)
+    {
+        unwrapped_struct->pValues = MakeUnwrapStructs<uint8_t>(reinterpret_cast<const uint8_t*>(unwrapped_struct->pValues), unwrapped_struct->size, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPushDescriptorSetInfoKHR* TrackStruct(const VkPushDescriptorSetInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPushDescriptorSetInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pDescriptorWrites)
+    {
+        unwrapped_struct->pDescriptorWrites = MakeUnwrapStructs(unwrapped_struct->pDescriptorWrites, unwrapped_struct->descriptorWriteCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPushDescriptorSetWithTemplateInfoKHR* TrackStruct(const VkPushDescriptorSetWithTemplateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPushDescriptorSetWithTemplateInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkSetDescriptorBufferOffsetsInfoEXT* TrackStruct(const VkSetDescriptorBufferOffsetsInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkSetDescriptorBufferOffsetsInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pBufferIndices)
+    {
+        unwrapped_struct->pBufferIndices = MakeUnwrapStructs(unwrapped_struct->pBufferIndices, unwrapped_struct->setCount, unwrap_memory);
+    }
+    if (unwrapped_struct->pOffsets)
+    {
+        unwrapped_struct->pOffsets = MakeUnwrapStructs(unwrapped_struct->pOffsets, unwrapped_struct->setCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkBindDescriptorBufferEmbeddedSamplersInfoEXT* TrackStruct(const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkBindDescriptorBufferEmbeddedSamplersInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
 VkDebugReportCallbackCreateInfoEXT* TrackStruct(const VkDebugReportCallbackCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -6058,454 +6760,6 @@ VkImageViewAddressPropertiesNVX* TrackStruct(const VkImageViewAddressPropertiesN
     }
 
     VkImageViewAddressPropertiesNVX* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264CapabilitiesEXT* TrackStruct(const VkVideoEncodeH264CapabilitiesEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264CapabilitiesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264QualityLevelPropertiesEXT* TrackStruct(const VkVideoEncodeH264QualityLevelPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264QualityLevelPropertiesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264SessionCreateInfoEXT* TrackStruct(const VkVideoEncodeH264SessionCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264SessionCreateInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264SessionParametersAddInfoEXT* TrackStruct(const VkVideoEncodeH264SessionParametersAddInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264SessionParametersAddInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pStdSPSs)
-    {
-        unwrapped_struct->pStdSPSs = MakeUnwrapStructs(unwrapped_struct->pStdSPSs, unwrapped_struct->stdSPSCount, unwrap_memory);
-    }
-    if (unwrapped_struct->pStdPPSs)
-    {
-        unwrapped_struct->pStdPPSs = MakeUnwrapStructs(unwrapped_struct->pStdPPSs, unwrapped_struct->stdPPSCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264SessionParametersCreateInfoEXT* TrackStruct(const VkVideoEncodeH264SessionParametersCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264SessionParametersCreateInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264SessionParametersGetInfoEXT* TrackStruct(const VkVideoEncodeH264SessionParametersGetInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264SessionParametersGetInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264SessionParametersFeedbackInfoEXT* TrackStruct(const VkVideoEncodeH264SessionParametersFeedbackInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264SessionParametersFeedbackInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264NaluSliceInfoEXT* TrackStruct(const VkVideoEncodeH264NaluSliceInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264NaluSliceInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264PictureInfoEXT* TrackStruct(const VkVideoEncodeH264PictureInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264PictureInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pNaluSliceEntries)
-    {
-        unwrapped_struct->pNaluSliceEntries = MakeUnwrapStructs(unwrapped_struct->pNaluSliceEntries, unwrapped_struct->naluSliceEntryCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264DpbSlotInfoEXT* TrackStruct(const VkVideoEncodeH264DpbSlotInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264DpbSlotInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264ProfileInfoEXT* TrackStruct(const VkVideoEncodeH264ProfileInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264ProfileInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264RateControlInfoEXT* TrackStruct(const VkVideoEncodeH264RateControlInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264RateControlInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264RateControlLayerInfoEXT* TrackStruct(const VkVideoEncodeH264RateControlLayerInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264RateControlLayerInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH264GopRemainingFrameInfoEXT* TrackStruct(const VkVideoEncodeH264GopRemainingFrameInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH264GopRemainingFrameInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265CapabilitiesEXT* TrackStruct(const VkVideoEncodeH265CapabilitiesEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265CapabilitiesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265SessionCreateInfoEXT* TrackStruct(const VkVideoEncodeH265SessionCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265SessionCreateInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265QualityLevelPropertiesEXT* TrackStruct(const VkVideoEncodeH265QualityLevelPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265QualityLevelPropertiesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265SessionParametersAddInfoEXT* TrackStruct(const VkVideoEncodeH265SessionParametersAddInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265SessionParametersAddInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pStdVPSs)
-    {
-        unwrapped_struct->pStdVPSs = MakeUnwrapStructs(unwrapped_struct->pStdVPSs, unwrapped_struct->stdVPSCount, unwrap_memory);
-    }
-    if (unwrapped_struct->pStdSPSs)
-    {
-        unwrapped_struct->pStdSPSs = MakeUnwrapStructs(unwrapped_struct->pStdSPSs, unwrapped_struct->stdSPSCount, unwrap_memory);
-    }
-    if (unwrapped_struct->pStdPPSs)
-    {
-        unwrapped_struct->pStdPPSs = MakeUnwrapStructs(unwrapped_struct->pStdPPSs, unwrapped_struct->stdPPSCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265SessionParametersCreateInfoEXT* TrackStruct(const VkVideoEncodeH265SessionParametersCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265SessionParametersCreateInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265SessionParametersGetInfoEXT* TrackStruct(const VkVideoEncodeH265SessionParametersGetInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265SessionParametersGetInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265SessionParametersFeedbackInfoEXT* TrackStruct(const VkVideoEncodeH265SessionParametersFeedbackInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265SessionParametersFeedbackInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265NaluSliceSegmentInfoEXT* TrackStruct(const VkVideoEncodeH265NaluSliceSegmentInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265NaluSliceSegmentInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265PictureInfoEXT* TrackStruct(const VkVideoEncodeH265PictureInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265PictureInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pNaluSliceSegmentEntries)
-    {
-        unwrapped_struct->pNaluSliceSegmentEntries = MakeUnwrapStructs(unwrapped_struct->pNaluSliceSegmentEntries, unwrapped_struct->naluSliceSegmentEntryCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265DpbSlotInfoEXT* TrackStruct(const VkVideoEncodeH265DpbSlotInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265DpbSlotInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265ProfileInfoEXT* TrackStruct(const VkVideoEncodeH265ProfileInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265ProfileInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265RateControlInfoEXT* TrackStruct(const VkVideoEncodeH265RateControlInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265RateControlInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265RateControlLayerInfoEXT* TrackStruct(const VkVideoEncodeH265RateControlLayerInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265RateControlLayerInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoEncodeH265GopRemainingFrameInfoEXT* TrackStruct(const VkVideoEncodeH265GopRemainingFrameInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoEncodeH265GopRemainingFrameInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
@@ -7056,6 +7310,21 @@ VkHdrMetadataEXT* TrackStruct(const VkHdrMetadataEXT* value, HandleUnwrapMemory*
     }
 
     VkHdrMetadataEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG* TrackStruct(const VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
@@ -8002,21 +8271,6 @@ VkPipelineCompilerControlCreateInfoAMD* TrackStruct(const VkPipelineCompilerCont
     return unwrapped_struct;
 }
 
-VkCalibratedTimestampInfoEXT* TrackStruct(const VkCalibratedTimestampInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkCalibratedTimestampInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
 VkPhysicalDeviceShaderCorePropertiesAMD* TrackStruct(const VkPhysicalDeviceShaderCorePropertiesAMD* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -8055,40 +8309,6 @@ VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT* TrackStruct(const VkPhysica
     }
 
     VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPipelineVertexInputDivisorStateCreateInfoEXT* TrackStruct(const VkPipelineVertexInputDivisorStateCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPipelineVertexInputDivisorStateCreateInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pVertexBindingDivisors)
-    {
-        unwrapped_struct->pVertexBindingDivisors = MakeUnwrapStructs(unwrapped_struct->pVertexBindingDivisors, unwrapped_struct->vertexBindingDivisorCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT* TrackStruct(const VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
@@ -10935,6 +11155,21 @@ VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI* TrackStruct(const VkPhysic
     return unwrapped_struct;
 }
 
+VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI* TrackStruct(const VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
 VkPhysicalDeviceBorderColorSwizzleFeaturesEXT* TrackStruct(const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -10988,6 +11223,51 @@ VkPhysicalDeviceShaderCorePropertiesARM* TrackStruct(const VkPhysicalDeviceShade
     }
 
     VkPhysicalDeviceShaderCorePropertiesARM* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkDeviceQueueShaderCoreControlCreateInfoARM* TrackStruct(const VkDeviceQueueShaderCoreControlCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkDeviceQueueShaderCoreControlCreateInfoARM* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceSchedulingControlsFeaturesARM* TrackStruct(const VkPhysicalDeviceSchedulingControlsFeaturesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceSchedulingControlsFeaturesARM* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceSchedulingControlsPropertiesARM* TrackStruct(const VkPhysicalDeviceSchedulingControlsPropertiesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceSchedulingControlsPropertiesARM* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
@@ -11094,6 +11374,89 @@ VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT* TrackStruct(const VkPhysicalDevic
 
     VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceRenderPassStripedFeaturesARM* TrackStruct(const VkPhysicalDeviceRenderPassStripedFeaturesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceRenderPassStripedFeaturesARM* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceRenderPassStripedPropertiesARM* TrackStruct(const VkPhysicalDeviceRenderPassStripedPropertiesARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceRenderPassStripedPropertiesARM* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkRenderPassStripeInfoARM* TrackStruct(const VkRenderPassStripeInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkRenderPassStripeInfoARM* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkRenderPassStripeBeginInfoARM* TrackStruct(const VkRenderPassStripeBeginInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkRenderPassStripeBeginInfoARM* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pStripeInfos)
+    {
+        unwrapped_struct->pStripeInfos = MakeUnwrapStructs(unwrapped_struct->pStripeInfos, unwrapped_struct->stripeInfoCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkRenderPassStripeSubmitInfoARM* TrackStruct(const VkRenderPassStripeSubmitInfoARM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkRenderPassStripeSubmitInfoARM* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pStripeSemaphoreInfos)
+    {
+        unwrapped_struct->pStripeSemaphoreInfos = MakeUnwrapStructs(unwrapped_struct->pStripeSemaphoreInfos, unwrapped_struct->stripeSemaphoreInfoCount, unwrap_memory);
+    }
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
 
@@ -11878,6 +12241,25 @@ VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV* TrackStruct(const VkPhys
     return unwrapped_struct;
 }
 
+VkLayerSettingsCreateInfoEXT* TrackStruct(const VkLayerSettingsCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkLayerSettingsCreateInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->pSettings)
+    {
+        unwrapped_struct->pSettings = MakeUnwrapStructs(unwrapped_struct->pSettings, unwrapped_struct->settingCount, unwrap_memory);
+    }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
 VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM* TrackStruct(const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -11966,6 +12348,21 @@ VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* TrackStruct(const VkMultiv
     {
         unwrapped_struct->pPerViewRenderAreas = MakeUnwrapStructs(unwrapped_struct->pPerViewRenderAreas, unwrapped_struct->perViewRenderAreaCount, unwrap_memory);
     }
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDevicePerStageDescriptorSetFeaturesNV* TrackStruct(const VkPhysicalDevicePerStageDescriptorSetFeaturesNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDevicePerStageDescriptorSetFeaturesNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
 
@@ -13028,6 +13425,62 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkVideoDecodeUsageInfoKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR:
             return TrackStruct(reinterpret_cast<const VkVideoDecodeInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264CapabilitiesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUALITY_LEVEL_PROPERTIES_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264QualityLevelPropertiesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_CREATE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionCreateInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionParametersAddInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionParametersCreateInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionParametersGetInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionParametersFeedbackInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_NALU_SLICE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264NaluSliceInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264PictureInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264DpbSlotInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264ProfileInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264RateControlInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264RateControlLayerInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264GopRemainingFrameInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265CapabilitiesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionCreateInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265QualityLevelPropertiesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionParametersAddInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionParametersGetInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_NALU_SLICE_SEGMENT_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265NaluSliceSegmentInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265PictureInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265ProfileInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265RateControlInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265RateControlLayerInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265GopRemainingFrameInfoKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR:
             return TrackStruct(reinterpret_cast<const VkVideoDecodeH264ProfileInfoKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR:
@@ -13242,6 +13695,36 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixPropertiesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_KHR:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkPipelineVertexInputDivisorStateCreateInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkCalibratedTimestampInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES_KHR:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceMaintenance6FeaturesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES_KHR:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceMaintenance6PropertiesKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS_KHR:
+            return TrackStruct(reinterpret_cast<const VkBindMemoryStatusKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkBindDescriptorSetsInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkPushConstantsInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkPushDescriptorSetInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO_KHR:
+            return TrackStruct(reinterpret_cast<const VkPushDescriptorSetWithTemplateInfoKHR*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SET_DESCRIPTOR_BUFFER_OFFSETS_INFO_EXT:
+            return TrackStruct(reinterpret_cast<const VkSetDescriptorBufferOffsetsInfoEXT*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_INFO_EXT:
+            return TrackStruct(reinterpret_cast<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
             return TrackStruct(reinterpret_cast<const VkDebugReportCallbackCreateInfoEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD:
@@ -13268,62 +13751,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkImageViewHandleInfoNVX*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_IMAGE_VIEW_ADDRESS_PROPERTIES_NVX:
             return TrackStruct(reinterpret_cast<const VkImageViewAddressPropertiesNVX*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264CapabilitiesEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUALITY_LEVEL_PROPERTIES_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264QualityLevelPropertiesEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_CREATE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionCreateInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_ADD_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionParametersAddInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_CREATE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionParametersCreateInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionParametersGetInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_FEEDBACK_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264SessionParametersFeedbackInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_NALU_SLICE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264NaluSliceInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264PictureInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264DpbSlotInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264ProfileInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264RateControlInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264RateControlLayerInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH264GopRemainingFrameInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265CapabilitiesEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionCreateInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265QualityLevelPropertiesEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionParametersAddInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionParametersGetInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265SessionParametersFeedbackInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_NALU_SLICE_SEGMENT_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265NaluSliceSegmentInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265PictureInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265ProfileInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265RateControlInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265RateControlLayerInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkVideoEncodeH265GopRemainingFrameInfoEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             return TrackStruct(reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_STREAM_DESCRIPTOR_SURFACE_CREATE_INFO_GGP:
@@ -13392,6 +13819,8 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPipelineRasterizationDepthClipStateCreateInfoEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_HDR_METADATA_EXT:
             return TrackStruct(reinterpret_cast<const VkHdrMetadataEXT*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK:
             return TrackStruct(reinterpret_cast<const VkIOSSurfaceCreateInfoMVK*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK:
@@ -13506,18 +13935,12 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceExternalMemoryHostPropertiesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD:
             return TrackStruct(reinterpret_cast<const VkPipelineCompilerControlCreateInfoAMD*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkCalibratedTimestampInfoEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderCorePropertiesAMD*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD:
             return TrackStruct(reinterpret_cast<const VkDeviceMemoryOverallocationCreateInfoAMD*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkPipelineVertexInputDivisorStateCreateInfoEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP:
             return TrackStruct(reinterpret_cast<const VkPresentFrameTokenGGP*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_NV:
@@ -13880,6 +14303,8 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT:
@@ -13888,6 +14313,12 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderCorePropertiesARM*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
+            return TrackStruct(reinterpret_cast<const VkDeviceQueueShaderCoreControlCreateInfoARM*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceSchedulingControlsFeaturesARM*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceSchedulingControlsPropertiesARM*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_IMAGE_VIEW_SLICED_CREATE_INFO_EXT:
@@ -13902,6 +14333,16 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceRenderPassStripedFeaturesARM*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceRenderPassStripedPropertiesARM*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM:
+            return TrackStruct(reinterpret_cast<const VkRenderPassStripeInfoARM*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+            return TrackStruct(reinterpret_cast<const VkRenderPassStripeBeginInfoARM*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
+            return TrackStruct(reinterpret_cast<const VkRenderPassStripeSubmitInfoARM*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM:
@@ -14002,6 +14443,8 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT:
+            return TrackStruct(reinterpret_cast<const VkLayerSettingsCreateInfoEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:
@@ -14014,6 +14457,8 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
             return TrackStruct(reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PER_STAGE_DESCRIPTOR_SET_FEATURES_NV:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDevicePerStageDescriptorSetFeaturesNV*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceImageProcessing2FeaturesQCOM*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM:
