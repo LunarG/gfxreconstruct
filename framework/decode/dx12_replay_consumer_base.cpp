@@ -1252,11 +1252,19 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
     }
     if (SUCCEEDED(replay_result))
     {
-        auto extra_info           = std::make_unique<D3D12ResourceInfo>();
-        extra_info->current_state = InitialResourceState;
+        auto res        = static_cast<ID3D12Resource*>(*resource->GetHandlePointer());
+        auto res_desc   = res->GetDesc();
+        auto extra_info = std::make_unique<D3D12ResourceInfo>();
+
+        extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
+        extra_info->resource_state_infos.resize(extra_info->subresource_count);
+        for (auto& info : extra_info->resource_state_infos)
+        {
+            info.states        = InitialResourceState;
+            info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        }
         SetExtraInfo(resource, std::move(extra_info));
     }
-
     return replay_result;
 }
 
@@ -1407,7 +1415,21 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource1(
             dummy_resource->Release();
         }
     }
+    if (SUCCEEDED(replay_result))
+    {
+        auto res        = static_cast<ID3D12Resource*>(*resource->GetHandlePointer());
+        auto res_desc   = res->GetDesc();
+        auto extra_info = std::make_unique<D3D12ResourceInfo>();
 
+        extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
+        extra_info->resource_state_infos.resize(extra_info->subresource_count);
+        for (auto& info : extra_info->resource_state_infos)
+        {
+            info.states        = InitialResourceState;
+            info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        }
+        SetExtraInfo(resource, std::move(extra_info));
+    }
     return replay_result;
 }
 
@@ -1477,7 +1499,21 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource2(
             dummy_resource->Release();
         }
     }
+    if (SUCCEEDED(replay_result))
+    {
+        auto res        = static_cast<ID3D12Resource*>(*resource->GetHandlePointer());
+        auto res_desc   = res->GetDesc();
+        auto extra_info = std::make_unique<D3D12ResourceInfo>();
 
+        extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
+        extra_info->resource_state_infos.resize(extra_info->subresource_count);
+        for (auto& info : extra_info->resource_state_infos)
+        {
+            info.states        = InitialResourceState;
+            info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        }
+        SetExtraInfo(resource, std::move(extra_info));
+    }
     return replay_result;
 }
 
@@ -2264,9 +2300,16 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
             GFXRECON_ASSERT(buffer < swapchain_info->image_ids.size());
             if (swapchain_info->image_ids[buffer] == format::kNullHandleId)
             {
-                auto object_info          = static_cast<DxObjectInfo*>(surface->GetConsumerData(0));
-                auto extra_info           = std::make_unique<D3D12ResourceInfo>();
-                extra_info->current_state = D3D12_RESOURCE_STATE_PRESENT;
+                auto object_info              = static_cast<DxObjectInfo*>(surface->GetConsumerData(0));
+                auto res                      = static_cast<ID3D12Resource*>(*surface->GetHandlePointer());
+                auto extra_info               = std::make_unique<D3D12ResourceInfo>();
+                extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
+                extra_info->resource_state_infos.resize(extra_info->subresource_count);
+                for (auto& info : extra_info->resource_state_infos)
+                {
+                    info.states        = D3D12_RESOURCE_STATE_PRESENT;
+                    info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+                }
                 extra_info->swap_chain_id = replay_object_info->capture_id;
                 SetExtraInfo(surface, std::move(extra_info));
 
@@ -4298,21 +4341,24 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(
         if (barriers[i].decoded_value->Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION)
         {
             // It shouldn't change the state here. It should save the AfterState until ExecuteCommandList to change it.
+            // It needs to record the code index. The reason is that it needs to know if this ResourceBarrier is
+            // before or after the target drawcall. For dump resources to set the correct state,
+            // it only cares before the target drawcall.
+            ResourceStatesOrder state;
+            state.code_index    = call_info.index;
+            state.transition    = *barriers[i].Transition->decoded_value;
+            state.barrier_flags = barriers[i].decoded_value->Flags;
+
             auto it = extra_info->pending_resource_states.find(barriers[i].Transition->pResource);
             if (it == extra_info->pending_resource_states.end())
             {
-                // It needs to record the code index. The reason is that it needs to know if this ResourceBarrier is
-                // before or after the target drawcall. For dump resources to set the correct state,
-                // it only cares before the target drawcall.
                 std::vector<ResourceStatesOrder> states;
-                ResourceStatesOrder state = { barriers[i].Transition->decoded_value->StateAfter, call_info.index };
                 states.emplace_back(std::move(state));
                 extra_info->pending_resource_states.insert(
                     std::pair(barriers[i].Transition->pResource, std::move(states)));
             }
             else
             {
-                ResourceStatesOrder state = { barriers[i].Transition->decoded_value->StateAfter, call_info.index };
                 it->second.emplace_back(std::move(state));
             }
         }
@@ -4757,7 +4803,21 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
                 auto resource_extra_info = GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
                 for (auto& state : pair.second)
                 {
-                    resource_extra_info->current_state = state.states;
+                    if (state.transition.Subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+                    {
+                        for (auto& info : resource_extra_info->resource_state_infos)
+                        {
+                            info.states        = state.transition.StateAfter;
+                            info.barrier_flags = state.barrier_flags;
+                        }
+                    }
+                    else
+                    {
+                        resource_extra_info->resource_state_infos[state.transition.Subresource].states =
+                            state.transition.StateAfter;
+                        resource_extra_info->resource_state_infos[state.transition.Subresource].barrier_flags =
+                            state.barrier_flags;
+                    }
                 }
             }
         }
@@ -4957,20 +5017,36 @@ void Dx12ReplayConsumerBase::CopyResourceForBeforeDrawcall(const std::vector<for
     auto source_resource_object_info = GetObjectInfo(copy_resource_data.source_resource_id);
     auto source_resource             = reinterpret_cast<ID3D12Resource*>(source_resource_object_info->object);
     auto device                      = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(source_resource);
-    auto source_desc                 = source_resource->GetDesc();
-    copy_resource_data.desc          = source_desc;
-    copy_resource_data.source_offset = source_offset;
-    copy_resource_data.source_size   = source_size;
+    copy_resource_data.desc          = source_resource->GetDesc();
 
-    UINT   num_row           = 0;
-    UINT64 row_size_in_bytes = 0;
-    UINT64 total_bytes       = 0;
-    device->GetCopyableFootprints(
-        &source_desc, 0, 1, 0, &copy_resource_data.source_footprint, &num_row, &row_size_in_bytes, &total_bytes);
+    auto              sub_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(source_resource);
+    std::vector<UINT> num_rows;
+    num_rows.resize(sub_count);
 
-    if (copy_resource_data.source_size == 0)
+    std::vector<UINT64> row_size_in_bytess;
+    row_size_in_bytess.resize(sub_count);
+    copy_resource_data.footprints.resize(sub_count);
+
+    UINT64 total_bytes = 0;
+    device->GetCopyableFootprints(&copy_resource_data.desc,
+                                  0,
+                                  sub_count,
+                                  0,
+                                  copy_resource_data.footprints.data(),
+                                  num_rows.data(),
+                                  row_size_in_bytess.data(),
+                                  &copy_resource_data.total_size);
+
+    if (copy_resource_data.desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
-        copy_resource_data.source_size = total_bytes - copy_resource_data.source_offset;
+        // Buffer has its offset and size, no offsets and sizes for subresources.
+        // Texture has offsets and sizes for subresources, but no its offset and size.
+        if (source_size == 0)
+        {
+            source_size = copy_resource_data.total_size - source_offset;
+        }
+        copy_resource_data.offsets.emplace_back(source_offset);
+        copy_resource_data.sizes.emplace_back(source_size);
     }
 
     CopyResource(front_command_list_ids, copy_resource_data, copy_resource_data.before_data);
@@ -5034,8 +5110,7 @@ void Dx12ReplayConsumerBase::CopyResource(const std::vector<format::HandleId>& f
     auto source_resource             = reinterpret_cast<ID3D12Resource*>(source_resource_object_info->object);
     auto source_resource_extra_info  = GetExtraInfo<D3D12ResourceInfo>(source_resource_object_info);
 
-    graphics::dx12::ResourceStateInfo current_state{ source_resource_extra_info->current_state,
-                                                     D3D12_RESOURCE_BARRIER_FLAG_NONE };
+    std::vector<graphics::dx12::ResourceStateInfo> res_infos = source_resource_extra_info->resource_state_infos;
 
     auto size = front_command_list_ids.size();
     for (uint32_t i = 0; i < size; ++i)
@@ -5047,16 +5122,29 @@ void Dx12ReplayConsumerBase::CopyResource(const std::vector<format::HandleId>& f
         {
             for (const auto& state : pending_states_iter->second)
             {
+                bool is_update = true;
                 if (i == (size - 1))
                 {
-                    if (state.code_index < track_dump_resources_.target.drawcall_code_index)
+                    if (state.code_index > track_dump_resources_.target.drawcall_code_index)
                     {
-                        current_state.states = state.states;
+                        is_update = false;
                     }
                 }
-                else
+                if (is_update)
                 {
-                    current_state.states = state.states;
+                    if (state.transition.Subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+                    {
+                        for (auto& info : res_infos)
+                        {
+                            info.states        = state.transition.StateAfter;
+                            info.barrier_flags = state.barrier_flags;
+                        }
+                    }
+                    else
+                    {
+                        res_infos[state.transition.Subresource].states        = state.transition.StateAfter;
+                        res_infos[state.transition.Subresource].barrier_flags = state.barrier_flags;
+                    }
                 }
             }
         }
@@ -5071,14 +5159,20 @@ void Dx12ReplayConsumerBase::CopyResource(const std::vector<format::HandleId>& f
 
     auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(source_resource);
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util =
-        std::make_unique<graphics::Dx12ResourceDataUtil>(device, copy_resource_data.source_size, queue);
+        std::make_unique<graphics::Dx12ResourceDataUtil>(device, copy_resource_data.total_size, queue);
 
-    std::vector<graphics::dx12::ResourceStateInfo> current_states{ current_state };
-    std::vector<uint64_t>                          offsets{ copy_resource_data.source_offset };
-    std::vector<uint64_t>                          sizes{ copy_resource_data.source_size };
+    std::vector<uint64_t> offsets;
+    std::vector<uint64_t> sizes;
+    HRESULT               result = resource_data_util->ReadFromResource(
+        source_resource, true, res_infos, res_infos, copy_data, offsets, sizes, nullptr);
 
-    HRESULT result = resource_data_util->ReadFromResource(
-        source_resource, true, current_states, current_states, copy_data, offsets, sizes, nullptr);
+    if (copy_resource_data.desc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER)
+    {
+        // Buffer has its offset and size, no offsets and sizes for subresources.
+        // Texture has offsets and sizes for subresources, but no its offset and size.
+        copy_resource_data.offsets = offsets;
+        copy_resource_data.sizes   = sizes;
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

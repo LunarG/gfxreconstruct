@@ -49,13 +49,16 @@ struct Dx12DumpResourcesConfig
 
 struct CopyResourceData
 {
-    format::HandleId                   source_resource_id{ format::kNullHandleId };
-    uint64_t                           source_offset{ 0 };
-    uint64_t                           source_size{ 0 };
-    D3D12_PLACED_SUBRESOURCE_FOOTPRINT source_footprint{};
-    D3D12_RESOURCE_DESC                desc{};
-    std::vector<uint8_t>               before_data; // copy resource before drawcall
-    std::vector<uint8_t>               after_data;  // copy resource after drawcall
+    format::HandleId    source_resource_id{ format::kNullHandleId };
+    D3D12_RESOURCE_DESC desc{};
+    // Buffer has its one offset and size, not for subresources.
+    // Texture has offsets and sizes of subresources.
+    std::vector<uint64_t>                           offsets{ 0 };
+    std::vector<uint64_t>                           sizes{ 0 };
+    std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> footprints;
+    uint64_t                                        total_size{ 0 };
+    std::vector<uint8_t>                            before_data; // copy resource before drawcall
+    std::vector<uint8_t>                            after_data;  // copy resource after drawcall
 
     void Clear()
     {
@@ -178,7 +181,7 @@ class Dx12DumpResources
         WriteBlockEnd();
     }
 
-    bool WriteBinaryFile(const std::string& filename, const std::vector<uint8_t>& data);
+    bool WriteBinaryFile(const std::string& filename, const std::vector<uint8_t>& data, uint64_t offset, uint64_t size);
 
     void TestWriteFloatResources(const std::string&                   prefix_file_name,
                                  const std::vector<CopyResourceData>& resource_datas);
