@@ -141,7 +141,6 @@ std::vector<UintRange> GetUintRanges(const char* args, const char* option_name)
             }
             else
             {
-                const auto& back = ranges.back();
                 GFXRECON_LOG_WARNING("Ignoring invalid range \"%s\" for %s, where the range \"%s\" overlaps with the "
                                      "previous range \"%s\"",
                                      range.c_str(),
