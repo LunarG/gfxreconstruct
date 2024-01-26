@@ -96,7 +96,7 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
-    VkDevice device = device = device_info->handle;
+    VkDevice device = device_info->handle;
     device_table_->GetDeviceQueue(device, default_queue_family_index_, 0, &default_queue_);
 
     return original_result;

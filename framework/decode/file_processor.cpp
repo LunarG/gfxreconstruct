@@ -40,9 +40,18 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 const uint32_t kFirstFrame = 0;
 
 FileProcessor::FileProcessor() :
-    file_header_{}, file_descriptor_(nullptr), current_frame_number_(kFirstFrame), bytes_read_(0),
-    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0),
-    api_call_index_(0), block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
+    file_descriptor_(nullptr),
+    current_frame_number_(kFirstFrame),
+    annotation_handler_(nullptr),
+    error_state_(kErrorInvalidFileDescriptor),
+    block_index_(0),
+    file_header_{},
+    bytes_read_(0),
+    compressor_(nullptr),
+    api_call_index_(0),
+    block_limit_(0),
+    capture_uses_frame_markers_(false),
+    first_frame_(kFirstFrame + 1)
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -159,7 +168,7 @@ bool FileProcessor::ContinueDecoding()
     }
     else
     {
-        int completed_decoders = 0;
+        size_t completed_decoders = 0;
 
         for (auto& decoder : decoders_)
         {
@@ -1729,7 +1738,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     else if (meta_data_type == format::MetaDataType::kDx12RuntimeInfoCommand)
     {
         format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header;
-        memset(&dx12_runtime_info_header, 0, sizeof(dx12_runtime_info_header));
 
         success = ReadBytes(&dx12_runtime_info_header.thread_id, sizeof(dx12_runtime_info_header.thread_id));
 

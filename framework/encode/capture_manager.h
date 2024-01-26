@@ -335,7 +335,7 @@ class CaptureManager
     bool                                    page_guard_track_ahb_memory_;
     bool                                    page_guard_unblock_sigsegv_;
     bool                                    page_guard_signal_handler_watcher_;
-    uint32_t                                page_guard_signal_handler_watcher_max_restores_;
+    int                                     page_guard_signal_handler_watcher_max_restores_;
     PageGuardMemoryMode                     page_guard_memory_mode_;
     bool                                    page_guard_separate_read_;
     bool                                    page_guard_copy_on_map_;

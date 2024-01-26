@@ -60,9 +60,11 @@ std::function<void()>                                    CaptureManager::delete_
 
 std::atomic<format::HandleId> CaptureManager::unique_id_counter_{ format::kNullHandleId };
 
-CaptureManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown),
-    block_index_(0)
+CaptureManager::ThreadData::ThreadData()
+    : thread_id_(GetThreadId())
+    , call_id_(format::ApiCallId::ApiCall_Unknown)
+    , object_id_(format::kNullHandleId)
+    , block_index_(0)
 {
     parameter_buffer_  = std::make_unique<encode::ParameterBuffer>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
@@ -90,14 +92,14 @@ format::ThreadId CaptureManager::ThreadData::GetThreadId()
 }
 
 CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
-    api_family_(api_family), force_file_flush_(false), timestamp_filename_(true),
+    screenshot_prefix_(""), api_family_(api_family), timestamp_filename_(true), force_file_flush_(false),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
     queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
-    previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
+    previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed),
+    debug_layer_(false), debug_device_lost_(false), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
     allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false)
 {}

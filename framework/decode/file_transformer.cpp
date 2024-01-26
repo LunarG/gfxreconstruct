@@ -32,7 +32,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileTransformer::FileTransformer() :
-    file_header_{}, input_file_(nullptr), output_file_(nullptr), bytes_read_(0), bytes_written_(0),
+    input_file_(nullptr),
+    output_file_(nullptr),
+    file_header_{},
+    bytes_read_(0),
+    bytes_written_(0),
     error_state_(kErrorInvalidFileDescriptor), loading_state_(false)
 {}
 
