@@ -49,7 +49,7 @@ class MemoryOutputStream : public OutputStream
 
     virtual bool IsValid() override { return true; }
 
-    virtual void Reset() override { buffer_.clear(); };
+    virtual void Clear() { buffer_.clear(); };
 
     virtual size_t Write(const void* data, size_t len) override;
 
