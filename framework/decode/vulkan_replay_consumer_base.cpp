@@ -159,7 +159,8 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
                                                    const VulkanReplayOptions&                options) :
     loader_handle_(nullptr),
     get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), application_(application), options_(options),
-    loading_trim_state_(false), replaying_trimmed_capture_(false), have_imported_semaphores_(false), fps_info_(nullptr)
+    loading_trim_state_(false), replaying_trimmed_capture_(false), have_imported_semaphores_(false), fps_info_(nullptr),
+    omitted_pipeline_cache_data_(false)
 {
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -4913,8 +4914,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     {
         // Make a shallow copy of the create info structure and clear the cache data.
         VkPipelineCacheCreateInfo override_create_info = (*replay_create_info);
-        override_create_info.initialDataSize           = 0;
-        override_create_info.pInitialData              = nullptr;
+
+        if (replay_create_info->initialDataSize != 0)
+        {
+            omitted_pipeline_cache_data_ = true;
+        }
+
+        override_create_info.initialDataSize = 0;
+        override_create_info.pInitialData    = nullptr;
 
         return func(device_info->handle,
                     &override_create_info,
@@ -6468,6 +6475,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
             modified_create_infos[create_info_i].pGroups = modified_group_infos.data();
         }
 
+        if (omitted_pipeline_cache_data_)
+        {
+            AllowCompileDuringPipelineCreation(createInfoCount, modified_create_infos.data());
+        }
+
         VkPipeline* created_pipelines = nullptr;
 
         if (deferred_operation_info)
@@ -6524,6 +6536,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
         GFXRECON_LOG_ERROR_ONCE("The replay used vkCreateRayTracingPipelinesKHR, which may require the "
                                 "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and "
                                 "replay. The replay device does not support this feature, so replay may fail.");
+
+        if (omitted_pipeline_cache_data_)
+        {
+            AllowCompileDuringPipelineCreation(createInfoCount,
+                                               const_cast<VkRayTracingPipelineCreateInfoKHR*>(in_pCreateInfos));
+        }
 
         VkPipeline* created_pipelines = nullptr;
 

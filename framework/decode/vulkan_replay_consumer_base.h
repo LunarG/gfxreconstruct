@@ -189,6 +189,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
+    template <typename T>
+    void AllowCompileDuringPipelineCreation(uint32_t create_info_count, const T* create_infos)
+    {
+        for (uint32_t i = 0; i < create_info_count; ++i)
+        {
+            if (create_infos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
+            {
+                T* create_infos_to_modify = const_cast<T*>(create_infos);
+                create_infos_to_modify[i].flags &= (~VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT);
+            }
+        }
+    };
+
   protected:
     const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
@@ -1203,6 +1216,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_set<uint32_t>      removed_swapchain_indices_;
     std::vector<uint32_t>             capture_image_indices_;
     std::vector<SwapchainKHRInfo*>    swapchain_infos_;
+
+  protected:
+    // Used by pipeline cache handling
+    bool omitted_pipeline_cache_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

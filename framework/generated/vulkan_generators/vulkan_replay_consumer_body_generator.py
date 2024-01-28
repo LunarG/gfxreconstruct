@@ -561,6 +561,8 @@ class VulkanReplayConsumerBodyGenerator(
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'
                                 .format(length_name, paramname=value.name)
                             )
+                            if name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV':
+                                preexpr.append('if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, in_pCreateInfos);}}'.format(length_name))
                             if need_temp_value:
                                 expr += '{}->GetHandlePointer();'.format(
                                     value.name
