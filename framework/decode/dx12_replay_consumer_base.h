@@ -964,31 +964,61 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
-    void CopyResourcesForBeforeDrawcall(const std::vector<format::HandleId>& front_command_list_ids);
+    void CopyResourcesForBeforeDrawcall(DxObjectInfo*                        queue_object_info,
+                                        const std::vector<format::HandleId>& front_command_list_ids);
 
-    void CopyResourceForBeforeDrawcallByGPUVA(const std::vector<format::HandleId>& front_command_list_ids,
+    void CopyResourceForBeforeDrawcallByGPUVA(DxObjectInfo*                        queue_object_info,
+                                              const std::vector<format::HandleId>& front_command_list_ids,
                                               D3D12_GPU_VIRTUAL_ADDRESS            capture_source_gpu_va,
                                               uint64_t                             source_size,
                                               graphics::CopyResourceData&          copy_resource_data);
 
-    void CopyResourceForBeforeDrawcall(const std::vector<format::HandleId>& front_command_list_ids,
+    void CopyResourceForBeforeDrawcall(DxObjectInfo*                        queue_object_info,
+                                       const std::vector<format::HandleId>& front_command_list_ids,
                                        format::HandleId                     source_resource_id,
                                        uint64_t                             source_offset,
                                        uint64_t                             source_size,
                                        graphics::CopyResourceData&          copy_resource_data);
 
-    void CopyResourcesForAfterDrawcall(const std::vector<format::HandleId>& front_command_list_ids);
+    void CopyResourcesForAfterDrawcall(DxObjectInfo*                        queue_object_info,
+                                       const std::vector<format::HandleId>& front_command_list_ids);
 
     // source_resource_id have been saved in CopyResourceData in CopyResourcesForBeforeDrawcall.
-    void CopyResourcesForAfterDrawcall(const std::vector<format::HandleId>&     front_command_list_ids,
+    void CopyResourcesForAfterDrawcall(DxObjectInfo*                            queue_object_info,
+                                       const std::vector<format::HandleId>&     front_command_list_ids,
                                        std::vector<graphics::CopyResourceData>& copy_resource_datas);
 
-    void CopyResourceForAfterDrawcall(const std::vector<format::HandleId>& front_command_list_ids,
+    void CopyResourceForAfterDrawcall(DxObjectInfo*                        queue_object_info,
+                                      const std::vector<format::HandleId>& front_command_list_ids,
                                       graphics::CopyResourceData&          copy_resource_data);
 
-    void CopyResource(const std::vector<format::HandleId>& front_command_list_ids,
-                      graphics::CopyResourceData&          copy_resource_data,
-                      std::vector<uint8_t>&                copy_data);
+    bool CopyResourceAsyncQueue(const std::vector<format::HandleId>& front_command_list_ids,
+                                graphics::CopyResourceData&          copy_resource_data,
+                                ID3D12CommandQueue*                  queue,
+                                ID3D12Fence*                         fence,
+                                UINT64                               fence_signal_value,
+                                UINT64                               fence_wait_value);
+
+    void CopyResourceAsyncRead(ID3D12Fence*                       fence,
+                               UINT64                             fence_wait_value,
+                               UINT64                             fence_signal_value,
+                               HANDLE                             fence_event,
+                               graphics::CopyResourceData*        copy_resource_data,
+                               std::vector<std::vector<uint8_t>>* subresource_datas);
+
+    void CopyResourceAsync(DxObjectInfo*                        queue_object_info,
+                           const std::vector<format::HandleId>& front_command_list_ids,
+                           graphics::CopyResourceData&          copy_resource_data,
+                           std::vector<std::vector<uint8_t>>&   copy_data);
+
+    QueueSyncEventInfo CreateCopyResourceAsyncReadQueueSyncEvent(ID3D12Fence*                       fence,
+                                                                 UINT64                             fence_wait_value,
+                                                                 UINT64                             fence_signal_value,
+                                                                 HANDLE                             fence_event,
+                                                                 graphics::CopyResourceData*        copy_resource_data,
+                                                                 std::vector<std::vector<uint8_t>>* subresource_datas);
+
+    void WriteDumpResources(DxObjectInfo* queue_object_info);
 
     std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
     Dx12ObjectInfoTable                                   object_info_table_;
@@ -1024,6 +1054,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     std::unique_ptr<graphics::Dx12DumpResources>          dump_resources_;
     graphics::TrackDumpResources                          track_dump_resources_;
+
+    std::vector<graphics::dx12::ID3D12ResourceComPtr> dump_resources_staging_buffers_;
+    std::vector<uint64_t>                             dump_resources_staging_buffer_sizes_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

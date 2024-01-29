@@ -49,22 +49,43 @@ struct Dx12DumpResourcesConfig
 
 struct CopyResourceData
 {
-    format::HandleId    source_resource_id{ format::kNullHandleId };
-    D3D12_RESOURCE_DESC desc{};
-    // Buffer has its one offset and size, not for subresources.
-    // Texture has offsets and sizes of subresources.
-    std::vector<uint64_t>                           offsets;
-    std::vector<uint64_t>                           sizes;
+    format::HandleId                                source_resource_id{ format::kNullHandleId };
+    D3D12_RESOURCE_DESC                             desc{};
+    std::vector<uint64_t>                           subresource_offsets;
+    std::vector<uint64_t>                           subresource_sizes;
+    std::vector<uint64_t>                           subresource_footprint_offsets;
+    std::vector<uint64_t>                           subresource_footprint_sizes;
     std::vector<uint32_t>                           subresource_indices; // Buffer has one index: 0.
     std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> footprints;
     uint64_t                                        total_size{ 0 };
-    std::vector<uint8_t>                            before_data; // copy resource before drawcall
-    std::vector<uint8_t>                            after_data;  // copy resource after drawcall
+    bool                                            is_cpu_accessible{ false };
+
+    std::vector<std::vector<uint8_t>> before_datas; // copy resource before drawcall
+    std::vector<std::vector<uint8_t>> after_datas;  // copy resource after drawcall
+
+    graphics::dx12::ID3D12CommandAllocatorComPtr    cmd_allocator{ nullptr };
+    graphics::dx12::ID3D12GraphicsCommandListComPtr cmd_list{ nullptr };
+    ID3D12Resource*                                 read_resource{ nullptr };
+    bool                                            read_resource_is_staging_buffer{ false };
 
     void Clear()
     {
-        before_data.clear();
-        after_data.clear();
+        source_resource_id = format::kNullHandleId;
+        desc               = {};
+        subresource_offsets.clear();
+        subresource_sizes.clear();
+        subresource_footprint_offsets.clear();
+        subresource_footprint_sizes.clear();
+        subresource_indices.clear();
+        footprints.clear();
+        before_datas.clear();
+        after_datas.clear();
+        total_size                      = 0;
+        is_cpu_accessible               = false;
+        cmd_allocator                   = nullptr;
+        cmd_list                        = nullptr;
+        read_resource                   = nullptr;
+        read_resource_is_staging_buffer = false;
     }
 };
 
@@ -123,6 +144,7 @@ struct TrackDumpResources
     std::array<CommandSet, 3> split_command_sets;
 
     graphics::dx12::ID3D12FenceComPtr fence;
+    HANDLE                            fence_event;
 
     void Clear()
     {

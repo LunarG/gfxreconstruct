@@ -252,8 +252,15 @@ class Dx12BrowseConsumer : public Dx12Consumer
             auto it = track_commandlist_infos_.find(object_id);
             if (it != track_commandlist_infos_.end())
             {
-                auto view                                     = pView->GetMetaStructPointer();
-                it->second.current_captured_index_buffer_view = *(view->decoded_value);
+                auto view = pView->GetMetaStructPointer();
+                if (view != nullptr)
+                {
+                    it->second.current_captured_index_buffer_view = *(view->decoded_value);
+                }
+                else
+                {
+                    it->second.current_captured_index_buffer_view = D3D12_INDEX_BUFFER_VIEW();
+                }
             }
         }
     }
