@@ -40,18 +40,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 const uint32_t kFirstFrame = 0;
 
 FileProcessor::FileProcessor() :
-    file_descriptor_(nullptr),
-    current_frame_number_(kFirstFrame),
-    annotation_handler_(nullptr),
-    error_state_(kErrorInvalidFileDescriptor),
-    block_index_(0),
-    file_header_{},
-    bytes_read_(0),
-    compressor_(nullptr),
-    api_call_index_(0),
-    block_limit_(0),
-    capture_uses_frame_markers_(false),
-    first_frame_(kFirstFrame + 1)
+    file_descriptor_(nullptr), current_frame_number_(kFirstFrame), annotation_handler_(nullptr),
+    error_state_(kErrorInvalidFileDescriptor), block_index_(0), file_header_{}, bytes_read_(0), compressor_(nullptr),
+    api_call_index_(0), block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
