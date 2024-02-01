@@ -28,10 +28,10 @@
 #include "decode/vulkan_object_info_table.h"
 #include "decode/struct_pointer_decoder.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "decode/vulkan_replay_dump_resources_json.h"
 #include "format/format.h"
 #include "util/defines.h"
 #include "vulkan/vulkan.h"
-
 #include <vector>
 #include <unordered_map>
 #include <utility>
@@ -274,7 +274,8 @@ class VulkanReplayDumpResourcesBase
                                 bool                                      dump_resources_before,
                                 const std::string&                        dump_resource_path,
                                 util::ScreenshotFormat                    image_file_format,
-                                float                                     dump_resource_scale);
+                                float                                     dump_resource_scale,
+                                VulkanReplayDumpResourcesJson*            dump_json);
 
         ~DrawCallsDumpingContext();
 
@@ -293,6 +294,7 @@ class VulkanReplayDumpResourcesBase
         const std::string&                 dump_resource_path;
         util::ScreenshotFormat             image_file_format;
         float                              dump_resources_scale;
+        VulkanReplayDumpResourcesJson*     p_dump_json;
 
         std::vector<std::vector<VkRenderPass>> render_pass_clones;
         bool                                   inside_renderpass;
@@ -358,8 +360,8 @@ class VulkanReplayDumpResourcesBase
 
         uint32_t GetDrawCallActiveCommandBuffers(cmd_buf_it& first, cmd_buf_it& last) const;
 
-        VkResult
-        DumpDrawCallsAttachments(VkQueue queue, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
+        VkResult DumpDrawCallsAttachments(
+            VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
 
         VkResult DumpRenderTargetAttachments(uint64_t dc_index) const;
 
@@ -398,13 +400,14 @@ class VulkanReplayDumpResourcesBase
     // This class handles the context related to dumping Dispatch and TraceRays resouces
     struct DispatchTraceRaysDumpingContext
     {
-        DispatchTraceRaysDumpingContext(const std::vector<uint64_t>& dispatch_indices,
-                                        const std::vector<uint64_t>& trace_rays_indices,
-                                        const VulkanObjectInfoTable& object_info_table,
-                                        bool                         dump_resources_before,
-                                        const std::string&           dump_resource_path,
-                                        util::ScreenshotFormat       image_file_format,
-                                        float                        dump_resources_scale);
+        DispatchTraceRaysDumpingContext(const std::vector<uint64_t>&   dispatch_indices,
+                                        const std::vector<uint64_t>&   trace_rays_indices,
+                                        const VulkanObjectInfoTable&   object_info_table,
+                                        bool                           dump_resources_before,
+                                        const std::string&             dump_resource_path,
+                                        util::ScreenshotFormat         image_file_format,
+                                        float                          dump_resources_scale,
+                                        VulkanReplayDumpResourcesJson* p_dump_json);
 
         ~DispatchTraceRaysDumpingContext();
 
@@ -441,10 +444,8 @@ class VulkanReplayDumpResourcesBase
 
         void CloneDispatchRaysResources(uint64_t index, bool cloning_before_cmd, bool is_dispatch);
 
-        VkResult DumpDispatchRaysMutableResources(VkQueue             queue,
-                                                  uint64_t            bcb_index,
-                                                  const VkSubmitInfo& submit_info,
-                                                  VkFence             fence);
+        VkResult DumpDispatchRaysMutableResources(
+            VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
 
         VkResult DumpMutableResources(uint64_t index, bool is_dispatch);
 
@@ -457,15 +458,15 @@ class VulkanReplayDumpResourcesBase
         void FinalizeCommandBuffer();
 
         const CommandBufferInfo* original_command_buffer_info;
-        VkCommandBuffer          DR_command_buffer;
-
-        std::vector<uint64_t>  dispatch_indices;
-        std::vector<uint64_t>  trace_rays_indices;
-        const PipelineInfo*    bound_pipelines[kBindPoint_count];
-        bool                   dump_resources_before;
-        const std::string&     dump_resource_path;
-        util::ScreenshotFormat image_file_format;
-        float                  dump_resources_scale;
+        VkCommandBuffer                DR_command_buffer;
+        std::vector<uint64_t>          dispatch_indices;
+        std::vector<uint64_t>          trace_rays_indices;
+        const PipelineInfo*            bound_pipelines[kBindPoint_count];
+        bool                           dump_resources_before;
+        const std::string&             dump_resource_path;
+        util::ScreenshotFormat         image_file_format;
+        float                          dump_resources_scale;
+        VulkanReplayDumpResourcesJson* p_dump_json;
 
         descriptor_set_t bound_descriptor_sets[kBindPoint_count];
 
@@ -513,6 +514,8 @@ class VulkanReplayDumpResourcesBase
     const VulkanObjectInfoTable& object_info_table_;
 
   private:
+    VulkanReplayDumpResourcesJson dump_json_;
+
     bool UpdateRecordingStatus();
 
     VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext*

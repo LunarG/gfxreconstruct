@@ -91,7 +91,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         bool is_2d = false;
         for (const auto& indices : vulkan_replay_options.Draw_Indices)
         {
-            is_2d |= indices.size();
+            is_2d |= (indices.size() > 0);
 
             if (!AreIndicesSorted(indices))
             {
@@ -104,7 +104,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         if (!is_2d)
         {
             GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("DrawCall indices must be a 2 dimentional array")
+            GFXRECON_LOG_ERROR("DrawCall indices must be a 2 dimensional array")
             return true;
         }
     }
@@ -121,7 +121,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
 
             for (const auto& indices1 : indices0)
             {
-                is_3d |= indices1.size();
+                is_3d |= (indices1.size() > 0);
 
                 if (!AreIndicesSorted(indices1))
                 {
@@ -145,7 +145,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         bool is_2d = false;
         for (const auto& indices : vulkan_replay_options.Dispatch_Indices)
         {
-            is_2d |= indices.size();
+            is_2d |= (indices.size() > 0);
 
             if (!AreIndicesSorted(indices))
             {
@@ -158,7 +158,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         if (!is_2d)
         {
             GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("Dispatch indices must be a 2 dimentional array")
+            GFXRECON_LOG_ERROR("Dispatch indices must be a 2 dimensional array")
             return true;
         }
     }
@@ -168,7 +168,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         bool is_2d = false;
         for (const auto& indices : vulkan_replay_options.TraceRays_Indices)
         {
-            is_2d |= indices.size();
+            is_2d |= (indices.size() > 0);
 
             if (!AreIndicesSorted(indices))
             {
@@ -181,7 +181,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         if (!is_2d)
         {
             GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("TraceRays indices must be a 2 dimentional array")
+            GFXRECON_LOG_ERROR("TraceRays indices must be a 2 dimensional array")
             return true;
         }
     }
@@ -334,6 +334,14 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             bool err = false;
             for (std::string line; std::getline(infile, line);)
             {
+                // Replace all whitespace with space character.
+                // Windows text files have CR/LF line endings that sometimes
+                // end up at the end of the input line. Get rid of them, and
+                // while we are at it, get rid of other whitespace.
+                const char *whitespace = "\n\t\v\r\f";
+                for (auto pws = whitespace; *pws; pws++)
+                    std::replace(line.begin(), line.end(), *pws, ' ');
+
                 // Remove leading and trailing spaces
                 line.erase(0, line.find_first_not_of(" "));
                 line.erase(line.find_last_not_of(" ") + 1);
@@ -418,16 +426,16 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             {
                 vulkan_replay_options.BeginCommandBuffer_Indices.push_back(BeginCommandBuffer);
 
-                vulkan_replay_options.Draw_Indices.push_back(std::vector<uint64_t>());
                 if (Draw)
                 {
+                    vulkan_replay_options.Draw_Indices.push_back(std::vector<uint64_t>());
                     vulkan_replay_options.Draw_Indices[i].push_back(Draw);
                 }
 
-                vulkan_replay_options.RenderPass_Indices.push_back(std::vector<std::vector<uint64_t>>());
-                vulkan_replay_options.RenderPass_Indices[i].push_back(std::vector<uint64_t>());
                 if (BeginRenderPass || NextSubPass.size() || EndRenderPass)
                 {
+                    vulkan_replay_options.RenderPass_Indices.push_back(std::vector<std::vector<uint64_t>>());
+                    vulkan_replay_options.RenderPass_Indices[i].push_back(std::vector<uint64_t>());
                     vulkan_replay_options.RenderPass_Indices[i][0].push_back(BeginRenderPass);
 
                     vulkan_replay_options.RenderPass_Indices[i][0].insert(
@@ -436,15 +444,15 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                     vulkan_replay_options.RenderPass_Indices[i][0].push_back(EndRenderPass);
                 }
 
-                vulkan_replay_options.Dispatch_Indices.push_back(std::vector<uint64_t>());
                 if (Dispatch)
                 {
+                    vulkan_replay_options.Dispatch_Indices.push_back(std::vector<uint64_t>());
                     vulkan_replay_options.Dispatch_Indices[i].push_back(Dispatch);
                 }
 
-                vulkan_replay_options.TraceRays_Indices.push_back(std::vector<uint64_t>());
                 if (TraceRays)
                 {
+                    vulkan_replay_options.TraceRays_Indices.push_back(std::vector<uint64_t>());
                     vulkan_replay_options.TraceRays_Indices[i].push_back(TraceRays);
                 }
 
@@ -454,7 +462,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
 
         if (parse_error)
         {
-            GFXRECON_LOG_ERROR("ERROR - Ignoring invalid --dump-resources parameter: %s",
+            GFXRECON_LOG_ERROR("Ignoring invalid --dump-resources parameter: %s",
                                vulkan_replay_options.dump_resources.c_str());
         }
     }
