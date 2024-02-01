@@ -1288,13 +1288,13 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         create_info.imageType             = type;
         create_info.format                = format;
         create_info.extent                = scaled_extent;
-        create_info.mipLevels             = 1;
+        create_info.mipLevels             = mip_levels;
         create_info.arrayLayers           = array_layers;
         create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
         create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
         create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-        create_info.queueFamilyIndexCount = 0;
+        create_info.queueFamilyIndexCount = queue_family_index;
         create_info.pQueueFamilyIndices   = nullptr;
         create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
         result                            = device_table_.CreateImage(device_, &create_info, nullptr, &scaled_image);
@@ -1316,6 +1316,10 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         if (!found)
         {
             device_table_.DestroyImage(device_, scaled_image, nullptr);
+
+            GFXRECON_LOG_ERROR("Failed to find a memory type with host visible and host cached or coherent "
+                               "properties for resource memory snapshot staging buffer creation");
+
             return VK_ERROR_UNKNOWN;
         }
 
@@ -1325,48 +1329,101 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         result = device_table_.AllocateMemory(device_, &allocate_info, nullptr, &scaled_image_mem);
         if (result != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("AllocateMemory failed with error: %d", result);
             device_table_.DestroyImage(device_, scaled_image, nullptr);
             return result;
         }
         result = device_table_.BindImageMemory(device_, scaled_image, scaled_image_mem, 0);
         if (result != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("BinadImageMemory failed with error: %d", result);
             device_table_.FreeMemory(device_, scaled_image_mem, nullptr);
             device_table_.DestroyImage(device_, scaled_image, nullptr);
             return result;
         }
 
         VkImageAspectFlags aspectMask = static_cast<VkImageAspectFlagBits>(aspect);
-        VkImageBlit        blit_region;
-        blit_region.srcSubresource = { aspectMask, 0, 0, 1};
+
+        // Transition new image into TRANSFER_DST_OPTIMAL
+        VkImageMemoryBarrier img_barrier;
+        img_barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        img_barrier.pNext               = nullptr;
+        img_barrier.srcAccessMask       = 0;
+        img_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+        img_barrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+        img_barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        img_barrier.srcQueueFamilyIndex = queue_family_index;
+        img_barrier.dstQueueFamilyIndex = queue_family_index;
+        img_barrier.image               = scaled_image;
+        img_barrier.subresourceRange    = { aspectMask, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS };
+
+        device_table_.CmdPipelineBarrier(command_buffer_,
+                                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         0,
+                                         0,
+                                         nullptr,
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &img_barrier);
+
+        VkImageBlit blit_region;
         blit_region.srcOffsets[0].x = 0;
         blit_region.srcOffsets[0].y = 0;
         blit_region.srcOffsets[0].z = 0;
-        blit_region.srcOffsets[1].x = (int32_t)extent.width;
-        blit_region.srcOffsets[1].y = (int32_t)extent.height;
-        blit_region.srcOffsets[1].z = 1;
 
-        blit_region.dstSubresource = { aspectMask, 0, 0, 1};
         blit_region.dstOffsets[0].x = 0;
         blit_region.dstOffsets[0].y = 0;
         blit_region.dstOffsets[0].z = 0;
-        blit_region.dstOffsets[1].x = (int32_t)scaled_extent.width;
-        blit_region.dstOffsets[1].y = (int32_t)scaled_extent.height;
-        blit_region.dstOffsets[1].z = 1;
+
+        assert(mip_levels);
+        std::vector<VkImageBlit> blit_regions;
+        for (uint32_t i = 0; i < mip_levels; ++i)
+        {
+            blit_region.srcOffsets[1].x = (int32_t)extent.width >> i;
+            blit_region.srcOffsets[1].y = (int32_t)extent.height >> i;
+            blit_region.srcOffsets[1].z = (int32_t)extent.depth >> i;
+            blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
+
+            blit_region.dstOffsets[1].x = (int32_t)scaled_extent.width >> i;
+            blit_region.dstOffsets[1].y = (int32_t)scaled_extent.height >> i;
+            blit_region.dstOffsets[1].z = (int32_t)scaled_extent.depth >> i;
+            blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
+
+            blit_regions.push_back(blit_region);
+        }
 
         VkFilter filter = VK_FILTER_LINEAR;
-        if (format >= VK_FORMAT_D16_UNORM && format <= VK_FORMAT_D32_SFLOAT_S8_UINT)
+        if (vkuFormatIsDepthOrStencil(format))
             filter = VK_FILTER_NEAREST;
 
         device_table_.CmdBlitImage(command_buffer_,
                                    copy_image,
-                                   VK_IMAGE_LAYOUT_GENERAL,
+                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                    scaled_image,
-                                   VK_IMAGE_LAYOUT_GENERAL,
-                                   1,
-                                   &blit_region, filter);
+                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                   blit_regions.size(),
+                                   blit_regions.data(),
+                                   filter);
 
-    } else {
+        // Transition new image into TRANSFER_SRC_OPTIMAL
+        img_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        img_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+        device_table_.CmdPipelineBarrier(command_buffer_,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         0,
+                                         0,
+                                         nullptr,
+                                         0,
+                                         nullptr,
+                                         1,
+                                         &img_barrier);
+    }
+    else
+    {
         scaled_image = copy_image;
     }
 
