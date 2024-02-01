@@ -4393,6 +4393,26 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateConstantBufferView(
     heap_extra_info->constant_buffer_infos[DestDescriptor.index].replay_handle = (*DestDescriptor.decoded_value);
 }
 
+std::vector<uint32_t> GetDescriptorSubresourceIndices(uint32_t first_mip_slice,
+                                                      uint32_t mip_size,
+                                                      uint32_t total_mip_count,
+                                                      uint32_t first_array_slice,
+                                                      uint32_t array_size,
+                                                      uint32_t total_array_count,
+                                                      uint32_t plane_slice)
+{
+    std::vector<uint32_t> result;
+    for (UINT array_index = first_array_slice; array_index < (first_array_slice + array_size); ++array_index)
+    {
+        for (UINT mip_index = first_mip_slice; mip_index < (first_mip_slice + mip_size); ++mip_index)
+        {
+            result.push_back(mip_index + (array_index * total_mip_count) +
+                             (plane_slice * total_mip_count * total_array_count));
+        }
+    }
+    return result;
+}
+
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
     const ApiCallInfo&                                             call_info,
     DxObjectInfo*                                                  object_info,
@@ -4409,13 +4429,247 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
     if (pDesc->IsNull())
     {
         info.is_view_null = true;
+        info.subresource_indices.emplace_back(0);
     }
     else
     {
         info.view         = *(pDesc->GetMetaStructPointer()->decoded_value);
         info.is_view_null = false;
-    }
 
+        if (pResource != format::kNullHandleId)
+        {
+            auto desc        = reinterpret_cast<ID3D12Resource*>(GetObjectInfo(pResource)->object)->GetDesc();
+            auto mip_count   = desc.MipLevels;
+            auto array_count = desc.DepthOrArraySize;
+            switch (info.view.ViewDimension)
+            {
+                case D3D12_SRV_DIMENSION_BUFFER:
+                    info.subresource_indices.emplace_back(0);
+                    break;
+                case D3D12_SRV_DIMENSION_TEXTURE1D:
+                {
+                    auto view     = info.view.Texture1D;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.MostDetailedMip, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE1DARRAY:
+                {
+                    auto view     = info.view.Texture1DArray;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.MostDetailedMip,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.FirstArraySlice,
+                                                                                   view.ArraySize,
+                                                                                   array_count,
+                                                                                   0);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.ResourceMinLODClamp,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.FirstArraySlice,
+                                                                                   view.ArraySize,
+                                                                                   array_count,
+                                                                                   0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE2D:
+                {
+                    auto view     = info.view.Texture2D;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.MostDetailedMip, mip_size, mip_count, 0, 1, array_count, view.PlaneSlice);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, view.PlaneSlice);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE2DARRAY:
+                {
+                    auto view     = info.view.Texture2DArray;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.MostDetailedMip,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.FirstArraySlice,
+                                                                                   view.ArraySize,
+                                                                                   array_count,
+                                                                                   view.PlaneSlice);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.ResourceMinLODClamp,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.FirstArraySlice,
+                                                                                   view.ArraySize,
+                                                                                   array_count,
+                                                                                   view.PlaneSlice);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE2DMS:
+                {
+                    info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY:
+                {
+                    auto view                = info.view.Texture2DMSArray;
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        0, 1, mip_count, view.FirstArraySlice, view.ArraySize, array_count, 0);
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE3D:
+                {
+                    auto view     = info.view.Texture3D;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.MostDetailedMip, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURECUBE:
+                {
+                    auto view     = info.view.TextureCube;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.MostDetailedMip, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURECUBEARRAY:
+                {
+                    auto view     = info.view.TextureCubeArray;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.MostDetailedMip,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.First2DArrayFace,
+                                                                                   view.NumCubes,
+                                                                                   array_count,
+                                                                                   0);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.ResourceMinLODClamp,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.First2DArrayFace,
+                                                                                   view.NumCubes,
+                                                                                   array_count,
+                                                                                   0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_UNKNOWN:
+                default:
+                    GFXRECON_LOG_ERROR("Unknown D3D12_SRV_DIMENSION_UNKNOWN.");
+                    break;
+            }
+        }
+    }
     heap_extra_info->shader_resource_infos[DestDescriptor.index] = std::move(info);
 }
 
@@ -4435,13 +4689,85 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateRenderTargetView(
     if (pDesc->IsNull())
     {
         info.is_view_null = true;
+        info.subresource_indices.emplace_back(0);
     }
     else
     {
         info.view         = *(pDesc->GetMetaStructPointer()->decoded_value);
         info.is_view_null = false;
-    }
 
+        if (pResource != format::kNullHandleId)
+        {
+            auto desc        = reinterpret_cast<ID3D12Resource*>(GetObjectInfo(pResource)->object)->GetDesc();
+            auto mip_count   = desc.MipLevels;
+            auto array_count = desc.DepthOrArraySize;
+            switch (info.view.ViewDimension)
+            {
+                case D3D12_RTV_DIMENSION_BUFFER:
+                    info.subresource_indices.emplace_back(0);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE1D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture1D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE1DARRAY:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture1DArray.MipSlice,
+                                                                               1,
+                                                                               mip_count,
+                                                                               info.view.Texture1DArray.FirstArraySlice,
+                                                                               info.view.Texture1DArray.ArraySize,
+                                                                               array_count,
+                                                                               0);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE2D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture2D.MipSlice, 1, mip_count, 0, 1, array_count, info.view.Texture2D.PlaneSlice);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE2DARRAY:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture2DArray.MipSlice,
+                                                                               1,
+                                                                               mip_count,
+                                                                               info.view.Texture2DArray.FirstArraySlice,
+                                                                               info.view.Texture2DArray.ArraySize,
+                                                                               array_count,
+                                                                               info.view.Texture2DArray.PlaneSlice);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE2DMS:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY:
+                    info.subresource_indices =
+                        GetDescriptorSubresourceIndices(0,
+                                                        1,
+                                                        mip_count,
+                                                        info.view.Texture2DMSArray.FirstArraySlice,
+                                                        info.view.Texture2DMSArray.ArraySize,
+                                                        array_count,
+                                                        0);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE3D:
+                {
+                    auto wsize = info.view.Texture3D.WSize;
+                    if (wsize == -1)
+                    {
+                        wsize = array_count - info.view.Texture3D.FirstWSlice;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture3D.MipSlice,
+                                                                               1,
+                                                                               mip_count,
+                                                                               info.view.Texture3D.FirstWSlice,
+                                                                               wsize,
+                                                                               array_count,
+                                                                               0);
+                    break;
+                }
+                case D3D12_RTV_DIMENSION_UNKNOWN:
+                default:
+                    GFXRECON_LOG_ERROR("Unknown D3D12_RTV_DIMENSION_UNKNOWN.");
+                    break;
+            }
+        }
+    }
     heap_extra_info->render_target_infos[DestDescriptor.index] = std::move(info);
 }
 
@@ -4461,11 +4787,65 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateDepthStencilView(
     if (pDesc->IsNull())
     {
         info.is_view_null = true;
+        info.subresource_indices.emplace_back(0);
     }
     else
     {
         info.view         = *(pDesc->GetMetaStructPointer()->decoded_value);
         info.is_view_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto desc        = reinterpret_cast<ID3D12Resource*>(GetObjectInfo(pResource)->object)->GetDesc();
+            auto mip_count   = desc.MipLevels;
+            auto array_count = desc.DepthOrArraySize;
+            switch (info.view.ViewDimension)
+            {
+                case D3D12_DSV_DIMENSION_TEXTURE1D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture1D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_DSV_DIMENSION_TEXTURE1DARRAY:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture1DArray.MipSlice,
+                                                                               1,
+                                                                               mip_count,
+                                                                               info.view.Texture1DArray.FirstArraySlice,
+                                                                               info.view.Texture1DArray.ArraySize,
+                                                                               array_count,
+                                                                               0);
+                    break;
+                case D3D12_DSV_DIMENSION_TEXTURE2D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture2D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_DSV_DIMENSION_TEXTURE2DARRAY:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture2DArray.MipSlice,
+                                                                               1,
+                                                                               mip_count,
+                                                                               info.view.Texture2DArray.FirstArraySlice,
+                                                                               info.view.Texture2DArray.ArraySize,
+                                                                               array_count,
+                                                                               0);
+                    break;
+                case D3D12_DSV_DIMENSION_TEXTURE2DMS:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY:
+                    info.subresource_indices =
+                        GetDescriptorSubresourceIndices(0,
+                                                        1,
+                                                        mip_count,
+                                                        info.view.Texture2DMSArray.FirstArraySlice,
+                                                        info.view.Texture2DMSArray.ArraySize,
+                                                        array_count,
+                                                        0);
+                    break;
+                case D3D12_DSV_DIMENSION_UNKNOWN:
+                default:
+                    GFXRECON_LOG_ERROR("Unknown D3D12_DSV_DIMENSION.");
+                    break;
+            }
+        }
     }
     heap_extra_info->depth_stencil_infos[DestDescriptor.index] = std::move(info);
 }
@@ -4825,12 +5205,29 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
     }
 }
 
+bool MatchDescriptorCPUGPUHandle(size_t                                      replay_cpu_addr_begin,
+                                 size_t                                      replay_target_cpu_addr,
+                                 uint64_t                                    capture_gpu_addr_begin,
+                                 std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE> captured_gpu_addrs)
+{
+    for (auto gpu_addr : captured_gpu_addrs)
+    {
+        if ((gpu_addr.second.ptr >= capture_gpu_addr_begin) &&
+            ((replay_target_cpu_addr - replay_cpu_addr_begin) == (gpu_addr.second.ptr - capture_gpu_addr_begin)))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(const std::vector<format::HandleId>& front_command_list_ids)
 {
     // vertex
     for (const auto& view : track_dump_resources_.target.captured_vertex_buffer_views)
     {
         graphics::CopyResourceData copy_resource_data;
+        copy_resource_data.subresource_indices.emplace_back(0);
         CopyResourceForBeforeDrawcallByGPUVA(
             front_command_list_ids, view.BufferLocation, view.SizeInBytes, copy_resource_data);
 
@@ -4838,6 +5235,7 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(const std::vector<fo
     }
 
     // index
+    track_dump_resources_.copy_index_resource.subresource_indices.emplace_back(0);
     CopyResourceForBeforeDrawcallByGPUVA(front_command_list_ids,
                                          track_dump_resources_.target.captured_index_buffer_view.BufferLocation,
                                          track_dump_resources_.target.captured_index_buffer_view.SizeInBytes,
@@ -4861,6 +5259,7 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(const std::vector<fo
                                             track_dump_resources_.target.captured_descriptor_gpu_handles))
             {
                 graphics::CopyResourceData copy_resource_data;
+                copy_resource_data.subresource_indices.emplace_back(0);
                 CopyResourceForBeforeDrawcallByGPUVA(front_command_list_ids,
                                                      info.captured_view.BufferLocation,
                                                      info.captured_view.SizeInBytes,
@@ -4887,15 +5286,22 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(const std::vector<fo
                     switch (info.view.ViewDimension)
                     {
                         case D3D12_SRV_DIMENSION_BUFFER:
-                            offset = info.view.Buffer.FirstElement * info.view.Buffer.StructureByteStride;
-                            size   = info.view.Buffer.NumElements * info.view.Buffer.StructureByteStride;
+                        {
+                            auto size = info.view.Buffer.StructureByteStride;
+                            if (size == 0)
+                            {
+                                size = graphics::dx12::GetSubresourcePixelByteSize(info.view.Format);
+                            }
+                            offset = info.view.Buffer.FirstElement * size;
+                            size   = info.view.Buffer.NumElements * size;
                             break;
-                        // TODO: Set offset and size fot texture.
+                        }
                         default:
                             break;
                     }
 
                     graphics::CopyResourceData copy_resource_data;
+                    copy_resource_data.subresource_indices = info.subresource_indices;
                     CopyResourceForBeforeDrawcall(
                         front_command_list_ids, info.resource_id, offset, size, copy_resource_data);
 
@@ -4920,7 +5326,22 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(const std::vector<fo
             const auto& info = info_pair.second;
             if (info.replay_handle.ptr == track_dump_resources_.replay_render_target_handles[i].ptr)
             {
-                // TODO: Set offset and size by info.view.ViewDimension.
+                uint64_t offset = 0;
+                uint64_t size   = 0;
+                switch (info.view.ViewDimension)
+                {
+                    case D3D12_RTV_DIMENSION_BUFFER:
+                    {
+                        auto size = graphics::dx12::GetSubresourcePixelByteSize(info.view.Format);
+                        offset    = info.view.Buffer.FirstElement * size;
+                        size      = info.view.Buffer.NumElements * size;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                track_dump_resources_.copy_render_target_resources[i].subresource_indices = info.subresource_indices;
                 CopyResourceForBeforeDrawcall(front_command_list_ids,
                                               info.resource_id,
                                               0,
@@ -4942,7 +5363,7 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(const std::vector<fo
             const auto& info = info_pair.second;
             if (info.replay_handle.ptr == track_dump_resources_.replay_depth_stencil_handle.ptr)
             {
-                // TODO: Set offset and size by info.view.ViewDimension.
+                track_dump_resources_.copy_depth_stencil_resource.subresource_indices = info.subresource_indices;
                 CopyResourceForBeforeDrawcall(
                     front_command_list_ids, info.resource_id, 0, 0, track_dump_resources_.copy_depth_stencil_resource);
                 break;
@@ -4951,32 +5372,19 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(const std::vector<fo
     }
 
     // ExecuteIndirect
+    track_dump_resources_.copy_exe_indirect_argument.subresource_indices.emplace_back(0);
     CopyResourceForBeforeDrawcall(front_command_list_ids,
                                   track_dump_resources_.target.exe_indirect_argument_id,
                                   track_dump_resources_.target.exe_indirect_argument_offset,
                                   0,
                                   track_dump_resources_.copy_exe_indirect_argument);
+
+    track_dump_resources_.copy_exe_indirect_count.subresource_indices.emplace_back(0);
     CopyResourceForBeforeDrawcall(front_command_list_ids,
                                   track_dump_resources_.target.exe_indirect_count_id,
                                   track_dump_resources_.target.exe_indirect_count_offset,
                                   0,
                                   track_dump_resources_.copy_exe_indirect_count);
-}
-
-bool Dx12ReplayConsumerBase::MatchDescriptorCPUGPUHandle(size_t   replay_cpu_addr_begin,
-                                                         size_t   replay_target_cpu_addr,
-                                                         uint64_t capture_gpu_addr_begin,
-                                                         std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE> captured_gpu_addrs)
-{
-    for (auto gpu_addr : captured_gpu_addrs)
-    {
-        if ((gpu_addr.second.ptr >= capture_gpu_addr_begin) &&
-            ((replay_target_cpu_addr - replay_cpu_addr_begin) == (gpu_addr.second.ptr - capture_gpu_addr_begin)))
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 void Dx12ReplayConsumerBase::CopyResourceForBeforeDrawcallByGPUVA(

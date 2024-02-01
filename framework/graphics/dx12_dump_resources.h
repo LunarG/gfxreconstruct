@@ -53,8 +53,9 @@ struct CopyResourceData
     D3D12_RESOURCE_DESC desc{};
     // Buffer has its one offset and size, not for subresources.
     // Texture has offsets and sizes of subresources.
-    std::vector<uint64_t>                           offsets{ 0 };
-    std::vector<uint64_t>                           sizes{ 0 };
+    std::vector<uint64_t>                           offsets;
+    std::vector<uint64_t>                           sizes;
+    std::vector<uint32_t>                           subresource_indices; // Buffer has one index: 0.
     std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> footprints;
     uint64_t                                        total_size{ 0 };
     std::vector<uint8_t>                            before_data; // copy resource before drawcall

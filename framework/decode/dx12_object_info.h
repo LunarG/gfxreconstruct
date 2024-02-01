@@ -266,6 +266,7 @@ struct ShaderResourceInfo
     D3D12_SHADER_RESOURCE_VIEW_DESC view{};
     bool                            is_view_null{ false };
     D3D12_CPU_DESCRIPTOR_HANDLE     replay_handle{ kNullCpuAddress };
+    std::vector<uint32_t>           subresource_indices;
 };
 
 struct RenderTargetInfo
@@ -274,6 +275,7 @@ struct RenderTargetInfo
     D3D12_RENDER_TARGET_VIEW_DESC view{};
     bool                          is_view_null{ false };
     D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
+    std::vector<uint32_t>         subresource_indices;
 };
 
 struct DepthStencilInfo
@@ -282,6 +284,7 @@ struct DepthStencilInfo
     D3D12_DEPTH_STENCIL_VIEW_DESC view{};
     bool                          is_view_null{ false };
     D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
+    std::vector<uint32_t>         subresource_indices;
 };
 
 struct D3D12DescriptorHeapInfo : DxObjectExtraInfo

@@ -66,32 +66,33 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
     if (!resource_data.before_data.empty())
     {
         util::FieldToJson(jdata["resource_id"], resource_data.source_resource_id, json_options_);
-        auto sub_count = resource_data.offsets.size();
-        for (uint32_t i = 0; i < sub_count; ++i)
+        for (const auto sub_index : resource_data.subresource_indices)
         {
-            auto& jdata_sub = jdata["subresource"][i];
-            util::FieldToJson(jdata_sub["index"], i, json_options_);
-            util::FieldToJson(jdata_sub["offset"], resource_data.offsets[i], json_options_);
-            util::FieldToJson(jdata_sub["size"], resource_data.sizes[i], json_options_);
+            auto& jdata_sub = jdata["subresource"][sub_index];
+            util::FieldToJson(jdata_sub["index"], sub_index, json_options_);
+            util::FieldToJson(jdata_sub["offset"], resource_data.offsets[sub_index], json_options_);
+            util::FieldToJson(jdata_sub["size"], resource_data.sizes[sub_index], json_options_);
 
-            std::string before_file_name = file_name + "_subresource_" + std::to_string(i) + "_before.bin";
+            std::string before_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_before.bin";
             util::FieldToJson(jdata_sub["before_file_name"], before_file_name.c_str(), json_options_);
 
-            std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, before_file_name);
-            WriteBinaryFile(filepath, resource_data.before_data, resource_data.offsets[i], resource_data.sizes[i]);
-        }
-    }
-    if (!resource_data.after_data.empty())
-    {
-        auto sub_count = resource_data.offsets.size();
-        for (uint32_t i = 0; i < sub_count; ++i)
-        {
-            auto&       jdata_sub       = jdata["subresource"][i];
-            std::string after_file_name = file_name + "_subresource_" + std::to_string(i) + "_after.bin";
-            util::FieldToJson(jdata_sub["after_file_name"], after_file_name.c_str(), json_options_);
+            std::string before_filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, before_file_name);
+            WriteBinaryFile(before_filepath,
+                            resource_data.before_data,
+                            resource_data.offsets[sub_index],
+                            resource_data.sizes[sub_index]);
 
-            std::string filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, after_file_name);
-            WriteBinaryFile(filepath, resource_data.after_data, resource_data.offsets[i], resource_data.sizes[i]);
+            if (!resource_data.after_data.empty())
+            {
+                std::string after_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_after.bin";
+                util::FieldToJson(jdata_sub["after_file_name"], after_file_name.c_str(), json_options_);
+
+                std::string after_filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, after_file_name);
+                WriteBinaryFile(after_filepath,
+                                resource_data.after_data,
+                                resource_data.offsets[sub_index],
+                                resource_data.sizes[sub_index]);
+            }
         }
     }
 }
@@ -192,46 +193,41 @@ void Dx12DumpResources::TestWriteFloatResource(const std::string&      prefix_fi
 
     if (!resource_data.before_data.empty())
     {
-        auto* data_begin = reinterpret_cast<const float*>(resource_data.before_data.data());
-        auto  size       = resource_data.offsets.size();
-        for (uint32_t i = 0; i < size; ++i)
+        auto* before_data_begin = reinterpret_cast<const float*>(resource_data.before_data.data());
+        for (const auto sub_index : resource_data.subresource_indices)
         {
-            auto        data_begin_sub = data_begin + resource_data.offsets[i];
-            uint32_t    size           = resource_data.sizes[i] / (sizeof(float));
-            std::string data           = "";
+            auto        before_data_begin_sub = before_data_begin + resource_data.offsets[sub_index];
+            uint32_t    size                  = resource_data.sizes[sub_index] / (sizeof(float));
+            std::string before_data           = "";
             for (uint32_t i = 0; i < size; ++i)
             {
-                data += std::to_string(data_begin_sub[i]);
-                data += "\n";
+                before_data += std::to_string(before_data_begin_sub[i]);
+                before_data += "\n";
             }
 
-            std::string before_file_name = file_name + "_subresource_" + std::to_string(i) + "_before.txt";
-            FILE*       file_handle;
-            util::platform::FileOpen(&file_handle, before_file_name.c_str(), "w");
-            util::platform::FilePuts(data.c_str(), file_handle);
-            util::platform::FileClose(file_handle);
-        }
-    }
-    if (!resource_data.after_data.empty())
-    {
-        auto* data_begin = reinterpret_cast<const float*>(resource_data.after_data.data());
-        auto  size       = resource_data.offsets.size();
-        for (uint32_t i = 0; i < size; ++i)
-        {
-            auto        data_begin_sub = data_begin + resource_data.offsets[i];
-            uint32_t    size           = resource_data.sizes[i] / (sizeof(float));
-            std::string data           = "";
-            for (uint32_t i = 0; i < size; ++i)
+            std::string before_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_before.txt";
+            FILE*       before_file_handle;
+            util::platform::FileOpen(&before_file_handle, before_file_name.c_str(), "w");
+            util::platform::FilePuts(before_data.c_str(), before_file_handle);
+            util::platform::FileClose(before_file_handle);
+
+            if (!resource_data.after_data.empty())
             {
-                data += std::to_string(data_begin_sub[i]);
-                data += "\n";
-            }
+                auto*       after_data_begin     = reinterpret_cast<const float*>(resource_data.after_data.data());
+                auto        after_data_begin_sub = after_data_begin + resource_data.offsets[sub_index];
+                std::string after_data           = "";
+                for (uint32_t i = 0; i < size; ++i)
+                {
+                    after_data += std::to_string(after_data_begin_sub[i]);
+                    after_data += "\n";
+                }
 
-            std::string after_file_name = file_name + "_subresource_" + std::to_string(i) + "_after.txt";
-            FILE*       file_handle;
-            util::platform::FileOpen(&file_handle, after_file_name.c_str(), "w");
-            util::platform::FilePuts(data.c_str(), file_handle);
-            util::platform::FileClose(file_handle);
+                std::string after_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_after.txt";
+                FILE*       after_file_handle;
+                util::platform::FileOpen(&after_file_handle, after_file_name.c_str(), "w");
+                util::platform::FilePuts(after_data.c_str(), after_file_handle);
+                util::platform::FileClose(after_file_handle);
+            }
         }
     }
 }
@@ -252,15 +248,14 @@ void Dx12DumpResources::TestWriteImageResource(const std::string&      prefix_fi
 
     if (!resource_data.before_data.empty())
     {
-        auto size = resource_data.offsets.size();
-        for (uint32_t i = 0; i < size; ++i)
+        for (const auto sub_index : resource_data.subresource_indices)
         {
-            std::string before_file_name = file_name + "_subresource_" + std::to_string(i);
+            std::string before_file_name = file_name + "_subresource_" + std::to_string(sub_index);
 
             // WriteBmpImage expects 4 bytes per pixel.
-            double bytes_per_pixel = static_cast<double>(resource_data.sizes[i]) /
-                                     (static_cast<double>(resource_data.footprints[i].Footprint.RowPitch / 4) *
-                                      resource_data.footprints[i].Footprint.Height);
+            double bytes_per_pixel = static_cast<double>(resource_data.sizes[sub_index]) /
+                                     (static_cast<double>(resource_data.footprints[sub_index].Footprint.RowPitch / 4) *
+                                      resource_data.footprints[sub_index].Footprint.Height);
             if (bytes_per_pixel != 4.0)
             {
                 GFXRECON_LOG_WARNING("Dump images could not be created for before and after resource of "
@@ -268,48 +263,37 @@ void Dx12DumpResources::TestWriteImageResource(const std::string&      prefix_fi
                                      "with 4 bytes per pixel are supported. Current format %" PRIu32
                                      " is %.2f bytes per pixel.",
                                      before_file_name.c_str(),
-                                     resource_data.footprints[i].Footprint.Format,
+                                     resource_data.footprints[sub_index].Footprint.Format,
                                      bytes_per_pixel);
                 continue;
             }
 
             before_file_name += "_before.bmp";
             if (!util::imagewriter::WriteBmpImage(before_file_name,
-                                                  resource_data.footprints[i].Footprint.Width,
-                                                  resource_data.footprints[i].Footprint.Height,
-                                                  resource_data.sizes[i],
-                                                  resource_data.before_data.data() + resource_data.offsets[i],
-                                                  resource_data.footprints[i].Footprint.RowPitch))
+                                                  resource_data.footprints[sub_index].Footprint.Width,
+                                                  resource_data.footprints[sub_index].Footprint.Height,
+                                                  resource_data.sizes[sub_index],
+                                                  resource_data.before_data.data() + resource_data.offsets[sub_index],
+                                                  resource_data.footprints[sub_index].Footprint.RowPitch))
             {
                 GFXRECON_LOG_ERROR("Dump image could not be created: failed to write BMP file %s",
                                    before_file_name.c_str());
             }
-        }
-    }
-    if (!resource_data.after_data.empty())
-    {
-        auto size = resource_data.offsets.size();
-        for (uint32_t i = 0; i < size; ++i)
-        {
-            // WriteBmpImage expects 4 bytes per pixel.
-            double bytes_per_pixel = static_cast<double>(resource_data.sizes[i]) /
-                                     (static_cast<double>(resource_data.footprints[i].Footprint.RowPitch / 4) *
-                                      resource_data.footprints[i].Footprint.Height);
-            if (bytes_per_pixel != 4.0)
-            {
-                continue;
-            }
 
-            std::string after_file_name = file_name + "_subresource_" + std::to_string(i) + "_after.bmp";
-            if (!util::imagewriter::WriteBmpImage(after_file_name,
-                                                  resource_data.footprints[i].Footprint.Width,
-                                                  resource_data.footprints[i].Footprint.Height,
-                                                  resource_data.sizes[i],
-                                                  resource_data.after_data.data() + resource_data.offsets[i],
-                                                  resource_data.footprints[i].Footprint.RowPitch))
+            if (!resource_data.after_data.empty())
             {
-                GFXRECON_LOG_ERROR("Dump image could not be created: failed to write BMP file %s",
-                                   after_file_name.c_str());
+                std::string after_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_after.bmp";
+                if (!util::imagewriter::WriteBmpImage(after_file_name,
+                                                      resource_data.footprints[sub_index].Footprint.Width,
+                                                      resource_data.footprints[sub_index].Footprint.Height,
+                                                      resource_data.sizes[sub_index],
+                                                      resource_data.after_data.data() +
+                                                          resource_data.offsets[sub_index],
+                                                      resource_data.footprints[sub_index].Footprint.RowPitch))
+                {
+                    GFXRECON_LOG_ERROR("Dump image could not be created: failed to write BMP file %s",
+                                       after_file_name.c_str());
+                }
             }
         }
     }

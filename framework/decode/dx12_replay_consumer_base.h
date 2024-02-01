@@ -952,11 +952,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void CopyResourcesForBeforeDrawcall(const std::vector<format::HandleId>& front_command_list_ids);
 
-    bool MatchDescriptorCPUGPUHandle(size_t                                      replay_cpu_addr_begin,
-                                     size_t                                      replay_target_cpu_addr,
-                                     uint64_t                                    capture_gpu_addr_begin,
-                                     std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE> captured_gpu_addrs);
-
     void CopyResourceForBeforeDrawcallByGPUVA(const std::vector<format::HandleId>& front_command_list_ids,
                                               D3D12_GPU_VIRTUAL_ADDRESS            capture_source_gpu_va,
                                               uint64_t                             source_size,
