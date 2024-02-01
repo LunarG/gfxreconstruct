@@ -806,22 +806,37 @@ VkResult VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpDrawCal
         gettimeofday(&tim, NULL);
         double t0 = tim.tv_sec + (tim.tv_usec / 1000.0);
 #endif
-        VkResult res = device_table->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
-        assert(res == VK_SUCCESS);
+
+        const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
+        assert(device_info);
+
+        const VkFenceCreateInfo ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
+        VkFence                 submission_fence;
+        VkResult                res = device_table->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("QueueSubmit failed with %s", util::ToString<VkResult>(res).c_str());
+            GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
+            return res;
+        }
+
+        res = device_table->QueueSubmit(queue, 1, &submit_info, submission_fence);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR(
+                "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
             return res;
         }
 
         // Wait
-        res = device_table->QueueWaitIdle(queue);
-        assert(res == VK_SUCCESS);
+        res = device_table->WaitForFences(device_info->handle, 1, &submission_fence, VK_TRUE, ~0UL);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("QueueWaitIdle failed with %s", util::ToString<VkResult>(res).c_str());
+            device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
+            GFXRECON_LOG_ERROR("WaitForFences failed with %s", util::ToString<VkResult>(res).c_str());
             return res;
         }
+
+        device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
 
 #ifdef TIME_DUMPING
         gettimeofday(&tim, NULL);
@@ -1094,7 +1109,9 @@ VkResult VulkanReplayResourceDumpBase::ModifyAndSubmit(std::vector<VkSubmitInfo>
                                                        VkFence                    fence,
                                                        uint64_t                   index)
 {
-    bool pre_submit = false;
+    bool     pre_submit = false;
+    bool     submitted  = false;
+    VkResult res;
 
     // First do a submission with all command buffer except the ones we are interested in
     std::vector<VkSubmitInfo>                 submit_infos_copy = modified_submit_infos;
@@ -1133,27 +1150,23 @@ VkResult VulkanReplayResourceDumpBase::ModifyAndSubmit(std::vector<VkSubmitInfo>
     {
         assert(submit_infos_copy.size());
 
-        VkResult res =
-            device_table.QueueSubmit(queue, submit_infos_copy.size(), submit_infos_copy.data(), VK_NULL_HANDLE);
-
-        assert(res == VK_SUCCESS);
+        res = device_table.QueueSubmit(queue, submit_infos_copy.size(), submit_infos_copy.data(), VK_NULL_HANDLE);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("QueueSubmit failed with %s", util::ToString<VkResult>(res).c_str());
-            return res;
+            GFXRECON_LOG_ERROR(
+                "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
+            goto error;
         }
 
         // Wait
         res = device_table.QueueWaitIdle(queue);
-        assert(res == VK_SUCCESS);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("QueueWaitIdle failed with %s", util::ToString<VkResult>(res).c_str());
-            return res;
+            goto error;
         }
     }
 
-    bool submitted = false;
     for (size_t s = 0; s < modified_submit_infos.size(); s++)
     {
         size_t     command_buffer_count   = modified_submit_infos[s].commandBufferCount;
@@ -1175,16 +1188,15 @@ VkResult VulkanReplayResourceDumpBase::ModifyAndSubmit(std::vector<VkSubmitInfo>
             if (dc_context != nullptr)
             {
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
-                VkResult res =
-                    dc_context->DumpDrawCallsAttachments(queue, cmd_buf_begin_map_[command_buffer_handles[o]]);
 
+                res = dc_context->DumpDrawCallsAttachments(queue, cmd_buf_begin_map_[command_buffer_handles[o]]);
                 if (res == VK_SUCCESS)
                 {
                     submitted = true;
                 }
                 else
                 {
-                    return res;
+                    goto error;
                 }
             }
 
@@ -1193,7 +1205,7 @@ VkResult VulkanReplayResourceDumpBase::ModifyAndSubmit(std::vector<VkSubmitInfo>
             if (dr_context != nullptr)
             {
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
-                VkResult res =
+                res =
                     dr_context->DumpDispatchRaysMutableResources(queue, cmd_buf_begin_map_[command_buffer_handles[o]]);
 
                 if (res == VK_SUCCESS)
@@ -1202,13 +1214,13 @@ VkResult VulkanReplayResourceDumpBase::ModifyAndSubmit(std::vector<VkSubmitInfo>
                 }
                 else
                 {
-                    return res;
+                    goto error;
                 }
             }
         }
     }
 
-    VkResult res = VK_SUCCESS;
+    assert(res >= 0);
 
     // Looks like we didn't submit anything. Do the submission as it would have been done
     // without further modifications
@@ -1217,7 +1229,8 @@ VkResult VulkanReplayResourceDumpBase::ModifyAndSubmit(std::vector<VkSubmitInfo>
         res = device_table.QueueSubmit(queue, modified_submit_infos.size(), modified_submit_infos.data(), fence);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("QueueSubmit failed with %s", util::ToString<VkResult>(res).c_str());
+            GFXRECON_LOG_ERROR(
+                "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
         }
     }
     else
@@ -1230,6 +1243,13 @@ VkResult VulkanReplayResourceDumpBase::ModifyAndSubmit(std::vector<VkSubmitInfo>
         {
             exit(0);
         }
+    }
+
+error:
+    if (res < 0)
+    {
+        GFXRECON_LOG_ERROR("Something went wrong. Terminating.")
+        exit(0);
     }
 
     return res;
@@ -2826,7 +2846,8 @@ VkResult VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::RevertMutab
     res = device_table->QueueSubmit(queue, 1, &si, aux_fence);
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("QueueSubmit failed with %s", util::ToString<VkResult>(res).c_str());
+        GFXRECON_LOG_ERROR(
+            "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
         return res;
     }
 
@@ -2986,7 +3007,8 @@ VkResult VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::BackUpMutab
     res = device_table->QueueSubmit(queue, 1, &si, aux_fence);
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("QueueSubmit failed with %s", util::ToString<VkResult>(res).c_str());
+        GFXRECON_LOG_ERROR(
+            "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
         return res;
     }
 
@@ -3721,9 +3743,8 @@ VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpDispatchRays
     assert(device_info);
 
     const VkFenceCreateInfo ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-
-    VkFence  submission_fence;
-    VkResult res = device_table->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
+    VkFence                 submission_fence;
+    VkResult                res = device_table->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
@@ -3734,7 +3755,9 @@ VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpDispatchRays
     assert(res == VK_SUCCESS);
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("QueueSubmit failed with %s", util::ToString<VkResult>(res).c_str());
+        device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
+        GFXRECON_LOG_ERROR(
+            "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
         return res;
     }
 
@@ -3743,6 +3766,7 @@ VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpDispatchRays
     assert(res == VK_SUCCESS);
     if (res != VK_SUCCESS)
     {
+        device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
         GFXRECON_LOG_ERROR("WaitForFences failed with %s", util::ToString<VkResult>(res).c_str());
         return res;
     }
