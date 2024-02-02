@@ -3411,7 +3411,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
                 modified_submit_info.pSignalSemaphores    = signal_semaphores.data();
             }
 
-            if (submit_info_data != nullptr && (options_.dumping_resource) && dumper.DumpingSubmissionIndex(index))
+            if (submit_info_data != nullptr && (options_.dumping_resource) && dumper.ShouldDumpQueueSubmitIndex(index))
             {
                 dumper.ModifyAndSubmit(
                     modified_submit_infos, *GetDeviceTable(queue_info->handle), queue_info->handle, fence, index);

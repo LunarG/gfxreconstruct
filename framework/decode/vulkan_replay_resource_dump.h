@@ -211,7 +211,7 @@ class VulkanReplayResourceDumpBase
 
     void ResetDescriptors(VkCommandBuffer original_command_buffer);
 
-    bool DumpingSubmissionIndex(uint64_t index) const;
+    bool ShouldDumpQueueSubmitIndex(uint64_t index) const;
 
     bool ShouldDumpDrawCall(VkCommandBuffer original_command_buffer, uint64_t dc_index) const;
 
