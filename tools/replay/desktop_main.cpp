@@ -140,7 +140,11 @@ int main(int argc, const char** argv)
 
             // Process --dump-resources arg. We do it here so that other gfxr tools that use
             // the VulkanReplayOptions class won't have to link in the json library.
-            gfxrecon::parse_dump_resources::parse_dump_resources_arg(vulkan_replay_options);
+            if (!gfxrecon::parse_dump_resources::parse_dump_resources_arg(vulkan_replay_options))
+            {
+                GFXRECON_LOG_FATAL("There was an error while parsing dump resource indices. Terminating");
+                return -1;
+            }
 
             uint32_t start_frame = 0;
             uint32_t end_frame   = 0;

@@ -120,7 +120,11 @@ void android_main(struct android_app* app)
 
                 // Process --dump-resources arg. We do it here so that other gfxr tools that use
                 // the VulkanReplayOptions class won't have to link in the json library.
-                gfxrecon::parse_dump_resources::parse_dump_resources_arg(replay_options);
+                if (!gfxrecon::parse_dump_resources::parse_dump_resources_arg(replay_options))
+                {
+                    GFXRECON_LOG_FATAL("There was an error while parsing dump resource indices. Terminating");
+                    return;
+                }
 
                 gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        decoder;
