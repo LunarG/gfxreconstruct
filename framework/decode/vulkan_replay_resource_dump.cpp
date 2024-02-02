@@ -2035,16 +2035,16 @@ bool VulkanReplayResourceDumpBase::UpdateRecordingStatus()
     return (recording_ = false);
 }
 
-bool VulkanReplayResourceDumpBase::DumpingSubmissionIndex(uint64_t index) const
+bool VulkanReplayResourceDumpBase::ShouldDumpQueueSubmitIndex(uint64_t index) const
 {
+    // Indices should be sorted
+    if (!IsInsideRange(QueueSubmit_indices_, index))
+    {
+        return false;
+    }
+
     for (size_t i = 0; i < QueueSubmit_indices_.size(); ++i)
     {
-        // Indices should be sorted
-        if (!IsInsideRange(QueueSubmit_indices_, index))
-        {
-            return false;
-        }
-
         if (index == QueueSubmit_indices_[i])
         {
             return true;
