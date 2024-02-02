@@ -391,12 +391,18 @@ void VulkanStateTracker::TrackTLASBuildCommand(
                     if (infos[i].pGeometries[g].geometryType == VK_GEOMETRY_TYPE_INSTANCES_KHR)
                     {
                         const VkDeviceAddress address = infos[i].pGeometries[g].geometry.instances.data.deviceAddress;
-                        const CommandBufferWrapper::tlas_build_info tlas_info = {
-                            address, pp_buildRange_infos[i]->primitiveCount, pp_buildRange_infos[i]->primitiveOffset
-                        };
+                        const uint32_t        primitive_count = pp_buildRange_infos[i]->primitiveCount;
+                        // According to spec both address and primitiveCount can be 0.
+                        // Nothing to handle in these cases.
+                        if (address && primitive_count)
+                        {
+                            const CommandBufferWrapper::tlas_build_info tlas_info = {
+                                address, primitive_count, pp_buildRange_infos[i]->primitiveOffset
+                            };
 
-                        buf_wrapper->tlas_build_info_map.emplace_back(
-                            std::make_pair(tlas_wrapper, std::move(tlas_info)));
+                            buf_wrapper->tlas_build_info_map.emplace_back(
+                                std::make_pair(tlas_wrapper, std::move(tlas_info)));
+                        }
                     }
                 }
             }
@@ -1507,6 +1513,10 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
 
         for (const auto& tlas_build_info : cmd_buf_wrapper->tlas_build_info_map)
         {
+            // Sanity checks. Build infos with one of these 0 should not be inserted in the map
+            assert(tlas_build_info.second.address);
+            assert(tlas_build_info.second.blas_count);
+
             // Find to which device memory this address belongs
             const VkDeviceAddress      address         = tlas_build_info.second.address;
             const DeviceMemoryWrapper* dev_mem_wrapper = nullptr;
@@ -1543,6 +1553,8 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
             const VkAccelerationStructureInstanceKHR* instances = nullptr;
             const util::PageGuardManager*             manager   = util::PageGuardManager::Get();
 
+            // Check with page guard manager first. The memory might be already and the
+            // PageGuardManager can provide the pointer
             if (manager)
             {
                 const void* mapped_memory = manager->GetMappedMemory(dev_mem_wrapper->handle_id);
@@ -1554,8 +1566,6 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
             }
 
             const uint32_t blas_count = tlas_build_info.second.blas_count;
-            assert(blas_count);
-
             bool needs_unmapping = false;
             if (!instances)
             {
