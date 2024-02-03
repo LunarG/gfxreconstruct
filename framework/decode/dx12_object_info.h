@@ -269,6 +269,16 @@ struct ShaderResourceInfo
     std::vector<uint32_t>           subresource_indices;
 };
 
+struct UnorderedAccessInfo
+{
+    format::HandleId                 resource_id{ format::kNullHandleId };
+    format::HandleId                 counter_resource_id{ format::kNullHandleId };
+    D3D12_UNORDERED_ACCESS_VIEW_DESC view{};
+    bool                             is_view_null{ false };
+    D3D12_CPU_DESCRIPTOR_HANDLE      replay_handle{ kNullCpuAddress };
+    std::vector<uint32_t>            subresource_indices;
+};
+
 struct RenderTargetInfo
 {
     format::HandleId              resource_id{ format::kNullHandleId };
@@ -302,10 +312,11 @@ struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
     uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
 
     // Descriptor info maps. Key is descriptor's uint32_t heap index.
-    std::map<uint32_t, ConstantBufferInfo> constant_buffer_infos;
-    std::map<uint32_t, ShaderResourceInfo> shader_resource_infos;
-    std::map<uint32_t, RenderTargetInfo>   render_target_infos;
-    std::map<uint32_t, DepthStencilInfo>   depth_stencil_infos;
+    std::map<uint32_t, ConstantBufferInfo>  constant_buffer_infos;
+    std::map<uint32_t, ShaderResourceInfo>  shader_resource_infos;
+    std::map<uint32_t, UnorderedAccessInfo> unordered_access_infos;
+    std::map<uint32_t, RenderTargetInfo>    render_target_infos;
+    std::map<uint32_t, DepthStencilInfo>    depth_stencil_infos;
 };
 
 struct D3D12FenceInfo : DxObjectExtraInfo

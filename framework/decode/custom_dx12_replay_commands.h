@@ -85,6 +85,16 @@ struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShader
 };
 
 template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateUnorderedAccessView>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device_CreateUnorderedAccessView(args...);
+    }
+};
+
+template <>
 struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRenderTargetView>
 {
     template <typename... Args>
@@ -121,6 +131,26 @@ struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Execut
     static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
     {
         replay->PostCall_ID3D12CommandQueue_ExecuteCommandLists(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptors>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device_CopyDescriptors(args...);
+    }
+};
+
+template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptorsSimple>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12Device_CopyDescriptorsSimple(args...);
     }
 };
 

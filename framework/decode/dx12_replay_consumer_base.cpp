@@ -4673,6 +4673,106 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
     heap_extra_info->shader_resource_infos[DestDescriptor.index] = std::move(info);
 }
 
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateUnorderedAccessView(
+    const ApiCallInfo&                                              call_info,
+    DxObjectInfo*                                                   object_info,
+    format::HandleId                                                pResource,
+    format::HandleId                                                pCounterResource,
+    StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor)
+{
+    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
+    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
+
+    UnorderedAccessInfo info;
+    info.resource_id         = pResource;
+    info.counter_resource_id = pCounterResource;
+    info.replay_handle       = *DestDescriptor.decoded_value;
+    if (pDesc->IsNull())
+    {
+        info.is_view_null = true;
+        info.subresource_indices.emplace_back(0);
+    }
+    else
+    {
+        info.view         = *(pDesc->GetMetaStructPointer()->decoded_value);
+        info.is_view_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto desc        = reinterpret_cast<ID3D12Resource*>(GetObjectInfo(pResource)->object)->GetDesc();
+            auto mip_count   = desc.MipLevels;
+            auto array_count = desc.DepthOrArraySize;
+            switch (info.view.ViewDimension)
+            {
+                case D3D12_UAV_DIMENSION_BUFFER:
+                    info.subresource_indices.emplace_back(0);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE1D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture1D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE1DARRAY:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture1DArray.MipSlice,
+                                                                               1,
+                                                                               mip_count,
+                                                                               info.view.Texture1DArray.FirstArraySlice,
+                                                                               info.view.Texture1DArray.ArraySize,
+                                                                               array_count,
+                                                                               0);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE2D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture2D.MipSlice, 1, mip_count, 0, 1, array_count, info.view.Texture2D.PlaneSlice);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture2DArray.MipSlice,
+                                                                               1,
+                                                                               mip_count,
+                                                                               info.view.Texture2DArray.FirstArraySlice,
+                                                                               info.view.Texture2DArray.ArraySize,
+                                                                               array_count,
+                                                                               info.view.Texture2DArray.PlaneSlice);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE2DMS:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY:
+                    info.subresource_indices =
+                        GetDescriptorSubresourceIndices(0,
+                                                        1,
+                                                        mip_count,
+                                                        info.view.Texture2DMSArray.FirstArraySlice,
+                                                        info.view.Texture2DMSArray.ArraySize,
+                                                        array_count,
+                                                        0);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE3D:
+                {
+                    auto wsize = info.view.Texture3D.WSize;
+                    if (wsize == -1)
+                    {
+                        wsize = array_count - info.view.Texture3D.FirstWSlice;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture3D.MipSlice,
+                                                                               1,
+                                                                               mip_count,
+                                                                               info.view.Texture3D.FirstWSlice,
+                                                                               wsize,
+                                                                               array_count,
+                                                                               0);
+                    break;
+                }
+                case D3D12_UAV_DIMENSION_UNKNOWN:
+                default:
+                    GFXRECON_LOG_ERROR("Unknown D3D12_UAV_DIMENSION_UNKNOWN.");
+                    break;
+            }
+        }
+    }
+    heap_extra_info->unordered_access_infos[DestDescriptor.index] = std::move(info);
+}
+
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateRenderTargetView(
     const ApiCallInfo&                                           call_info,
     DxObjectInfo*                                                object_info,
@@ -5205,6 +5305,134 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
     }
 }
 
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CopyDescriptors(
+    const ApiCallInfo&                                         call_info,
+    DxObjectInfo*                                              device_object_info,
+    UINT                                                       NumDestDescriptorRanges,
+    StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDestDescriptorRangeStarts,
+    PointerDecoder<UINT>*                                      pDestDescriptorRangeSizes,
+    UINT                                                       NumSrcDescriptorRanges,
+    StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pSrcDescriptorRangeStarts,
+    PointerDecoder<UINT>*                                      pSrcDescriptorRangeSizes,
+    D3D12_DESCRIPTOR_HEAP_TYPE                                 DescriptorHeapsType)
+{
+    UINT dest_range_i = 0;
+    UINT src_range_i  = 0;
+    UINT dest_i       = 0;
+    UINT src_i        = 0;
+
+    auto dest_range_sizes = pDestDescriptorRangeSizes->GetPointer();
+    auto src_range_sizes  = pSrcDescriptorRangeSizes->GetPointer();
+
+    auto dest_range_starts = pDestDescriptorRangeStarts->GetMetaStructPointer();
+    auto src_range_starts  = pSrcDescriptorRangeStarts->GetMetaStructPointer();
+
+    while (dest_range_i < NumDestDescriptorRanges && src_range_i < NumSrcDescriptorRanges)
+    {
+        auto dest_range_size = (dest_range_sizes != nullptr) ? dest_range_sizes[dest_range_i] : 1;
+        auto src_range_size  = (src_range_sizes != nullptr) ? src_range_sizes[src_range_i] : 1;
+
+        auto dest_size = dest_range_size - dest_i;
+        auto src_size  = src_range_size - src_i;
+
+        auto copy_size = std::min(dest_size, src_size);
+
+        // TODO
+        auto dest_descriptor_info  = dest_range_starts[dest_range_i];
+        auto dest_heap_object_info = GetObjectInfo(dest_descriptor_info.heap_id);
+        auto dest_heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(dest_heap_object_info);
+        auto src_descriptor_info   = src_range_starts[src_range_i];
+        auto src_heap_object_info  = GetObjectInfo(src_descriptor_info.heap_id);
+        auto src_heap_extra_info   = GetExtraInfo<D3D12DescriptorHeapInfo>(src_heap_object_info);
+
+        for (UINT i = 0; i < copy_size; ++i)
+        {
+            auto dest_idx = dest_descriptor_info.index + dest_i + i;
+            auto src_idx  = src_descriptor_info.index + src_i + i;
+
+            if (src_heap_extra_info->constant_buffer_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->constant_buffer_infos[dest_idx] =
+                    src_heap_extra_info->constant_buffer_infos[src_idx];
+            }
+            if (src_heap_extra_info->shader_resource_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->shader_resource_infos[dest_idx] =
+                    src_heap_extra_info->shader_resource_infos[src_idx];
+            }
+            if (src_heap_extra_info->unordered_access_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->unordered_access_infos[dest_idx] =
+                    src_heap_extra_info->unordered_access_infos[src_idx];
+            }
+            if (src_heap_extra_info->render_target_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->render_target_infos[dest_idx] = src_heap_extra_info->render_target_infos[src_idx];
+            }
+            if (src_heap_extra_info->depth_stencil_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->depth_stencil_infos[dest_idx] = src_heap_extra_info->depth_stencil_infos[src_idx];
+            }
+        }
+
+        dest_i += copy_size;
+        src_i += copy_size;
+
+        if (dest_i == dest_range_size)
+        {
+            dest_i = 0;
+            ++dest_range_i;
+        }
+        if (src_i == src_range_size)
+        {
+            src_i = 0;
+            ++src_range_i;
+        }
+    }
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CopyDescriptorsSimple(
+    const ApiCallInfo&                  call_info,
+    DxObjectInfo*                       device_object_info,
+    UINT                                NumDescriptors,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptorRangeStart,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
+    D3D12_DESCRIPTOR_HEAP_TYPE          DescriptorHeapsType)
+{
+    auto dest_heap_object_info = GetObjectInfo(DestDescriptorRangeStart.heap_id);
+    auto dest_heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(dest_heap_object_info);
+    auto src_heap_object_info  = GetObjectInfo(SrcDescriptorRangeStart.heap_id);
+    auto src_heap_extra_info   = GetExtraInfo<D3D12DescriptorHeapInfo>(src_heap_object_info);
+
+    for (UINT i = 0; i < NumDescriptors; ++i)
+    {
+        auto dest_idx = DestDescriptorRangeStart.index + i;
+        auto src_idx  = SrcDescriptorRangeStart.index + i;
+
+        if (src_heap_extra_info->constant_buffer_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->constant_buffer_infos[dest_idx] = src_heap_extra_info->constant_buffer_infos[src_idx];
+        }
+        if (src_heap_extra_info->shader_resource_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->shader_resource_infos[dest_idx] = src_heap_extra_info->shader_resource_infos[src_idx];
+        }
+        if (src_heap_extra_info->unordered_access_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->unordered_access_infos[dest_idx] =
+                src_heap_extra_info->unordered_access_infos[src_idx];
+        }
+        if (src_heap_extra_info->render_target_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->render_target_infos[dest_idx] = src_heap_extra_info->render_target_infos[src_idx];
+        }
+        if (src_heap_extra_info->depth_stencil_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->depth_stencil_infos[dest_idx] = src_heap_extra_info->depth_stencil_infos[src_idx];
+        }
+    }
+}
+
 bool MatchDescriptorCPUGPUHandle(size_t                                      replay_cpu_addr_begin,
                                  size_t                                      replay_target_cpu_addr,
                                  uint64_t                                    capture_gpu_addr_begin,
@@ -5306,6 +5534,52 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(const std::vector<fo
                         front_command_list_ids, info.resource_id, offset, size, copy_resource_data);
 
                     track_dump_resources_.descriptor_heap_datas[heap_index].copy_shader_resources.emplace_back(
+                        std::move(copy_resource_data));
+                }
+            }
+
+            // unordered access
+            for (const auto& info_pair : heap_extra_info->unordered_access_infos)
+            {
+                const auto& info = info_pair.second;
+                if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
+                                                info.replay_handle.ptr,
+                                                heap_extra_info->capture_gpu_addr_begin,
+                                                track_dump_resources_.target.captured_descriptor_gpu_handles))
+                {
+                    uint64_t offset = 0;
+                    uint64_t size   = 0;
+                    switch (info.view.ViewDimension)
+                    {
+                        case D3D12_UAV_DIMENSION_BUFFER:
+                        {
+                            auto size = info.view.Buffer.StructureByteStride;
+                            if (size == 0)
+                            {
+                                size = graphics::dx12::GetSubresourcePixelByteSize(info.view.Format);
+                            }
+                            offset = info.view.Buffer.FirstElement * size;
+                            size   = info.view.Buffer.NumElements * size;
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    graphics::UnorderedAccess copy_resource_data;
+                    copy_resource_data.resource.subresource_indices = info.subresource_indices;
+                    CopyResourceForBeforeDrawcall(
+                        front_command_list_ids, info.resource_id, offset, size, copy_resource_data.resource);
+
+                    if (info.counter_resource_id != format::kNullHandleId)
+                    {
+                        copy_resource_data.counter_resource.subresource_indices.emplace_back(0);
+                        CopyResourceForBeforeDrawcall(front_command_list_ids,
+                                                      info.counter_resource_id,
+                                                      info.view.Buffer.CounterOffsetInBytes,
+                                                      0,
+                                                      copy_resource_data.resource);
+                    }
+                    track_dump_resources_.descriptor_heap_datas[heap_index].copy_unordered_accesses.emplace_back(
                         std::move(copy_resource_data));
                 }
             }
@@ -5478,6 +5752,13 @@ void Dx12ReplayConsumerBase::CopyResourcesForAfterDrawcall(const std::vector<for
         {
             // shader resource
             CopyResourcesForAfterDrawcall(front_command_list_ids, heap_data.copy_shader_resources);
+
+            // unordered access
+            for (auto& uav : heap_data.copy_unordered_accesses)
+            {
+                CopyResourceForAfterDrawcall(front_command_list_ids, uav.resource);
+                CopyResourceForAfterDrawcall(front_command_list_ids, uav.counter_resource);
+            }
         }
     }
 

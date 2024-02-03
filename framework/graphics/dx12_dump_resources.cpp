@@ -34,8 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 
 // TEST_READABLE is only for test because data type could be various.
 // But here uses fixed type.
-// float for vertex, index, constant buffer, shader resource(buffer), ExecuteIndirect
-// image for shader resource(texture), render target.
+// According to the resource's desc.Dimension, float is for buffer, image is for the others.
 const bool TEST_READABLE = false;
 
 Dx12DumpResources::Dx12DumpResources() : json_file_handle_(nullptr) {}
@@ -117,6 +116,15 @@ void Dx12DumpResources::WriteResources(const TrackDumpResources& resources)
                 json_options_.data_sub_dir + "_heap_id_" + std::to_string(resources.target.descriptor_heap_ids[index]);
             WriteResources(jdata_sub["constant_buffer"], filename, heap_data.copy_constant_buffer_resources);
             WriteResources(jdata_sub["shader_resource"], filename, heap_data.copy_shader_resources);
+
+            uint32_t uav_index = 0;
+            for (const auto& uav_data : heap_data.copy_unordered_accesses)
+            {
+                WriteResource(jdata_sub["unordered_access"][uav_index]["reousrce"], filename, uav_data.resource);
+                WriteResource(
+                    jdata_sub["unordered_access"][uav_index]["counter_resource"], filename, uav_data.counter_resource);
+                ++uav_index;
+            }
             ++index;
         }
 
@@ -136,53 +144,64 @@ void Dx12DumpResources::WriteResources(const TrackDumpResources& resources)
             gfxrecon::util::filepath::Join(json_options_.root_dir, json_options_.data_sub_dir);
 
         // vertex
-        TestWriteFloatResources(prefix_file_name, resources.copy_vertex_resources);
+        TestWriteReadableResources(prefix_file_name, resources.copy_vertex_resources);
 
         // index
-        TestWriteFloatResource(prefix_file_name, resources.copy_index_resource);
+        TestWriteReadableResource(prefix_file_name, resources.copy_index_resource);
 
         // descriptor
         uint32_t index = 0;
         for (const auto& heap_data : resources.descriptor_heap_datas)
         {
-            TestWriteFloatResources(prefix_file_name + "_heap_id_" +
-                                        std::to_string(resources.target.descriptor_heap_ids[index]),
-                                    heap_data.copy_constant_buffer_resources);
+            TestWriteReadableResources(prefix_file_name + "_heap_id_" +
+                                           std::to_string(resources.target.descriptor_heap_ids[index]),
+                                       heap_data.copy_constant_buffer_resources);
 
-            for (const auto& shader_res : heap_data.copy_shader_resources)
+            TestWriteReadableResources(prefix_file_name + "_heap_id_" +
+                                           std::to_string(resources.target.descriptor_heap_ids[index]),
+                                       heap_data.copy_shader_resources);
+
+            for (const auto& uav_data : heap_data.copy_unordered_accesses)
             {
-                if (shader_res.desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
-                {
-                    TestWriteFloatResource(prefix_file_name + "_heap_id_" +
-                                               std::to_string(resources.target.descriptor_heap_ids[index]),
-                                           shader_res);
-                }
-                else
-                {
-                    TestWriteImageResource(prefix_file_name + "_heap_id_" +
-                                               std::to_string(resources.target.descriptor_heap_ids[index]),
-                                           shader_res);
-                }
+                TestWriteReadableResource(prefix_file_name + "_heap_id_" +
+                                              std::to_string(resources.target.descriptor_heap_ids[index]),
+                                          uav_data.resource);
+                TestWriteReadableResource(prefix_file_name + "_heap_id_" +
+                                              std::to_string(resources.target.descriptor_heap_ids[index]),
+                                          uav_data.counter_resource);
             }
             ++index;
         }
 
         // render target
-        TestWriteImageResources(prefix_file_name, resources.copy_render_target_resources);
-        TestWriteImageResource(prefix_file_name, resources.copy_depth_stencil_resource);
+        TestWriteReadableResources(prefix_file_name, resources.copy_render_target_resources);
+        TestWriteReadableResource(prefix_file_name, resources.copy_depth_stencil_resource);
 
         // ExecuteIndirect
-        TestWriteFloatResource(prefix_file_name, resources.copy_exe_indirect_argument);
-        TestWriteFloatResource(prefix_file_name, resources.copy_exe_indirect_count);
+        TestWriteReadableResource(prefix_file_name, resources.copy_exe_indirect_argument);
+        TestWriteReadableResource(prefix_file_name, resources.copy_exe_indirect_count);
     }
 }
 
-void Dx12DumpResources::TestWriteFloatResources(const std::string&                   prefix_file_name,
-                                                const std::vector<CopyResourceData>& resource_datas)
+void Dx12DumpResources::TestWriteReadableResources(const std::string&                   prefix_file_name,
+                                                   const std::vector<CopyResourceData>& resource_datas)
 {
     for (const auto& resource : resource_datas)
     {
-        TestWriteFloatResource(prefix_file_name, resource);
+        TestWriteReadableResource(prefix_file_name, resource);
+    }
+}
+
+void Dx12DumpResources::TestWriteReadableResource(const std::string&      prefix_file_name,
+                                                  const CopyResourceData& resource_data)
+{
+    if (resource_data.desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+    {
+        TestWriteFloatResource(prefix_file_name, resource_data);
+    }
+    else
+    {
+        TestWriteImageResource(prefix_file_name, resource_data);
     }
 }
 
@@ -229,15 +248,6 @@ void Dx12DumpResources::TestWriteFloatResource(const std::string&      prefix_fi
                 util::platform::FileClose(after_file_handle);
             }
         }
-    }
-}
-
-void Dx12DumpResources::TestWriteImageResources(const std::string&                   prefix_file_name,
-                                                const std::vector<CopyResourceData>& resource_datas)
-{
-    for (const auto& resouce : resource_datas)
-    {
-        TestWriteImageResource(prefix_file_name, resouce);
     }
 }
 

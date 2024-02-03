@@ -150,6 +150,14 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                    StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
                                                    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
+    void PostCall_ID3D12Device_CreateUnorderedAccessView(
+        const ApiCallInfo&                                              call_info,
+        DxObjectInfo*                                                   object_info,
+        format::HandleId                                                pResource,
+        format::HandleId                                                pCounterResource,
+        StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor);
+
     void
     PostCall_ID3D12Device_CreateRenderTargetView(const ApiCallInfo& call_info,
                                                  DxObjectInfo*      object_info,
@@ -176,6 +184,24 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                          DxObjectInfo*                             object_info,
                                                          UINT                                      NumCommandLists,
                                                          HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists);
+
+    void PostCall_ID3D12Device_CopyDescriptors(
+        const ApiCallInfo&                                         call_info,
+        DxObjectInfo*                                              device_object_info,
+        UINT                                                       NumDestDescriptorRanges,
+        StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDestDescriptorRangeStarts,
+        PointerDecoder<UINT>*                                      pDestDescriptorRangeSizes,
+        UINT                                                       NumSrcDescriptorRanges,
+        StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pSrcDescriptorRangeStarts,
+        PointerDecoder<UINT>*                                      pSrcDescriptorRangeSizes,
+        D3D12_DESCRIPTOR_HEAP_TYPE                                 DescriptorHeapsType);
+
+    void PostCall_ID3D12Device_CopyDescriptorsSimple(const ApiCallInfo&                  call_info,
+                                                     DxObjectInfo*                       device_object_info,
+                                                     UINT                                NumDescriptors,
+                                                     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptorRangeStart,
+                                                     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
+                                                     D3D12_DESCRIPTOR_HEAP_TYPE          DescriptorHeapsType);
 
     template <typename T>
     T* MapObject(const format::HandleId id)

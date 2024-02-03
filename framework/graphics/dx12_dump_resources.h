@@ -68,10 +68,17 @@ struct CopyResourceData
     }
 };
 
+struct UnorderedAccess
+{
+    CopyResourceData resource;
+    CopyResourceData counter_resource;
+};
+
 struct DescriptorHeapData
 {
     std::vector<CopyResourceData> copy_constant_buffer_resources;
     std::vector<CopyResourceData> copy_shader_resources;
+    std::vector<UnorderedAccess>  copy_unordered_accesses;
 };
 
 struct CommandSet
@@ -184,11 +191,11 @@ class Dx12DumpResources
 
     bool WriteBinaryFile(const std::string& filename, const std::vector<uint8_t>& data, uint64_t offset, uint64_t size);
 
-    void TestWriteFloatResources(const std::string&                   prefix_file_name,
-                                 const std::vector<CopyResourceData>& resource_datas);
+    void TestWriteReadableResources(const std::string&                   prefix_file_name,
+                                    const std::vector<CopyResourceData>& resource_datas);
+    void TestWriteReadableResource(const std::string& prefix_file_name, const CopyResourceData& resource_data);
+
     void TestWriteFloatResource(const std::string& prefix_file_name, const CopyResourceData& resource_data);
-    void TestWriteImageResources(const std::string&                   prefix_file_name,
-                                 const std::vector<CopyResourceData>& resource_datas);
     void TestWriteImageResource(const std::string& prefix_file_name, const CopyResourceData& resource_data);
 
     util::JsonOptions      json_options_;
