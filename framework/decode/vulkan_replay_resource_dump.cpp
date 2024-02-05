@@ -47,9 +47,14 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 template <typename T>
 static bool IsInsideRange(const std::vector<T>& vec, T value)
 {
-    assert(vec.size());
-
-    return (value >= *(vec.begin()) && value <= *(vec.end() - 1));
+    if (!vec.size())
+    {
+        return false;
+    }
+    else
+    {
+        return (value >= *(vec.begin()) && value <= *(vec.end() - 1));
+    }
 }
 
 static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat format)
@@ -2476,7 +2481,7 @@ void VulkanReplayResourceDumpBase::OverrideCmdTraceRaysKHR(
     {
         if (dr_context->ShouldDumpTraceRays(call_info.index))
         {
-            dr_context->CloneDispatchRaysResources(call_info.index, true, false);
+            dr_context->CloneDispatchRaysResources(call_info.index, false, false);
         }
     }
 }
@@ -3833,6 +3838,7 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
         assert(mutable_resources_clones_before.size());
         assert(mutable_resources_clones_before.find(index) != mutable_resources_clones_before.end());
 
+        // Dump images
         for (size_t i = 0; i < mutable_resources_clones_before[index].original_images.size(); ++i)
         {
             const ImageInfo*      image_info = mutable_resources_clones_before[index].original_images[i];
@@ -3863,15 +3869,14 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
             }
 
             util::imagewriter::DataFormats output_image_format = VkFormatToImageWriterDataFormat(image_info->format);
-
             if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
             {
                 uint32_t desc_set = mutable_resources_clones_before[index].image_desc_set_binding_pair[i].first;
                 uint32_t binding  = mutable_resources_clones_before[index].image_desc_set_binding_pair[i].second;
 
                 std::stringstream filename;
-                filename << dump_resource_path << (is_dispatch ? "vkCmdDispatch_" : "vkCmdTraceRays_") << "before_"
-                         << index << "_set_" << desc_set << "_binding_" << binding << "_aspect_"
+                filename << dump_resource_path << (is_dispatch ? "Dispatch_" : "TraceRays_") << "before_" << index
+                         << "_set_" << desc_set << "_binding_" << binding << "_aspect_"
                          << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_"
                          << 0 << util::ScreenshotFormatToCStr(image_file_format);
 
@@ -3906,13 +3911,39 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
                 uint32_t binding  = mutable_resources_clones_before[index].image_desc_set_binding_pair[i].second;
 
                 std::stringstream filename;
-                filename << dump_resource_path << (is_dispatch ? "vkCmdDispatch_" : "vkCmdTraceRays_") << "before_"
-                         << index << "_set_" << desc_set << "_binding_" << binding << "_aspect_"
+                filename << dump_resource_path << (is_dispatch ? "Dispatch_" : "TraceRays_") << "before_" << index
+                         << "_set_" << desc_set << "_binding_" << binding << "_aspect_"
                          << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_"
-                         << 0 << ".bin";
+                         << 0 << "_" << util::ToString<VkFormat>(image_info->format) << ".bin";
 
                 util::bufferwriter::WriteBuffer(filename.str(), data.data(), data.size());
             }
+        }
+
+        // Dump buffers
+        for (size_t i = 0; i < mutable_resources_clones_before[index].original_buffers.size(); ++i)
+        {
+            const BufferInfo*    buffer_info = mutable_resources_clones_before[index].original_buffers[i];
+            std::vector<uint8_t> data;
+
+            VkResult res = resource_util.ReadFromBufferResource(mutable_resources_clones_before[index].buffers[i],
+                                                                buffer_info->size,
+                                                                buffer_info->queue_family_index,
+                                                                data);
+
+            if (res != VK_SUCCESS)
+            {
+                return res;
+            }
+
+            uint32_t desc_set = mutable_resources_clones_before[index].buffer_desc_set_binding_pair[i].first;
+            uint32_t binding  = mutable_resources_clones_before[index].buffer_desc_set_binding_pair[i].second;
+
+            std::stringstream filename;
+            filename << dump_resource_path << (is_dispatch ? "Dispatch_" : "TraceRays_") << "before_" << index
+                     << "_set_" << desc_set << "_binding_" << binding << "_buffer.bin";
+
+            util::bufferwriter::WriteBuffer(filename.str(), data.data(), data.size());
         }
     }
 
@@ -3948,15 +3979,14 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
         }
 
         util::imagewriter::DataFormats output_image_format = VkFormatToImageWriterDataFormat(image_info->format);
-
         if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
         {
             uint32_t desc_set = mutable_resources_clones[index].image_desc_set_binding_pair[i].first;
             uint32_t binding  = mutable_resources_clones[index].image_desc_set_binding_pair[i].second;
 
             std::stringstream filename;
-            filename << dump_resource_path << (is_dispatch ? "vkCmdDispatch_after_" : "vkCmdTraceRays_after_") << index
-                     << "_set_" << desc_set << "_binding_" << binding << "_aspect_"
+            filename << dump_resource_path << (is_dispatch ? "Dispatch_after_" : "TraceRays_after_") << index << "_set_"
+                     << desc_set << "_binding_" << binding << "_aspect_"
                      << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_" << 0
                      << util::ScreenshotFormatToCStr(image_file_format);
 
@@ -3990,11 +4020,37 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
             uint32_t binding  = mutable_resources_clones[index].image_desc_set_binding_pair[i].second;
 
             std::stringstream filename;
-            filename << dump_resource_path << (is_dispatch ? "vkCmdDispatch_after_" : "vkCmdTraceRays_after_") << index
-                     << "_set_" << desc_set << "_binding_" << binding << "_aspect_"
+            filename << dump_resource_path << (is_dispatch ? "Dispatch_after_" : "TraceRays_after_") << index << "_set_"
+                     << desc_set << "_binding_" << binding << "_aspect_"
                      << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_" << 0
-                     << ".bin";
+                     << "_" << util::ToString<VkFormat>(image_info->format).c_str() << ".bin";
+
+            util::bufferwriter::WriteBuffer(filename.str(), data.data(), data.size());
         }
+    }
+
+    // Dump buffers
+    for (size_t i = 0; i < mutable_resources_clones[index].original_buffers.size(); ++i)
+    {
+        const BufferInfo*    buffer_info = mutable_resources_clones[index].original_buffers[i];
+        std::vector<uint8_t> data;
+
+        VkResult res = resource_util.ReadFromBufferResource(
+            mutable_resources_clones[index].buffers[i], buffer_info->size, buffer_info->queue_family_index, data);
+
+        if (res != VK_SUCCESS)
+        {
+            return res;
+        }
+
+        uint32_t desc_set = mutable_resources_clones[index].buffer_desc_set_binding_pair[i].first;
+        uint32_t binding  = mutable_resources_clones[index].buffer_desc_set_binding_pair[i].second;
+
+        std::stringstream filename;
+        filename << dump_resource_path << (is_dispatch ? "Dispatch_after_" : "TraceRays_after_") << index << "_set_"
+                 << desc_set << "_binding_" << binding << "_buffer.bin";
+
+        util::bufferwriter::WriteBuffer(filename.str(), data.data(), data.size());
     }
 
     return VK_SUCCESS;
