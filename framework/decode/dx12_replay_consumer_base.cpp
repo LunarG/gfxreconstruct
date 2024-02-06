@@ -354,8 +354,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
                                                      resource_info.second.data,
                                                      resource_info.second.subresource_offsets,
                                                      resource_info.second.subresource_sizes,
-                                                     resource_info.second.staging_resource,
-                                                     true);
+                                                     resource_info.second.staging_resource);
             }
         }
         resource_data_util_->CloseCommandList();
