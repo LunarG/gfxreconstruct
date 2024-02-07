@@ -114,9 +114,6 @@ struct TrackDumpResources
     CopyResourceData copy_exe_indirect_argument;
     CopyResourceData copy_exe_indirect_count;
 
-    // pair: captured_buffer, modified_buffer
-    std::vector<std::pair<std::vector<uint8_t>, std::vector<uint8_t>>> signature_buffers;
-
     enum SplitCommandType
     {
         kBeforeDrawCall,
@@ -139,7 +136,6 @@ struct TrackDumpResources
         copy_depth_stencil_resource.Clear();
         copy_exe_indirect_argument.Clear();
         copy_exe_indirect_count.Clear();
-        signature_buffers.clear();
     }
 };
 

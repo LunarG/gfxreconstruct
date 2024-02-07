@@ -259,19 +259,18 @@ void Dx12ReplayConsumer::Process_D3D12SerializeVersionedRootSignature(
         ppBlob,
         ppErrorBlob);
     if(!ppBlob->IsNull()) ppBlob->SetHandleLength(1);
-    DxObjectInfo object_info_ppBlob{};
-    ppBlob->SetConsumerData(0, &object_info_ppBlob);
+    auto out_p_ppBlob    = ppBlob->GetPointer();
+    auto out_hp_ppBlob   = ppBlob->GetHandlePointer();
     if(!ppErrorBlob->IsNull()) ppErrorBlob->SetHandleLength(1);
-    DxObjectInfo object_info_ppErrorBlob{};
-    ppErrorBlob->SetConsumerData(0, &object_info_ppErrorBlob);
-    auto replay_result = OverrideD3D12SerializeVersionedRootSignature(return_value,
-                                                                      pRootSignature,
-                                                                      ppBlob,
-                                                                      ppErrorBlob);
+    auto out_p_ppErrorBlob    = ppErrorBlob->GetPointer();
+    auto out_hp_ppErrorBlob   = ppErrorBlob->GetHandlePointer();
+    auto replay_result = D3D12SerializeVersionedRootSignature(pRootSignature->GetPointer(),
+                                                              out_hp_ppBlob,
+                                                              out_hp_ppErrorBlob);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(ppBlob->GetPointer(), ppBlob->GetHandlePointer(), std::move(object_info_ppBlob), format::ApiCall_D3D12SerializeVersionedRootSignature);
-        AddObject(ppErrorBlob->GetPointer(), ppErrorBlob->GetHandlePointer(), std::move(object_info_ppErrorBlob), format::ApiCall_D3D12SerializeVersionedRootSignature);
+        AddObject(out_p_ppBlob, out_hp_ppBlob, format::ApiCall_D3D12SerializeVersionedRootSignature);
+        AddObject(out_p_ppErrorBlob, out_hp_ppErrorBlob, format::ApiCall_D3D12SerializeVersionedRootSignature);
     }
     CheckReplayResult("D3D12SerializeVersionedRootSignature", return_value, replay_result);
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D12SerializeVersionedRootSignature>::Dispatch(
@@ -12781,20 +12780,18 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceConfiguration_SerializeVersionedRoo
             ppResult,
             ppError);
         if(!ppResult->IsNull()) ppResult->SetHandleLength(1);
-        DxObjectInfo object_info_ppResult{};
-        ppResult->SetConsumerData(0, &object_info_ppResult);
+        auto out_p_ppResult    = ppResult->GetPointer();
+        auto out_hp_ppResult   = ppResult->GetHandlePointer();
         if(!ppError->IsNull()) ppError->SetHandleLength(1);
-        DxObjectInfo object_info_ppError{};
-        ppError->SetConsumerData(0, &object_info_ppError);
-        auto replay_result = OverrideSerializeVersionedRootSignature(replay_object,
-                                                                     return_value,
-                                                                     pDesc,
-                                                                     ppResult,
-                                                                     ppError);
+        auto out_p_ppError    = ppError->GetPointer();
+        auto out_hp_ppError   = ppError->GetHandlePointer();
+        auto replay_result = reinterpret_cast<ID3D12DeviceConfiguration*>(replay_object->object)->SerializeVersionedRootSignature(pDesc->GetPointer(),
+                                                                                                                                  out_hp_ppResult,
+                                                                                                                                  out_hp_ppError);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppResult->GetPointer(), ppResult->GetHandlePointer(), std::move(object_info_ppResult), format::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature);
-            AddObject(ppError->GetPointer(), ppError->GetHandlePointer(), std::move(object_info_ppError), format::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature);
+            AddObject(out_p_ppResult, out_hp_ppResult, format::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature);
+            AddObject(out_p_ppError, out_hp_ppError, format::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature);
         }
         CheckReplayResult("ID3D12DeviceConfiguration_SerializeVersionedRootSignature", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_SerializeVersionedRootSignature>::Dispatch(

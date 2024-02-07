@@ -1,8 +1,7 @@
 {
   "functions": {
     "CreateDXGIFactory2": "OverrideCreateDXGIFactory2",
-    "D3D12CreateDevice": "OverrideD3D12CreateDevice",
-    "D3D12SerializeVersionedRootSignature": "OverrideD3D12SerializeVersionedRootSignature"
+    "D3D12CreateDevice": "OverrideD3D12CreateDevice"
   },
   "classmethods": {
     "IUnknown": {
@@ -131,9 +130,6 @@
     },
     "ID3D12Object": {
       "SetName": "OverrideSetName"
-    },
-    "ID3D12DeviceConfiguration": {
-      "SerializeVersionedRootSignature": "OverrideSerializeVersionedRootSignature"
     }
   }
 }

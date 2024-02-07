@@ -279,6 +279,19 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
                                 UINT64*                             pRowSizeInBytes,
                                 UINT64*                             pTotalBytes);
 
+inline const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* GetUnconvertedRootSignatureDesc(uint8_t* blob_with_root_signature,
+                                                                                  SIZE_T   blob_length_in_bytes)
+{
+    graphics::dx12::ID3D12VersionedRootSignatureDeserializerComPtr root_sig_deserializer{ nullptr };
+    HRESULT result = D3D12CreateVersionedRootSignatureDeserializer(
+        blob_with_root_signature, blob_length_in_bytes, IID_PPV_ARGS(&root_sig_deserializer));
+    if (SUCCEEDED(result))
+    {
+        return root_sig_deserializer->GetUnconvertedRootSignatureDesc();
+    }
+    return nullptr;
+}
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

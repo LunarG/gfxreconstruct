@@ -379,19 +379,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                          Decoded_GUID                                              riid,
                                          HandlePointerDecoder<void*>*                              heap);
 
-    HRESULT OverrideD3D12SerializeVersionedRootSignature(
-        HRESULT                                                            original_result,
-        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pRootSignature,
-        HandlePointerDecoder<ID3D10Blob*>*                                 ppBlob,
-        HandlePointerDecoder<ID3D10Blob*>*                                 ppErrorBlob);
-
-    HRESULT
-    OverrideSerializeVersionedRootSignature(DxObjectInfo* replay_object_info,
-                                            HRESULT       original_result,
-                                            StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pDesc,
-                                            HandlePointerDecoder<ID3D10Blob*>*                                 ppResult,
-                                            HandlePointerDecoder<ID3D10Blob*>*                                 ppError);
-
     void OverrideBeginRenderPass(DxObjectInfo*                                                       replay_object_info,
                                  UINT                                                                NumRenderTargets,
                                  StructPointerDecoder<Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC>* pRenderTargets,

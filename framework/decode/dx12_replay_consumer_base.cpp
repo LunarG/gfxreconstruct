@@ -3731,21 +3731,89 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
 {
     auto    device             = static_cast<ID3D12Device*>(device_object_info->object);
     auto    captured_signature = blob_with_root_signature_decoder->GetPointer();
-    HRESULT replay_result;
-    bool    is_complete = false;
+    HRESULT replay_result      = E_UNEXPECTED;
+    bool    is_complete        = false;
     if (options_.enable_dump_resources)
     {
         auto handld_id = *root_signature_decoder->GetPointer();
         if (track_dump_resources_.target.root_signature_handle_id == handld_id)
         {
-            for (const auto& pair_buffers : track_dump_resources_.signature_buffers)
+            // DATA_STATIC causes error for ResourceBarrier. Change it to NONE.
+            auto modified_root_sig =
+                *graphics::dx12::GetUnconvertedRootSignatureDesc(captured_signature, blob_length_in_bytes);
+
+            if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_1 ||
+                modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
             {
-                auto size = pair_buffers.first.size();
-                if ((size == blob_length_in_bytes) &&
-                    (std::memcmp(pair_buffers.first.data(), captured_signature, size * sizeof(uint8_t)) == 0))
+                bool                                              is_modified = false;
+                std::vector<D3D12_ROOT_PARAMETER1>                params;
+                std::vector<std::vector<D3D12_DESCRIPTOR_RANGE1>> ranges;
+                uint32_t                                          param_size = 0;
+                if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_1)
                 {
-                    auto modified_signature      = pair_buffers.second.data();
-                    auto modified_signature_size = pair_buffers.second.size();
+                    param_size = modified_root_sig.Desc_1_1.NumParameters;
+                    params.resize(param_size);
+                    std::memcpy(params.data(),
+                                modified_root_sig.Desc_1_1.pParameters,
+                                param_size * sizeof(D3D12_ROOT_PARAMETER1));
+                }
+                else if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
+                {
+                    param_size = modified_root_sig.Desc_1_2.NumParameters;
+                    params.resize(param_size);
+                    std::memcpy(params.data(),
+                                modified_root_sig.Desc_1_2.pParameters,
+                                param_size * sizeof(D3D12_ROOT_PARAMETER1));
+                }
+                ranges.resize(param_size);
+
+                for (uint32_t i = 0; i < param_size; ++i)
+                {
+                    switch (params[i].ParameterType)
+                    {
+                        case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
+                        {
+                            auto range_size = params[i].DescriptorTable.NumDescriptorRanges;
+                            ranges[i].resize(range_size);
+                            std::memcpy(ranges[i].data(),
+                                        params[i].DescriptorTable.pDescriptorRanges,
+                                        range_size * sizeof(D3D12_DESCRIPTOR_RANGE1));
+                            for (uint32_t j = 0; j < range_size; ++j)
+                            {
+                                if (ranges[i][j].Flags == D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
+                                {
+                                    ranges[i][j].Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
+                                    is_modified        = true;
+                                }
+                            }
+                            params[i].DescriptorTable.pDescriptorRanges = ranges[i].data();
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+
+                if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_1)
+                {
+                    modified_root_sig.Desc_1_1.pParameters = params.data();
+                }
+                else if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
+                {
+                    modified_root_sig.Desc_1_2.pParameters = params.data();
+                }
+
+                if (is_modified)
+                {
+                    ID3D10Blob* p_modified_blob       = nullptr;
+                    ID3D10Blob* p_modified_error_blob = nullptr;
+                    replay_result                     = D3D12SerializeVersionedRootSignature(
+                        &modified_root_sig, &p_modified_blob, &p_modified_error_blob);
+
+                    GFXRECON_ASSERT(SUCCEEDED(replay_result));
+
+                    auto modified_size   = p_modified_blob->GetBufferSize();
+                    auto modified_buffer = p_modified_blob->GetBufferPointer();
 
                     // TODO: This new signautre use NONE, instead of DATA_STATIC.
                     //       DATA_STATIC is optimization, so new signature might impact the performance.
@@ -3754,12 +3822,12 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
                     //       But if it has two root signatures, it also needs to have two PipeStates.
                     //       The target command list needs to use the new PipeStates for Create and Reset.
                     replay_result = device->CreateRootSignature(node_mask,
-                                                                modified_signature,
-                                                                modified_signature_size,
+                                                                modified_buffer,
+                                                                modified_size,
                                                                 *riid.decoded_value,
                                                                 root_signature_decoder->GetHandlePointer());
-                    is_complete   = true;
-                    break;
+                    GFXRECON_ASSERT(SUCCEEDED(replay_result));
+                    is_complete = true;
                 }
             }
         }
@@ -3971,215 +4039,6 @@ void Dx12ReplayConsumerBase::OverrideIASetVertexBuffers(
     }
 }
 
-HRESULT Dx12ReplayConsumerBase::OverrideD3D12SerializeVersionedRootSignature(
-    HRESULT                                                            original_result,
-    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pRootSignature,
-    HandlePointerDecoder<ID3D10Blob*>*                                 ppBlob,
-    HandlePointerDecoder<ID3D10Blob*>*                                 ppErrorBlob)
-{
-    auto captured_root_signature = pRootSignature->GetPointer();
-    auto out_hp_ppBlob           = ppBlob->GetHandlePointer();
-    auto out_hp_ppErrorBlob      = ppErrorBlob->GetHandlePointer();
-    auto replay_result =
-        D3D12SerializeVersionedRootSignature(captured_root_signature, out_hp_ppBlob, out_hp_ppErrorBlob);
-
-    if (options_.enable_dump_resources)
-    {
-        // DATA_STATIC causes error for ResourceBarrier. Change it to NONE.
-        auto modified_root_signature = *captured_root_signature;
-        if (modified_root_signature.Version == D3D_ROOT_SIGNATURE_VERSION_1_1 ||
-            modified_root_signature.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
-        {
-            bool                                              is_modified = false;
-            std::vector<D3D12_ROOT_PARAMETER1>                params;
-            std::vector<std::vector<D3D12_DESCRIPTOR_RANGE1>> ranges;
-            uint32_t                                          param_size = 0;
-            if (modified_root_signature.Version == D3D_ROOT_SIGNATURE_VERSION_1_1)
-            {
-                param_size = modified_root_signature.Desc_1_1.NumParameters;
-                params.resize(param_size);
-                std::memcpy(params.data(),
-                            modified_root_signature.Desc_1_1.pParameters,
-                            param_size * sizeof(D3D12_ROOT_PARAMETER1));
-            }
-            else if (modified_root_signature.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
-            {
-                param_size = modified_root_signature.Desc_1_2.NumParameters;
-                params.resize(param_size);
-                std::memcpy(params.data(),
-                            modified_root_signature.Desc_1_2.pParameters,
-                            param_size * sizeof(D3D12_ROOT_PARAMETER1));
-            }
-            ranges.resize(param_size);
-
-            for (uint32_t i = 0; i < param_size; ++i)
-            {
-                switch (params[i].ParameterType)
-                {
-                    case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
-                    {
-                        auto range_size = params[i].DescriptorTable.NumDescriptorRanges;
-                        ranges[i].resize(range_size);
-                        std::memcpy(ranges[i].data(),
-                                    params[i].DescriptorTable.pDescriptorRanges,
-                                    range_size * sizeof(D3D12_DESCRIPTOR_RANGE1));
-                        for (uint32_t j = 0; j < range_size; ++j)
-                        {
-                            if (ranges[i][j].Flags == D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
-                            {
-                                ranges[i][j].Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
-                                is_modified        = true;
-                            }
-                        }
-                        params[i].DescriptorTable.pDescriptorRanges = ranges[i].data();
-                        break;
-                    }
-                    default:
-                        break;
-                }
-            }
-
-            if (modified_root_signature.Version == D3D_ROOT_SIGNATURE_VERSION_1_1)
-            {
-                modified_root_signature.Desc_1_1.pParameters = params.data();
-            }
-            else if (modified_root_signature.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
-            {
-                modified_root_signature.Desc_1_2.pParameters = params.data();
-            }
-
-            if (is_modified)
-            {
-                ID3D10Blob* p_modified_blob       = nullptr;
-                ID3D10Blob* p_modified_error_blob = nullptr;
-                auto        replay_result         = D3D12SerializeVersionedRootSignature(
-                    &modified_root_signature, &p_modified_blob, &p_modified_error_blob);
-
-                std::vector<uint8_t> captured_blob_buffer;
-                auto                 captured_size   = (*out_hp_ppBlob)->GetBufferSize();
-                auto                 captured_buffer = (*out_hp_ppBlob)->GetBufferPointer();
-                captured_blob_buffer.resize(captured_size);
-                std::memcpy(captured_blob_buffer.data(), captured_buffer, captured_size * sizeof(uint8_t));
-
-                std::vector<uint8_t> modified_blob_buffer;
-                auto                 modified_size   = p_modified_blob->GetBufferSize();
-                auto                 modified_buffer = p_modified_blob->GetBufferPointer();
-                modified_blob_buffer.resize(modified_size);
-                std::memcpy(modified_blob_buffer.data(), modified_buffer, modified_size * sizeof(uint8_t));
-
-                track_dump_resources_.signature_buffers.emplace_back(
-                    std::make_pair(std::move(captured_blob_buffer), std::move(modified_blob_buffer)));
-            }
-        }
-    }
-    return replay_result;
-}
-
-HRESULT
-Dx12ReplayConsumerBase::OverrideSerializeVersionedRootSignature(
-    DxObjectInfo*                                                      replay_object_info,
-    HRESULT                                                            original_result,
-    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pDesc,
-    HandlePointerDecoder<ID3D10Blob*>*                                 ppResult,
-    HandlePointerDecoder<ID3D10Blob*>*                                 ppError)
-{
-    auto captured_desc   = pDesc->GetPointer();
-    auto out_hp_ppResult = ppResult->GetHandlePointer();
-    auto out_hp_ppError  = ppError->GetHandlePointer();
-    auto replay_result   = reinterpret_cast<ID3D12DeviceConfiguration*>(replay_object_info->object)
-                             ->SerializeVersionedRootSignature(captured_desc, out_hp_ppResult, out_hp_ppError);
-
-    if (options_.enable_dump_resources)
-    {
-        // DATA_STATIC causes error for ResourceBarrier. Change it to NONE.
-        auto modified_desc = *captured_desc;
-        if (modified_desc.Version == D3D_ROOT_SIGNATURE_VERSION_1_1 ||
-            modified_desc.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
-        {
-            bool                                              is_modified = false;
-            std::vector<D3D12_ROOT_PARAMETER1>                params;
-            std::vector<std::vector<D3D12_DESCRIPTOR_RANGE1>> ranges;
-            uint32_t                                          param_size = 0;
-            if (modified_desc.Version == D3D_ROOT_SIGNATURE_VERSION_1_1)
-            {
-                param_size = modified_desc.Desc_1_1.NumParameters;
-                params.resize(param_size);
-                std::memcpy(
-                    params.data(), modified_desc.Desc_1_1.pParameters, param_size * sizeof(D3D12_ROOT_PARAMETER1));
-            }
-            else if (modified_desc.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
-            {
-                param_size = modified_desc.Desc_1_2.NumParameters;
-                params.resize(param_size);
-                std::memcpy(
-                    params.data(), modified_desc.Desc_1_2.pParameters, param_size * sizeof(D3D12_ROOT_PARAMETER1));
-            }
-            ranges.resize(param_size);
-
-            for (uint32_t i = 0; i < param_size; ++i)
-            {
-                switch (params[i].ParameterType)
-                {
-                    case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
-                    {
-                        auto range_size = params[i].DescriptorTable.NumDescriptorRanges;
-                        ranges[i].resize(range_size);
-                        std::memcpy(ranges[i].data(),
-                                    params[i].DescriptorTable.pDescriptorRanges,
-                                    range_size * sizeof(D3D12_DESCRIPTOR_RANGE1));
-                        for (uint32_t j = 0; j < range_size; ++j)
-                        {
-                            if (ranges[i][j].Flags == D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
-                            {
-                                ranges[i][j].Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
-                                is_modified        = true;
-                            }
-                        }
-                        params[i].DescriptorTable.pDescriptorRanges = ranges[i].data();
-                        break;
-                    }
-                    default:
-                        break;
-                }
-            }
-
-            if (modified_desc.Version == D3D_ROOT_SIGNATURE_VERSION_1_1)
-            {
-                modified_desc.Desc_1_1.pParameters = params.data();
-            }
-            else if (modified_desc.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
-            {
-                modified_desc.Desc_1_2.pParameters = params.data();
-            }
-
-            if (is_modified)
-            {
-                ID3D10Blob* p_modified_blob       = nullptr;
-                ID3D10Blob* p_modified_error_blob = nullptr;
-                auto        replay_result =
-                    reinterpret_cast<ID3D12DeviceConfiguration*>(replay_object_info->object)
-                        ->SerializeVersionedRootSignature(&modified_desc, &p_modified_blob, &p_modified_error_blob);
-
-                std::vector<uint8_t> captured_blob_buffer;
-                auto                 captured_size   = (*out_hp_ppResult)->GetBufferSize();
-                auto                 captured_buffer = (*out_hp_ppResult)->GetBufferPointer();
-                captured_blob_buffer.resize(captured_size);
-                std::memcpy(captured_blob_buffer.data(), captured_buffer, captured_size * sizeof(uint8_t));
-
-                std::vector<uint8_t> modified_blob_buffer;
-                auto                 modified_size   = p_modified_blob->GetBufferSize();
-                auto                 modified_buffer = p_modified_blob->GetBufferPointer();
-                modified_blob_buffer.resize(modified_size);
-                std::memcpy(modified_blob_buffer.data(), modified_buffer, modified_size * sizeof(uint8_t));
-
-                track_dump_resources_.signature_buffers.emplace_back(
-                    std::make_pair(std::move(captured_blob_buffer), std::move(modified_blob_buffer)));
-            }
-        }
-    }
-    return replay_result;
-}
-
 void Dx12ReplayConsumerBase::WaitForCommandListExecution(D3D12CommandQueueInfo* queue_info, uint64_t value)
 {
     GFXRECON_ASSERT(queue_info->sync_fence != nullptr);
@@ -4340,8 +4199,8 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(
     {
         if (barriers[i].decoded_value->Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION)
         {
-            // It shouldn't change the state here. It should save the AfterState until ExecuteCommandList to change it.
-            // It needs to record the code index. The reason is that it needs to know if this ResourceBarrier is
+            // It shouldn't change the state here. It should save the AfterState until ExecuteCommandList to change
+            // it. It needs to record the code index. The reason is that it needs to know if this ResourceBarrier is
             // before or after the target drawcall. For dump resources to set the correct state,
             // it only cares before the target drawcall.
             ResourceStatesOrder state;
