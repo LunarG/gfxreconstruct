@@ -367,6 +367,12 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
                                                      resource_info.second.subresource_sizes,
                                                      resource_info.second.staging_resource);
             }
+            auto object_info = GetObjectInfo(resource_info.second.resource_id);
+            if (object_info->extra_info != nullptr)
+            {
+                auto extra_info                  = GetExtraInfo<D3D12ResourceInfo>(object_info);
+                extra_info->resource_state_infos = resource_info.second.after_states;
+            }
         }
         resource_data_util_->CloseCommandList();
         resource_data_util_->ExecuteAndWaitForCommandList();
@@ -406,6 +412,7 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
 
     // System has enough memory to batch the next Copy()
     ResourceInitInfo resource_init_info = {};
+    resource_init_info.resource_id      = command_header.resource_id;
     resource_init_info.resource         = resource;
     bool is_reserved_resource           = false;
     bool is_texture_with_unknown_layout = false;

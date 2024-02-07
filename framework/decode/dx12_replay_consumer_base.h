@@ -854,6 +854,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     struct ResourceInitInfo
     {
+        format::HandleId                               resource_id{ format::kNullHandleId };
         ID3D12Resource*                                resource{ nullptr };
         graphics::dx12::ID3D12ResourceComPtr           staging_resource{ nullptr };
         bool                                           try_map_and_copy{ true };
