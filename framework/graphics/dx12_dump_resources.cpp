@@ -212,12 +212,12 @@ void Dx12DumpResources::TestWriteFloatResource(const std::string&      prefix_fi
 
     if (!resource_data.before_data.empty())
     {
-        auto* before_data_begin = reinterpret_cast<const float*>(resource_data.before_data.data());
         for (const auto sub_index : resource_data.subresource_indices)
         {
-            auto        before_data_begin_sub = before_data_begin + resource_data.offsets[sub_index];
-            uint32_t    size                  = resource_data.sizes[sub_index] / (sizeof(float));
-            std::string before_data           = "";
+            auto before_data_begin_sub =
+                reinterpret_cast<const float*>(resource_data.before_data.data() + resource_data.offsets[sub_index]);
+            uint32_t    size        = resource_data.sizes[sub_index] / (sizeof(float));
+            std::string before_data = "";
             for (uint32_t i = 0; i < size; ++i)
             {
                 before_data += std::to_string(before_data_begin_sub[i]);
@@ -232,9 +232,9 @@ void Dx12DumpResources::TestWriteFloatResource(const std::string&      prefix_fi
 
             if (!resource_data.after_data.empty())
             {
-                auto*       after_data_begin     = reinterpret_cast<const float*>(resource_data.after_data.data());
-                auto        after_data_begin_sub = after_data_begin + resource_data.offsets[sub_index];
-                std::string after_data           = "";
+                auto after_data_begin_sub =
+                    reinterpret_cast<const float*>(resource_data.after_data.data() + resource_data.offsets[sub_index]);
+                std::string after_data = "";
                 for (uint32_t i = 0; i < size; ++i)
                 {
                     after_data += std::to_string(after_data_begin_sub[i]);
