@@ -80,6 +80,59 @@ const uint32_t kImageBppNoAlpha    = 3;  // Expecting 3 bytes per pixel for 32-b
 static std::unique_ptr<uint8_t[]> temporary_buffer;
 static size_t                     temporary_buffer_size = 0;
 
+// This function is a copy from Renderdoc sources
+inline float ConvertFromHalf(uint16_t comp)
+{
+    bool sign     = (comp & 0x8000) != 0;
+    int  exponent = (comp & 0x7C00) >> 10;
+    int  mantissa = comp & 0x03FF;
+
+    if (exponent == 0x00)
+    {
+        if (mantissa == 0)
+            return sign ? -0.0f : 0.0f;
+
+        // subnormal
+        float ret   = (float)mantissa;
+        int*  alias = (int*)&ret;
+
+        // set sign bit and set exponent to 2^-24
+        // (2^-14 from spec for subnormals * 2^-10 to convert (float)mantissa to 0.mantissa)
+        *alias = (sign ? 0x80000000 : 0) | (*alias - (24 << 23));
+
+        return ret;
+    }
+    else if (exponent < 0x1f)
+    {
+        exponent -= 15;
+
+        float ret   = 0.0f;
+        int*  alias = (int*)&ret;
+
+        // convert to float. Put sign bit in the right place, convert exponent to be
+        // [-128,127] and put in the right place, then shift mantissa up.
+        *alias = (sign ? 0x80000000 : 0) | (exponent + 127) << 23 | (mantissa << 13);
+
+        return ret;
+    }
+    else // if(exponent = 0x1f)
+    {
+        union
+        {
+            int   i;
+            float f;
+        } ret;
+
+        if (mantissa == 0)
+            ret.i = (sign ? 0x80000000 : 0) | 0x7F800000;
+        else
+            ret.i = 0x7F800001;
+
+        return ret.f;
+    }
+}
+
+// This function is a copy from Renderdoc sources
 static float Ufloat11ToFloat(uint16_t val)
 {
     const uint32_t        mantissa = val & 0x3f;
@@ -118,6 +171,7 @@ static float Ufloat11ToFloat(uint16_t val)
     }
 }
 
+// This function is a copy from Renderdoc sources
 static float Ufloat10ToFloat(uint16_t val)
 {
     const uint32_t        mantissa = val & 0x1f;
@@ -168,7 +222,7 @@ static float Ufloat10ToFloat(uint16_t val)
     }
 
 static void
-ConvertIntoTemporaryBuffer(uint32_t width, uint32_t height, const void* data, uint32_t *row_pitch, DataFormats format)
+ConvertIntoTemporaryBuffer(uint32_t width, uint32_t height, const void* data, uint32_t* row_pitch, DataFormats format)
 {
     const uint32_t output_size = width * height * kImageBpp;
     if (output_size > temporary_buffer_size)
@@ -291,6 +345,33 @@ ConvertIntoTemporaryBuffer(uint32_t width, uint32_t height, const void* data, ui
             }
             break;
 
+        case kFormat_R16G16B16A16_SFLOAT:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                const uint64_t* u64_vals = reinterpret_cast<const uint64_t*>(data);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    uint16_t a_u16 = static_cast<uint16_t>((u64_vals[y * width + x] & 0xFFFF000000000000ULL) >> 48);
+                    uint16_t b_u16 = static_cast<uint16_t>((u64_vals[y * width + x] & 0x0000FFFF00000000ULL) >> 32);
+                    uint16_t g_u16 = static_cast<uint16_t>((u64_vals[y * width + x] & 0x00000000FFFF0000ULL) >> 16);
+                    uint16_t r_u16 = static_cast<uint16_t>((u64_vals[y * width + x] & 0x000000000000FFFFULL) >> 0);
+
+                    float r_f = ConvertFromHalf(r_u16);
+                    float g_f = ConvertFromHalf(g_u16);
+                    float b_f = ConvertFromHalf(b_u16);
+                    float a_f = ConvertFromHalf(a_u16);
+
+                    uint8_t r = static_cast<uint8_t>(r_f * 255.0f);
+                    uint8_t g = static_cast<uint8_t>(g_f * 255.0f);
+                    uint8_t b = static_cast<uint8_t>(b_f * 255.0f);
+                    uint8_t a = static_cast<uint8_t>(a_f * 255.0f);
+
+                    const uint32_t rgba = (a << 24) | (r << 16) | (g << 8) | b;
+                    *(temp_buffer++)    = rgba;
+                }
+            }
+            break;
+
         case kFormat_D32_FLOAT:
             for (uint32_t y = 0; y < height; ++y)
             {
@@ -369,6 +450,7 @@ bool WriteBmpImage(const std::string& filename,
         if (remove(filename.c_str()) != -1)
         {
             GFXRECON_LOG_ERROR("Failed to delete file %s (%s)", filename.c_str(), strerror(errno));
+            return false;
         }
     }
 #endif
@@ -557,6 +639,7 @@ bool WritePngImage(const std::string& filename,
         if (remove(filename.c_str()) != -1)
         {
             GFXRECON_LOG_ERROR("Failed to delete file %s (%s)", filename.c_str(), strerror(errno));
+            return false;
         }
     }
 #endif
