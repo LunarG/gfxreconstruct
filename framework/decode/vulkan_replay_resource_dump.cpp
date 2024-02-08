@@ -70,6 +70,9 @@ static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat f
         case VK_FORMAT_B8G8R8_UNORM:
             return util::imagewriter::DataFormats::kFormat_BGR;
 
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+            return util::imagewriter::DataFormats::kFormat_R16G16B16A16_SFLOAT;
+
         case VK_FORMAT_B10G11R11_UFLOAT_PACK32:
             return util::imagewriter::DataFormats::kFormat_B10G11R11_UFLOAT;
 

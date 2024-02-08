@@ -67,6 +67,7 @@ enum DataFormats
     kFormat_RGB,
     kFormat_RGBA,
     kFormat_BGR,
+    kFormat_R16G16B16A16_SFLOAT,
     kFormat_B10G11R11_UFLOAT,
     kFormat_BGRA,
     kFormat_A2B10G10R10,
