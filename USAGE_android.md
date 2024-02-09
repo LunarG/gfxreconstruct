@@ -859,6 +859,10 @@ optional arguments:
                         If this is specified the replayer will flush and wait
                         for all current GPU work to finish at the start and end
                         of the measurement range. (forwarded to replay tool)
+  --flush-inside-measurement-range
+                        If this is specified the replayer will flush and wait
+                        for all current GPU work to finish at the end of each
+                        frame inside the measurement range. (forwarded to replay tool)
   --use-colorspace-fallback
                         Swap the swapchain color space if unsupported by replay device.
                         Check if color space is not supported by replay device and swap
