@@ -33,7 +33,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 template <typename T>
 bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
 {
-    int completed_consumers = 0;
+    size_t completed_consumers = 0;
     if (consumers.size() == 0)
     {
         return true;

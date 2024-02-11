@@ -65,8 +65,8 @@ FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
                  const std::string_view measurement_file_name) :
     measurement_start_frame_(measurement_start_frame),
     measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
-    quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
-    has_measurement_range_(has_measurement_range), started_measurement_(false), ended_measurement_(false),
+    has_measurement_range_(has_measurement_range), quit_after_range_(quit_after_range),
+    flush_measurement_range_(flush_measurement_range), started_measurement_(false), ended_measurement_(false),
     frame_start_time_(0), frame_durations_(), measurement_file_name_(measurement_file_name)
 {
     if (has_measurement_range_)

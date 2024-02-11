@@ -213,7 +213,7 @@ void WaylandWindow::UpdateWindowSize()
             scale_ = output_info.scale;
         }
 
-        if (output_info.width == width_ && output_info.height == height_)
+        if (uint32_t(output_info.width) == width_ && uint32_t(output_info.height) == height_)
         {
             wl.shell_surface_set_fullscreen(shell_surface_, WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, output_);
         }

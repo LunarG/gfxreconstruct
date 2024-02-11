@@ -41,8 +41,8 @@ const std::vector<std::string> kLoaderLibNames = {
 
 VulkanResourceTrackingConsumer::VulkanResourceTrackingConsumer(
     const VulkanReplayOptions& options, VulkanTrackedObjectInfoTable* tracked_object_info_table) :
-    options_(options),
-    loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_function_(nullptr),
+    loader_handle_(nullptr),
+    create_instance_function_(nullptr), get_instance_proc_addr_(nullptr), options_(options),
     tracked_object_info_table_(tracked_object_info_table)
 {
     assert(tracked_object_info_table != nullptr);

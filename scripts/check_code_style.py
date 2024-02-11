@@ -38,7 +38,7 @@ def check_code_style(file_list, compare_base, style_script=None, style_config_di
     """
     git_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", compare_base]).strip()
     if git_branch == b'':
-        git_branch = "master"
+        git_branch = "dev"
     if not style_script:
         # Look for the clang-format-diff.py script in the same directory as the calling script
         style_script = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "clang-format-diff.py")
