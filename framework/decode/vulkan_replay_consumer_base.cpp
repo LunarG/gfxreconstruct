@@ -185,10 +185,32 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     {
         GFXRECON_LOG_WARNING("This debugging feature has not been implemented for Vulkan.");
     }
+
+    // If we want to save a pipeline cache file, we do this to be sure the file exists, is empty, and optionally, is
+    // cached for faster access
+    if (!options_.save_pipeline_cache_filename.empty())
+    {
+        FILE*   file  = nullptr;
+        int32_t error = util::platform::FileOpen(&file, options_.save_pipeline_cache_filename.c_str(), "w");
+        if (error)
+        {
+            GFXRECON_LOG_FATAL("Could not open pipeline cache file '%s'. Error: '%s'",
+                               options_.save_pipeline_cache_filename.c_str(),
+                               strerror(error));
+            exit(-1);
+        }
+        util::platform::FileClose(file);
+    }
 }
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 {
+    for (const std::pair<format::HandleId, std::pair<const DeviceInfo*, VkPipelineCache>>& elt :
+         tracked_pipeline_caches_)
+    {
+        SavePipelineCache(elt.first, elt.second.first, elt.second.second);
+    }
+
     // Idle all devices before destroying other resources.
     WaitDevicesIdle();
 
@@ -4926,28 +4948,248 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
     assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pPipelineCache != nullptr) &&
-           (pPipelineCache->GetHandlePointer() != nullptr));
+           (pPipelineCache->GetHandlePointer() != nullptr) && (pCreateInfo->GetPointer() != nullptr));
 
     auto replay_create_info = pCreateInfo->GetPointer();
 
-    if (options_.omit_pipeline_cache_data && (replay_create_info != nullptr))
+    VkResult result;
+
+    // If pipeline cache must be loaded from file
+
+    if (!options_.load_pipeline_cache_filename.empty())
+    {
+        std::vector<char> pipelineCacheData;
+        LoadPipelineCache(*pPipelineCache->GetPointer(), pipelineCacheData);
+
+        VkPipelineCacheCreateInfo override_create_info = (*replay_create_info);
+        if (!pipelineCacheData.empty())
+        {
+            override_create_info.initialDataSize = pipelineCacheData.size();
+            override_create_info.pInitialData    = pipelineCacheData.data();
+        }
+        else
+        {
+            // If capture data could not be loaded from file, do not fail, just do not use pipeline cache data. We want
+            // this behaviour so that a cache can be created incrementally by loading the partial cache from the
+            // previous run and feeding it to create the next cache with more data until everything is built.
+            override_create_info.initialDataSize = 0;
+            override_create_info.pInitialData    = nullptr;
+        }
+
+        result = func(device_info->handle,
+                      &override_create_info,
+                      GetAllocationCallbacks(pAllocator),
+                      pPipelineCache->GetHandlePointer());
+    }
+
+    // If pipeline cache must not be loaded
+
+    else if (options_.omit_pipeline_cache_data)
     {
         // Make a shallow copy of the create info structure and clear the cache data.
         VkPipelineCacheCreateInfo override_create_info = (*replay_create_info);
         override_create_info.initialDataSize           = 0;
         override_create_info.pInitialData              = nullptr;
 
-        return func(device_info->handle,
-                    &override_create_info,
-                    GetAllocationCallbacks(pAllocator),
-                    pPipelineCache->GetHandlePointer());
+        result = func(device_info->handle,
+                      &override_create_info,
+                      GetAllocationCallbacks(pAllocator),
+                      pPipelineCache->GetHandlePointer());
     }
+
+    // If pipeline cache must be loaded from capture file
+
     else
     {
-        return func(device_info->handle,
-                    replay_create_info,
-                    GetAllocationCallbacks(pAllocator),
-                    pPipelineCache->GetHandlePointer());
+        result = func(device_info->handle,
+                      replay_create_info,
+                      GetAllocationCallbacks(pAllocator),
+                      pPipelineCache->GetHandlePointer());
+    }
+
+    // If we are creating a pipeline cache file, add this pipeline cache to the tracked list
+
+    if (!options_.save_pipeline_cache_filename.empty())
+    {
+        tracked_pipeline_caches_.emplace(*pPipelineCache->GetPointer(),
+                                         std::make_pair(device_info, *pPipelineCache->GetHandlePointer()));
+    }
+
+    return result;
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyPipelineCache(
+    PFN_vkDestroyPipelineCache                                 func,
+    const DeviceInfo*                                          device_info,
+    const PipelineCacheInfo*                                   pipeline_cache_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    assert(device_info != nullptr);
+
+    if (pipeline_cache_info == nullptr)
+    {
+        func(device_info->handle, VK_NULL_HANDLE, GetAllocationCallbacks(pAllocator));
+        return;
+    }
+
+    // If pipeline cache must be saved to a file
+    if (!options_.save_pipeline_cache_filename.empty())
+    {
+        SavePipelineCache(pipeline_cache_info->capture_id, device_info, pipeline_cache_info->handle);
+        tracked_pipeline_caches_.erase(tracked_pipeline_caches_.find(pipeline_cache_info->capture_id));
+    }
+
+    func(device_info->handle, pipeline_cache_info->handle, GetAllocationCallbacks(pAllocator));
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
+    PFN_vkCreateGraphicsPipelines                                     func,
+    VkResult                                                          original_result,
+    const DeviceInfo*                                                 device_info,
+    const PipelineCacheInfo*                                          pipeline_cache_info,
+    uint32_t                                                          createInfoCount,
+    const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
+    HandlePointerDecoder<VkPipeline>*                                 pPipelines)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((device_info != nullptr) && (createInfoCount > 0) && (pCreateInfos != nullptr) && (pPipelines != nullptr) &&
+           (pCreateInfos->GetPointer() != nullptr) && (pPipelines->GetHandlePointer() != nullptr));
+
+    VkPipelineCache pipelineCache = (pipeline_cache_info == nullptr) ? VK_NULL_HANDLE : pipeline_cache_info->handle;
+    VkPipelineCache overridePipelineCache = pipelineCache;
+
+    // If there is no pipeline cache and we want to create a new one
+
+    if (pipelineCache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
+    {
+        overridePipelineCache = CreateNewPipelineCache(device_info, *pPipelines->GetPointer());
+    }
+
+    // Forward the call with the adequate pipeline cache
+
+    VkResult result = func(device_info->handle,
+                           overridePipelineCache,
+                           createInfoCount,
+                           pCreateInfos->GetPointer(),
+                           GetAllocationCallbacks(pAllocator),
+                           pPipelines->GetHandlePointer());
+
+    // If a pipeline cache was created, track it to know when to destroy it/save it to file
+
+    if (pipelineCache != overridePipelineCache && result == VK_SUCCESS)
+    {
+        TrackNewPipelineCache(device_info,
+                              *pPipelines->GetPointer(),
+                              overridePipelineCache,
+                              pPipelines->GetHandlePointer(),
+                              createInfoCount);
+    }
+
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
+    PFN_vkCreateComputePipelines                                     func,
+    VkResult                                                         original_result,
+    const DeviceInfo*                                                device_info,
+    const PipelineCacheInfo*                                         pipeline_cache_info,
+    uint32_t                                                         createInfoCount,
+    const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+    HandlePointerDecoder<VkPipeline>*                                pPipelines)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((device_info != nullptr) && (createInfoCount > 0) && (pCreateInfos != nullptr) && (pPipelines != nullptr) &&
+           (pCreateInfos->GetPointer() != nullptr) && (pPipelines->GetHandlePointer() != nullptr));
+
+    VkPipelineCache pipelineCache = (pipeline_cache_info == nullptr) ? VK_NULL_HANDLE : pipeline_cache_info->handle;
+    VkPipelineCache overridePipelineCache = pipelineCache;
+
+    // If there is no pipeline cache and we want to create a new one
+
+    if (pipelineCache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
+    {
+        overridePipelineCache = CreateNewPipelineCache(device_info, *pPipelines->GetPointer());
+    }
+
+    // Forward the call with the adequate pipeline cache
+
+    VkResult result = func(device_info->handle,
+                           overridePipelineCache,
+                           createInfoCount,
+                           pCreateInfos->GetPointer(),
+                           GetAllocationCallbacks(pAllocator),
+                           pPipelines->GetHandlePointer());
+
+    // If a pipeline cache was created, track it to know when to destroy it/save it to file
+
+    if (pipelineCache != overridePipelineCache && result == VK_SUCCESS)
+    {
+        TrackNewPipelineCache(device_info,
+                              *pPipelines->GetPointer(),
+                              overridePipelineCache,
+                              pPipelines->GetHandlePointer(),
+                              createInfoCount);
+    }
+
+    return result;
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyPipeline(
+    PFN_vkDestroyPipeline                                      func,
+    const DeviceInfo*                                          device_info,
+    const PipelineInfo*                                        pipeline_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    assert(device_info != nullptr);
+
+    if (pipeline_info == nullptr)
+    {
+        func(device_info->handle, VK_NULL_HANDLE, GetAllocationCallbacks(pAllocator));
+        return;
+    }
+
+    func(device_info->handle, pipeline_info->handle, GetAllocationCallbacks(pAllocator));
+
+    // Check if the pipeline has been created with a specially created pipeline cache
+
+    auto itCorresp = pipeline_cache_correspondances_.find(pipeline_info->handle);
+    if (itCorresp != pipeline_cache_correspondances_.end())
+    {
+        format::HandleId id = itCorresp->second;
+        pipeline_cache_correspondances_.erase(itCorresp);
+
+        // Find if other pipelines have been created with the same pipeline cache
+
+        bool sameIdFound = false;
+        for (const std::pair<VkPipeline, format::HandleId>& elt : pipeline_cache_correspondances_)
+        {
+            if (elt.second == id)
+            {
+                sameIdFound = true;
+                break;
+            }
+        }
+
+        // If this is the only remaining pipeline bound to the pipeline cache, save and destroy the pipeline cache
+
+        if (!sameIdFound)
+        {
+            auto itTracked = tracked_pipeline_caches_.find(id);
+
+            if (!options_.save_pipeline_cache_filename.empty())
+            {
+                SavePipelineCache(id, itTracked->second.first, itTracked->second.second);
+            }
+
+            auto device_table = GetDeviceTable(device_info->handle);
+            device_table->DestroyPipelineCache(itTracked->second.first->handle, itTracked->second.second, nullptr);
+
+            tracked_pipeline_caches_.erase(itTracked);
+        }
     }
 }
 
@@ -6447,6 +6689,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     VkDeferredOperationKHR                   in_deferredOperation =
         (deferred_operation_info != nullptr) ? deferred_operation_info->handle : VK_NULL_HANDLE;
     VkPipelineCache in_pipelineCache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+    VkPipelineCache overridePipelineCache = in_pipelineCache;
+
+    // If there is no pipeline cache and we want to create a new one
+
+    if (in_pipelineCache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
+    {
+        overridePipelineCache = CreateNewPipelineCache(device_info, *pPipelines->GetPointer());
+    }
 
     if (deferred_operation_info)
     {
@@ -6530,7 +6780,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
         result = device_table->CreateRayTracingPipelinesKHR(device,
                                                             in_deferredOperation,
-                                                            in_pipelineCache,
+                                                            overridePipelineCache,
                                                             createInfoCount,
                                                             modified_create_infos.data(),
                                                             in_pAllocator,
@@ -6587,7 +6837,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
         result = device_table->CreateRayTracingPipelinesKHR(device,
                                                             in_deferredOperation,
-                                                            in_pipelineCache,
+                                                            overridePipelineCache,
                                                             createInfoCount,
                                                             in_pCreateInfos,
                                                             in_pAllocator,
@@ -6603,6 +6853,17 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                 deferred_operation_info->pending_state = false;
             }
         }
+    }
+
+    // If a pipeline cache was created, track it to know when to destroy it/save it to file
+
+    if (in_pipelineCache != overridePipelineCache && result == VK_SUCCESS)
+    {
+        TrackNewPipelineCache(device_info,
+                              *pPipelines->GetPointer(),
+                              overridePipelineCache,
+                              pPipelines->GetHandlePointer(),
+                              createInfoCount);
     }
 
     return result;
@@ -6721,6 +6982,54 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     const VkAccelerationStructureDeviceAddressInfoKHR* address_info = pInfo->GetPointer();
 
     func(device, address_info);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesNV(
+    PFN_vkCreateRayTracingPipelinesNV                                     func,
+    VkResult                                                              original_result,
+    const DeviceInfo*                                                     device_info,
+    const PipelineCacheInfo*                                              pipeline_cache_info,
+    uint32_t                                                              createInfoCount,
+    const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoNV>* pCreateInfos,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*            pAllocator,
+    HandlePointerDecoder<VkPipeline>*                                     pPipelines)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((device_info != nullptr) && (createInfoCount > 0) && (pCreateInfos != nullptr) && (pPipelines != nullptr) &&
+           (pCreateInfos->GetPointer() != nullptr) && (pPipelines->GetHandlePointer() != nullptr));
+
+    VkPipelineCache pipelineCache = (pipeline_cache_info == nullptr) ? VK_NULL_HANDLE : pipeline_cache_info->handle;
+    VkPipelineCache overridePipelineCache = pipelineCache;
+
+    // If there is no pipeline cache and we want to create a new one
+
+    if (pipelineCache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
+    {
+        overridePipelineCache = CreateNewPipelineCache(device_info, *pPipelines->GetPointer());
+    }
+
+    // Forward the call with the adequate pipeline cache
+
+    VkResult result = func(device_info->handle,
+                           overridePipelineCache,
+                           createInfoCount,
+                           pCreateInfos->GetPointer(),
+                           GetAllocationCallbacks(pAllocator),
+                           pPipelines->GetHandlePointer());
+
+    // If a pipeline cache was created, track it to know when to destroy it/save it to file
+
+    if (pipelineCache != overridePipelineCache && result == VK_SUCCESS)
+    {
+        TrackNewPipelineCache(device_info,
+                              *pPipelines->GetPointer(),
+                              overridePipelineCache,
+                              pPipelines->GetHandlePointer(),
+                              createInfoCount);
+    }
+
+    return result;
 }
 
 VkResult
@@ -7523,6 +7832,143 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
                                  createInfoCount,
                                  std::move(handle_info),
                                  &VulkanObjectInfoTable::AddPipelineInfo);
+    }
+}
+
+void VulkanReplayConsumerBase::LoadPipelineCache(format::HandleId id, std::vector<char>& pipelineCacheData)
+{
+    FILE*   file  = nullptr;
+    int32_t error = util::platform::FileOpen(&file, options_.load_pipeline_cache_filename.c_str(), "r");
+    if (error)
+    {
+        GFXRECON_LOG_ERROR("Could not open pipeline cache file '%s' for loading. Error: '%s'",
+                           options_.save_pipeline_cache_filename.c_str(),
+                           strerror(error));
+        return;
+    }
+
+    format::HandleId idRead;
+    uint64_t         cacheSizeRead;
+
+    // As we don't have access to an EOF function, just check that the read was successful...
+    while (util::platform::FileRead(&idRead, sizeof(format::HandleId), 1, file) == 1)
+    {
+        if (util::platform::FileRead(&cacheSizeRead, sizeof(uint64_t), 1, file) != 1)
+        {
+            GFXRECON_LOG_FATAL("Pipeline cache file corrupted.");
+            util::platform::FileClose(file);
+            return;
+        }
+
+        if (id == idRead)
+        {
+            pipelineCacheData.resize(cacheSizeRead);
+            if (util::platform::FileRead(pipelineCacheData.data(), cacheSizeRead, 1, file) != 1)
+            {
+                pipelineCacheData.clear();
+                GFXRECON_LOG_FATAL("Pipeline cache file corrupted.");
+            }
+
+            util::platform::FileClose(file);
+            return;
+        }
+        else
+        {
+            if (!util::platform::FileSeek(file, cacheSizeRead, util::platform::FileSeekCurrent))
+            {
+                GFXRECON_LOG_FATAL("Pipeline cache file corrupted.");
+                util::platform::FileClose(file);
+                return;
+            }
+        }
+    }
+
+    GFXRECON_LOG_ERROR("Pipeline cache file entry not found: %u", id);
+
+    util::platform::FileClose(file);
+}
+
+void VulkanReplayConsumerBase::SavePipelineCache(format::HandleId  id,
+                                                 const DeviceInfo* device_info,
+                                                 VkPipelineCache   pipelineCache)
+{
+    FILE*   file  = nullptr;
+    int32_t error = util::platform::FileOpen(&file, options_.save_pipeline_cache_filename.c_str(), "a");
+    if (error)
+    {
+        GFXRECON_LOG_FATAL("Could not open pipeline cache file '%s' for saving. Error: '%s'",
+                           options_.save_pipeline_cache_filename.c_str(),
+                           strerror(error));
+        exit(-1);
+    }
+
+    auto device_table = GetDeviceTable(device_info->handle);
+
+    size_t cacheSize = 0;
+    device_table->GetPipelineCacheData(device_info->handle, pipelineCache, &cacheSize, nullptr);
+    if (cacheSize == 0)
+    {
+        GFXRECON_LOG_INFO("Attempted to save an empty pipeline cache.");
+        util::platform::FileClose(file);
+        return;
+    }
+
+    std::vector<char> buffer(cacheSize);
+    device_table->GetPipelineCacheData(device_info->handle, pipelineCache, &cacheSize, buffer.data());
+
+    uint64_t writtenCacheSize = static_cast<uint64_t>(cacheSize);
+    util::platform::FileWrite(&id, sizeof(format::HandleId), 1, file);
+    util::platform::FileWrite(&writtenCacheSize, sizeof(uint64_t), 1, file);
+    util::platform::FileWrite(buffer.data(), cacheSize, 1, file);
+
+    util::platform::FileClose(file);
+}
+
+VkPipelineCache VulkanReplayConsumerBase::CreateNewPipelineCache(const DeviceInfo* device_info, format::HandleId id)
+{
+    VkPipelineCacheCreateInfo pipelineCacheCreateInfo;
+    pipelineCacheCreateInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    pipelineCacheCreateInfo.pNext           = nullptr;
+    pipelineCacheCreateInfo.initialDataSize = 0;
+    pipelineCacheCreateInfo.pInitialData    = nullptr;
+
+    std::vector<char> pipelineCacheData;
+    if (!options_.load_pipeline_cache_filename.empty())
+    {
+        LoadPipelineCache(id, pipelineCacheData);
+        if (!pipelineCacheData.empty())
+        {
+            pipelineCacheCreateInfo.initialDataSize = pipelineCacheData.size();
+            pipelineCacheCreateInfo.pInitialData    = pipelineCacheData.data();
+        }
+    }
+
+    auto device_table = GetDeviceTable(device_info->handle);
+
+    VkPipelineCache pipelineCache;
+    VkResult        result =
+        device_table->CreatePipelineCache(device_info->handle, &pipelineCacheCreateInfo, nullptr, &pipelineCache);
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to create new pipeline cache with option --add-new-pipeline-caches. Error: '%s'",
+                           enumutil::GetResultDescription(result));
+        pipelineCache = VK_NULL_HANDLE;
+    }
+
+    return pipelineCache;
+}
+
+void VulkanReplayConsumerBase::TrackNewPipelineCache(const DeviceInfo* device_info,
+                                                     format::HandleId  id,
+                                                     VkPipelineCache   pipelineCache,
+                                                     VkPipeline*       pipelines,
+                                                     uint32_t          pipelineCount)
+{
+    tracked_pipeline_caches_.emplace(id, std::make_pair(device_info, pipelineCache));
+    for (uint32_t i = 0; i < pipelineCount; ++i)
+    {
+        pipeline_cache_correspondances_.emplace(pipelines[i], id);
     }
 }
 

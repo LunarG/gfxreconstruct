@@ -59,6 +59,9 @@ struct VulkanReplayOptions : public ReplayOptions
     uint32_t                     screenshot_width, screenshot_height;
     float                        screenshot_scale;
     std::string                  replace_dir;
+    std::string                  load_pipeline_cache_filename;
+    std::string                  save_pipeline_cache_filename;
+    bool                         add_new_pipeline_caches;
 };
 
 GFXRECON_END_NAMESPACE(decode)
