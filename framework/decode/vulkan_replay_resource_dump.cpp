@@ -3451,12 +3451,13 @@ void VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::CopyImageRe
     copy.dstOffset.y                   = 0;
     copy.dstOffset.z                   = 0;
 
-    copy.extent = src_image_info->extent;
-
     for (uint32_t i = 0; i < src_image_info->level_count; ++i)
     {
         copy.srcSubresource.mipLevel = i;
         copy.dstSubresource.mipLevel = i;
+        copy.extent.width            = (src_image_info->extent.width << i);
+        copy.extent.height           = (src_image_info->extent.height << i);
+        copy.extent.depth            = (src_image_info->extent.depth << i);
 
         copies[i] = copy;
     }
@@ -3507,13 +3508,13 @@ void VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::CloneDispat
 
     for (const auto& shader : pipeline->shaders)
     {
-        for (const auto& desc_set : shader.used_descriptors_info)
+        for (const auto& desc_set : shader.second.used_descriptors_info)
         {
             const uint32_t set = desc_set.first;
             for (const auto& desc_binding : desc_set.second)
             {
                 // Search for resources that are not marked as read only
-                if (!desc_binding.second.readonly)
+                if (desc_binding.second.accessed && !desc_binding.second.readonly)
                 {
                     const uint32_t binding = desc_binding.first;
 
