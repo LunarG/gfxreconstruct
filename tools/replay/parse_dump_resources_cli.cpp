@@ -417,7 +417,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
         parse_error = CheckIndicesForErrors(vulkan_replay_options);
     }
 
-    vulkan_replay_options.dumping_resource = !parse_error;
+    vulkan_replay_options.dumping_resources = !parse_error;
     if (parse_error)
     {
         vulkan_replay_options.BeginCommandBuffer_Indices.clear();

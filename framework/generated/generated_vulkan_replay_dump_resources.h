@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_H
 #define  GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_H
 
-#include "decode/vulkan_replay_resource_dump.h"
+#include "decode/vulkan_replay_dump_resources.h"
 #include "decode/struct_pointer_decoder.h"
 #include "util/defines.h"
 
@@ -46,12 +46,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanReplayResourceDump : public VulkanReplayResourceDumpBase
+class VulkanReplayDumpResources : public VulkanReplayDumpResourcesBase
 {
   public:
-    VulkanReplayResourceDump(const VulkanReplayOptions& options, const VulkanObjectInfoTable& object_info_table) : VulkanReplayResourceDumpBase(options, object_info_table) { }
+    VulkanReplayDumpResources(const VulkanReplayOptions& options, const VulkanObjectInfoTable& object_info_table) : VulkanReplayDumpResourcesBase(options, object_info_table) { }
 
-    ~VulkanReplayResourceDump() { }
+    ~VulkanReplayDumpResources() { }
 
 void Process_vkCmdBindPipeline(
     const ApiCallInfo&                          call_info,

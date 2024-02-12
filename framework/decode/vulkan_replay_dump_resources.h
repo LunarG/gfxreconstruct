@@ -39,12 +39,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanReplayResourceDumpBase
+class VulkanReplayDumpResourcesBase
 {
   public:
-    VulkanReplayResourceDumpBase() = delete;
+    VulkanReplayDumpResourcesBase() = delete;
 
-    VulkanReplayResourceDumpBase(const VulkanReplayOptions& options, const VulkanObjectInfoTable& object_info_table);
+    VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options, const VulkanObjectInfoTable& object_info_table);
 
     VkResult CloneCommandBuffer(uint64_t                   bcb_index,
                                 const CommandBufferInfo*   original_command_buffer_info,
@@ -127,14 +127,6 @@ class VulkanReplayResourceDumpBase
                                                 uint32_t                             maxDrawCount,
                                                 uint32_t                             stride);
 
-    VkResult ModifyAndSubmit(std::vector<VkSubmitInfo>  modified_submit_infos,
-                             const encode::DeviceTable& device_table,
-                             VkQueue                    queue,
-                             VkFence                    fence,
-                             uint64_t                   index);
-
-    VkCommandBuffer GetCurrentCommandBuffer(VkCommandBuffer original_command_buffer) const;
-
     void OverrideCmdBeginRenderPass(const ApiCallInfo&                                   call_info,
                                     PFN_vkCmdBeginRenderPass                             func,
                                     VkCommandBuffer                                      original_command_buffer,
@@ -209,7 +201,11 @@ class VulkanReplayResourceDumpBase
                                        uint32_t                    dynamicOffsetCount,
                                        const uint32_t*             pDynamicOffsets);
 
-    void ResetDescriptors(VkCommandBuffer original_command_buffer);
+    VkResult QueueSubmit(std::vector<VkSubmitInfo>  modified_submit_infos,
+                         const encode::DeviceTable& device_table,
+                         VkQueue                    queue,
+                         VkFence                    fence,
+                         uint64_t                   index);
 
     bool ShouldDumpQueueSubmitIndex(uint64_t index) const;
 
@@ -223,9 +219,8 @@ class VulkanReplayResourceDumpBase
 
     bool IsRecording(VkCommandBuffer original_command_buffer) const;
 
-    bool IsolateDrawCall() const { return isolate_draw_call_; }
-
     using cmd_buf_it = std::vector<VkCommandBuffer>::const_iterator;
+
     bool
     GetDrawCallActiveCommandBuffers(VkCommandBuffer original_command_buffer, cmd_buf_it& first, cmd_buf_it& last) const;
 
@@ -269,17 +264,18 @@ class VulkanReplayResourceDumpBase
         }
     }
 
-    struct DrawCallCommandBufferContext
+    // This class handles the context related to dumping the draw call render targets
+    struct DrawCallsDumpingContext
     {
-        DrawCallCommandBufferContext(const std::vector<uint64_t>&              dc_indices,
-                                     const std::vector<std::vector<uint64_t>>& rp_indices,
-                                     const VulkanObjectInfoTable&              object_info_table,
-                                     bool                                      dump_resources_before,
-                                     const std::string&                        dump_resource_path,
-                                     util::ScreenshotFormat                    image_file_format,
-                                     float                                     dump_resource_scale);
+        DrawCallsDumpingContext(const std::vector<uint64_t>&              dc_indices,
+                                const std::vector<std::vector<uint64_t>>& rp_indices,
+                                const VulkanObjectInfoTable&              object_info_table,
+                                bool                                      dump_resources_before,
+                                const std::string&                        dump_resource_path,
+                                util::ScreenshotFormat                    image_file_format,
+                                float                                     dump_resource_scale);
 
-        ~DrawCallCommandBufferContext();
+        ~DrawCallsDumpingContext();
 
         const CommandBufferInfo*           original_command_buffer_info;
         std::vector<VkCommandBuffer>       command_buffers;
@@ -392,28 +388,18 @@ class VulkanReplayResourceDumpBase
         const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
     };
 
-    VulkanReplayResourceDumpBase::DrawCallCommandBufferContext*
-    FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer);
-
-    const VulkanReplayResourceDumpBase::DrawCallCommandBufferContext*
-    FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer) const;
-
-    VulkanReplayResourceDumpBase::DrawCallCommandBufferContext* FindDrawCallCommandBufferContext(uint64_t bcb_id);
-
-    const VulkanReplayResourceDumpBase::DrawCallCommandBufferContext*
-    FindDrawCallCommandBufferContext(uint64_t bcb_id) const;
-
-    struct DispatchRaysCommandBufferContext
+    // This class handles the context related to dumping Dispatch and TraceRays resouces
+    struct DispatchTraceRaysDumpingContext
     {
-        DispatchRaysCommandBufferContext(const std::vector<uint64_t>& dispatch_indices,
-                                         const std::vector<uint64_t>& trace_rays_indices,
-                                         const VulkanObjectInfoTable& object_info_table,
-                                         bool                         dump_resources_before,
-                                         const std::string&           dump_resource_path,
-                                         util::ScreenshotFormat       image_file_format,
-                                         float                        dump_resources_scale);
+        DispatchTraceRaysDumpingContext(const std::vector<uint64_t>& dispatch_indices,
+                                        const std::vector<uint64_t>& trace_rays_indices,
+                                        const VulkanObjectInfoTable& object_info_table,
+                                        bool                         dump_resources_before,
+                                        const std::string&           dump_resource_path,
+                                        util::ScreenshotFormat       image_file_format,
+                                        float                        dump_resources_scale);
 
-        ~DispatchRaysCommandBufferContext();
+        ~DispatchTraceRaysDumpingContext();
 
         VkResult CloneCommandBuffer(const CommandBufferInfo* orig_cmd_buf_info, const encode::DeviceTable* dev_table);
 
@@ -502,33 +488,42 @@ class VulkanReplayResourceDumpBase
     std::vector<uint64_t> QueueSubmit_indices_;
 
     // One per BeginCommandBuffer index
-    std::unordered_map<uint64_t, DrawCallCommandBufferContext>     draw_call_contexts;
-    std::unordered_map<uint64_t, DispatchRaysCommandBufferContext> dispatch_ray_contexts;
+    std::unordered_map<uint64_t, DrawCallsDumpingContext>         draw_call_contexts;
+    std::unordered_map<uint64_t, DispatchTraceRaysDumpingContext> dispatch_ray_contexts;
 
     // Mapping between the original VkCommandBuffer handle and BeginCommandBuffer index
     std::unordered_map<VkCommandBuffer, uint64_t> cmd_buf_begin_map_;
 
+    bool recording_;
+    bool dump_resources_before_;
+
+    const VulkanObjectInfoTable& object_info_table_;
+
   private:
     bool UpdateRecordingStatus();
 
-    VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext*
+    VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext*
     FindDispatchRaysCommandBufferContext(uint64_t bcb_id);
 
-    const VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext*
+    const VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext*
     FindDispatchRaysCommandBufferContext(uint64_t bcb_id) const;
 
-    VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext*
+    VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext*
     FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer);
 
-    const VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext*
+    const VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext*
     FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer) const;
 
-    bool recording_;
-    bool dump_resources_before_;
-    bool isolate_draw_call_;
-    bool enabled_;
+    VulkanReplayDumpResourcesBase::DrawCallsDumpingContext*
+    FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer);
 
-    const VulkanObjectInfoTable& object_info_table_;
+    const VulkanReplayDumpResourcesBase::DrawCallsDumpingContext*
+    FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer) const;
+
+    VulkanReplayDumpResourcesBase::DrawCallsDumpingContext* FindDrawCallCommandBufferContext(uint64_t bcb_id);
+
+    const VulkanReplayDumpResourcesBase::DrawCallsDumpingContext*
+    FindDrawCallCommandBufferContext(uint64_t bcb_id) const;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -1591,7 +1591,7 @@ class BaseGenerator(OutputGenerator):
         return True if ('Dx12' in self.__class__.__name__) else False
 
     def is_resource_dump_class(self):
-        return True if ('ReplayResourceDump' in self.__class__.__name__) else False
+        return True if ('ReplayDumpResources' in self.__class__.__name__) else False
 
     def __get_feature_protect(self, interface):
         """Return appropriate feature protect string from 'platform' tag on feature.

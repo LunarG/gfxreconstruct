@@ -166,8 +166,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_options.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_resource_dump.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_resource_dump.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp

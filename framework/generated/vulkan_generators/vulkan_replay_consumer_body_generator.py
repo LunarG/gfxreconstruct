@@ -382,7 +382,7 @@ class VulkanReplayConsumerBodyGenerator(
             if is_override:
                 body += '    if (dumper.IsRecording(in_commandBuffer->handle))\n'
             else:
-                body += '    if (dumper.IsRecording(in_commandBuffer))\n'
+                body += '    if (options_.dumping_resources)\n'
             body += '    {\n'
             body += '        dumper.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
             body += '    }\n'
