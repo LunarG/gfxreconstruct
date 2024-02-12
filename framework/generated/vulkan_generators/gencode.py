@@ -64,8 +64,8 @@ from vulkan_cpp_consumer_header_generator import VulkanCppConsumerHeaderGenerato
 from vulkan_json_consumer_header_generator import VulkanExportJsonConsumerHeaderGenerator, VulkanExportJsonConsumerHeaderGeneratorOptions
 from vulkan_json_consumer_body_generator import VulkanExportJsonConsumerBodyGenerator, VulkanExportJsonConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator, VulkanReplayConsumerBodyGeneratorOptions
-from vulkan_replay_resource_dump_body_generator import VulkanReplayResourceDumpBodyGenerator, VulkanReplayResourceDumpBodyGeneratorOptions
-from vulkan_replay_resource_dump_header_generator import VulkanReplayResourceDumpHeaderGenerator, VulkanReplayResourceDumpHeaderGeneratorOptions
+from vulkan_replay_dump_resources_body_generator import VulkanReplayDumpResourcesBodyGenerator, VulkanReplayDumpResourcesBodyGeneratorOptions
+from vulkan_replay_dump_resources_header_generator import VulkanReplayDumpResourcesHeaderGenerator, VulkanReplayDumpResourcesHeaderGeneratorOptions
 from vulkan_referenced_resource_consumer_header_generator import VulkanReferencedResourceHeaderGenerator, VulkanReferencedResourceHeaderGeneratorOptions
 from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator, VulkanReferencedResourceBodyGeneratorOptions
 from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator, VulkanStructHandleMappersHeaderGeneratorOptions
@@ -479,8 +479,8 @@ def make_gen_opts(args):
     ]
 
     gen_opts['generated_vulkan_replay_dump_resources.cpp'] = [
-        VulkanReplayResourceDumpBodyGenerator,
-        VulkanReplayResourceDumpBodyGeneratorOptions(
+        VulkanReplayDumpResourcesBodyGenerator,
+        VulkanReplayDumpResourcesBodyGeneratorOptions(
             filename='generated_vulkan_replay_dump_resources.cpp',
             directory=directory,
             blacklists=blacklists,
@@ -494,10 +494,10 @@ def make_gen_opts(args):
     ]
 
     gen_opts['generated_vulkan_replay_dump_resources.h'] = [
-        VulkanReplayResourceDumpHeaderGenerator,
-        VulkanReplayResourceDumpHeaderGeneratorOptions(
-            class_name='VulkanReplayResourceDump',
-            base_class_header='vulkan_replay_resource_dump.h',
+        VulkanReplayDumpResourcesHeaderGenerator,
+        VulkanReplayDumpResourcesHeaderGeneratorOptions(
+            class_name='VulkanReplayDumpResources',
+            base_class_header='vulkan_replay_dump_resources.h',
             is_override=True,
             constructor_args=
             'const VulkanReplayOptions& options, const VulkanObjectInfoTable& object_info_table',

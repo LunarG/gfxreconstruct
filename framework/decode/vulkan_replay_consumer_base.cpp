@@ -3322,7 +3322,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
-    if ((!have_imported_semaphores_) && (options_.surface_index == -1) && (!options_.dumping_resource))
+    if ((!have_imported_semaphores_) && (options_.surface_index == -1) && (!options_.dumping_resources))
     {
         result = func(queue_info->handle, submitCount, submit_infos, fence);
     }
@@ -3355,7 +3355,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
             }
         }
 
-        if (altered_submits.empty() && !options_.dumping_resource)
+        if (altered_submits.empty() && !options_.dumping_resources)
         {
             result = func(queue_info->handle, submitCount, submit_infos, fence);
         }
@@ -3411,9 +3411,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
                 modified_submit_info.pSignalSemaphores    = signal_semaphores.data();
             }
 
-            if (submit_info_data != nullptr && (options_.dumping_resource) && dumper.ShouldDumpQueueSubmitIndex(index))
+            if (submit_info_data != nullptr && (options_.dumping_resources) && dumper.ShouldDumpQueueSubmitIndex(index))
             {
-                dumper.ModifyAndSubmit(
+                dumper.QueueSubmit(
                     modified_submit_infos, *GetDeviceTable(queue_info->handle), queue_info->handle, fence, index);
             }
             else
@@ -4607,7 +4607,7 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     auto                                  replay_image = pImage->GetHandlePointer();
     auto                                  capture_id   = (*pImage->GetPointer());
 
-    if (replaying_trimmed_capture_ || options_.dumping_resource)
+    if (replaying_trimmed_capture_ || options_.dumping_resources)
     {
         // The GFXR trimmed capture process sets VK_IMAGE_USAGE_TRANSFER_SRC_BIT flag for image VkImageCreateInfo.
         // Since image memory requirements can differ when VK_IMAGE_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
@@ -5167,8 +5167,8 @@ PerformReflectionOnShaderModule(ShaderModuleInfo* shader_info, size_t spirv_size
         bool             readonly =
             (binding->decoration_flags & SPV_REFLECT_DECORATION_NON_WRITABLE) == SPV_REFLECT_DECORATION_NON_WRITABLE;
 
-        shader_info->used_descriptors_info[binding->set].emplace(binding->binding,
-                                                                 ShaderModuleInfo::DescriptorInfo(type, readonly, binding->accessed));
+        shader_info->used_descriptors_info[binding->set].emplace(
+            binding->binding, ShaderModuleInfo::DescriptorInfo(type, readonly, binding->accessed));
     }
 
     return true;
@@ -5557,7 +5557,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
 
         // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
-        if (screenshot_handler_ == nullptr && !options_.dumping_resource)
+        if (screenshot_handler_ == nullptr && !options_.dumping_resources)
         {
             result = swapchain_->CreateSwapchainKHR(original_result,
                                                     func,
@@ -7226,7 +7226,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                 assert(module_info);
                 assert(pipeline_info);
 
-                pipeline_info->shaders.insert({pCreateInfos->GetPointer()->pStages[s].stage, *module_info});
+                pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
             }
         }
     }
@@ -7430,7 +7430,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     const VkCommandBufferBeginInfo* begin_info     = begin_info_decoder->GetPointer();
 
     VkResult res = VK_SUCCESS;
-    if (options_.dumping_resource && dumper.DumpingBeginCommandBufferIndex(index))
+    if (options_.dumping_resources && dumper.DumpingBeginCommandBufferIndex(index))
     {
         GFXRECON_WRITE_CONSOLE("Reached BeginCommandBuffer %" PRIu64, index);
 
@@ -8318,7 +8318,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
                 assert(module_info);
                 assert(pipeline_info);
 
-                pipeline_info->shaders.insert({pCreateInfos->GetPointer()->pStages[s].stage, *module_info});
+                pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
             }
         }
     }
@@ -8364,7 +8364,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
             PipelineInfo* pipeline_info = reinterpret_cast<PipelineInfo*>(pPipelines->GetConsumerData(i));
             assert(pipeline_info);
 
-            pipeline_info->shaders.insert({VK_SHADER_STAGE_COMPUTE_BIT, *module_info});
+            pipeline_info->shaders.insert({ VK_SHADER_STAGE_COMPUTE_BIT, *module_info });
         }
     }
 

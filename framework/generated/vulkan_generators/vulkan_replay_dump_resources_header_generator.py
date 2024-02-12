@@ -27,7 +27,7 @@ from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
 # class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
-class VulkanReplayResourceDumpHeaderGeneratorOptions(BaseGeneratorOptions):
+class VulkanReplayDumpResourcesHeaderGeneratorOptions(BaseGeneratorOptions):
     """Adds the following new option:
     is_override - Specify whether the member function declarations are
                   virtual function overrides or pure virtual functions.
@@ -68,8 +68,8 @@ class VulkanReplayResourceDumpHeaderGeneratorOptions(BaseGeneratorOptions):
         self.dump_resources_overrides = dump_resources_overrides
 
 
-class VulkanReplayResourceDumpHeaderGenerator(BaseGenerator):
-    """VulkanReplayResourceDumpHeaderGenerator - subclass of BaseGenerator.
+class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
+    """VulkanReplayDumpResourcesHeaderGenerator - subclass of BaseGenerator.
     Generates C++ member declarations for the VulkanConsumer class responsible for processing
     Vulkan API call parameter data.
     Generate C++ class declarations for Vulkan parameter processing.

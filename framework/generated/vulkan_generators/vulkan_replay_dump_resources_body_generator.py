@@ -27,7 +27,7 @@ from base_generator import BaseGenerator, BaseGeneratorOptions, write
 from base_replay_consumer_body_generator import BaseReplayConsumerBodyGenerator
 
 
-class VulkanReplayResourceDumpBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanReplayDumpResourcesBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay."""
 
     def __init__(
@@ -56,10 +56,10 @@ class VulkanReplayResourceDumpBodyGeneratorOptions(BaseGeneratorOptions):
         self.dump_resources_overrides = dump_resources_overrides
 
 
-class VulkanReplayResourceDumpBodyGenerator(
+class VulkanReplayDumpResourcesBodyGenerator(
     BaseReplayConsumerBodyGenerator, BaseGenerator
 ):
-    """VulkanReplayResourceDumpBodyGenerator - subclass of BaseGenerator.
+    """VulkanReplayDumpResourcesBodyGenerator - subclass of BaseGenerator.
     """
 
     # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
@@ -149,11 +149,11 @@ class VulkanReplayResourceDumpBodyGenerator(
         if not is_override:
             body += '    if (IsRecording(commandBuffer))\n'
             body += '    {\n'
-            body += '        VulkanReplayResourceDumpBase::cmd_buf_it first, last;\n'
+            body += '        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;\n'
             body += '        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);\n'
             body += '        if (found)\n'
             body += '        {\n'
-            body += '            for (VulkanReplayResourceDumpBase::cmd_buf_it it = first; it < last; ++it)\n'
+            body += '            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)\n'
             body += '            {\n'
 
             dispatchfunc = 'func(*it, '

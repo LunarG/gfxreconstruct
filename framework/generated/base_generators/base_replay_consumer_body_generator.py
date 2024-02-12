@@ -47,7 +47,7 @@ class BaseReplayConsumerBodyGenerator():
             if self.is_resource_dump_class():
                 cmddef += self.make_resource_dump_func_decl(
                     return_type,
-                    '{}ReplayResourceDump::Process_'.format(platform_type) + cmd,
+                    '{}ReplayDumpResources::Process_'.format(platform_type) + cmd,
                     values, cmd in self.DUMP_RESOURCES_OVERRIDES
                 ) + '\n'
             else:

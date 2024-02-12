@@ -33,7 +33,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_replay_resource_dump.h"
+#include "decode/vulkan_replay_dump_resources.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
 #include "decode/vulkan_resource_initializer.h"
@@ -1076,7 +1076,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     const VulkanReplayOptions options_;
 
-    VulkanReplayResourceDump dumper;
+    VulkanReplayDumpResources dumper;
 
   private:
     void RaiseFatalError(const char* message) const;
