@@ -367,11 +367,12 @@ struct ShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
 {
     struct DescriptorInfo
     {
-        DescriptorInfo(VkDescriptorType type, bool readonly) : type(type), readonly(readonly) {}
-        DescriptorInfo(const DescriptorInfo& other) : type(other.type), readonly(other.readonly) {}
+        DescriptorInfo(VkDescriptorType type, bool readonly, uint32_t accessed) : type(type), readonly(readonly), accessed(accessed) {}
+        DescriptorInfo(const DescriptorInfo& other) : type(other.type), readonly(other.readonly), accessed(other.accessed) {}
 
         VkDescriptorType type;
         bool             readonly;
+        uint32_t         accessed;
     };
 
     ShaderModuleInfo() = default;
@@ -393,7 +394,7 @@ struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
 
-    std::vector<ShaderModuleInfo> shaders;
+    std::unordered_map<VkShaderStageFlagBits, ShaderModuleInfo> shaders;
 };
 
 struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
