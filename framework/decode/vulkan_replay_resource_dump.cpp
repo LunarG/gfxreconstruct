@@ -93,9 +93,9 @@ static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat f
             return util::imagewriter::DataFormats::kFormat_D16_UNORM;
 
         default:
-            GFXRECON_LOG_ERROR("%s() failed to handle format %s. Will dump as a plain binary file.",
-                               __func__,
-                               util::ToString<VkFormat>(format).c_str());
+            // GFXRECON_LOG_WARNING("%s() failed to handle format %s. Will dump as a plain binary file.",
+            //                    __func__,
+            //                    util::ToString<VkFormat>(format).c_str());
             return util::imagewriter::DataFormats::kFormat_UNSPECIFIED;
     }
 }
@@ -913,6 +913,7 @@ VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpRenderTargetAtta
     graphics::VulkanResourcesUtil resource_util(
         device_info->handle, *device_table, *phys_dev_info->replay_device_info->memory_properties);
 
+    // Dump color attachments
     for (size_t i = 0; i < render_targets_[rp][sp].color_att_imgs.size(); ++i)
     {
         const ImageInfo* image_info = render_targets_[rp][sp].color_att_imgs[i];
@@ -952,16 +953,13 @@ VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpRenderTargetAtta
             std::stringstream filename;
             if (dump_resources_before)
             {
-                filename << dump_resource_path << "vkCmdDraw_" << ((cmd_buf_index % 2) ? "after_" : "before_")
-                         << dc_index << "_att_" << i << "_aspect_"
-                         << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_"
-                         << 0 << util::ScreenshotFormatToCStr(image_file_format);
+                filename << dump_resource_path << "Draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index
+                         << "_att_" << i << "_aspect_COLOR_" << util::ScreenshotFormatToCStr(image_file_format);
             }
             else
             {
-                filename << dump_resource_path << "vkCmdDraw_" << dc_index << "_att_" << i << "_aspect_"
-                         << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_"
-                         << 0 << util::ScreenshotFormatToCStr(image_file_format);
+                filename << dump_resource_path << "Draw_" << dc_index << "_att_" << i << "_aspect_COLOR_"
+                         << util::ScreenshotFormatToCStr(image_file_format);
             }
             const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, VK_IMAGE_ASPECT_COLOR_BIT);
             const uint32_t stride     = texel_size * image_info->extent.width * dump_resources_scale;
@@ -992,22 +990,19 @@ VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpRenderTargetAtta
             std::stringstream filename;
             if (dump_resources_before)
             {
-                filename << dump_resource_path << "vkCmdDraw_" << ((cmd_buf_index % 2) ? "after_" : "before_")
-                         << dc_index << "_att_" << i << "_aspect_"
-                         << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_"
-                         << 0 << ".bin";
+                filename << dump_resource_path << "Draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index
+                         << "_att_" << i << "_aspect_COLOR_.bin";
             }
             else
             {
-                filename << dump_resource_path << "vkCmdDraw_" << dc_index << "_att_" << i << "_aspect_"
-                         << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_"
-                         << 0 << ".bin";
+                filename << dump_resource_path << "Draw_" << dc_index << "_att_" << i << "_aspect_COLOR_.bin";
             }
 
             util::bufferwriter::WriteBuffer(filename.str(), data.data(), data.size());
         }
     }
 
+    // Dump depth attachment
     if (render_targets_[rp][sp].depth_att_img != nullptr)
     {
         const ImageInfo* image_info = render_targets_[rp][sp].depth_att_img;
@@ -1047,17 +1042,14 @@ VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpRenderTargetAtta
             std::stringstream filename;
             if (dump_resources_before)
             {
-                filename << dump_resource_path << "vkCmdDraw_" << ((cmd_buf_index % 2) ? "after_" : "before_")
-                         << dc_index << "_aspect_"
-                         << "VK_IMAGE_ASPECT_DEPTH_BIT"
-                         << "_ml_" << 0 << "_al_" << 0 << util::ScreenshotFormatToCStr(image_file_format);
+                filename << dump_resource_path << "Draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index
+                         << "_aspect_DEPTH" << util::ScreenshotFormatToCStr(image_file_format);
             }
             else
             {
 
-                filename << dump_resource_path << "vkCmdDraw_" << dc_index << "_aspect_"
-                         << "VK_IMAGE_ASPECT_DEPTH_BIT"
-                         << "_ml_" << 0 << "_al_" << 0 << util::ScreenshotFormatToCStr(image_file_format);
+                filename << dump_resource_path << "Draw_" << dc_index << "_aspect_DEPTH"
+                         << util::ScreenshotFormatToCStr(image_file_format);
             }
 
             // This is a bit awkward
@@ -1093,15 +1085,12 @@ VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpRenderTargetAtta
             std::stringstream filename;
             if (dump_resources_before)
             {
-                filename << dump_resource_path << "vkCmdDraw_" << ((cmd_buf_index % 2) ? "after_" : "before_")
-                         << dc_index << "_aspect_VK_IMAGE_ASPECT_DEPTH_BIT"
-                         << "_ml_" << 0 << "_al_" << 0 << ".bin";
+                filename << dump_resource_path << "Draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index
+                         << "_aspect_DEPTH.bin";
             }
             else
             {
-
-                filename << dump_resource_path << "vkCmdDraw_" << dc_index << "_aspect_VK_IMAGE_ASPECT_DEPTH_BIT"
-                         << "_ml_" << 0 << "_al_" << 0 << ".bin";
+                filename << dump_resource_path << "Draw_" << dc_index << "_aspect_DEPTH.bin";
             }
 
             util::bufferwriter::WriteBuffer(filename.str(), data.data(), data.size());
@@ -3880,9 +3869,9 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
 
                 std::stringstream filename;
                 filename << dump_resource_path << (is_dispatch ? "Dispatch_" : "TraceRays_") << "before_" << index
-                         << "_set_" << desc_set << "_binding_" << binding << "_aspect_"
-                         << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_"
-                         << 0 << util::ScreenshotFormatToCStr(image_file_format);
+                         << "_set_" << desc_set << "_binding_" << binding << "_"
+                         << util::ToString<VkFormat>(image_info->format).c_str() << "_aspect_COLOR_"
+                         << util::ScreenshotFormatToCStr(image_file_format);
 
                 const uint32_t texel_size =
                     vkuFormatElementSizeWithAspect(image_info->format, VK_IMAGE_ASPECT_COLOR_BIT);
@@ -3916,9 +3905,8 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
 
                 std::stringstream filename;
                 filename << dump_resource_path << (is_dispatch ? "Dispatch_" : "TraceRays_") << "before_" << index
-                         << "_set_" << desc_set << "_binding_" << binding << "_aspect_"
-                         << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_"
-                         << 0 << "_" << util::ToString<VkFormat>(image_info->format) << ".bin";
+                         << "_set_" << desc_set << "_binding_" << binding << "_aspect_COLOR_"
+                         << "_" << util::ToString<VkFormat>(image_info->format) << ".bin";
 
                 util::bufferwriter::WriteBuffer(filename.str(), data.data(), data.size());
             }
@@ -3989,9 +3977,9 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
             uint32_t binding  = mutable_resources_clones[index].image_desc_set_binding_pair[i].second;
 
             std::stringstream filename;
-            filename << dump_resource_path << (is_dispatch ? "Dispatch_after_" : "TraceRays_after_") << index << "_set_"
-                     << desc_set << "_binding_" << binding << "_aspect_"
-                     << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_" << 0
+            filename << dump_resource_path << (is_dispatch ? "Dispatch_" : "TraceRays_")
+                     << (dump_resources_before ? "after_" : "") << index << "_set_" << desc_set << "_binding_"
+                     << binding << "_" << util::ToString<VkFormat>(image_info->format).c_str() << "_aspect_COLOR_"
                      << util::ScreenshotFormatToCStr(image_file_format);
 
             const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, VK_IMAGE_ASPECT_COLOR_BIT);
@@ -4024,10 +4012,9 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
             uint32_t binding  = mutable_resources_clones[index].image_desc_set_binding_pair[i].second;
 
             std::stringstream filename;
-            filename << dump_resource_path << (is_dispatch ? "Dispatch_after_" : "TraceRays_after_") << index << "_set_"
-                     << desc_set << "_binding_" << binding << "_aspect_"
-                     << util::ToString<VkImageAspectFlagBits>(VK_IMAGE_ASPECT_COLOR_BIT) << "_ml_" << 0 << "_al_" << 0
-                     << "_" << util::ToString<VkFormat>(image_info->format).c_str() << ".bin";
+            filename << dump_resource_path << (is_dispatch ? "Dispatch_" : "TraceRays_")
+                     << (dump_resources_before ? "after_" : "") << index << "_set_" << desc_set << "_binding_"
+                     << binding << "_aspect_COLOR_" << util::ToString<VkFormat>(image_info->format).c_str() << ".bin";
 
             util::bufferwriter::WriteBuffer(filename.str(), data.data(), data.size());
         }
@@ -4051,8 +4038,9 @@ VkResult VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpMut
         uint32_t binding  = mutable_resources_clones[index].buffer_desc_set_binding_pair[i].second;
 
         std::stringstream filename;
-        filename << dump_resource_path << (is_dispatch ? "Dispatch_after_" : "TraceRays_after_") << index << "_set_"
-                 << desc_set << "_binding_" << binding << "_buffer.bin";
+        filename << dump_resource_path << (is_dispatch ? "Dispatch_" : "TraceRays_")
+                 << (dump_resources_before ? "after_" : "") << index << "_set_" << desc_set << "_binding_" << binding
+                 << "_buffer.bin";
 
         util::bufferwriter::WriteBuffer(filename.str(), data.data(), data.size());
     }
@@ -4071,6 +4059,7 @@ void VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::FinalizeCom
 
     device_table->EndCommandBuffer(DR_command_buffer);
 }
+
 bool VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::IsRecording() const
 {
     if (!dump_resources_before)
