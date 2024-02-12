@@ -34,12 +34,7 @@
 #include <dirent.h>
 #endif
 
-//#define TIME_DUMPING
 #define DELETE_STALE_DUMP_FILES
-
-#ifdef TIME_DUMPING
-#include <sys/time.h>
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -782,11 +777,6 @@ VkResult VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpDrawCal
 {
     BackUpMutableResources(queue);
 
-#ifdef TIME_DUMPING
-    double total_submission_time = 0;
-    double total_dumping_time    = 0;
-#endif
-
     const size_t n_drawcalls = command_buffers.size();
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
     {
@@ -808,12 +798,6 @@ VkResult VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpDrawCal
         submit_info.pSignalSemaphores    = nullptr;
 
         RevertMutableResources(queue);
-
-#ifdef TIME_DUMPING
-        struct timeval tim;
-        gettimeofday(&tim, NULL);
-        double t0 = tim.tv_sec + (tim.tv_usec / 1000.0);
-#endif
 
         const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
         assert(device_info);
@@ -846,29 +830,8 @@ VkResult VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpDrawCal
 
         device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
 
-#ifdef TIME_DUMPING
-        gettimeofday(&tim, NULL);
-        double t1 = tim.tv_sec + (tim.tv_usec / 1000.0);
-        double t  = t1 > t0 ? t1 - t0 : 0;
-        total_submission_time += t;
-        GFXRECON_WRITE_CONSOLE("Submittion %u took %g ms", cb, t);
-#endif
-
-#ifdef TIME_DUMPING
-        GFXRECON_WRITE_CONSOLE("Dumping attachments for DC %u", cb)
-        gettimeofday(&tim, NULL);
-        t0 = tim.tv_sec + (tim.tv_usec / 1000.0);
-#endif
         // Dump resources
         DumpRenderTargetAttachments(cb);
-
-#ifdef TIME_DUMPING
-        gettimeofday(&tim, NULL);
-        t1 = tim.tv_sec + (tim.tv_usec / 1000.0);
-        t  = t1 > t0 ? t1 - t0 : 0;
-        total_dumping_time += t;
-        GFXRECON_WRITE_CONSOLE("Dumping %u took %g ms", cb, t);
-#endif
 
         // Revert render attachments layouts
         // res = RevertRenderTargetImageLayouts(dc_context, queue, dc_indices[cb]);
@@ -878,11 +841,6 @@ VkResult VulkanReplayResourceDumpBase::DrawCallCommandBufferContext::DumpDrawCal
         //     return res;
         // }
     }
-
-#ifdef TIME_DUMPING
-    GFXRECON_WRITE_CONSOLE("Total submission time: %g ms", total_submission_time);
-    GFXRECON_WRITE_CONSOLE("Total dumping time: %g ms", total_dumping_time);
-#endif
 
     return VK_SUCCESS;
 }
@@ -3713,11 +3671,6 @@ VkResult
 VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpDispatchRaysMutableResources(VkQueue  queue,
                                                                                                  uint64_t bcb_index)
 {
-#ifdef TIME_DUMPING
-    double total_submission_time = 0;
-    double total_dumping_time    = 0;
-#endif
-
     GFXRECON_WRITE_CONSOLE("Submitting Dispatc/TraceRays command buffer for BeginCommandBuffer: %" PRIu64, bcb_index);
 
     VkSubmitInfo submit_info;
@@ -3730,12 +3683,6 @@ VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpDispatchRays
     submit_info.pCommandBuffers      = &DR_command_buffer;
     submit_info.signalSemaphoreCount = 0;
     submit_info.pSignalSemaphores    = nullptr;
-
-#ifdef TIME_DUMPING
-    struct timeval tim;
-    gettimeofday(&tim, NULL);
-    double t0 = tim.tv_sec + (tim.tv_usec / 1000.0);
-#endif
 
     const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
     assert(device_info);
@@ -3771,20 +3718,6 @@ VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpDispatchRays
 
     device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
 
-#ifdef TIME_DUMPING
-    gettimeofday(&tim, NULL);
-    double t1 = tim.tv_sec + (tim.tv_usec / 1000.0);
-    double t  = t1 > t0 ? t1 - t0 : 0;
-    total_submission_time += t;
-    GFXRECON_WRITE_CONSOLE("Submittion took %g ms", t);
-#endif
-
-#ifdef TIME_DUMPING
-    GFXRECON_WRITE_CONSOLE("Dumping resources")
-    gettimeofday(&tim, NULL);
-    t0 = tim.tv_sec + (tim.tv_usec / 1000.0);
-#endif
-
     for (auto index : dispatch_indices)
     {
         DumpMutableResources(index, true);
@@ -3794,14 +3727,6 @@ VulkanReplayResourceDumpBase::DispatchRaysCommandBufferContext::DumpDispatchRays
     {
         DumpMutableResources(index, false);
     }
-
-#ifdef TIME_DUMPING
-    gettimeofday(&tim, NULL);
-    t1 = tim.tv_sec + (tim.tv_usec / 1000.0);
-    t  = t1 > t0 ? t1 - t0 : 0;
-    total_dumping_time += t;
-    GFXRECON_WRITE_CONSOLE("Dumping took %g ms", t);
-#endif
 
     return VK_SUCCESS;
 }
