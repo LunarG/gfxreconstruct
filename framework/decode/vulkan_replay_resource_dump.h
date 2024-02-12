@@ -34,7 +34,7 @@
 
 #include <vector>
 #include <unordered_map>
-#include <utility> // std::pair
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
