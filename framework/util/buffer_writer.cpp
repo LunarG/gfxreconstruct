@@ -46,6 +46,8 @@ bool WriteBuffer(const std::string& filename, const void* data, size_t size)
         return false;
     }
 
+    util::platform::FileClose(file);
+
     return true;
 }
 
