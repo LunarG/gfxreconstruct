@@ -363,6 +363,9 @@ class VulkanReplayResourceDumpBase
 
         descriptor_set_t bound_descriptor_sets[kBindPoint_count];
 
+        std::string
+        GenerateImageFilename(VkFormat format, uint64_t cmd_buf_index, uint64_t dc_index, int attachment_index) const;
+
         struct
         {
             std::vector<const ImageInfo*> original_images;
@@ -423,6 +426,16 @@ class VulkanReplayResourceDumpBase
         bool ShouldDumpDispatch(uint64_t index) const;
 
         bool ShouldDumpTraceRays(uint64_t index) const;
+
+        std::string GenerateImageFilename(VkFormat format,
+                                          bool     is_dispatch,
+                                          uint64_t index,
+                                          uint32_t desc_set,
+                                          uint32_t desc_binding,
+                                          bool     before_cmd) const;
+
+        std::string GenerateBufferFilename(
+            bool is_dispatch, uint64_t index, uint32_t desc_set, uint32_t desc_binding, bool before_cmd) const;
 
         void BindDescriptorSets(VkPipelineBindPoint                          pipeline_bind_point,
                                 VkPipelineLayout                             layout,
