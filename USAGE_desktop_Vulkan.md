@@ -719,6 +719,11 @@ Optional arguments:
   --dump-resources <filename>.json
               Extract --dump-resource args from the specified json file. The format for the json file is documented in detail
               in the gfxreconstruct documentation.
+  --dump-resources-image-format <format>
+                        Image file format to use for image resource dumping.
+                        Available formats are:
+                            bmp         Bitmap file format.  This is the default format.
+                            png         Png file format.
   --dump-resources-before-draw
               In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls specified by the
               --dump-resources argument, also dump resources before those calls.

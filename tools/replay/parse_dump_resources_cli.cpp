@@ -63,7 +63,8 @@ static bool AreIndicesSorted(const std::vector<uint64_t>& indices)
     {
         if (indices[i] <= indices[i - 1])
         {
-            return false;;
+            return false;
+            ;
         }
     }
 
@@ -85,8 +86,11 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
 
     if (vulkan_replay_options.Draw_Indices.size())
     {
+        bool is_2d = false;
         for (const auto& indices : vulkan_replay_options.Draw_Indices)
         {
+            is_2d |= indices.size();
+
             if (!AreIndicesSorted(indices))
             {
                 GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
@@ -94,14 +98,29 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
                 return true;
             }
         }
+
+        if (!is_2d)
+        {
+            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
+            GFXRECON_LOG_ERROR("DrawCall indices must be a 2 dimentional array")
+            return true;
+        }
     }
 
     if (vulkan_replay_options.RenderPass_Indices.size())
     {
+        bool is_3d = false;
         for (const auto& indices0 : vulkan_replay_options.RenderPass_Indices)
         {
+            if (!indices0.size())
+            {
+                break;
+            }
+
             for (const auto& indices1 : indices0)
             {
+                is_3d |= indices1.size();
+
                 if (!AreIndicesSorted(indices1))
                 {
                     GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
@@ -110,12 +129,22 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
                 }
             }
         }
+
+        if (!is_3d)
+        {
+            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
+            GFXRECON_LOG_ERROR("RenderPass indices should be a 3 dimentional array");
+            return true;
+        }
     }
 
     if (vulkan_replay_options.Dispatch_Indices.size())
     {
+        bool is_2d = false;
         for (const auto& indices : vulkan_replay_options.Dispatch_Indices)
         {
+            is_2d |= indices.size();
+
             if (!AreIndicesSorted(indices))
             {
                 GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
@@ -123,18 +152,35 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
                 return true;
             }
         }
+
+        if (!is_2d)
+        {
+            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
+            GFXRECON_LOG_ERROR("Dispatch indices must be a 2 dimentional array")
+            return true;
+        }
     }
 
     if (vulkan_replay_options.TraceRays_Indices.size())
     {
+        bool is_2d = false;
         for (const auto& indices : vulkan_replay_options.TraceRays_Indices)
         {
+            is_2d |= indices.size();
+
             if (!AreIndicesSorted(indices))
             {
                 GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
                 GFXRECON_LOG_ERROR("TraceRays indices are not sorted")
                 return true;
             }
+        }
+
+        if (!is_2d)
+        {
+            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
+            GFXRECON_LOG_ERROR("TraceRays indices must be a 2 dimentional array")
+            return true;
         }
     }
 
