@@ -39,7 +39,7 @@ const char kArguments[] =
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
-    "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format";
+    "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format,--dump-resources-dir";
 
 static void PrintUsage(const char* exe_name)
 {
