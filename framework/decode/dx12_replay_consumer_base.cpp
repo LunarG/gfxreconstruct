@@ -103,14 +103,6 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
         InitializeScreenshotHandler();
     }
 
-    if (options.enable_dump_resources)
-    {
-        gfxrecon::graphics::Dx12DumpResourcesConfig config;
-        config.captured_file_name    = options.filename;
-        config.dump_resources_target = options.dump_resources_target;
-        dump_resources_              = gfxrecon::graphics::Dx12DumpResources::Create(config);
-    }
-
     DetectAdapters();
 
     auto get_object_func = std::bind(&Dx12ReplayConsumerBase::GetObjectInfo, this, std::placeholders::_1);
@@ -2037,7 +2029,7 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
             for (uint32_t i = 0; i < num_command_lists; ++i)
             {
                 front_command_list_ids.emplace_back(command_list_ids[i]);
-                if (i == options_.dump_resources_target.command_index)
+                if (i == track_dump_resources_.target.dump_resources_target.command_index)
                 {
                     is_complete = true;
                     modified_command_lists.emplace_back(track_dump_resources_.split_command_sets[0].list);
@@ -5929,16 +5921,21 @@ Dx12ReplayConsumerBase::CreateCopyResourceAsyncReadQueueSyncEvent(ID3D12Fence*  
 
 void Dx12ReplayConsumerBase::WriteDumpResources(DxObjectInfo* queue_object_info)
 {
+    gfxrecon::graphics::Dx12DumpResourcesConfig config;
+    config.captured_file_name                                   = options_.filename;
+    config.dump_resources_target                                = options_.dump_resources_target;
+    std::unique_ptr<graphics::Dx12DumpResources> dump_resources = gfxrecon::graphics::Dx12DumpResources::Create(config);
+
     auto queue_extra_info = GetExtraInfo<D3D12CommandQueueInfo>(queue_object_info);
     if (queue_extra_info->pending_events.empty())
     {
-        dump_resources_->WriteResources(track_dump_resources_);
+        dump_resources->WriteResources(track_dump_resources_);
         track_dump_resources_.Clear();
     }
     else
     {
         auto queue_sync_event = QueueSyncEventInfo{ false, false, nullptr, 0, [&]() {
-                                                       dump_resources_->WriteResources(track_dump_resources_);
+                                                       dump_resources->WriteResources(track_dump_resources_);
                                                        track_dump_resources_.Clear();
                                                    } };
 

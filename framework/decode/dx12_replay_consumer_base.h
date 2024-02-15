@@ -1052,7 +1052,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     util::ScreenshotFormat                                screenshot_format_;
     std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
-    std::unique_ptr<graphics::Dx12DumpResources>          dump_resources_;
     graphics::TrackDumpResources                          track_dump_resources_;
 
     std::vector<graphics::dx12::ID3D12ResourceComPtr> dump_resources_staging_buffers_;
