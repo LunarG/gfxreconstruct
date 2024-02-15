@@ -119,7 +119,10 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
     QueueSubmit_indices_(options.QueueSubmit_Indices),
     recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table)
 {
-    assert(options.Draw_Indices.size() || options.Dispatch_Indices.size() || options.TraceRays_Indices.size());
+    if (!options.Draw_Indices.size() && !options.Dispatch_Indices.size() && !options.TraceRays_Indices.size())
+    {
+        return;
+    }
 
     for (size_t i = 0; i < options.BeginCommandBuffer_Indices.size(); ++i)
     {
