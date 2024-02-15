@@ -129,6 +129,7 @@ const char kDumpResourcesArgument[]         = "--dump-resources";
 const char kDumpResourcesBeforeDrawOption[] = "--dump-resources-before-draw";
 const char kDumpResourcesImageFormat[]      = "--dump-resources-image-format";
 const char kDumpResourcesScaleArgument[]    = "--dump-resources-scale";
+const char kDumpResourcesDirArgument[]      = "--dump-resources-dir";
 
 enum class WsiPlatform
 {
@@ -170,9 +171,11 @@ const char kScreenshotFormatBmp[] = "bmp";
 const char kScreenshotFormatPng[] = "png";
 
 #if defined(__ANDROID__)
-const char kDefaultScreenshotDir[] = "/sdcard";
+const char kDefaultScreenshotDir[]    = "/sdcard";
+const char kDefaultDumpResourcesDir[] = "/sdcard";
 #else
-const char kDefaultScreenshotDir[] = "";
+const char kDefaultScreenshotDir[]    = "";
+const char kDefaultDumpResourcesDir[] = "";
 #endif
 
 static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -542,6 +545,18 @@ static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_pa
     }
 
     return kDefaultScreenshotDir;
+}
+
+static std::string GetDumpResourcesDir(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const auto& value = arg_parser.GetArgumentValue(kDumpResourcesDirArgument);
+
+    if (!value.empty())
+    {
+        return value;
+    }
+
+    return kDefaultDumpResourcesDir;
 }
 
 static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& width, uint32_t& height)
@@ -1100,6 +1115,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.dump_resources_before       = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
     replay_options.dump_resources_image_format = GetDumpresourcesImageFormat(arg_parser);
     replay_options.dump_resources_scale        = GetDumpResourcesScale(arg_parser);
+    replay_options.dump_resources_output_dir  = GetDumpResourcesDir(arg_parser);
 
     return replay_options;
 }
