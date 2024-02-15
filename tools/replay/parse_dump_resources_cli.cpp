@@ -61,10 +61,12 @@ static bool AreIndicesSorted(const std::vector<uint64_t>& indices)
 
     for (size_t i = 1; i < indices.size(); ++i)
     {
-        if (indices[i] <= indices[i - 1])
+        // Allow for two consecutive indices to be equal. This can be the case where two different command buffers
+        // are submitted in the same QueueSubmit command, hence the index of tha QueueSubmit will appear
+        // twice in the indices
+        if (indices[i] < indices[i - 1])
         {
             return false;
-            ;
         }
     }
 
