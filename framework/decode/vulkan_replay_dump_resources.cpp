@@ -757,6 +757,19 @@ bool VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::ShouldDumpDrawCall(
     return false;
 }
 
+bool VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::ShouldHandleRenderPass(uint64_t index) const
+{
+    for (const auto& rp : RP_indices)
+    {
+        if (IsInsideRange(rp, index))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 VkResult VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpDrawCallsAttachments(VkQueue  queue,
                                                                                           uint64_t bcb_index)
 {
@@ -1901,27 +1914,21 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
 {
     assert(IsRecording(original_command_buffer));
 
-    const auto render_pass_info_meta = pRenderPassBegin->GetMetaStructPointer();
-    auto       framebuffer_id        = render_pass_info_meta->framebuffer;
-    auto       render_pass_id        = render_pass_info_meta->renderPass;
-
-    const FramebufferInfo* framebuffer_info = object_info_table_.GetFramebufferInfo(framebuffer_id);
-    assert(framebuffer_info);
-
-    const RenderPassInfo* render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_info_meta->renderPass);
-    assert(render_pass_info);
-
-    VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
-    if (dr_command_buffer != VK_NULL_HANDLE)
-    {
-        func(dr_command_buffer, pRenderPassBegin->GetPointer(), contents);
-    }
-
-    // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
-    // It will be handled by DrawCallsDumpingContext::BeginRenderPass
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-    if (dc_context)
+    if (dc_context != nullptr && dc_context->ShouldHandleRenderPass(call_info.index))
     {
+        const auto render_pass_info_meta = pRenderPassBegin->GetMetaStructPointer();
+        auto       framebuffer_id        = render_pass_info_meta->framebuffer;
+        auto       render_pass_id        = render_pass_info_meta->renderPass;
+
+        const FramebufferInfo* framebuffer_info = object_info_table_.GetFramebufferInfo(framebuffer_id);
+        assert(framebuffer_info);
+
+        const RenderPassInfo* render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_id);
+        assert(render_pass_info);
+
+        // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
+        // It will be handled by DrawCallsDumpingContext::BeginRenderPass
         VkResult res = dc_context->BeginRenderPass(render_pass_info,
                                                    pRenderPassBegin->GetPointer()->clearValueCount,
                                                    pRenderPassBegin->GetPointer()->pClearValues,
@@ -1929,6 +1936,21 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
                                                    pRenderPassBegin->GetPointer()->renderArea,
                                                    contents);
         assert(res == VK_SUCCESS);
+    }
+    else if (dc_context != nullptr)
+    {
+        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+        {
+            func(*it, pRenderPassBegin->GetPointer(), contents);
+        }
+    }
+
+    VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
+    if (dr_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dr_command_buffer, pRenderPassBegin->GetPointer(), contents);
     }
 }
 
@@ -1941,27 +1963,21 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
 {
     assert(IsRecording(original_command_buffer));
 
-    const auto render_pass_info_meta = pRenderPassBegin->GetMetaStructPointer();
-    auto       framebuffer_id        = render_pass_info_meta->framebuffer;
-    auto       render_pass_id        = render_pass_info_meta->renderPass;
-
-    const FramebufferInfo* framebuffer_info = object_info_table_.GetFramebufferInfo(framebuffer_id);
-    assert(framebuffer_info);
-
-    const RenderPassInfo* render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_info_meta->renderPass);
-    assert(render_pass_info);
-
-    VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
-    if (dr_command_buffer != VK_NULL_HANDLE)
-    {
-        func(dr_command_buffer, pRenderPassBegin->GetPointer(), pSubpassBeginInfo->GetPointer());
-    }
-
-    // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
-    // It will be handled by DrawCallsDumpingContext::BeginRenderPass
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-    if (dc_context)
+    if (dc_context != nullptr && dc_context->ShouldHandleRenderPass(call_info.index))
     {
+        const auto render_pass_info_meta = pRenderPassBegin->GetMetaStructPointer();
+        auto       framebuffer_id        = render_pass_info_meta->framebuffer;
+        auto       render_pass_id        = render_pass_info_meta->renderPass;
+
+        const FramebufferInfo* framebuffer_info = object_info_table_.GetFramebufferInfo(framebuffer_id);
+        assert(framebuffer_info);
+
+        const RenderPassInfo* render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_id);
+        assert(render_pass_info);
+
+        // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
+        // It will be handled by DrawCallsDumpingContext::BeginRenderPass
         VkResult res = dc_context->BeginRenderPass(render_pass_info,
                                                    pRenderPassBegin->GetPointer()->clearValueCount,
                                                    pRenderPassBegin->GetPointer()->pClearValues,
@@ -1970,6 +1986,21 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
                                                    pSubpassBeginInfo->GetPointer()->contents);
 
         assert(res == VK_SUCCESS);
+    }
+    else if (dc_context != nullptr)
+    {
+        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+        {
+            func(*it, pRenderPassBegin->GetPointer(), pSubpassBeginInfo->GetPointer());
+        }
+    }
+
+    VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
+    if (dr_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dr_command_buffer, pRenderPassBegin->GetPointer(), pSubpassBeginInfo->GetPointer());
     }
 }
 
@@ -1984,9 +2015,18 @@ void VulkanReplayDumpResourcesBase::OverrideCmdNextSubpass(const ApiCallInfo&   
     // Do not record NextSubpass commands in current DrawCall context command buffers.
     // It will be handled by DrawCallsDumpingContext::NextSubpass
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-    if (dc_context)
+    if (dc_context != nullptr && dc_context->ShouldHandleRenderPass(call_info.index))
     {
         dc_context->NextSubpass(contents);
+    }
+    else if (dc_context != nullptr)
+    {
+        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+        {
+            func(*it, contents);
+        }
     }
 
     VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
@@ -2006,12 +2046,21 @@ void VulkanReplayDumpResourcesBase::OverrideCmdNextSubpass2(
     assert(original_command_buffer != VK_NULL_HANDLE);
     assert(IsRecording(original_command_buffer));
 
-    // Do not record NextSubpass commands in current DrawCall context command buffers.
-    // It will be handled by DrawCallsDumpingContext::NextSubpass
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-    if (dc_context)
+    if (dc_context != nullptr && dc_context->ShouldHandleRenderPass(call_info.index))
     {
+        // Do not record NextSubpass commands in current DrawCall context command buffers.
+        // It will be handled by DrawCallsDumpingContext::NextSubpass
         dc_context->NextSubpass(pSubpassBeginInfo->GetPointer()->contents);
+    }
+    else if (dc_context != nullptr)
+    {
+        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+        {
+            func(*it, pSubpassBeginInfo->GetPointer(), pSubpassEndInfo->GetPointer());
+        }
     }
 
     VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
@@ -2027,12 +2076,21 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderPass(const ApiCallInfo& 
 {
     assert(IsRecording(original_command_buffer));
 
-    // Do not record EndRenderPass commands in current DrawCall context command buffers.
-    // It will be handled by DrawCallsDumpingContext::EndRenderPass
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-    if (dc_context)
+    if (dc_context != nullptr && dc_context->ShouldHandleRenderPass(call_info.index))
     {
+        // Do not record EndRenderPass commands in current DrawCall context command buffers.
+        // It will be handled by DrawCallsDumpingContext::EndRenderPass
         dc_context->EndRenderPass();
+    }
+    else if (dc_context != nullptr)
+    {
+        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+        {
+            func(*it);
+        }
     }
 
     VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
@@ -2050,12 +2108,21 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderPass2(
 {
     assert(IsRecording(original_command_buffer));
 
-    // Do not record EndRenderPass commands in current DrawCall context command buffers.
-    // It will be handled by DrawCallsDumpingContext::EndRenderPass
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-    if (dc_context)
+    if (dc_context != nullptr && dc_context->ShouldHandleRenderPass(call_info.index))
     {
+        // Do not record EndRenderPass commands in current DrawCall context command buffers.
+        // It will be handled by DrawCallsDumpingContext::EndRenderPass
         dc_context->EndRenderPass();
+    }
+    else if (dc_context != nullptr)
+    {
+        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+        {
+            func(*it, pSubpassEndInfo->GetPointer());
+        }
     }
 
     VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);

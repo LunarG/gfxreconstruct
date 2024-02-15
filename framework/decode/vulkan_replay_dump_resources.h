@@ -319,6 +319,8 @@ class VulkanReplayDumpResourcesBase
 
         bool ShouldDumpDrawCall(uint64_t index) const;
 
+        bool ShouldHandleRenderPass(uint64_t index) const;
+
         void BindDescriptorSets(VkPipelineBindPoint                          pipeline_bind_point,
                                 VkPipelineLayout                             layout,
                                 uint32_t                                     first_set,
