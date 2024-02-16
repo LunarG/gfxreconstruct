@@ -1076,7 +1076,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     const VulkanReplayOptions options_;
 
-    VulkanReplayDumpResources dumper;
+    VulkanReplayDumpResources resource_dumper;
 
   private:
     void RaiseFatalError(const char* message) const;
