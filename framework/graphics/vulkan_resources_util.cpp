@@ -22,6 +22,7 @@
 
 #include "vulkan_resources_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 
 #include <cinttypes>
 #include <math.h>
@@ -742,7 +743,8 @@ void VulkanResourcesUtil::DestroyCommandBuffer()
 void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkImage            image,
                                                            VkImageLayout      current_layout,
                                                            VkImageLayout      destination_layout,
-                                                           VkImageAspectFlags aspect)
+                                                           VkImageAspectFlags aspect,
+                                                           uint32_t           queue_family_index)
 {
     assert(image != VK_NULL_HANDLE);
     assert(command_buffer_ != VK_NULL_HANDLE);
@@ -750,12 +752,12 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkImage            im
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     memory_barrier.pNext                           = nullptr;
-    memory_barrier.srcAccessMask                   = 0;
+    memory_barrier.srcAccessMask                   = VK_ACCESS_MEMORY_WRITE_BIT;
     memory_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
     memory_barrier.oldLayout                       = current_layout;
     memory_barrier.newLayout                       = destination_layout;
-    memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-    memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    memory_barrier.srcQueueFamilyIndex             = queue_family_index;
+    memory_barrier.dstQueueFamilyIndex             = queue_family_index;
     memory_barrier.image                           = image;
     memory_barrier.subresourceRange.aspectMask     = aspect;
     memory_barrier.subresourceRange.baseMipLevel   = 0;
@@ -764,7 +766,7 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkImage            im
     memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
 
     device_table_.CmdPipelineBarrier(command_buffer_,
-                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      0,
                                      0,
@@ -778,7 +780,8 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkImage            im
 void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkImage            image,
                                                              VkImageLayout      old_layout,
                                                              VkImageLayout      new_layout,
-                                                             VkImageAspectFlags aspect)
+                                                             VkImageAspectFlags aspect,
+                                                             uint32_t           queue_family_index)
 {
     assert(image != VK_NULL_HANDLE);
     assert(command_buffer_ != VK_NULL_HANDLE);
@@ -786,8 +789,8 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkImage            
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     memory_barrier.pNext                           = nullptr;
-    memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-    memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    memory_barrier.srcQueueFamilyIndex             = queue_family_index;
+    memory_barrier.dstQueueFamilyIndex             = queue_family_index;
     memory_barrier.image                           = image;
     memory_barrier.subresourceRange.aspectMask     = aspect;
     memory_barrier.subresourceRange.baseMipLevel   = 0;
@@ -796,13 +799,13 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkImage            
     memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
 
     memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-    memory_barrier.dstAccessMask = 0;
+    memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
     memory_barrier.oldLayout     = old_layout;
     memory_barrier.newLayout     = new_layout;
 
     device_table_.CmdPipelineBarrier(command_buffer_,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                      0,
                                      0,
                                      nullptr,
@@ -1179,15 +1182,16 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
                                                            std::vector<uint8_t>&  data,
                                                            std::vector<uint64_t>& subresource_offsets,
                                                            std::vector<uint64_t>& subresource_sizes,
+                                                           bool&                  scaling_supported,
                                                            bool                   all_layers_per_level,
                                                            float                  scale)
 {
-    VkResult           result = VK_SUCCESS;
-    VkImage            resolve_image  = VK_NULL_HANDLE;
-    VkDeviceMemory     resolve_memory = VK_NULL_HANDLE;
-    VkImage            scaled_image = VK_NULL_HANDLE;
+    VkResult           result           = VK_SUCCESS;
+    VkImage            resolve_image    = VK_NULL_HANDLE;
+    VkDeviceMemory     resolve_memory   = VK_NULL_HANDLE;
+    VkImage            scaled_image     = VK_NULL_HANDLE;
     VkDeviceMemory     scaled_image_mem = VK_NULL_HANDLE;
-    VkExtent3D         scaled_extent = extent;
+    VkExtent3D         scaled_extent    = extent;
     VkQueue            queue;
     uint64_t           resource_size;
     VkImageAspectFlags transition_aspect;
@@ -1199,12 +1203,6 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
 
     subresource_offsets.clear();
     subresource_sizes.clear();
-
-    if (scale != 1.0f)
-    {
-        scaled_extent.width *= scale;
-        scaled_extent.height *= scale;
-    }
 
     resource_size = GetImageResourceSizesOptimal(image,
                                                  format,
@@ -1275,11 +1273,68 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     }
     else if (layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
     {
-        TransitionImageToTransferOptimal(image, layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, transition_aspect);
+        TransitionImageToTransferOptimal(
+            image, layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, transition_aspect, queue_family_index);
     }
 
+    scaling_supported = true;
     if (scale != 1.0f)
     {
+        VkFormatProperties format_props;
+        instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_props);
+
+        if ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) != VK_FORMAT_FEATURE_BLIT_DST_BIT)
+        {
+            GFXRECON_LOG_ERROR_ONCE("Image with format %s and optimal tilling does not support "
+                                    "VK_FORMAT_FEATURE_BLIT_DST_BIT. Scaling will be disabled for these images.",
+                                    util::ToString<VkFormat>(format).c_str());
+
+            scaling_supported = false;
+        }
+
+        if ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) !=
+            VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
+        {
+            GFXRECON_LOG_ERROR_ONCE("Image with format %s and optimal tilling does not support "
+                                    "VK_FORMAT_FEATURE_TRANSFER_SRC_BIT. Scaling will be disabled for these images.",
+                                    util::ToString<VkFormat>(format).c_str());
+
+            scaling_supported = false;
+        }
+
+        if (scale > 1.0f)
+        {
+            VkImageFormatProperties img_format_props;
+            instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
+                                                                   format,
+                                                                   type,
+                                                                   VK_IMAGE_TILING_OPTIMAL,
+                                                                   VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                                                       VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                                                                   0,
+                                                                   &img_format_props);
+
+            if (img_format_props.maxExtent.width < extent.width * scale ||
+                img_format_props.maxExtent.height < extent.height * scale)
+            {
+                GFXRECON_LOG_ERROR_ONCE("Scaled image is too large. Image dimensions (%u x %u) exceeds "
+                                        "implementation's limits (%u x %u) for the specific image configuration "
+                                        "(%s with VK_IMAGE_TILING_OPTIMAL). Scaling will be disabled for these images.",
+                                        extent.width * scale,
+                                        extent.height * scale,
+                                        img_format_props.maxExtent.width,
+                                        img_format_props.maxExtent.height,
+                                        util::ToString<VkFormat>(format).c_str());
+                scaling_supported = false;
+            }
+        }
+    }
+
+    if (scale != 1.0f && scaling_supported)
+    {
+        scaled_extent.width *= scale;
+        scaled_extent.height *= scale;
+
         // Create a scaled image and then blit to scaled image
 
         VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
@@ -1294,7 +1349,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
         create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-        create_info.queueFamilyIndexCount = queue_family_index;
+        create_info.queueFamilyIndexCount = 0;
         create_info.pQueueFamilyIndices   = nullptr;
         create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
         result                            = device_table_.CreateImage(device_, &create_info, nullptr, &scaled_image);
@@ -1344,7 +1399,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
 
         VkImageAspectFlags aspectMask = static_cast<VkImageAspectFlagBits>(aspect);
 
-        // Transition new image into TRANSFER_DST_OPTIMAL
+        // Transition scaled image into TRANSFER_DST_OPTIMAL
         VkImageMemoryBarrier img_barrier;
         img_barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
         img_barrier.pNext               = nullptr;
@@ -1355,7 +1410,7 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         img_barrier.srcQueueFamilyIndex = queue_family_index;
         img_barrier.dstQueueFamilyIndex = queue_family_index;
         img_barrier.image               = scaled_image;
-        img_barrier.subresourceRange    = { aspectMask, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS };
+        img_barrier.subresourceRange    = { aspectMask, 0, mip_levels, 0, array_layers };
 
         device_table_.CmdPipelineBarrier(command_buffer_,
                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
@@ -1394,10 +1449,6 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
             blit_regions.push_back(blit_region);
         }
 
-        VkFilter filter = VK_FILTER_LINEAR;
-        if (vkuFormatIsDepthOrStencil(format))
-            filter = VK_FILTER_NEAREST;
-
         device_table_.CmdBlitImage(command_buffer_,
                                    copy_image,
                                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -1405,11 +1456,14 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                    blit_regions.size(),
                                    blit_regions.data(),
-                                   filter);
+                                   VK_FILTER_NEAREST);
 
-        // Transition new image into TRANSFER_SRC_OPTIMAL
-        img_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        // Make sure blit is complete before copying from the scaled image.
+        // Also transition layout DST_OPTIMAL -> SRC_OPTIMAL
+        img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
         device_table_.CmdPipelineBarrier(command_buffer_,
                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -1437,10 +1491,34 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
                     all_layers_per_level,
                     kImageToBuffer);
 
+    // Cache flushing barrier. Make results visible to host
+    VkBufferMemoryBarrier buffer_barrier;
+    buffer_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+    buffer_barrier.pNext               = nullptr;
+    buffer_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+    buffer_barrier.dstAccessMask       = VK_ACCESS_HOST_READ_BIT;
+    buffer_barrier.srcQueueFamilyIndex = queue_family_index_;
+    buffer_barrier.dstQueueFamilyIndex = queue_family_index_;
+    buffer_barrier.buffer              = staging_buffer_.buffer;
+    buffer_barrier.offset              = 0;
+    buffer_barrier.size                = VK_WHOLE_SIZE;
+
+    device_table_.CmdPipelineBarrier(command_buffer_,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_HOST_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &buffer_barrier,
+                                     0,
+                                     nullptr);
+
     if ((samples == VK_SAMPLE_COUNT_1_BIT) && (layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
         (layout != VK_IMAGE_LAYOUT_PREINITIALIZED) && (layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL))
     {
-        TransitionImageFromTransferOptimal(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, layout, transition_aspect);
+        TransitionImageFromTransferOptimal(
+            image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, layout, transition_aspect, queue_family_index);
     }
 
     result = SubmitCommandBuffer(queue);
@@ -1464,7 +1542,8 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
         device_table_.DestroyImage(device_, resolve_image, nullptr);
         device_table_.FreeMemory(device_, resolve_memory, nullptr);
     }
-    if (scale != 1.0f)
+
+    if (scale != 1.0f && scaling_supported)
     {
         device_table_.DestroyImage(device_, scaled_image, nullptr);
         device_table_.FreeMemory(device_, scaled_image_mem, nullptr);
@@ -1659,7 +1738,8 @@ VkResult VulkanResourcesUtil::WriteToImageResourceStaging(VkImage               
 
     if (layout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
     {
-        TransitionImageToTransferOptimal(image, layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, transition_aspect);
+        TransitionImageToTransferOptimal(
+            image, layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, transition_aspect, queue_family_index);
     }
 
     CopyImageBuffer(image,
@@ -1674,7 +1754,8 @@ VkResult VulkanResourcesUtil::WriteToImageResourceStaging(VkImage               
 
     if (layout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
     {
-        TransitionImageFromTransferOptimal(image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, layout, transition_aspect);
+        TransitionImageFromTransferOptimal(
+            image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, layout, transition_aspect, queue_family_index);
     }
 
     result = SubmitCommandBuffer(queue);

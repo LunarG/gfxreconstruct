@@ -45,11 +45,14 @@ class VulkanResourcesUtil
     VulkanResourcesUtil() = delete;
 
     VulkanResourcesUtil(VkDevice                                device,
+                        VkPhysicalDevice                        physical_device,
                         const encode::VulkanDeviceTable&        device_table,
+                        const encode::VulkanInstanceTable&      instance_table,
                         const VkPhysicalDeviceMemoryProperties& memory_properties) :
         device_(device),
-        device_table_(device_table), memory_properties_(memory_properties), queue_family_index_(UINT32_MAX),
-        command_pool_(VK_NULL_HANDLE), command_buffer_(VK_NULL_HANDLE)
+        physical_device_(physical_device), device_table_(device_table), instance_table_(instance_table),
+        memory_properties_(memory_properties), queue_family_index_(UINT32_MAX), command_pool_(VK_NULL_HANDLE),
+        command_buffer_(VK_NULL_HANDLE)
     {
         assert(device != VK_NULL_HANDLE);
         assert(memory_properties.memoryHeapCount <= VK_MAX_MEMORY_HEAPS);
@@ -133,6 +136,7 @@ class VulkanResourcesUtil
                                           std::vector<uint8_t>&  data,
                                           std::vector<uint64_t>& subresource_offsets,
                                           std::vector<uint64_t>& subresource_sizes,
+                                          bool&                  scaling_supported,
                                           bool                   all_layers_per_level = false,
                                           float                  scale                = 1.0f);
 
@@ -196,12 +200,14 @@ class VulkanResourcesUtil
     void TransitionImageToTransferOptimal(VkImage            image,
                                           VkImageLayout      current_layout,
                                           VkImageLayout      destination_layout,
-                                          VkImageAspectFlags aspect);
+                                          VkImageAspectFlags aspect,
+                                          uint32_t           queue_family_index);
 
     void TransitionImageFromTransferOptimal(VkImage            image,
                                             VkImageLayout      old_layout,
                                             VkImageLayout      new_layout,
-                                            VkImageAspectFlags aspect);
+                                            VkImageAspectFlags aspect,
+                                            uint32_t           queue_family_index);
 
     void CopyImageBuffer(VkImage                      image,
                          VkBuffer                     buffer,
@@ -245,6 +251,9 @@ class VulkanResourcesUtil
 
     VkDevice                                device_;
     const encode::VulkanDeviceTable&        device_table_;
+    VkPhysicalDevice                        physical_device_;
+    const encode::VulkanDeviceTable&        device_table_;
+    const encode::VulkanInstanceTable&      instance_table_;
     const VkPhysicalDeviceMemoryProperties& memory_properties_;
     uint32_t                                queue_family_index_;
     VkCommandPool                           command_pool_;
