@@ -763,7 +763,7 @@ bool VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::ShouldHandleRenderP
 VkResult VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpDrawCallsAttachments(VkQueue  queue,
                                                                                           uint64_t bcb_index)
 {
-    BackUpMutableResources(queue);
+    // BackUpMutableResources(queue);
 
     const size_t n_drawcalls = command_buffers.size();
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
@@ -785,7 +785,7 @@ VkResult VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpDrawCallsAt
         submit_info.signalSemaphoreCount = 0;
         submit_info.pSignalSemaphores    = nullptr;
 
-        RevertMutableResources(queue);
+        // RevertMutableResources(queue);
 
         const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
         assert(device_info);
