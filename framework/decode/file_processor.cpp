@@ -706,7 +706,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchFillMemoryCommand(header.thread_id,
                                                            header.memory_id,
                                                            header.memory_offset,
@@ -764,7 +763,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchFillMemoryResourceValueCommand(header, parameter_buffer_.data());
                     }
                 }
@@ -911,7 +909,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchDisplayMessageCommand(header.thread_id, message);
                     }
                 }
@@ -968,7 +965,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
                                                                      header.memory_id,
                                                                      header.buffer_id,
@@ -1040,7 +1036,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
                                                                      header.memory_id,
                                                                      header.buffer_id,
@@ -1155,7 +1150,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchSetDevicePropertiesCommand(header.thread_id,
                                                                     header.physical_device_id,
                                                                     header.api_version,
@@ -1229,7 +1223,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchSetDeviceMemoryPropertiesCommand(
                             header.thread_id, header.physical_device_id, types, heaps);
                     }
@@ -1348,7 +1341,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchSetSwapchainImageStateCommand(header.thread_id,
                                                                        header.device_id,
                                                                        header.swapchain_id,
@@ -1457,7 +1449,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchInitBufferCommand(header.thread_id,
                                                            header.device_id,
                                                            header.buffer_id,
@@ -1592,7 +1583,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchInitSubresourceCommand(header, parameter_buffer_.data());
                     }
                 }
@@ -1688,7 +1678,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->SetCurrentBlockIndex(block_index_);
                         decoder->DispatchInitDx12AccelerationStructureCommand(
                             header, geom_descs, parameter_buffer_.data());
                     }
@@ -1806,8 +1795,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                         {
                             if (decoder->SupportsMetaDataId(meta_data_id))
                             {
-                                decoder->SetCurrentBlockIndex(block_index_);
-                                decoder->DispatchSetTlasToBlasDependencyCommand(header.parent_id, blases);
+                                        decoder->DispatchSetTlasToBlasDependencyCommand(header.parent_id, blases);
                             }
                         }
                     }
