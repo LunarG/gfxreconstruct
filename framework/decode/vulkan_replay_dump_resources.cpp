@@ -319,16 +319,18 @@ VulkanReplayDumpResourcesBase::FindDispatchRaysCommandBufferContext(VkCommandBuf
     return context;
 }
 
-VkResult VulkanReplayDumpResourcesBase::CloneCommandBuffer(uint64_t                   bcb_index,
-                                                           const CommandBufferInfo*   original_command_buffer_info,
-                                                           const encode::DeviceTable* device_table)
+VkResult VulkanReplayDumpResourcesBase::CloneCommandBuffer(uint64_t                     bcb_index,
+                                                           const CommandBufferInfo*     original_command_buffer_info,
+                                                           const encode::VulkanDeviceTable*   device_table,
+                                                           const encode::VulkanInstanceTable* inst_table)
 {
     assert(device_table);
+    assert(inst_table);
 
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(bcb_index);
     if (dc_context != nullptr)
     {
-        VkResult res = dc_context->CloneCommandBuffer(original_command_buffer_info, device_table);
+        VkResult res = dc_context->CloneCommandBuffer(original_command_buffer_info, device_table, inst_table);
         if (res == VK_SUCCESS)
         {
             recording_ = true;
@@ -345,7 +347,7 @@ VkResult VulkanReplayDumpResourcesBase::CloneCommandBuffer(uint64_t             
     DispatchTraceRaysDumpingContext* dr_context = FindDispatchRaysCommandBufferContext(bcb_index);
     if (dr_context != nullptr)
     {
-        VkResult res = dr_context->CloneCommandBuffer(original_command_buffer_info, device_table);
+        VkResult res = dr_context->CloneCommandBuffer(original_command_buffer_info, device_table, inst_table);
         if (res == VK_SUCCESS)
         {
             recording_ = true;
@@ -769,10 +771,10 @@ VkResult VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpDrawCallsAt
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
     {
         GFXRECON_LOG_INFO("Submitting CB/DC %u of %zu (idx: %" PRIu64 ") for BeginCommandBuffer: %" PRIu64,
-                               cb,
-                               n_drawcalls,
-                               dc_indices[CmdBufToDCVectorIndex(cb)],
-                               bcb_index);
+                          cb,
+                          n_drawcalls,
+                          dc_indices[CmdBufToDCVectorIndex(cb)],
+                          bcb_index);
 
         VkSubmitInfo submit_info;
         submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -905,8 +907,11 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
     const PhysicalDeviceInfo* phys_dev_info = object_info_table.GetPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
-    graphics::VulkanResourcesUtil resource_util(
-        device_info->handle, *device_table, *phys_dev_info->replay_device_info->memory_properties);
+    graphics::VulkanResourcesUtil resource_util(device_info->handle,
+                                                device_info->parent,
+                                                *device_table,
+                                                *instance_table,
+                                                *phys_dev_info->replay_device_info->memory_properties);
 
     // Dump color attachments
     for (size_t i = 0; i < render_targets_[rp][sp].color_att_imgs.size(); ++i)
@@ -916,6 +921,7 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
         std::vector<uint8_t>  data;
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
+        bool                  scaling_supported;
 
         VkResult res = resource_util.ReadFromImageResourceStaging(
             image_info->handle,
@@ -934,6 +940,7 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
             data,
             subresource_offsets,
             subresource_sizes,
+            scaling_supported,
             false,
             dump_resources_scale);
 
@@ -946,14 +953,25 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
         const std::string              filename = GenerateImageFilename(image_info->format, cmd_buf_index, dc_index, i);
         if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
         {
+            VkExtent3D scaled_extent;
+            if (scaling_supported)
+            {
+                scaled_extent.width  = image_info->extent.width * dump_resources_scale;
+                scaled_extent.height = image_info->extent.height * dump_resources_scale;
+                scaled_extent.depth  = image_info->extent.depth;
+            }
+            else
+            {
+                scaled_extent = image_info->extent;
+            }
             const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, VK_IMAGE_ASPECT_COLOR_BIT);
-            const uint32_t stride     = texel_size * image_info->extent.width * dump_resources_scale;
+            const uint32_t stride     = texel_size * scaled_extent.width;
 
             if (image_file_format == util::ScreenshotFormat::kBmp)
             {
                 util::imagewriter::WriteBmpImage(filename,
-                                                 image_info->extent.width * dump_resources_scale,
-                                                 image_info->extent.height * dump_resources_scale,
+                                                 scaled_extent.width,
+                                                 scaled_extent.height,
                                                  subresource_sizes[0],
                                                  data.data(),
                                                  stride,
@@ -962,8 +980,8 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
             else if (image_file_format == util::ScreenshotFormat::kPng)
             {
                 util::imagewriter::WritePngImage(filename,
-                                                 image_info->extent.width * dump_resources_scale,
-                                                 image_info->extent.height * dump_resources_scale,
+                                                 scaled_extent.width,
+                                                 scaled_extent.height,
                                                  subresource_sizes[0],
                                                  data.data(),
                                                  stride,
@@ -984,6 +1002,7 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
         std::vector<uint8_t>  data;
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
+        bool                  scaling_supported;
 
         VkResult res = resource_util.ReadFromImageResourceStaging(
             image_info->handle,
@@ -1002,6 +1021,7 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
             data,
             subresource_offsets,
             subresource_sizes,
+            scaling_supported,
             false,
             dump_resources_scale);
 
@@ -1015,18 +1035,30 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
             GenerateImageFilename(image_info->format, cmd_buf_index, dc_index, DEPTH_ATTACHMENT);
         if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
         {
+            VkExtent3D scaled_extent;
+            if (scaling_supported)
+            {
+                scaled_extent.width  = image_info->extent.width * dump_resources_scale;
+                scaled_extent.height = image_info->extent.height * dump_resources_scale;
+                scaled_extent.depth  = image_info->extent.depth;
+            }
+            else
+            {
+                scaled_extent = image_info->extent;
+            }
+
             // This is a bit awkward
             const uint32_t texel_size =
                 image_info->format != VK_FORMAT_X8_D24_UNORM_PACK32
                     ? vkuFormatElementSizeWithAspect(image_info->format, VK_IMAGE_ASPECT_DEPTH_BIT)
                     : 4;
-            const uint32_t stride = texel_size * image_info->extent.width * dump_resources_scale;
+            const uint32_t stride = texel_size * scaled_extent.width;
 
             if (image_file_format == util::ScreenshotFormat::kBmp)
             {
                 util::imagewriter::WriteBmpImage(filename,
-                                                 image_info->extent.width * dump_resources_scale,
-                                                 image_info->extent.height * dump_resources_scale,
+                                                 scaled_extent.width,
+                                                 scaled_extent.height,
                                                  subresource_sizes[0],
                                                  data.data(),
                                                  stride,
@@ -1035,8 +1067,8 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
             else
             {
                 util::imagewriter::WritePngImage(filename,
-                                                 image_info->extent.width * dump_resources_scale,
-                                                 image_info->extent.height * dump_resources_scale,
+                                                 scaled_extent.width,
+                                                 scaled_extent.height,
                                                  subresource_sizes[0],
                                                  data.data(),
                                                  stride,
@@ -1053,7 +1085,7 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpRenderTargetAttachme
 }
 
 VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::vector<VkSubmitInfo>  modified_submit_infos,
-                                                    const encode::DeviceTable& device_table,
+                                                    const encode::VulkanDeviceTable& device_table,
                                                     VkQueue                    queue,
                                                     VkFence                    fence,
                                                     uint64_t                   index)
@@ -1206,10 +1238,12 @@ error:
 
 VkResult
 VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::CloneCommandBuffer(const CommandBufferInfo*   orig_cmd_buf_info,
-                                                                           const encode::DeviceTable* dev_table)
+                                                                           const encode::VulkanDeviceTable* dev_table,
+                                                                           const encode::VulkanInstanceTable* inst_table)
 {
     assert(orig_cmd_buf_info);
     assert(dev_table);
+    assert(inst_table);
 
     const CommandPoolInfo* cb_pool_info = object_info_table.GetCommandPoolInfo(orig_cmd_buf_info->pool_id);
 
@@ -1241,6 +1275,8 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::CloneCommandBuffer(const
 
     assert(device_table == nullptr);
     device_table = dev_table;
+    assert(instance_table == nullptr);
+    instance_table = inst_table;
 
     const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
     assert(device_info->parent_id != format::kNullHandleId);
@@ -2361,8 +2397,8 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DrawCallsDumpingContext(
     current_cb_index(0), dc_indices(dc_indices), RP_indices(rp_indices), active_renderpass(nullptr),
     active_framebuffer(nullptr), bound_pipelines{ nullptr }, current_renderpass(0), current_subpass(0),
     dump_resources_before(dump_resources_before), aux_command_buffer(VK_NULL_HANDLE), aux_fence(VK_NULL_HANDLE),
-    device_table(nullptr), object_info_table(object_info_table), replay_device_phys_mem_props(nullptr),
-    dump_resource_path(dump_resource_path), image_file_format(image_file_format),
+    device_table(nullptr), instance_table(nullptr), object_info_table(object_info_table),
+    replay_device_phys_mem_props(nullptr), dump_resource_path(dump_resource_path), image_file_format(image_file_format),
     dump_resources_scale(dump_resources_scale)
 {
     must_backup_resources = (dc_indices.size() > 1);
@@ -2395,7 +2431,7 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::~DrawCallsDumpingContext
 }
 
 static VkResult CloneImage(const VulkanObjectInfoTable&            object_info_table,
-                           const encode::DeviceTable*              device_table,
+                           const encode::VulkanDeviceTable*              device_table,
                            const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                            const ImageInfo*                        image_info,
                            VkImage*                                new_image,
@@ -2466,7 +2502,7 @@ static VkResult CloneImage(const VulkanObjectInfoTable&            object_info_t
 }
 
 VkResult CloneBuffer(const VulkanObjectInfoTable&            object_info_table,
-                     const encode::DeviceTable*              device_table,
+                     const encode::VulkanDeviceTable*              device_table,
                      const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                      const BufferInfo*                       buffer_info,
                      VkBuffer*                               new_buffer,
@@ -2990,8 +3026,9 @@ VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DispatchTraceRay
     DR_command_buffer(VK_NULL_HANDLE), dispatch_indices(dispatch_indices),
     trace_rays_indices(trace_rays_indices), bound_pipelines{ nullptr }, dump_resources_before(dump_resources_before),
     dump_resource_path(dump_resource_path), image_file_format(image_file_format),
-    dump_resources_scale(dump_resources_scale), device_table(nullptr), object_info_table(object_info_table),
-    replay_device_phys_mem_props(nullptr), current_dispatch_index(0), current_trace_rays_index(0)
+    dump_resources_scale(dump_resources_scale), device_table(nullptr), instance_table(nullptr),
+    object_info_table(object_info_table), replay_device_phys_mem_props(nullptr), current_dispatch_index(0),
+    current_trace_rays_index(0)
 {}
 
 VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
@@ -3021,10 +3058,13 @@ VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::~DispatchTraceRa
 }
 
 VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::CloneCommandBuffer(
-    const CommandBufferInfo* orig_cmd_buf_info, const encode::DeviceTable* dev_table)
+    const CommandBufferInfo*     orig_cmd_buf_info,
+    const encode::VulkanDeviceTable*   dev_table,
+    const encode::VulkanInstanceTable* inst_table)
 {
     assert(orig_cmd_buf_info);
     assert(dev_table);
+    assert(inst_table);
 
     const CommandPoolInfo* cb_pool_info = object_info_table.GetCommandPoolInfo(orig_cmd_buf_info->pool_id);
 
@@ -3052,6 +3092,8 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::CloneCo
 
     assert(device_table == nullptr);
     device_table = dev_table;
+    assert(instance_table == nullptr);
+    instance_table = inst_table;
 
     const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
     assert(device_info->parent_id != format::kNullHandleId);
@@ -3700,8 +3742,11 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpMut
     const PhysicalDeviceInfo* phys_dev_info = object_info_table.GetPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
-    graphics::VulkanResourcesUtil resource_util(
-        device_info->handle, *device_table, *phys_dev_info->replay_device_info->memory_properties);
+    graphics::VulkanResourcesUtil resource_util(device_info->handle,
+                                                device_info->parent,
+                                                *device_table,
+                                                *instance_table,
+                                                *phys_dev_info->replay_device_info->memory_properties);
 
     if (dump_resources_before)
     {
@@ -3715,6 +3760,7 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpMut
             std::vector<uint8_t>  data;
             std::vector<uint64_t> subresource_offsets;
             std::vector<uint64_t> subresource_sizes;
+            bool                  scaling_supported;
 
             VkResult res = resource_util.ReadFromImageResourceStaging(mutable_resources_clones_before[index].images[i],
                                                                       image_info->format,
@@ -3730,6 +3776,7 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpMut
                                                                       data,
                                                                       subresource_offsets,
                                                                       subresource_sizes,
+                                                                      scaling_supported,
                                                                       false,
                                                                       dump_resources_scale);
 
@@ -3745,16 +3792,27 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpMut
             util::imagewriter::DataFormats output_image_format = VkFormatToImageWriterDataFormat(image_info->format);
             if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
             {
+                VkExtent3D scaled_extent;
+                if (scaling_supported)
+                {
+                    scaled_extent.width  = image_info->extent.width * dump_resources_scale;
+                    scaled_extent.height = image_info->extent.height * dump_resources_scale;
+                    scaled_extent.depth  = image_info->extent.depth;
+                }
+                else
+                {
+                    scaled_extent = image_info->extent;
+                }
 
                 const uint32_t texel_size =
                     vkuFormatElementSizeWithAspect(image_info->format, VK_IMAGE_ASPECT_COLOR_BIT);
-                const uint32_t stride = texel_size * image_info->extent.width * dump_resources_scale;
+                const uint32_t stride = texel_size * scaled_extent.width;
 
                 if (image_file_format == util::ScreenshotFormat::kBmp)
                 {
                     util::imagewriter::WriteBmpImage(filename,
-                                                     image_info->extent.width * dump_resources_scale,
-                                                     image_info->extent.height * dump_resources_scale,
+                                                     scaled_extent.width,
+                                                     scaled_extent.height,
                                                      subresource_sizes[0],
                                                      data.data(),
                                                      stride,
@@ -3763,8 +3821,8 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpMut
                 else
                 {
                     util::imagewriter::WritePngImage(filename,
-                                                     image_info->extent.width * dump_resources_scale,
-                                                     image_info->extent.height * dump_resources_scale,
+                                                     scaled_extent.width,
+                                                     scaled_extent.height,
                                                      subresource_sizes[0],
                                                      data.data(),
                                                      stride,
@@ -3809,6 +3867,7 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpMut
         std::vector<uint8_t>  data;
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
+        bool                  scaling_supported;
 
         VkResult res = resource_util.ReadFromImageResourceStaging(mutable_resources_clones[index].images[i],
                                                                   image_info->format,
@@ -3824,6 +3883,7 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpMut
                                                                   data,
                                                                   subresource_offsets,
                                                                   subresource_sizes,
+                                                                  scaling_supported,
                                                                   false,
                                                                   dump_resources_scale);
 
@@ -3838,14 +3898,26 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpMut
         util::imagewriter::DataFormats output_image_format = VkFormatToImageWriterDataFormat(image_info->format);
         if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
         {
+            VkExtent3D scaled_extent;
+            if (scaling_supported)
+            {
+                scaled_extent.width  = image_info->extent.width * dump_resources_scale;
+                scaled_extent.height = image_info->extent.height * dump_resources_scale;
+                scaled_extent.depth  = image_info->extent.depth;
+            }
+            else
+            {
+                scaled_extent = image_info->extent;
+            }
+
             const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, VK_IMAGE_ASPECT_COLOR_BIT);
-            const uint32_t stride     = texel_size * image_info->extent.width * dump_resources_scale;
+            const uint32_t stride     = texel_size * scaled_extent.width;
 
             if (image_file_format == util::ScreenshotFormat::kBmp)
             {
                 util::imagewriter::WriteBmpImage(filename,
-                                                 image_info->extent.width * dump_resources_scale,
-                                                 image_info->extent.height * dump_resources_scale,
+                                                 scaled_extent.width,
+                                                 scaled_extent.height,
                                                  subresource_sizes[0],
                                                  data.data(),
                                                  stride,
@@ -3854,8 +3926,8 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpMut
             else
             {
                 util::imagewriter::WritePngImage(filename,
-                                                 image_info->extent.width * dump_resources_scale,
-                                                 image_info->extent.height * dump_resources_scale,
+                                                 scaled_extent.width,
+                                                 scaled_extent.height,
                                                  subresource_sizes[0],
                                                  data.data(),
                                                  stride,
