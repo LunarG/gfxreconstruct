@@ -423,6 +423,7 @@ CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, 
         CreateWrappedNonDispatchHandle<ImageWrapper>(handle, get_id);
         wrapper                     = GetWrapper<ImageWrapper>(*handle);
         wrapper->is_swapchain_image = true;
+        wrapper->parent_swapchains.insert(co_parent);
         parent_wrapper->child_images.push_back(wrapper);
     }
 }
@@ -613,8 +614,12 @@ inline void DestroyWrappedHandle<SwapchainKHRWrapper>(VkSwapchainKHR handle)
 
         for (auto image_wrapper : wrapper->child_images)
         {
-            RemoveWrapper<ImageWrapper>(image_wrapper);
-            delete image_wrapper;
+            image_wrapper->parent_swapchains.erase(handle);
+            if (image_wrapper->parent_swapchains.empty())
+            {
+                RemoveWrapper<ImageWrapper>(image_wrapper);
+                delete image_wrapper;
+            }
         }
 
         RemoveWrapper<SwapchainKHRWrapper>(wrapper);
