@@ -325,11 +325,6 @@ VkResult VulkanReplayDumpResourcesBase::CloneCommandBuffer(uint64_t             
 {
     assert(device_table);
 
-    GFXRECON_WRITE_CONSOLE("%s(bcb_index: %" PRIu64 ", original_command_buffer_info: %" PRIu64 ")",
-                           __func__,
-                           bcb_index,
-                           original_command_buffer_info->capture_id);
-
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(bcb_index);
     if (dc_context != nullptr)
     {
@@ -369,11 +364,6 @@ VkResult VulkanReplayDumpResourcesBase::CloneCommandBuffer(uint64_t             
 
 void VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::FinalizeCommandBuffer()
 {
-    GFXRECON_WRITE_CONSOLE("  Finalizing command buffer %u (out of %zu) dc: %" PRIu64,
-                           current_cb_index,
-                           command_buffers.size(),
-                           dc_indices[CmdBufToDCVectorIndex(current_cb_index)]);
-
     assert(current_cb_index < command_buffers.size());
     VkCommandBuffer current_clone = command_buffers[current_cb_index];
     assert(device_table != nullptr);
@@ -778,7 +768,7 @@ VkResult VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpDrawCallsAt
     const size_t n_drawcalls = command_buffers.size();
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
     {
-        GFXRECON_WRITE_CONSOLE("Submitting CB/DC %u of %zu (idx: %" PRIu64 ") for BeginCommandBuffer: %" PRIu64,
+        GFXRECON_LOG_INFO("Submitting CB/DC %u of %zu (idx: %" PRIu64 ") for BeginCommandBuffer: %" PRIu64,
                                cb,
                                n_drawcalls,
                                dc_indices[CmdBufToDCVectorIndex(cb)],
@@ -1231,8 +1221,6 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::CloneCommandBuffer(const
 
     const DeviceInfo* dev_info = object_info_table.GetDeviceInfo(orig_cmd_buf_info->parent_id);
 
-    GFXRECON_WRITE_CONSOLE("Allocating %zu command buffers for draw call command buffer context:",
-                           command_buffers.size())
     for (size_t i = 0; i < command_buffers.size(); ++i)
     {
         assert(command_buffers[i] == VK_NULL_HANDLE);
@@ -1247,8 +1235,6 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::CloneCommandBuffer(const
         const VkCommandBufferBeginInfo bi{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, 0, nullptr };
         dev_table->BeginCommandBuffer(command_buffers[i], &bi);
     }
-
-    GFXRECON_WRITE_CONSOLE("Done")
 
     assert(original_command_buffer_info == nullptr);
     original_command_buffer_info = orig_cmd_buf_info;
@@ -1423,12 +1409,6 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::CloneRenderPass(const Re
             if ((original_dep.srcSubpass > sub || original_dep.dstSubpass > sub) &&
                 (original_dep.srcSubpass != VK_SUBPASS_EXTERNAL && original_dep.dstSubpass != VK_SUBPASS_EXTERNAL))
             {
-                GFXRECON_WRITE_CONSOLE("  RP %u skips dep %u (%u -> %u) as out of scope",
-                                       sub,
-                                       d,
-                                       original_dep.srcSubpass,
-                                       original_dep.dstSubpass);
-
                 // Skip this dependency as out of scope
                 continue;
             }
@@ -1458,46 +1438,29 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::CloneRenderPass(const Re
 
                 has_external_dependencies_post = true;
             }
-
-            GFXRECON_WRITE_CONSOLE("  RP %u gets a new dependency:", sub)
-            GFXRECON_WRITE_CONSOLE("      srcSubpass: %u", new_dep->srcSubpass);
-            GFXRECON_WRITE_CONSOLE("      dstSubpass: %u", new_dep->dstSubpass);
-            GFXRECON_WRITE_CONSOLE("      srcStageMask: %s",
-                                   util::VkPipelineStageFlags2ToString(new_dep->srcStageMask).c_str());
-            GFXRECON_WRITE_CONSOLE("      dstStageMask: %s",
-                                   util::VkPipelineStageFlags2ToString(new_dep->dstStageMask).c_str());
-            GFXRECON_WRITE_CONSOLE("      srcAccessMask: %s",
-                                   util::VkAccessFlags2ToString(new_dep->srcAccessMask).c_str());
-            GFXRECON_WRITE_CONSOLE("      dstAccessMask: %s",
-                                   util::VkAccessFlags2ToString(new_dep->dstAccessMask).c_str());
-            GFXRECON_WRITE_CONSOLE("      dependencyFlags: %s",
-                                   util::ToString<VkDependencyFlags>(new_dep->dependencyFlags).c_str());
         }
 
+        // No post renderpass dependecy was detected
         if (!has_external_dependencies_post)
         {
-            GFXRECON_WRITE_CONSOLE("  No post renderpass dependecy was detected")
-
             VkSubpassDependency post_dependency;
             post_dependency.srcSubpass    = sub;
             post_dependency.dstSubpass    = VK_SUBPASS_EXTERNAL;
             post_dependency.dstStageMask  = VK_PIPELINE_STAGE_TRANSFER_BIT;
             post_dependency.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
+            // Injecting one for color
             if (has_color)
             {
-                GFXRECON_WRITE_CONSOLE("    Injecting one for color")
-
                 post_dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
                 post_dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
                 modified_dependencies.push_back(post_dependency);
             }
 
+            // Injecting one for depth
             if (has_depth)
             {
-                GFXRECON_WRITE_CONSOLE("    Injecting one for depth")
-
                 post_dependency.srcStageMask =
                     VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
                 post_dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
@@ -1644,19 +1607,14 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::BeginRenderPass(const Re
 
         if (dc_index > RP_indices[rp][RP_indices[rp].size() - 1] || rp > current_renderpass)
         {
-            GFXRECON_WRITE_CONSOLE(
-                "  cmd_buf_idx: %zu with dc index: %" PRIu64 " gets original render pass", cmd_buf_idx, dc_index);
-
+            // Command buffers / Draw calls outside this specific render pass should get
+            // assigned the original render pass
             bi.renderPass = render_pass_info->handle;
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE("  cmd_buf_idx: %zu with dc index: %" PRIu64 " gets new render pass: (%u, %u)",
-                                   cmd_buf_idx,
-                                   dc_index,
-                                   rp,
-                                   sp);
-
+            // Command buffers / Draw calls inside this render pass should get the newly created / modified
+            // render pass
             assert(rp < render_pass_clones.size());
             assert(sp < render_pass_clones[rp].size());
             bi.renderPass = render_pass_clones[rp][sp];
@@ -1764,21 +1722,6 @@ void VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::EndRenderPass()
         if (dc_index < RP_indices[rp][0])
         {
             continue;
-        }
-
-        if (dc_index > RP_indices[rp][RP_indices[rp].size() - 1] || rp > current_renderpass)
-        {
-            GFXRECON_WRITE_CONSOLE(
-                "  cmd_buf_idx: %zu with dc index: %" PRIu64 " ends render pass", cmd_buf_idx, dc_index);
-        }
-        else
-        {
-
-            GFXRECON_WRITE_CONSOLE("  cmd_buf_idx: %zu with dc index: %" PRIu64 " ends render pass: (%u, %u)",
-                                   cmd_buf_idx,
-                                   dc_index,
-                                   rp,
-                                   sp);
         }
 
         device_table->CmdEndRenderPass(*it);
@@ -3093,8 +3036,6 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::CloneCo
 
     const DeviceInfo* dev_info = object_info_table.GetDeviceInfo(orig_cmd_buf_info->parent_id);
 
-    GFXRECON_WRITE_CONSOLE("Allocating a command buffer for Dispatch/TraceRays command buffer context:")
-
     VkResult res = dev_table->AllocateCommandBuffers(dev_info->handle, &ai, &DR_command_buffer);
 
     if (res != VK_SUCCESS)
@@ -3105,8 +3046,6 @@ VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::CloneCo
 
     const VkCommandBufferBeginInfo bi{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, 0, nullptr };
     dev_table->BeginCommandBuffer(DR_command_buffer, &bi);
-
-    GFXRECON_WRITE_CONSOLE("Done")
 
     assert(original_command_buffer_info == nullptr);
     original_command_buffer_info = orig_cmd_buf_info;
@@ -3617,8 +3556,6 @@ VkResult
 VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpDispatchRaysMutableResources(VkQueue  queue,
                                                                                                  uint64_t bcb_index)
 {
-    GFXRECON_WRITE_CONSOLE("Submitting Dispatc/TraceRays command buffer for BeginCommandBuffer: %" PRIu64, bcb_index);
-
     VkSubmitInfo submit_info;
     submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submit_info.pNext                = nullptr;
@@ -3961,8 +3898,6 @@ void VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::FinalizeCom
            (dump_resources_before ? (current_trace_rays_index / 2) : current_trace_rays_index) ==
                trace_rays_indices.size());
     assert(DR_command_buffer != VK_NULL_HANDLE);
-
-    GFXRECON_WRITE_CONSOLE("Finalizing Dispach/TraceRays command buffer")
 
     device_table->EndCommandBuffer(DR_command_buffer);
 }
