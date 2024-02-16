@@ -1450,7 +1450,7 @@ void VulkanReplayConsumer::Process_vkCmdBindPipeline(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindPipeline(call_info, GetDeviceTable(in_commandBuffer)->CmdBindPipeline, in_commandBuffer, pipelineBindPoint, GetObjectInfoTable().GetPipelineInfo(pipeline));
+        resource_dumper.Process_vkCmdBindPipeline(call_info, GetDeviceTable(in_commandBuffer)->CmdBindPipeline, in_commandBuffer, pipelineBindPoint, GetObjectInfoTable().GetPipelineInfo(pipeline));
     }
 }
 
@@ -1468,7 +1468,7 @@ void VulkanReplayConsumer::Process_vkCmdSetViewport(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetViewport(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewport, in_commandBuffer, firstViewport, viewportCount, in_pViewports);
+        resource_dumper.Process_vkCmdSetViewport(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewport, in_commandBuffer, firstViewport, viewportCount, in_pViewports);
     }
 }
 
@@ -1486,7 +1486,7 @@ void VulkanReplayConsumer::Process_vkCmdSetScissor(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetScissor(call_info, GetDeviceTable(in_commandBuffer)->CmdSetScissor, in_commandBuffer, firstScissor, scissorCount, in_pScissors);
+        resource_dumper.Process_vkCmdSetScissor(call_info, GetDeviceTable(in_commandBuffer)->CmdSetScissor, in_commandBuffer, firstScissor, scissorCount, in_pScissors);
     }
 }
 
@@ -1501,7 +1501,7 @@ void VulkanReplayConsumer::Process_vkCmdSetLineWidth(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetLineWidth(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLineWidth, in_commandBuffer, lineWidth);
+        resource_dumper.Process_vkCmdSetLineWidth(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLineWidth, in_commandBuffer, lineWidth);
     }
 }
 
@@ -1518,7 +1518,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthBias(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthBias(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBias, in_commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
+        resource_dumper.Process_vkCmdSetDepthBias(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBias, in_commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
     }
 }
 
@@ -1534,7 +1534,7 @@ void VulkanReplayConsumer::Process_vkCmdSetBlendConstants(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetBlendConstants(call_info, GetDeviceTable(in_commandBuffer)->CmdSetBlendConstants, in_commandBuffer, in_blendConstants);
+        resource_dumper.Process_vkCmdSetBlendConstants(call_info, GetDeviceTable(in_commandBuffer)->CmdSetBlendConstants, in_commandBuffer, in_blendConstants);
     }
 }
 
@@ -1550,7 +1550,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthBounds(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthBounds(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBounds, in_commandBuffer, minDepthBounds, maxDepthBounds);
+        resource_dumper.Process_vkCmdSetDepthBounds(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBounds, in_commandBuffer, minDepthBounds, maxDepthBounds);
     }
 }
 
@@ -1566,7 +1566,7 @@ void VulkanReplayConsumer::Process_vkCmdSetStencilCompareMask(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetStencilCompareMask(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilCompareMask, in_commandBuffer, faceMask, compareMask);
+        resource_dumper.Process_vkCmdSetStencilCompareMask(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilCompareMask, in_commandBuffer, faceMask, compareMask);
     }
 }
 
@@ -1582,7 +1582,7 @@ void VulkanReplayConsumer::Process_vkCmdSetStencilWriteMask(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetStencilWriteMask(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilWriteMask, in_commandBuffer, faceMask, writeMask);
+        resource_dumper.Process_vkCmdSetStencilWriteMask(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilWriteMask, in_commandBuffer, faceMask, writeMask);
     }
 }
 
@@ -1598,7 +1598,7 @@ void VulkanReplayConsumer::Process_vkCmdSetStencilReference(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetStencilReference(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilReference, in_commandBuffer, faceMask, reference);
+        resource_dumper.Process_vkCmdSetStencilReference(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilReference, in_commandBuffer, faceMask, reference);
     }
 }
 
@@ -1622,7 +1622,7 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindDescriptorSets(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets, in_commandBuffer, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, in_pDynamicOffsets);
+        resource_dumper.Process_vkCmdBindDescriptorSets(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets, in_commandBuffer, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, in_pDynamicOffsets);
     }
 }
 
@@ -1640,7 +1640,7 @@ void VulkanReplayConsumer::Process_vkCmdBindIndexBuffer(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindIndexBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdBindIndexBuffer, in_commandBuffer, in_buffer, offset, indexType);
+        resource_dumper.Process_vkCmdBindIndexBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdBindIndexBuffer, in_commandBuffer, in_buffer, offset, indexType);
     }
 }
 
@@ -1660,7 +1660,7 @@ void VulkanReplayConsumer::Process_vkCmdBindVertexBuffers(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindVertexBuffers(call_info, GetDeviceTable(in_commandBuffer)->CmdBindVertexBuffers, in_commandBuffer, firstBinding, bindingCount, in_pBuffers, in_pOffsets);
+        resource_dumper.Process_vkCmdBindVertexBuffers(call_info, GetDeviceTable(in_commandBuffer)->CmdBindVertexBuffers, in_commandBuffer, firstBinding, bindingCount, in_pBuffers, in_pOffsets);
     }
 }
 
@@ -1678,7 +1678,7 @@ void VulkanReplayConsumer::Process_vkCmdDraw(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDraw(call_info, GetDeviceTable(in_commandBuffer)->CmdDraw, in_commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+        resource_dumper.Process_vkCmdDraw(call_info, GetDeviceTable(in_commandBuffer)->CmdDraw, in_commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
     }
 }
 
@@ -1697,7 +1697,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndexed(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndexed(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexed, in_commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+        resource_dumper.Process_vkCmdDrawIndexed(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexed, in_commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 }
 
@@ -1716,7 +1716,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndirect(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndirect(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirect, in_commandBuffer, in_buffer, offset, drawCount, stride);
+        resource_dumper.Process_vkCmdDrawIndirect(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirect, in_commandBuffer, in_buffer, offset, drawCount, stride);
     }
 }
 
@@ -1735,7 +1735,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirect(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndexedIndirect(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirect, in_commandBuffer, in_buffer, offset, drawCount, stride);
+        resource_dumper.Process_vkCmdDrawIndexedIndirect(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirect, in_commandBuffer, in_buffer, offset, drawCount, stride);
     }
 }
 
@@ -1752,7 +1752,7 @@ void VulkanReplayConsumer::Process_vkCmdDispatch(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDispatch(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatch, in_commandBuffer, groupCountX, groupCountY, groupCountZ);
+        resource_dumper.Process_vkCmdDispatch(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatch, in_commandBuffer, groupCountX, groupCountY, groupCountZ);
     }
 }
 
@@ -1769,7 +1769,7 @@ void VulkanReplayConsumer::Process_vkCmdDispatchIndirect(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDispatchIndirect(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchIndirect, in_commandBuffer, in_buffer, offset);
+        resource_dumper.Process_vkCmdDispatchIndirect(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchIndirect, in_commandBuffer, in_buffer, offset);
     }
 }
 
@@ -1790,7 +1790,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyBuffer(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBuffer, in_commandBuffer, in_srcBuffer, in_dstBuffer, regionCount, in_pRegions);
+        resource_dumper.Process_vkCmdCopyBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBuffer, in_commandBuffer, in_srcBuffer, in_dstBuffer, regionCount, in_pRegions);
     }
 }
 
@@ -1813,7 +1813,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyImage(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyImage(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImage, in_commandBuffer, in_srcImage, srcImageLayout, in_dstImage, dstImageLayout, regionCount, in_pRegions);
+        resource_dumper.Process_vkCmdCopyImage(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImage, in_commandBuffer, in_srcImage, srcImageLayout, in_dstImage, dstImageLayout, regionCount, in_pRegions);
     }
 }
 
@@ -1837,7 +1837,7 @@ void VulkanReplayConsumer::Process_vkCmdBlitImage(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBlitImage(call_info, GetDeviceTable(in_commandBuffer)->CmdBlitImage, in_commandBuffer, in_srcImage, srcImageLayout, in_dstImage, dstImageLayout, regionCount, in_pRegions, filter);
+        resource_dumper.Process_vkCmdBlitImage(call_info, GetDeviceTable(in_commandBuffer)->CmdBlitImage, in_commandBuffer, in_srcImage, srcImageLayout, in_dstImage, dstImageLayout, regionCount, in_pRegions, filter);
     }
 }
 
@@ -1859,7 +1859,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyBufferToImage(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyBufferToImage(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBufferToImage, in_commandBuffer, in_srcBuffer, in_dstImage, dstImageLayout, regionCount, in_pRegions);
+        resource_dumper.Process_vkCmdCopyBufferToImage(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBufferToImage, in_commandBuffer, in_srcBuffer, in_dstImage, dstImageLayout, regionCount, in_pRegions);
     }
 }
 
@@ -1881,7 +1881,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyImageToBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImageToBuffer, in_commandBuffer, in_srcImage, srcImageLayout, in_dstBuffer, regionCount, in_pRegions);
+        resource_dumper.Process_vkCmdCopyImageToBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImageToBuffer, in_commandBuffer, in_srcImage, srcImageLayout, in_dstBuffer, regionCount, in_pRegions);
     }
 }
 
@@ -1901,7 +1901,7 @@ void VulkanReplayConsumer::Process_vkCmdUpdateBuffer(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdUpdateBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdUpdateBuffer, in_commandBuffer, in_dstBuffer, dstOffset, dataSize, in_pData);
+        resource_dumper.Process_vkCmdUpdateBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdUpdateBuffer, in_commandBuffer, in_dstBuffer, dstOffset, dataSize, in_pData);
     }
 }
 
@@ -1920,7 +1920,7 @@ void VulkanReplayConsumer::Process_vkCmdFillBuffer(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdFillBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdFillBuffer, in_commandBuffer, in_dstBuffer, dstOffset, size, data);
+        resource_dumper.Process_vkCmdFillBuffer(call_info, GetDeviceTable(in_commandBuffer)->CmdFillBuffer, in_commandBuffer, in_dstBuffer, dstOffset, size, data);
     }
 }
 
@@ -1942,7 +1942,7 @@ void VulkanReplayConsumer::Process_vkCmdClearColorImage(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdClearColorImage(call_info, GetDeviceTable(in_commandBuffer)->CmdClearColorImage, in_commandBuffer, in_image, imageLayout, in_pColor, rangeCount, in_pRanges);
+        resource_dumper.Process_vkCmdClearColorImage(call_info, GetDeviceTable(in_commandBuffer)->CmdClearColorImage, in_commandBuffer, in_image, imageLayout, in_pColor, rangeCount, in_pRanges);
     }
 }
 
@@ -1964,7 +1964,7 @@ void VulkanReplayConsumer::Process_vkCmdClearDepthStencilImage(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdClearDepthStencilImage(call_info, GetDeviceTable(in_commandBuffer)->CmdClearDepthStencilImage, in_commandBuffer, in_image, imageLayout, in_pDepthStencil, rangeCount, in_pRanges);
+        resource_dumper.Process_vkCmdClearDepthStencilImage(call_info, GetDeviceTable(in_commandBuffer)->CmdClearDepthStencilImage, in_commandBuffer, in_image, imageLayout, in_pDepthStencil, rangeCount, in_pRanges);
     }
 }
 
@@ -1984,7 +1984,7 @@ void VulkanReplayConsumer::Process_vkCmdClearAttachments(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdClearAttachments(call_info, GetDeviceTable(in_commandBuffer)->CmdClearAttachments, in_commandBuffer, attachmentCount, in_pAttachments, rectCount, in_pRects);
+        resource_dumper.Process_vkCmdClearAttachments(call_info, GetDeviceTable(in_commandBuffer)->CmdClearAttachments, in_commandBuffer, attachmentCount, in_pAttachments, rectCount, in_pRects);
     }
 }
 
@@ -2007,7 +2007,7 @@ void VulkanReplayConsumer::Process_vkCmdResolveImage(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdResolveImage(call_info, GetDeviceTable(in_commandBuffer)->CmdResolveImage, in_commandBuffer, in_srcImage, srcImageLayout, in_dstImage, dstImageLayout, regionCount, in_pRegions);
+        resource_dumper.Process_vkCmdResolveImage(call_info, GetDeviceTable(in_commandBuffer)->CmdResolveImage, in_commandBuffer, in_srcImage, srcImageLayout, in_dstImage, dstImageLayout, regionCount, in_pRegions);
     }
 }
 
@@ -2024,7 +2024,7 @@ void VulkanReplayConsumer::Process_vkCmdSetEvent(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetEvent(call_info, GetDeviceTable(in_commandBuffer)->CmdSetEvent, in_commandBuffer, in_event, stageMask);
+        resource_dumper.Process_vkCmdSetEvent(call_info, GetDeviceTable(in_commandBuffer)->CmdSetEvent, in_commandBuffer, in_event, stageMask);
     }
 }
 
@@ -2041,7 +2041,7 @@ void VulkanReplayConsumer::Process_vkCmdResetEvent(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdResetEvent(call_info, GetDeviceTable(in_commandBuffer)->CmdResetEvent, in_commandBuffer, in_event, stageMask);
+        resource_dumper.Process_vkCmdResetEvent(call_info, GetDeviceTable(in_commandBuffer)->CmdResetEvent, in_commandBuffer, in_event, stageMask);
     }
 }
 
@@ -2071,7 +2071,7 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWaitEvents(call_info, GetDeviceTable(in_commandBuffer)->CmdWaitEvents, in_commandBuffer, eventCount, in_pEvents, srcStageMask, dstStageMask, memoryBarrierCount, in_pMemoryBarriers, bufferMemoryBarrierCount, in_pBufferMemoryBarriers, imageMemoryBarrierCount, in_pImageMemoryBarriers);
+        resource_dumper.Process_vkCmdWaitEvents(call_info, GetDeviceTable(in_commandBuffer)->CmdWaitEvents, in_commandBuffer, eventCount, in_pEvents, srcStageMask, dstStageMask, memoryBarrierCount, in_pMemoryBarriers, bufferMemoryBarrierCount, in_pBufferMemoryBarriers, imageMemoryBarrierCount, in_pImageMemoryBarriers);
     }
 }
 
@@ -2098,7 +2098,7 @@ void VulkanReplayConsumer::Process_vkCmdPipelineBarrier(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdPipelineBarrier(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdPipelineBarrier, in_commandBuffer->handle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers->GetPointer(), bufferMemoryBarrierCount, pBufferMemoryBarriers->GetPointer(), imageMemoryBarrierCount, pImageMemoryBarriers->GetPointer());
+        resource_dumper.Process_vkCmdPipelineBarrier(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdPipelineBarrier, in_commandBuffer->handle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers->GetPointer(), bufferMemoryBarrierCount, pBufferMemoryBarriers->GetPointer(), imageMemoryBarrierCount, pImageMemoryBarriers->GetPointer());
     }
 }
 
@@ -2116,7 +2116,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginQuery(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginQuery, in_commandBuffer, in_queryPool, query, flags);
+        resource_dumper.Process_vkCmdBeginQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginQuery, in_commandBuffer, in_queryPool, query, flags);
     }
 }
 
@@ -2133,7 +2133,7 @@ void VulkanReplayConsumer::Process_vkCmdEndQuery(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdEndQuery, in_commandBuffer, in_queryPool, query);
+        resource_dumper.Process_vkCmdEndQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdEndQuery, in_commandBuffer, in_queryPool, query);
     }
 }
 
@@ -2151,7 +2151,7 @@ void VulkanReplayConsumer::Process_vkCmdResetQueryPool(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdResetQueryPool(call_info, GetDeviceTable(in_commandBuffer)->CmdResetQueryPool, in_commandBuffer, in_queryPool, firstQuery, queryCount);
+        resource_dumper.Process_vkCmdResetQueryPool(call_info, GetDeviceTable(in_commandBuffer)->CmdResetQueryPool, in_commandBuffer, in_queryPool, firstQuery, queryCount);
     }
 }
 
@@ -2169,7 +2169,7 @@ void VulkanReplayConsumer::Process_vkCmdWriteTimestamp(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWriteTimestamp(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteTimestamp, in_commandBuffer, pipelineStage, in_queryPool, query);
+        resource_dumper.Process_vkCmdWriteTimestamp(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteTimestamp, in_commandBuffer, pipelineStage, in_queryPool, query);
     }
 }
 
@@ -2192,7 +2192,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResults(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyQueryPoolResults(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyQueryPoolResults, in_commandBuffer, in_queryPool, firstQuery, queryCount, in_dstBuffer, dstOffset, stride, flags);
+        resource_dumper.Process_vkCmdCopyQueryPoolResults(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyQueryPoolResults, in_commandBuffer, in_queryPool, firstQuery, queryCount, in_dstBuffer, dstOffset, stride, flags);
     }
 }
 
@@ -2213,7 +2213,7 @@ void VulkanReplayConsumer::Process_vkCmdPushConstants(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdPushConstants(call_info, GetDeviceTable(in_commandBuffer)->CmdPushConstants, in_commandBuffer, in_layout, stageFlags, offset, size, in_pValues);
+        resource_dumper.Process_vkCmdPushConstants(call_info, GetDeviceTable(in_commandBuffer)->CmdPushConstants, in_commandBuffer, in_layout, stageFlags, offset, size, in_pValues);
     }
 }
 
@@ -2231,7 +2231,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderPass(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginRenderPass(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderPass, in_commandBuffer->handle, pRenderPassBegin, contents);
+        resource_dumper.Process_vkCmdBeginRenderPass(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderPass, in_commandBuffer->handle, pRenderPassBegin, contents);
     }
 }
 
@@ -2246,7 +2246,7 @@ void VulkanReplayConsumer::Process_vkCmdNextSubpass(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdNextSubpass(call_info, GetDeviceTable(in_commandBuffer)->CmdNextSubpass, in_commandBuffer, contents);
+        resource_dumper.Process_vkCmdNextSubpass(call_info, GetDeviceTable(in_commandBuffer)->CmdNextSubpass, in_commandBuffer, contents);
     }
 }
 
@@ -2260,7 +2260,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderPass(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndRenderPass(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderPass, in_commandBuffer);
+        resource_dumper.Process_vkCmdEndRenderPass(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderPass, in_commandBuffer);
     }
 }
 
@@ -2277,7 +2277,7 @@ void VulkanReplayConsumer::Process_vkCmdExecuteCommands(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdExecuteCommands(call_info, GetDeviceTable(in_commandBuffer)->CmdExecuteCommands, in_commandBuffer, commandBufferCount, in_pCommandBuffers);
+        resource_dumper.Process_vkCmdExecuteCommands(call_info, GetDeviceTable(in_commandBuffer)->CmdExecuteCommands, in_commandBuffer, commandBufferCount, in_pCommandBuffers);
     }
 }
 
@@ -2336,7 +2336,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDeviceMask(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDeviceMask(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDeviceMask, in_commandBuffer, deviceMask);
+        resource_dumper.Process_vkCmdSetDeviceMask(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDeviceMask, in_commandBuffer, deviceMask);
     }
 }
 
@@ -2356,7 +2356,7 @@ void VulkanReplayConsumer::Process_vkCmdDispatchBase(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDispatchBase(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchBase, in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+        resource_dumper.Process_vkCmdDispatchBase(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchBase, in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
     }
 }
 
@@ -2695,7 +2695,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndirectCount(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndirectCount(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCount, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper.Process_vkCmdDrawIndirectCount(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCount, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 
@@ -2717,7 +2717,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCount(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndexedIndirectCount(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCount, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper.Process_vkCmdDrawIndexedIndirectCount(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCount, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 
@@ -2754,7 +2754,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderPass2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginRenderPass2(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderPass2, in_commandBuffer->handle, pRenderPassBegin, pSubpassBeginInfo);
+        resource_dumper.Process_vkCmdBeginRenderPass2(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderPass2, in_commandBuffer->handle, pRenderPassBegin, pSubpassBeginInfo);
     }
 }
 
@@ -2772,7 +2772,7 @@ void VulkanReplayConsumer::Process_vkCmdNextSubpass2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdNextSubpass2(call_info, GetDeviceTable(in_commandBuffer)->CmdNextSubpass2, in_commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+        resource_dumper.Process_vkCmdNextSubpass2(call_info, GetDeviceTable(in_commandBuffer)->CmdNextSubpass2, in_commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
     }
 }
 
@@ -2788,7 +2788,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderPass2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndRenderPass2(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderPass2, in_commandBuffer, pSubpassEndInfo);
+        resource_dumper.Process_vkCmdEndRenderPass2(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderPass2, in_commandBuffer, pSubpassEndInfo);
     }
 }
 
@@ -2987,7 +2987,7 @@ void VulkanReplayConsumer::Process_vkCmdSetEvent2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetEvent2(call_info, GetDeviceTable(in_commandBuffer)->CmdSetEvent2, in_commandBuffer, in_event, in_pDependencyInfo);
+        resource_dumper.Process_vkCmdSetEvent2(call_info, GetDeviceTable(in_commandBuffer)->CmdSetEvent2, in_commandBuffer, in_event, in_pDependencyInfo);
     }
 }
 
@@ -3004,7 +3004,7 @@ void VulkanReplayConsumer::Process_vkCmdResetEvent2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdResetEvent2(call_info, GetDeviceTable(in_commandBuffer)->CmdResetEvent2, in_commandBuffer, in_event, stageMask);
+        resource_dumper.Process_vkCmdResetEvent2(call_info, GetDeviceTable(in_commandBuffer)->CmdResetEvent2, in_commandBuffer, in_event, stageMask);
     }
 }
 
@@ -3024,7 +3024,7 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWaitEvents2(call_info, GetDeviceTable(in_commandBuffer)->CmdWaitEvents2, in_commandBuffer, eventCount, in_pEvents, in_pDependencyInfos);
+        resource_dumper.Process_vkCmdWaitEvents2(call_info, GetDeviceTable(in_commandBuffer)->CmdWaitEvents2, in_commandBuffer, eventCount, in_pEvents, in_pDependencyInfos);
     }
 }
 
@@ -3041,7 +3041,7 @@ void VulkanReplayConsumer::Process_vkCmdPipelineBarrier2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdPipelineBarrier2(call_info, GetDeviceTable(in_commandBuffer)->CmdPipelineBarrier2, in_commandBuffer, in_pDependencyInfo);
+        resource_dumper.Process_vkCmdPipelineBarrier2(call_info, GetDeviceTable(in_commandBuffer)->CmdPipelineBarrier2, in_commandBuffer, in_pDependencyInfo);
     }
 }
 
@@ -3059,7 +3059,7 @@ void VulkanReplayConsumer::Process_vkCmdWriteTimestamp2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWriteTimestamp2(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteTimestamp2, in_commandBuffer, stage, in_queryPool, query);
+        resource_dumper.Process_vkCmdWriteTimestamp2(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteTimestamp2, in_commandBuffer, stage, in_queryPool, query);
     }
 }
 
@@ -3093,7 +3093,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyBuffer2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyBuffer2(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBuffer2, in_commandBuffer, in_pCopyBufferInfo);
+        resource_dumper.Process_vkCmdCopyBuffer2(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBuffer2, in_commandBuffer, in_pCopyBufferInfo);
     }
 }
 
@@ -3110,7 +3110,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyImage2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyImage2(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImage2, in_commandBuffer, in_pCopyImageInfo);
+        resource_dumper.Process_vkCmdCopyImage2(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImage2, in_commandBuffer, in_pCopyImageInfo);
     }
 }
 
@@ -3127,7 +3127,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyBufferToImage2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyBufferToImage2(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBufferToImage2, in_commandBuffer, in_pCopyBufferToImageInfo);
+        resource_dumper.Process_vkCmdCopyBufferToImage2(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBufferToImage2, in_commandBuffer, in_pCopyBufferToImageInfo);
     }
 }
 
@@ -3144,7 +3144,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyImageToBuffer2(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImageToBuffer2, in_commandBuffer, in_pCopyImageToBufferInfo);
+        resource_dumper.Process_vkCmdCopyImageToBuffer2(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImageToBuffer2, in_commandBuffer, in_pCopyImageToBufferInfo);
     }
 }
 
@@ -3161,7 +3161,7 @@ void VulkanReplayConsumer::Process_vkCmdBlitImage2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBlitImage2(call_info, GetDeviceTable(in_commandBuffer)->CmdBlitImage2, in_commandBuffer, in_pBlitImageInfo);
+        resource_dumper.Process_vkCmdBlitImage2(call_info, GetDeviceTable(in_commandBuffer)->CmdBlitImage2, in_commandBuffer, in_pBlitImageInfo);
     }
 }
 
@@ -3178,7 +3178,7 @@ void VulkanReplayConsumer::Process_vkCmdResolveImage2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdResolveImage2(call_info, GetDeviceTable(in_commandBuffer)->CmdResolveImage2, in_commandBuffer, in_pResolveImageInfo);
+        resource_dumper.Process_vkCmdResolveImage2(call_info, GetDeviceTable(in_commandBuffer)->CmdResolveImage2, in_commandBuffer, in_pResolveImageInfo);
     }
 }
 
@@ -3195,7 +3195,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginRendering(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginRendering(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginRendering, in_commandBuffer, in_pRenderingInfo);
+        resource_dumper.Process_vkCmdBeginRendering(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginRendering, in_commandBuffer, in_pRenderingInfo);
     }
 }
 
@@ -3209,7 +3209,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRendering(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndRendering(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRendering, in_commandBuffer);
+        resource_dumper.Process_vkCmdEndRendering(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRendering, in_commandBuffer);
     }
 }
 
@@ -3224,7 +3224,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCullMode(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCullMode(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCullMode, in_commandBuffer, cullMode);
+        resource_dumper.Process_vkCmdSetCullMode(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCullMode, in_commandBuffer, cullMode);
     }
 }
 
@@ -3239,7 +3239,7 @@ void VulkanReplayConsumer::Process_vkCmdSetFrontFace(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetFrontFace(call_info, GetDeviceTable(in_commandBuffer)->CmdSetFrontFace, in_commandBuffer, frontFace);
+        resource_dumper.Process_vkCmdSetFrontFace(call_info, GetDeviceTable(in_commandBuffer)->CmdSetFrontFace, in_commandBuffer, frontFace);
     }
 }
 
@@ -3254,7 +3254,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPrimitiveTopology(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetPrimitiveTopology(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveTopology, in_commandBuffer, primitiveTopology);
+        resource_dumper.Process_vkCmdSetPrimitiveTopology(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveTopology, in_commandBuffer, primitiveTopology);
     }
 }
 
@@ -3271,7 +3271,7 @@ void VulkanReplayConsumer::Process_vkCmdSetViewportWithCount(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetViewportWithCount(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportWithCount, in_commandBuffer, viewportCount, in_pViewports);
+        resource_dumper.Process_vkCmdSetViewportWithCount(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportWithCount, in_commandBuffer, viewportCount, in_pViewports);
     }
 }
 
@@ -3288,7 +3288,7 @@ void VulkanReplayConsumer::Process_vkCmdSetScissorWithCount(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetScissorWithCount(call_info, GetDeviceTable(in_commandBuffer)->CmdSetScissorWithCount, in_commandBuffer, scissorCount, in_pScissors);
+        resource_dumper.Process_vkCmdSetScissorWithCount(call_info, GetDeviceTable(in_commandBuffer)->CmdSetScissorWithCount, in_commandBuffer, scissorCount, in_pScissors);
     }
 }
 
@@ -3312,7 +3312,7 @@ void VulkanReplayConsumer::Process_vkCmdBindVertexBuffers2(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindVertexBuffers2(call_info, GetDeviceTable(in_commandBuffer)->CmdBindVertexBuffers2, in_commandBuffer, firstBinding, bindingCount, in_pBuffers, in_pOffsets, in_pSizes, in_pStrides);
+        resource_dumper.Process_vkCmdBindVertexBuffers2(call_info, GetDeviceTable(in_commandBuffer)->CmdBindVertexBuffers2, in_commandBuffer, firstBinding, bindingCount, in_pBuffers, in_pOffsets, in_pSizes, in_pStrides);
     }
 }
 
@@ -3327,7 +3327,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthTestEnable(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthTestEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthTestEnable, in_commandBuffer, depthTestEnable);
+        resource_dumper.Process_vkCmdSetDepthTestEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthTestEnable, in_commandBuffer, depthTestEnable);
     }
 }
 
@@ -3342,7 +3342,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthWriteEnable(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthWriteEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthWriteEnable, in_commandBuffer, depthWriteEnable);
+        resource_dumper.Process_vkCmdSetDepthWriteEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthWriteEnable, in_commandBuffer, depthWriteEnable);
     }
 }
 
@@ -3357,7 +3357,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthCompareOp(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthCompareOp(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthCompareOp, in_commandBuffer, depthCompareOp);
+        resource_dumper.Process_vkCmdSetDepthCompareOp(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthCompareOp, in_commandBuffer, depthCompareOp);
     }
 }
 
@@ -3372,7 +3372,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthBoundsTestEnable(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthBoundsTestEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBoundsTestEnable, in_commandBuffer, depthBoundsTestEnable);
+        resource_dumper.Process_vkCmdSetDepthBoundsTestEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBoundsTestEnable, in_commandBuffer, depthBoundsTestEnable);
     }
 }
 
@@ -3387,7 +3387,7 @@ void VulkanReplayConsumer::Process_vkCmdSetStencilTestEnable(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetStencilTestEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilTestEnable, in_commandBuffer, stencilTestEnable);
+        resource_dumper.Process_vkCmdSetStencilTestEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilTestEnable, in_commandBuffer, stencilTestEnable);
     }
 }
 
@@ -3406,7 +3406,7 @@ void VulkanReplayConsumer::Process_vkCmdSetStencilOp(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetStencilOp(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilOp, in_commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
+        resource_dumper.Process_vkCmdSetStencilOp(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilOp, in_commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
     }
 }
 
@@ -3421,7 +3421,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRasterizerDiscardEnable(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetRasterizerDiscardEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRasterizerDiscardEnable, in_commandBuffer, rasterizerDiscardEnable);
+        resource_dumper.Process_vkCmdSetRasterizerDiscardEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRasterizerDiscardEnable, in_commandBuffer, rasterizerDiscardEnable);
     }
 }
 
@@ -3436,7 +3436,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthBiasEnable(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthBiasEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBiasEnable, in_commandBuffer, depthBiasEnable);
+        resource_dumper.Process_vkCmdSetDepthBiasEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBiasEnable, in_commandBuffer, depthBiasEnable);
     }
 }
 
@@ -3451,7 +3451,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPrimitiveRestartEnable(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetPrimitiveRestartEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveRestartEnable, in_commandBuffer, primitiveRestartEnable);
+        resource_dumper.Process_vkCmdSetPrimitiveRestartEnable(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveRestartEnable, in_commandBuffer, primitiveRestartEnable);
     }
 }
 
@@ -4252,7 +4252,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginVideoCodingKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginVideoCodingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginVideoCodingKHR, in_commandBuffer, in_pBeginInfo);
+        resource_dumper.Process_vkCmdBeginVideoCodingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginVideoCodingKHR, in_commandBuffer, in_pBeginInfo);
     }
 }
 
@@ -4268,7 +4268,7 @@ void VulkanReplayConsumer::Process_vkCmdEndVideoCodingKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndVideoCodingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEndVideoCodingKHR, in_commandBuffer, in_pEndCodingInfo);
+        resource_dumper.Process_vkCmdEndVideoCodingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEndVideoCodingKHR, in_commandBuffer, in_pEndCodingInfo);
     }
 }
 
@@ -4284,7 +4284,7 @@ void VulkanReplayConsumer::Process_vkCmdControlVideoCodingKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdControlVideoCodingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdControlVideoCodingKHR, in_commandBuffer, in_pCodingControlInfo);
+        resource_dumper.Process_vkCmdControlVideoCodingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdControlVideoCodingKHR, in_commandBuffer, in_pCodingControlInfo);
     }
 }
 
@@ -4301,7 +4301,7 @@ void VulkanReplayConsumer::Process_vkCmdDecodeVideoKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDecodeVideoKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDecodeVideoKHR, in_commandBuffer, in_pDecodeInfo);
+        resource_dumper.Process_vkCmdDecodeVideoKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDecodeVideoKHR, in_commandBuffer, in_pDecodeInfo);
     }
 }
 
@@ -4318,7 +4318,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderingKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginRenderingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginRenderingKHR, in_commandBuffer, in_pRenderingInfo);
+        resource_dumper.Process_vkCmdBeginRenderingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginRenderingKHR, in_commandBuffer, in_pRenderingInfo);
     }
 }
 
@@ -4332,7 +4332,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderingKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndRenderingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderingKHR, in_commandBuffer);
+        resource_dumper.Process_vkCmdEndRenderingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderingKHR, in_commandBuffer);
     }
 }
 
@@ -4458,7 +4458,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDeviceMaskKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDeviceMaskKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDeviceMaskKHR, in_commandBuffer, deviceMask);
+        resource_dumper.Process_vkCmdSetDeviceMaskKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDeviceMaskKHR, in_commandBuffer, deviceMask);
     }
 }
 
@@ -4478,7 +4478,7 @@ void VulkanReplayConsumer::Process_vkCmdDispatchBaseKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDispatchBaseKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchBaseKHR, in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+        resource_dumper.Process_vkCmdDispatchBaseKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchBaseKHR, in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
     }
 }
 
@@ -4688,7 +4688,7 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdPushDescriptorSetKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetKHR, in_commandBuffer, pipelineBindPoint, in_layout, set, descriptorWriteCount, in_pDescriptorWrites);
+        resource_dumper.Process_vkCmdPushDescriptorSetKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetKHR, in_commandBuffer, pipelineBindPoint, in_layout, set, descriptorWriteCount, in_pDescriptorWrites);
     }
 }
 
@@ -4759,7 +4759,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderPass2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginRenderPass2KHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderPass2KHR, in_commandBuffer->handle, pRenderPassBegin, pSubpassBeginInfo);
+        resource_dumper.Process_vkCmdBeginRenderPass2KHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderPass2KHR, in_commandBuffer->handle, pRenderPassBegin, pSubpassBeginInfo);
     }
 }
 
@@ -4777,7 +4777,7 @@ void VulkanReplayConsumer::Process_vkCmdNextSubpass2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdNextSubpass2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdNextSubpass2KHR, in_commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+        resource_dumper.Process_vkCmdNextSubpass2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdNextSubpass2KHR, in_commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
     }
 }
 
@@ -4793,7 +4793,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderPass2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndRenderPass2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderPass2KHR, in_commandBuffer, pSubpassEndInfo);
+        resource_dumper.Process_vkCmdEndRenderPass2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderPass2KHR, in_commandBuffer, pSubpassEndInfo);
     }
 }
 
@@ -5218,7 +5218,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndirectCountKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndirectCountKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCountKHR, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper.Process_vkCmdDrawIndirectCountKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCountKHR, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 
@@ -5240,7 +5240,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndexedIndirectCountKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCountKHR, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper.Process_vkCmdDrawIndexedIndirectCountKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCountKHR, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 
@@ -5319,7 +5319,7 @@ void VulkanReplayConsumer::Process_vkCmdSetFragmentShadingRateKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetFragmentShadingRateKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdSetFragmentShadingRateKHR, in_commandBuffer, in_pFragmentSize, in_combinerOps);
+        resource_dumper.Process_vkCmdSetFragmentShadingRateKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdSetFragmentShadingRateKHR, in_commandBuffer, in_pFragmentSize, in_combinerOps);
     }
 }
 
@@ -5618,7 +5618,7 @@ void VulkanReplayConsumer::Process_vkCmdEncodeVideoKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEncodeVideoKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEncodeVideoKHR, in_commandBuffer, in_pEncodeInfo);
+        resource_dumper.Process_vkCmdEncodeVideoKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEncodeVideoKHR, in_commandBuffer, in_pEncodeInfo);
     }
 }
 
@@ -5637,7 +5637,7 @@ void VulkanReplayConsumer::Process_vkCmdSetEvent2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetEvent2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdSetEvent2KHR, in_commandBuffer, in_event, in_pDependencyInfo);
+        resource_dumper.Process_vkCmdSetEvent2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdSetEvent2KHR, in_commandBuffer, in_event, in_pDependencyInfo);
     }
 }
 
@@ -5654,7 +5654,7 @@ void VulkanReplayConsumer::Process_vkCmdResetEvent2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdResetEvent2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdResetEvent2KHR, in_commandBuffer, in_event, stageMask);
+        resource_dumper.Process_vkCmdResetEvent2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdResetEvent2KHR, in_commandBuffer, in_event, stageMask);
     }
 }
 
@@ -5674,7 +5674,7 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWaitEvents2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdWaitEvents2KHR, in_commandBuffer, eventCount, in_pEvents, in_pDependencyInfos);
+        resource_dumper.Process_vkCmdWaitEvents2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdWaitEvents2KHR, in_commandBuffer, eventCount, in_pEvents, in_pDependencyInfos);
     }
 }
 
@@ -5691,7 +5691,7 @@ void VulkanReplayConsumer::Process_vkCmdPipelineBarrier2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdPipelineBarrier2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPipelineBarrier2KHR, in_commandBuffer, in_pDependencyInfo);
+        resource_dumper.Process_vkCmdPipelineBarrier2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPipelineBarrier2KHR, in_commandBuffer, in_pDependencyInfo);
     }
 }
 
@@ -5709,7 +5709,7 @@ void VulkanReplayConsumer::Process_vkCmdWriteTimestamp2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWriteTimestamp2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteTimestamp2KHR, in_commandBuffer, stage, in_queryPool, query);
+        resource_dumper.Process_vkCmdWriteTimestamp2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteTimestamp2KHR, in_commandBuffer, stage, in_queryPool, query);
     }
 }
 
@@ -5745,7 +5745,7 @@ void VulkanReplayConsumer::Process_vkCmdWriteBufferMarker2AMD(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWriteBufferMarker2AMD(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteBufferMarker2AMD, in_commandBuffer, stage, in_dstBuffer, dstOffset, marker);
+        resource_dumper.Process_vkCmdWriteBufferMarker2AMD(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteBufferMarker2AMD, in_commandBuffer, stage, in_dstBuffer, dstOffset, marker);
     }
 }
 
@@ -5777,7 +5777,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyBuffer2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyBuffer2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBuffer2KHR, in_commandBuffer, in_pCopyBufferInfo);
+        resource_dumper.Process_vkCmdCopyBuffer2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBuffer2KHR, in_commandBuffer, in_pCopyBufferInfo);
     }
 }
 
@@ -5794,7 +5794,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyImage2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyImage2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImage2KHR, in_commandBuffer, in_pCopyImageInfo);
+        resource_dumper.Process_vkCmdCopyImage2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImage2KHR, in_commandBuffer, in_pCopyImageInfo);
     }
 }
 
@@ -5811,7 +5811,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyBufferToImage2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyBufferToImage2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBufferToImage2KHR, in_commandBuffer, in_pCopyBufferToImageInfo);
+        resource_dumper.Process_vkCmdCopyBufferToImage2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyBufferToImage2KHR, in_commandBuffer, in_pCopyBufferToImageInfo);
     }
 }
 
@@ -5828,7 +5828,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyImageToBuffer2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImageToBuffer2KHR, in_commandBuffer, in_pCopyImageToBufferInfo);
+        resource_dumper.Process_vkCmdCopyImageToBuffer2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImageToBuffer2KHR, in_commandBuffer, in_pCopyImageToBufferInfo);
     }
 }
 
@@ -5845,7 +5845,7 @@ void VulkanReplayConsumer::Process_vkCmdBlitImage2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBlitImage2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBlitImage2KHR, in_commandBuffer, in_pBlitImageInfo);
+        resource_dumper.Process_vkCmdBlitImage2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBlitImage2KHR, in_commandBuffer, in_pBlitImageInfo);
     }
 }
 
@@ -5862,7 +5862,7 @@ void VulkanReplayConsumer::Process_vkCmdResolveImage2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdResolveImage2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdResolveImage2KHR, in_commandBuffer, in_pResolveImageInfo);
+        resource_dumper.Process_vkCmdResolveImage2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdResolveImage2KHR, in_commandBuffer, in_pResolveImageInfo);
     }
 }
 
@@ -5877,7 +5877,7 @@ void VulkanReplayConsumer::Process_vkCmdTraceRaysIndirect2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdTraceRaysIndirect2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdTraceRaysIndirect2KHR, in_commandBuffer, indirectDeviceAddress);
+        resource_dumper.Process_vkCmdTraceRaysIndirect2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdTraceRaysIndirect2KHR, in_commandBuffer, indirectDeviceAddress);
     }
 }
 
@@ -5943,7 +5943,7 @@ void VulkanReplayConsumer::Process_vkCmdBindIndexBuffer2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindIndexBuffer2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBindIndexBuffer2KHR, in_commandBuffer, in_buffer, offset, size, indexType);
+        resource_dumper.Process_vkCmdBindIndexBuffer2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBindIndexBuffer2KHR, in_commandBuffer, in_buffer, offset, size, indexType);
     }
 }
 
@@ -6067,7 +6067,7 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindDescriptorSets2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets2KHR, in_commandBuffer, in_pBindDescriptorSetsInfo);
+        resource_dumper.Process_vkCmdBindDescriptorSets2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorSets2KHR, in_commandBuffer, in_pBindDescriptorSetsInfo);
     }
 }
 
@@ -6084,7 +6084,7 @@ void VulkanReplayConsumer::Process_vkCmdPushConstants2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdPushConstants2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushConstants2KHR, in_commandBuffer, in_pPushConstantsInfo);
+        resource_dumper.Process_vkCmdPushConstants2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushConstants2KHR, in_commandBuffer, in_pPushConstantsInfo);
     }
 }
 
@@ -6101,7 +6101,7 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSet2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdPushDescriptorSet2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSet2KHR, in_commandBuffer, in_pPushDescriptorSetInfo);
+        resource_dumper.Process_vkCmdPushDescriptorSet2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSet2KHR, in_commandBuffer, in_pPushDescriptorSetInfo);
     }
 }
 
@@ -6118,7 +6118,7 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdPushDescriptorSetWithTemplate2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR, in_commandBuffer, in_pPushDescriptorSetWithTemplateInfo);
+        resource_dumper.Process_vkCmdPushDescriptorSetWithTemplate2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR, in_commandBuffer, in_pPushDescriptorSetWithTemplateInfo);
     }
 }
 
@@ -6135,7 +6135,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDescriptorBufferOffsets2EXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDescriptorBufferOffsets2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDescriptorBufferOffsets2EXT, in_commandBuffer, in_pSetDescriptorBufferOffsetsInfo);
+        resource_dumper.Process_vkCmdSetDescriptorBufferOffsets2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDescriptorBufferOffsets2EXT, in_commandBuffer, in_pSetDescriptorBufferOffsetsInfo);
     }
 }
 
@@ -6152,7 +6152,7 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorBufferEmbeddedSamplers2EXT, in_commandBuffer, in_pBindDescriptorBufferEmbeddedSamplersInfo);
+        resource_dumper.Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorBufferEmbeddedSamplers2EXT, in_commandBuffer, in_pBindDescriptorBufferEmbeddedSamplersInfo);
     }
 }
 
@@ -6261,7 +6261,7 @@ void VulkanReplayConsumer::Process_vkCmdDebugMarkerBeginEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDebugMarkerBeginEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDebugMarkerBeginEXT, in_commandBuffer, in_pMarkerInfo);
+        resource_dumper.Process_vkCmdDebugMarkerBeginEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDebugMarkerBeginEXT, in_commandBuffer, in_pMarkerInfo);
     }
 }
 
@@ -6275,7 +6275,7 @@ void VulkanReplayConsumer::Process_vkCmdDebugMarkerEndEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDebugMarkerEndEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDebugMarkerEndEXT, in_commandBuffer);
+        resource_dumper.Process_vkCmdDebugMarkerEndEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDebugMarkerEndEXT, in_commandBuffer);
     }
 }
 
@@ -6290,7 +6290,7 @@ void VulkanReplayConsumer::Process_vkCmdDebugMarkerInsertEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDebugMarkerInsertEXT(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdDebugMarkerInsertEXT, in_commandBuffer->handle, pMarkerInfo->GetPointer());
+        resource_dumper.Process_vkCmdDebugMarkerInsertEXT(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdDebugMarkerInsertEXT, in_commandBuffer->handle, pMarkerInfo->GetPointer());
     }
 }
 
@@ -6312,7 +6312,7 @@ void VulkanReplayConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindTransformFeedbackBuffersEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindTransformFeedbackBuffersEXT, in_commandBuffer, firstBinding, bindingCount, in_pBuffers, in_pOffsets, in_pSizes);
+        resource_dumper.Process_vkCmdBindTransformFeedbackBuffersEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindTransformFeedbackBuffersEXT, in_commandBuffer, firstBinding, bindingCount, in_pBuffers, in_pOffsets, in_pSizes);
     }
 }
 
@@ -6332,7 +6332,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginTransformFeedbackEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginTransformFeedbackEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginTransformFeedbackEXT, in_commandBuffer, firstCounterBuffer, counterBufferCount, in_pCounterBuffers, in_pCounterBufferOffsets);
+        resource_dumper.Process_vkCmdBeginTransformFeedbackEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginTransformFeedbackEXT, in_commandBuffer, firstCounterBuffer, counterBufferCount, in_pCounterBuffers, in_pCounterBufferOffsets);
     }
 }
 
@@ -6352,7 +6352,7 @@ void VulkanReplayConsumer::Process_vkCmdEndTransformFeedbackEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndTransformFeedbackEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdEndTransformFeedbackEXT, in_commandBuffer, firstCounterBuffer, counterBufferCount, in_pCounterBuffers, in_pCounterBufferOffsets);
+        resource_dumper.Process_vkCmdEndTransformFeedbackEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdEndTransformFeedbackEXT, in_commandBuffer, firstCounterBuffer, counterBufferCount, in_pCounterBuffers, in_pCounterBufferOffsets);
     }
 }
 
@@ -6371,7 +6371,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginQueryIndexedEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginQueryIndexedEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginQueryIndexedEXT, in_commandBuffer, in_queryPool, query, flags, index);
+        resource_dumper.Process_vkCmdBeginQueryIndexedEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginQueryIndexedEXT, in_commandBuffer, in_queryPool, query, flags, index);
     }
 }
 
@@ -6389,7 +6389,7 @@ void VulkanReplayConsumer::Process_vkCmdEndQueryIndexedEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndQueryIndexedEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdEndQueryIndexedEXT, in_commandBuffer, in_queryPool, query, index);
+        resource_dumper.Process_vkCmdEndQueryIndexedEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdEndQueryIndexedEXT, in_commandBuffer, in_queryPool, query, index);
     }
 }
 
@@ -6410,7 +6410,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndirectByteCountEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndirectByteCountEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectByteCountEXT, in_commandBuffer, instanceCount, firstInstance, in_counterBuffer, counterBufferOffset, counterOffset, vertexStride);
+        resource_dumper.Process_vkCmdDrawIndirectByteCountEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectByteCountEXT, in_commandBuffer, instanceCount, firstInstance, in_counterBuffer, counterBufferOffset, counterOffset, vertexStride);
     }
 }
 
@@ -6461,7 +6461,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndirectCountAMD(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndirectCountAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCountAMD, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper.Process_vkCmdDrawIndirectCountAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCountAMD, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 
@@ -6483,7 +6483,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawIndexedIndirectCountAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCountAMD, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper.Process_vkCmdDrawIndexedIndirectCountAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCountAMD, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 
@@ -6598,7 +6598,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginConditionalRenderingEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginConditionalRenderingEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginConditionalRenderingEXT, in_commandBuffer, in_pConditionalRenderingBegin);
+        resource_dumper.Process_vkCmdBeginConditionalRenderingEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginConditionalRenderingEXT, in_commandBuffer, in_pConditionalRenderingBegin);
     }
 }
 
@@ -6612,7 +6612,7 @@ void VulkanReplayConsumer::Process_vkCmdEndConditionalRenderingEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndConditionalRenderingEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdEndConditionalRenderingEXT, in_commandBuffer);
+        resource_dumper.Process_vkCmdEndConditionalRenderingEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdEndConditionalRenderingEXT, in_commandBuffer);
     }
 }
 
@@ -6630,7 +6630,7 @@ void VulkanReplayConsumer::Process_vkCmdSetViewportWScalingNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetViewportWScalingNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportWScalingNV, in_commandBuffer, firstViewport, viewportCount, in_pViewportWScalings);
+        resource_dumper.Process_vkCmdSetViewportWScalingNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportWScalingNV, in_commandBuffer, firstViewport, viewportCount, in_pViewportWScalings);
     }
 }
 
@@ -6843,7 +6843,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDiscardRectangleEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDiscardRectangleEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDiscardRectangleEXT, in_commandBuffer, firstDiscardRectangle, discardRectangleCount, in_pDiscardRectangles);
+        resource_dumper.Process_vkCmdSetDiscardRectangleEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDiscardRectangleEXT, in_commandBuffer, firstDiscardRectangle, discardRectangleCount, in_pDiscardRectangles);
     }
 }
 
@@ -6858,7 +6858,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDiscardRectangleEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDiscardRectangleEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDiscardRectangleEnableEXT, in_commandBuffer, discardRectangleEnable);
+        resource_dumper.Process_vkCmdSetDiscardRectangleEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDiscardRectangleEnableEXT, in_commandBuffer, discardRectangleEnable);
     }
 }
 
@@ -6873,7 +6873,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDiscardRectangleModeEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDiscardRectangleModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDiscardRectangleModeEXT, in_commandBuffer, discardRectangleMode);
+        resource_dumper.Process_vkCmdSetDiscardRectangleModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDiscardRectangleModeEXT, in_commandBuffer, discardRectangleMode);
     }
 }
 
@@ -7011,7 +7011,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginDebugUtilsLabelEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBeginDebugUtilsLabelEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginDebugUtilsLabelEXT, in_commandBuffer, in_pLabelInfo);
+        resource_dumper.Process_vkCmdBeginDebugUtilsLabelEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginDebugUtilsLabelEXT, in_commandBuffer, in_pLabelInfo);
     }
 }
 
@@ -7025,7 +7025,7 @@ void VulkanReplayConsumer::Process_vkCmdEndDebugUtilsLabelEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdEndDebugUtilsLabelEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdEndDebugUtilsLabelEXT, in_commandBuffer);
+        resource_dumper.Process_vkCmdEndDebugUtilsLabelEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdEndDebugUtilsLabelEXT, in_commandBuffer);
     }
 }
 
@@ -7041,7 +7041,7 @@ void VulkanReplayConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdInsertDebugUtilsLabelEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdInsertDebugUtilsLabelEXT, in_commandBuffer, in_pLabelInfo);
+        resource_dumper.Process_vkCmdInsertDebugUtilsLabelEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdInsertDebugUtilsLabelEXT, in_commandBuffer, in_pLabelInfo);
     }
 }
 
@@ -7137,7 +7137,7 @@ void VulkanReplayConsumer::Process_vkCmdSetSampleLocationsEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetSampleLocationsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetSampleLocationsEXT, in_commandBuffer, in_pSampleLocationsInfo);
+        resource_dumper.Process_vkCmdSetSampleLocationsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetSampleLocationsEXT, in_commandBuffer, in_pSampleLocationsInfo);
     }
 }
 
@@ -7252,7 +7252,7 @@ void VulkanReplayConsumer::Process_vkCmdBindShadingRateImageNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindShadingRateImageNV(call_info, GetDeviceTable(in_commandBuffer)->CmdBindShadingRateImageNV, in_commandBuffer, in_imageView, imageLayout);
+        resource_dumper.Process_vkCmdBindShadingRateImageNV(call_info, GetDeviceTable(in_commandBuffer)->CmdBindShadingRateImageNV, in_commandBuffer, in_imageView, imageLayout);
     }
 }
 
@@ -7270,7 +7270,7 @@ void VulkanReplayConsumer::Process_vkCmdSetViewportShadingRatePaletteNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetViewportShadingRatePaletteNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportShadingRatePaletteNV, in_commandBuffer, firstViewport, viewportCount, in_pShadingRatePalettes);
+        resource_dumper.Process_vkCmdSetViewportShadingRatePaletteNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportShadingRatePaletteNV, in_commandBuffer, firstViewport, viewportCount, in_pShadingRatePalettes);
     }
 }
 
@@ -7288,7 +7288,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCoarseSampleOrderNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCoarseSampleOrderNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoarseSampleOrderNV, in_commandBuffer, sampleOrderType, customSampleOrderCount, in_pCustomSampleOrders);
+        resource_dumper.Process_vkCmdSetCoarseSampleOrderNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoarseSampleOrderNV, in_commandBuffer, sampleOrderType, customSampleOrderCount, in_pCustomSampleOrders);
     }
 }
 
@@ -7380,7 +7380,7 @@ void VulkanReplayConsumer::Process_vkCmdBuildAccelerationStructureNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBuildAccelerationStructureNV(call_info, GetDeviceTable(in_commandBuffer)->CmdBuildAccelerationStructureNV, in_commandBuffer, in_pInfo, in_instanceData, instanceOffset, update, in_dst, in_src, in_scratch, scratchOffset);
+        resource_dumper.Process_vkCmdBuildAccelerationStructureNV(call_info, GetDeviceTable(in_commandBuffer)->CmdBuildAccelerationStructureNV, in_commandBuffer, in_pInfo, in_instanceData, instanceOffset, update, in_dst, in_src, in_scratch, scratchOffset);
     }
 }
 
@@ -7399,7 +7399,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyAccelerationStructureNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyAccelerationStructureNV(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyAccelerationStructureNV, in_commandBuffer, in_dst, in_src, mode);
+        resource_dumper.Process_vkCmdCopyAccelerationStructureNV(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyAccelerationStructureNV, in_commandBuffer, in_dst, in_src, mode);
     }
 }
 
@@ -7431,7 +7431,7 @@ void VulkanReplayConsumer::Process_vkCmdTraceRaysNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdTraceRaysNV(call_info, GetDeviceTable(in_commandBuffer)->CmdTraceRaysNV, in_commandBuffer, in_raygenShaderBindingTableBuffer, raygenShaderBindingOffset, in_missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, in_hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, in_callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
+        resource_dumper.Process_vkCmdTraceRaysNV(call_info, GetDeviceTable(in_commandBuffer)->CmdTraceRaysNV, in_commandBuffer, in_raygenShaderBindingTableBuffer, raygenShaderBindingOffset, in_missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, in_hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, in_callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
     }
 }
 
@@ -7527,7 +7527,7 @@ void VulkanReplayConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWriteAccelerationStructuresPropertiesNV(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteAccelerationStructuresPropertiesNV, in_commandBuffer, accelerationStructureCount, in_pAccelerationStructures, queryType, in_queryPool, firstQuery);
+        resource_dumper.Process_vkCmdWriteAccelerationStructuresPropertiesNV(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteAccelerationStructuresPropertiesNV, in_commandBuffer, accelerationStructureCount, in_pAccelerationStructures, queryType, in_queryPool, firstQuery);
     }
 }
 
@@ -7577,7 +7577,7 @@ void VulkanReplayConsumer::Process_vkCmdWriteBufferMarkerAMD(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWriteBufferMarkerAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteBufferMarkerAMD, in_commandBuffer, pipelineStage, in_dstBuffer, dstOffset, marker);
+        resource_dumper.Process_vkCmdWriteBufferMarkerAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteBufferMarkerAMD, in_commandBuffer, pipelineStage, in_dstBuffer, dstOffset, marker);
     }
 }
 
@@ -7628,7 +7628,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMeshTasksNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawMeshTasksNV(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksNV, in_commandBuffer, taskCount, firstTask);
+        resource_dumper.Process_vkCmdDrawMeshTasksNV(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksNV, in_commandBuffer, taskCount, firstTask);
     }
 }
 
@@ -7647,7 +7647,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawMeshTasksIndirectNV(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectNV, in_commandBuffer, in_buffer, offset, drawCount, stride);
+        resource_dumper.Process_vkCmdDrawMeshTasksIndirectNV(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectNV, in_commandBuffer, in_buffer, offset, drawCount, stride);
     }
 }
 
@@ -7669,7 +7669,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawMeshTasksIndirectCountNV(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectCountNV, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper.Process_vkCmdDrawMeshTasksIndirectCountNV(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectCountNV, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 
@@ -7687,7 +7687,7 @@ void VulkanReplayConsumer::Process_vkCmdSetExclusiveScissorEnableNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetExclusiveScissorEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetExclusiveScissorEnableNV, in_commandBuffer, firstExclusiveScissor, exclusiveScissorCount, in_pExclusiveScissorEnables);
+        resource_dumper.Process_vkCmdSetExclusiveScissorEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetExclusiveScissorEnableNV, in_commandBuffer, firstExclusiveScissor, exclusiveScissorCount, in_pExclusiveScissorEnables);
     }
 }
 
@@ -7705,7 +7705,7 @@ void VulkanReplayConsumer::Process_vkCmdSetExclusiveScissorNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetExclusiveScissorNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetExclusiveScissorNV, in_commandBuffer, firstExclusiveScissor, exclusiveScissorCount, in_pExclusiveScissors);
+        resource_dumper.Process_vkCmdSetExclusiveScissorNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetExclusiveScissorNV, in_commandBuffer, firstExclusiveScissor, exclusiveScissorCount, in_pExclusiveScissors);
     }
 }
 
@@ -7721,7 +7721,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCheckpointNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCheckpointNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCheckpointNV, in_commandBuffer, in_pCheckpointMarker);
+        resource_dumper.Process_vkCmdSetCheckpointNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCheckpointNV, in_commandBuffer, in_pCheckpointMarker);
     }
 }
 
@@ -7776,7 +7776,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetPerformanceMarkerINTEL(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPerformanceMarkerINTEL, returnValue, in_commandBuffer, in_pMarkerInfo);
+        resource_dumper.Process_vkCmdSetPerformanceMarkerINTEL(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPerformanceMarkerINTEL, returnValue, in_commandBuffer, in_pMarkerInfo);
     }
 }
 
@@ -7794,7 +7794,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetPerformanceStreamMarkerINTEL(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPerformanceStreamMarkerINTEL, returnValue, in_commandBuffer, in_pMarkerInfo);
+        resource_dumper.Process_vkCmdSetPerformanceStreamMarkerINTEL(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPerformanceStreamMarkerINTEL, returnValue, in_commandBuffer, in_pMarkerInfo);
     }
 }
 
@@ -7812,7 +7812,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetPerformanceOverrideINTEL(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPerformanceOverrideINTEL, returnValue, in_commandBuffer, in_pOverrideInfo);
+        resource_dumper.Process_vkCmdSetPerformanceOverrideINTEL(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPerformanceOverrideINTEL, returnValue, in_commandBuffer, in_pOverrideInfo);
     }
 }
 
@@ -8115,7 +8115,7 @@ void VulkanReplayConsumer::Process_vkCmdSetLineStippleEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetLineStippleEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLineStippleEXT, in_commandBuffer, lineStippleFactor, lineStipplePattern);
+        resource_dumper.Process_vkCmdSetLineStippleEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLineStippleEXT, in_commandBuffer, lineStippleFactor, lineStipplePattern);
     }
 }
 
@@ -8143,7 +8143,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCullModeEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCullModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCullModeEXT, in_commandBuffer, cullMode);
+        resource_dumper.Process_vkCmdSetCullModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCullModeEXT, in_commandBuffer, cullMode);
     }
 }
 
@@ -8158,7 +8158,7 @@ void VulkanReplayConsumer::Process_vkCmdSetFrontFaceEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetFrontFaceEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetFrontFaceEXT, in_commandBuffer, frontFace);
+        resource_dumper.Process_vkCmdSetFrontFaceEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetFrontFaceEXT, in_commandBuffer, frontFace);
     }
 }
 
@@ -8173,7 +8173,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPrimitiveTopologyEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetPrimitiveTopologyEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveTopologyEXT, in_commandBuffer, primitiveTopology);
+        resource_dumper.Process_vkCmdSetPrimitiveTopologyEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveTopologyEXT, in_commandBuffer, primitiveTopology);
     }
 }
 
@@ -8190,7 +8190,7 @@ void VulkanReplayConsumer::Process_vkCmdSetViewportWithCountEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetViewportWithCountEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportWithCountEXT, in_commandBuffer, viewportCount, in_pViewports);
+        resource_dumper.Process_vkCmdSetViewportWithCountEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportWithCountEXT, in_commandBuffer, viewportCount, in_pViewports);
     }
 }
 
@@ -8207,7 +8207,7 @@ void VulkanReplayConsumer::Process_vkCmdSetScissorWithCountEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetScissorWithCountEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetScissorWithCountEXT, in_commandBuffer, scissorCount, in_pScissors);
+        resource_dumper.Process_vkCmdSetScissorWithCountEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetScissorWithCountEXT, in_commandBuffer, scissorCount, in_pScissors);
     }
 }
 
@@ -8231,7 +8231,7 @@ void VulkanReplayConsumer::Process_vkCmdBindVertexBuffers2EXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindVertexBuffers2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindVertexBuffers2EXT, in_commandBuffer, firstBinding, bindingCount, in_pBuffers, in_pOffsets, in_pSizes, in_pStrides);
+        resource_dumper.Process_vkCmdBindVertexBuffers2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindVertexBuffers2EXT, in_commandBuffer, firstBinding, bindingCount, in_pBuffers, in_pOffsets, in_pSizes, in_pStrides);
     }
 }
 
@@ -8246,7 +8246,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthTestEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthTestEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthTestEnableEXT, in_commandBuffer, depthTestEnable);
+        resource_dumper.Process_vkCmdSetDepthTestEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthTestEnableEXT, in_commandBuffer, depthTestEnable);
     }
 }
 
@@ -8261,7 +8261,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthWriteEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthWriteEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthWriteEnableEXT, in_commandBuffer, depthWriteEnable);
+        resource_dumper.Process_vkCmdSetDepthWriteEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthWriteEnableEXT, in_commandBuffer, depthWriteEnable);
     }
 }
 
@@ -8276,7 +8276,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthCompareOpEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthCompareOpEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthCompareOpEXT, in_commandBuffer, depthCompareOp);
+        resource_dumper.Process_vkCmdSetDepthCompareOpEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthCompareOpEXT, in_commandBuffer, depthCompareOp);
     }
 }
 
@@ -8291,7 +8291,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthBoundsTestEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthBoundsTestEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBoundsTestEnableEXT, in_commandBuffer, depthBoundsTestEnable);
+        resource_dumper.Process_vkCmdSetDepthBoundsTestEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBoundsTestEnableEXT, in_commandBuffer, depthBoundsTestEnable);
     }
 }
 
@@ -8306,7 +8306,7 @@ void VulkanReplayConsumer::Process_vkCmdSetStencilTestEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetStencilTestEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilTestEnableEXT, in_commandBuffer, stencilTestEnable);
+        resource_dumper.Process_vkCmdSetStencilTestEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilTestEnableEXT, in_commandBuffer, stencilTestEnable);
     }
 }
 
@@ -8325,7 +8325,7 @@ void VulkanReplayConsumer::Process_vkCmdSetStencilOpEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetStencilOpEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilOpEXT, in_commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
+        resource_dumper.Process_vkCmdSetStencilOpEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetStencilOpEXT, in_commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
     }
 }
 
@@ -8449,7 +8449,7 @@ void VulkanReplayConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdPreprocessGeneratedCommandsNV(call_info, GetDeviceTable(in_commandBuffer)->CmdPreprocessGeneratedCommandsNV, in_commandBuffer, in_pGeneratedCommandsInfo);
+        resource_dumper.Process_vkCmdPreprocessGeneratedCommandsNV(call_info, GetDeviceTable(in_commandBuffer)->CmdPreprocessGeneratedCommandsNV, in_commandBuffer, in_pGeneratedCommandsInfo);
     }
 }
 
@@ -8467,7 +8467,7 @@ void VulkanReplayConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdExecuteGeneratedCommandsNV(call_info, GetDeviceTable(in_commandBuffer)->CmdExecuteGeneratedCommandsNV, in_commandBuffer, isPreprocessed, in_pGeneratedCommandsInfo);
+        resource_dumper.Process_vkCmdExecuteGeneratedCommandsNV(call_info, GetDeviceTable(in_commandBuffer)->CmdExecuteGeneratedCommandsNV, in_commandBuffer, isPreprocessed, in_pGeneratedCommandsInfo);
     }
 }
 
@@ -8485,7 +8485,7 @@ void VulkanReplayConsumer::Process_vkCmdBindPipelineShaderGroupNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindPipelineShaderGroupNV(call_info, GetDeviceTable(in_commandBuffer)->CmdBindPipelineShaderGroupNV, in_commandBuffer, pipelineBindPoint, in_pipeline, groupIndex);
+        resource_dumper.Process_vkCmdBindPipelineShaderGroupNV(call_info, GetDeviceTable(in_commandBuffer)->CmdBindPipelineShaderGroupNV, in_commandBuffer, pipelineBindPoint, in_pipeline, groupIndex);
     }
 }
 
@@ -8536,7 +8536,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthBias2EXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthBias2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBias2EXT, in_commandBuffer, in_pDepthBiasInfo);
+        resource_dumper.Process_vkCmdSetDepthBias2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBias2EXT, in_commandBuffer, in_pDepthBiasInfo);
     }
 }
 
@@ -8652,7 +8652,7 @@ void VulkanReplayConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetFragmentShadingRateEnumNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetFragmentShadingRateEnumNV, in_commandBuffer, shadingRate, in_combinerOps);
+        resource_dumper.Process_vkCmdSetFragmentShadingRateEnumNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetFragmentShadingRateEnumNV, in_commandBuffer, shadingRate, in_combinerOps);
     }
 }
 
@@ -8752,7 +8752,7 @@ void VulkanReplayConsumer::Process_vkCmdSetVertexInputEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetVertexInputEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetVertexInputEXT, in_commandBuffer, vertexBindingDescriptionCount, in_pVertexBindingDescriptions, vertexAttributeDescriptionCount, in_pVertexAttributeDescriptions);
+        resource_dumper.Process_vkCmdSetVertexInputEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetVertexInputEXT, in_commandBuffer, vertexBindingDescriptionCount, in_pVertexBindingDescriptions, vertexAttributeDescriptionCount, in_pVertexAttributeDescriptions);
     }
 }
 
@@ -8831,7 +8831,7 @@ void VulkanReplayConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindInvocationMaskHUAWEI(call_info, GetDeviceTable(in_commandBuffer)->CmdBindInvocationMaskHUAWEI, in_commandBuffer, in_imageView, imageLayout);
+        resource_dumper.Process_vkCmdBindInvocationMaskHUAWEI(call_info, GetDeviceTable(in_commandBuffer)->CmdBindInvocationMaskHUAWEI, in_commandBuffer, in_imageView, imageLayout);
     }
 }
 
@@ -8864,7 +8864,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPatchControlPointsEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetPatchControlPointsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPatchControlPointsEXT, in_commandBuffer, patchControlPoints);
+        resource_dumper.Process_vkCmdSetPatchControlPointsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPatchControlPointsEXT, in_commandBuffer, patchControlPoints);
     }
 }
 
@@ -8879,7 +8879,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRasterizerDiscardEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetRasterizerDiscardEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRasterizerDiscardEnableEXT, in_commandBuffer, rasterizerDiscardEnable);
+        resource_dumper.Process_vkCmdSetRasterizerDiscardEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRasterizerDiscardEnableEXT, in_commandBuffer, rasterizerDiscardEnable);
     }
 }
 
@@ -8894,7 +8894,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthBiasEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthBiasEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBiasEnableEXT, in_commandBuffer, depthBiasEnable);
+        resource_dumper.Process_vkCmdSetDepthBiasEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthBiasEnableEXT, in_commandBuffer, depthBiasEnable);
     }
 }
 
@@ -8909,7 +8909,7 @@ void VulkanReplayConsumer::Process_vkCmdSetLogicOpEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetLogicOpEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLogicOpEXT, in_commandBuffer, logicOp);
+        resource_dumper.Process_vkCmdSetLogicOpEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLogicOpEXT, in_commandBuffer, logicOp);
     }
 }
 
@@ -8924,7 +8924,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPrimitiveRestartEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetPrimitiveRestartEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveRestartEnableEXT, in_commandBuffer, primitiveRestartEnable);
+        resource_dumper.Process_vkCmdSetPrimitiveRestartEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveRestartEnableEXT, in_commandBuffer, primitiveRestartEnable);
     }
 }
 
@@ -8974,7 +8974,7 @@ void VulkanReplayConsumer::Process_vkCmdSetColorWriteEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetColorWriteEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorWriteEnableEXT, in_commandBuffer, attachmentCount, in_pColorWriteEnables);
+        resource_dumper.Process_vkCmdSetColorWriteEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorWriteEnableEXT, in_commandBuffer, attachmentCount, in_pColorWriteEnables);
     }
 }
 
@@ -8994,7 +8994,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMultiEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawMultiEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMultiEXT, in_commandBuffer, drawCount, in_pVertexInfo, instanceCount, firstInstance, stride);
+        resource_dumper.Process_vkCmdDrawMultiEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMultiEXT, in_commandBuffer, drawCount, in_pVertexInfo, instanceCount, firstInstance, stride);
     }
 }
 
@@ -9016,7 +9016,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMultiIndexedEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawMultiIndexedEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMultiIndexedEXT, in_commandBuffer, drawCount, in_pIndexInfo, instanceCount, firstInstance, stride, in_pVertexOffset);
+        resource_dumper.Process_vkCmdDrawMultiIndexedEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMultiIndexedEXT, in_commandBuffer, drawCount, in_pIndexInfo, instanceCount, firstInstance, stride, in_pVertexOffset);
     }
 }
 
@@ -9069,7 +9069,7 @@ void VulkanReplayConsumer::Process_vkCmdBuildMicromapsEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBuildMicromapsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBuildMicromapsEXT, in_commandBuffer, infoCount, in_pInfos);
+        resource_dumper.Process_vkCmdBuildMicromapsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBuildMicromapsEXT, in_commandBuffer, infoCount, in_pInfos);
     }
 }
 
@@ -9170,7 +9170,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyMicromapEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyMicromapEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMicromapEXT, in_commandBuffer, in_pInfo);
+        resource_dumper.Process_vkCmdCopyMicromapEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMicromapEXT, in_commandBuffer, in_pInfo);
     }
 }
 
@@ -9187,7 +9187,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyMicromapToMemoryEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyMicromapToMemoryEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMicromapToMemoryEXT, in_commandBuffer, in_pInfo);
+        resource_dumper.Process_vkCmdCopyMicromapToMemoryEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMicromapToMemoryEXT, in_commandBuffer, in_pInfo);
     }
 }
 
@@ -9204,7 +9204,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyMemoryToMicromapEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyMemoryToMicromapEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMemoryToMicromapEXT, in_commandBuffer, in_pInfo);
+        resource_dumper.Process_vkCmdCopyMemoryToMicromapEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMemoryToMicromapEXT, in_commandBuffer, in_pInfo);
     }
 }
 
@@ -9225,7 +9225,7 @@ void VulkanReplayConsumer::Process_vkCmdWriteMicromapsPropertiesEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWriteMicromapsPropertiesEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteMicromapsPropertiesEXT, in_commandBuffer, micromapCount, in_pMicromaps, queryType, in_queryPool, firstQuery);
+        resource_dumper.Process_vkCmdWriteMicromapsPropertiesEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteMicromapsPropertiesEXT, in_commandBuffer, micromapCount, in_pMicromaps, queryType, in_queryPool, firstQuery);
     }
 }
 
@@ -9271,7 +9271,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawClusterHUAWEI(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawClusterHUAWEI(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawClusterHUAWEI, in_commandBuffer, groupCountX, groupCountY, groupCountZ);
+        resource_dumper.Process_vkCmdDrawClusterHUAWEI(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawClusterHUAWEI, in_commandBuffer, groupCountX, groupCountY, groupCountZ);
     }
 }
 
@@ -9288,7 +9288,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawClusterIndirectHUAWEI(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawClusterIndirectHUAWEI, in_commandBuffer, in_buffer, offset);
+        resource_dumper.Process_vkCmdDrawClusterIndirectHUAWEI(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawClusterIndirectHUAWEI, in_commandBuffer, in_buffer, offset);
     }
 }
 
@@ -9362,7 +9362,7 @@ void VulkanReplayConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdUpdatePipelineIndirectBufferNV(call_info, GetDeviceTable(in_commandBuffer)->CmdUpdatePipelineIndirectBufferNV, in_commandBuffer, pipelineBindPoint, in_pipeline);
+        resource_dumper.Process_vkCmdUpdatePipelineIndirectBufferNV(call_info, GetDeviceTable(in_commandBuffer)->CmdUpdatePipelineIndirectBufferNV, in_commandBuffer, pipelineBindPoint, in_pipeline);
     }
 }
 
@@ -9379,6 +9379,21 @@ void VulkanReplayConsumer::Process_vkGetPipelineIndirectDeviceAddressNV(
     GetDeviceTable(in_device)->GetPipelineIndirectDeviceAddressNV(in_device, in_pInfo);
 }
 
+void VulkanReplayConsumer::Process_vkCmdSetTessellationDomainOriginEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkTessellationDomainOrigin                  domainOrigin)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+
+    GetDeviceTable(in_commandBuffer)->CmdSetTessellationDomainOriginEXT(in_commandBuffer, domainOrigin);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper.Process_vkCmdSetTessellationDomainOriginEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetTessellationDomainOriginEXT, in_commandBuffer, domainOrigin);
+    }
+}
+
 void VulkanReplayConsumer::Process_vkCmdSetDepthClampEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -9390,7 +9405,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthClampEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthClampEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthClampEnableEXT, in_commandBuffer, depthClampEnable);
+        resource_dumper.Process_vkCmdSetDepthClampEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthClampEnableEXT, in_commandBuffer, depthClampEnable);
     }
 }
 
@@ -9405,7 +9420,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPolygonModeEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetPolygonModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPolygonModeEXT, in_commandBuffer, polygonMode);
+        resource_dumper.Process_vkCmdSetPolygonModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPolygonModeEXT, in_commandBuffer, polygonMode);
     }
 }
 
@@ -9420,7 +9435,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRasterizationSamplesEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetRasterizationSamplesEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRasterizationSamplesEXT, in_commandBuffer, rasterizationSamples);
+        resource_dumper.Process_vkCmdSetRasterizationSamplesEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRasterizationSamplesEXT, in_commandBuffer, rasterizationSamples);
     }
 }
 
@@ -9437,7 +9452,7 @@ void VulkanReplayConsumer::Process_vkCmdSetSampleMaskEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetSampleMaskEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetSampleMaskEXT, in_commandBuffer, samples, in_pSampleMask);
+        resource_dumper.Process_vkCmdSetSampleMaskEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetSampleMaskEXT, in_commandBuffer, samples, in_pSampleMask);
     }
 }
 
@@ -9452,7 +9467,7 @@ void VulkanReplayConsumer::Process_vkCmdSetAlphaToCoverageEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetAlphaToCoverageEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetAlphaToCoverageEnableEXT, in_commandBuffer, alphaToCoverageEnable);
+        resource_dumper.Process_vkCmdSetAlphaToCoverageEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetAlphaToCoverageEnableEXT, in_commandBuffer, alphaToCoverageEnable);
     }
 }
 
@@ -9467,7 +9482,7 @@ void VulkanReplayConsumer::Process_vkCmdSetAlphaToOneEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetAlphaToOneEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetAlphaToOneEnableEXT, in_commandBuffer, alphaToOneEnable);
+        resource_dumper.Process_vkCmdSetAlphaToOneEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetAlphaToOneEnableEXT, in_commandBuffer, alphaToOneEnable);
     }
 }
 
@@ -9482,7 +9497,7 @@ void VulkanReplayConsumer::Process_vkCmdSetLogicOpEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetLogicOpEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLogicOpEnableEXT, in_commandBuffer, logicOpEnable);
+        resource_dumper.Process_vkCmdSetLogicOpEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLogicOpEnableEXT, in_commandBuffer, logicOpEnable);
     }
 }
 
@@ -9500,7 +9515,7 @@ void VulkanReplayConsumer::Process_vkCmdSetColorBlendEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetColorBlendEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorBlendEnableEXT, in_commandBuffer, firstAttachment, attachmentCount, in_pColorBlendEnables);
+        resource_dumper.Process_vkCmdSetColorBlendEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorBlendEnableEXT, in_commandBuffer, firstAttachment, attachmentCount, in_pColorBlendEnables);
     }
 }
 
@@ -9518,7 +9533,7 @@ void VulkanReplayConsumer::Process_vkCmdSetColorBlendEquationEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetColorBlendEquationEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorBlendEquationEXT, in_commandBuffer, firstAttachment, attachmentCount, in_pColorBlendEquations);
+        resource_dumper.Process_vkCmdSetColorBlendEquationEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorBlendEquationEXT, in_commandBuffer, firstAttachment, attachmentCount, in_pColorBlendEquations);
     }
 }
 
@@ -9536,18 +9551,8 @@ void VulkanReplayConsumer::Process_vkCmdSetColorWriteMaskEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetColorWriteMaskEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorWriteMaskEXT, in_commandBuffer, firstAttachment, attachmentCount, in_pColorWriteMasks);
+        resource_dumper.Process_vkCmdSetColorWriteMaskEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorWriteMaskEXT, in_commandBuffer, firstAttachment, attachmentCount, in_pColorWriteMasks);
     }
-}
-
-void VulkanReplayConsumer::Process_vkCmdSetTessellationDomainOriginEXT(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkTessellationDomainOrigin                  domainOrigin)
-{
-    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
-
-    GetDeviceTable(in_commandBuffer)->CmdSetTessellationDomainOriginEXT(in_commandBuffer, domainOrigin);
 }
 
 void VulkanReplayConsumer::Process_vkCmdSetRasterizationStreamEXT(
@@ -9561,7 +9566,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRasterizationStreamEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetRasterizationStreamEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRasterizationStreamEXT, in_commandBuffer, rasterizationStream);
+        resource_dumper.Process_vkCmdSetRasterizationStreamEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRasterizationStreamEXT, in_commandBuffer, rasterizationStream);
     }
 }
 
@@ -9576,7 +9581,7 @@ void VulkanReplayConsumer::Process_vkCmdSetConservativeRasterizationModeEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetConservativeRasterizationModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetConservativeRasterizationModeEXT, in_commandBuffer, conservativeRasterizationMode);
+        resource_dumper.Process_vkCmdSetConservativeRasterizationModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetConservativeRasterizationModeEXT, in_commandBuffer, conservativeRasterizationMode);
     }
 }
 
@@ -9591,7 +9596,7 @@ void VulkanReplayConsumer::Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetExtraPrimitiveOverestimationSizeEXT, in_commandBuffer, extraPrimitiveOverestimationSize);
+        resource_dumper.Process_vkCmdSetExtraPrimitiveOverestimationSizeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetExtraPrimitiveOverestimationSizeEXT, in_commandBuffer, extraPrimitiveOverestimationSize);
     }
 }
 
@@ -9606,7 +9611,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthClipEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthClipEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthClipEnableEXT, in_commandBuffer, depthClipEnable);
+        resource_dumper.Process_vkCmdSetDepthClipEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthClipEnableEXT, in_commandBuffer, depthClipEnable);
     }
 }
 
@@ -9621,7 +9626,7 @@ void VulkanReplayConsumer::Process_vkCmdSetSampleLocationsEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetSampleLocationsEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetSampleLocationsEnableEXT, in_commandBuffer, sampleLocationsEnable);
+        resource_dumper.Process_vkCmdSetSampleLocationsEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetSampleLocationsEnableEXT, in_commandBuffer, sampleLocationsEnable);
     }
 }
 
@@ -9639,7 +9644,7 @@ void VulkanReplayConsumer::Process_vkCmdSetColorBlendAdvancedEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetColorBlendAdvancedEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorBlendAdvancedEXT, in_commandBuffer, firstAttachment, attachmentCount, in_pColorBlendAdvanced);
+        resource_dumper.Process_vkCmdSetColorBlendAdvancedEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetColorBlendAdvancedEXT, in_commandBuffer, firstAttachment, attachmentCount, in_pColorBlendAdvanced);
     }
 }
 
@@ -9654,7 +9659,7 @@ void VulkanReplayConsumer::Process_vkCmdSetProvokingVertexModeEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetProvokingVertexModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetProvokingVertexModeEXT, in_commandBuffer, provokingVertexMode);
+        resource_dumper.Process_vkCmdSetProvokingVertexModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetProvokingVertexModeEXT, in_commandBuffer, provokingVertexMode);
     }
 }
 
@@ -9669,7 +9674,7 @@ void VulkanReplayConsumer::Process_vkCmdSetLineRasterizationModeEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetLineRasterizationModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLineRasterizationModeEXT, in_commandBuffer, lineRasterizationMode);
+        resource_dumper.Process_vkCmdSetLineRasterizationModeEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLineRasterizationModeEXT, in_commandBuffer, lineRasterizationMode);
     }
 }
 
@@ -9684,7 +9689,7 @@ void VulkanReplayConsumer::Process_vkCmdSetLineStippleEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetLineStippleEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLineStippleEnableEXT, in_commandBuffer, stippledLineEnable);
+        resource_dumper.Process_vkCmdSetLineStippleEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetLineStippleEnableEXT, in_commandBuffer, stippledLineEnable);
     }
 }
 
@@ -9699,7 +9704,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthClipNegativeOneToOneEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetDepthClipNegativeOneToOneEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthClipNegativeOneToOneEXT, in_commandBuffer, negativeOneToOne);
+        resource_dumper.Process_vkCmdSetDepthClipNegativeOneToOneEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDepthClipNegativeOneToOneEXT, in_commandBuffer, negativeOneToOne);
     }
 }
 
@@ -9714,7 +9719,7 @@ void VulkanReplayConsumer::Process_vkCmdSetViewportWScalingEnableNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetViewportWScalingEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportWScalingEnableNV, in_commandBuffer, viewportWScalingEnable);
+        resource_dumper.Process_vkCmdSetViewportWScalingEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportWScalingEnableNV, in_commandBuffer, viewportWScalingEnable);
     }
 }
 
@@ -9732,7 +9737,7 @@ void VulkanReplayConsumer::Process_vkCmdSetViewportSwizzleNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetViewportSwizzleNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportSwizzleNV, in_commandBuffer, firstViewport, viewportCount, in_pViewportSwizzles);
+        resource_dumper.Process_vkCmdSetViewportSwizzleNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetViewportSwizzleNV, in_commandBuffer, firstViewport, viewportCount, in_pViewportSwizzles);
     }
 }
 
@@ -9747,7 +9752,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCoverageToColorEnableNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCoverageToColorEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageToColorEnableNV, in_commandBuffer, coverageToColorEnable);
+        resource_dumper.Process_vkCmdSetCoverageToColorEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageToColorEnableNV, in_commandBuffer, coverageToColorEnable);
     }
 }
 
@@ -9762,7 +9767,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCoverageToColorLocationNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCoverageToColorLocationNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageToColorLocationNV, in_commandBuffer, coverageToColorLocation);
+        resource_dumper.Process_vkCmdSetCoverageToColorLocationNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageToColorLocationNV, in_commandBuffer, coverageToColorLocation);
     }
 }
 
@@ -9777,7 +9782,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCoverageModulationModeNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCoverageModulationModeNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageModulationModeNV, in_commandBuffer, coverageModulationMode);
+        resource_dumper.Process_vkCmdSetCoverageModulationModeNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageModulationModeNV, in_commandBuffer, coverageModulationMode);
     }
 }
 
@@ -9792,7 +9797,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCoverageModulationTableEnableNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCoverageModulationTableEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageModulationTableEnableNV, in_commandBuffer, coverageModulationTableEnable);
+        resource_dumper.Process_vkCmdSetCoverageModulationTableEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageModulationTableEnableNV, in_commandBuffer, coverageModulationTableEnable);
     }
 }
 
@@ -9809,7 +9814,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCoverageModulationTableNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCoverageModulationTableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageModulationTableNV, in_commandBuffer, coverageModulationTableCount, in_pCoverageModulationTable);
+        resource_dumper.Process_vkCmdSetCoverageModulationTableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageModulationTableNV, in_commandBuffer, coverageModulationTableCount, in_pCoverageModulationTable);
     }
 }
 
@@ -9824,7 +9829,7 @@ void VulkanReplayConsumer::Process_vkCmdSetShadingRateImageEnableNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetShadingRateImageEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetShadingRateImageEnableNV, in_commandBuffer, shadingRateImageEnable);
+        resource_dumper.Process_vkCmdSetShadingRateImageEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetShadingRateImageEnableNV, in_commandBuffer, shadingRateImageEnable);
     }
 }
 
@@ -9839,7 +9844,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRepresentativeFragmentTestEnableNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetRepresentativeFragmentTestEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRepresentativeFragmentTestEnableNV, in_commandBuffer, representativeFragmentTestEnable);
+        resource_dumper.Process_vkCmdSetRepresentativeFragmentTestEnableNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRepresentativeFragmentTestEnableNV, in_commandBuffer, representativeFragmentTestEnable);
     }
 }
 
@@ -9854,7 +9859,7 @@ void VulkanReplayConsumer::Process_vkCmdSetCoverageReductionModeNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetCoverageReductionModeNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageReductionModeNV, in_commandBuffer, coverageReductionMode);
+        resource_dumper.Process_vkCmdSetCoverageReductionModeNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetCoverageReductionModeNV, in_commandBuffer, coverageReductionMode);
     }
 }
 
@@ -9971,7 +9976,7 @@ void VulkanReplayConsumer::Process_vkCmdOpticalFlowExecuteNV(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdOpticalFlowExecuteNV(call_info, GetDeviceTable(in_commandBuffer)->CmdOpticalFlowExecuteNV, in_commandBuffer, in_session, in_pExecuteInfo);
+        resource_dumper.Process_vkCmdOpticalFlowExecuteNV(call_info, GetDeviceTable(in_commandBuffer)->CmdOpticalFlowExecuteNV, in_commandBuffer, in_session, in_pExecuteInfo);
     }
 }
 
@@ -10045,7 +10050,7 @@ void VulkanReplayConsumer::Process_vkCmdBindShadersEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBindShadersEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindShadersEXT, in_commandBuffer, stageCount, in_pStages, in_pShaders);
+        resource_dumper.Process_vkCmdBindShadersEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindShadersEXT, in_commandBuffer, stageCount, in_pStages, in_pShaders);
     }
 }
 
@@ -10196,7 +10201,7 @@ void VulkanReplayConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetAttachmentFeedbackLoopEnableEXT, in_commandBuffer, aspectMask);
+        resource_dumper.Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetAttachmentFeedbackLoopEnableEXT, in_commandBuffer, aspectMask);
     }
 }
 
@@ -10251,7 +10256,7 @@ void VulkanReplayConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBuildAccelerationStructuresKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBuildAccelerationStructuresKHR, in_commandBuffer, infoCount, in_pInfos, in_ppBuildRangeInfos);
+        resource_dumper.Process_vkCmdBuildAccelerationStructuresKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBuildAccelerationStructuresKHR, in_commandBuffer, infoCount, in_pInfos, in_ppBuildRangeInfos);
     }
 }
 
@@ -10275,7 +10280,7 @@ void VulkanReplayConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdBuildAccelerationStructuresIndirectKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBuildAccelerationStructuresIndirectKHR, in_commandBuffer, infoCount, in_pInfos, in_pIndirectDeviceAddresses, in_pIndirectStrides, in_ppMaxPrimitiveCounts);
+        resource_dumper.Process_vkCmdBuildAccelerationStructuresIndirectKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBuildAccelerationStructuresIndirectKHR, in_commandBuffer, infoCount, in_pInfos, in_pIndirectDeviceAddresses, in_pIndirectStrides, in_ppMaxPrimitiveCounts);
     }
 }
 
@@ -10343,7 +10348,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyAccelerationStructureKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyAccelerationStructureKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyAccelerationStructureKHR, in_commandBuffer, in_pInfo);
+        resource_dumper.Process_vkCmdCopyAccelerationStructureKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyAccelerationStructureKHR, in_commandBuffer, in_pInfo);
     }
 }
 
@@ -10360,7 +10365,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyAccelerationStructureToMemoryKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyAccelerationStructureToMemoryKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyAccelerationStructureToMemoryKHR, in_commandBuffer, in_pInfo);
+        resource_dumper.Process_vkCmdCopyAccelerationStructureToMemoryKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyAccelerationStructureToMemoryKHR, in_commandBuffer, in_pInfo);
     }
 }
 
@@ -10377,7 +10382,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdCopyMemoryToAccelerationStructureKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMemoryToAccelerationStructureKHR, in_commandBuffer, in_pInfo);
+        resource_dumper.Process_vkCmdCopyMemoryToAccelerationStructureKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMemoryToAccelerationStructureKHR, in_commandBuffer, in_pInfo);
     }
 }
 
@@ -10411,7 +10416,7 @@ void VulkanReplayConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdWriteAccelerationStructuresPropertiesKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteAccelerationStructuresPropertiesKHR, in_commandBuffer, accelerationStructureCount, in_pAccelerationStructures, queryType, in_queryPool, firstQuery);
+        resource_dumper.Process_vkCmdWriteAccelerationStructuresPropertiesKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteAccelerationStructuresPropertiesKHR, in_commandBuffer, accelerationStructureCount, in_pAccelerationStructures, queryType, in_queryPool, firstQuery);
     }
 }
 
@@ -10467,7 +10472,7 @@ void VulkanReplayConsumer::Process_vkCmdTraceRaysKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdTraceRaysKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdTraceRaysKHR, in_commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
+        resource_dumper.Process_vkCmdTraceRaysKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdTraceRaysKHR, in_commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
     }
 }
 
@@ -10508,7 +10513,7 @@ void VulkanReplayConsumer::Process_vkCmdTraceRaysIndirectKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdTraceRaysIndirectKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdTraceRaysIndirectKHR, in_commandBuffer, in_pRaygenShaderBindingTable, in_pMissShaderBindingTable, in_pHitShaderBindingTable, in_pCallableShaderBindingTable, indirectDeviceAddress);
+        resource_dumper.Process_vkCmdTraceRaysIndirectKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdTraceRaysIndirectKHR, in_commandBuffer, in_pRaygenShaderBindingTable, in_pMissShaderBindingTable, in_pHitShaderBindingTable, in_pCallableShaderBindingTable, indirectDeviceAddress);
     }
 }
 
@@ -10537,7 +10542,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdSetRayTracingPipelineStackSizeKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRayTracingPipelineStackSizeKHR, in_commandBuffer, pipelineStackSize);
+        resource_dumper.Process_vkCmdSetRayTracingPipelineStackSizeKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdSetRayTracingPipelineStackSizeKHR, in_commandBuffer, pipelineStackSize);
     }
 }
 
@@ -10554,7 +10559,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMeshTasksEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawMeshTasksEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksEXT, in_commandBuffer, groupCountX, groupCountY, groupCountZ);
+        resource_dumper.Process_vkCmdDrawMeshTasksEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksEXT, in_commandBuffer, groupCountX, groupCountY, groupCountZ);
     }
 }
 
@@ -10573,7 +10578,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawMeshTasksIndirectEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectEXT, in_commandBuffer, in_buffer, offset, drawCount, stride);
+        resource_dumper.Process_vkCmdDrawMeshTasksIndirectEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectEXT, in_commandBuffer, in_buffer, offset, drawCount, stride);
     }
 }
 
@@ -10595,7 +10600,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
 
     if (options_.dumping_resources)
     {
-        dumper.Process_vkCmdDrawMeshTasksIndirectCountEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectCountEXT, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper.Process_vkCmdDrawMeshTasksIndirectCountEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectCountEXT, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 

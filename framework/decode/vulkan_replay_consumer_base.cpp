@@ -160,7 +160,7 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const VulkanReplayOptions&                options) :
-    dumper(options, object_info_table_),
+    resource_dumper(options, object_info_table_),
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
     application_(application), options_(options), loading_trim_state_(false), replaying_trimmed_capture_(false),
     have_imported_semaphores_(false), fps_info_(nullptr), omitted_pipeline_cache_data_(false)
@@ -3411,9 +3411,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
                 modified_submit_info.pSignalSemaphores    = signal_semaphores.data();
             }
 
-            if (submit_info_data != nullptr && (options_.dumping_resources) && dumper.ShouldDumpQueueSubmitIndex(index))
+            if (submit_info_data != nullptr && (options_.dumping_resources) &&
+                resource_dumper.ShouldDumpQueueSubmitIndex(index))
             {
-                dumper.QueueSubmit(
+                resource_dumper.QueueSubmit(
                     modified_submit_infos, *GetDeviceTable(queue_info->handle), queue_info->handle, fence, index);
             }
             else
@@ -7444,12 +7445,12 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     const VkCommandBufferBeginInfo* begin_info     = begin_info_decoder->GetPointer();
 
     VkResult res = VK_SUCCESS;
-    if (options_.dumping_resources && dumper.DumpingBeginCommandBufferIndex(index))
+    if (options_.dumping_resources && resource_dumper.DumpingBeginCommandBufferIndex(index))
     {
         GFXRECON_WRITE_CONSOLE("Reached BeginCommandBuffer %" PRIu64, index);
 
         const DeviceInfo* device = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
-        res = dumper.CloneCommandBuffer(index, command_buffer_info, GetDeviceTable(device->handle));
+        res = resource_dumper.CloneCommandBuffer(index, command_buffer_info, GetDeviceTable(device->handle));
     }
 
     if (res == VK_SUCCESS)
