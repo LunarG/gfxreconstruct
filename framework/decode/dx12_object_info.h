@@ -383,6 +383,8 @@ struct D3D12CommandListInfo : DxObjectExtraInfo
     static constexpr char             kObjectType[] = "ID3D12CommandListInfo";
     D3D12CommandListInfo() : DxObjectExtraInfo(kType) {}
 
+    D3D12_COMMAND_LIST_TYPE create_list_type{ D3D12_COMMAND_LIST_TYPE_NONE };
+
     bool requires_sync_after_execute{ false };
 
     // Tracked state used by Dx12ResourceValueMapper.

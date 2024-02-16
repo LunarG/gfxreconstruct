@@ -3435,7 +3435,9 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandList(DxObjectInfo*         
 
     if (SUCCEEDED(replay_result) && !command_list_decoder->IsNull())
     {
-        SetExtraInfo(command_list_decoder, std::make_unique<D3D12CommandListInfo>());
+        auto cmd_list_info              = std::make_unique<D3D12CommandListInfo>();
+        cmd_list_info->create_list_type = type;
+        SetExtraInfo(command_list_decoder, std::move(cmd_list_info));
     }
     return replay_result;
 }
@@ -3455,7 +3457,9 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandList1(DxObjectInfo*        
 
     if (SUCCEEDED(replay_result) && !command_list1_decoder->IsNull())
     {
-        SetExtraInfo(command_list1_decoder, std::make_unique<D3D12CommandListInfo>());
+        auto cmd_list_info              = std::make_unique<D3D12CommandListInfo>();
+        cmd_list_info->create_list_type = type;
+        SetExtraInfo(command_list1_decoder, std::move(cmd_list_info));
     }
     return replay_result;
 }
@@ -3732,9 +3736,12 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
         if (track_dump_resources_.target.root_signature_handle_id == handld_id)
         {
             // DATA_STATIC causes error for ResourceBarrier. Change it to NONE.
-            auto modified_root_sig =
-                *graphics::dx12::GetUnconvertedRootSignatureDesc(captured_signature, blob_length_in_bytes);
+            graphics::dx12::ID3D12VersionedRootSignatureDeserializerComPtr root_sig_deserializer{ nullptr };
+            HRESULT result = D3D12CreateVersionedRootSignatureDeserializer(
+                captured_signature, blob_length_in_bytes, IID_PPV_ARGS(&root_sig_deserializer));
+            auto versioned_root_sig = root_sig_deserializer->GetUnconvertedRootSignatureDesc();
 
+            D3D12_VERSIONED_ROOT_SIGNATURE_DESC modified_root_sig = *versioned_root_sig;
             if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_1 ||
                 modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
             {
@@ -3786,18 +3793,17 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
                             break;
                     }
                 }
-
-                if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_1)
-                {
-                    modified_root_sig.Desc_1_1.pParameters = params.data();
-                }
-                else if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
-                {
-                    modified_root_sig.Desc_1_2.pParameters = params.data();
-                }
-
                 if (is_modified)
                 {
+                    if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_1)
+                    {
+                        modified_root_sig.Desc_1_1.pParameters = params.data();
+                    }
+                    else if (modified_root_sig.Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
+                    {
+                        modified_root_sig.Desc_1_2.pParameters = params.data();
+                    }
+
                     ID3D10Blob* p_modified_blob       = nullptr;
                     ID3D10Blob* p_modified_error_blob = nullptr;
                     replay_result                     = D3D12SerializeVersionedRootSignature(
@@ -4954,14 +4960,19 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
         auto api_call_id = GetCurrentApiCallId();
         if (track_dump_resources_.target.begin_code_index == code_index)
         {
-            auto cmd_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
-            auto device   = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
+            auto cmd_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
+            auto cmd_list            = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+            auto device              = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
 
             for (auto& command_set : track_dump_resources_.split_command_sets)
             {
-                device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&command_set.allocator));
-                device->CreateCommandList(
-                    0, D3D12_COMMAND_LIST_TYPE_DIRECT, command_set.allocator, nullptr, IID_PPV_ARGS(&command_set.list));
+                device->CreateCommandAllocator(cmd_list_extra_info->create_list_type,
+                                               IID_PPV_ARGS(&command_set.allocator));
+                device->CreateCommandList(0,
+                                          cmd_list_extra_info->create_list_type,
+                                          command_set.allocator,
+                                          nullptr,
+                                          IID_PPV_ARGS(&command_set.list));
             }
             device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.fence));
             track_dump_resources_.fence_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);

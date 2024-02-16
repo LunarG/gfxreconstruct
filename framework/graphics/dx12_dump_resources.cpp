@@ -122,7 +122,7 @@ void Dx12DumpResources::WriteResources(const TrackDumpResources& resources)
             uint32_t uav_index = 0;
             for (const auto& uav_data : heap_data.copy_unordered_accesses)
             {
-                WriteResource(jdata_sub["unordered_access"][uav_index]["reousrce"], filename, uav_data.resource);
+                WriteResource(jdata_sub["unordered_access"][uav_index]["resource"], filename, uav_data.resource);
                 WriteResource(
                     jdata_sub["unordered_access"][uav_index]["counter_resource"], filename, uav_data.counter_resource);
                 ++uav_index;

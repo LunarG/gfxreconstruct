@@ -540,10 +540,13 @@ void Dx12ResourceValueMapper::PostProcessCreateRootSignature(PointerDecoder<uint
     GFXRECON_ASSERT(blob_with_root_signature != nullptr);
     GFXRECON_ASSERT(blob_length_in_bytes != 0);
 
-    auto versioned_root_sig =
-        graphics::dx12::GetUnconvertedRootSignatureDesc(blob_with_root_signature, blob_length_in_bytes);
-    if (versioned_root_sig)
+    graphics::dx12::ID3D12VersionedRootSignatureDeserializerComPtr root_sig_deserializer{ nullptr };
+    HRESULT result = D3D12CreateVersionedRootSignatureDeserializer(
+        blob_with_root_signature, blob_length_in_bytes, IID_PPV_ARGS(&root_sig_deserializer));
+    if (SUCCEEDED(result))
     {
+        auto versioned_root_sig = root_sig_deserializer->GetUnconvertedRootSignatureDesc();
+
         switch (versioned_root_sig->Version)
         {
             case D3D_ROOT_SIGNATURE_VERSION_1_0:
