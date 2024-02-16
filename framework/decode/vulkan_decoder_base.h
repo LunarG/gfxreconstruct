@@ -231,8 +231,6 @@ class VulkanDecoderBase : public ApiDecoder
         HandlePointerDecoder<VkPipeline>                                pPipelines;
     };
     std::unordered_map<format::HandleId, DeferredOperationFunctionCallData> record_deferred_operation_function_call;
-
-    uint64_t block_index_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -83,7 +83,7 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                                            UINT                                     SrcDepthPitch)
     {}
 
-    void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; }
+    virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
 
     bool ContainsDxrWorkload() const { return dxr_workload_; }
 

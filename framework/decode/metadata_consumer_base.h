@@ -107,10 +107,8 @@ class MetadataConsumerBase
                                                const uint8_t*                              data)
     {}
 
-    inline void SetCurrentBlockIndex(uint64_t block_index)
-    {
-      block_index_ = block_index;
-    }
+    virtual void SetCurrentBlockIndex(uint64_t block_index)
+    {}
 };
 
 GFXRECON_END_NAMESPACE(decode)

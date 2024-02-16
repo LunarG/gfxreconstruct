@@ -42,7 +42,6 @@ void VulkanDecoderBase::DispatchStateBeginMarker(uint64_t frame_number)
 {
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessStateBeginMarker(frame_number);
     }
 }
@@ -51,7 +50,6 @@ void VulkanDecoderBase::DispatchStateEndMarker(uint64_t frame_number)
 {
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessStateEndMarker(frame_number);
     }
 }
@@ -60,7 +58,6 @@ void VulkanDecoderBase::DispatchFrameEndMarker(uint64_t frame_number)
 {
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessFrameEndMarker(frame_number);
     }
 }
@@ -71,7 +68,6 @@ void VulkanDecoderBase::DispatchDisplayMessageCommand(format::ThreadId thread_id
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessDisplayMessageCommand(message);
     }
 }
@@ -83,7 +79,6 @@ void VulkanDecoderBase::DispatchFillMemoryCommand(
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessFillMemoryCommand(memory_id, offset, size, data);
     }
 }
@@ -93,7 +88,6 @@ void VulkanDecoderBase::DispatchFillMemoryResourceValueCommand(
 {
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessFillMemoryResourceValueCommand(command_header, data);
     }
 }
@@ -107,7 +101,6 @@ void VulkanDecoderBase::DispatchResizeWindowCommand(format::ThreadId thread_id,
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessResizeWindowCommand(surface_id, width, height);
     }
 }
@@ -119,7 +112,6 @@ void VulkanDecoderBase::DispatchResizeWindowCommand2(
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessResizeWindowCommand2(surface_id, width, height, pre_transform);
     }
 }
@@ -140,7 +132,6 @@ void VulkanDecoderBase::DispatchCreateHardwareBufferCommand(
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessCreateHardwareBufferCommand(
             memory_id, buffer_id, format, width, height, stride, usage, layers, plane_info);
     }
@@ -152,7 +143,6 @@ void VulkanDecoderBase::DispatchDestroyHardwareBufferCommand(format::ThreadId th
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessDestroyHardwareBufferCommand(buffer_id);
     }
 }
@@ -165,7 +155,6 @@ void VulkanDecoderBase::DispatchCreateHeapAllocationCommand(format::ThreadId thr
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessCreateHeapAllocationCommand(allocation_id, allocation_size);
     }
 }
@@ -184,7 +173,6 @@ void VulkanDecoderBase::DispatchSetDevicePropertiesCommand(format::ThreadId   th
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessSetDevicePropertiesCommand(physical_device_id,
                                                     api_version,
                                                     driver_version,
@@ -206,7 +194,6 @@ void VulkanDecoderBase::DispatchSetDeviceMemoryPropertiesCommand(
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessSetDeviceMemoryPropertiesCommand(physical_device_id, memory_types, memory_heaps);
     }
 }
@@ -220,7 +207,6 @@ void VulkanDecoderBase::DispatchSetOpaqueAddressCommand(format::ThreadId thread_
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessSetOpaqueAddressCommand(device_id, object_id, address);
     }
 }
@@ -235,7 +221,6 @@ void VulkanDecoderBase::DispatchSetRayTracingShaderGroupHandlesCommand(format::T
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessSetRayTracingShaderGroupHandlesCommand(device_id, pipeline_id, data_size, data);
     }
 }
@@ -251,7 +236,6 @@ void VulkanDecoderBase::DispatchSetSwapchainImageStateCommand(
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessSetSwapchainImageStateCommand(device_id, swapchain_id, last_presented_image, image_state);
     }
 }
@@ -265,7 +249,6 @@ void VulkanDecoderBase::DispatchBeginResourceInitCommand(format::ThreadId thread
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessBeginResourceInitCommand(device_id, max_resource_size, max_copy_size);
     }
 }
@@ -276,7 +259,6 @@ void VulkanDecoderBase::DispatchEndResourceInitCommand(format::ThreadId thread_i
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessEndResourceInitCommand(device_id);
     }
 }
@@ -291,7 +273,6 @@ void VulkanDecoderBase::DispatchInitBufferCommand(format::ThreadId thread_id,
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessInitBufferCommand(device_id, buffer_id, data_size, data);
     }
 }
@@ -309,7 +290,6 @@ void VulkanDecoderBase::DispatchInitImageCommand(format::ThreadId             th
 
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessInitImageCommand(device_id, image_id, data_size, aspect, layout, level_sizes, data);
     }
 }
@@ -322,7 +302,6 @@ void VulkanDecoderBase::DispatchInitSubresourceCommand(const format::InitSubreso
 {
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index_);
         consumer->ProcessInitSubresourceCommand(command_header, data);
     }
 }
@@ -538,7 +517,9 @@ void VulkanDecoderBase::DispatchSetTlasToBlasDependencyCommand(format::HandleId 
 
 void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
-    block_index_ = block_index;
+    for (auto consumer : consumers_) {
+        consumer->SetCurrentBlockIndex(block_index);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)
