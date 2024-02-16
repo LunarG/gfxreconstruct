@@ -51,7 +51,7 @@ class MetadataJsonConsumer : public Base
     inline const util::JsonOptions& GetJsonOptions() const { return this->writer_->GetOptions(); } // temp
     inline nlohmann::ordered_json&  WriteMetaCommandStart(const std::string& command_name) const
     {
-        this->writer_->SetCurrentBlockIndex(block_index_);
+        this->writer_->SetCurrentBlockIndex(this->block_index_);
         return this->writer_->WriteMetaCommandStart(command_name);
     }
     inline void WriteBlockEnd() { this->writer_->WriteBlockEnd(); }
