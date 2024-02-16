@@ -517,7 +517,8 @@ void VulkanDecoderBase::DispatchSetTlasToBlasDependencyCommand(format::HandleId 
 
 void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
-    for (auto consumer : consumers_) {
+    for (auto consumer : consumers_)
+    {
         consumer->SetCurrentBlockIndex(block_index);
     }
 }

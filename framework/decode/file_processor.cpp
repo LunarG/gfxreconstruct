@@ -1795,7 +1795,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                         {
                             if (decoder->SupportsMetaDataId(meta_data_id))
                             {
-                                        decoder->DispatchSetTlasToBlasDependencyCommand(header.parent_id, blases);
+                                decoder->DispatchSetTlasToBlasDependencyCommand(header.parent_id, blases);
                             }
                         }
                     }
