@@ -358,7 +358,7 @@ class VulkanReplayDumpResourcesBase
 
         uint32_t GetDrawCallActiveCommandBuffers(cmd_buf_it& first, cmd_buf_it& last) const;
 
-        VkResult DumpDrawCallsAttachments(VkQueue queue, uint64_t bcb_index);
+        VkResult DumpDrawCallsAttachments(VkQueue queue, uint64_t bcb_index, VkFence fence);
 
         VkResult DumpRenderTargetAttachments(uint64_t dc_index) const;
 
@@ -440,7 +440,7 @@ class VulkanReplayDumpResourcesBase
 
         void CloneDispatchRaysResources(uint64_t index, bool cloning_before_cmd, bool is_dispatch);
 
-        VkResult DumpDispatchRaysMutableResources(VkQueue queue, uint64_t bcb_index);
+        VkResult DumpDispatchRaysMutableResources(VkQueue queue, uint64_t bcb_index, VkFence fence);
 
         VkResult DumpMutableResources(uint64_t index, bool is_dispatch);
 
