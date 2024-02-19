@@ -1277,210 +1277,41 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
             image, layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, transition_aspect, queue_family_index);
     }
 
-    scaling_supported = true;
+    // Blit image to change dimensions
     if (scale != 1.0f)
     {
-        VkFormatProperties format_props;
-        instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_props);
+        result = BlitImage(copy_image,
+                           format,
+                           type,
+                           extent,
+                           scaled_extent,
+                           mip_levels,
+                           array_layers,
+                           aspect,
+                           queue_family_index,
+                           scale,
+                           scaled_image,
+                           scaled_image_mem,
+                           scaling_supported);
 
-        if ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) != VK_FORMAT_FEATURE_BLIT_DST_BIT)
-        {
-            GFXRECON_LOG_ERROR_ONCE("Image with format %s and optimal tilling does not support "
-                                    "VK_FORMAT_FEATURE_BLIT_DST_BIT. Scaling will be disabled for these images.",
-                                    util::ToString<VkFormat>(format).c_str());
-
-            scaling_supported = false;
-        }
-
-        if ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) !=
-            VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
-        {
-            GFXRECON_LOG_ERROR_ONCE("Image with format %s and optimal tilling does not support "
-                                    "VK_FORMAT_FEATURE_TRANSFER_SRC_BIT. Scaling will be disabled for these images.",
-                                    util::ToString<VkFormat>(format).c_str());
-
-            scaling_supported = false;
-        }
-
-        if (scale > 1.0f)
-        {
-            VkImageFormatProperties img_format_props;
-            instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
-                                                                   format,
-                                                                   type,
-                                                                   VK_IMAGE_TILING_OPTIMAL,
-                                                                   VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                                                       VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-                                                                   0,
-                                                                   &img_format_props);
-
-            if (img_format_props.maxExtent.width < extent.width * scale ||
-                img_format_props.maxExtent.height < extent.height * scale)
-            {
-                GFXRECON_LOG_ERROR_ONCE("Scaled image is too large. Image dimensions (%u x %u) exceeds "
-                                        "implementation's limits (%u x %u) for the specific image configuration "
-                                        "(%s with VK_IMAGE_TILING_OPTIMAL). Scaling will be disabled for these images.",
-                                        extent.width * scale,
-                                        extent.height * scale,
-                                        img_format_props.maxExtent.width,
-                                        img_format_props.maxExtent.height,
-                                        util::ToString<VkFormat>(format).c_str());
-                scaling_supported = false;
-            }
-        }
-    }
-
-    if (scale != 1.0f && scaling_supported)
-    {
-        scaled_extent.width *= scale;
-        scaled_extent.height *= scale;
-
-        // Create a scaled image and then blit to scaled image
-
-        VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-        create_info.pNext                 = nullptr;
-        create_info.flags                 = 0;
-        create_info.imageType             = type;
-        create_info.format                = format;
-        create_info.extent                = scaled_extent;
-        create_info.mipLevels             = mip_levels;
-        create_info.arrayLayers           = array_layers;
-        create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-        create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
-        create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-        create_info.queueFamilyIndexCount = 0;
-        create_info.pQueueFamilyIndices   = nullptr;
-        create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
-        result                            = device_table_.CreateImage(device_, &create_info, nullptr, &scaled_image);
         if (result != VK_SUCCESS)
         {
             return result;
         }
 
-        // Get image mem requirements, allocate image memory, and bind image memory
-
-        VkMemoryRequirements scaled_image_mem_requirements;
-        uint32_t             memory_type_index = std::numeric_limits<uint32_t>::max();
-        device_table_.GetImageMemoryRequirements(device_, scaled_image, &scaled_image_mem_requirements);
-        bool found = FindMemoryTypeIndex(memory_properties_,
-                                         scaled_image_mem_requirements.memoryTypeBits,
-                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                         &memory_type_index,
-                                         nullptr);
-        if (!found)
+        if (!scaling_supported)
         {
-            device_table_.DestroyImage(device_, scaled_image, nullptr);
-
-            GFXRECON_LOG_ERROR("Failed to find a memory type with host visible and host cached or coherent "
-                               "properties for resource memory snapshot staging buffer creation");
-
-            return VK_ERROR_UNKNOWN;
+            scaled_image = copy_image;
         }
-
-        VkMemoryAllocateInfo allocate_info = {
-            VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, nullptr, scaled_image_mem_requirements.size, memory_type_index
-        };
-        result = device_table_.AllocateMemory(device_, &allocate_info, nullptr, &scaled_image_mem);
-        if (result != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("AllocateMemory failed with error: %d", result);
-            device_table_.DestroyImage(device_, scaled_image, nullptr);
-            return result;
-        }
-        result = device_table_.BindImageMemory(device_, scaled_image, scaled_image_mem, 0);
-        if (result != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("BinadImageMemory failed with error: %d", result);
-            device_table_.FreeMemory(device_, scaled_image_mem, nullptr);
-            device_table_.DestroyImage(device_, scaled_image, nullptr);
-            return result;
-        }
-
-        VkImageAspectFlags aspectMask = static_cast<VkImageAspectFlagBits>(aspect);
-
-        // Transition scaled image into TRANSFER_DST_OPTIMAL
-        VkImageMemoryBarrier img_barrier;
-        img_barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        img_barrier.pNext               = nullptr;
-        img_barrier.srcAccessMask       = 0;
-        img_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-        img_barrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
-        img_barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.srcQueueFamilyIndex = queue_family_index;
-        img_barrier.dstQueueFamilyIndex = queue_family_index;
-        img_barrier.image               = scaled_image;
-        img_barrier.subresourceRange    = { aspectMask, 0, mip_levels, 0, array_layers };
-
-        device_table_.CmdPipelineBarrier(command_buffer_,
-                                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                         0,
-                                         0,
-                                         nullptr,
-                                         0,
-                                         nullptr,
-                                         1,
-                                         &img_barrier);
-
-        VkImageBlit blit_region;
-        blit_region.srcOffsets[0].x = 0;
-        blit_region.srcOffsets[0].y = 0;
-        blit_region.srcOffsets[0].z = 0;
-
-        blit_region.dstOffsets[0].x = 0;
-        blit_region.dstOffsets[0].y = 0;
-        blit_region.dstOffsets[0].z = 0;
-
-        assert(mip_levels);
-        std::vector<VkImageBlit> blit_regions;
-        for (uint32_t i = 0; i < mip_levels; ++i)
-        {
-            blit_region.srcOffsets[1].x = (int32_t)extent.width >> i;
-            blit_region.srcOffsets[1].y = (int32_t)extent.height >> i;
-            blit_region.srcOffsets[1].z = (int32_t)extent.depth >> i;
-            blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
-
-            blit_region.dstOffsets[1].x = (int32_t)scaled_extent.width >> i;
-            blit_region.dstOffsets[1].y = (int32_t)scaled_extent.height >> i;
-            blit_region.dstOffsets[1].z = (int32_t)scaled_extent.depth >> i;
-            blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
-
-            blit_regions.push_back(blit_region);
-        }
-
-        device_table_.CmdBlitImage(command_buffer_,
-                                   copy_image,
-                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                   scaled_image,
-                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                   blit_regions.size(),
-                                   blit_regions.data(),
-                                   VK_FILTER_NEAREST);
-
-        // Make sure blit is complete before copying from the scaled image.
-        // Also transition layout DST_OPTIMAL -> SRC_OPTIMAL
-        img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-
-        device_table_.CmdPipelineBarrier(command_buffer_,
-                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                         0,
-                                         0,
-                                         nullptr,
-                                         0,
-                                         nullptr,
-                                         1,
-                                         &img_barrier);
     }
     else
     {
         scaled_image = copy_image;
     }
 
+    assert(scaled_image != VK_NULL_HANDLE);
+
+    // Copy image to staging buffer
     CopyImageBuffer(scaled_image,
                     staging_buffer_.buffer,
                     scaled_extent,
@@ -1533,10 +1364,12 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
 
     InvalidateStagingBuffer();
 
+    // Copy staging buffer to host memory
     util::platform::MemoryCopy(data.data(), resource_size, staging_buffer_.mapped_ptr, resource_size);
 
     UnmapStagingBuffer();
 
+    // Release temporary resources
     if (samples != VK_SAMPLE_COUNT_1_BIT)
     {
         device_table_.DestroyImage(device_, resolve_image, nullptr);
@@ -1761,6 +1594,228 @@ VkResult VulkanResourcesUtil::WriteToImageResourceStaging(VkImage               
     result = SubmitCommandBuffer(queue);
 
     return result;
+}
+
+VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
+                                        VkFormat              format,
+                                        VkImageType           type,
+                                        const VkExtent3D&     extent,
+                                        VkExtent3D&           scaled_extent,
+                                        uint32_t              mip_levels,
+                                        uint32_t              array_layers,
+                                        VkImageAspectFlagBits aspect,
+                                        uint32_t              queue_family_index,
+                                        float                 scale,
+                                        VkImage&              scaled_image,
+                                        VkDeviceMemory&       scaled_image_mem,
+                                        bool&                 scaling_supported)
+{
+    scaling_supported = true;
+    scaled_extent     = extent;
+    scaled_image      = VK_NULL_HANDLE;
+    scaled_image_mem  = VK_NULL_HANDLE;
+
+    VkFormatProperties format_props;
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_props);
+
+    // Check if the new image can be the target image of a vkCmdBlit command
+    if ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) != VK_FORMAT_FEATURE_BLIT_DST_BIT)
+    {
+        GFXRECON_LOG_ERROR_ONCE("Image with format %s and optimal tilling does not support "
+                                "VK_FORMAT_FEATURE_BLIT_DST_BIT. Scaling will be disabled for these images.",
+                                util::ToString<VkFormat>(format).c_str());
+
+        scaling_supported = false;
+    }
+
+    if ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) != VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
+    {
+        GFXRECON_LOG_ERROR_ONCE("Image with format %s and optimal tilling does not support "
+                                "VK_FORMAT_FEATURE_TRANSFER_SRC_BIT. Scaling will be disabled for these images.",
+                                util::ToString<VkFormat>(format).c_str());
+
+        scaling_supported = false;
+    }
+
+    // In case of scalling an image up, check if the image resolution is supported by the implementation
+    if (scale > 1.0f)
+    {
+        VkImageFormatProperties img_format_props;
+        instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
+                                                               format,
+                                                               type,
+                                                               VK_IMAGE_TILING_OPTIMAL,
+                                                               VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                                                   VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                                                               0,
+                                                               &img_format_props);
+
+        if (img_format_props.maxExtent.width < extent.width * scale ||
+            img_format_props.maxExtent.height < extent.height * scale)
+        {
+            GFXRECON_LOG_ERROR_ONCE("Scaled image is too large. Image dimensions (%u x %u) exceeds "
+                                    "implementation's limits (%u x %u) for the specific image configuration "
+                                    "(%s with VK_IMAGE_TILING_OPTIMAL). Scaling will be disabled for these images.",
+                                    extent.width * scale,
+                                    extent.height * scale,
+                                    img_format_props.maxExtent.width,
+                                    img_format_props.maxExtent.height,
+                                    util::ToString<VkFormat>(format).c_str());
+
+            scaling_supported = false;
+        }
+    }
+
+    if (!scaling_supported)
+    {
+        return VK_SUCCESS;
+    }
+
+    scaled_extent.width *= scale;
+    scaled_extent.height *= scale;
+
+    // Create a scaled image and then blit to scaled image
+    VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+    create_info.pNext                 = nullptr;
+    create_info.flags                 = 0;
+    create_info.imageType             = type;
+    create_info.format                = format;
+    create_info.extent                = scaled_extent;
+    create_info.mipLevels             = mip_levels;
+    create_info.arrayLayers           = array_layers;
+    create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+    create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
+    create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.queueFamilyIndexCount = 0;
+    create_info.pQueueFamilyIndices   = nullptr;
+    create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    VkResult result = device_table_.CreateImage(device_, &create_info, nullptr, &scaled_image);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+
+    // Get image mem requirements, allocate image memory, and bind image memory
+    VkMemoryRequirements scaled_image_mem_requirements;
+    uint32_t             memory_type_index = std::numeric_limits<uint32_t>::max();
+    device_table_.GetImageMemoryRequirements(device_, scaled_image, &scaled_image_mem_requirements);
+    bool found = FindMemoryTypeIndex(memory_properties_,
+                                     scaled_image_mem_requirements.memoryTypeBits,
+                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                     &memory_type_index,
+                                     nullptr);
+    if (!found)
+    {
+        device_table_.DestroyImage(device_, scaled_image, nullptr);
+
+        GFXRECON_LOG_ERROR("Failed to find a memory type with host visible and host cached or coherent "
+                           "properties for resource memory snapshot staging buffer creation");
+
+        return VK_ERROR_UNKNOWN;
+    }
+
+    VkMemoryAllocateInfo allocate_info = {
+        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, nullptr, scaled_image_mem_requirements.size, memory_type_index
+    };
+
+    result = device_table_.AllocateMemory(device_, &allocate_info, nullptr, &scaled_image_mem);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("AllocateMemory failed with error: %d", result);
+        device_table_.DestroyImage(device_, scaled_image, nullptr);
+        return result;
+    }
+    result = device_table_.BindImageMemory(device_, scaled_image, scaled_image_mem, 0);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("BinadImageMemory failed with error: %d", result);
+        device_table_.FreeMemory(device_, scaled_image_mem, nullptr);
+        device_table_.DestroyImage(device_, scaled_image, nullptr);
+        return result;
+    }
+
+    VkImageAspectFlags aspectMask = static_cast<VkImageAspectFlagBits>(aspect);
+
+    // Transition scaled image into TRANSFER_DST_OPTIMAL
+    VkImageMemoryBarrier img_barrier;
+    img_barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    img_barrier.pNext               = nullptr;
+    img_barrier.srcAccessMask       = 0;
+    img_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+    img_barrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+    img_barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    img_barrier.srcQueueFamilyIndex = queue_family_index;
+    img_barrier.dstQueueFamilyIndex = queue_family_index;
+    img_barrier.image               = scaled_image;
+    img_barrier.subresourceRange    = { aspectMask, 0, mip_levels, 0, array_layers };
+
+    device_table_.CmdPipelineBarrier(command_buffer_,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &img_barrier);
+
+    VkImageBlit blit_region;
+    blit_region.srcOffsets[0].x = 0;
+    blit_region.srcOffsets[0].y = 0;
+    blit_region.srcOffsets[0].z = 0;
+
+    blit_region.dstOffsets[0].x = 0;
+    blit_region.dstOffsets[0].y = 0;
+    blit_region.dstOffsets[0].z = 0;
+
+    assert(mip_levels);
+    std::vector<VkImageBlit> blit_regions(mip_levels);
+    for (uint32_t i = 0; i < mip_levels; ++i)
+    {
+        blit_region.srcOffsets[1].x = (int32_t)extent.width >> i;
+        blit_region.srcOffsets[1].y = (int32_t)extent.height >> i;
+        blit_region.srcOffsets[1].z = (int32_t)extent.depth >> i;
+        blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
+
+        blit_region.dstOffsets[1].x = (int32_t)scaled_extent.width >> i;
+        blit_region.dstOffsets[1].y = (int32_t)scaled_extent.height >> i;
+        blit_region.dstOffsets[1].z = (int32_t)scaled_extent.depth >> i;
+        blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
+
+        blit_regions[i] = blit_region;
+    }
+
+    device_table_.CmdBlitImage(command_buffer_,
+                               image,
+                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               scaled_image,
+                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                               blit_regions.size(),
+                               blit_regions.data(),
+                               VK_FILTER_NEAREST);
+
+    // Make sure blit is complete before copying from the scaled image.
+    // Also transition scaled image DST_OPTIMAL -> SRC_OPTIMAL
+    img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+    device_table_.CmdPipelineBarrier(command_buffer_,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &img_barrier);
+
+    return VK_SUCCESS;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
