@@ -92,14 +92,11 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
     bool ContainsOptFillMem() const { return opt_fillmem_; }
 
   protected:
-    auto GetCurrentBlockIndex() { return current_block_index_; }
+    auto GetCurrentBlockIndex() { return block_index_; }
 
     bool dxr_workload_{ false };
     bool ei_workload_{ false };
     bool opt_fillmem_{ false };
-
-  private:
-    uint64_t current_block_index_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

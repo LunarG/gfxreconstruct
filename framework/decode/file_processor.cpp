@@ -797,7 +797,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 if (decoder->SupportsMetaDataId(meta_data_id))
                 {
-                    decoder->SetCurrentBlockIndex(block_index_);
                     decoder->DispatchResizeWindowCommand(
                         command.thread_id, command.surface_id, command.width, command.height);
                 }
@@ -827,7 +826,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 if (decoder->SupportsMetaDataId(meta_data_id))
                 {
-                    decoder->SetCurrentBlockIndex(block_index_);
                     decoder->DispatchResizeWindowCommand2(
                         command.thread_id, command.surface_id, command.width, command.height, command.pre_transform);
                 }
@@ -862,7 +860,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->SetCurrentBlockIndex(block_index_);
                 decoder->DispatchExeFileInfo(header.thread_id, header);
             }
         }
@@ -878,7 +875,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->SetCurrentBlockIndex(block_index_);
                 decoder->DispatchDriverInfo(header.thread_id, header);
             }
         }
@@ -1082,7 +1078,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 if (decoder->SupportsMetaDataId(meta_data_id))
                 {
-                    decoder->SetCurrentBlockIndex(block_index_);
                     decoder->DispatchDestroyHardwareBufferCommand(command.thread_id, command.buffer_id);
                 }
             }
@@ -1107,7 +1102,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->SetCurrentBlockIndex(block_index_);
                 decoder->DispatchCreateHeapAllocationCommand(
                     header.thread_id, header.allocation_id, header.allocation_size);
             }
@@ -1258,7 +1252,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 if (decoder->SupportsMetaDataId(meta_data_id))
                 {
-                    decoder->SetCurrentBlockIndex(block_index_);
                     decoder->DispatchSetOpaqueAddressCommand(
                         header.thread_id, header.device_id, header.object_id, header.address);
                 }
@@ -1290,7 +1283,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 if (decoder->SupportsMetaDataId(meta_data_id))
                 {
-                    decoder->SetCurrentBlockIndex(block_index_);
                     decoder->DispatchSetRayTracingShaderGroupHandlesCommand(header.thread_id,
                                                                             header.device_id,
                                                                             header.pipeline_id,
@@ -1379,7 +1371,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 if (decoder->SupportsMetaDataId(meta_data_id))
                 {
-                    decoder->SetCurrentBlockIndex(block_index_);
                     decoder->DispatchBeginResourceInitCommand(
                         header.thread_id, header.device_id, header.max_resource_size, header.max_copy_size);
                 }
@@ -1406,7 +1397,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 if (decoder->SupportsMetaDataId(meta_data_id))
                 {
-                    decoder->SetCurrentBlockIndex(block_index_);
                     decoder->DispatchEndResourceInitCommand(header.thread_id, header.device_id);
                 }
             }
@@ -1521,7 +1511,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 if (decoder->SupportsMetaDataId(meta_data_id))
                 {
-                    decoder->SetCurrentBlockIndex(block_index_);
                     decoder->DispatchInitImageCommand(header.thread_id,
                                                       header.device_id,
                                                       header.image_id,
@@ -1729,7 +1718,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->SetCurrentBlockIndex(block_index_);
                 decoder->DispatchGetDxgiAdapterInfo(adapter_info_header);
             }
         }
@@ -1755,7 +1743,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->SetCurrentBlockIndex(block_index_);
                 decoder->DispatchGetDx12RuntimeInfo(dx12_runtime_info_header);
             }
         }

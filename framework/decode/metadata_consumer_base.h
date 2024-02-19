@@ -34,9 +34,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 /// implement to handle metacommands.
 class MetadataConsumerBase
 {
-  protected:
-    uint64_t block_index_;
-
   public:
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
@@ -108,6 +105,9 @@ class MetadataConsumerBase
     {}
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
+
+  protected:
+    uint64_t block_index_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
