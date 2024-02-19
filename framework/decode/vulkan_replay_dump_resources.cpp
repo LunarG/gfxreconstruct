@@ -763,7 +763,8 @@ bool VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::ShouldHandleRenderP
 }
 
 VkResult VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpDrawCallsAttachments(VkQueue  queue,
-                                                                                          uint64_t bcb_index)
+                                                                                          uint64_t bcb_index,
+                                                                                          VkFence  fence)
 {
     // BackUpMutableResources(queue);
 
@@ -792,13 +793,22 @@ VkResult VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpDrawCallsAt
         const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
         assert(device_info);
 
+        VkResult res;
+
         const VkFenceCreateInfo ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
         VkFence                 submission_fence;
-        VkResult                res = device_table->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
-        if (res != VK_SUCCESS)
+        if (fence == VK_NULL_HANDLE)
         {
-            GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
-            return res;
+            res = device_table->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
+                return res;
+            }
+        }
+        else
+        {
+            submission_fence = fence;
         }
 
         res = device_table->QueueSubmit(queue, 1, &submit_info, submission_fence);
@@ -818,7 +828,10 @@ VkResult VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DumpDrawCallsAt
             return res;
         }
 
-        device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
+        if (fence == VK_NULL_HANDLE)
+        {
+            device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
+        }
 
         // Dump resources
         DumpRenderTargetAttachments(cb);
@@ -1170,7 +1183,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::vector<VkSubmitInfo>  m
             {
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
 
-                res = dc_context->DumpDrawCallsAttachments(queue, cmd_buf_begin_map_[command_buffer_handles[o]]);
+                res = dc_context->DumpDrawCallsAttachments(queue, cmd_buf_begin_map_[command_buffer_handles[o]], fence);
                 if (res == VK_SUCCESS)
                 {
                     submitted = true;
@@ -1186,8 +1199,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::vector<VkSubmitInfo>  m
             if (dr_context != nullptr)
             {
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
-                res =
-                    dr_context->DumpDispatchRaysMutableResources(queue, cmd_buf_begin_map_[command_buffer_handles[o]]);
+                res = dr_context->DumpDispatchRaysMutableResources(
+                    queue, cmd_buf_begin_map_[command_buffer_handles[o]], fence);
 
                 if (res == VK_SUCCESS)
                 {
@@ -1222,7 +1235,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::vector<VkSubmitInfo>  m
         // Once all submissions are complete terminate process
         if (QueueSubmit_indices_.size() == 0)
         {
-            exit(0);
+            // exit(0);
         }
     }
 
@@ -2411,19 +2424,33 @@ VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::~DrawCallsDumpingContext
 {
     if (original_command_buffer_info)
     {
+        const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
+
+        if (device_info == nullptr)
+        {
+            return;
+        }
+
+        VkDevice device = device_info->handle;
+        assert(device_table);
+
+        const CommandPoolInfo* pool_info = object_info_table.GetCommandPoolInfo(original_command_buffer_info->pool_id);
+        assert(pool_info);
+
+        if (command_buffers.size())
+        {
+            device_table->FreeCommandBuffers(device, pool_info->handle, command_buffers.size(), command_buffers.data());
+        }
+
         if (aux_command_buffer != VK_NULL_HANDLE)
         {
-            const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
-            VkDevice          device      = device_info->handle;
-
-            assert(device_table);
-
-            const CommandPoolInfo* pool_info =
-                object_info_table.GetCommandPoolInfo(original_command_buffer_info->pool_id);
-            assert(pool_info);
-
             device_table->FreeCommandBuffers(device, pool_info->handle, 1, &aux_command_buffer);
             aux_command_buffer = VK_NULL_HANDLE;
+        }
+
+        if (aux_fence != VK_NULL_HANDLE)
+        {
+            device_table->DestroyFence(device, aux_fence, nullptr);
         }
 
         DestroyMutableResourceBackups();
@@ -2571,7 +2598,12 @@ void VulkanReplayDumpResourcesBase::DrawCallsDumpingContext::DestroyMutableResou
     assert(original_command_buffer_info);
 
     const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
-    VkDevice          device      = device_info->handle;
+    if (device_info == nullptr)
+    {
+        return;
+    }
+
+    VkDevice device = device_info->handle;
 
     for (size_t i = 0; i < mutable_resource_backups.images.size(); ++i)
     {
@@ -3594,9 +3626,8 @@ void VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DestroyMuta
     }
 }
 
-VkResult
-VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpDispatchRaysMutableResources(VkQueue  queue,
-                                                                                                 uint64_t bcb_index)
+VkResult VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpDispatchRaysMutableResources(
+    VkQueue queue, uint64_t bcb_index, VkFence fence)
 {
     VkSubmitInfo submit_info;
     submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -3612,13 +3643,23 @@ VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpDispatchRays
     const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
     assert(device_info);
 
-    const VkFenceCreateInfo ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-    VkFence                 submission_fence;
-    VkResult                res = device_table->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
-    if (res != VK_SUCCESS)
+    VkResult res;
+
+    const VkFenceCreateInfo ci               = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
+    VkFence                 submission_fence = VK_NULL_HANDLE;
+    if (fence == VK_NULL_HANDLE)
     {
-        GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
-        return res;
+        res = device_table->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
+
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
+            return res;
+        }
+    }
+    else
+    {
+        submission_fence = fence;
     }
 
     res = device_table->QueueSubmit(queue, 1, &submit_info, submission_fence);
@@ -3641,7 +3682,10 @@ VulkanReplayDumpResourcesBase::DispatchTraceRaysDumpingContext::DumpDispatchRays
         return res;
     }
 
-    device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
+    if (fence == VK_NULL_HANDLE)
+    {
+        device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
+    }
 
     for (auto index : dispatch_indices)
     {
