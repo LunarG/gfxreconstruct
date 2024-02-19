@@ -238,6 +238,20 @@ class VulkanResourcesUtil
 
     void InvalidateMappedMemoryRange(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size);
 
+    VkResult BlitImage(VkImage               image,
+                       VkFormat              format,
+                       VkImageType           type,
+                       const VkExtent3D&     extent,
+                       VkExtent3D&           scaled_extent,
+                       uint32_t              mip_levels,
+                       uint32_t              array_layers,
+                       VkImageAspectFlagBits aspect,
+                       uint32_t              queue_family_index,
+                       float                 scale,
+                       VkImage&              scaled_image,
+                       VkDeviceMemory&       scaled_image_mem,
+                       bool&                 scaling_supported);
+
     struct StagingBufferContext
     {
         StagingBufferContext() = default;
