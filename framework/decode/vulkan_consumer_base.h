@@ -92,6 +92,8 @@ class VulkanConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
 
     virtual void ProcessSetTlasToBlasRelationCommand(format::HandleId tlas, const std::vector<format::HandleId>& blases)
     {}
+
+    virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
 };
 
 GFXRECON_END_NAMESPACE(decode)

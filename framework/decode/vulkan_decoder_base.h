@@ -195,6 +195,8 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override {}
 
+    virtual void SetCurrentBlockIndex(uint64_t block_index) override;
+
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
 
