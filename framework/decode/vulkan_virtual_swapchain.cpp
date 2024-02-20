@@ -393,6 +393,11 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
             VK_IMAGE_LAYOUT_UNDEFINED                                           // initialLayout
         };
 
+        if (swapchain_info->compression_control.has_value())
+        {
+            image_create_info.pNext = &swapchain_info->compression_control.value();
+        }
+
         if ((swapchain_info->image_flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
             VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
         {

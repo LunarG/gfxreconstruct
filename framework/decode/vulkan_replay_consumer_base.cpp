@@ -5124,6 +5124,23 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             }
         }
 
+        const VkBaseInStructure* current = reinterpret_cast<const VkBaseInStructure*>(modified_create_info.pNext);
+        while (current != nullptr)
+        {
+            if (current->sType == VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT)
+            {
+                const VkImageCompressionControlEXT* compression_control =
+                    reinterpret_cast<const VkImageCompressionControlEXT*>(current);
+
+                swapchain_info->compression_control.emplace(*compression_control);
+                swapchain_info->compression_control->pNext = nullptr;
+
+                break;
+            }
+
+            current = current->pNext;
+        }
+
         result = swapchain_->CreateSwapchainKHR(original_result,
                                                 func,
                                                 device_info,
