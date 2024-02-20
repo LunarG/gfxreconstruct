@@ -42,7 +42,12 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
                                    const encode::InstanceTable*        instance_table,
                                    application::Application*           application,
-                                   int32_t                             options_surface_index) override;
+                                   int32_t                             options_surface_index,
+                                   const int32_t                       xpos,
+                                   const int32_t                       ypos,
+                                   const uint32_t                      width,
+                                   const uint32_t                      height,
+                                   bool                                force_windowed = false) override;
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const InstanceInfo*          instance_info,

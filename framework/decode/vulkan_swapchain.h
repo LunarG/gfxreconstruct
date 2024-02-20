@@ -38,6 +38,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+const int32_t  kDefaultWindowPositionX = 0;
+const int32_t  kDefaultWindowPositionY = 0;
+const uint32_t kDefaultWindowWidth     = 320;
+const uint32_t kDefaultWindowHeight    = 240;
+
 class ScreenshotHandler;
 
 class VulkanSwapchain
@@ -54,7 +59,12 @@ class VulkanSwapchain
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
                                    const encode::InstanceTable*        instance_table,
                                    application::Application*           application,
-                                   int32_t                             options_surface_index);
+                                   int32_t                             options_surface_index,
+                                   const int32_t                       xpos,
+                                   const int32_t                       ypos,
+                                   const uint32_t                      width,
+                                   const uint32_t                      height,
+                                   bool                                force_windowed = false);
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const InstanceInfo*          instance_info,
