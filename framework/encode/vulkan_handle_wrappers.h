@@ -201,18 +201,19 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     const void*        bind_pnext{ nullptr };
     HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
                                           // HandleUnwrapMemory.
-    format::HandleId      bind_memory_id{ format::kNullHandleId };
-    VkDeviceSize          bind_offset{ 0 };
-    uint32_t              queue_family_index{ 0 };
-    VkImageType           image_type{ VK_IMAGE_TYPE_2D };
-    VkFormat              format{ VK_FORMAT_UNDEFINED };
-    VkExtent3D            extent{ 0, 0, 0 };
-    uint32_t              mip_levels{ 0 };
-    uint32_t              array_layers{ 0 };
-    VkSampleCountFlagBits samples{};
-    VkImageTiling         tiling{};
-    VkImageLayout         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
-    bool                  is_swapchain_image{ false };
+    format::HandleId         bind_memory_id{ format::kNullHandleId };
+    VkDeviceSize             bind_offset{ 0 };
+    uint32_t                 queue_family_index{ 0 };
+    VkImageType              image_type{ VK_IMAGE_TYPE_2D };
+    VkFormat                 format{ VK_FORMAT_UNDEFINED };
+    VkExtent3D               extent{ 0, 0, 0 };
+    uint32_t                 mip_levels{ 0 };
+    uint32_t                 array_layers{ 0 };
+    VkSampleCountFlagBits    samples{};
+    VkImageTiling            tiling{};
+    VkImageLayout            current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    bool                     is_swapchain_image{ false };
+    std::set<VkSwapchainKHR> parent_swapchains;
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
