@@ -2056,6 +2056,25 @@ void VulkanReplayConsumerBase::InitializeScreenshotHandler()
 
     if (!options_.screenshot_dir.empty())
     {
+        if (util::filepath::Exists(options_.screenshot_dir))
+        {
+            if (!util::filepath::IsDirectory(options_.screenshot_dir))
+            {
+                GFXRECON_WRITE_CONSOLE("Error while creating directory %s: Already exists as file",
+                                       options_.screenshot_dir.c_str());
+                exit(-1);
+            }
+        }
+        else
+        {
+            int32_t result = gfxrecon::util::platform::MakeDirectory(options_.screenshot_dir.c_str());
+            if (result < 0)
+            {
+                GFXRECON_WRITE_CONSOLE("Error while creating directory %s: Could not open",
+                                       options_.screenshot_dir.c_str());
+                exit(-1);
+            }
+        }
         screenshot_file_prefix_ = util::filepath::Join(options_.screenshot_dir, screenshot_file_prefix_);
     }
 
