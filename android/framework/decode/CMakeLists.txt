@@ -109,6 +109,7 @@ target_sources(gfxrecon_decode
 
 target_include_directories(gfxrecon_decode
                            PUBLIC
+                               ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include)
 
@@ -119,4 +120,5 @@ target_link_libraries(gfxrecon_decode
                       vulkan_registry
                       vulkan_memory_allocator
                       platform_specific
+                      nlohmann_json
                       ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libspirv-reflect-static.a)
