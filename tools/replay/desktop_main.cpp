@@ -142,7 +142,7 @@ int main(int argc, const char** argv)
             // the VulkanReplayOptions class won't have to link in the json library.
             if (!gfxrecon::parse_dump_resources::parse_dump_resources_arg(vulkan_replay_options))
             {
-                GFXRECON_LOG_FATAL("There was an error while parsing dump resource indices. Terminating");
+                GFXRECON_LOG_FATAL("There was an error while parsing dump resources indices. Terminating.");
                 return -1;
             }
 

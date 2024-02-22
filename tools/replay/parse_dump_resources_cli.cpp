@@ -237,6 +237,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
 {
     bool parse_error  = false;
     bool d3d12enabled = false;
+    std::string parse_error_message;
 
 #if defined(D3D12_SUPPORT)
     d3d12enabled = true;
@@ -319,7 +320,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
         }
         catch (...)
         {
-            GFXRECON_LOG_ERROR("Error reading file %s. Bad json format?", vulkan_replay_options.dump_resources.c_str());
+            parse_error_message = "Error reading file " + vulkan_replay_options.dump_resources + ". Bad json format?";
             parse_error = true;
         }
     }
@@ -399,6 +400,8 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 // Extract number after '='
                 num = strtol(drargs[i].c_str() + epos + 1, &endptr, 10);
                 parse_error |= ((errno != 0) || (*endptr != ',' && *endptr != 0));
+                parse_error_message = "Parameter value for " + drargs[i].substr(apos,epos-apos) + "is not a valid number";
+
 
                 if (drargs[i].compare(apos, epos - apos, "BeginCommandBuffer") == 0)
                     BeginCommandBuffer = num;
@@ -417,7 +420,10 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 else if (drargs[i].compare(apos, epos - apos, "QueueSubmit") == 0)
                     QueueSubmit = num;
                 else
+                {
                     parse_error = true;
+                    parse_error_message = "Bad --dump-resource parameter: " + drargs[i].substr(apos,epos-apos);
+                }
 
                 apos = cpos + 1;
             }
@@ -460,11 +466,11 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             }
         }
 
-        if (parse_error)
-        {
-            GFXRECON_LOG_ERROR("Ignoring invalid --dump-resources parameter: %s",
-                               vulkan_replay_options.dump_resources.c_str());
-        }
+    }
+
+    if (parse_error)
+    {
+        GFXRECON_LOG_ERROR("%s", parse_error_message.c_str());
     }
 
     // Perform some sanity checks on the provided indices
