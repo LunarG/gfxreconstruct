@@ -710,31 +710,14 @@ bool WritePngImage(const std::string& filename,
                    uint32_t           pitch,
                    DataFormats        format)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(format);
+
     bool success = false;
 
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
     uint32_t row_pitch               = pitch == 0 ? width * kImageBpp : pitch;
     stbi_write_png_compression_level = 4;
-
-    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
-
-#if defined(__ANDROID__)
-    // In Android there is an issue with files which are manually deleted (for example from adb shell) then fopen with
-    // "wb" will fail with the error that the file already exists. Deleting the file from the code can workaround this
-    // problem
-    if (access(filename.c_str(), F_OK) != -1)
-    {
-        GFXRECON_LOG_INFO("File already exists. Will attempt to delete it");
-        if (remove(filename.c_str()) != -1)
-        {
-            GFXRECON_LOG_ERROR("Failed to delete file %s (%s)", filename.c_str(), strerror(errno));
-            return false;
-        }
-    }
-#endif
-    assert(pitch);
-    const uint8_t* bytes = ConvertIntoTemporaryBuffer(width, height, data, &pitch, format, true);
-    if (1 == stbi_write_png(filename.c_str(), width, height, kImageBpp, static_cast<const void*>(bytes), pitch))
+    if (1 == stbi_write_png(filename.c_str(), width, height, kImageBpp, data, row_pitch))
     {
         success = true;
     }
