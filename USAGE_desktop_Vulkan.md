@@ -33,6 +33,7 @@ to one of these other documents:
     1. [Command Line Arguments](#command-line-arguments)
     2. [Key Controls](#key-controls)
     3. [Virtual Swapchain](#virtual-swapchain)
+    4. [Dumping resources](#dumping-resources)
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
     1. [Capture File Info](#capture-file-info)
     2. [Capture File Compression](#capture-file-compression)
@@ -769,6 +770,10 @@ There are three possible status that can be set using `--sgfs`:
 - `2` - Skip all: `vkWaitForFences`/`vkGetFenceStatus` is never called and `VK_SUCCESS` is returned directly instead.
 
 The `--sgfr` option specify at which frames these conditions apply. If `--sgfr` is not specified, they apply to all frames.
+
+### Dumping resources
+
+GFXReconstruct offers the capability to dump resources when replaying a capture file. Detailed documentation of that feature can be found in [vulkan_dump_resources.md](./vulkan_dump_resources.md)
 
 ## Other Capture File Processing Tools
 

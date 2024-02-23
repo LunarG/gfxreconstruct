@@ -36,7 +36,44 @@ to one of these other documents:
     5. [Key Controls](#key-controls)
     6. [Limitations of Replay On Android](#limitations-of-replay-on-android)
     7. [Troubleshooting Replay of Applications](#troubleshooting-replay-of-applications)
+    8. [Dumping resources](#dumping-resources)
 3. [Android Detailed Examples](#android-detailed-examples)
+
+
+## Behavior on Android
+
+The purpose of this section is to describe some of the software changes made to
+the GFXReconstruct software to add Android support.
+This section will not provide a comprehensive list of changes, but will instead
+highlight some of the primary adjustments required to adapt the GFXReconstruct
+software to the Android ecosystem.
+
+### Android Writable Locations
+
+The contents of the traces should be written to external storage on the
+Android device.
+The final "external storage" result varies based on Android version but some
+locations that can be tried are:
+
+ - `/sdcard/Download`
+ - `/storage/emulated/0/Download`
+ - `/sdcard/Android/data/${Application Full Name}`
+ - `/sdcard`
+ - `/mnt/shell/emulated/0`
+
+Where `${Application Full Name}` is the full name of the application, such
+as `com.khronos.vulkand_samples`.
+
+Some devices won't allow access to those folders for certain applications.
+In those cases, the following folders can be used, but will require `adb` root
+access to retrieve the files:
+
+ - `/data/data/${Application Full Name}/`
+ - `/data/user/0/${Application Full Name}/`
+
+**NOTE:** These directories may not be visible to other applications (including
+gfxrecon-replay, adb pull), so any capture files will need to be copied to a
+readable location with adb shell before they can be replayed.
 
 ## Capturing API Calls
 
@@ -965,6 +1002,9 @@ If the user wants to bypass the feature and use the captured indices to present
 directly on the swapchain of the replay implementation, they should add the
 `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.
 
+#### Dumping resources
+
+GFXReconstruct offers the capability to dump resources when replaying a capture file. Detailed documentation of that feature can be found in [vulkan_dump_resources.md](./vulkan_dump_resources.md)
 
 ## Android Detailed Examples
 
