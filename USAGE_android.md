@@ -40,6 +40,7 @@ to one of these other documents:
     5. [Key Controls](#key-controls)
     6. [Limitations of Replay On Android](#limitations-of-replay-on-android)
     7. [Troubleshooting Replay of Applications](#troubleshooting-replay-of-applications)
+    8. [Dumping resources](#dumping-resources)
 4. [Android Detailed Examples](#android-detailed-examples)
 
 
@@ -1139,6 +1140,9 @@ If the user wants to bypass the feature and use the captured indices to present
 directly on the swapchain of the replay implementation, they should add the
 `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.
 
+#### Dumping resources
+
+GFXReconstruct offers the capability to dump resources when replaying a capture file. Detailed documentation of that feature can be found in [vulkan_dump_resources.md](./vulkan_dump_resources.md)
 
 ## Android Detailed Examples
 
