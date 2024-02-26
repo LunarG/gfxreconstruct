@@ -46,7 +46,6 @@ target_link_libraries(gfxrecon-replay
                           gfxrecon_graphics
                           gfxrecon_format
                           gfxrecon_util
-                          jsoncpp
                           platform_specific
                           $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                           $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
@@ -60,6 +59,9 @@ if (MSVC)
       target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
     endif()
 endif()
+
+find_package(jsoncpp REQUIRED)
+target_link_libraries(gfxrecon-replay jsoncpp::jsoncpp)
 
 # A multithreaded Vulkan driver loaded through dlopen() mechanism
 # won't work if libstdc++ has started in a single-threaded mode.
