@@ -279,6 +279,45 @@ class VulkanReplayDumpResourcesBase
 
         ~DrawCallsDumpingContext();
 
+        const CommandBufferInfo*           original_command_buffer_info;
+        std::vector<VkCommandBuffer>       command_buffers;
+        size_t                             current_cb_index;
+        std::vector<uint64_t>              dc_indices;
+        std::vector<std::vector<uint64_t>> RP_indices;
+        const RenderPassInfo*              active_renderpass;
+        const FramebufferInfo*             active_framebuffer;
+        const PipelineInfo*                bound_pipelines[kBindPoint_count];
+        uint32_t                           current_renderpass;
+        uint32_t                           current_subpass;
+        uint32_t                           n_subpasses;
+        bool                               dump_resources_before;
+        const std::string&                 dump_resource_path;
+        util::ScreenshotFormat             image_file_format;
+        float                              dump_resources_scale;
+        VulkanReplayDumpResourcesJson*     p_dump_json;
+
+        std::vector<std::vector<VkRenderPass>> render_pass_clones;
+        bool                                   inside_renderpass;
+
+        struct RenderTargets
+        {
+            RenderTargets() : depth_att_img(nullptr) {}
+
+            std::vector<const ImageInfo*> color_att_imgs;
+            const ImageInfo*              depth_att_img;
+        };
+
+        // render_targets_ is basically a 2d array (vector of vectors). It is indexed like render_targets_[rp][sp]
+        // where rp specifies the render pass and sp the subpass.
+        std::vector<std::vector<RenderTargets>> render_targets_;
+
+        // Render area is constant between subpasses so this array will be single dimension array
+        std::vector<VkRect2D> render_area_;
+
+        using RenderPassSubpassPair = std::pair<uint64_t, uint64_t>;
+        RenderPassSubpassPair GetRenderPassIndex(uint64_t dc_index) const;
+        size_t                CmdBufToDCVectorIndex(size_t cmd_buf_index) const;
+
         bool IsRecording() const { return current_cb_index < command_buffers.size(); }
 
         bool ShouldDumpDrawCall(uint64_t index) const;
@@ -317,64 +356,19 @@ class VulkanReplayDumpResourcesBase
                               const ImageInfo*                     depth_att_img,
                               bool                                 new_renderpass);
 
-        void SetRenderArea(const VkRect2D& new_render_area);
+        void SetRenderArea(const VkRect2D& render_area);
 
         uint32_t GetDrawCallActiveCommandBuffers(cmd_buf_it& first, cmd_buf_it& last) const;
 
         VkResult DumpDrawCallsAttachments(
             VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
 
-        VkResult DumpRenderTargetAttachments(uint64_t dc_index) const;
+        VkResult DumpRenderTargetAttachments(uint64_t cmd_buf_index, uint64_t qs_index, uint64_t bcb_index) const;
 
         descriptor_set_t bound_descriptor_sets[kBindPoint_count];
 
         std::string
         GenerateImageFilename(VkFormat format, uint64_t cmd_buf_index, uint64_t dc_index, int attachment_index) const;
-
-        using RenderPassSubpassPair = std::pair<uint64_t, uint64_t>;
-        RenderPassSubpassPair GetRenderPassIndex(uint64_t dc_index) const;
-        size_t                CmdBufToDCVectorIndex(size_t cmd_buf_index) const;
-
-        void DestroyMutableResourceBackups();
-
-        VkResult BackUpMutableResources(VkQueue queue);
-
-        VkResult RevertMutableResources(VkQueue queue);
-
-        const CommandBufferInfo*           original_command_buffer_info;
-        std::vector<VkCommandBuffer>       command_buffers;
-        size_t                             current_cb_index;
-        std::vector<uint64_t>              dc_indices;
-        std::vector<std::vector<uint64_t>> RP_indices;
-        const RenderPassInfo*              active_renderpass;
-        const FramebufferInfo*             active_framebuffer;
-        const PipelineInfo*                bound_pipelines[kBindPoint_count];
-        uint32_t                           current_renderpass;
-        uint32_t                           current_subpass;
-        uint32_t                           n_subpasses;
-        bool                               dump_resources_before;
-        const std::string&                 dump_resource_path;
-        util::ScreenshotFormat             image_file_format;
-        float                              dump_resources_scale;
-        VulkanReplayDumpResourcesJson*     p_dump_json;
-
-        std::vector<std::vector<VkRenderPass>> render_pass_clones;
-        bool                                   inside_renderpass;
-
-        struct RenderTargets
-        {
-            RenderTargets() : depth_att_img(nullptr) {}
-
-            std::vector<const ImageInfo*> color_att_imgs;
-            const ImageInfo*              depth_att_img;
-        };
-
-        // render_targets is basically a 2d array (vector of vectors). It is indexed like render_targets[rp][sp]
-        // where rp specifies the render pass and sp the subpass.
-        std::vector<std::vector<RenderTargets>> render_targets;
-
-        // Render area is constant between subpasses so this array will be single dimension array
-        std::vector<VkRect2D> render_area;
 
         struct
         {
@@ -386,6 +380,12 @@ class VulkanReplayDumpResourcesBase
             std::vector<VkBuffer>          buffers;
             std::vector<VkDeviceMemory>    buffer_memories;
         } mutable_resource_backups;
+
+        void DestroyMutableResourceBackups();
+
+        VkResult BackUpMutableResources(VkQueue queue);
+
+        VkResult RevertMutableResources(VkQueue queue);
 
         VkCommandBuffer aux_command_buffer;
         VkFence         aux_fence;
@@ -447,7 +447,7 @@ class VulkanReplayDumpResourcesBase
         VkResult DumpDispatchRaysMutableResources(
             VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
 
-        VkResult DumpMutableResources(uint64_t index, bool is_dispatch);
+        VkResult DumpMutableResources(uint64_t bcb_index, uint64_t index, uint64_t qs_index, bool is_dispatch);
 
         void CopyImageResource(const ImageInfo* src_image_info, VkImage dst_image);
 
@@ -457,7 +457,7 @@ class VulkanReplayDumpResourcesBase
 
         void FinalizeCommandBuffer();
 
-        const CommandBufferInfo*       original_command_buffer_info;
+        const CommandBufferInfo* original_command_buffer_info;
         VkCommandBuffer                DR_command_buffer;
         std::vector<uint64_t>          dispatch_indices;
         std::vector<uint64_t>          trace_rays_indices;
