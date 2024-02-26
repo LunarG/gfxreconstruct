@@ -252,6 +252,7 @@ if(NOT LZ4_FOUND)
 endif()# NOT LZ4_FOUND
 
 find_package(ZSTD)
+find_package(jsoncpp)
 
 if(UNIX AND NOT APPLE)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
