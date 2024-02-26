@@ -2019,7 +2019,7 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
     bool is_complete = false;
     if (options_.enable_dump_resources)
     {
-        if (track_dump_resources_.target.execute_code_index == GetCurrentBlockIndex())
+        if (track_dump_resources_.target.execute_block_index == GetCurrentBlockIndex())
         {
             auto                            captured_command_lists = command_lists->GetHandlePointer();
             auto                            command_list_ids       = command_lists->GetPointer();
@@ -4203,7 +4203,7 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(
             // before or after the target drawcall. For dump resources to set the correct state,
             // it only cares before the target drawcall.
             ResourceStatesOrder state;
-            state.code_index    = call_info.index;
+            state.block_index   = call_info.index;
             state.transition    = *barriers[i].Transition->decoded_value;
             state.barrier_flags = barriers[i].decoded_value->Flags;
 
@@ -4796,7 +4796,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_OMSetRenderTarge
     BOOL                                                       RTsSingleHandleToDescriptorRange,
     StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor)
 {
-    if (call_info.index == track_dump_resources_.target.set_render_targets_code_index)
+    if (call_info.index == track_dump_resources_.target.set_render_targets_block_index)
     {
         auto descriptor_increment = 0;
         if (RTsSingleHandleToDescriptorRange)
@@ -4956,9 +4956,9 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
     std::vector<graphics::CommandSet> cmd_sets;
     if (options_.enable_dump_resources)
     {
-        auto code_index  = GetCurrentBlockIndex();
+        auto block_index = GetCurrentBlockIndex();
         auto api_call_id = GetCurrentApiCallId();
-        if (track_dump_resources_.target.begin_code_index == code_index)
+        if (track_dump_resources_.target.begin_block_index == block_index)
         {
             auto cmd_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
             auto cmd_list            = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
@@ -4979,17 +4979,17 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
         }
 
         if ((command_list_object_info->capture_id == track_dump_resources_.target.command_list_id) &&
-            (track_dump_resources_.target.begin_code_index <= code_index) &&
-            (track_dump_resources_.target.close_code_index >= code_index))
+            (track_dump_resources_.target.begin_block_index <= block_index) &&
+            (track_dump_resources_.target.close_block_index >= block_index))
         {
             graphics::TrackDumpResources::SplitCommandType split_type =
                 graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall;
 
-            if (code_index == track_dump_resources_.target.drawcall_code_index)
+            if (block_index == track_dump_resources_.target.drawcall_block_index)
             {
                 split_type = graphics::TrackDumpResources::SplitCommandType::kDrawCall;
             }
-            else if (code_index >= track_dump_resources_.target.drawcall_code_index)
+            else if (block_index >= track_dump_resources_.target.drawcall_block_index)
             {
                 split_type = graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall;
             }
@@ -5009,7 +5009,7 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
                 }
                 case format::ApiCall_ID3D12GraphicsCommandList_Close:
                 {
-                    if (track_dump_resources_.target.begin_renderpass_code_index != 0)
+                    if (track_dump_resources_.target.begin_renderpass_block_index != 0)
                     {
                         ID3D12GraphicsCommandList4* command_list4_before;
                         track_dump_resources_
@@ -5082,7 +5082,7 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
                 }
                 case format::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass:
                 {
-                    if (code_index == track_dump_resources_.target.begin_renderpass_code_index)
+                    if (block_index == track_dump_resources_.target.begin_renderpass_block_index)
                     {
                         cmd_sets.insert(cmd_sets.end(),
                                         track_dump_resources_.split_command_sets.begin(),
@@ -5755,7 +5755,7 @@ bool Dx12ReplayConsumerBase::CopyResourceAsyncQueue(const std::vector<format::Ha
                     bool is_update = true;
                     if (i == (size - 1))
                     {
-                        if (state.code_index > track_dump_resources_.target.drawcall_code_index)
+                        if (state.block_index > track_dump_resources_.target.drawcall_block_index)
                         {
                             is_update = false;
                         }

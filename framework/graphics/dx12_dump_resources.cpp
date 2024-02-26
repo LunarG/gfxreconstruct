@@ -100,7 +100,10 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
 
 void Dx12DumpResources::WriteResources(const TrackDumpResources& resources)
 {
-    WriteMetaCommandToFile("resources", [&](auto& jdata) {
+    WriteDrawCallCommandToFile([&](auto& jdata) {
+        util::FieldToJson(jdata["block_index"], resources.target.drawcall_block_index, json_options_);
+        util::FieldToJson(jdata["execute_block_index"], resources.target.execute_block_index, json_options_);
+
         // vertex
         WriteResources(jdata["vertex"], json_options_.data_sub_dir, resources.copy_vertex_resources);
 

@@ -374,7 +374,7 @@ struct ResourceStatesOrder
 {
     D3D12_RESOURCE_TRANSITION_BARRIER transition;
     D3D12_RESOURCE_BARRIER_FLAGS      barrier_flags;
-    uint64_t                          code_index{ 0 };
+    uint64_t                          block_index{ 0 };
 };
 
 struct D3D12CommandListInfo : DxObjectExtraInfo

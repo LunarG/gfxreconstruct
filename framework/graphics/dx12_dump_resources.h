@@ -190,19 +190,18 @@ class Dx12DumpResources
     void WriteBlockStart();
     void WriteBlockEnd();
 
-    constexpr const char* NameMeta() const { return "meta"; }
+    constexpr const char* NameDrawCall() const { return "drawcall"; }
     constexpr const char* NameName() const { return "name"; }
     constexpr const char* NameArgs() const { return "args"; }
 
     template <typename ToJsonFunctionType>
-    inline void WriteMetaCommandToFile(const std::string& command_name, ToJsonFunctionType to_json_function)
+    inline void WriteDrawCallCommandToFile(ToJsonFunctionType to_json_function)
     {
         using namespace util;
         WriteBlockStart();
 
-        nlohmann::ordered_json& meta = json_data_[NameMeta()];
-        meta[NameName()]             = command_name;
-        to_json_function(meta[NameArgs()]);
+        nlohmann::ordered_json& draw_call = json_data_[NameDrawCall()];
+        to_json_function(draw_call);
 
         WriteBlockEnd();
     }
