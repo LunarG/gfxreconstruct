@@ -35,7 +35,6 @@
 #include "vulkan/vulkan.h"
 
 #include <memory>
-#include <optional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -406,7 +405,8 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     std::vector<uint32_t> queue_family_indices{ 0 };
 
     // For virtual swapchain, we want the compression on virtual images to be the same as on the true swapchain
-    std::optional<VkImageCompressionControlEXT> compression_control;
+    std::vector<VkImageCompressionFixedRateFlagsEXT> compression_fixed_rate_flags;
+    std::shared_ptr<VkImageCompressionControlEXT>    compression_control;
 
     // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
     // backing images.
