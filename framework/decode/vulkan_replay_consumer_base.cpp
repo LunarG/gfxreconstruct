@@ -5132,9 +5132,29 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                 const VkImageCompressionControlEXT* compression_control =
                     reinterpret_cast<const VkImageCompressionControlEXT*>(current);
 
-                swapchain_info->compression_control.emplace(*compression_control);
-                swapchain_info->compression_control->pNext = nullptr;
+                swapchain_info->compression_control =
+                    std::make_shared<VkImageCompressionControlEXT>(*compression_control);
+                VkImageCompressionControlEXT* copy_target = swapchain_info->compression_control.get();
 
+                // If the fixed rate flags are present, then create a copy for the internal version of
+                // the structure used to pass to swapchain image creation.
+                if (compression_control->compressionControlPlaneCount > 0 &&
+                    compression_control->pFixedRateFlags != nullptr)
+                {
+                    std::copy(compression_control->pFixedRateFlags,
+                              compression_control->pFixedRateFlags + compression_control->compressionControlPlaneCount,
+                              std::back_inserter(swapchain_info->compression_fixed_rate_flags));
+                    copy_target->pFixedRateFlags = swapchain_info->compression_fixed_rate_flags.data();
+                }
+                else
+                {
+                    // Set everything as if the count was 0 because it could only get here if there was
+                    // nothing in it already, or there was no valid data.
+                    copy_target->compressionControlPlaneCount = 0;
+                    copy_target->pFixedRateFlags              = nullptr;
+                    swapchain_info->compression_fixed_rate_flags.clear();
+                }
+                copy_target->pNext = nullptr;
                 break;
             }
 

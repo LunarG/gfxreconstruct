@@ -393,9 +393,11 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
             VK_IMAGE_LAYOUT_UNDEFINED                                           // initialLayout
         };
 
-        if (swapchain_info->compression_control.has_value())
+        // If compression control structure was present, pass it along to the image
+        // create info.
+        if (swapchain_info->compression_control)
         {
-            image_create_info.pNext = &swapchain_info->compression_control.value();
+            image_create_info.pNext = swapchain_info->compression_control.get();
         }
 
         if ((swapchain_info->image_flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
