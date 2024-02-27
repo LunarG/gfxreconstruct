@@ -60,8 +60,16 @@ if (MSVC)
     endif()
 endif()
 
-find_package(jsoncpp REQUIRED)
-target_link_libraries(gfxrecon-replay jsoncpp::jsoncpp)
+if(MSVC)
+  find_package(jsoncpp REQUIRED)
+  target_link_libraries(gfxrecon-replay jsoncpp::jsoncpp)
+else()
+  if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    target_link_libraries(gfxrecon-replay ${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/x86/libjsoncpp.a)
+  else()
+    target_link_libraries(gfxrecon-replay ${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/x86_64/libjsoncpp.a)
+  endif()
+endif()
 
 # A multithreaded Vulkan driver loaded through dlopen() mechanism
 # won't work if libstdc++ has started in a single-threaded mode.

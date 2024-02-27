@@ -185,6 +185,7 @@ if(MSVC)
                 "set D3D12_SUPPORT=OFF or configure the build with the recommended Windows SDK version. See BUILD.md "
                 "for more information.")
         endif()
+
     else()
         set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
     endif()
@@ -252,7 +253,10 @@ if(NOT LZ4_FOUND)
 endif()# NOT LZ4_FOUND
 
 find_package(ZSTD)
+
+if(MSVC)
 find_package(jsoncpp)
+endif() # MSVC
 
 if(UNIX AND NOT APPLE)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
