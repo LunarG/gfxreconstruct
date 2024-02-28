@@ -803,13 +803,28 @@ class BaseGenerator(OutputGenerator):
         if len:
             # Check for a string or array of strings
             if 'null-terminated' in len:
-                # Strings are ignored, but string arrays are checked for a length value.
-                # For string arrays, 'len' can look like 'count,null-terminated', indicating that we have an array of null terminated
-                # strings.  We strip the null-terminated substring from the 'len' field and only return the parameter specifying the string count.
-                if len != 'null-terminated':
+                if len == 'null-terminated':
+                    paramname = param.find('name')
+                    if (paramname.tail is not None) and ('[' in paramname.tail):
+                        paramenumsizes = param.findall('enum')
+                        for paramenumsize in paramenumsizes:
+                            # If there is more than one we'll pick the last one. But current vk.xml file doesn't have an instance with more than one.
+                            result = paramenumsize.text
+                else:
+                    # For string arrays, 'len' can look like 'count,null-terminated', indicating that we have an array of null terminated
+                    # strings.  We strip the null-terminated substring from the 'len' field and only return the parameter specifying the string count.
                     result = len.split(',')[0]
             else:
-                result = len
+                paramname = param.find('name')
+                # If there is an enum inside "[...]", return the enum
+                if (paramname.tail is not None) and ('[' in paramname.tail):
+                    result = None
+                    paramenumsizes = param.findall('enum')
+                    for paramenumsize in paramenumsizes:
+                        # If there is more than one we'll pick the last one. But current vk.xml file doesn't have an instance with more than one.
+                        result = paramenumsize.text
+                else:
+                    result = len
             if result:
                 result = str(result).replace('::', '->')
         else:
