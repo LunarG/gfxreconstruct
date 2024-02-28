@@ -708,6 +708,9 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12e2),
     ApiCall_vkCmdSetDescriptorBufferOffsets2EXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12e3),
     ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT                                         = MakeApiCallId(ApiFamily_Vulkan, 0x12e4),
+    ApiCall_vkCmdSetRenderingAttachmentLocationsKHR                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12e5),
+    ApiCall_vkCmdSetRenderingInputAttachmentIndicesKHR                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12e6),
+    ApiCall_vkCmdSetLineStippleKHR                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12e7),
 
     ApiCall_VulkanLast,
 
