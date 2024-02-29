@@ -5208,7 +5208,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
         VkResult vk_res = func(
             device_info->handle, original_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
 
-        if (vk_res == VK_SUCCESS)
+        if (vk_res == VK_SUCCESS && options_.dumping_resources)
         {
             ShaderModuleInfo* shader_info = reinterpret_cast<ShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
             PerformReflectionOnShaderModule(shader_info, original_info->codeSize, original_info->pCode);
@@ -5244,7 +5244,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     VkResult vk_res = func(
         device_info->handle, &override_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
 
-    if (vk_res == VK_SUCCESS)
+    if (vk_res == VK_SUCCESS && options_.dumping_resources)
     {
         ShaderModuleInfo* shader_info = reinterpret_cast<ShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
         PerformReflectionOnShaderModule(shader_info, override_info.codeSize, override_info.pCode);
@@ -5572,17 +5572,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
 
         // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
-        if (screenshot_handler_ == nullptr && !options_.dumping_resources)
-        {
-            result = swapchain_->CreateSwapchainKHR(original_result,
-                                                    func,
-                                                    device_info,
-                                                    replay_create_info,
-                                                    GetAllocationCallbacks(pAllocator),
-                                                    pSwapchain,
-                                                    GetDeviceTable(device_info->handle));
-        }
-        else
+        if (screenshot_handler_ != nullptr || options_.dumping_resources)
         {
             // Screenshots and/or dump resources are active, so ensure that swapchain images can be used as a transfer
             // source.
@@ -8371,7 +8361,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     VkResult replay_result = func(
         in_device, in_pipeline_cache, create_info_count, in_p_create_infos, in_p_allocation_callbacks, out_pipelines);
 
-    if (replay_result == VK_SUCCESS)
+    // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
+    if (replay_result == VK_SUCCESS && options_.dumping_resources)
     {
         const Decoded_VkGraphicsPipelineCreateInfo* create_info_meta = pCreateInfos->GetMetaStructPointer();
 
@@ -8379,6 +8370,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
         {
             PipelineInfo* pipeline_info = reinterpret_cast<PipelineInfo*>(pPipelines->GetConsumerData(i));
 
+            // Copy shader stage information
             const Decoded_VkPipelineShaderStageCreateInfo* stages_info_meta =
                 create_info_meta[i].pStages->GetMetaStructPointer();
             const size_t stages_count = create_info_meta->pStages->GetLength();

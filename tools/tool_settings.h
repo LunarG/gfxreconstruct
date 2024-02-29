@@ -1115,7 +1115,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.dump_resources_before       = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
     replay_options.dump_resources_image_format = GetDumpresourcesImageFormat(arg_parser);
     replay_options.dump_resources_scale        = GetDumpResourcesScale(arg_parser);
-    replay_options.dump_resources_output_dir  = GetDumpResourcesDir(arg_parser);
+    replay_options.dump_resources_output_dir   = GetDumpResourcesDir(arg_parser);
+    replay_options.dumping_resources           = !replay_options.dump_resources.empty();
 
     return replay_options;
 }
