@@ -85,7 +85,7 @@ struct VulkanReplayOptions : public ReplayOptions
     util::ScreenshotFormat                          dump_resources_image_format{ util::ScreenshotFormat::kBmp };
 
     // Flag to quickly check whether the feature is enabled or not
-    bool  dumping_resources{ true };
+    bool  dumping_resources{ false };
     bool  dump_resources_before{ false };
     float dump_resources_scale{ 1.0f };
 };
