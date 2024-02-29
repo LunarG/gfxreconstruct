@@ -58,6 +58,25 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
     object_info->extra_info = std::move(extra_info);
 }
 
+void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
+                              D3D12_RESOURCE_STATES        initial_state,
+                              bool                         is_reserved_resource)
+{
+    auto res        = static_cast<ID3D12Resource*>(*resource_decoder->GetHandlePointer());
+    auto extra_info = std::make_unique<D3D12ResourceInfo>();
+
+    extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
+    extra_info->resource_state_infos.resize(extra_info->subresource_count);
+    for (auto& info : extra_info->resource_state_infos)
+    {
+        info.states        = initial_state;
+        info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    }
+    extra_info->is_reserved_resource = is_reserved_resource;
+
+    SetExtraInfo(resource_decoder, std::move(extra_info));
+}
+
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                const DxReplayOptions&                    options) :
     application_(application),
@@ -1251,18 +1270,39 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
     }
     if (SUCCEEDED(replay_result))
     {
-        auto res        = static_cast<ID3D12Resource*>(*resource->GetHandlePointer());
-        auto res_desc   = res->GetDesc();
-        auto extra_info = std::make_unique<D3D12ResourceInfo>();
+        InitialResourceExtraInfo(resource, InitialResourceState, false);
+    }
+    return replay_result;
+}
 
-        extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
-        extra_info->resource_state_infos.resize(extra_info->subresource_count);
-        for (auto& info : extra_info->resource_state_infos)
-        {
-            info.states        = InitialResourceState;
-            info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        }
-        SetExtraInfo(resource, std::move(extra_info));
+HRESULT Dx12ReplayConsumerBase::OverrideCreatePlacedResource(
+    DxObjectInfo*                                      replay_object_info,
+    HRESULT                                            original_result,
+    DxObjectInfo*                                      pHeap,
+    UINT64                                             HeapOffset,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
+    D3D12_RESOURCE_STATES                              InitialState,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   pOptimizedClearValue,
+    Decoded_GUID                                       riid,
+    HandlePointerDecoder<void*>*                       ppvResource)
+{
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (pHeap != nullptr) &&
+                    (pHeap->object != nullptr) && (pDesc != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
+    auto heap          = static_cast<ID3D12Heap*>(pHeap->object);
+
+    auto replay_result = replay_object->CreatePlacedResource(heap,
+                                                             HeapOffset,
+                                                             pDesc->GetPointer(),
+                                                             InitialState,
+                                                             pOptimizedClearValue->GetPointer(),
+                                                             *riid.decoded_value,
+                                                             ppvResource->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(ppvResource, InitialState, false);
     }
     return replay_result;
 }
@@ -1416,18 +1456,39 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource1(
     }
     if (SUCCEEDED(replay_result))
     {
-        auto res        = static_cast<ID3D12Resource*>(*resource->GetHandlePointer());
-        auto res_desc   = res->GetDesc();
-        auto extra_info = std::make_unique<D3D12ResourceInfo>();
+        InitialResourceExtraInfo(resource, InitialResourceState, false);
+    }
+    return replay_result;
+}
 
-        extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
-        extra_info->resource_state_infos.resize(extra_info->subresource_count);
-        for (auto& info : extra_info->resource_state_infos)
-        {
-            info.states        = InitialResourceState;
-            info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        }
-        SetExtraInfo(resource, std::move(extra_info));
+HRESULT Dx12ReplayConsumerBase::OverrideCreatePlacedResource1(
+    DxObjectInfo*                                       replay_object_info,
+    HRESULT                                             original_result,
+    DxObjectInfo*                                       pHeap,
+    UINT64                                              HeapOffset,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
+    D3D12_RESOURCE_STATES                               InitialState,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*    pOptimizedClearValue,
+    Decoded_GUID                                        riid,
+    HandlePointerDecoder<void*>*                        ppvResource)
+{
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (pHeap != nullptr) &&
+                    (pHeap->object != nullptr) && (pDesc != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device8*>(replay_object_info->object);
+    auto heap          = static_cast<ID3D12Heap*>(pHeap->object);
+
+    auto replay_result = replay_object->CreatePlacedResource1(heap,
+                                                              HeapOffset,
+                                                              pDesc->GetPointer(),
+                                                              InitialState,
+                                                              pOptimizedClearValue->GetPointer(),
+                                                              *riid.decoded_value,
+                                                              ppvResource->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(ppvResource, InitialState, false);
     }
     return replay_result;
 }
@@ -1500,18 +1561,43 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource2(
     }
     if (SUCCEEDED(replay_result))
     {
-        auto res        = static_cast<ID3D12Resource*>(*resource->GetHandlePointer());
-        auto res_desc   = res->GetDesc();
-        auto extra_info = std::make_unique<D3D12ResourceInfo>();
+        InitialResourceExtraInfo(resource, InitialResourceState, false);
+    }
+    return replay_result;
+}
 
-        extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
-        extra_info->resource_state_infos.resize(extra_info->subresource_count);
-        for (auto& info : extra_info->resource_state_infos)
-        {
-            info.states        = InitialResourceState;
-            info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        }
-        SetExtraInfo(resource, std::move(extra_info));
+HRESULT Dx12ReplayConsumerBase::OverrideCreatePlacedResource2(
+    DxObjectInfo*                                       replay_object_info,
+    HRESULT                                             original_result,
+    DxObjectInfo*                                       pHeap,
+    UINT64                                              HeapOffset,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
+    D3D12_BARRIER_LAYOUT                                InitialLayout,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*    pOptimizedClearValue,
+    UINT32                                              NumCastableFormats,
+    PointerDecoder<DXGI_FORMAT>*                        pCastableFormats,
+    Decoded_GUID                                        riid,
+    HandlePointerDecoder<void*>*                        ppvResource)
+{
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (pHeap != nullptr) &&
+                    (pHeap->object != nullptr) && (pDesc != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device10*>(replay_object_info->object);
+    auto heap          = static_cast<ID3D12Heap*>(pHeap->object);
+
+    auto replay_result = replay_object->CreatePlacedResource2(heap,
+                                                              HeapOffset,
+                                                              pDesc->GetPointer(),
+                                                              InitialLayout,
+                                                              pOptimizedClearValue->GetPointer(),
+                                                              NumCastableFormats,
+                                                              pCastableFormats->GetPointer(),
+                                                              *riid.decoded_value,
+                                                              ppvResource->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(ppvResource, D3D12_RESOURCE_STATE_COMMON, false);
     }
     return replay_result;
 }
@@ -1589,6 +1675,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource3(
         }
     }
 
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(resource, D3D12_RESOURCE_STATE_COMMON, false);
+    }
     return replay_result;
 }
 
@@ -2293,18 +2383,8 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
             GFXRECON_ASSERT(buffer < swapchain_info->image_ids.size());
             if (swapchain_info->image_ids[buffer] == format::kNullHandleId)
             {
-                auto object_info              = static_cast<DxObjectInfo*>(surface->GetConsumerData(0));
-                auto res                      = static_cast<ID3D12Resource*>(*surface->GetHandlePointer());
-                auto extra_info               = std::make_unique<D3D12ResourceInfo>();
-                extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
-                extra_info->resource_state_infos.resize(extra_info->subresource_count);
-                for (auto& info : extra_info->resource_state_infos)
-                {
-                    info.states        = D3D12_RESOURCE_STATE_PRESENT;
-                    info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                }
-                extra_info->swap_chain_id = replay_object_info->capture_id;
-                SetExtraInfo(surface, std::move(extra_info));
+                auto object_info = static_cast<DxObjectInfo*>(surface->GetConsumerData(0));
+                InitialResourceExtraInfo(surface, D3D12_RESOURCE_STATE_PRESENT, false);
 
                 // Increment the replay reference to prevent the swapchain image info entry from being removed from the
                 // object info table while the swapchain is active.
@@ -3235,7 +3315,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource(
 
     if (SUCCEEDED(replay_result))
     {
-        SetIsReservedResource(resource);
+        InitialResourceExtraInfo(resource, initial_state, true);
     }
 
     return replay_result;
@@ -3272,7 +3352,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource1(
 
     if (SUCCEEDED(replay_result))
     {
-        SetIsReservedResource(resource);
+        InitialResourceExtraInfo(resource, initial_state, true);
     }
 
     return replay_result;
@@ -3313,7 +3393,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource2(
 
     if (SUCCEEDED(replay_result))
     {
-        SetIsReservedResource(resource);
+        InitialResourceExtraInfo(resource, D3D12_RESOURCE_STATE_COMMON, true);
     }
 
     return replay_result;

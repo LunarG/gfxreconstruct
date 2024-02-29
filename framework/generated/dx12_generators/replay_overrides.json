@@ -22,6 +22,7 @@
       "CreateCommandQueue": "OverrideCreateCommandQueue",
       "CreateDescriptorHeap": "OverrideCreateDescriptorHeap",
       "CreateCommittedResource": "OverrideCreateCommittedResource",
+      "CreatePlacedResource": "OverrideCreatePlacedResource",
       "CreateFence": "OverrideCreateFence",
       "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize",
       "CreateHeap": "OverrideCreateHeap",
@@ -53,13 +54,15 @@
       "AddToStateObject": "OverrideAddToStateObject"
     },
     "ID3D12Device8": {
-      "CreateCommittedResource2": "OverrideCreateCommittedResource2"
+      "CreateCommittedResource2": "OverrideCreateCommittedResource2",
+      "CreatePlacedResource1": "OverrideCreatePlacedResource1"
     },
     "ID3D12Device9": {
       "CreateCommandQueue1": "OverrideCreateCommandQueue1"
     },
     "ID3D12Device10": {
       "CreateCommittedResource3": "OverrideCreateCommittedResource3",
+      "CreatePlacedResource2": "OverrideCreatePlacedResource2",
       "CreateReservedResource2": "OverrideCreateReservedResource2"
     },
     "ID3D12DescriptorHeap": {
