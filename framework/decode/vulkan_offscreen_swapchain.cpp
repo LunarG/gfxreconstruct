@@ -103,38 +103,49 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
     if (insert_frame_boundary_)
     {
         VkResult result;
+        command_pools_.resize(device_info->queue_family_index_enabled.size());
+        command_buffers_.resize(device_info->queue_family_index_enabled.size());
 
-        VkCommandPoolCreateInfo commandPoolCreateInfo;
-        commandPoolCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        commandPoolCreateInfo.pNext            = nullptr;
-        commandPoolCreateInfo.queueFamilyIndex = default_queue_family_index_;
-        commandPoolCreateInfo.flags            = 0;
+        for (uint32_t family_index = 0; family_index < device_info->queue_family_index_enabled.size(); family_index++)
+        {
+            if (!device_info->queue_family_index_enabled.at(family_index))
+            {
+                continue;
+            }
 
-        result = device_table_->CreateCommandPool(device, &commandPoolCreateInfo, nullptr, &command_pool_);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
+            VkCommandPoolCreateInfo commandPoolCreateInfo;
+            commandPoolCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            commandPoolCreateInfo.pNext            = nullptr;
+            commandPoolCreateInfo.queueFamilyIndex = family_index;
+            commandPoolCreateInfo.flags            = 0;
 
-        VkCommandBufferAllocateInfo commandBufferAllocateInfo;
-        commandBufferAllocateInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        commandBufferAllocateInfo.pNext              = nullptr;
-        commandBufferAllocateInfo.commandPool        = command_pool_;
-        commandBufferAllocateInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        commandBufferAllocateInfo.commandBufferCount = 1;
+            result = device_table_->CreateCommandPool(
+                device, &commandPoolCreateInfo, nullptr, &command_pools_.at(family_index));
+            GFXRECON_ASSERT(result == VK_SUCCESS);
 
-        result = device_table_->AllocateCommandBuffers(device, &commandBufferAllocateInfo, &command_buffer_);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
+            VkCommandBufferAllocateInfo commandBufferAllocateInfo;
+            commandBufferAllocateInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            commandBufferAllocateInfo.pNext              = nullptr;
+            commandBufferAllocateInfo.commandPool        = command_pools_.at(family_index);
+            commandBufferAllocateInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            commandBufferAllocateInfo.commandBufferCount = 1;
 
-        VkCommandBufferBeginInfo commandBufferBeginInfo;
-        commandBufferBeginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.pNext            = nullptr;
-        commandBufferBeginInfo.flags            = 0;
-        commandBufferBeginInfo.pInheritanceInfo = nullptr;
+            result = device_table_->AllocateCommandBuffers(
+                device, &commandBufferAllocateInfo, &command_buffers_.at(family_index));
+            GFXRECON_ASSERT(result == VK_SUCCESS);
 
-        result = device_table_->BeginCommandBuffer(command_buffer_, &commandBufferBeginInfo);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
+            VkCommandBufferBeginInfo commandBufferBeginInfo;
+            commandBufferBeginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            commandBufferBeginInfo.pNext            = nullptr;
+            commandBufferBeginInfo.flags            = 0;
+            commandBufferBeginInfo.pInheritanceInfo = nullptr;
 
-        result = device_table_->EndCommandBuffer(command_buffer_);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
+            result = device_table_->BeginCommandBuffer(command_buffers_.at(family_index), &commandBufferBeginInfo);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
 
+            result = device_table_->EndCommandBuffer(command_buffers_.at(family_index));
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+        }
         frame_boundary_.sType       = VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT;
         frame_boundary_.pNext       = nullptr;
         frame_boundary_.flags       = VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT;
@@ -161,9 +172,12 @@ void VulkanOffscreenSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    
         CleanSwapchainResourceData(device_info, swapchain_info);
     }
 
-    if (insert_frame_boundary_ && command_pool_ != VK_NULL_HANDLE)
+    if (insert_frame_boundary_ && command_pools_.size() > 0)
     {
-        device_table_->DestroyCommandPool(device_info->handle, command_pool_, nullptr);
+        for (const auto& command_pool : command_pools_)
+        {
+            device_table_->DestroyCommandPool(device_info->handle, command_pool, nullptr);
+        }
     }
 }
 
@@ -276,7 +290,7 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
                                                    const QueueInfo*                      queue_info,
                                                    const VkPresentInfoKHR*               present_info)
 {
-    if (insert_frame_boundary_ && command_buffer_ != VK_NULL_HANDLE)
+    if (insert_frame_boundary_ && command_buffers_.size() > 0)
     {
         std::vector<VkImage> images(present_info->swapchainCount);
         for (uint32_t i = 0; i < images.size(); ++i)
@@ -299,7 +313,7 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
         submitInfo.pWaitSemaphores      = present_info->pWaitSemaphores;
         submitInfo.pWaitDstStageMask    = dstStageFlags.data();
         submitInfo.commandBufferCount   = 1;
-        submitInfo.pCommandBuffers      = &command_buffer_;
+        submitInfo.pCommandBuffers      = &command_buffers_.at(queue_info->family_index);
         submitInfo.signalSemaphoreCount = 0;
         submitInfo.pSignalSemaphores    = nullptr;
 
