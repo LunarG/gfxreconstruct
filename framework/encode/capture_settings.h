@@ -101,7 +101,7 @@ class CaptureSettings
         bool                         page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                         page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
         bool                         page_guard_persistent_memory{ false };
-        bool                         page_guard_align_buffer_sizes{ false };
+        bool                         page_guard_align_buffer_sizes{ true };
         bool                         page_guard_track_ahb_memory{ false };
         bool                         page_guard_unblock_sigsegv{ false };
         bool                         page_guard_signal_handler_watcher{ false };
