@@ -113,6 +113,7 @@ class CaptureSettings
         bool                         queue_zero_only{ false };
         bool                         allow_pipeline_compile_required{ false };
         bool                         quit_after_frame_ranges{ false };
+        uint32_t                     fence_query_delay{ 0 };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a

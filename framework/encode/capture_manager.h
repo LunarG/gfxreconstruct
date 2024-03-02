@@ -167,6 +167,8 @@ class CaptureManager
         return thread_data->block_index_ == 0 ? 0 : thread_data->block_index_ - 1;
     }
 
+    uint32_t GetFenceQueryDelay() const { return fence_query_delay_; }
+
   protected:
     enum CaptureModeFlags : uint32_t
     {
@@ -364,6 +366,7 @@ class CaptureManager
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
     static std::function<void()>            delete_instance_func_;
+    uint32_t                                fence_query_delay_;
 
     struct
     {

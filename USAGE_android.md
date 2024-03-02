@@ -377,6 +377,7 @@ Omit calls with NULL AHardwareBuffer* | debug.gfxrecon.omit_null_hardware_buffer
 Page guard unblock SIGSEGV | debug.gfxrecon.page_guard_unblock_sigsegv | BOOL | When the `page_guard` memory tracking mode is enabled and in the case that SIGSEGV has been marked as blocked in thread's signal mask, setting this enviroment variable to `true` will forcibly re-enable the signal in the thread's signal mask. Default is `false`
 Page guard signal handler watcher | debug.gfxrecon.page_guard_signal_handler_watcher | BOOL | When the `page_guard` memory tracking mode is enabled, setting this enviroment variable to `true` will spawn a thread which will periodically reinstall the `SIGSEGV` handler if it has been replaced by the application being traced. Default is `false`
 Page guard signal handler watcher max restores | debug.gfxrecon.page_guard_signal_handler_watcher_max_restores | INTEGER | Sets the number of times the watcher will attempt to restore the signal handler. Setting it to a negative value will make the watcher thread run indefinitely. Default is `1`
+Delay fence queries | debug.gfxrecon.fence_query_delay | INTEGER | Fences queried using `vkGetFenceStatus` and `vkWaitForFences` won't return `VK_SUCCESS` before a number of such queries and will instead return `VK_NOT_READY` and `VK_TIMEOUT`. Default is `0`.
 
 #### Settings File
 

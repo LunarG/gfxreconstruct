@@ -741,6 +741,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueBindSparse>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetFences>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkResetFences(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceStatus>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult& result, Args... args)
+    {
+        manager->PostProcess_vkGetFenceStatus(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSets>
 {
     template <typename... Args>
