@@ -1310,7 +1310,9 @@ class BaseGenerator(OutputGenerator):
 
         if type_name == 'Handle':
             wrapper_prefix = self.get_handle_wrapper_prefix(value.base_type)
-            method_call += '<{}>'.format(wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper')
+            method_call += '<{}>'.format(
+                wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper'
+            )
 
         if self.is_output_parameter(value) and omit_output_param:
             args.append(omit_output_param)
