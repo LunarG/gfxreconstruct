@@ -56,8 +56,8 @@ from openxr_dispatch_table_generator import OpenXrDispatchTableGenerator, OpenXr
 from openxr_layer_func_table_generator import OpenXrLayerFuncTableGenerator, OpenXrLayerFuncTableGeneratorOptions
 
 # Struct Encoders
-#from openxr_struct_encoders_body_generator import OpenXrStructEncodersBodyGenerator, OpenXrStructEncodersBodyGeneratorOptions
-#from openxr_struct_encoders_header_generator import OpenXrStructEncodersHeaderGenerator, OpenXrStructEncodersHeaderGeneratorOptions
+from openxr_struct_encoders_body_generator import OpenXrStructEncodersBodyGenerator, OpenXrStructEncodersBodyGeneratorOptions
+from openxr_struct_encoders_header_generator import OpenXrStructEncodersHeaderGenerator, OpenXrStructEncodersHeaderGeneratorOptions
 #from encode_pnext_struct_generator import EncodePNextStructGenerator, EncodePNextStructGeneratorOptions
 #from openxr_struct_handle_wrappers_header_generator import OpenXrStructHandleWrappersHeaderGenerator, OpenXrStructHandleWrappersHeaderGeneratorOptions
 #from openxr_struct_handle_wrappers_body_generator import OpenXrStructHandleWrappersBodyGenerator, OpenXrStructHandleWrappersBodyGeneratorOptions
@@ -455,81 +455,122 @@ def make_gen_opts(args):
         )
     ]
 
+    #    gen_opts['generated_openxr_command_buffer_util.h'] = [
+    #        OpenXrCommandBufferUtilHeaderGenerator,
+    #        OpenXrCommandBufferUtilHeaderGeneratorOptions(
+    #            filename='generated_openxr_command_buffer_util.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=True,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_command_buffer_util.cpp'] = [
+    #        OpenXrCommandBufferUtilBodyGenerator,
+    #        OpenXrCommandBufferUtilBodyGeneratorOptions(
+    #            filename='generated_openxr_command_buffer_util.cpp',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
 
-#    gen_opts['generated_openxr_command_buffer_util.h'] = [
-#        OpenXrCommandBufferUtilHeaderGenerator,
-#        OpenXrCommandBufferUtilHeaderGeneratorOptions(
-#            filename='generated_openxr_command_buffer_util.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=True,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_command_buffer_util.cpp'] = [
-#        OpenXrCommandBufferUtilBodyGenerator,
-#        OpenXrCommandBufferUtilBodyGeneratorOptions(
-#            filename='generated_openxr_command_buffer_util.cpp',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
+    #    gen_opts['generated_openxr_struct_handle_wrappers.h'] = [
+    #        OpenXrStructHandleWrappersHeaderGenerator,
+    #        OpenXrStructHandleWrappersHeaderGeneratorOptions(
+    #            filename='generated_openxr_struct_handle_wrappers.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=True,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_struct_handle_wrappers.cpp'] = [
+    #        OpenXrStructHandleWrappersBodyGenerator,
+    #        OpenXrStructHandleWrappersBodyGeneratorOptions(
+    #            filename='generated_openxr_struct_handle_wrappers.cpp',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_struct_trackers.h'] = [
+    #        OpenXrStructTrackersHeaderGenerator,
+    #        OpenXrStructTrackersHeaderGeneratorOptions(
+    #            filename='generated_openxr_struct_trackers.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_struct_trackers.cpp'] = [
+    #        OpenXrStructTrackersBodyGenerator,
+    #        OpenXrStructTrackersBodyGeneratorOptions(
+    #            filename='generated_openxr_struct_trackers.cpp',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+
+    #
+    # Struct encoder generators
+    gen_opts['generated_openxr_struct_encoders.cpp'] = [
+        OpenXrStructEncodersBodyGenerator,
+        OpenXrStructEncodersBodyGeneratorOptions(
+            filename='generated_openxr_struct_encoders.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_struct_encoders.h'] = [
+        OpenXrStructEncodersHeaderGenerator,
+        OpenXrStructEncodersHeaderGeneratorOptions(
+            filename='generated_openxr_struct_encoders.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
 
 
-#    gen_opts['generated_openxr_struct_handle_wrappers.h'] = [
-#        OpenXrStructHandleWrappersHeaderGenerator,
-#        OpenXrStructHandleWrappersHeaderGeneratorOptions(
-#            filename='generated_openxr_struct_handle_wrappers.h',
+#    gen_opts['generated_encode_pnext_struct.cpp'] = [
+#        EncodePNextStructGenerator,
+#        EncodePNextStructGeneratorOptions(
+#            filename='generated_encode_pnext_struct.cpp',
 #            directory=directory,
-#            blacklists=blacklists,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=True,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_struct_handle_wrappers.cpp'] = [
-#        OpenXrStructHandleWrappersBodyGenerator,
-#        OpenXrStructHandleWrappersBodyGeneratorOptions(
-#            filename='generated_openxr_struct_handle_wrappers.cpp',
-#            directory=directory,
-#            blacklists=blacklists,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_struct_trackers.h'] = [
-#        OpenXrStructTrackersHeaderGenerator,
-#        OpenXrStructTrackersHeaderGeneratorOptions(
-#            filename='generated_openxr_struct_trackers.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_struct_trackers.cpp'] = [
-#        OpenXrStructTrackersBodyGenerator,
-#        OpenXrStructTrackersBodyGeneratorOptions(
-#            filename='generated_openxr_struct_trackers.cpp',
-#            directory=directory,
-#            blacklists=blacklists,
 #            prefix_text=prefix_strings + xr_prefix_strings,
 #            protect_file=False,
 #            protect_feature=False,
