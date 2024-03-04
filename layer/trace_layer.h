@@ -29,7 +29,7 @@
 #include "vulkan/vulkan.h"
 
 #ifdef ENABLE_OPENXR_SUPPORT
-#include "openxr.h"
+#include "openxr/openxr.h"
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
