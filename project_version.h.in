@@ -47,6 +47,7 @@
 
 #define GFXRECON_PROJECT_NAME               "GFXReconstruct"
 #define GFXRECON_PROJECT_VULKAN_LAYER_NAME  "VK_LAYER_LUNARG_gfxreconstruct"
+#define GFXRECON_PROJECT_OPENXR_LAYER_NAME  "XR_APILAYER_LUNARG_gfxreconstruct"
 #define GFXRECON_PROJECT_DESCRIPTION        "GFXReconstruct Capture Layer"
 
 #endif // GFXRECON_PROJECT_VERSION_H

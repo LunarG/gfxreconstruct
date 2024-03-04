@@ -123,7 +123,7 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
         self.generate_no_op_funcs()
         self.newline()
 
-        write('struct LayerTable', file=self.outFile)
+        write('struct OpenXrLayerTable', file=self.outFile)
         write('{', file=self.outFile)
         write(
             '    PFN_xrCreateInstance CreateInstance{ nullptr };',
@@ -190,7 +190,7 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
 
     def generate_instance_cmd_table(self):
         """Generate instance dispatch table structure."""
-        write('struct InstanceTable', file=self.outFile)
+        write('struct OpenXrInstanceTable', file=self.outFile)
         write('{', file=self.outFile)
 
         for name in self.instance_cmd_names:
@@ -215,7 +215,7 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
     def generate_load_instance_table_func(self):
         """Generate function to set the instance table's functions with a getprocaddress routine."""
         write(
-            'static void LoadInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance instance, InstanceTable* table)',
+            'static void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance instance, OpenXrInstanceTable* table)',
             file=self.outFile
         )
         write('{', file=self.outFile)
