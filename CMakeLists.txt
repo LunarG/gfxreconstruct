@@ -113,6 +113,7 @@ include("CodeStyle")
 include("Lint")
 include("Test")
 include("FindVulkanVersion")
+include("FindOpenXRVersion")
 
 # Apply misc build directives to the given target
 macro(common_build_directives TARGET)
