@@ -4930,9 +4930,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
                 // We found some existing pipeline cache data has same hash, so we continue to check if it's same with
                 // current pipeline cache data
 
-                const std::vector<PipelineCacheData>& cache_data =
-                    const_cast<PipelineCacheInfo*>(pipeline_cache_info)
-                        ->pipeline_cache_data[capture_pipeline_cache_data_hash];
+                const std::vector<PipelineCacheData>& cache_data = iterator->second;
+
                 for (auto& existing_cache_data : cache_data)
                 {
                     if (cache_data_size == existing_cache_data.capture_cache_data.size())
@@ -5025,8 +5024,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
                 {
                     // We found pipeline cache data vector which has same hash value, will continue to check if it has
                     // same capture time pipeline cache data.
-                    auto& cache_data = const_cast<PipelineCacheInfo*>(pipeline_cache_info)
-                                           ->pipeline_cache_data[capture_pipeline_cache_data_hash_];
+                    auto& cache_data = iterator->second;
 
                     for (auto& existing_cache_data : cache_data)
                     {
