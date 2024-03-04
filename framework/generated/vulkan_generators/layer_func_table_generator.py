@@ -115,7 +115,7 @@ class LayerFuncTableGenerator(BaseGenerator):
         # Manually output the physical device proc address function as its name doesn't
         # match the scheme used by self.LAYER_FUNCTIONS:
         align = 100 - len('vk_layerGetPhysicalDeviceProcAddr')
-        write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
+        write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(VulkanGetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
 
         write('};', file=self.outFile)
         self.newline()
@@ -135,7 +135,7 @@ class LayerFuncTableGenerator(BaseGenerator):
         for cmd in self.get_filtered_cmd_names():
             align = 100 - len(cmd)
             if (cmd in self.LAYER_FUNCTIONS):
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(Vulkan{}) }},'.format(
                     cmd, (' ' * align), cmd[2:]
                 )
             else:
