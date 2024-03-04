@@ -5333,6 +5333,34 @@ void VulkanExportJsonConsumer::Process_vkCmdSetFragmentShadingRateKHR(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkCmdSetRenderingAttachmentLocationsKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfoKHR>* pLocationInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdSetRenderingAttachmentLocationsKHR");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["pLocationInfo"], pLocationInfo, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pLocationInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdSetRenderingInputAttachmentIndicesKHR");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["pLocationInfo"], pLocationInfo, json_options);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkWaitForPresentKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -5978,6 +6006,22 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPrope
         HandleToJson(args["physicalDevice"], physicalDevice, json_options);
         FieldToJson(args["pPropertyCount"], pPropertyCount, json_options);
         FieldToJson(args["pProperties"], pProperties, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdSetLineStippleKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    lineStippleFactor,
+    uint16_t                                    lineStipplePattern)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdSetLineStippleKHR");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["lineStippleFactor"], lineStippleFactor, json_options);
+        FieldToJson(args["lineStipplePattern"], lineStipplePattern, json_options);
     WriteBlockEnd();
 }
 
@@ -9362,20 +9406,6 @@ void VulkanExportJsonConsumer::Process_vkGetPipelineIndirectDeviceAddressNV(
     WriteBlockEnd();
 }
 
-void VulkanExportJsonConsumer::Process_vkCmdSetTessellationDomainOriginEXT(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkTessellationDomainOrigin                  domainOrigin)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdSetTessellationDomainOriginEXT");
-    const JsonOptions& json_options = GetJsonOptions();
-    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
-    auto& args = jdata[NameArgs()];
-        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
-        FieldToJson(args["domainOrigin"], domainOrigin, json_options);
-    WriteBlockEnd();
-}
-
 void VulkanExportJsonConsumer::Process_vkCmdSetDepthClampEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -9527,6 +9557,20 @@ void VulkanExportJsonConsumer::Process_vkCmdSetColorWriteMaskEXT(
         FieldToJson(args["firstAttachment"], firstAttachment, json_options);
         FieldToJson(args["attachmentCount"], attachmentCount, json_options);
         FieldToJson(args["pColorWriteMasks"], pColorWriteMasks, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdSetTessellationDomainOriginEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkTessellationDomainOrigin                  domainOrigin)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdSetTessellationDomainOriginEXT");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["domainOrigin"], domainOrigin, json_options);
     WriteBlockEnd();
 }
 
