@@ -48,8 +48,8 @@ from reg import Registry, etree
 from generator import write
 
 # API Call Encoders
-#from openxr_api_call_encoders_body_generator import OpenXrApiCallEncodersBodyGenerator, OpenXrApiCallEncodersBodyGeneratorOptions
-#from openxr_api_call_encoders_header_generator import OpenXrApiCallEncodersHeaderGenerator, OpenXrApiCallEncodersHeaderGeneratorOptions
+from openxr_api_call_encoders_body_generator import OpenXrApiCallEncodersBodyGenerator, OpenXrApiCallEncodersBodyGeneratorOptions
+from openxr_api_call_encoders_header_generator import OpenXrApiCallEncodersHeaderGenerator, OpenXrApiCallEncodersHeaderGeneratorOptions
 #from openxr_command_buffer_util_body_generator import OpenXrCommandBufferUtilBodyGenerator, OpenXrCommandBufferUtilBodyGeneratorOptions
 #from openxr_command_buffer_util_header_generator import OpenXrCommandBufferUtilHeaderGenerator, OpenXrCommandBufferUtilHeaderGeneratorOptions
 from openxr_dispatch_table_generator import OpenXrDispatchTableGenerator, OpenXrDispatchTableGeneratorOptions
@@ -231,231 +231,231 @@ def make_gen_opts(args):
         )
     ]
 
+    #    #
+    #    # API call decoder generators
+    #    gen_opts['generated_openxr_decoder.cpp'] = [
+    #        OpenXrDecoderBodyGenerator,
+    #        OpenXrDecoderBodyGeneratorOptions(
+    #            filename='generated_openxr_decoder.cpp',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_decoder.h'] = [
+    #        OpenXrDecoderHeaderGenerator,
+    #        OpenXrDecoderHeaderGeneratorOptions(
+    #            filename='generated_openxr_decoder.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=True,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    #
+    #    # Struct decoder generators
+    #    gen_opts['generated_openxr_struct_decoders.cpp'] = [
+    #        OpenXrStructDecodersBodyGenerator,
+    #        OpenXrStructDecodersBodyGeneratorOptions(
+    #            filename='generated_openxr_struct_decoders.cpp',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_struct_decoders_forward.h'] = [
+    #        OpenXrStructDecodersForwardGenerator,
+    #        OpenXrStructDecodersForwardGeneratorOptions(
+    #            filename='generated_openxr_struct_decoders_forward.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=True,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_struct_decoders.h'] = [
+    #        OpenXrStructDecodersHeaderGenerator,
+    #        OpenXrStructDecodersHeaderGeneratorOptions(
+    #            filename='generated_openxr_struct_decoders.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=True,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_decode_pnext_struct.cpp'] = [
+    #        DecodePNextStructGenerator,
+    #        DecodePNextStructGeneratorOptions(
+    #            filename='generated_decode_pnext_struct.cpp',
+    #            directory=directory,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    #
+    #    # Consumer generation
+    #    gen_opts['generated_openxr_consumer.h'] = [
+    #        OpenXrConsumerHeaderGenerator,
+    #        OpenXrConsumerHeaderGeneratorOptions(
+    #            class_name='OpenXrConsumer',
+    #            base_class_header='openxr_consumer_base.h',
+    #            is_override=False,
+    #            filename='generated_openxr_consumer.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=True,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_referenced_resource_consumer.h'] = [
+    #        OpenXrReferencedResourceHeaderGenerator,
+    #        OpenXrReferencedResourceHeaderGeneratorOptions(
+    #            filename='generated_openxr_referenced_resource_consumer.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_replay_consumer.h'] = [
+    #        OpenXrConsumerHeaderGenerator,
+    #        OpenXrConsumerHeaderGeneratorOptions(
+    #            class_name='OpenXrReplayConsumer',
+    #            base_class_header='openxr_replay_consumer_base.h',
+    #            is_override=True,
+    #            constructor_args=
+    #            'std::shared_ptr<application::Application> application, const OpenXrReplayOptions& options',
+    #            filename='generated_openxr_replay_consumer.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=True,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_replay_consumer.cpp'] = [
+    #        OpenXrReplayConsumerBodyGenerator,
+    #        OpenXrReplayConsumerBodyGeneratorOptions(
+    #            filename='generated_openxr_replay_consumer.cpp',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            replay_overrides=replay_overrides,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_referenced_resource_consumer.cpp'] = [
+    #        OpenXrReferencedResourceBodyGenerator,
+    #        OpenXrReferencedResourceBodyGeneratorOptions(
+    #            filename='generated_openxr_referenced_resource_consumer.cpp',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            platform_types=platform_types,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_struct_handle_mappers.h'] = [
+    #        OpenXrStructHandleMappersHeaderGenerator,
+    #        OpenXrStructHandleMappersHeaderGeneratorOptions(
+    #            filename='generated_openxr_struct_handle_mappers.h',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=True,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
+    #
+    #    gen_opts['generated_openxr_struct_handle_mappers.cpp'] = [
+    #        OpenXrStructHandleMappersBodyGenerator,
+    #        OpenXrStructHandleMappersBodyGeneratorOptions(
+    #            filename='generated_openxr_struct_handle_mappers.cpp',
+    #            directory=directory,
+    #            blacklists=blacklists,
+    #            prefix_text=prefix_strings + xr_prefix_strings,
+    #            protect_file=False,
+    #            protect_feature=False,
+    #            extraOpenXrHeaders=extraOpenXrHeaders
+    #        )
+    #    ]
 
-#    #
-#    # API call decoder generators
-#    gen_opts['generated_openxr_decoder.cpp'] = [
-#        OpenXrDecoderBodyGenerator,
-#        OpenXrDecoderBodyGeneratorOptions(
-#            filename='generated_openxr_decoder.cpp',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_decoder.h'] = [
-#        OpenXrDecoderHeaderGenerator,
-#        OpenXrDecoderHeaderGeneratorOptions(
-#            filename='generated_openxr_decoder.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=True,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    #
-#    # Struct decoder generators
-#    gen_opts['generated_openxr_struct_decoders.cpp'] = [
-#        OpenXrStructDecodersBodyGenerator,
-#        OpenXrStructDecodersBodyGeneratorOptions(
-#            filename='generated_openxr_struct_decoders.cpp',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_struct_decoders_forward.h'] = [
-#        OpenXrStructDecodersForwardGenerator,
-#        OpenXrStructDecodersForwardGeneratorOptions(
-#            filename='generated_openxr_struct_decoders_forward.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=True,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_struct_decoders.h'] = [
-#        OpenXrStructDecodersHeaderGenerator,
-#        OpenXrStructDecodersHeaderGeneratorOptions(
-#            filename='generated_openxr_struct_decoders.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=True,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_decode_pnext_struct.cpp'] = [
-#        DecodePNextStructGenerator,
-#        DecodePNextStructGeneratorOptions(
-#            filename='generated_decode_pnext_struct.cpp',
-#            directory=directory,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    #
-#    # Consumer generation
-#    gen_opts['generated_openxr_consumer.h'] = [
-#        OpenXrConsumerHeaderGenerator,
-#        OpenXrConsumerHeaderGeneratorOptions(
-#            class_name='OpenXrConsumer',
-#            base_class_header='openxr_consumer_base.h',
-#            is_override=False,
-#            filename='generated_openxr_consumer.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=True,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_referenced_resource_consumer.h'] = [
-#        OpenXrReferencedResourceHeaderGenerator,
-#        OpenXrReferencedResourceHeaderGeneratorOptions(
-#            filename='generated_openxr_referenced_resource_consumer.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_replay_consumer.h'] = [
-#        OpenXrConsumerHeaderGenerator,
-#        OpenXrConsumerHeaderGeneratorOptions(
-#            class_name='OpenXrReplayConsumer',
-#            base_class_header='openxr_replay_consumer_base.h',
-#            is_override=True,
-#            constructor_args=
-#            'std::shared_ptr<application::Application> application, const OpenXrReplayOptions& options',
-#            filename='generated_openxr_replay_consumer.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=True,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_replay_consumer.cpp'] = [
-#        OpenXrReplayConsumerBodyGenerator,
-#        OpenXrReplayConsumerBodyGeneratorOptions(
-#            filename='generated_openxr_replay_consumer.cpp',
-#            directory=directory,
-#            blacklists=blacklists,
-#            replay_overrides=replay_overrides,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_referenced_resource_consumer.cpp'] = [
-#        OpenXrReferencedResourceBodyGenerator,
-#        OpenXrReferencedResourceBodyGeneratorOptions(
-#            filename='generated_openxr_referenced_resource_consumer.cpp',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_struct_handle_mappers.h'] = [
-#        OpenXrStructHandleMappersHeaderGenerator,
-#        OpenXrStructHandleMappersHeaderGeneratorOptions(
-#            filename='generated_openxr_struct_handle_mappers.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=True,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_struct_handle_mappers.cpp'] = [
-#        OpenXrStructHandleMappersBodyGenerator,
-#        OpenXrStructHandleMappersBodyGeneratorOptions(
-#            filename='generated_openxr_struct_handle_mappers.cpp',
-#            directory=directory,
-#            blacklists=blacklists,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    #
-#    # API call encoder generators
-#    gen_opts['generated_openxr_api_call_encoders.h'] = [
-#        OpenXrApiCallEncodersHeaderGenerator,
-#        OpenXrApiCallEncodersHeaderGeneratorOptions(
-#            filename='generated_openxr_api_call_encoders.h',
-#            directory=directory,
-#            blacklists=blacklists,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=True,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
-#    gen_opts['generated_openxr_api_call_encoders.cpp'] = [
-#        OpenXrApiCallEncodersBodyGenerator,
-#        OpenXrApiCallEncodersBodyGeneratorOptions(
-#            filename='generated_openxr_api_call_encoders.cpp',
-#            directory=directory,
-#            blacklists=blacklists,
-#            capture_overrides=capture_overrides,
-#            platform_types=platform_types,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
+    #
+    # API call encoder generators
+    gen_opts['generated_openxr_api_call_encoders.h'] = [
+        OpenXrApiCallEncodersHeaderGenerator,
+        OpenXrApiCallEncodersHeaderGeneratorOptions(
+            filename='generated_openxr_api_call_encoders.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_api_call_encoders.cpp'] = [
+        OpenXrApiCallEncodersBodyGenerator,
+        OpenXrApiCallEncodersBodyGeneratorOptions(
+            filename='generated_openxr_api_call_encoders.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            capture_overrides=capture_overrides,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+
 #    gen_opts['generated_openxr_command_buffer_util.h'] = [
 #        OpenXrCommandBufferUtilHeaderGenerator,
 #        OpenXrCommandBufferUtilHeaderGeneratorOptions(
