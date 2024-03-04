@@ -61,6 +61,8 @@ from openxr_struct_encoders_header_generator import OpenXrStructEncodersHeaderGe
 from openxr_struct_next_encoders_generator import OpenXrStructNextEncodersGenerator, OpenXrStructNextEncodersGeneratorOptions
 from openxr_struct_handle_wrappers_header_generator import OpenXrStructHandleWrappersHeaderGenerator, OpenXrStructHandleWrappersHeaderGeneratorOptions
 from openxr_struct_handle_wrappers_body_generator import OpenXrStructHandleWrappersBodyGenerator, OpenXrStructHandleWrappersBodyGeneratorOptions
+from openxr_struct_trackers_header_generator import OpenXrStructTrackersHeaderGenerator, OpenXrStructTrackersHeaderGeneratorOptions
+from openxr_struct_trackers_body_generator import OpenXrStructTrackersBodyGenerator, OpenXrStructTrackersBodyGeneratorOptions
 
 # Simple timer functions
 start_time = None
@@ -246,21 +248,7 @@ def make_gen_opts(args):
     ]
 
     #
-    # Struct encoder generators
-    gen_opts['generated_openxr_struct_encoders.cpp'] = [
-        OpenXrStructEncodersBodyGenerator,
-        OpenXrStructEncodersBodyGeneratorOptions(
-            filename='generated_openxr_struct_encoders.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + xr_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extraOpenXrHeaders=extraOpenXrHeaders
-        )
-    ]
-
+    # Struct encoder/wrapper/tracker generators
     gen_opts['generated_openxr_struct_encoders.h'] = [
         OpenXrStructEncodersHeaderGenerator,
         OpenXrStructEncodersHeaderGeneratorOptions(
@@ -275,11 +263,13 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_openxr_struct_next_encoder.cpp'] = [
-        OpenXrStructNextEncodersGenerator,
-        OpenXrStructNextEncodersGeneratorOptions(
-            filename='generated_openxr_struct_next_encoder.cpp',
+    gen_opts['generated_openxr_struct_encoders.cpp'] = [
+        OpenXrStructEncodersBodyGenerator,
+        OpenXrStructEncodersBodyGeneratorOptions(
+            filename='generated_openxr_struct_encoders.cpp',
             directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=False,
             protect_feature=False,
@@ -313,14 +303,37 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_openxr_api_call_encoders.cpp'] = [
-        OpenXrApiCallEncodersBodyGenerator,
-        OpenXrApiCallEncodersBodyGeneratorOptions(
-            filename='generated_openxr_api_call_encoders.cpp',
+    gen_opts['generated_openxr_struct_next_encoder.cpp'] = [
+        OpenXrStructNextEncodersGenerator,
+        OpenXrStructNextEncodersGeneratorOptions(
+            filename='generated_openxr_struct_next_encoder.cpp',
+            directory=directory,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_struct_trackers.h'] = [
+        OpenXrStructTrackersHeaderGenerator,
+        OpenXrStructTrackersHeaderGeneratorOptions(
+            filename='generated_openxr_struct_trackers.h',
             directory=directory,
             blacklists=blacklists,
-            capture_overrides=capture_overrides,
-            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_struct_trackers.cpp'] = [
+        OpenXrStructTrackersBodyGenerator,
+        OpenXrStructTrackersBodyGeneratorOptions(
+            filename='generated_openxr_struct_trackers.cpp',
+            directory=directory,
+            blacklists=blacklists,
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=False,
             protect_feature=False,

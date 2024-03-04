@@ -56,13 +56,8 @@ generate_targets = [
     'generated_openxr_struct_handle_wrappers.h',
     'generated_openxr_struct_handle_wrappers.cpp',
     'generated_openxr_struct_next_encoder.cpp',
-    #    'generated_openxr_struct_trackers.h',
-    #    'generated_openxr_struct_trackers.cpp',
-    #    'generated_vulkan_struct_handle_mappers.h',
-    #    'generated_vulkan_struct_handle_mappers.cpp',
-    #    'generated_openxr_enum_to_string.h',
-    #    'generated_openxr_enum_to_string.cpp',
-    #    'generated_vulkan_state_table.h',
+    'generated_openxr_struct_trackers.h',
+    'generated_openxr_struct_trackers.cpp',
 ]
 
 if __name__ == '__main__':
