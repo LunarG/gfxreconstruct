@@ -1816,7 +1816,7 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
         if (wrapper->mapped_data != nullptr)
         {
             const VkResult result         = VK_SUCCESS;
-            const auto     device_wrapper = wrapper->map_device;
+            const auto     device_wrapper = wrapper->parent_device;
 
             // Map the replay memory.
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);

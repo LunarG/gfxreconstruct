@@ -423,6 +423,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(VkDevice, VkSe
 static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(VkDevice, const VkSemaphoreWaitInfo*, uint64_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkWaitSemaphoresKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(VkDevice, const VkSemaphoreSignalInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSignalSemaphoreKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateKHR(VkCommandBuffer, const VkExtent2D*, const VkFragmentShadingRateCombinerOpKHR[2]) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetFragmentShadingRateKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetRenderingAttachmentLocationsKHR(VkCommandBuffer, const VkRenderingAttachmentLocationInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRenderingAttachmentLocationsKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetRenderingInputAttachmentIndicesKHR(VkCommandBuffer, const VkRenderingInputAttachmentIndexInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRenderingInputAttachmentIndicesKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL WaitForPresentKHR(VkDevice, VkSwapchainKHR, uint64_t, uint64_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkWaitForPresentKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetBufferDeviceAddressKHR was called, resulting in no-op behavior."); return 0; }
 static VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetBufferOpaqueCaptureAddressKHR was called, resulting in no-op behavior."); return 0; }
@@ -461,6 +463,7 @@ static VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer2KHR(VkCommandBuffer, VkBuff
 static VKAPI_ATTR void VKAPI_CALL GetRenderingAreaGranularityKHR(VkDevice, const VkRenderingAreaInfoKHR*, VkExtent2D*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetRenderingAreaGranularityKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceImageSubresourceLayoutKHR(VkDevice, const VkDeviceImageSubresourceInfoKHR*, VkSubresourceLayout2KHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageSubresourceLayoutKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2KHR(VkDevice, VkImage, const VkImageSubresource2KHR*, VkSubresourceLayout2KHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleKHR(VkCommandBuffer, uint32_t, uint16_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetLineStippleKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsKHR(VkDevice, uint32_t, const VkCalibratedTimestampInfoKHR*, uint64_t*, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetCalibratedTimestampsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets2KHR(VkCommandBuffer, const VkBindDescriptorSetsInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindDescriptorSets2KHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdPushConstants2KHR(VkCommandBuffer, const VkPushConstantsInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushConstants2KHR was called, resulting in no-op behavior."); }
@@ -623,7 +626,6 @@ static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetHostMappingVALVE(VkDevice, VkD
 static VKAPI_ATTR void VKAPI_CALL GetPipelineIndirectMemoryRequirementsNV(VkDevice, const VkComputePipelineCreateInfo*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineIndirectMemoryRequirementsNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdUpdatePipelineIndirectBufferNV(VkCommandBuffer, VkPipelineBindPoint, VkPipeline) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdUpdatePipelineIndirectBufferNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetPipelineIndirectDeviceAddressNV(VkDevice, const VkPipelineIndirectDeviceAddressInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineIndirectDeviceAddressNV was called, resulting in no-op behavior."); return 0; }
-static VKAPI_ATTR void VKAPI_CALL CmdSetTessellationDomainOriginEXT(VkCommandBuffer, VkTessellationDomainOrigin) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetTessellationDomainOriginEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetDepthClampEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetDepthClampEnableEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetPolygonModeEXT(VkCommandBuffer, VkPolygonMode) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetPolygonModeEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetRasterizationSamplesEXT(VkCommandBuffer, VkSampleCountFlagBits) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRasterizationSamplesEXT was called, resulting in no-op behavior."); }
@@ -634,6 +636,7 @@ static VKAPI_ATTR void VKAPI_CALL CmdSetLogicOpEnableEXT(VkCommandBuffer, VkBool
 static VKAPI_ATTR void VKAPI_CALL CmdSetColorBlendEnableEXT(VkCommandBuffer, uint32_t, uint32_t, const VkBool32*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetColorBlendEnableEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetColorBlendEquationEXT(VkCommandBuffer, uint32_t, uint32_t, const VkColorBlendEquationEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetColorBlendEquationEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetColorWriteMaskEXT(VkCommandBuffer, uint32_t, uint32_t, const VkColorComponentFlags*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetColorWriteMaskEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetTessellationDomainOriginEXT(VkCommandBuffer, VkTessellationDomainOrigin) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetTessellationDomainOriginEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetRasterizationStreamEXT(VkCommandBuffer, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetRasterizationStreamEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetConservativeRasterizationModeEXT(VkCommandBuffer, VkConservativeRasterizationModeEXT) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetConservativeRasterizationModeEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetExtraPrimitiveOverestimationSizeEXT(VkCommandBuffer, float) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetExtraPrimitiveOverestimationSizeEXT was called, resulting in no-op behavior."); }
@@ -1063,6 +1066,8 @@ struct DeviceTable
     PFN_vkWaitSemaphoresKHR WaitSemaphoresKHR{ noop::WaitSemaphoresKHR };
     PFN_vkSignalSemaphoreKHR SignalSemaphoreKHR{ noop::SignalSemaphoreKHR };
     PFN_vkCmdSetFragmentShadingRateKHR CmdSetFragmentShadingRateKHR{ noop::CmdSetFragmentShadingRateKHR };
+    PFN_vkCmdSetRenderingAttachmentLocationsKHR CmdSetRenderingAttachmentLocationsKHR{ noop::CmdSetRenderingAttachmentLocationsKHR };
+    PFN_vkCmdSetRenderingInputAttachmentIndicesKHR CmdSetRenderingInputAttachmentIndicesKHR{ noop::CmdSetRenderingInputAttachmentIndicesKHR };
     PFN_vkWaitForPresentKHR WaitForPresentKHR{ noop::WaitForPresentKHR };
     PFN_vkGetBufferDeviceAddressKHR GetBufferDeviceAddressKHR{ noop::GetBufferDeviceAddressKHR };
     PFN_vkGetBufferOpaqueCaptureAddressKHR GetBufferOpaqueCaptureAddressKHR{ noop::GetBufferOpaqueCaptureAddressKHR };
@@ -1101,6 +1106,7 @@ struct DeviceTable
     PFN_vkGetRenderingAreaGranularityKHR GetRenderingAreaGranularityKHR{ noop::GetRenderingAreaGranularityKHR };
     PFN_vkGetDeviceImageSubresourceLayoutKHR GetDeviceImageSubresourceLayoutKHR{ noop::GetDeviceImageSubresourceLayoutKHR };
     PFN_vkGetImageSubresourceLayout2KHR GetImageSubresourceLayout2KHR{ noop::GetImageSubresourceLayout2KHR };
+    PFN_vkCmdSetLineStippleKHR CmdSetLineStippleKHR{ noop::CmdSetLineStippleKHR };
     PFN_vkGetCalibratedTimestampsKHR GetCalibratedTimestampsKHR{ noop::GetCalibratedTimestampsKHR };
     PFN_vkCmdBindDescriptorSets2KHR CmdBindDescriptorSets2KHR{ noop::CmdBindDescriptorSets2KHR };
     PFN_vkCmdPushConstants2KHR CmdPushConstants2KHR{ noop::CmdPushConstants2KHR };
@@ -1263,7 +1269,6 @@ struct DeviceTable
     PFN_vkGetPipelineIndirectMemoryRequirementsNV GetPipelineIndirectMemoryRequirementsNV{ noop::GetPipelineIndirectMemoryRequirementsNV };
     PFN_vkCmdUpdatePipelineIndirectBufferNV CmdUpdatePipelineIndirectBufferNV{ noop::CmdUpdatePipelineIndirectBufferNV };
     PFN_vkGetPipelineIndirectDeviceAddressNV GetPipelineIndirectDeviceAddressNV{ noop::GetPipelineIndirectDeviceAddressNV };
-    PFN_vkCmdSetTessellationDomainOriginEXT CmdSetTessellationDomainOriginEXT{ noop::CmdSetTessellationDomainOriginEXT };
     PFN_vkCmdSetDepthClampEnableEXT CmdSetDepthClampEnableEXT{ noop::CmdSetDepthClampEnableEXT };
     PFN_vkCmdSetPolygonModeEXT CmdSetPolygonModeEXT{ noop::CmdSetPolygonModeEXT };
     PFN_vkCmdSetRasterizationSamplesEXT CmdSetRasterizationSamplesEXT{ noop::CmdSetRasterizationSamplesEXT };
@@ -1274,6 +1279,7 @@ struct DeviceTable
     PFN_vkCmdSetColorBlendEnableEXT CmdSetColorBlendEnableEXT{ noop::CmdSetColorBlendEnableEXT };
     PFN_vkCmdSetColorBlendEquationEXT CmdSetColorBlendEquationEXT{ noop::CmdSetColorBlendEquationEXT };
     PFN_vkCmdSetColorWriteMaskEXT CmdSetColorWriteMaskEXT{ noop::CmdSetColorWriteMaskEXT };
+    PFN_vkCmdSetTessellationDomainOriginEXT CmdSetTessellationDomainOriginEXT{ noop::CmdSetTessellationDomainOriginEXT };
     PFN_vkCmdSetRasterizationStreamEXT CmdSetRasterizationStreamEXT{ noop::CmdSetRasterizationStreamEXT };
     PFN_vkCmdSetConservativeRasterizationModeEXT CmdSetConservativeRasterizationModeEXT{ noop::CmdSetConservativeRasterizationModeEXT };
     PFN_vkCmdSetExtraPrimitiveOverestimationSizeEXT CmdSetExtraPrimitiveOverestimationSizeEXT{ noop::CmdSetExtraPrimitiveOverestimationSizeEXT };
@@ -1710,6 +1716,8 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkWaitSemaphoresKHR", &table->WaitSemaphoresKHR);
     LoadFunction(gpa, device, "vkSignalSemaphoreKHR", &table->SignalSemaphoreKHR);
     LoadFunction(gpa, device, "vkCmdSetFragmentShadingRateKHR", &table->CmdSetFragmentShadingRateKHR);
+    LoadFunction(gpa, device, "vkCmdSetRenderingAttachmentLocationsKHR", &table->CmdSetRenderingAttachmentLocationsKHR);
+    LoadFunction(gpa, device, "vkCmdSetRenderingInputAttachmentIndicesKHR", &table->CmdSetRenderingInputAttachmentIndicesKHR);
     LoadFunction(gpa, device, "vkWaitForPresentKHR", &table->WaitForPresentKHR);
     LoadFunction(gpa, device, "vkGetBufferDeviceAddressKHR", &table->GetBufferDeviceAddressKHR);
     LoadFunction(gpa, device, "vkGetBufferOpaqueCaptureAddressKHR", &table->GetBufferOpaqueCaptureAddressKHR);
@@ -1748,6 +1756,7 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetRenderingAreaGranularityKHR", &table->GetRenderingAreaGranularityKHR);
     LoadFunction(gpa, device, "vkGetDeviceImageSubresourceLayoutKHR", &table->GetDeviceImageSubresourceLayoutKHR);
     LoadFunction(gpa, device, "vkGetImageSubresourceLayout2KHR", &table->GetImageSubresourceLayout2KHR);
+    LoadFunction(gpa, device, "vkCmdSetLineStippleKHR", &table->CmdSetLineStippleKHR);
     LoadFunction(gpa, device, "vkGetCalibratedTimestampsKHR", &table->GetCalibratedTimestampsKHR);
     LoadFunction(gpa, device, "vkCmdBindDescriptorSets2KHR", &table->CmdBindDescriptorSets2KHR);
     LoadFunction(gpa, device, "vkCmdPushConstants2KHR", &table->CmdPushConstants2KHR);
@@ -1910,7 +1919,6 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetPipelineIndirectMemoryRequirementsNV", &table->GetPipelineIndirectMemoryRequirementsNV);
     LoadFunction(gpa, device, "vkCmdUpdatePipelineIndirectBufferNV", &table->CmdUpdatePipelineIndirectBufferNV);
     LoadFunction(gpa, device, "vkGetPipelineIndirectDeviceAddressNV", &table->GetPipelineIndirectDeviceAddressNV);
-    LoadFunction(gpa, device, "vkCmdSetTessellationDomainOriginEXT", &table->CmdSetTessellationDomainOriginEXT);
     LoadFunction(gpa, device, "vkCmdSetDepthClampEnableEXT", &table->CmdSetDepthClampEnableEXT);
     LoadFunction(gpa, device, "vkCmdSetPolygonModeEXT", &table->CmdSetPolygonModeEXT);
     LoadFunction(gpa, device, "vkCmdSetRasterizationSamplesEXT", &table->CmdSetRasterizationSamplesEXT);
@@ -1921,6 +1929,7 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdSetColorBlendEnableEXT", &table->CmdSetColorBlendEnableEXT);
     LoadFunction(gpa, device, "vkCmdSetColorBlendEquationEXT", &table->CmdSetColorBlendEquationEXT);
     LoadFunction(gpa, device, "vkCmdSetColorWriteMaskEXT", &table->CmdSetColorWriteMaskEXT);
+    LoadFunction(gpa, device, "vkCmdSetTessellationDomainOriginEXT", &table->CmdSetTessellationDomainOriginEXT);
     LoadFunction(gpa, device, "vkCmdSetRasterizationStreamEXT", &table->CmdSetRasterizationStreamEXT);
     LoadFunction(gpa, device, "vkCmdSetConservativeRasterizationModeEXT", &table->CmdSetConservativeRasterizationModeEXT);
     LoadFunction(gpa, device, "vkCmdSetExtraPrimitiveOverestimationSizeEXT", &table->CmdSetExtraPrimitiveOverestimationSizeEXT);
