@@ -380,6 +380,7 @@ class CommonCaptureManager
     bool                                    queue_zero_only_;
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
+    bool                                    experimental_raytracing_fastforwarding_;
 
     struct
     {

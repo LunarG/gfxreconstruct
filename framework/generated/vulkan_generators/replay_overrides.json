@@ -102,6 +102,14 @@
     "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",
     "vkWaitForPresentKHR": "OverrideWaitForPresentKHR",
     "vkWaitSemaphores": "OverrideWaitSemaphores",
-    "vkFrameBoundaryANDROID": "OverrideFrameBoundaryANDROID"
+    "vkFrameBoundaryANDROID": "OverrideFrameBoundaryANDROID",
+    "vkCmdBuildAccelerationStructuresKHR": "OverrideCmdBuildAccelerationStructuresKHR",
+    "vkCmdCopyAccelerationStructureKHR" : "OverrideCmdCopyAccelerationStructureKHR",
+    "vkCmdWriteAccelerationStructuresPropertiesKHR" : "OverrideCmdWriteAccelerationStructuresPropertiesKHR",
+    "vkDestroyAccelerationStructureKHR": "OverrideDestroyAccelerationStructureKHR",
+    "vkUpdateDescriptorSets": "OverrideUpdateDescriptorSets",
+    "vkCmdCopyQueryPoolResults": "OverrideCmdCopyQueryPoolResults",
+    "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR",
+    "vkCreateRayTracingPipelinesKHR": "OverrideCreateRayTracingPipelinesKHR"
   }
 }

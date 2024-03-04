@@ -160,6 +160,7 @@ struct EventWrapper : public HandleWrapper<VkEvent>
     DeviceWrapper* device{ nullptr };
 };
 
+class BufferWrapper;
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 {
     uint32_t     memory_type_index{ std::numeric_limits<uint32_t>::max() };
@@ -180,8 +181,9 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     format::HandleId hardware_buffer_memory_id{ format::kNullHandleId };
 
     // State tracking info for memory with device addresses.
-    format::HandleId device_id{ format::kNullHandleId };
-    VkDeviceAddress  address{ 0 };
+    format::HandleId                                    device_id{ format::kNullHandleId };
+    VkDeviceAddress                                     address{ 0 };
+    std::unordered_map<VkDeviceAddress, BufferWrapper*> bound_buffers;
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
@@ -480,6 +482,7 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     VkBool32                                          local_dimming_enable_AMD{ false };
 };
 
+// This is not exactly a good type naming, as it is really used as TLAS wrapper exclusively
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
 {
     // State tracking info for buffers with device addresses.
@@ -488,6 +491,26 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
 
     // List of BLASes this AS references. Used only while tracking.
     std::vector<AccelerationStructureKHRWrapper*> blas;
+
+    // Only used when tracking
+    struct AccelerationStructureKHRBuildCommandData
+    {
+        format::HandleId                                      device;
+        VkAccelerationStructureBuildGeometryInfoKHR           geometry_info;
+        HandleUnwrapMemory                                    geometry_info_memory;
+        std::vector<VkAccelerationStructureBuildRangeInfoKHR> build_range_infos;
+        std::vector<VkAccelerationStructureInstanceKHR>       instance_buffer_data;
+    };
+    std::unique_ptr<AccelerationStructureKHRBuildCommandData> latest_update_command_;
+    std::unique_ptr<AccelerationStructureKHRBuildCommandData> latest_build_command_;
+
+    struct AccelerationStructureCopyCommandData
+    {
+        format::HandleId                   device;
+        VkCopyAccelerationStructureInfoKHR info;
+        HandleUnwrapMemory                 p_next_memory;
+    };
+    std::unique_ptr<AccelerationStructureCopyCommandData> latest_copy_command;
 };
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>

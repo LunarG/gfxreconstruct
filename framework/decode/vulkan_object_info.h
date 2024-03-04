@@ -374,6 +374,7 @@ struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
 struct DescriptorUpdateTemplateInfo : public VulkanObjectInfo<VkDescriptorUpdateTemplate>
 {
     std::vector<VkDescriptorType> descriptor_image_types;
+    VkDescriptorUpdateTemplateEntryKHR acceleration_structure_template_entry;
 };
 
 struct DisplayKHRInfo : public VulkanObjectInfo<VkDisplayKHR>

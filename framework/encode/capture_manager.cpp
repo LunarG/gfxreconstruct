@@ -303,6 +303,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     force_command_serialization_     = trace_settings.force_command_serialization;
     queue_zero_only_                 = trace_settings.queue_zero_only;
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
+    experimental_raytracing_fastforwarding_ = trace_settings.experimental_raytracing_fastforwarding;
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -1321,6 +1322,11 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
     {
         buffer += "\n    \"queue-zero-only\": ";
         buffer += queue_zero_only_ ? "true," : "false,";
+    }
+    if (experimental_raytracing_fastforwarding_ != default_settings.experimental_raytracing_fastforwarding)
+    {
+        buffer += "\n    \"experimental-raytracing-fastforwarding\": ";
+        buffer += experimental_raytracing_fastforwarding_ ? "true," : "false,";
     }
 
     if (buffer.empty())

@@ -531,5 +531,52 @@ void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     }
 }
 
+void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
+                                                                             size_t         buffer_size)
+{
+
+    format::HandleId                                                          device_id;
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR> pInfos;
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>   ppRangeInfos;
+
+    std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, buffer_size, &device_id);
+    bytes_read += pInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
+    bytes_read += ppRangeInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
+
+    std::vector<std::vector<VkAccelerationStructureInstanceKHR>> instance_buffers;
+    for (uint32_t i = 0; i < pInfos.GetLength(); ++i)
+    {
+        if (pInfos.GetPointer()[i].type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
+        {
+            instance_buffers.emplace_back(
+                std::vector<VkAccelerationStructureInstanceKHR>(ppRangeInfos.GetPointer()[i]->primitiveCount));
+            std::memcpy(instance_buffers.back().data(),
+                        parameter_buffer + bytes_read,
+                        instance_buffers[i].size() * sizeof(VkAccelerationStructureInstanceKHR));
+        }
+    }
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessBuildVulkanAccelerationStructuresMetaCommand(
+            device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos, instance_buffers);
+    }
+}
+
+void VulkanDecoderBase::DispatchVulkanAccelerationStructuresCopyMetaCommand(const uint8_t* parameter_buffer,
+                                                                            size_t         buffer_size)
+{
+    format::HandleId                                                 device_id;
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR> pInfos;
+
+    std::size_t bytes_read = ValueDecoder::DecodeHandleIdValue(parameter_buffer, buffer_size, &device_id);
+    bytes_read += pInfos.Decode(parameter_buffer + bytes_read, buffer_size - bytes_read);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessCopyVulkanAccelerationStructuresMetaCommand(device_id, &pInfos);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

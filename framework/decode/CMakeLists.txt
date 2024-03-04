@@ -181,6 +181,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_acceleration_structure_builder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_acceleration_structure_builder.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.cpp>

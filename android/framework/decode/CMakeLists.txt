@@ -86,6 +86,9 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_offscreen_swapchain.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_offscreen_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/window.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_acceleration_structure_builder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_acceleration_structure_builder.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_captured_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
