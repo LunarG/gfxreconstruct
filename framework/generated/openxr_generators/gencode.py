@@ -64,6 +64,11 @@ from openxr_struct_handle_wrappers_body_generator import OpenXrStructHandleWrapp
 from openxr_struct_trackers_header_generator import OpenXrStructTrackersHeaderGenerator, OpenXrStructTrackersHeaderGeneratorOptions
 from openxr_struct_trackers_body_generator import OpenXrStructTrackersBodyGenerator, OpenXrStructTrackersBodyGeneratorOptions
 
+# To String
+from openxr_enum_to_string_body_generator import OpenXrEnumToStringBodyGenerator, OpenXrEnumToStringBodyGeneratorOptions
+from openxr_enum_to_string_header_generator import OpenXrEnumToStringHeaderGenerator, OpenXrEnumToStringHeaderGeneratorOptions
+from openxr_state_table_header_generator import OpenXrStateTableHeaderGenerator, OpenXrStateTableHeaderGeneratorOptions
+
 # Simple timer functions
 start_time = None
 
@@ -337,6 +342,50 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=False,
             protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
+    # To string generators
+    gen_opts['generated_openxr_enum_to_string.h'] = [
+        OpenXrEnumToStringHeaderGenerator,
+        OpenXrEnumToStringHeaderGeneratorOptions(
+            filename='generated_openxr_enum_to_string.h',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + xr_prefix_strings,
+            protectFile=True,
+            protectFeature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_enum_to_string.cpp'] = [
+        OpenXrEnumToStringBodyGenerator,
+        OpenXrEnumToStringBodyGeneratorOptions(
+            filename='generated_openxr_enum_to_string.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + xr_prefix_strings,
+            protectFile=False,
+            protectFeature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_state_table.h'] = [
+        OpenXrStateTableHeaderGenerator,
+        OpenXrStateTableHeaderGeneratorOptions(
+            filename='generated_openxr_state_table.h',
+            directory=directory,
+            blacklists=blacklists,
+            platformTypes=platform_types,
+            prefixText=prefix_strings + xr_prefix_strings,
+            protectFile=True,
+            protectFeature=False,
             extraOpenXrHeaders=extraOpenXrHeaders
         )
     ]
