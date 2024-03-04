@@ -53,7 +53,7 @@ generate_targets = [
     'generated_openxr_api_call_encoders.cpp',
     'generated_openxr_struct_encoders.h',
     'generated_openxr_struct_encoders.cpp',
-    #    'generated_openxr_encode_pnext_struct.cpp',
+    'generated_openxr_struct_next_encoder.cpp',
     #    'generated_openxr_struct_handle_wrappers.h',
     #    'generated_openxr_struct_handle_wrappers.cpp',
     #    'generated_openxr_struct_trackers.h',

@@ -25,7 +25,7 @@ import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
-class OpenXrStructPNextEncodersGeneratorOptions(BaseGeneratorOptions):
+class OpenXrStructNextEncodersGeneratorOptions(BaseGeneratorOptions):
     """Eliminates JSON black_lists and platform_types files, which are not necessary for
     pNext switch statement generation.
     Options for OpenXR API pNext structure encoding C++ code generation.
@@ -53,8 +53,8 @@ class OpenXrStructPNextEncodersGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class OpenXrStructPNextEncodersGenerator(BaseGenerator):
-    """OpenXrStructPNextEncodersGenerator - subclass of BaseGenerator.
+class OpenXrStructNextEncodersGenerator(BaseGenerator):
+    """OpenXrStructNextEncodersGenerator - subclass of BaseGenerator.
     Generates C++ code for OpenXR API pNext structure encoding.
     Generate pNext structure encoding C++ code.
     """
@@ -72,7 +72,7 @@ class OpenXrStructPNextEncodersGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Map to store VkStructureType enum values.
+        # Map to store XrStructureType enum values.
         self.type_values = dict()
 
     def beginFile(self, gen_opts):
@@ -99,7 +99,7 @@ class OpenXrStructPNextEncodersGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
         write(
-            'void EncodePNextStruct(ParameterEncoder* encoder, const void* value)',
+            'void EncodeNextStruct(ParameterEncoder* encoder, const void* value)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -116,7 +116,7 @@ class OpenXrStructPNextEncodersGenerator(BaseGenerator):
         )
         write('    while ((base != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        base = base->pNext;', file=self.outFile)
+        write('        base = base->next;', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
         write('    if (base != nullptr)', file=self.outFile)
@@ -126,11 +126,11 @@ class OpenXrStructPNextEncodersGenerator(BaseGenerator):
         write('        default:', file=self.outFile)
         write('            {', file=self.outFile)
         write(
-            '                // pNext is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.',
+            '                // next is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.',
             file=self.outFile
         )
         write(
-            '                int32_t message_size = std::snprintf(nullptr, 0, "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->type);',
+            '                int32_t message_size = std::snprintf(nullptr, 0, "A next value with unrecognized XrStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->type);',
             file=self.outFile
         )
         write(
@@ -138,7 +138,7 @@ class OpenXrStructPNextEncodersGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                std::snprintf(message.get(), (message_size + 1), "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->type);',
+            '                std::snprintf(message.get(), (message_size + 1), "A next value with unrecognized XrStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->type);',
             file=self.outFile
         )
         write(
@@ -150,7 +150,7 @@ class OpenXrStructPNextEncodersGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                EncodePNextStruct(encoder, base->pNext);',
+            '                EncodeNextStruct(encoder, base->next);',
             file=self.outFile
         )
         write('            }', file=self.outFile)
@@ -163,7 +163,7 @@ class OpenXrStructPNextEncodersGenerator(BaseGenerator):
         write('    else', file=self.outFile)
         write('    {', file=self.outFile)
         write(
-            '        // pNext was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.',
+            '        // next was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.',
             file=self.outFile
         )
         write(
@@ -182,7 +182,7 @@ class OpenXrStructPNextEncodersGenerator(BaseGenerator):
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
         if not alias:
-            # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
+            # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a next chain.
             parent_structs = typeinfo.elem.get('structextends')
             if parent_structs:
                 type = self.make_structure_type_enum(typeinfo, typename)

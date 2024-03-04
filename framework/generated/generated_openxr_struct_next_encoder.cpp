@@ -43,7 +43,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
+void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
 {
     assert(encoder != nullptr);
 
@@ -52,7 +52,7 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
     // Ignore the structures added to the pnext chain by the loader.
     while ((base != nullptr)
     {
-        base = base->pNext;
+        base = base->next;
     }
 
     if (base != nullptr)
@@ -61,13 +61,13 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         {
         default:
             {
-                // pNext is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.
-                int32_t message_size = std::snprintf(nullptr, 0, "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->type);
+                // next is unrecognized.  Write warning message to indicate it will be omitted from the capture and check to see if it points to a recognized value.
+                int32_t message_size = std::snprintf(nullptr, 0, "A next value with unrecognized XrStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->type);
                 std::unique_ptr<char[]> message = std::make_unique<char[]>(message_size + 1); // Add 1 for null-terminator.
-                std::snprintf(message.get(), (message_size + 1), "A pNext value with unrecognized VkStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->type);
+                std::snprintf(message.get(), (message_size + 1), "A next value with unrecognized XrStructureType = %d was omitted from the capture file, which may cause replay to fail.", base->type);
                 OpenXrCaptureManager::Get()->WriteDisplayMessageCmd(message.get());
                 GFXRECON_LOG_WARNING("%s", message.get());
-                EncodePNextStruct(encoder, base->pNext);
+                EncodeNextStruct(encoder, base->next);
             }
             break;
         case XR_TYPE_SPACE_VELOCITY:
@@ -408,7 +408,7 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
     }
     else
     {
-        // pNext was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.
+        // next was either NULL or an ignored loader specific struct.  Write an encoding for a NULL pointer.
         encoder->EncodeStructPtrPreamble(nullptr);
     }
 }

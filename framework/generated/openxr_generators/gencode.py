@@ -58,7 +58,7 @@ from openxr_layer_func_table_generator import OpenXrLayerFuncTableGenerator, Ope
 # Struct Encoders
 from openxr_struct_encoders_body_generator import OpenXrStructEncodersBodyGenerator, OpenXrStructEncodersBodyGeneratorOptions
 from openxr_struct_encoders_header_generator import OpenXrStructEncodersHeaderGenerator, OpenXrStructEncodersHeaderGeneratorOptions
-#from encode_pnext_struct_generator import EncodePNextStructGenerator, EncodePNextStructGeneratorOptions
+from openxr_struct_next_encoders_generator import OpenXrStructNextEncodersGenerator, OpenXrStructNextEncodersGeneratorOptions
 #from openxr_struct_handle_wrappers_header_generator import OpenXrStructHandleWrappersHeaderGenerator, OpenXrStructHandleWrappersHeaderGeneratorOptions
 #from openxr_struct_handle_wrappers_body_generator import OpenXrStructHandleWrappersBodyGenerator, OpenXrStructHandleWrappersBodyGeneratorOptions
 #from openxr_struct_trackers_header_generator import OpenXrStructTrackersHeaderGenerator, OpenXrStructTrackersHeaderGeneratorOptions
@@ -565,19 +565,19 @@ def make_gen_opts(args):
         )
     ]
 
+    gen_opts['generated_openxr_struct_next_encoder.cpp'] = [
+        OpenXrStructNextEncodersGenerator,
+        OpenXrStructNextEncodersGeneratorOptions(
+            filename='generated_openxr_struct_next_encoder.cpp',
+            directory=directory,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
 
-#    gen_opts['generated_encode_pnext_struct.cpp'] = [
-#        EncodePNextStructGenerator,
-#        EncodePNextStructGeneratorOptions(
-#            filename='generated_encode_pnext_struct.cpp',
-#            directory=directory,
-#            prefix_text=prefix_strings + xr_prefix_strings,
-#            protect_file=False,
-#            protect_feature=False,
-#            extraOpenXrHeaders=extraOpenXrHeaders
-#        )
-#    ]
-#
+
 #    #
 #    # To string generators
 #    gen_opts['generated_openxr_enum_to_string.h'] = [
