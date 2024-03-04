@@ -333,6 +333,29 @@ class VulkanStateWriter
 
     void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
 
+    void WriteAccelerationStructureBuildMetaCommand(const VulkanStateTable& state_table);
+
+    struct AccelerationStructureBuildCommandData
+    {
+        format::HandleId                                                   device;
+        std::vector<VkAccelerationStructureBuildGeometryInfoKHR>           geometry_infos;
+        std::vector<HandleUnwrapMemory>                                    geometry_info_memory;
+        std::vector<std::vector<VkAccelerationStructureBuildRangeInfoKHR>> build_range_infos;
+        std::vector<std::vector<VkAccelerationStructureInstanceKHR>>       instance_buffers_data;
+    };
+    using AccelerationStructureBuildCommandsContainer =
+        std::unordered_map<format::HandleId, AccelerationStructureBuildCommandData>;
+    void EncodeAccelerationStructureBuildMetaCommand(const AccelerationStructureBuildCommandData& command);
+
+    struct AccelerationStructureCopyCommandData
+    {
+        format::HandleId                                device;
+        std::vector<VkCopyAccelerationStructureInfoKHR> infos;
+    };
+    using AccelerationStructureCopyCommandsContainer =
+        std::unordered_map<format::HandleId, AccelerationStructureCopyCommandData>;
+    void EncodeAccelerationStructureCopyMetaCommand(const AccelerationStructureCopyCommandData& command);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;

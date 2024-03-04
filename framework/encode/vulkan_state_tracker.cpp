@@ -361,52 +361,140 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
     wrapper->bind_pnext     = nullptr;
     wrapper->bind_pnext_memory.Reset();
 
+    DeviceMemoryWrapper* memory_wrapper                                   = GetWrapper<DeviceMemoryWrapper>(memory);
+    memory_wrapper->bound_buffers[memory_wrapper->address + memoryOffset] = wrapper;
+
     if (bind_info_pnext != nullptr)
     {
         wrapper->bind_pnext = TrackStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
     }
 }
 
-void VulkanStateTracker::TrackTLASBuildCommand(
+void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
     VkCommandBuffer                                        command_buffer,
     uint32_t                                               info_count,
     const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
     const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos)
 {
-    if (info_count && infos && pp_buildRange_infos)
+    static uint64_t build_command_index = 0;
+
+    if (info_count == 0 || !infos || !pp_buildRange_infos)
     {
-        CommandBufferWrapper* buf_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+        return;
+    }
 
-        for (uint32_t i = 0; i < info_count; ++i)
+    CommandBufferWrapper*                           cmd_buf_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+    std::vector<AccelerationStructureKHRWrapper*>   wrappers(info_count);
+    std::vector<VkAccelerationStructureInstanceKHR> instance_buffer_data;
+    for (uint32_t i = 0; i < info_count; ++i)
+    {
+        if (infos[i].dstAccelerationStructure == VK_NULL_HANDLE)
         {
-            if (infos[i].type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR &&
-                infos[i].dstAccelerationStructure != VK_NULL_HANDLE && infos[i].geometryCount && infos[i].pGeometries)
+            continue;
+        }
+        if (infos[i].geometryCount == 0 || !infos[i].pGeometries)
+        {
+            continue;
+        }
+
+        wrappers[i] = GetWrapper<AccelerationStructureKHRWrapper>(infos[i].dstAccelerationStructure);
+
+        if (experimental_raytracing_fastforwarding)
+        {
+            // First, differentiate where do we want to write
+            std::unique_ptr<AccelerationStructureKHRWrapper::AccelerationStructureKHRBuildCommandData>*
+                dst_command_ptr = nullptr;
+            if (infos[i].mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR)
             {
-                AccelerationStructureKHRWrapper* tlas_wrapper =
-                    GetWrapper<AccelerationStructureKHRWrapper>(infos[i].dstAccelerationStructure);
-
-                tlas_wrapper->blas.clear();
-
-                for (uint32_t g = 0; g < infos[i].geometryCount; ++g)
-                {
-                    if (infos[i].pGeometries[g].geometryType == VK_GEOMETRY_TYPE_INSTANCES_KHR)
-                    {
-                        const VkDeviceAddress address = infos[i].pGeometries[g].geometry.instances.data.deviceAddress;
-                        const uint32_t        primitive_count = pp_buildRange_infos[i]->primitiveCount;
-                        // According to spec both address and primitiveCount can be 0.
-                        // Nothing to handle in these cases.
-                        if (address && primitive_count)
-                        {
-                            const CommandBufferWrapper::tlas_build_info tlas_info = {
-                                address, primitive_count, pp_buildRange_infos[i]->primitiveOffset
-                            };
-
-                            buf_wrapper->tlas_build_info_map.emplace_back(
-                                std::make_pair(tlas_wrapper, std::move(tlas_info)));
-                        }
-                    }
-                }
+                dst_command_ptr = &wrappers[i]->latest_build_command_;
             }
+            else if (infos[i].mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR)
+            {
+                dst_command_ptr = &wrappers[i]->latest_update_command_;
+            }
+
+            // If there is no information stored - make storage
+            if (!(*dst_command_ptr))
+            {
+                *(dst_command_ptr) =
+                    std::make_unique<AccelerationStructureKHRWrapper::AccelerationStructureKHRBuildCommandData>();
+            }
+
+            // Extract command information for 1 AccelerationStructure
+            (*dst_command_ptr)->device        = wrappers[i]->device_id;
+            (*dst_command_ptr)->geometry_info = infos[i];
+            (*dst_command_ptr)->geometry_info_memory.Reset();
+            auto unwrapped = MakeUnwrapStructs(
+                infos[i].pGeometries, infos[i].geometryCount, &(*dst_command_ptr)->geometry_info_memory);
+            unwrapped->pNext = TrackStruct(unwrapped->pNext, &(*dst_command_ptr)->geometry_info_memory);
+            (*dst_command_ptr)->geometry_info.pGeometries = unwrapped;
+
+            (*dst_command_ptr)->build_range_infos.reserve(infos[i].geometryCount);
+            std::copy(pp_buildRange_infos[i],
+                      pp_buildRange_infos[i] + infos[i].geometryCount,
+                      std::back_inserter((*dst_command_ptr)->build_range_infos));
+
+            // Extract the instance buffer data - relevant only for top level structures
+            if (infos[i].type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
+            {
+                // There is only one instance buffer for TLAS? Can there be more?
+                GFXRECON_ASSERT(infos[i].geometryCount == 1);
+
+                const VkDeviceAddress address = infos[i].pGeometries[0].geometry.instances.data.deviceAddress;
+
+                std::size_t data_size =
+                    sizeof(VkAccelerationStructureInstanceKHR) * pp_buildRange_infos[i]->primitiveCount;
+
+                // Find in which memory the device address is contained
+                auto memory_wrapper = std::find_if(
+                    device_memory_addresses_map.begin(),
+                    device_memory_addresses_map.end(),
+                    [address](const std::pair<VkDeviceAddress, const DeviceMemoryWrapper*>& entry) {
+                        return (entry.first <= address) && ((entry.first + entry.second->allocation_size) > address);
+                    });
+
+                GFXRECON_ASSERT(memory_wrapper != device_memory_addresses_map.end());
+
+                // Find the buffer, which contains this address
+                auto instance_buffer_wrapper = std::find_if(
+                    memory_wrapper->second->bound_buffers.begin(),
+                    memory_wrapper->second->bound_buffers.end(),
+                    [address](const std::pair<VkDeviceAddress, const BufferWrapper*>& entry) {
+                        return (entry.first <= address) && ((entry.first + entry.second->created_size) > address);
+                    });
+                GFXRECON_ASSERT(instance_buffer_wrapper != memory_wrapper->second->bound_buffers.end());
+
+                VkDeviceSize offset = address - instance_buffer_wrapper->first;
+                GFXRECON_ASSERT(offset >= 0);
+                // Pull the instance buffer data from device
+                (*dst_command_ptr)->instance_buffer_data.resize(pp_buildRange_infos[i]->primitiveCount);
+
+                void* mapped;
+                auto  device_handle = instance_buffer_wrapper->second->bind_device->handle;
+                auto  device_table  = GetDeviceTable(device_handle);
+                auto  data_offset   = instance_buffer_wrapper->second->bind_offset + offset;
+
+                device_table->MapMemory(
+                    device_handle, memory_wrapper->second->handle, data_offset, data_size, 0, &mapped);
+                std::memcpy((*dst_command_ptr)->instance_buffer_data.data(), mapped, data_size);
+                device_table->UnmapMemory(device_handle, memory_wrapper->second->handle);
+            }
+        }
+
+        wrappers[i]->blas.clear();
+
+        for (uint32_t g = 0; g < infos[i].geometryCount; ++g)
+        {
+            if (infos[i].pGeometries[g].geometryType != VK_GEOMETRY_TYPE_INSTANCES_KHR)
+            {
+                continue;
+            }
+            const VkDeviceAddress address = infos[i].pGeometries[g].geometry.instances.data.deviceAddress;
+            const CommandBufferWrapper::tlas_build_info tlas_info = { address,
+                                                                      pp_buildRange_infos[i]->primitiveCount,
+                                                                      pp_buildRange_infos[i]->primitiveOffset };
+
+            cmd_buf_wrapper->tlas_build_info_map.emplace_back(std::make_pair(wrappers[i], std::move(tlas_info)));
         }
     }
 }
@@ -1624,6 +1712,29 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
             }
         }
     }
+}
+
+void VulkanStateTracker::TrackAccelerationStructureCopyCommand(VkCommandBuffer                           command_buffer,
+                                                               const VkCopyAccelerationStructureInfoKHR* info)
+{
+    if (!info)
+    {
+        return;
+    }
+    // TODO: Support other types of copies (clone, serialize, deserialize)
+    if (info->mode != VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR)
+    {
+        return;
+    }
+    auto wrapper = GetWrapper<AccelerationStructureKHRWrapper>(info->dst);
+    if (!wrapper->latest_copy_command)
+    {
+        wrapper->latest_copy_command =
+            std::make_unique<AccelerationStructureKHRWrapper::AccelerationStructureCopyCommandData>();
+    }
+    wrapper->latest_copy_command->device     = wrapper->device_id;
+    wrapper->latest_copy_command->info       = *info;
+    wrapper->latest_copy_command->info.pNext = TrackStruct(info->pNext, &wrapper->latest_copy_command->p_next_memory);
 }
 
 GFXRECON_END_NAMESPACE(encode)

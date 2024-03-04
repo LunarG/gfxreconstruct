@@ -192,6 +192,10 @@ class ApiDecoder
 
     virtual void DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
                                                         const std::vector<format::HandleId>& blases){};
+    virtual void DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
+                                                                      size_t         buffer_size){};
+    virtual void DispatchVulkanAccelerationStructuresCopyMetaCommand(const uint8_t* parameter_buffer,
+                                                                     size_t         buffer_size){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

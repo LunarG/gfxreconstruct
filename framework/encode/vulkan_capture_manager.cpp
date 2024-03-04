@@ -935,11 +935,23 @@ void VulkanCaptureManager::OverrideCmdBuildAccelerationStructuresKHR(
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        state_tracker_->TrackTLASBuildCommand(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+        state_tracker_->TrackAccelerationStructureBuildCommand(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
     }
 
     const DeviceTable* device_table = GetDeviceTable(commandBuffer);
     device_table->CmdBuildAccelerationStructuresKHR(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+}
+
+void VulkanCaptureManager::OverrideCmdCopyAccelerationStructureKHR(VkCommandBuffer command_buffer,
+                                                                   const VkCopyAccelerationStructureInfoKHR* pInfo)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackAccelerationStructureCopyCommand(command_buffer, pInfo);
+    }
+
+    const DeviceTable* device_table = GetDeviceTable(command_buffer);
+    device_table->CmdCopyAccelerationStructureKHR(command_buffer, pInfo);
 }
 
 VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                     device,
@@ -2609,6 +2621,21 @@ void VulkanCaptureManager::PostProcess_vkCmdDebugMarkerInsertEXT(VkCommandBuffer
     {
         // Look for the debug marker that identifies this command buffer as a VR frame boundary.
         if (util::platform::StringContains(pMarkerInfo->pMarkerName, graphics::kVulkanVrFrameDelimiterString))
+        {
+            auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(commandBuffer);
+            GFXRECON_ASSERT(cmd_buffer_wrapper != nullptr);
+            cmd_buffer_wrapper->is_frame_boundary = true;
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
+                                                                     const VkDebugUtilsLabelEXT* pLabelInfo)
+{
+    if (pLabelInfo != nullptr)
+    {
+        // Look for the label that identifies this command buffer as a VR frame boundary.
+        if (util::platform::StringContains(pLabelInfo->pLabelName, graphics::kVulkanVrFrameDelimiterString))
         {
             auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(commandBuffer);
             GFXRECON_ASSERT(cmd_buffer_wrapper != nullptr);

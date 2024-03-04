@@ -101,6 +101,14 @@
     "vkCreateFramebuffer": "OverrideCreateFramebuffer",
     "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",
     "vkWaitForPresentKHR": "OverrideWaitForPresentKHR",
-    "vkWaitSemaphores": "OverrideWaitSemaphores"
+    "vkWaitSemaphores": "OverrideWaitSemaphores",
+    "vkCmdBuildAccelerationStructuresKHR": "OverrideCmdBuildAccelerationStructuresKHR",
+    "vkCmdCopyAccelerationStructureKHR" : "OverrideCmdCopyAccelerationStructureKHR",
+    "vkCmdWriteAccelerationStructuresPropertiesKHR" : "OverrideCmdWriteAccelerationStructuresPropertiesKHR",
+    "vkDestroyAccelerationStructureKHR": "OverrideDestroyAccelerationStructureKHR",
+    "vkUpdateDescriptorSets": "OverrideUpdateDescriptorSets",
+    "vkCmdCopyQueryPoolResults": "OverrideCmdCopyQueryPoolResults",
+    "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR",
+    "vkCreateRayTracingPipelinesKHR": "OverrideCreateRayTracingPipelinesKHR"
   }
 }

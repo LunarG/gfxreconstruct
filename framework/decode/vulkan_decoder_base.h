@@ -197,6 +197,11 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
+    virtual void DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
+                                                                      size_t         buffer_size) override;
+    virtual void DispatchVulkanAccelerationStructuresCopyMetaCommand(const uint8_t* parameter_buffer,
+                                                                     size_t         buffer_size) override;
+
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
 

@@ -4221,6 +4221,17 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    height,
         uint32_t                                    depth) override;
 
+    virtual void Process_vkCreateRayTracingPipelinesKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        format::HandleId                            pipelineCache,
+        uint32_t                                    createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkPipeline>*           pPipelines) override;
+
     virtual void Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,

@@ -387,10 +387,11 @@ class VulkanStateTracker
                                                     VkAccelerationStructureKHR accel_struct,
                                                     VkDeviceAddress            address);
 
-    void TrackTLASBuildCommand(VkCommandBuffer                                        command_buffer,
-                               uint32_t                                               info_count,
-                               const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
-                               const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
+    void
+    TrackAccelerationStructureBuildCommand(VkCommandBuffer                                        command_buffer,
+                                           uint32_t                                               info_count,
+                                           const VkAccelerationStructureBuildGeometryInfoKHR*     infos,
+                                           const VkAccelerationStructureBuildRangeInfoKHR* const* pp_buildRange_infos);
 
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
 
@@ -409,6 +410,11 @@ class VulkanStateTracker
     void TrackSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable);
 
     void TrackTlasToBlasDependencies(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
+
+    void SetExperimentalRaytracingFastforwarding(bool value) { experimental_raytracing_fastforwarding = value; };
+
+    void TrackAccelerationStructureCopyCommand(VkCommandBuffer                           command_buffer,
+                                               const VkCopyAccelerationStructureInfoKHR* info);
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
@@ -485,6 +491,8 @@ class VulkanStateTracker
 
     // Keeps track of acceleration structures' device addresses
     std::unordered_map<VkDeviceAddress, AccelerationStructureKHRWrapper*> as_device_addresses_map;
+
+    bool experimental_raytracing_fastforwarding{ false };
 };
 
 GFXRECON_END_NAMESPACE(encode)
