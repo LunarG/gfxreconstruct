@@ -2,9 +2,11 @@ import sys
 import os
 import subprocess
 import json
+import urllib.request
 
 script_name = os.path.basename(__file__)
 GFXR_CONVERT_NAME = "gfxrecon-convert.exe"
+VK_XML_URL = "https://github.com/KhronosGroup/Vulkan-Docs/raw/main/xml/vk.xml"
 
 # Print usage instructions
 def usage():
@@ -44,6 +46,10 @@ if __name__ == "__main__":
         usage()
         print("Error: missing path to capture")
         exit(-1)
+
+    #Download current vk.xml
+    (tmp_xml_path, _) = urllib.request.urlretrieve(VK_XML_URL)
+    print(tmp_xml_path)
 
     capture_path = sys.argv[1]
     convert_tool_path = os.path.join(os.path.dirname(__file__), GFXR_CONVERT_NAME)
