@@ -43,6 +43,10 @@ void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory
 {
     if (value != nullptr)
     {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
     }
 }
 
@@ -388,6 +392,10 @@ void UnwrapStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap
 {
     if (value != nullptr)
     {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
     }
 }
 #ifdef XR_USE_PLATFORM_ML
@@ -593,6 +601,10 @@ void UnwrapStructHandles(XrCompositionLayerPassthroughHTC* value, HandleUnwrapMe
 {
     if (value != nullptr)
     {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
     }
 }
 
@@ -647,7 +659,7 @@ void UnwrapStructHandles(XrEventDataUserPresenceChangedEXT* value, HandleUnwrapM
     }
 }
 
-XrBaseInStructure* CopyPNextStruct(const XrBaseInStructure* base, HandleUnwrapMemory* unwrap_memory)
+XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMemory* unwrap_memory)
 {
     assert(base != nullptr);
 
@@ -655,7 +667,7 @@ XrBaseInStructure* CopyPNextStruct(const XrBaseInStructure* base, HandleUnwrapMe
     switch (base->type)
     {
     default:
-        GFXRECON_LOG_WARNING("Failed to copy entire pNext chain when unwrapping handles due to unrecognized type %d", base->type);
+        GFXRECON_LOG_WARNING("Failed to copy entire next chain when unwrapping handles due to unrecognized type %d", base->type);
         break;
     case XR_TYPE_SPACE_VELOCITY:
         copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrSpaceVelocity*>(base), 1, unwrap_memory));
@@ -974,7 +986,7 @@ XrBaseInStructure* CopyPNextStruct(const XrBaseInStructure* base, HandleUnwrapMe
     return copy;
 }
 
-const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)
+const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -985,10 +997,10 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
         default:
         {
             // This structure does not contain handles, but may point to a structure that does.
-            XrBaseInStructure* copy = CopyPNextStruct(base, unwrap_memory);
+            XrBaseInStructure* copy = CopyNextStruct(base, unwrap_memory);
             if (copy != nullptr)
             {
-                copy->pNext = reinterpret_cast<const XrBaseInStructure*>(UnwrapPNextStructHandles(base->pNext, unwrap_memory));
+                copy->next = reinterpret_cast<const XrBaseInStructure*>(UnwrapNextStructHandles(base->next, unwrap_memory));
             }
             return copy;
         }
