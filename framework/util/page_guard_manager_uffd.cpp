@@ -246,7 +246,7 @@ bool PageGuardManager::UffdInit()
     return true;
 }
 
-bool PageGuardManager::UffdHandleFault(uint64_t address, uint64_t flags, bool wake_thread, pid_t tid)
+bool PageGuardManager::UffdHandleFault(uint64_t address, uint64_t flags, bool wake_thread, uint64_t tid)
 {
     assert(protection_mode_ == kUserFaultFdMode);
 
@@ -461,7 +461,7 @@ void* PageGuardManager::UffdHandlerThread(void* args)
                 UffdHandleFault(msg[i].arg.pagefault.address,
                                 msg[i].arg.pagefault.flags,
                                 n_messages == 1,
-                                static_cast<pid_t>(msg[i].arg.pagefault.feat.ptid));
+                                static_cast<uint64_t>(msg[i].arg.pagefault.feat.ptid));
             }
         }
 

@@ -278,10 +278,12 @@ inline uint64_t GetCurrentThreadId()
 #endif
 }
 
-inline int SendSignalToThread(pid_t tid, int signal)
+#if !defined(__APPLE__)
+inline int SendSignalToThread(uint64_t tid, int signal)
 {
     return syscall(SYS_tgkill, getpid(), tid, signal);
 }
+#endif
 
 inline void TriggerDebugBreak()
 {

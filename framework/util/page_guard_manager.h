@@ -43,7 +43,7 @@
 #include <pthread.h>
 #endif
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(__APPLE__)
 #define USERFAULTFD_SUPPORTED 0
 #else
 #include <linux/userfaultfd.h>
@@ -206,7 +206,7 @@ class PageGuardManager
 
 #if USERFAULTFD_SUPPORTED == 1
         // Keep a list of all the threads that accessed this region. Only useful for Userfaultfd method
-        std::unordered_set<pid_t> uffd_fault_causing_threads;
+        std::unordered_set<uint64_t> uffd_fault_causing_threads;
 #endif
 
 #if defined(WIN32)
@@ -314,7 +314,7 @@ class PageGuardManager
     bool         UffdSetSignalHandler();
     void         UffdRemoveSignalHandler();
     bool         UffdStartHandlerThread();
-    bool         UffdHandleFault(uint64_t address, uint64_t flags, bool wake_thread, pid_t tid);
+    bool         UffdHandleFault(uint64_t address, uint64_t flags, bool wake_thread, uint64_t tid);
     bool         UffdWakeFaultingThread(uint64_t address);
     void         UffdSignalHandler(int sig);
     void*        UffdHandlerThread(void* args);
