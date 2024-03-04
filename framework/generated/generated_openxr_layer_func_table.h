@@ -41,7 +41,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-const std::unordered_map<std::string, PFN_xrVoidFunction> func_table = {
+const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
     { "xrGetInstanceProcAddr",                                                                               reinterpret_cast<PFN_xrVoidFunction>(encode::GetInstanceProcAddr) },
     { "xrEnumerateApiLayerProperties",                                                                       reinterpret_cast<PFN_xrVoidFunction>(encode::EnumerateApiLayerProperties) },
     { "xrEnumerateInstanceExtensionProperties",                                                              reinterpret_cast<PFN_xrVoidFunction>(encode::EnumerateInstanceExtensionProperties) },

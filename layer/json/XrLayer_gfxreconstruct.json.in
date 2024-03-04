@@ -1,0 +1,14 @@
+{
+    "file_format_version": "1.0.0",
+    "api_layer": {
+        "name": "XR_APILAYER_LUNARG_gfxreconstruct",
+        "library_path": "@RELATIVE_LAYER_BINARY@",
+        "api_version" : "@XR_VERSION@",
+        "implementation_version" : "@GFXRECONSTRUCT_VERSION@",
+        "description": "GFXReconstruct Capture Layer Version @GFXRECONSTRUCT_VERSION_STRING@",
+        "functions": {
+            "xrNegotiateLoaderApiLayerInterface":
+                "GFXR_xrNegotiateLoaderApiLayerInterface"
+        }
+    }
+}
