@@ -114,6 +114,20 @@ include("Lint")
 include("Test")
 include("FindVulkanVersion")
 
+set(OPENXR_SUPPORT_ENABLED FALSE)
+
+option(GFXRECON_ENABLE_OPENXR "Enable OpenXR support." OFF)
+if (GFXRECON_ENABLE_OPENXR)
+    include("FindOpenXRVersion")
+
+    if ((NOT XR_VERSION_MAJOR STREQUAL "") AND (NOT XR_VERSION_MINOR STREQUAL ""))
+        set(OPENXR_SUPPORT_ENABLED TRUE)
+    else()
+        message(WARNING "Failed to find OpenXR headers for support.  Continuing with it disabled!")
+    endif()
+
+endif()
+
 # Apply misc build directives to the given target
 macro(common_build_directives TARGET)
     target_code_style_build_directives(${TARGET})
@@ -336,6 +350,12 @@ target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_
 
 add_library(spirv_registry INTERFACE)
 target_include_directories(spirv_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/SPIRV-Headers/include)
+
+add_library(openxr_headers INTERFACE)
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(openxr_headers INTERFACE ${CMAKE_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(openxr_headers INTERFACE XR_NO_PROTOTYPES ENABLE_OPENXR_SUPPORT=1)
+endif()
 
 add_library(vulkan_memory_allocator INTERFACE)
 target_compile_options(vulkan_memory_allocator INTERFACE

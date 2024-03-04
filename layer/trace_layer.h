@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -27,6 +27,10 @@
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
+
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr.h"
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 

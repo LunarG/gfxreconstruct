@@ -249,9 +249,9 @@ void UnwrapStructHandles(XrPlaneDetectorGetInfoEXT* value, HandleUnwrapMemory* u
 
 void UnwrapStructHandles(XrEventDataUserPresenceChangedEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-XrBaseInStructure* CopyPNextStruct(const XrBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);
+XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);
 
-const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
+const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 
 template <typename ParentWrapper, typename CoParentWrapper>
 void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrSpaceQueryResultsFB* value, PFN_GetHandleId get_id)

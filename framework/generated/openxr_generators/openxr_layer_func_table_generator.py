@@ -100,7 +100,7 @@ class OpenXrLayerFuncTableGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         self.newline()
         write(
-            'const std::unordered_map<std::string, PFN_xrVoidFunction> func_table = {',
+            'const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {',
             file=self.outFile
         )
 

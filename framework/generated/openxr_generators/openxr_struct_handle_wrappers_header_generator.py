@@ -103,12 +103,12 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
         """Method override."""
         self.newline()
         write(
-            'XrBaseInStructure* CopyPNextStruct(const XrBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);',
+            'XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);',
             file=self.outFile
         )
         self.newline()
         write(
-            'const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);',
+            'const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);',
             file=self.outFile
         )
         self.newline()
@@ -289,16 +289,16 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
                         )
                 else:
                     if member.is_array:
-                        body += '        CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedOpenXrHandles<ParentWrapper, CoParentWrapper, openxr_wrappers::{}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
                             member.base_type[2:], member.name,
                             member.array_length
                         )
                     elif member.is_pointer:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedOpenXrHandle<ParentWrapper, CoParentWrapper, openxr_wrappers::{}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
                             member.base_type[2:], member.name
                         )
                     else:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedOpenXrHandle<ParentWrapper, CoParentWrapper, openxr_wrappers::{}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
                             member.base_type[2:], member.name
                         )
 

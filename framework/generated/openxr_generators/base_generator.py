@@ -1253,7 +1253,7 @@ class BaseGenerator(OutputGenerator):
                 handle_type_name += self.get_generic_cmd_handle_type_value(
                     name, value.name
                 )
-            arg_name = 'GetWrappedId({}, {})'.format(
+            arg_name = 'GetOpenXrWrappedId({}, {})'.format(
                 arg_name, handle_type_name
             )
 
