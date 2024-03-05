@@ -329,6 +329,15 @@ add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
+add_library(openxr_headers INTERFACE)
+if ((NOT XR_VERSION_MAJOR STREQUAL "") AND (NOT XR_VERSION_MINOR STREQUAL ""))
+    target_include_directories(openxr_headers INTERFACE ${CMAKE_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(openxr_headers INTERFACE XR_NO_PROTOTYPES ENABLE_OPENXR_SUPPORT=1)
+else()
+    Message(WARNING "Building with OpenXR support disabled!")
+endif()
+
+
 add_library(vulkan_memory_allocator INTERFACE)
 target_compile_options(vulkan_memory_allocator INTERFACE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:

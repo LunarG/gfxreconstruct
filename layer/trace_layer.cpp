@@ -33,6 +33,9 @@
 #include "util/platform.h"
 
 #include "vulkan/vk_layer.h"
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr_loader_negotiation.h"
+#endif
 
 #include <array>
 #include <cstring>
@@ -556,6 +559,104 @@ VKAPI_ATTR VkResult VKAPI_CALL VulkanEnumerateDeviceLayerProperties(VkPhysicalDe
     return VulkanEnumerateInstanceLayerProperties(pPropertyCount, pProperties);
 }
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
+XRAPI_ATTR XrResult XRAPI_CALL OpenXrEnumerateInstanceExtensionProperties(const char*            layerName,
+                                                                          uint32_t               propertyCapacityInput,
+                                                                          uint32_t*              propertyCountOutput,
+                                                                          XrExtensionProperties* properties)
+{
+    if (strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME))
+    {
+        return XR_ERROR_VALIDATION_FAILURE;
+    }
+    *propertyCountOutput = 0;
+    return XR_SUCCESS;
+}
+
+struct OpenXrInstanceInfo
+{
+    void*                     loader_instance;
+    PFN_xrGetInstanceProcAddr next_gipa;
+    std::vector<std::string>  enabled_extensions;
+};
+static std::unordered_map<XrInstance, OpenXrInstanceInfo> xr_instance_infos;
+
+XRAPI_ATTR XrResult XRAPI_CALL OpenXrCreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                            const XrApiLayerCreateInfo* apiLayerInfo,
+                                                            XrInstance*                 instance)
+{
+    if (info == nullptr || apiLayerInfo == nullptr || apiLayerInfo->nextInfo == nullptr || instance == nullptr)
+    {
+        return XR_ERROR_VALIDATION_FAILURE;
+    }
+    XrApiLayerNextInfo* next_info = apiLayerInfo->nextInfo;
+    if (strcmp(next_info->layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME))
+    {
+        return XR_ERROR_NAME_INVALID;
+    }
+    XrApiLayerCreateInfo next_layer_create_info;
+    assert(apiLayerInfo->structSize == sizeof(XrApiLayerCreateInfo));
+    memcpy(&next_layer_create_info, apiLayerInfo, sizeof(XrApiLayerCreateInfo));
+    next_layer_create_info.nextInfo = next_info->next;
+    XrResult result                 = next_info->nextCreateApiLayerInstance(info, &next_layer_create_info, instance);
+    if (result == XR_SUCCESS)
+    {
+        OpenXrInstanceInfo cur_instance_info;
+        cur_instance_info.loader_instance = apiLayerInfo->loaderInstance;
+        cur_instance_info.next_gipa       = next_info->nextGetInstanceProcAddr;
+        for (uint32_t iii = 0; iii < info->enabledExtensionCount; ++iii)
+        {
+            cur_instance_info.enabled_extensions.push_back(info->enabledExtensionNames[iii]);
+        }
+        gfxrecon::xr_instance_infos[*instance] = std::move(cur_instance_info);
+    }
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL OpenXrGetInstanceProcAddr(XrInstance          instance,
+                                                         const char*         name,
+                                                         PFN_xrVoidFunction* function)
+{
+    XrResult result = XR_ERROR_FUNCTION_UNSUPPORTED;
+
+    // These first functions are valid whether or not the instance is
+    if (!strcmp(name, "xrGetInstanceProcAddr"))
+    {
+        *function = reinterpret_cast<PFN_xrVoidFunction>(OpenXrGetInstanceProcAddr);
+        result    = XR_SUCCESS;
+    }
+    else if (!strcmp(name, "xrEnumerateInstanceExtensionProperties"))
+    {
+        *function = reinterpret_cast<PFN_xrVoidFunction>(OpenXrEnumerateInstanceExtensionProperties);
+        result    = XR_SUCCESS;
+    }
+    else if (!strcmp(name, "xrCreateApiLayerInstance"))
+    {
+        *function = reinterpret_cast<PFN_xrVoidFunction>(OpenXrCreateApiLayerInstance);
+        result    = XR_SUCCESS;
+    }
+    // Everything past this point requires an instance, so if it's not valid by now,
+    // return an error
+    else if (instance == XR_NULL_HANDLE || xr_instance_infos.find(instance) == xr_instance_infos.end())
+    {
+        *function = nullptr;
+        result    = XR_ERROR_HANDLE_INVALID;
+    }
+    else
+    {
+        const OpenXrInstanceInfo& info = xr_instance_infos[instance];
+
+        // If we reach the end and don't support it, return the next layer/loader function
+        if (result == XR_ERROR_FUNCTION_UNSUPPORTED)
+        {
+            result = info.next_gipa(instance, name, function);
+        }
+    }
+    return result;
+}
+#endif // ENABLE_OPENXR_SUPPORT
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 // To be safe, we extern "C" these items to remove name mangling for all the items we want to export for Android and old
@@ -628,5 +729,43 @@ extern "C"
         assert(physicalDevice == VK_NULL_HANDLE);
         return gfxrecon::VulkanEnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
     }
+
+#ifdef ENABLE_OPENXR_SUPPORT
+    XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderApiLayerInterface(const XrNegotiateLoaderInfo* loaderInfo,
+                                                                      const char*                  layerName,
+                                                                      XrNegotiateApiLayerRequest*  apiLayerRequest)
+    {
+        // Wrong layer name or something wrong with incoming structs
+        if (layerName == nullptr || strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME) || loaderInfo == nullptr ||
+            apiLayerRequest == nullptr || loaderInfo->structType != XR_LOADER_INTERFACE_STRUCT_LOADER_INFO ||
+            apiLayerRequest->structType != XR_LOADER_INTERFACE_STRUCT_API_LAYER_REQUEST)
+        {
+            return XR_ERROR_VALIDATION_FAILURE;
+        }
+
+        const uint32_t layer_cur_interface_version = 1;
+        const uint8_t  loader_min_major_version    = XR_VERSION_MAJOR(loaderInfo->minApiVersion);
+        const uint8_t  loader_min_minor_version    = XR_VERSION_MINOR(loaderInfo->minApiVersion);
+        const uint8_t  loader_max_major_version    = XR_VERSION_MAJOR(loaderInfo->maxApiVersion);
+        const uint8_t  loader_max_minor_version    = XR_VERSION_MINOR(loaderInfo->maxApiVersion);
+        const uint8_t  layer_cur_major_version     = XR_VERSION_MAJOR(XR_CURRENT_API_VERSION);
+        const uint8_t  layer_cur_minor_version     = XR_VERSION_MAJOR(XR_CURRENT_API_VERSION);
+
+        // Layer can't accept interface (we only support interface version 1 right now) or API version
+        if ((layer_cur_interface_version < loaderInfo->minInterfaceVersion ||
+             layer_cur_interface_version > loaderInfo->maxInterfaceVersion) ||
+            (layer_cur_major_version < loader_min_major_version ||
+             layer_cur_major_version > loader_max_major_version) ||
+            (layer_cur_minor_version < loader_min_minor_version || layer_cur_major_version > loader_max_minor_version))
+        {
+            return XR_ERROR_API_VERSION_UNSUPPORTED;
+        }
+
+        apiLayerRequest->layerInterfaceVersion = layer_cur_interface_version;
+        apiLayerRequest->layerApiVersion       = XR_CURRENT_API_VERSION;
+        apiLayerRequest->getInstanceProcAddr   = gfxrecon::OpenXrGetInstanceProcAddr;
+        return XR_SUCCESS;
+    }
+#endif // ENABLE_OPENXR_SUPPORT
 
 } // extern "C"
