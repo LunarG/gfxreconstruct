@@ -28,7 +28,9 @@ Use similar approach to rebind allocator.
 Once AS build command is queued for execution:
 
 1. Query for correct buffer sizes
+
 2. Create necessary buffers with correct sizes using rebind allocator
+
 3. Replace parameters in the build command with the addresses of new buffers
 
 #### Known issues
