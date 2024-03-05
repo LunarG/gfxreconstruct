@@ -86,13 +86,15 @@ GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
         $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json
         )
 
-# Generate the OpenXR JSON file that will be generated into the build directory
-GENERATE_LAYER_JSON_FILE(XrLayer_gfxreconstruct_json
-        "${RELATIVE_PATH_PREFIX}"
-        $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
-        ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
-        $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/XrLayer_gfxreconstruct.json
-        )
+if (OPENXR_SUPPORT_ENABLED)
+    # Generate the OpenXR JSON file that will be generated into the build directory
+    GENERATE_LAYER_JSON_FILE(XrLayer_gfxreconstruct_json
+            "${RELATIVE_PATH_PREFIX}"
+            $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
+            ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
+            $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/XrLayer_gfxreconstruct.json
+            )
+endif()
 
 if(UNIX)
         # Generate a Vulkan JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
@@ -104,6 +106,7 @@ if(UNIX)
                 $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json
                 )
 
+if (OPENXR_SUPPORT_ENABLED)
         # Generate a OpenXR JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
         set(RELATIVE_PATH_PREFIX "")
         GENERATE_LAYER_JSON_FILE(XrLayer_gfxreconstruct_json-staging
@@ -112,6 +115,7 @@ if(UNIX)
                 ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
                 $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/XrLayer_gfxreconstruct.json
                 )
+endif()
 endif()
 
 install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
