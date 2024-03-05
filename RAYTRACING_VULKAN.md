@@ -26,12 +26,13 @@ Buffers containing device addresses can be written to at any time. For device op
 ### Buffer sizes
 Use similar approach to rebind allocator.
 Once AS build command is queued for execution:
+
 1. Query for correct buffer sizes
 2. Create necessary buffers with correct sizes using rebind allocator
 3. Replace parameters in the build command with the addresses of new buffers
 
 #### Known issues
-* Not always possible to replace addresses properly. Device addresses can be set with MapMemory/FillMemoryCommand and used in shaders.
+It's not always possible to replace addresses properly. Device addresses can be set with MapMemory/FillMemoryCommand and used in shaders.
 WIP: scan buffers used in shaders for known device addresses at capture time, insert metacommand signaling the replay to update device address at found location at runtime.
 
 # Trimming
