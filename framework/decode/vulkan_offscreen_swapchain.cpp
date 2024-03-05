@@ -100,6 +100,10 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
     VkDevice device = device_info->handle;
     device_table_->GetDeviceQueue(device, default_queue_family_index_, 0, &default_queue_);
 
+    // If this option is set, a command buffer submission with a `VkFrameBoundaryEXT` must be called each time
+    // `vkQueuePresentKHR` should have been called by the offscreen swapchain. So a maximum of work must be done at
+    // swapchain creation: Allocation and recording of an empty command buffer, initialization of a `VkFrameBoundaryEXT`
+    // structure... (Don't forget to free everything at swapchain destruction)
     if (insert_frame_boundary_)
     {
         VkResult result;
