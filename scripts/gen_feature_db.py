@@ -94,18 +94,20 @@ if __name__ == "__main__":
     #We expect to find commit-suite.json and extended-suite.json
     #suite_jsons = ["commit-suite.json", "extended-suite.json"]
     suite_jsons = ["commit-suite.json"]
+    convert_processes = []
+    trace_paths = []
+    json_paths = []
     for suite_json in suite_jsons:
         full_suite_json_path = capture_dir + "/" + suite_json
         suite = load_json(full_suite_json_path)
 
-        convert_processes = []
-        json_paths = []
         for trace in suite["traces"].persistent():
             #Skip non-vulkan traces
             if "api" in trace and trace["api"] != "vulkan":
                 continue
 
             trace_dir = capture_dir + "/" + trace["directory"]
+            trace_paths.append(trace_dir)
             for file in os.listdir(trace_dir):
                 filename = os.fsdecode(file)
                 if not filename.endswith(".gfxr"):
@@ -113,30 +115,46 @@ if __name__ == "__main__":
 
                 print("Launching gfxr-convert on %s..." % filename)
                 full_trace_path = trace_dir + "/" + filename
-                out_json_path = "/tmp/" + os.path.splitext(os.path.basename(full_trace_path))[0] + ".json"
+                #out_json_path = "/tmp/" + os.path.splitext(os.path.basename(full_trace_path))[0] + ".json"
+                out_json_path = os.path.splitext(full_trace_path)[0] + ".json"
+                json_paths.append(out_json_path)
                 cmd = [convert_tool_path, "--output", out_json_path, full_trace_path]
                 p = subprocess.Popen(cmd)
                 convert_processes.append(p)
-                json_paths.append(out_json_path)
 
-        #Wait for the conversions to complete
-        print("Waiting for convert jobs to finish...")
-        for p in convert_processes:
-            p.wait()
+    #Wait for the conversions to complete
+    print("Waiting for convert jobs to finish...")
+    for p in convert_processes:
+        p.wait()
 
-        print("Processing json captures")
-        for json_path in json_paths:
-            capture_json = load_json(json_path)
-            
-            #Iterate over all blocks and extract the function names
-            for block in capture_json.persistent():
-                if "function" in block:
-                    capture_funcs.add(block["function"]["name"])
+    print("Processing json captures...")
+    for (json_path, trace_path) in zip(json_paths, trace_paths):
+        features = {}
+        capture_json = load_json(json_path)
+
+        #Iterate over all blocks and extract the function names
+        for block in capture_json.persistent():
+            if "function" in block:
+                if "functions" not in features:
+                    features["functions"] = []
+                features["functions"].append(block["function"]["name"])
+                capture_funcs.add(block["function"]["name"])
+            elif "meta" in block:
+                if "metas" not in features:
+                    features["metas"] = []
+                features["metas"].append(block["meta"]["name"])
+
+
+        raw_out = json.dumps(features, indent=4)
+        f = open(trace_path + "/" + os.path.basename(json_path), "w")
+        f.write(raw_out)
+        f.close()
+
 
     #Report the results
     missingno = 0
     for fn_name in all_vk_funcs:
-        if fn_name not in capture_funcs:
+        if fn_name not in capture_funcs and fn_name not in alias_map:
             print("Missing coverage for %s" % fn_name)
             missingno += 1
 
