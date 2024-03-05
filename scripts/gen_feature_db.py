@@ -1,10 +1,15 @@
+#gen_feature_db.py
+#Author: Nick Driscoll
+#Intended to be executed from the root of the GFXR repo
+
 import sys
 import os
 import subprocess
 import platform
 import json
-import urllib.request
+import json_stream
 import xml.etree.ElementTree as ET
+from io import StringIO
 
 script_name = os.path.basename(__file__)
 
@@ -46,14 +51,20 @@ def usage():
     #print("  gfxrecon-optimize-renamed.py my_capture.gfxr my_capture_optimized.gfxr") 
     #print()
 
+def load_json(path):
+    #with open(path) as f:
+    #    json_text = f.read()
+    f = open(path)
+    return json_stream.load(f)
+
 if __name__ == "__main__":
 
     #Early exit if we're missing our arguments
     if len(sys.argv) < 2:
         usage()
-        print("Error: missing path to capture")
+        print("Error: missing path to capture directory")
         exit(-1)
-    capture_path = sys.argv[1]
+    capture_dir = sys.argv[1]
 
     #Parse vk.xml
     vk_xml_path = "external/Vulkan-Headers/registry/vk.xml"
@@ -61,41 +72,74 @@ if __name__ == "__main__":
     commands_root = vk_xml_root.find("commands")
 
     #Collect the names of all vk functions
-    print("Collection vk function names...")
+    print("Collecting vk function names...")
     all_vk_funcs = []
+    alias_map = {}
     for c in commands_root:
         if "alias" not in c.attrib:
             fn_name = c.find("proto").find("name").text
             all_vk_funcs.append(fn_name)
-
+        else:
+            alias_map[c.attrib["name"]] = c.attrib["alias"]
 
     #Get name of gfxrecon-convert binary
     GFXR_CONVERT_NAME = "gfxrecon-convert"
     if is_windows():
         GFXR_CONVERT_NAME += ".exe"
-
     convert_tool_path = os.path.join(os.path.dirname(__file__), GFXR_CONVERT_NAME)
 
-    print("Running %s..." % GFXR_CONVERT_NAME)
-    #cmd = convert_tool_path + " " + capture_path
-    cmd = [convert_tool_path, capture_path]
-    output = subprocess.check_output(cmd).decode('utf-8',errors='ignore')
-    print(output)
-
-    #Load the json capture into a python dictionary
-    json_capture_path = os.path.splitext(capture_path)[0] + ".json"
-    with open(json_capture_path) as f:
-        json_text = f.read()
-    capture_json = json.loads(json_text)
-
-    #Iterate over all blocks and extract the function names
+    #Variables to collect all vk functions across all traces
     capture_funcs = set()
-    for block in capture_json:
-        if "function" in block:
-            capture_funcs.add(block["function"]["name"])
 
+    #We expect to find commit-suite.json and extended-suite.json
+    #suite_jsons = ["commit-suite.json", "extended-suite.json"]
+    suite_jsons = ["commit-suite.json"]
+    for suite_json in suite_jsons:
+        full_suite_json_path = capture_dir + "/" + suite_json
+        suite = load_json(full_suite_json_path)
+
+        convert_processes = []
+        json_paths = []
+        for trace in suite["traces"].persistent():
+            #Skip non-vulkan traces
+            if "api" in trace and trace["api"] != "vulkan":
+                continue
+
+            trace_dir = capture_dir + "/" + trace["directory"]
+            for file in os.listdir(trace_dir):
+                filename = os.fsdecode(file)
+                if not filename.endswith(".gfxr"):
+                    continue
+
+                print("Launching gfxr-convert on %s..." % filename)
+                full_trace_path = trace_dir + "/" + filename
+                out_json_path = "/tmp/" + os.path.splitext(os.path.basename(full_trace_path))[0] + ".json"
+                cmd = [convert_tool_path, "--output", out_json_path, full_trace_path]
+                p = subprocess.Popen(cmd)
+                convert_processes.append(p)
+                json_paths.append(out_json_path)
+
+        #Wait for the conversions to complete
+        print("Waiting for convert jobs to finish...")
+        for p in convert_processes:
+            p.wait()
+
+        print("Processing json captures")
+        for json_path in json_paths:
+            capture_json = load_json(json_path)
+            
+            #Iterate over all blocks and extract the function names
+            for block in capture_json.persistent():
+                if "function" in block:
+                    capture_funcs.add(block["function"]["name"])
+
+    #Report the results
+    missingno = 0
     for fn_name in all_vk_funcs:
-        if fn_name in capture_funcs:
-            print("%s is accounted for" % fn_name)
+        if fn_name not in capture_funcs:
+            print("Missing coverage for %s" % fn_name)
+            missingno += 1
+
+    print("Coverage rate: %f%%" % (100.0 * (1.0 - missingno / len(all_vk_funcs))))
 
     print("Done!")
