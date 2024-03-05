@@ -7,6 +7,9 @@ Commands containing such parameters can fail to replay on different platforms du
 Current solution for handling device addresses using DEVICE_ADDRESS_CAPTURE_REPLAY does not guarantee portability.
 
 ## Proposed solution
+
+[VulkanAccelerationStructureBuilder::CmdBuildAccelerationStructures](https://github.com/bartosz-muszarski-arm/gfxreconstruct/blob/7b19997f14602ad8944868c1a13aac5aeb94b5f0/framework/decode/vulkan_acceleration_structure_builder.cpp#L598)
+
 ```mermaid
 sequenceDiagram
    replay ->> acceleration_structure_builder: CmdBuildAccelerationStructures
@@ -21,7 +24,7 @@ sequenceDiagram
 Device addresses can be replaced at runtime with correct values in expected calls.
 The proposal is based on mapping the captured device address to a buffer and retrieving the device address of that buffer at runtime.
 Addresses with offsets can be handled as well by searching based on known buffer addresses and sizes, then applying the same offset to found address.
-Buffers containing device addresses can be written to at any time. For device operations - AS build commands specifically - the address replacement is delayed until the command buffer containing such commands is queued for execution.
+Buffers containing device addresses can be written to at any time, so for device operations - AS build commands specifically - the address replacement is delayed until the command buffer containing such commands is queued for execution.
 
 ### Buffer sizes
 Use similar approach to rebind allocator.
@@ -29,9 +32,11 @@ Once AS build command is queued for execution:
 
 1. Query for correct buffer sizes
 
-2. Create necessary buffers with correct sizes using rebind allocator
+2. Create new acceleration structure and necessary buffers with correct sizes using rebind allocator
 
-3. Replace parameters in the build command with the addresses of new buffers
+3. Replace parameters in the build command with the addresses of new buffers and the destination AS 
+
+Any reference to the acceleration structures built originally - handles and device addresses -  needs to be replaced.
 
 #### Known issues
 It's not always possible to replace addresses properly. Device addresses can be set with MapMemory/FillMemoryCommand and used in shaders.
