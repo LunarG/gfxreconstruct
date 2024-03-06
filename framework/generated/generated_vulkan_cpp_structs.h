@@ -27,7 +27,8 @@
 **
 */
 
-#pragma once
+#ifndef  GFXRECON_GENERATED_VULKAN_CPP_STRUCTS_H
+#define  GFXRECON_GENERATED_VULKAN_CPP_STRUCTS_H
 
 #include "util/defines.h"
 #include "vulkan/vulkan.h"
@@ -1989,3 +1990,5 @@ std::string GenerateStruct_VkPhysicalDeviceMeshShaderPropertiesEXT(std::ostream 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
+
+#endif

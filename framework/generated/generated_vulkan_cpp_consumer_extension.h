@@ -27,7 +27,8 @@
 **
 */
 
-#pragma once
+#ifndef  GFXRECON_GENERATED_VULKAN_CPP_CONSUMER_EXTENSION_H
+#define  GFXRECON_GENERATED_VULKAN_CPP_CONSUMER_EXTENSION_H
 
 #include "util/defines.h"
 #include "vulkan/vulkan.h"
@@ -50,3 +51,5 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif

@@ -108,10 +108,6 @@ class VulkanCppConsumerExtensionGenerator(BaseGenerator):
 
         self.is_header = genOpts.filename.endswith(".h")
 
-        if self.is_header:
-            self.writeout('#pragma once')
-            self.newline()
-
         if not self.is_header:
             self.writeout('#include "generated/generated_vulkan_cpp_consumer_extension.h"')
             self.writeout('#include "generated/generated_vulkan_cpp_consumer.h"')

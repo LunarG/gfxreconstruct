@@ -27,8 +27,8 @@
 **
 */
 
-#ifndef  GFXRECON_GENERATED_VULKAN_DISPAT_H_TABLE_H
-#define  GFXRECON_GENERATED_VULKAN_DISPAT_H_TABLE_H
+#ifndef  GFXRECON_GENERATED_VULKAN_DISPATCH_TABLE_H
+#define  GFXRECON_GENERATED_VULKAN_DISPATCH_TABLE_H
 
 #include "format/platform_types.h"
 #include "util/defines.h"
