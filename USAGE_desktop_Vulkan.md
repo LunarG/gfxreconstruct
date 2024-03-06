@@ -541,6 +541,14 @@ Optional arguments:
               Swap the swapchain color space if unsupported by replay device.
               Check if color space is not supported by replay device and
               fallback to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR.
+  --offscreen-swapchain-frame-boundary
+              Should only be used with offscreen swapchain.
+              Activates the extension VK_EXT_frame_boundary (always supported if
+              trimming, checks for driver support otherwise) and inserts command
+              buffer submission with VkFrameBoundaryEXT where vkQueuePresentKHR
+              was called in the original capture.
+              This allows preserving frames when capturing a replay that uses.
+              offscreen swapchain.
 ```
 
 ### Key Controls
