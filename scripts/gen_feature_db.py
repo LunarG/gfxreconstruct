@@ -52,10 +52,14 @@ def usage():
     #print()
 
 def load_json(path):
-    #with open(path) as f:
-    #    json_text = f.read()
     f = open(path)
     return json_stream.load(f)
+
+#Return a list of all sTypes inside a block
+def gather_stypes(block):
+    #for entry in block:
+
+    print("ugh")
 
 if __name__ == "__main__":
 
@@ -130,23 +134,60 @@ if __name__ == "__main__":
     print("Processing json captures...")
     for (json_path, trace_path) in zip(json_paths, trace_paths):
         features = {}
+        print("Analyzing %s..." % json_path)
         capture_json = load_json(json_path)
 
         #Iterate over all blocks and extract the function names
         for block in capture_json.persistent():
             if "function" in block:
                 if "functions" not in features:
-                    features["functions"] = []
-                features["functions"].append(block["function"]["name"])
-                capture_funcs.add(block["function"]["name"])
+                    features["functions"] = set()
+
+                #Grab function's name
+                fn_name = block["function"]["name"]
+                if fn_name in alias_map:
+                    features["functions"].add(alias_map[fn_name])
+                    capture_funcs.add(alias_map[fn_name])
+                else:
+                    features["functions"].add(fn_name)
+                    capture_funcs.add(fn_name)
+
+                #Grab the sType
+                if "sTypes" not in features:
+                    features["sTypes"] = set()
+                #features["sTypes"].add()
+
+                #Special casing vkCreateInstance and vkCreateDevice as we want to extract
+                #pEnabledFeatures from vkCreateDevice ppEnabledExtensionNames from both
+                #I'm also assuming that there will be exactly one call to each function
+                if fn_name == "vkCreateInstance":
+                    features["instance_ppEnabledExtensionNames"] = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
+                elif fn_name == "vkCreateDevice":
+                    features["device_ppEnabledExtensionNames"] = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
+                    features["pEnabledFeatures"] = block["function"]["args"]["pCreateInfo"]["pEnabledFeatures"]
+
             elif "meta" in block:
                 if "metas" not in features:
-                    features["metas"] = []
-                features["metas"].append(block["meta"]["name"])
+                    features["metas"] = set()
+                features["metas"].add(block["meta"]["name"])
 
+        #Convert sets into lists
+        features["functions"] = sorted(features["functions"])
+        features["metas"] = sorted(features["metas"])
+        features["sTypes"] = sorted(features["sTypes"])
+
+        #No guarantee that the following fields have anything in them
+        if features["instance_ppEnabledExtensionNames"] is not None:
+            features["instance_ppEnabledExtensionNames"] = sorted(features["instance_ppEnabledExtensionNames"])
+        if features["device_ppEnabledExtensionNames"] is not None:
+            features["device_ppEnabledExtensionNames"] = sorted(features["device_ppEnabledExtensionNames"])
+        if features["pEnabledFeatures"] is not None:
+            features["pEnabledFeatures"] = sorted(features["pEnabledFeatures"])
 
         raw_out = json.dumps(features, indent=4)
-        f = open(trace_path + "/" + os.path.basename(json_path), "w")
+        db_path = trace_path + "/" + os.path.splitext(os.path.basename(json_path))[0] + ".db.json"
+        print("Writing db to %s" % db_path)
+        f = open(db_path, "w")
         f.write(raw_out)
         f.close()
 
@@ -155,7 +196,7 @@ if __name__ == "__main__":
     missingno = 0
     for fn_name in all_vk_funcs:
         if fn_name not in capture_funcs and fn_name not in alias_map:
-            print("Missing coverage for %s" % fn_name)
+            #print("Missing coverage for %s" % fn_name)
             missingno += 1
 
     print("Coverage rate: %f%%" % (100.0 * (1.0 - missingno / len(all_vk_funcs))))
