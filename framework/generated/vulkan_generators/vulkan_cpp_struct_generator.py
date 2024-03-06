@@ -178,8 +178,6 @@ class VulkanCppStructGenerator(BaseGenerator):
         self.is_header = genOpts.filename.endswith(".h")
 
         if self.is_header:
-            self.writeout('#pragma once')
-            self.newline()
             self.writeout('#include "util/defines.h"')
             self.includeVulkanHeaders(genOpts)
             self.newline()

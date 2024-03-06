@@ -356,7 +356,7 @@ def make_gen_opts(args):
             blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
+            protect_file=True,
             protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
@@ -417,7 +417,7 @@ def make_gen_opts(args):
             blacklists         = blacklists,
             platform_types     = platform_types,
             prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
+            protect_file       = True,
             protect_feature    = False)
     ]
 
@@ -441,7 +441,7 @@ def make_gen_opts(args):
             blacklists        = blacklists,
             platform_types     = platform_types,
             prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
+            protect_file       = True,
             protect_feature    = False)
     ]
 
