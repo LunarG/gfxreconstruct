@@ -8,8 +8,10 @@ import subprocess
 import platform
 import json
 import json_stream
+import abc
 import xml.etree.ElementTree as ET
 from io import StringIO
+from collections.abc import Iterable
 
 script_name = os.path.basename(__file__)
 
@@ -57,9 +59,21 @@ def load_json(path):
 
 #Return a list of all sTypes inside a block
 def gather_stypes(block):
-    #for entry in block:
+    sTypes = set()
 
-    print("ugh")
+    if "sType" in block:
+        sTypes.add(block["sType"])
+
+    for key in block:
+        if isinstance(block[key], Iterable):
+            
+            #This solution doesn't feel great
+            try:
+                sTypes.update(gather_stypes(block[key]))
+            except Exception as e:
+                continue
+
+    return sTypes
 
 if __name__ == "__main__":
 
@@ -119,7 +133,6 @@ if __name__ == "__main__":
 
                 print("Launching gfxr-convert on %s..." % filename)
                 full_trace_path = trace_dir + "/" + filename
-                #out_json_path = "/tmp/" + os.path.splitext(os.path.basename(full_trace_path))[0] + ".json"
                 out_json_path = os.path.splitext(full_trace_path)[0] + ".json"
                 json_paths.append(out_json_path)
                 cmd = [convert_tool_path, "--output", out_json_path, full_trace_path]
@@ -131,6 +144,7 @@ if __name__ == "__main__":
     for p in convert_processes:
         p.wait()
 
+    #Extract desired data from each of the new JSON captures
     print("Processing json captures...")
     for (json_path, trace_path) in zip(json_paths, trace_paths):
         features = {}
@@ -152,11 +166,6 @@ if __name__ == "__main__":
                     features["functions"].add(fn_name)
                     capture_funcs.add(fn_name)
 
-                #Grab the sType
-                if "sTypes" not in features:
-                    features["sTypes"] = set()
-                #features["sTypes"].add()
-
                 #Special casing vkCreateInstance and vkCreateDevice as we want to extract
                 #pEnabledFeatures from vkCreateDevice ppEnabledExtensionNames from both
                 #I'm also assuming that there will be exactly one call to each function
@@ -170,6 +179,11 @@ if __name__ == "__main__":
                 if "metas" not in features:
                     features["metas"] = set()
                 features["metas"].add(block["meta"]["name"])
+
+            #Grab the sTypes
+            if "sTypes" not in features:
+                features["sTypes"] = set()
+            features["sTypes"].update(gather_stypes(block))
 
         #Convert sets into lists
         features["functions"] = sorted(features["functions"])
@@ -196,7 +210,6 @@ if __name__ == "__main__":
     missingno = 0
     for fn_name in all_vk_funcs:
         if fn_name not in capture_funcs and fn_name not in alias_map:
-            #print("Missing coverage for %s" % fn_name)
             missingno += 1
 
     print("Coverage rate: %f%%" % (100.0 * (1.0 - missingno / len(all_vk_funcs))))
