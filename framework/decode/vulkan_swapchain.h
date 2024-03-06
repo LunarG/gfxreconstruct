@@ -41,13 +41,23 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 class ScreenshotHandler;
 
+struct VulkanSwapchainOptions
+{
+    bool    skip_additional_present_blts{ false };
+    int32_t select_surface_index{ -1 };
+};
+
 class VulkanSwapchain
 {
   public:
     virtual ~VulkanSwapchain() {}
 
     virtual void Clean();
-    virtual void SetPerformanceMode(bool performance_mode) {}
+
+    void SetOptions(VulkanSwapchainOptions& options)
+    {
+        memcpy(&swapchain_options_, &options, sizeof(VulkanSwapchainOptions));
+    }
 
     virtual VkResult CreateSurface(VkResult                            original_result,
                                    InstanceInfo*                       instance_info,
@@ -55,8 +65,7 @@ class VulkanSwapchain
                                    VkFlags                             flags,
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
                                    const encode::VulkanInstanceTable*  instance_table,
-                                   application::Application*           application,
-                                   const VulkanReplayOptions&          replay_options);
+                                   application::Application*           application);
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const InstanceInfo*          instance_info,
@@ -161,7 +170,7 @@ class VulkanSwapchain
     application::Application* application_{ nullptr };
     ActiveWindows             active_windows_;
     int32_t                   create_surface_count_{ 0 };
-    int32_t                   options_surface_index_{ 0 };
+    VulkanSwapchainOptions    swapchain_options_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
