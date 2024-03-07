@@ -244,8 +244,8 @@ if __name__ == "__main__":
     convert_tool_path = os.path.join(os.path.dirname(__file__), GFXR_CONVERT_NAME)
 
     #We expect to find commit-suite.json and extended-suite.json
-    #suite_jsons = ["commit-suite.json", "extended-suite.json"]
-    suite_jsons = ["commit-suite.json"]
+    suite_jsons = ["commit-suite.json", "extended-suite.json"]
+    #suite_jsons = ["commit-suite.json"]
 
     for traces_dir in os.listdir(root_traces_dir):
         for suite_json in suite_jsons:
@@ -269,10 +269,10 @@ if __name__ == "__main__":
                 TRACES_IN_FLIGHT = 64      #Total number of .json files that we'll store in /tmp at a time
                 iterations = min(trace_count, TRACES_IN_FLIGHT)
                 current_trace = 0
-                #while current_trace < trace_count:
-                while current_trace < 1:
-                    #for i in range(0, iterations):
-                    for i in range(0, 1):
+                while current_trace < trace_count:
+                #while current_trace < 1:
+                    for i in range(0, iterations):
+                    #for i in range(0, 1):
                         trace = persistent_traces[current_trace]
                         current_trace += 1
 
