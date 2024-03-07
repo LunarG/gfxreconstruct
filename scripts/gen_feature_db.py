@@ -182,6 +182,9 @@ def trace_analysis(json_paths, trace_paths):
         f.write(raw_out)
         f.close()
 
+        #Delete json in /tmp
+        os.remove(json_path)
+
 if __name__ == "__main__":
 
     #Early exit if we're missing our arguments
