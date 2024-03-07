@@ -45,7 +45,7 @@ class VulkanResourcesUtil
     VulkanResourcesUtil() = delete;
 
     VulkanResourcesUtil(VkDevice                                device,
-                        const encode::DeviceTable&              device_table,
+                        const encode::VulkanDeviceTable&        device_table,
                         const VkPhysicalDeviceMemoryProperties& memory_properties) :
         device_(device),
         device_table_(device_table), memory_properties_(memory_properties), queue_family_index_(UINT32_MAX),
@@ -243,7 +243,7 @@ class VulkanResourcesUtil
     };
 
     VkDevice                                device_;
-    const encode::DeviceTable&              device_table_;
+    const encode::VulkanDeviceTable&        device_table_;
     const VkPhysicalDeviceMemoryProperties& memory_properties_;
     uint32_t                                queue_family_index_;
     VkCommandPool                           command_pool_;

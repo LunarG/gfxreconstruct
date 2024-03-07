@@ -248,10 +248,10 @@ std::string WaylandWindow::GetWsiExtension() const
     return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
 }
 
-VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
-                                      VkInstance                   instance,
-                                      VkFlags                      flags,
-                                      VkSurfaceKHR*                pSurface)
+VkResult WaylandWindow::CreateSurface(const encode::VulkanInstanceTable* table,
+                                      VkInstance                         instance,
+                                      VkFlags                            flags,
+                                      VkSurfaceKHR*                      pSurface)
 {
     if (table != nullptr)
     {
@@ -265,7 +265,7 @@ VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void WaylandWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void WaylandWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table != nullptr)
     {
@@ -371,9 +371,9 @@ void WaylandWindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                                    VkPhysicalDevice             physical_device,
-                                                                    uint32_t                     queue_family_index)
+VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                                    VkPhysicalDevice                   physical_device,
+                                                                    uint32_t queue_family_index)
 {
     assert(wayland_context_->GetDisplay() != nullptr);
     return table->GetPhysicalDeviceWaylandPresentationSupportKHR(

@@ -210,13 +210,13 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         call_setup_expr = []
         object_name = values[0].name
         if self.use_instance_table(name, values[0].base_type):
-            dispatchfunc = 'GetInstanceTable'
+            dispatchfunc = 'GetVulkanInstanceTable'
             if values[0].base_type == 'VkDevice':
                 object_name = 'physical_device'
                 call_setup_expr.append("auto device_wrapper = GetWrapper<DeviceWrapper>({});".format(values[0].name))
                 call_setup_expr.append("auto physical_device = device_wrapper->physical_device->handle;")
         else:
-            dispatchfunc = 'GetDeviceTable'
+            dispatchfunc = 'GetVulkanDeviceTable'
 
         return [call_setup_expr, '{}({})->{}({})'.format(dispatchfunc, object_name, name[2:], arg_list)]
 

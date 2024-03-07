@@ -1583,7 +1583,7 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                 // If PageGuardManager is not used or if it couldn't find the memory id it means that
                 // we need to map the memory.
                 VkDevice           device        = dev_mem_wrapper->parent_device->handle;
-                const DeviceTable* device_table  = GetDeviceTable(device);
+                const VulkanDeviceTable* device_table  = GetVulkanDeviceTable(device);
                 const VkDeviceSize map_size      = sizeof(VkAccelerationStructureInstanceKHR) * blas_count;
                 void*              mapped_memory = nullptr;
                 const VkResult     result =
@@ -1618,7 +1618,7 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                 if (needs_unmapping)
                 {
                     VkDevice           device       = dev_mem_wrapper->parent_device->handle;
-                    const DeviceTable* device_table = GetDeviceTable(device);
+                    const VulkanDeviceTable* device_table = GetVulkanDeviceTable(device);
                     device_table->UnmapMemory(device, dev_mem_wrapper->handle);
                 }
             }

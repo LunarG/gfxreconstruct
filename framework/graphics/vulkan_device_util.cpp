@@ -31,10 +31,10 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 // Requires Vulkan version >= 1.1 or VK_KHR_get_physical_device_properties2
 // feature_struct sType must be set, pNext must be nullptr
 template <typename T>
-static void GetPhysicalDeviceFeatures(uint32_t                     instance_api_version,
-                                      const encode::InstanceTable* instance_table,
-                                      const VkPhysicalDevice       physical_device,
-                                      T&                           feature_struct)
+static void GetPhysicalDeviceFeatures(uint32_t                           instance_api_version,
+                                      const encode::VulkanInstanceTable* instance_table,
+                                      const VkPhysicalDevice             physical_device,
+                                      T&                                 feature_struct)
 {
     assert((feature_struct.sType != 0) && (feature_struct.pNext == nullptr));
     feature_struct.pNext = nullptr;
@@ -54,10 +54,10 @@ static void GetPhysicalDeviceFeatures(uint32_t                     instance_api_
 // Requires Vulkan version >= 1.1 or VK_KHR_get_physical_device_properties2
 // properties_struct sType must be set, pNext must be nullptr
 template <typename T>
-static void GetPhysicalDeviceProperties(uint32_t                     instance_api_version,
-                                        const encode::InstanceTable* instance_table,
-                                        const VkPhysicalDevice       physical_device,
-                                        T&                           properties_struct)
+static void GetPhysicalDeviceProperties(uint32_t                           instance_api_version,
+                                        const encode::VulkanInstanceTable* instance_table,
+                                        const VkPhysicalDevice             physical_device,
+                                        T&                                 properties_struct)
 {
     assert((properties_struct.sType != 0) && (properties_struct.pNext == nullptr));
     properties_struct.pNext = nullptr;
@@ -74,10 +74,10 @@ static void GetPhysicalDeviceProperties(uint32_t                     instance_ap
 }
 
 template <typename T>
-VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(uint32_t                     instance_api_version,
-                                                                     const encode::InstanceTable* instance_table,
-                                                                     const VkPhysicalDevice       physical_device,
-                                                                     T*                           feature_struct)
+VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(uint32_t instance_api_version,
+                                                                     const encode::VulkanInstanceTable* instance_table,
+                                                                     const VkPhysicalDevice             physical_device,
+                                                                     T*                                 feature_struct)
 {
     // Type must be feature struct type that contains bufferDeviceAddress and bufferDeviceAddressCaptureReplay
     static_assert(std::is_same<T, VkPhysicalDeviceVulkan12Features>::value ||
@@ -115,10 +115,10 @@ VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(uint32_t   
 }
 
 VulkanDevicePropertyFeatureInfo
-VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                     instance_api_version,
-                                                       const encode::InstanceTable* instance_table,
-                                                       const VkPhysicalDevice       physical_device,
-                                                       const VkDeviceCreateInfo*    create_info)
+VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                           instance_api_version,
+                                                       const encode::VulkanInstanceTable* instance_table,
+                                                       const VkPhysicalDevice             physical_device,
+                                                       const VkDeviceCreateInfo*          create_info)
 {
     VulkanDevicePropertyFeatureInfo result;
     VkBaseOutStructure*             current_struct = reinterpret_cast<const VkBaseOutStructure*>(create_info)->pNext;

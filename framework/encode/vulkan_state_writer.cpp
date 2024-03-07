@@ -1267,7 +1267,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*                
 {
     assert(device_wrapper != nullptr);
 
-    const DeviceTable* device_table = &device_wrapper->layer_table;
+    const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
     for (const auto& snapshot_entry : buffer_snapshot_info)
     {
@@ -1375,7 +1375,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
 {
     assert(device_wrapper != nullptr);
 
-    const DeviceTable* device_table = &device_wrapper->layer_table;
+    const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
     for (const auto& snapshot_entry : image_snapshot_info)
     {
@@ -1530,8 +1530,8 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
 
         if (memory_wrapper != nullptr)
         {
-            const DeviceWrapper* device_wrapper = wrapper->bind_device;
-            const DeviceTable*   device_table   = &device_wrapper->layer_table;
+            const DeviceWrapper*     device_wrapper = wrapper->bind_device;
+            const VulkanDeviceTable* device_table   = &device_wrapper->layer_table;
 
             assert((device_wrapper != nullptr) && (device_table != nullptr));
 
@@ -1617,8 +1617,8 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
         if ((wrapper->is_swapchain_image && memory_wrapper == nullptr && wrapper->bind_device != nullptr) ||
             (!wrapper->is_swapchain_image && memory_wrapper != nullptr))
         {
-            const DeviceWrapper* device_wrapper = wrapper->bind_device;
-            const DeviceTable*   device_table   = &device_wrapper->layer_table;
+            const DeviceWrapper*     device_wrapper = wrapper->bind_device;
+            const VulkanDeviceTable* device_table   = &device_wrapper->layer_table;
 
             assert((device_wrapper != nullptr) && (device_table != nullptr));
 
@@ -1757,8 +1757,8 @@ void VulkanStateWriter::WriteImageSubresourceLayouts(const ImageWrapper* image_w
 {
     assert((image_wrapper != nullptr) && (aspect_flags != 0));
 
-    const DeviceWrapper* device_wrapper = image_wrapper->bind_device;
-    const DeviceTable*   device_table   = &device_wrapper->layer_table;
+    const DeviceWrapper*     device_wrapper = image_wrapper->bind_device;
+    const VulkanDeviceTable* device_table   = &device_wrapper->layer_table;
 
     assert((device_wrapper != nullptr) && (device_table != nullptr));
 
@@ -1969,7 +1969,7 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
 void VulkanStateWriter::WritePhysicalDevicePropertiesMetaData(const PhysicalDeviceWrapper* physical_device_wrapper)
 {
     // Write the meta-data commands to set physical device properties.
-    const InstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
+    const VulkanInstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
     assert(instance_table != nullptr);
 
     format::HandleId           physical_device_id     = physical_device_wrapper->handle_id;

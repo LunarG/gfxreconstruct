@@ -122,14 +122,14 @@ uint64_t GetWrappedId(uint64_t, VkObjectType object_type);
 
 uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type);
 
-inline const InstanceTable* GetInstanceTable(VkInstance handle)
+inline const VulkanInstanceTable* GetVulkanInstanceTable(VkInstance handle)
 {
     assert(handle != VK_NULL_HANDLE);
     auto wrapper = GetWrapper<InstanceWrapper>(handle);
     return &wrapper->layer_table;
 }
 
-inline const InstanceTable* GetInstanceTable(VkPhysicalDevice handle)
+inline const VulkanInstanceTable* GetVulkanInstanceTable(VkPhysicalDevice handle)
 {
     assert(handle != VK_NULL_HANDLE);
     auto wrapper = GetWrapper<PhysicalDeviceWrapper>(handle);
@@ -137,14 +137,14 @@ inline const InstanceTable* GetInstanceTable(VkPhysicalDevice handle)
     return wrapper->layer_table_ref;
 }
 
-inline const DeviceTable* GetDeviceTable(VkDevice handle)
+inline const VulkanDeviceTable* GetVulkanDeviceTable(VkDevice handle)
 {
     assert(handle != VK_NULL_HANDLE);
     auto wrapper = GetWrapper<DeviceWrapper>(handle);
     return &wrapper->layer_table;
 }
 
-inline const DeviceTable* GetDeviceTable(VkQueue handle)
+inline const VulkanDeviceTable* GetVulkanDeviceTable(VkQueue handle)
 {
     assert(handle != VK_NULL_HANDLE);
     auto wrapper = GetWrapper<QueueWrapper>(handle);
@@ -152,7 +152,7 @@ inline const DeviceTable* GetDeviceTable(VkQueue handle)
     return wrapper->layer_table_ref;
 }
 
-inline const DeviceTable* GetDeviceTable(VkCommandBuffer handle)
+inline const VulkanDeviceTable* GetVulkanDeviceTable(VkCommandBuffer handle)
 {
     assert(handle != VK_NULL_HANDLE);
     auto wrapper = GetWrapper<CommandBufferWrapper>(handle);
