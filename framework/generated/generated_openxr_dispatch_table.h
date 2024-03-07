@@ -345,12 +345,12 @@ static XRAPI_ATTR XrResult XRAPI_CALL EnableUserCalibrationEventsML(XrInstance, 
 // clang-format on
 GFXRECON_END_NAMESPACE(noop)
 
-struct LayerTable
+struct OpenXrLayerTable
 {
     PFN_xrCreateInstance CreateInstance{ nullptr };
 };
 
-struct InstanceTable
+struct OpenXrInstanceTable
 {
     PFN_xrGetInstanceProcAddr GetInstanceProcAddr{ noop::GetInstanceProcAddr };
     PFN_xrDestroyInstance DestroyInstance{ noop::DestroyInstance };
@@ -629,7 +629,7 @@ static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP
     }
 }
 
-static void LoadInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance instance, InstanceTable* table)
+static void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance instance, OpenXrInstanceTable* table)
 {
     assert(table != nullptr);
 
