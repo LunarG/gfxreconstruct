@@ -857,7 +857,7 @@ VkResult toCppAcquireNextImageKHR(VkResult       expected_result,
 VkResult toCppQueuePresentKHR(VkQueue queue, VkPresentInfoKHR* pPresentInfo);
 )";
 
-static const char* sSwapchainSourceCode = R"(
+static const char* sSwapchainSourceCode_part_1 = R"(
 #include "global_var.h"
 #include "loader.h"
 #include "swapchain_common.h"
@@ -1218,6 +1218,9 @@ VkResult toCppGetSwapchainImagesKHR(VkDevice       device,
                     continue;
                 }
 
+)";
+
+static const char* sSwapchainSourceCode_part_2 = R"(
                 ToCppCopyCmdData copy_cmd_data = {};
 
                 // Create one command pool per queue.
@@ -1539,6 +1542,9 @@ VkResult toCppQueuePresentKHR(VkQueue queue, VkPresentInfoKHR* pPresentInfo)
         final_barrier_swapchain_image           = final_barrier_virtual_image;
         final_barrier_swapchain_image.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
+)";
+
+static const char* sSwapchainSourceCode_part_3 = R"(
         VkImageSubresourceLayers subresource     = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 0 };
         VkOffset3D               offset          = { 0, 0, 0 };
         auto                     swapchain_count = pPresentInfo->swapchainCount;
