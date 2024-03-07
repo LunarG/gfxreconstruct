@@ -50,7 +50,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 //
 
 template <typename T>
-struct HandleWrapper
+struct VulkanHandleWrapper
 {
     typedef T HandleType;
 
@@ -70,24 +70,24 @@ struct HandleWrapper
 //
 
 // clang-format off
-struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
-struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
-struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
-struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
-struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
-struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
-struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
-struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
-struct MicromapEXTWrapper                   : public HandleWrapper<VkMicromapEXT> {};
-struct OpticalFlowSessionNVWrapper          : public HandleWrapper<VkOpticalFlowSessionNV> {};
-struct VideoSessionKHRWrapper               : public HandleWrapper<VkVideoSessionKHR> {};
-struct VideoSessionParametersKHRWrapper     : public HandleWrapper<VkVideoSessionParametersKHR> {};
-struct ShaderEXTWrapper                     : public HandleWrapper<VkShaderEXT> {};
-
+struct VulkanShaderModuleWrapper                  : public VulkanHandleWrapper<VkShaderModule> {};
+struct VulkanPipelineCacheWrapper                 : public VulkanHandleWrapper<VkPipelineCache> {};
+struct VulkanSamplerWrapper                       : public VulkanHandleWrapper<VkSampler> {};
+struct VulkanSamplerYcbcrConversionWrapper        : public VulkanHandleWrapper<VkSamplerYcbcrConversion> {};
+struct VulkanDebugReportCallbackEXTWrapper        : public VulkanHandleWrapper<VkDebugReportCallbackEXT> {};
+struct VulkanDebugUtilsMessengerEXTWrapper        : public VulkanHandleWrapper<VkDebugUtilsMessengerEXT> {};
+struct VulkanValidationCacheEXTWrapper            : public VulkanHandleWrapper<VkValidationCacheEXT> {};
+struct VulkanIndirectCommandsLayoutNVWrapper      : public VulkanHandleWrapper<VkIndirectCommandsLayoutNV> {};
+struct VulkanPerformanceConfigurationINTELWrapper : public VulkanHandleWrapper<VkPerformanceConfigurationINTEL> {};
+struct VulkanMicromapEXTWrapper                   : public VulkanHandleWrapper<VkMicromapEXT> {};
+struct VulkanOpticalFlowSessionNVWrapper          : public VulkanHandleWrapper<VkOpticalFlowSessionNV> {};
+struct VulkanVideoSessionKHRWrapper               : public VulkanHandleWrapper<VkVideoSessionKHR> {};
+struct VulkanVideoSessionParametersKHRWrapper     : public VulkanHandleWrapper<VkVideoSessionParametersKHR> {};
+struct VulkanShaderEXTWrapper                     : public VulkanHandleWrapper<VkShaderEXT> {};
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
-struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR> {};
+struct VulkanDisplayModeKHRWrapper            : public VulkanHandleWrapper<VkDisplayModeKHR> {};
 // clang-format on
 
 //
@@ -97,18 +97,18 @@ struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR>
 // This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent
 // VkPhysicalDevice handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is
 // destroyed.
-struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
+struct VulkanDisplayKHRWrapper : public VulkanHandleWrapper<VkDisplayKHR>
 {
-    std::vector<DisplayModeKHRWrapper*> child_display_modes;
+    std::vector<VulkanDisplayModeKHRWrapper*> child_display_modes;
 };
 
 // This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent VkInstance
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
-struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
+struct VulkanPhysicalDeviceWrapper : public VulkanHandleWrapper<VkPhysicalDevice>
 {
-    VulkanInstanceTable*            layer_table_ref{ nullptr };
-    std::vector<DisplayKHRWrapper*> child_displays;
-    uint32_t                        instance_api_version{ 0 };
+    VulkanInstanceTable*                  layer_table_ref{ nullptr };
+    std::vector<VulkanDisplayKHRWrapper*> child_displays;
+    uint32_t                              instance_api_version{ 0 };
 
     // Track memory types for use when creating snapshots of buffer and image resource memory content.
     VkPhysicalDeviceMemoryProperties memory_properties{};
@@ -122,44 +122,44 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
     std::vector<std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV>> queue_family_checkpoint_properties;
 };
 
-struct InstanceWrapper : public HandleWrapper<VkInstance>
+struct VulkanInstanceWrapper : public VulkanHandleWrapper<VkInstance>
 {
-    VulkanInstanceTable                 layer_table;
-    std::vector<PhysicalDeviceWrapper*> child_physical_devices;
-    bool                                have_device_properties{ false };
-    uint32_t                            api_version{ VK_MAKE_VERSION(1, 0, 0) };
+    VulkanInstanceTable                       layer_table;
+    std::vector<VulkanPhysicalDeviceWrapper*> child_physical_devices;
+    bool                                      have_device_properties{ false };
+    uint32_t                                  api_version{ VK_MAKE_VERSION(1, 0, 0) };
 };
 
-struct QueueWrapper : public HandleWrapper<VkQueue>
+struct VulkanQueueWrapper : public VulkanHandleWrapper<VkQueue>
 {
     VulkanDeviceTable* layer_table_ref{ nullptr };
 };
 
-struct DeviceWrapper : public HandleWrapper<VkDevice>
+struct VulkanDeviceWrapper : public VulkanHandleWrapper<VkDevice>
 {
-    VulkanDeviceTable          layer_table;
-    PhysicalDeviceWrapper*     physical_device{ nullptr };
-    std::vector<QueueWrapper*> child_queues;
+    VulkanDeviceTable                layer_table;
+    VulkanPhysicalDeviceWrapper*     physical_device{ nullptr };
+    std::vector<VulkanQueueWrapper*> child_queues;
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo              property_feature_info;
     std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
 };
 
-struct FenceWrapper : public HandleWrapper<VkFence>
+struct VulkanFenceWrapper : public VulkanHandleWrapper<VkFence>
 {
     // Signaled state at creation to be compared with signaled state at snapshot write. If states are different, the
     // create parameters will need to be modified to reflect the state at snapshot write.
-    bool           created_signaled{ false };
-    DeviceWrapper* device{ nullptr };
+    bool                 created_signaled{ false };
+    VulkanDeviceWrapper* device{ nullptr };
 };
 
-struct EventWrapper : public HandleWrapper<VkEvent>
+struct VulkanEventWrapper : public VulkanHandleWrapper<VkEvent>
 {
-    DeviceWrapper* device{ nullptr };
+    VulkanDeviceWrapper* device{ nullptr };
 };
 
-struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
+struct VulkanDeviceMemoryWrapper : public VulkanHandleWrapper<VkDeviceMemory>
 {
     uint32_t     memory_type_index{ std::numeric_limits<uint32_t>::max() };
     VkDeviceSize allocation_size{ 0 };
@@ -168,25 +168,25 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     // The device wrapper will be initialized when allocating the memory. Some handling
     // like VulkanStateTracker::TrackTlasToBlasDependencies may use it before mapping
     // the memory.
-    DeviceWrapper*   parent_device{ nullptr };
-    const void*      mapped_data{ nullptr };
-    VkDeviceSize     mapped_offset{ 0 };
-    VkDeviceSize     mapped_size{ 0 };
-    VkMemoryMapFlags mapped_flags{ 0 };
-    void*            external_allocation{ nullptr };
-    uintptr_t        shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
-    AHardwareBuffer* hardware_buffer{ nullptr };
-    format::HandleId hardware_buffer_memory_id{ format::kNullHandleId };
+    VulkanDeviceWrapper* parent_device{ nullptr };
+    const void*          mapped_data{ nullptr };
+    VkDeviceSize         mapped_offset{ 0 };
+    VkDeviceSize         mapped_size{ 0 };
+    VkMemoryMapFlags     mapped_flags{ 0 };
+    void*                external_allocation{ nullptr };
+    uintptr_t            shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
+    AHardwareBuffer*     hardware_buffer{ nullptr };
+    format::HandleId     hardware_buffer_memory_id{ format::kNullHandleId };
 
     // State tracking info for memory with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
 };
 
-struct BufferWrapper : public HandleWrapper<VkBuffer>
+struct VulkanBufferWrapper : public VulkanHandleWrapper<VkBuffer>
 {
-    DeviceWrapper*     bind_device{ nullptr };
-    const void*        bind_pnext{ nullptr };
+    VulkanDeviceWrapper* bind_device{ nullptr };
+    const void*          bind_pnext{ nullptr };
     HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
                                           // HandleUnwrapMemory.
     format::HandleId bind_memory_id{ format::kNullHandleId };
@@ -199,10 +199,10 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     VkDeviceAddress  address{ 0 };
 };
 
-struct ImageWrapper : public HandleWrapper<VkImage>
+struct VulkanImageWrapper : public VulkanHandleWrapper<VkImage>
 {
-    DeviceWrapper*     bind_device{ nullptr };
-    const void*        bind_pnext{ nullptr };
+    VulkanDeviceWrapper* bind_device{ nullptr };
+    const void*          bind_pnext{ nullptr };
     HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
                                           // HandleUnwrapMemory.
     format::HandleId         bind_memory_id{ format::kNullHandleId };
@@ -220,18 +220,18 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     std::set<VkSwapchainKHR> parent_swapchains;
 };
 
-struct BufferViewWrapper : public HandleWrapper<VkBufferView>
+struct VulkanBufferViewWrapper : public VulkanHandleWrapper<VkBufferView>
 {
     format::HandleId buffer_id{ format::kNullHandleId };
 };
 
-struct ImageViewWrapper : public HandleWrapper<VkImageView>
+struct VulkanImageViewWrapper : public VulkanHandleWrapper<VkImageView>
 {
-    format::HandleId image_id{ format::kNullHandleId };
-    ImageWrapper*    image{ nullptr };
+    format::HandleId    image_id{ format::kNullHandleId };
+    VulkanImageWrapper* image{ nullptr };
 };
 
-struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
+struct VulkanFramebufferWrapper : public VulkanHandleWrapper<VkFramebuffer>
 {
     // Creation info for objects used to create the framebuffer, which may have been destroyed after creation.
     format::HandleId  render_pass_id{ format::kNullHandleId };
@@ -241,45 +241,45 @@ struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
     std::vector<format::HandleId> image_view_ids;
 
     // Track handles of image attachments for processing render pass layout transitions.
-    std::vector<ImageWrapper*> attachments;
+    std::vector<VulkanImageWrapper*> attachments;
 };
 
-struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
+struct VulkanSemaphoreWrapper : public VulkanHandleWrapper<VkSemaphore>
 {
     // Track semaphore signaled state. State is signaled when a sempahore is submitted to QueueSubmit, QueueBindSparse,
     // AcquireNextImageKHR, or AcquireNextImage2KHR as a signal semaphore. State is not signaled when a semaphore is
     // submitted to QueueSubmit, QueueBindSparse, or QueuePresentKHR as a wait semaphore. Initial state after creation
     // is not signaled.
-    bool            signaled{ false };
-    VkSemaphoreType type{ VK_SEMAPHORE_TYPE_BINARY_KHR };
-    DeviceWrapper*  device{ nullptr };
+    bool                 signaled{ false };
+    VkSemaphoreType      type{ VK_SEMAPHORE_TYPE_BINARY_KHR };
+    VulkanDeviceWrapper* device{ nullptr };
 };
 
-struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
+struct VulkanQueryPoolWrapper : public VulkanHandleWrapper<VkQueryPool>
 {
-    DeviceWrapper*         device{ nullptr };
+    VulkanDeviceWrapper*   device{ nullptr };
     VkQueryType            query_type{};
     uint32_t               query_count{ 0 };
     std::vector<QueryInfo> pending_queries;
 };
 
-struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
+struct VulkanRenderPassWrapper : public VulkanHandleWrapper<VkRenderPass>
 {
     // Final image attachment layouts to be used for processing image layout transitions after calls to
     // vkCmdEndRenderPass.
     std::vector<VkImageLayout> attachment_final_layouts;
 };
 
-struct AccelerationStructureKHRWrapper;
-struct CommandPoolWrapper;
-struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
+struct VulkanAccelerationStructureKHRWrapper;
+struct VulkanCommandPoolWrapper;
+struct VulkanCommandBufferWrapper : public VulkanHandleWrapper<VkCommandBuffer>
 {
     VulkanDeviceTable* layer_table_ref{ nullptr };
 
     // Members for general wrapper support.
     // Pool from which command buffer was allocated. The command buffer must be removed from the pool's allocation list
     // when destroyed.
-    CommandPoolWrapper* parent_pool{ nullptr };
+    VulkanCommandPoolWrapper* parent_pool{ nullptr };
 
     // Members for trimming state tracking.
     VkCommandBufferLevel       level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
@@ -289,17 +289,17 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     // Image layout info tracked for image barriers recorded to the command buffer. To be updated on calls to
     // vkCmdPipelineBarrier and vkCmdEndRenderPass and applied to the image wrapper on calls to vkQueueSubmit. To be
     // transferred from secondary command buffers to primary command buffers on calls to vkCmdExecuteCommands.
-    std::unordered_map<ImageWrapper*, VkImageLayout> pending_layouts;
+    std::unordered_map<VulkanImageWrapper*, VkImageLayout> pending_layouts;
 
     // Active query info for queries that have been recorded to this command buffer, which will be transfered to the
     // QueryPoolWrapper as pending queries when the command buffer is submitted to a queue.
-    std::unordered_map<QueryPoolWrapper*, std::unordered_map<uint32_t, QueryInfo>> recorded_queries;
+    std::unordered_map<VulkanQueryPoolWrapper*, std::unordered_map<uint32_t, QueryInfo>> recorded_queries;
 
     // Render pass object tracking for processing image layout transitions. Render pass and framebuffer values
     // for the active render pass instance will be set on calls to vkCmdBeginRenderPass and will be used to update the
     // pending image layout on calls to vkCmdEndRenderPass.
-    RenderPassWrapper*  active_render_pass{ nullptr };
-    FramebufferWrapper* render_pass_framebuffer{ nullptr };
+    VulkanRenderPassWrapper*  active_render_pass{ nullptr };
+    VulkanFramebufferWrapper* render_pass_framebuffer{ nullptr };
 
     // Treat the sumbission of this command buffer as a frame boundary.
     bool is_frame_boundary{ false };
@@ -317,17 +317,17 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
         // The offset from the above address to start reading the VkAccelerationStructureInstanceKHR structures
         uint32_t offset;
     };
-    std::vector<std::pair<AccelerationStructureKHRWrapper*, tlas_build_info>> tlas_build_info_map;
+    std::vector<std::pair<VulkanAccelerationStructureKHRWrapper*, tlas_build_info>> tlas_build_info_map;
 };
 
-struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
+struct VulkanPipelineLayoutWrapper : public VulkanHandleWrapper<VkPipelineLayout>
 {
     // Creation info for objects used to create the pipeline layout, which may have been destroyed after pipeline layout
     // creation.
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
 };
 
-struct PipelineWrapper : public HandleWrapper<VkPipeline>
+struct VulkanPipelineWrapper : public VulkanHandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
     std::vector<CreateDependencyInfo>           shader_module_dependencies;
@@ -344,7 +344,7 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     // TODO: Pipeline cache
 };
 
-struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>
+struct VulkanDeferredOperationKHRWrapper : public VulkanHandleWrapper<VkDeferredOperationKHR>
 {
     // Record CreateRayTracingPipelinesKHR parameters for safety.
     HandleUnwrapMemory                             handle_unwrap_memory;
@@ -357,27 +357,27 @@ struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR
     bool                                           pending_state = false;
 };
 
-struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>
+struct VulkanDescriptorUpdateTemplateWrapper : public VulkanHandleWrapper<VkDescriptorUpdateTemplate>
 {
     // Members for general wrapper support.
     UpdateTemplateInfo info;
 };
 
-struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
+struct VulkanDescriptorSetLayoutWrapper : public VulkanHandleWrapper<VkDescriptorSetLayout>
 {
     // Members for trimming state tracking.
     std::vector<DescriptorBindingInfo> binding_info;
 };
 
-struct DescriptorPoolWrapper;
-struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
+struct VulkanDescriptorPoolWrapper;
+struct VulkanDescriptorSetWrapper : public VulkanHandleWrapper<VkDescriptorSet>
 {
     // Members for general wrapper support.
     // Pool from which set was allocated. The set must be removed from the pool's allocation list when destroyed.
-    DescriptorPoolWrapper* parent_pool{ nullptr };
+    VulkanDescriptorPoolWrapper* parent_pool{ nullptr };
 
     // Members for trimming state tracking.
-    DeviceWrapper* device{ nullptr };
+    VulkanDeviceWrapper* device{ nullptr };
 
     // Map for descriptor binding index to array of descriptor info.
     std::unordered_map<uint32_t, DescriptorInfo> bindings;
@@ -387,28 +387,28 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
     CreateDependencyInfo set_layout_dependency;
 };
 
-struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
+struct VulkanDescriptorPoolWrapper : public VulkanHandleWrapper<VkDescriptorPool>
 {
     // Members for general wrapper support.
     // Track descriptor set info, which must be destroyed on descriptor pool reset.
-    std::unordered_map<format::HandleId, DescriptorSetWrapper*> child_sets;
+    std::unordered_map<format::HandleId, VulkanDescriptorSetWrapper*> child_sets;
 };
 
-struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
+struct VulkanCommandPoolWrapper : public VulkanHandleWrapper<VkCommandPool>
 {
     // Members for general wrapper support.
     // Track command buffer info, which must be destroyed on command pool reset.
-    std::unordered_map<format::HandleId, CommandBufferWrapper*> child_buffers;
+    std::unordered_map<format::HandleId, VulkanCommandBufferWrapper*> child_buffers;
 
     // Members for trimming state tracking.
     uint32_t queue_family_index{ 0 };
 
-    DeviceWrapper* device{ nullptr };
-    bool           trim_command_pool{ false };
+    VulkanDeviceWrapper* device{ nullptr };
+    bool                 trim_command_pool{ false };
 };
 
 // For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
-struct SurfaceCapabilities
+struct VulkanSurfaceCapabilities
 {
     VkPhysicalDeviceSurfaceInfo2KHR surface_info;
     HandleUnwrapMemory              surface_info_pnext_memory;
@@ -418,7 +418,7 @@ struct SurfaceCapabilities
 };
 
 // For vkGetPhysicalDeviceSurfaceFormatsKHR
-struct SurfaceFormats
+struct VulkanSurfaceFormats
 {
     VkPhysicalDeviceSurfaceInfo2KHR surface_info;
     HandleUnwrapMemory              surface_info_pnext_memory;
@@ -428,7 +428,7 @@ struct SurfaceFormats
 };
 
 // For vkGetPhysicalDeviceSurfacePresentModesKHR
-struct SurfacePresentModes
+struct VulkanSurfacePresentModes
 {
     std::vector<VkPresentModeKHR> present_modes;
     const void*                   surface_info_pnext{ nullptr };
@@ -436,35 +436,35 @@ struct SurfacePresentModes
 };
 
 // For vkGetDeviceGroupSurfacePresentModesKHR
-struct GroupSurfacePresentModes
+struct VulkanGroupSurfacePresentModes
 {
     VkDeviceGroupPresentModeFlagsKHR present_modes{ 0 };
     const void*                      surface_info_pnext{ nullptr };
     HandleUnwrapMemory               surface_info_pnext_memory;
 };
 
-struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
+struct VulkanSurfaceKHRWrapper : public VulkanHandleWrapper<VkSurfaceKHR>
 {
     // Track results from calls to vkGetPhysicalDeviceSurfaceSupportKHR to write to the state snapshot after surface
     // creation. The call is only written to the state snapshot if it was previously called by the application.
     // Keys are the VkPhysicalDevice handle ID.
     std::unordered_map<format::HandleId, std::unordered_map<uint32_t, VkBool32>> surface_support;
-    std::unordered_map<format::HandleId, SurfaceCapabilities>                    surface_capabilities;
-    std::unordered_map<format::HandleId, SurfaceFormats>                         surface_formats;
-    std::unordered_map<format::HandleId, SurfacePresentModes>                    surface_present_modes;
+    std::unordered_map<format::HandleId, VulkanSurfaceCapabilities>              surface_capabilities;
+    std::unordered_map<format::HandleId, VulkanSurfaceFormats>                   surface_formats;
+    std::unordered_map<format::HandleId, VulkanSurfacePresentModes>              surface_present_modes;
 
     // Keys are the VkDevice handle ID.
-    std::unordered_map<format::HandleId, GroupSurfacePresentModes> group_surface_present_modes;
+    std::unordered_map<format::HandleId, VulkanGroupSurfacePresentModes> group_surface_present_modes;
 };
 
-struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
+struct VulkanSwapchainKHRWrapper : public VulkanHandleWrapper<VkSwapchainKHR>
 {
     // Members for general wrapper support.
-    std::vector<ImageWrapper*> child_images;
+    std::vector<VulkanImageWrapper*> child_images;
 
     // Members for trimming state tracking.
-    DeviceWrapper*                 device{ nullptr };
-    SurfaceKHRWrapper*             surface{ nullptr };
+    VulkanDeviceWrapper*           device{ nullptr };
+    VulkanSurfaceKHRWrapper*       surface{ nullptr };
     uint32_t                       queue_family_index{ 0 };
     VkFormat                       format{ VK_FORMAT_UNDEFINED };
     VkExtent3D                     extent{ 0, 0, 0 };
@@ -478,27 +478,27 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     VkBool32                       local_dimming_enable_AMD{ false };
 };
 
-struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
+struct VulkanAccelerationStructureKHRWrapper : public VulkanHandleWrapper<VkAccelerationStructureKHR>
 {
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
 
     // List of BLASes this AS references. Used only while tracking.
-    std::vector<AccelerationStructureKHRWrapper*> blas;
+    std::vector<VulkanAccelerationStructureKHRWrapper*> blas;
 };
 
-struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>
+struct VulkanAccelerationStructureNVWrapper : public VulkanHandleWrapper<VkAccelerationStructureNV>
 {
     // TODO: Determine what additional state tracking is needed.
 };
 
-struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
+struct VulkanPrivateDataSlotWrapper : public VulkanHandleWrapper<VkPrivateDataSlot>
 {
-    DeviceWrapper* device{ nullptr };
-    VkObjectType   object_type{ VK_OBJECT_TYPE_UNKNOWN };
-    uint64_t       object_handle{ 0 };
-    uint64_t       data{ 0 };
+    VulkanDeviceWrapper* device{ nullptr };
+    VkObjectType         object_type{ VK_OBJECT_TYPE_UNKNOWN };
+    uint64_t             object_handle{ 0 };
+    uint64_t             data{ 0 };
 };
 
 struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
@@ -509,9 +509,9 @@ struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.
-typedef SamplerYcbcrConversionWrapper   SamplerYcbcrConversionKHRWrapper;
-typedef DescriptorUpdateTemplateWrapper DescriptorUpdateTemplateKHRWrapper;
-typedef PrivateDataSlotWrapper          PrivateDataSlotEXTWrapper;
+typedef VulkanSamplerYcbcrConversionWrapper   VulkanSamplerYcbcrConversionKHRWrapper;
+typedef VulkanDescriptorUpdateTemplateWrapper VulkanDescriptorUpdateTemplateKHRWrapper;
+typedef VulkanPrivateDataSlotWrapper          VulkanPrivateDataSlotEXTWrapper;
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

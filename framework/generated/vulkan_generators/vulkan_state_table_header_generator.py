@@ -106,7 +106,7 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
             if vkhandle_name in self.DUPLICATE_HANDLE_TYPES:
                 continue
             handle_name = vkhandle_name[2:]
-            handle_wrapper = handle_name + 'Wrapper'
+            handle_wrapper = 'Vulkan' + handle_name + 'Wrapper'
             handle_map = handle_name[0].lower() + handle_name[1:] + '_map_'
             insert_code += '    bool InsertWrapper(format::HandleId id, {0}* wrapper) {{ return InsertEntry(id, wrapper, {1}); }}\n'.format(handle_wrapper, handle_map)
             remove_code += '    bool RemoveWrapper(const {0}* wrapper) {{ return RemoveEntry(wrapper, {1}); }}\n'.format(handle_wrapper, handle_map)

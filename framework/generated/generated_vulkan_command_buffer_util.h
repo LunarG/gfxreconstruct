@@ -45,229 +45,229 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void TrackBeginCommandBufferHandles(CommandBufferWrapper* wrapper, const VkCommandBufferBeginInfo* pBeginInfo);
+void TrackBeginCommandBufferHandles(VulkanCommandBufferWrapper* wrapper, const VkCommandBufferBeginInfo* pBeginInfo);
 
-void TrackCmdBindPipelineHandles(CommandBufferWrapper* wrapper, VkPipeline pipeline);
+void TrackCmdBindPipelineHandles(VulkanCommandBufferWrapper* wrapper, VkPipeline pipeline);
 
-void TrackCmdBindDescriptorSetsHandles(CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets);
+void TrackCmdBindDescriptorSetsHandles(VulkanCommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets);
 
-void TrackCmdBindIndexBufferHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+void TrackCmdBindIndexBufferHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdBindVertexBuffersHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
+void TrackCmdBindVertexBuffersHandles(VulkanCommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
-void TrackCmdDrawIndirectHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+void TrackCmdDrawIndirectHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdDrawIndexedIndirectHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+void TrackCmdDrawIndexedIndirectHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdDispatchIndirectHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+void TrackCmdDispatchIndirectHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdCopyBufferHandles(CommandBufferWrapper* wrapper, VkBuffer srcBuffer, VkBuffer dstBuffer);
+void TrackCmdCopyBufferHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer srcBuffer, VkBuffer dstBuffer);
 
-void TrackCmdCopyImageHandles(CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
+void TrackCmdCopyImageHandles(VulkanCommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
 
-void TrackCmdBlitImageHandles(CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
+void TrackCmdBlitImageHandles(VulkanCommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
 
-void TrackCmdCopyBufferToImageHandles(CommandBufferWrapper* wrapper, VkBuffer srcBuffer, VkImage dstImage);
+void TrackCmdCopyBufferToImageHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer srcBuffer, VkImage dstImage);
 
-void TrackCmdCopyImageToBufferHandles(CommandBufferWrapper* wrapper, VkImage srcImage, VkBuffer dstBuffer);
+void TrackCmdCopyImageToBufferHandles(VulkanCommandBufferWrapper* wrapper, VkImage srcImage, VkBuffer dstBuffer);
 
-void TrackCmdUpdateBufferHandles(CommandBufferWrapper* wrapper, VkBuffer dstBuffer);
+void TrackCmdUpdateBufferHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer dstBuffer);
 
-void TrackCmdFillBufferHandles(CommandBufferWrapper* wrapper, VkBuffer dstBuffer);
+void TrackCmdFillBufferHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer dstBuffer);
 
-void TrackCmdClearColorImageHandles(CommandBufferWrapper* wrapper, VkImage image);
+void TrackCmdClearColorImageHandles(VulkanCommandBufferWrapper* wrapper, VkImage image);
 
-void TrackCmdClearDepthStencilImageHandles(CommandBufferWrapper* wrapper, VkImage image);
+void TrackCmdClearDepthStencilImageHandles(VulkanCommandBufferWrapper* wrapper, VkImage image);
 
-void TrackCmdResolveImageHandles(CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
+void TrackCmdResolveImageHandles(VulkanCommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
 
-void TrackCmdSetEventHandles(CommandBufferWrapper* wrapper, VkEvent event);
+void TrackCmdSetEventHandles(VulkanCommandBufferWrapper* wrapper, VkEvent event);
 
-void TrackCmdResetEventHandles(CommandBufferWrapper* wrapper, VkEvent event);
+void TrackCmdResetEventHandles(VulkanCommandBufferWrapper* wrapper, VkEvent event);
 
-void TrackCmdWaitEventsHandles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers);
+void TrackCmdWaitEventsHandles(VulkanCommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers);
 
-void TrackCmdPipelineBarrierHandles(CommandBufferWrapper* wrapper, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers);
+void TrackCmdPipelineBarrierHandles(VulkanCommandBufferWrapper* wrapper, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers);
 
-void TrackCmdBeginQueryHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+void TrackCmdBeginQueryHandles(VulkanCommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
-void TrackCmdEndQueryHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+void TrackCmdEndQueryHandles(VulkanCommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
-void TrackCmdResetQueryPoolHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+void TrackCmdResetQueryPoolHandles(VulkanCommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
-void TrackCmdWriteTimestampHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+void TrackCmdWriteTimestampHandles(VulkanCommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
-void TrackCmdCopyQueryPoolResultsHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool, VkBuffer dstBuffer);
+void TrackCmdCopyQueryPoolResultsHandles(VulkanCommandBufferWrapper* wrapper, VkQueryPool queryPool, VkBuffer dstBuffer);
 
-void TrackCmdPushConstantsHandles(CommandBufferWrapper* wrapper, VkPipelineLayout layout);
+void TrackCmdPushConstantsHandles(VulkanCommandBufferWrapper* wrapper, VkPipelineLayout layout);
 
-void TrackCmdBeginRenderPassHandles(CommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
+void TrackCmdBeginRenderPassHandles(VulkanCommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
 
-void TrackCmdExecuteCommandsHandles(CommandBufferWrapper* wrapper, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers);
+void TrackCmdExecuteCommandsHandles(VulkanCommandBufferWrapper* wrapper, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers);
 
-void TrackCmdDrawIndirectCountHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
+void TrackCmdDrawIndirectCountHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
-void TrackCmdDrawIndexedIndirectCountHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
+void TrackCmdDrawIndexedIndirectCountHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
-void TrackCmdBeginRenderPass2Handles(CommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
+void TrackCmdBeginRenderPass2Handles(VulkanCommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
 
-void TrackCmdSetEvent2Handles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo);
+void TrackCmdSetEvent2Handles(VulkanCommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo);
 
-void TrackCmdResetEvent2Handles(CommandBufferWrapper* wrapper, VkEvent event);
+void TrackCmdResetEvent2Handles(VulkanCommandBufferWrapper* wrapper, VkEvent event);
 
-void TrackCmdWaitEvents2Handles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos);
+void TrackCmdWaitEvents2Handles(VulkanCommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos);
 
-void TrackCmdPipelineBarrier2Handles(CommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo);
+void TrackCmdPipelineBarrier2Handles(VulkanCommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo);
 
-void TrackCmdWriteTimestamp2Handles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+void TrackCmdWriteTimestamp2Handles(VulkanCommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
-void TrackCmdCopyBuffer2Handles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo);
+void TrackCmdCopyBuffer2Handles(VulkanCommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo);
 
-void TrackCmdCopyImage2Handles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2* pCopyImageInfo);
+void TrackCmdCopyImage2Handles(VulkanCommandBufferWrapper* wrapper, const VkCopyImageInfo2* pCopyImageInfo);
 
-void TrackCmdCopyBufferToImage2Handles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
+void TrackCmdCopyBufferToImage2Handles(VulkanCommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
 
-void TrackCmdCopyImageToBuffer2Handles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
+void TrackCmdCopyImageToBuffer2Handles(VulkanCommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
 
-void TrackCmdBlitImage2Handles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2* pBlitImageInfo);
+void TrackCmdBlitImage2Handles(VulkanCommandBufferWrapper* wrapper, const VkBlitImageInfo2* pBlitImageInfo);
 
-void TrackCmdResolveImage2Handles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo);
+void TrackCmdResolveImage2Handles(VulkanCommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo);
 
-void TrackCmdBeginRenderingHandles(CommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo);
+void TrackCmdBeginRenderingHandles(VulkanCommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo);
 
-void TrackCmdBindVertexBuffers2Handles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
+void TrackCmdBindVertexBuffers2Handles(VulkanCommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
-void TrackCmdBeginVideoCodingKHRHandles(CommandBufferWrapper* wrapper, const VkVideoBeginCodingInfoKHR* pBeginInfo);
+void TrackCmdBeginVideoCodingKHRHandles(VulkanCommandBufferWrapper* wrapper, const VkVideoBeginCodingInfoKHR* pBeginInfo);
 
-void TrackCmdDecodeVideoKHRHandles(CommandBufferWrapper* wrapper, const VkVideoDecodeInfoKHR* pDecodeInfo);
+void TrackCmdDecodeVideoKHRHandles(VulkanCommandBufferWrapper* wrapper, const VkVideoDecodeInfoKHR* pDecodeInfo);
 
-void TrackCmdBeginRenderingKHRHandles(CommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo);
+void TrackCmdBeginRenderingKHRHandles(VulkanCommandBufferWrapper* wrapper, const VkRenderingInfo* pRenderingInfo);
 
-void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites);
+void TrackCmdPushDescriptorSetKHRHandles(VulkanCommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites);
 
-void TrackCmdBeginRenderPass2KHRHandles(CommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
+void TrackCmdBeginRenderPass2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
 
-void TrackCmdDrawIndirectCountKHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
+void TrackCmdDrawIndirectCountKHRHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
-void TrackCmdDrawIndexedIndirectCountKHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
+void TrackCmdDrawIndexedIndirectCountKHRHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
-void TrackCmdEncodeVideoKHRHandles(CommandBufferWrapper* wrapper, const VkVideoEncodeInfoKHR* pEncodeInfo);
+void TrackCmdEncodeVideoKHRHandles(VulkanCommandBufferWrapper* wrapper, const VkVideoEncodeInfoKHR* pEncodeInfo);
 
-void TrackCmdSetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo);
+void TrackCmdSetEvent2KHRHandles(VulkanCommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo);
 
-void TrackCmdResetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event);
+void TrackCmdResetEvent2KHRHandles(VulkanCommandBufferWrapper* wrapper, VkEvent event);
 
-void TrackCmdWaitEvents2KHRHandles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos);
+void TrackCmdWaitEvents2KHRHandles(VulkanCommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos);
 
-void TrackCmdPipelineBarrier2KHRHandles(CommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo);
+void TrackCmdPipelineBarrier2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo);
 
-void TrackCmdWriteTimestamp2KHRHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+void TrackCmdWriteTimestamp2KHRHandles(VulkanCommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
-void TrackCmdWriteBufferMarker2AMDHandles(CommandBufferWrapper* wrapper, VkBuffer dstBuffer);
+void TrackCmdWriteBufferMarker2AMDHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer dstBuffer);
 
-void TrackCmdCopyBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo);
+void TrackCmdCopyBuffer2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo);
 
-void TrackCmdCopyImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2* pCopyImageInfo);
+void TrackCmdCopyImage2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyImageInfo2* pCopyImageInfo);
 
-void TrackCmdCopyBufferToImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
+void TrackCmdCopyBufferToImage2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
 
-void TrackCmdCopyImageToBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
+void TrackCmdCopyImageToBuffer2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
 
-void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2* pBlitImageInfo);
+void TrackCmdBlitImage2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkBlitImageInfo2* pBlitImageInfo);
 
-void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo);
+void TrackCmdResolveImage2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo);
 
-void TrackCmdBindIndexBuffer2KHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+void TrackCmdBindIndexBuffer2KHRHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdBindDescriptorSets2KHRHandles(CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+void TrackCmdBindDescriptorSets2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
 
-void TrackCmdPushConstants2KHRHandles(CommandBufferWrapper* wrapper, const VkPushConstantsInfoKHR* pPushConstantsInfo);
+void TrackCmdPushConstants2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkPushConstantsInfoKHR* pPushConstantsInfo);
 
-void TrackCmdPushDescriptorSet2KHRHandles(CommandBufferWrapper* wrapper, const VkPushDescriptorSetInfoKHR* pPushDescriptorSetInfo);
+void TrackCmdPushDescriptorSet2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkPushDescriptorSetInfoKHR* pPushDescriptorSetInfo);
 
-void TrackCmdPushDescriptorSetWithTemplate2KHRHandles(CommandBufferWrapper* wrapper, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);
+void TrackCmdPushDescriptorSetWithTemplate2KHRHandles(VulkanCommandBufferWrapper* wrapper, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);
 
-void TrackCmdSetDescriptorBufferOffsets2EXTHandles(CommandBufferWrapper* wrapper, const VkSetDescriptorBufferOffsetsInfoEXT* pSetDescriptorBufferOffsetsInfo);
+void TrackCmdSetDescriptorBufferOffsets2EXTHandles(VulkanCommandBufferWrapper* wrapper, const VkSetDescriptorBufferOffsetsInfoEXT* pSetDescriptorBufferOffsetsInfo);
 
-void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(CommandBufferWrapper* wrapper, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
+void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(VulkanCommandBufferWrapper* wrapper, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
 
-void TrackCmdBindTransformFeedbackBuffersEXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
+void TrackCmdBindTransformFeedbackBuffersEXTHandles(VulkanCommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
-void TrackCmdBeginTransformFeedbackEXTHandles(CommandBufferWrapper* wrapper, uint32_t counterBufferCount, const VkBuffer* pCounterBuffers);
+void TrackCmdBeginTransformFeedbackEXTHandles(VulkanCommandBufferWrapper* wrapper, uint32_t counterBufferCount, const VkBuffer* pCounterBuffers);
 
-void TrackCmdEndTransformFeedbackEXTHandles(CommandBufferWrapper* wrapper, uint32_t counterBufferCount, const VkBuffer* pCounterBuffers);
+void TrackCmdEndTransformFeedbackEXTHandles(VulkanCommandBufferWrapper* wrapper, uint32_t counterBufferCount, const VkBuffer* pCounterBuffers);
 
-void TrackCmdBeginQueryIndexedEXTHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+void TrackCmdBeginQueryIndexedEXTHandles(VulkanCommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
-void TrackCmdEndQueryIndexedEXTHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+void TrackCmdEndQueryIndexedEXTHandles(VulkanCommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
-void TrackCmdDrawIndirectByteCountEXTHandles(CommandBufferWrapper* wrapper, VkBuffer counterBuffer);
+void TrackCmdDrawIndirectByteCountEXTHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer counterBuffer);
 
-void TrackCmdDrawIndirectCountAMDHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
+void TrackCmdDrawIndirectCountAMDHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
-void TrackCmdDrawIndexedIndirectCountAMDHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
+void TrackCmdDrawIndexedIndirectCountAMDHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
-void TrackCmdBeginConditionalRenderingEXTHandles(CommandBufferWrapper* wrapper, const VkConditionalRenderingBeginInfoEXT* pConditionalRenderingBegin);
+void TrackCmdBeginConditionalRenderingEXTHandles(VulkanCommandBufferWrapper* wrapper, const VkConditionalRenderingBeginInfoEXT* pConditionalRenderingBegin);
 
-void TrackCmdBindShadingRateImageNVHandles(CommandBufferWrapper* wrapper, VkImageView imageView);
+void TrackCmdBindShadingRateImageNVHandles(VulkanCommandBufferWrapper* wrapper, VkImageView imageView);
 
-void TrackCmdBuildAccelerationStructureNVHandles(CommandBufferWrapper* wrapper, const VkAccelerationStructureInfoNV* pInfo, VkBuffer instanceData, VkAccelerationStructureNV dst, VkAccelerationStructureNV src, VkBuffer scratch);
+void TrackCmdBuildAccelerationStructureNVHandles(VulkanCommandBufferWrapper* wrapper, const VkAccelerationStructureInfoNV* pInfo, VkBuffer instanceData, VkAccelerationStructureNV dst, VkAccelerationStructureNV src, VkBuffer scratch);
 
-void TrackCmdCopyAccelerationStructureNVHandles(CommandBufferWrapper* wrapper, VkAccelerationStructureNV dst, VkAccelerationStructureNV src);
+void TrackCmdCopyAccelerationStructureNVHandles(VulkanCommandBufferWrapper* wrapper, VkAccelerationStructureNV dst, VkAccelerationStructureNV src);
 
-void TrackCmdTraceRaysNVHandles(CommandBufferWrapper* wrapper, VkBuffer raygenShaderBindingTableBuffer, VkBuffer missShaderBindingTableBuffer, VkBuffer hitShaderBindingTableBuffer, VkBuffer callableShaderBindingTableBuffer);
+void TrackCmdTraceRaysNVHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer raygenShaderBindingTableBuffer, VkBuffer missShaderBindingTableBuffer, VkBuffer hitShaderBindingTableBuffer, VkBuffer callableShaderBindingTableBuffer);
 
-void TrackCmdWriteAccelerationStructuresPropertiesNVHandles(CommandBufferWrapper* wrapper, uint32_t accelerationStructureCount, const VkAccelerationStructureNV* pAccelerationStructures, VkQueryPool queryPool);
+void TrackCmdWriteAccelerationStructuresPropertiesNVHandles(VulkanCommandBufferWrapper* wrapper, uint32_t accelerationStructureCount, const VkAccelerationStructureNV* pAccelerationStructures, VkQueryPool queryPool);
 
-void TrackCmdWriteBufferMarkerAMDHandles(CommandBufferWrapper* wrapper, VkBuffer dstBuffer);
+void TrackCmdWriteBufferMarkerAMDHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer dstBuffer);
 
-void TrackCmdDrawMeshTasksIndirectNVHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+void TrackCmdDrawMeshTasksIndirectNVHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdDrawMeshTasksIndirectCountNVHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
+void TrackCmdDrawMeshTasksIndirectCountNVHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
-void TrackCmdBindVertexBuffers2EXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
+void TrackCmdBindVertexBuffers2EXTHandles(VulkanCommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
-void TrackCmdPreprocessGeneratedCommandsNVHandles(CommandBufferWrapper* wrapper, const VkGeneratedCommandsInfoNV* pGeneratedCommandsInfo);
+void TrackCmdPreprocessGeneratedCommandsNVHandles(VulkanCommandBufferWrapper* wrapper, const VkGeneratedCommandsInfoNV* pGeneratedCommandsInfo);
 
-void TrackCmdExecuteGeneratedCommandsNVHandles(CommandBufferWrapper* wrapper, const VkGeneratedCommandsInfoNV* pGeneratedCommandsInfo);
+void TrackCmdExecuteGeneratedCommandsNVHandles(VulkanCommandBufferWrapper* wrapper, const VkGeneratedCommandsInfoNV* pGeneratedCommandsInfo);
 
-void TrackCmdBindPipelineShaderGroupNVHandles(CommandBufferWrapper* wrapper, VkPipeline pipeline);
+void TrackCmdBindPipelineShaderGroupNVHandles(VulkanCommandBufferWrapper* wrapper, VkPipeline pipeline);
 
-void TrackCmdBindInvocationMaskHUAWEIHandles(CommandBufferWrapper* wrapper, VkImageView imageView);
+void TrackCmdBindInvocationMaskHUAWEIHandles(VulkanCommandBufferWrapper* wrapper, VkImageView imageView);
 
-void TrackCmdBuildMicromapsEXTHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkMicromapBuildInfoEXT* pInfos);
+void TrackCmdBuildMicromapsEXTHandles(VulkanCommandBufferWrapper* wrapper, uint32_t infoCount, const VkMicromapBuildInfoEXT* pInfos);
 
-void TrackCmdCopyMicromapEXTHandles(CommandBufferWrapper* wrapper, const VkCopyMicromapInfoEXT* pInfo);
+void TrackCmdCopyMicromapEXTHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyMicromapInfoEXT* pInfo);
 
-void TrackCmdCopyMicromapToMemoryEXTHandles(CommandBufferWrapper* wrapper, const VkCopyMicromapToMemoryInfoEXT* pInfo);
+void TrackCmdCopyMicromapToMemoryEXTHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyMicromapToMemoryInfoEXT* pInfo);
 
-void TrackCmdCopyMemoryToMicromapEXTHandles(CommandBufferWrapper* wrapper, const VkCopyMemoryToMicromapInfoEXT* pInfo);
+void TrackCmdCopyMemoryToMicromapEXTHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyMemoryToMicromapInfoEXT* pInfo);
 
-void TrackCmdWriteMicromapsPropertiesEXTHandles(CommandBufferWrapper* wrapper, uint32_t micromapCount, const VkMicromapEXT* pMicromaps, VkQueryPool queryPool);
+void TrackCmdWriteMicromapsPropertiesEXTHandles(VulkanCommandBufferWrapper* wrapper, uint32_t micromapCount, const VkMicromapEXT* pMicromaps, VkQueryPool queryPool);
 
-void TrackCmdDrawClusterIndirectHUAWEIHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+void TrackCmdDrawClusterIndirectHUAWEIHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdUpdatePipelineIndirectBufferNVHandles(CommandBufferWrapper* wrapper, VkPipeline pipeline);
+void TrackCmdUpdatePipelineIndirectBufferNVHandles(VulkanCommandBufferWrapper* wrapper, VkPipeline pipeline);
 
-void TrackCmdOpticalFlowExecuteNVHandles(CommandBufferWrapper* wrapper, VkOpticalFlowSessionNV session);
+void TrackCmdOpticalFlowExecuteNVHandles(VulkanCommandBufferWrapper* wrapper, VkOpticalFlowSessionNV session);
 
-void TrackCmdBindShadersEXTHandles(CommandBufferWrapper* wrapper, uint32_t stageCount, const VkShaderEXT* pShaders);
+void TrackCmdBindShadersEXTHandles(VulkanCommandBufferWrapper* wrapper, uint32_t stageCount, const VkShaderEXT* pShaders);
 
-void TrackCmdBuildAccelerationStructuresKHRHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos);
+void TrackCmdBuildAccelerationStructuresKHRHandles(VulkanCommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos);
 
-void TrackCmdBuildAccelerationStructuresIndirectKHRHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos);
+void TrackCmdBuildAccelerationStructuresIndirectKHRHandles(VulkanCommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos);
 
-void TrackCmdCopyAccelerationStructureKHRHandles(CommandBufferWrapper* wrapper, const VkCopyAccelerationStructureInfoKHR* pInfo);
+void TrackCmdCopyAccelerationStructureKHRHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyAccelerationStructureInfoKHR* pInfo);
 
-void TrackCmdCopyAccelerationStructureToMemoryKHRHandles(CommandBufferWrapper* wrapper, const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo);
+void TrackCmdCopyAccelerationStructureToMemoryKHRHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo);
 
-void TrackCmdCopyMemoryToAccelerationStructureKHRHandles(CommandBufferWrapper* wrapper, const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo);
+void TrackCmdCopyMemoryToAccelerationStructureKHRHandles(VulkanCommandBufferWrapper* wrapper, const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo);
 
-void TrackCmdWriteAccelerationStructuresPropertiesKHRHandles(CommandBufferWrapper* wrapper, uint32_t accelerationStructureCount, const VkAccelerationStructureKHR* pAccelerationStructures, VkQueryPool queryPool);
+void TrackCmdWriteAccelerationStructuresPropertiesKHRHandles(VulkanCommandBufferWrapper* wrapper, uint32_t accelerationStructureCount, const VkAccelerationStructureKHR* pAccelerationStructures, VkQueryPool queryPool);
 
-void TrackCmdDrawMeshTasksIndirectEXTHandles(CommandBufferWrapper* wrapper, VkBuffer buffer);
+void TrackCmdDrawMeshTasksIndirectEXTHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdDrawMeshTasksIndirectCountEXTHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
+void TrackCmdDrawMeshTasksIndirectCountEXTHandles(VulkanCommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

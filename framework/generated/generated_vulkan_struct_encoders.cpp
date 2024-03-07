@@ -1167,7 +1167,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier& value)
     encoder->EncodeFlagsValue(value.dstAccessMask);
     encoder->EncodeUInt32Value(value.srcQueueFamilyIndex);
     encoder->EncodeUInt32Value(value.dstQueueFamilyIndex);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeVkDeviceSizeValue(value.size);
 }
@@ -1215,7 +1215,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier& value)
     encoder->EncodeEnumValue(value.newLayout);
     encoder->EncodeUInt32Value(value.srcQueueFamilyIndex);
     encoder->EncodeUInt32Value(value.dstQueueFamilyIndex);
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
     EncodeStruct(encoder, value.subresourceRange);
 }
 
@@ -1547,19 +1547,19 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSubmitInfo& value)
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.waitSemaphoreCount);
-    encoder->EncodeHandleArray<SemaphoreWrapper>(value.pWaitSemaphores, value.waitSemaphoreCount);
+    encoder->EncodeHandleArray<VulkanSemaphoreWrapper>(value.pWaitSemaphores, value.waitSemaphoreCount);
     encoder->EncodeFlagsArray(value.pWaitDstStageMask, value.waitSemaphoreCount);
     encoder->EncodeUInt32Value(value.commandBufferCount);
-    encoder->EncodeHandleArray<CommandBufferWrapper>(value.pCommandBuffers, value.commandBufferCount);
+    encoder->EncodeHandleArray<VulkanCommandBufferWrapper>(value.pCommandBuffers, value.commandBufferCount);
     encoder->EncodeUInt32Value(value.signalSemaphoreCount);
-    encoder->EncodeHandleArray<SemaphoreWrapper>(value.pSignalSemaphores, value.signalSemaphoreCount);
+    encoder->EncodeHandleArray<VulkanSemaphoreWrapper>(value.pSignalSemaphores, value.signalSemaphoreCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkMappedMemoryRange& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeVkDeviceSizeValue(value.size);
 }
@@ -1583,21 +1583,21 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSparseMemoryBind& value)
 {
     encoder->EncodeVkDeviceSizeValue(value.resourceOffset);
     encoder->EncodeVkDeviceSizeValue(value.size);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
     encoder->EncodeFlagsValue(value.flags);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSparseBufferMemoryBindInfo& value)
 {
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
     encoder->EncodeUInt32Value(value.bindCount);
     EncodeStructArray(encoder, value.pBinds, value.bindCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageOpaqueMemoryBindInfo& value)
 {
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
     encoder->EncodeUInt32Value(value.bindCount);
     EncodeStructArray(encoder, value.pBinds, value.bindCount);
 }
@@ -1614,14 +1614,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageMemoryBind& valu
     EncodeStruct(encoder, value.subresource);
     EncodeStruct(encoder, value.offset);
     EncodeStruct(encoder, value.extent);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
     encoder->EncodeFlagsValue(value.flags);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageMemoryBindInfo& value)
 {
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
     encoder->EncodeUInt32Value(value.bindCount);
     EncodeStructArray(encoder, value.pBinds, value.bindCount);
 }
@@ -1631,7 +1631,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindSparseInfo& value)
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.waitSemaphoreCount);
-    encoder->EncodeHandleArray<SemaphoreWrapper>(value.pWaitSemaphores, value.waitSemaphoreCount);
+    encoder->EncodeHandleArray<VulkanSemaphoreWrapper>(value.pWaitSemaphores, value.waitSemaphoreCount);
     encoder->EncodeUInt32Value(value.bufferBindCount);
     EncodeStructArray(encoder, value.pBufferBinds, value.bufferBindCount);
     encoder->EncodeUInt32Value(value.imageOpaqueBindCount);
@@ -1639,7 +1639,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindSparseInfo& value)
     encoder->EncodeUInt32Value(value.imageBindCount);
     EncodeStructArray(encoder, value.pImageBinds, value.imageBindCount);
     encoder->EncodeUInt32Value(value.signalSemaphoreCount);
-    encoder->EncodeHandleArray<SemaphoreWrapper>(value.pSignalSemaphores, value.signalSemaphoreCount);
+    encoder->EncodeHandleArray<VulkanSemaphoreWrapper>(value.pSignalSemaphores, value.signalSemaphoreCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageFormatProperties& value)
@@ -1706,7 +1706,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferViewCreateInfo& value
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
     encoder->EncodeEnumValue(value.format);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeVkDeviceSizeValue(value.range);
@@ -1753,7 +1753,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageViewCreateInfo& value)
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
     encoder->EncodeEnumValue(value.viewType);
     encoder->EncodeEnumValue(value.format);
     EncodeStruct(encoder, value.components);
@@ -1799,7 +1799,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineShaderStageCreateIn
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.stage);
-    encoder->EncodeHandleValue<ShaderModuleWrapper>(value.module);
+    encoder->EncodeHandleValue<VulkanShaderModuleWrapper>(value.module);
     encoder->EncodeString(value.pName);
     EncodeStructPtr(encoder, value.pSpecializationInfo);
 }
@@ -1810,8 +1810,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkComputePipelineCreateInfo& 
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     EncodeStruct(encoder, value.stage);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
-    encoder->EncodeHandleValue<PipelineWrapper>(value.basePipelineHandle);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanPipelineWrapper>(value.basePipelineHandle);
     encoder->EncodeInt32Value(value.basePipelineIndex);
 }
 
@@ -1985,10 +1985,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkGraphicsPipelineCreateInfo&
     EncodeStructPtr(encoder, value.pDepthStencilState);
     EncodeStructPtr(encoder, value.pColorBlendState);
     EncodeStructPtr(encoder, value.pDynamicState);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
-    encoder->EncodeHandleValue<RenderPassWrapper>(value.renderPass);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanRenderPassWrapper>(value.renderPass);
     encoder->EncodeUInt32Value(value.subpass);
-    encoder->EncodeHandleValue<PipelineWrapper>(value.basePipelineHandle);
+    encoder->EncodeHandleValue<VulkanPipelineWrapper>(value.basePipelineHandle);
     encoder->EncodeInt32Value(value.basePipelineIndex);
 }
 
@@ -2005,7 +2005,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLayoutCreateInfo& v
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeUInt32Value(value.setLayoutCount);
-    encoder->EncodeHandleArray<DescriptorSetLayoutWrapper>(value.pSetLayouts, value.setLayoutCount);
+    encoder->EncodeHandleArray<VulkanDescriptorSetLayoutWrapper>(value.pSetLayouts, value.setLayoutCount);
     encoder->EncodeUInt32Value(value.pushConstantRangeCount);
     EncodeStructArray(encoder, value.pPushConstantRanges, value.pushConstantRangeCount);
 }
@@ -2036,10 +2036,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyDescriptorSet& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DescriptorSetWrapper>(value.srcSet);
+    encoder->EncodeHandleValue<VulkanDescriptorSetWrapper>(value.srcSet);
     encoder->EncodeUInt32Value(value.srcBinding);
     encoder->EncodeUInt32Value(value.srcArrayElement);
-    encoder->EncodeHandleValue<DescriptorSetWrapper>(value.dstSet);
+    encoder->EncodeHandleValue<VulkanDescriptorSetWrapper>(value.dstSet);
     encoder->EncodeUInt32Value(value.dstBinding);
     encoder->EncodeUInt32Value(value.dstArrayElement);
     encoder->EncodeUInt32Value(value.descriptorCount);
@@ -2047,7 +2047,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyDescriptorSet& value)
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorBufferInfo& value)
 {
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeVkDeviceSizeValue(value.range);
 }
@@ -2072,9 +2072,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetAllocateInfo& 
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DescriptorPoolWrapper>(value.descriptorPool);
+    encoder->EncodeHandleValue<VulkanDescriptorPoolWrapper>(value.descriptorPool);
     encoder->EncodeUInt32Value(value.descriptorSetCount);
-    encoder->EncodeHandleArray<DescriptorSetLayoutWrapper>(value.pSetLayouts, value.descriptorSetCount);
+    encoder->EncodeHandleArray<VulkanDescriptorSetLayoutWrapper>(value.pSetLayouts, value.descriptorSetCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutBinding& value)
@@ -2083,7 +2083,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutBinding&
     encoder->EncodeEnumValue(value.descriptorType);
     encoder->EncodeUInt32Value(value.descriptorCount);
     encoder->EncodeFlagsValue(value.stageFlags);
-    encoder->EncodeHandleArray<SamplerWrapper>(value.pImmutableSamplers, value.descriptorCount);
+    encoder->EncodeHandleArray<VulkanSamplerWrapper>(value.pImmutableSamplers, value.descriptorCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutCreateInfo& value)
@@ -2119,9 +2119,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkFramebufferCreateInfo& valu
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<RenderPassWrapper>(value.renderPass);
+    encoder->EncodeHandleValue<VulkanRenderPassWrapper>(value.renderPass);
     encoder->EncodeUInt32Value(value.attachmentCount);
-    encoder->EncodeHandleArray<ImageViewWrapper>(value.pAttachments, value.attachmentCount);
+    encoder->EncodeHandleArray<VulkanImageViewWrapper>(value.pAttachments, value.attachmentCount);
     encoder->EncodeUInt32Value(value.width);
     encoder->EncodeUInt32Value(value.height);
     encoder->EncodeUInt32Value(value.layers);
@@ -2177,7 +2177,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferAllocateInfo& 
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<CommandPoolWrapper>(value.commandPool);
+    encoder->EncodeHandleValue<VulkanCommandPoolWrapper>(value.commandPool);
     encoder->EncodeEnumValue(value.level);
     encoder->EncodeUInt32Value(value.commandBufferCount);
 }
@@ -2186,9 +2186,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceInf
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<RenderPassWrapper>(value.renderPass);
+    encoder->EncodeHandleValue<VulkanRenderPassWrapper>(value.renderPass);
     encoder->EncodeUInt32Value(value.subpass);
-    encoder->EncodeHandleValue<FramebufferWrapper>(value.framebuffer);
+    encoder->EncodeHandleValue<VulkanFramebufferWrapper>(value.framebuffer);
     encoder->EncodeVkBool32Value(value.occlusionQueryEnable);
     encoder->EncodeFlagsValue(value.queryFlags);
     encoder->EncodeFlagsValue(value.pipelineStatistics);
@@ -2277,8 +2277,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassBeginInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<RenderPassWrapper>(value.renderPass);
-    encoder->EncodeHandleValue<FramebufferWrapper>(value.framebuffer);
+    encoder->EncodeHandleValue<VulkanRenderPassWrapper>(value.renderPass);
+    encoder->EncodeHandleValue<VulkanFramebufferWrapper>(value.framebuffer);
     EncodeStruct(encoder, value.renderArea);
     encoder->EncodeUInt32Value(value.clearValueCount);
     EncodeStructArray(encoder, value.pClearValues, value.clearValueCount);
@@ -2298,8 +2298,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindBufferMemoryInfo& value
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
 }
 
@@ -2307,8 +2307,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindImageMemoryInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
 }
 
@@ -2334,8 +2334,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryDedicatedAllocateInfo
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateFlagsInfo& value)
@@ -2405,7 +2405,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGroupProperti
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    encoder->EncodeHandleArray<PhysicalDeviceWrapper>(value.physicalDevices, value.physicalDeviceCount);
+    encoder->EncodeHandleArray<VulkanPhysicalDeviceWrapper>(value.physicalDevices, value.physicalDeviceCount);
     encoder->EncodeVkBool32Value(value.subsetAllocation);
 }
 
@@ -2414,28 +2414,28 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGroupDeviceCreateInfo
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    encoder->EncodeHandleArray<PhysicalDeviceWrapper>(value.pPhysicalDevices, value.physicalDeviceCount);
+    encoder->EncodeHandleArray<VulkanPhysicalDeviceWrapper>(value.pPhysicalDevices, value.physicalDeviceCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryRequirementsInfo2& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryRequirementsInfo2& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImageSparseMemoryRequirementsInfo2& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryRequirements2& value)
@@ -2644,7 +2644,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSamplerYcbcrConversionInfo&
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SamplerYcbcrConversionWrapper>(value.conversion);
+    encoder->EncodeHandleValue<VulkanSamplerYcbcrConversionWrapper>(value.conversion);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkBindImagePlaneMemoryInfo& value)
@@ -2693,9 +2693,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorUpdateTemplateCre
     encoder->EncodeUInt32Value(value.descriptorUpdateEntryCount);
     EncodeStructArray(encoder, value.pDescriptorUpdateEntries, value.descriptorUpdateEntryCount);
     encoder->EncodeEnumValue(value.templateType);
-    encoder->EncodeHandleValue<DescriptorSetLayoutWrapper>(value.descriptorSetLayout);
+    encoder->EncodeHandleValue<VulkanDescriptorSetLayoutWrapper>(value.descriptorSetLayout);
     encoder->EncodeEnumValue(value.pipelineBindPoint);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.pipelineLayout);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.pipelineLayout);
     encoder->EncodeUInt32Value(value.set);
 }
 
@@ -3311,7 +3311,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassAttachmentBeginIn
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.attachmentCount);
-    encoder->EncodeHandleArray<ImageViewWrapper>(value.pAttachments, value.attachmentCount);
+    encoder->EncodeHandleArray<VulkanImageViewWrapper>(value.pAttachments, value.attachmentCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceUniformBufferStandardLayoutFeatures& value)
@@ -3395,7 +3395,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreWaitInfo& value)
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeUInt32Value(value.semaphoreCount);
-    encoder->EncodeHandleArray<SemaphoreWrapper>(value.pSemaphores, value.semaphoreCount);
+    encoder->EncodeHandleArray<VulkanSemaphoreWrapper>(value.pSemaphores, value.semaphoreCount);
     encoder->EncodeUInt64Array(value.pValues, value.semaphoreCount);
 }
 
@@ -3403,7 +3403,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreSignalInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.semaphore);
+    encoder->EncodeHandleValue<VulkanSemaphoreWrapper>(value.semaphore);
     encoder->EncodeUInt64Value(value.value);
 }
 
@@ -3420,7 +3420,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressInfo& va
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferOpaqueCaptureAddressCreateInfo& value)
@@ -3441,7 +3441,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceMemoryOpaqueCaptureAd
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkan13Features& value)
@@ -3604,7 +3604,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier2& value
     encoder->EncodeFlags64Value(value.dstAccessMask);
     encoder->EncodeUInt32Value(value.srcQueueFamilyIndex);
     encoder->EncodeUInt32Value(value.dstQueueFamilyIndex);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeVkDeviceSizeValue(value.size);
 }
@@ -3621,7 +3621,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier2& value)
     encoder->EncodeEnumValue(value.newLayout);
     encoder->EncodeUInt32Value(value.srcQueueFamilyIndex);
     encoder->EncodeUInt32Value(value.dstQueueFamilyIndex);
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
     EncodeStruct(encoder, value.subresourceRange);
 }
 
@@ -3642,7 +3642,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreSubmitInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.semaphore);
+    encoder->EncodeHandleValue<VulkanSemaphoreWrapper>(value.semaphore);
     encoder->EncodeUInt64Value(value.value);
     encoder->EncodeFlags64Value(value.stageMask);
     encoder->EncodeUInt32Value(value.deviceIndex);
@@ -3652,7 +3652,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferSubmitInfo& va
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<CommandBufferWrapper>(value.commandBuffer);
+    encoder->EncodeHandleValue<VulkanCommandBufferWrapper>(value.commandBuffer);
     encoder->EncodeUInt32Value(value.deviceMask);
 }
 
@@ -3703,8 +3703,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyBufferInfo2& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<BufferWrapper>(value.srcBuffer);
-    encoder->EncodeHandleValue<BufferWrapper>(value.dstBuffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.srcBuffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.dstBuffer);
     encoder->EncodeUInt32Value(value.regionCount);
     EncodeStructArray(encoder, value.pRegions, value.regionCount);
 }
@@ -3724,9 +3724,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageInfo2& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.srcImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.srcImage);
     encoder->EncodeEnumValue(value.srcImageLayout);
-    encoder->EncodeHandleValue<ImageWrapper>(value.dstImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.dstImage);
     encoder->EncodeEnumValue(value.dstImageLayout);
     encoder->EncodeUInt32Value(value.regionCount);
     EncodeStructArray(encoder, value.pRegions, value.regionCount);
@@ -3748,8 +3748,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyBufferToImageInfo2& val
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<BufferWrapper>(value.srcBuffer);
-    encoder->EncodeHandleValue<ImageWrapper>(value.dstImage);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.srcBuffer);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.dstImage);
     encoder->EncodeEnumValue(value.dstImageLayout);
     encoder->EncodeUInt32Value(value.regionCount);
     EncodeStructArray(encoder, value.pRegions, value.regionCount);
@@ -3759,9 +3759,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToBufferInfo2& val
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.srcImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.srcImage);
     encoder->EncodeEnumValue(value.srcImageLayout);
-    encoder->EncodeHandleValue<BufferWrapper>(value.dstBuffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.dstBuffer);
     encoder->EncodeUInt32Value(value.regionCount);
     EncodeStructArray(encoder, value.pRegions, value.regionCount);
 }
@@ -3780,9 +3780,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBlitImageInfo2& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.srcImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.srcImage);
     encoder->EncodeEnumValue(value.srcImageLayout);
-    encoder->EncodeHandleValue<ImageWrapper>(value.dstImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.dstImage);
     encoder->EncodeEnumValue(value.dstImageLayout);
     encoder->EncodeUInt32Value(value.regionCount);
     EncodeStructArray(encoder, value.pRegions, value.regionCount);
@@ -3804,9 +3804,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkResolveImageInfo2& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.srcImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.srcImage);
     encoder->EncodeEnumValue(value.srcImageLayout);
-    encoder->EncodeHandleValue<ImageWrapper>(value.dstImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.dstImage);
     encoder->EncodeEnumValue(value.dstImageLayout);
     encoder->EncodeUInt32Value(value.regionCount);
     EncodeStructArray(encoder, value.pRegions, value.regionCount);
@@ -3882,10 +3882,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAttachmentInfo& va
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageViewWrapper>(value.imageView);
+    encoder->EncodeHandleValue<VulkanImageViewWrapper>(value.imageView);
     encoder->EncodeEnumValue(value.imageLayout);
     encoder->EncodeEnumValue(value.resolveMode);
-    encoder->EncodeHandleValue<ImageViewWrapper>(value.resolveImageView);
+    encoder->EncodeHandleValue<VulkanImageViewWrapper>(value.resolveImageView);
     encoder->EncodeEnumValue(value.resolveImageLayout);
     encoder->EncodeEnumValue(value.loadOp);
     encoder->EncodeEnumValue(value.storeOp);
@@ -4053,7 +4053,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainCreateInfoKHR& val
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<SurfaceKHRWrapper>(value.surface);
+    encoder->EncodeHandleValue<VulkanSurfaceKHRWrapper>(value.surface);
     encoder->EncodeUInt32Value(value.minImageCount);
     encoder->EncodeEnumValue(value.imageFormat);
     encoder->EncodeEnumValue(value.imageColorSpace);
@@ -4067,7 +4067,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainCreateInfoKHR& val
     encoder->EncodeEnumValue(value.compositeAlpha);
     encoder->EncodeEnumValue(value.presentMode);
     encoder->EncodeVkBool32Value(value.clipped);
-    encoder->EncodeHandleValue<SwapchainKHRWrapper>(value.oldSwapchain);
+    encoder->EncodeHandleValue<VulkanSwapchainKHRWrapper>(value.oldSwapchain);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPresentInfoKHR& value)
@@ -4075,9 +4075,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPresentInfoKHR& value)
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.waitSemaphoreCount);
-    encoder->EncodeHandleArray<SemaphoreWrapper>(value.pWaitSemaphores, value.waitSemaphoreCount);
+    encoder->EncodeHandleArray<VulkanSemaphoreWrapper>(value.pWaitSemaphores, value.waitSemaphoreCount);
     encoder->EncodeUInt32Value(value.swapchainCount);
-    encoder->EncodeHandleArray<SwapchainKHRWrapper>(value.pSwapchains, value.swapchainCount);
+    encoder->EncodeHandleArray<VulkanSwapchainKHRWrapper>(value.pSwapchains, value.swapchainCount);
     encoder->EncodeUInt32Array(value.pImageIndices, value.swapchainCount);
     encoder->EncodeEnumArray(value.pResults, value.swapchainCount);
 }
@@ -4086,14 +4086,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageSwapchainCreateInfoKHR
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SwapchainKHRWrapper>(value.swapchain);
+    encoder->EncodeHandleValue<VulkanSwapchainKHRWrapper>(value.swapchain);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkBindImageMemorySwapchainInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SwapchainKHRWrapper>(value.swapchain);
+    encoder->EncodeHandleValue<VulkanSwapchainKHRWrapper>(value.swapchain);
     encoder->EncodeUInt32Value(value.imageIndex);
 }
 
@@ -4101,10 +4101,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAcquireNextImageInfoKHR& va
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SwapchainKHRWrapper>(value.swapchain);
+    encoder->EncodeHandleValue<VulkanSwapchainKHRWrapper>(value.swapchain);
     encoder->EncodeUInt64Value(value.timeout);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.semaphore);
-    encoder->EncodeHandleValue<FenceWrapper>(value.fence);
+    encoder->EncodeHandleValue<VulkanSemaphoreWrapper>(value.semaphore);
+    encoder->EncodeHandleValue<VulkanFenceWrapper>(value.fence);
     encoder->EncodeUInt32Value(value.deviceMask);
 }
 
@@ -4148,7 +4148,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDisplayModeCreateInfoKHR& v
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayModePropertiesKHR& value)
 {
-    encoder->EncodeHandleValue<DisplayModeKHRWrapper>(value.displayMode);
+    encoder->EncodeHandleValue<VulkanDisplayModeKHRWrapper>(value.displayMode);
     EncodeStruct(encoder, value.parameters);
 }
 
@@ -4167,13 +4167,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPlaneCapabilitiesKHR
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPlanePropertiesKHR& value)
 {
-    encoder->EncodeHandleValue<DisplayKHRWrapper>(value.currentDisplay);
+    encoder->EncodeHandleValue<VulkanDisplayKHRWrapper>(value.currentDisplay);
     encoder->EncodeUInt32Value(value.currentStackIndex);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPropertiesKHR& value)
 {
-    encoder->EncodeHandleValue<DisplayKHRWrapper>(value.display);
+    encoder->EncodeHandleValue<VulkanDisplayKHRWrapper>(value.display);
     encoder->EncodeString(value.displayName);
     EncodeStruct(encoder, value.physicalDimensions);
     EncodeStruct(encoder, value.physicalResolution);
@@ -4187,7 +4187,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDisplaySurfaceCreateInfoKHR
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<DisplayModeKHRWrapper>(value.displayMode);
+    encoder->EncodeHandleValue<VulkanDisplayModeKHRWrapper>(value.displayMode);
     encoder->EncodeUInt32Value(value.planeIndex);
     encoder->EncodeUInt32Value(value.planeStackIndex);
     encoder->EncodeEnumValue(value.transform);
@@ -4322,7 +4322,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoPictureResourceInfoKHR
     EncodeStruct(encoder, value.codedOffset);
     EncodeStruct(encoder, value.codedExtent);
     encoder->EncodeUInt32Value(value.baseArrayLayer);
-    encoder->EncodeHandleValue<ImageViewWrapper>(value.imageViewBinding);
+    encoder->EncodeHandleValue<VulkanImageViewWrapper>(value.imageViewBinding);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoReferenceSlotInfoKHR& value)
@@ -4346,7 +4346,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindVideoSessionMemoryInfoK
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.memoryBindIndex);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
     encoder->EncodeVkDeviceSizeValue(value.memorySize);
 }
@@ -4371,8 +4371,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoSessionParametersCreat
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<VideoSessionParametersKHRWrapper>(value.videoSessionParametersTemplate);
-    encoder->EncodeHandleValue<VideoSessionKHRWrapper>(value.videoSession);
+    encoder->EncodeHandleValue<VulkanVideoSessionParametersKHRWrapper>(value.videoSessionParametersTemplate);
+    encoder->EncodeHandleValue<VulkanVideoSessionKHRWrapper>(value.videoSession);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoSessionParametersUpdateInfoKHR& value)
@@ -4387,8 +4387,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoBeginCodingInfoKHR& va
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<VideoSessionKHRWrapper>(value.videoSession);
-    encoder->EncodeHandleValue<VideoSessionParametersKHRWrapper>(value.videoSessionParameters);
+    encoder->EncodeHandleValue<VulkanVideoSessionKHRWrapper>(value.videoSession);
+    encoder->EncodeHandleValue<VulkanVideoSessionParametersKHRWrapper>(value.videoSessionParameters);
     encoder->EncodeUInt32Value(value.referenceSlotCount);
     EncodeStructArray(encoder, value.pReferenceSlots, value.referenceSlotCount);
 }
@@ -4426,7 +4426,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoDecodeInfoKHR& value)
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<BufferWrapper>(value.srcBuffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.srcBuffer);
     encoder->EncodeVkDeviceSizeValue(value.srcBufferOffset);
     encoder->EncodeVkDeviceSizeValue(value.srcBufferRange);
     EncodeStruct(encoder, value.dstPictureResource);
@@ -4813,7 +4813,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderingFragmentShadingRat
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageViewWrapper>(value.imageView);
+    encoder->EncodeHandleValue<VulkanImageViewWrapper>(value.imageView);
     encoder->EncodeEnumValue(value.imageLayout);
     EncodeStruct(encoder, value.shadingRateAttachmentTexelSize);
 }
@@ -4822,7 +4822,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderingFragmentDensityMap
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageViewWrapper>(value.imageView);
+    encoder->EncodeHandleValue<VulkanImageViewWrapper>(value.imageView);
     encoder->EncodeEnumValue(value.imageLayout);
 }
 
@@ -4872,7 +4872,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetWin32HandleInfoKHR
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeEnumValue(value.handleType);
 }
 
@@ -4895,7 +4895,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetFdInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeEnumValue(value.handleType);
 }
 
@@ -4904,11 +4904,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWin32KeyedMutexAcquireRelea
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.acquireCount);
-    encoder->EncodeHandleArray<DeviceMemoryWrapper>(value.pAcquireSyncs, value.acquireCount);
+    encoder->EncodeHandleArray<VulkanDeviceMemoryWrapper>(value.pAcquireSyncs, value.acquireCount);
     encoder->EncodeUInt64Array(value.pAcquireKeys, value.acquireCount);
     encoder->EncodeUInt32Array(value.pAcquireTimeouts, value.acquireCount);
     encoder->EncodeUInt32Value(value.releaseCount);
-    encoder->EncodeHandleArray<DeviceMemoryWrapper>(value.pReleaseSyncs, value.releaseCount);
+    encoder->EncodeHandleArray<VulkanDeviceMemoryWrapper>(value.pReleaseSyncs, value.releaseCount);
     encoder->EncodeUInt64Array(value.pReleaseKeys, value.releaseCount);
 }
 
@@ -4916,7 +4916,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImportSemaphoreWin32HandleI
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.semaphore);
+    encoder->EncodeHandleValue<VulkanSemaphoreWrapper>(value.semaphore);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.handleType);
     encoder->EncodeVoidPtr(value.handle);
@@ -4946,7 +4946,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreGetWin32HandleInfo
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.semaphore);
+    encoder->EncodeHandleValue<VulkanSemaphoreWrapper>(value.semaphore);
     encoder->EncodeEnumValue(value.handleType);
 }
 
@@ -4954,7 +4954,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImportSemaphoreFdInfoKHR& v
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.semaphore);
+    encoder->EncodeHandleValue<VulkanSemaphoreWrapper>(value.semaphore);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.handleType);
     encoder->EncodeInt32Value(value.fd);
@@ -4964,7 +4964,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreGetFdInfoKHR& valu
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.semaphore);
+    encoder->EncodeHandleValue<VulkanSemaphoreWrapper>(value.semaphore);
     encoder->EncodeEnumValue(value.handleType);
 }
 
@@ -5007,7 +5007,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImportFenceWin32HandleInfoK
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<FenceWrapper>(value.fence);
+    encoder->EncodeHandleValue<VulkanFenceWrapper>(value.fence);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.handleType);
     encoder->EncodeVoidPtr(value.handle);
@@ -5027,7 +5027,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkFenceGetWin32HandleInfoKHR&
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<FenceWrapper>(value.fence);
+    encoder->EncodeHandleValue<VulkanFenceWrapper>(value.fence);
     encoder->EncodeEnumValue(value.handleType);
 }
 
@@ -5035,7 +5035,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImportFenceFdInfoKHR& value
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<FenceWrapper>(value.fence);
+    encoder->EncodeHandleValue<VulkanFenceWrapper>(value.fence);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.handleType);
     encoder->EncodeInt32Value(value.fd);
@@ -5045,7 +5045,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkFenceGetFdInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<FenceWrapper>(value.fence);
+    encoder->EncodeHandleValue<VulkanFenceWrapper>(value.fence);
     encoder->EncodeEnumValue(value.handleType);
 }
 
@@ -5112,7 +5112,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSurfaceInfo2K
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SurfaceKHRWrapper>(value.surface);
+    encoder->EncodeHandleValue<VulkanSurfaceKHRWrapper>(value.surface);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilities2KHR& value)
@@ -5154,7 +5154,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPlaneInfo2KHR& value
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DisplayModeKHRWrapper>(value.mode);
+    encoder->EncodeHandleValue<VulkanDisplayModeKHRWrapper>(value.mode);
     encoder->EncodeUInt32Value(value.planeIndex);
 }
 
@@ -5388,7 +5388,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<PipelineWrapper>(value.pipeline);
+    encoder->EncodeHandleValue<VulkanPipelineWrapper>(value.pipeline);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutablePropertiesKHR& value)
@@ -5405,7 +5405,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableInfoKHR& 
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<PipelineWrapper>(value.pipeline);
+    encoder->EncodeHandleValue<VulkanPipelineWrapper>(value.pipeline);
     encoder->EncodeUInt32Value(value.executableIndex);
 }
 
@@ -5435,7 +5435,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryMapInfoKHR& value)
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeVkDeviceSizeValue(value.size);
 }
@@ -5445,7 +5445,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryUnmapInfoKHR& value)
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLibraryCreateInfoKHR& value)
@@ -5453,7 +5453,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLibraryCreateInfoKH
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.libraryCount);
-    encoder->EncodeHandleArray<PipelineWrapper>(value.pLibraries, value.libraryCount);
+    encoder->EncodeHandleArray<VulkanPipelineWrapper>(value.pLibraries, value.libraryCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPresentIdKHR& value)
@@ -5476,7 +5476,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeInfoKHR& value)
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<BufferWrapper>(value.dstBuffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.dstBuffer);
     encoder->EncodeVkDeviceSizeValue(value.dstBufferOffset);
     encoder->EncodeVkDeviceSizeValue(value.dstBufferRange);
     EncodeStruct(encoder, value.srcPictureResource);
@@ -5564,7 +5564,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionParameter
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<VideoSessionParametersKHRWrapper>(value.videoSessionParameters);
+    encoder->EncodeHandleValue<VulkanVideoSessionParametersKHRWrapper>(value.videoSessionParameters);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionParametersFeedbackInfoKHR& value)
@@ -5816,7 +5816,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVideoInlineQueryInfoKHR& va
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<QueryPoolWrapper>(value.queryPool);
+    encoder->EncodeHandleValue<VulkanQueryPoolWrapper>(value.queryPool);
     encoder->EncodeUInt32Value(value.firstQuery);
     encoder->EncodeUInt32Value(value.queryCount);
 }
@@ -5936,10 +5936,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindDescriptorSetsInfoKHR& 
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.stageFlags);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
     encoder->EncodeUInt32Value(value.firstSet);
     encoder->EncodeUInt32Value(value.descriptorSetCount);
-    encoder->EncodeHandleArray<DescriptorSetWrapper>(value.pDescriptorSets, value.descriptorSetCount);
+    encoder->EncodeHandleArray<VulkanDescriptorSetWrapper>(value.pDescriptorSets, value.descriptorSetCount);
     encoder->EncodeUInt32Value(value.dynamicOffsetCount);
     encoder->EncodeUInt32Array(value.pDynamicOffsets, value.dynamicOffsetCount);
 }
@@ -5948,7 +5948,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPushConstantsInfoKHR& value
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
     encoder->EncodeFlagsValue(value.stageFlags);
     encoder->EncodeUInt32Value(value.offset);
     encoder->EncodeUInt32Value(value.size);
@@ -5960,7 +5960,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetInfoKHR& v
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.stageFlags);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
     encoder->EncodeUInt32Value(value.set);
     encoder->EncodeUInt32Value(value.descriptorWriteCount);
     EncodeStructArray(encoder, value.pDescriptorWrites, value.descriptorWriteCount);
@@ -5970,8 +5970,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTempla
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DescriptorUpdateTemplateWrapper>(value.descriptorUpdateTemplate);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanDescriptorUpdateTemplateWrapper>(value.descriptorUpdateTemplate);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
     encoder->EncodeUInt32Value(value.set);
     encoder->EncodeVoidPtr(value.pData);
 }
@@ -5981,7 +5981,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSetDescriptorBufferOffsetsI
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.stageFlags);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
     encoder->EncodeUInt32Value(value.firstSet);
     encoder->EncodeUInt32Value(value.setCount);
     encoder->EncodeUInt32Array(value.pBufferIndices, value.setCount);
@@ -5993,7 +5993,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindDescriptorBufferEmbedde
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.stageFlags);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
     encoder->EncodeUInt32Value(value.set);
 }
 
@@ -6059,8 +6059,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDedicatedAllocationMemoryAl
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTransformFeedbackFeaturesEXT& value)
@@ -6099,9 +6099,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageViewHandleInfoNVX& val
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageViewWrapper>(value.imageView);
+    encoder->EncodeHandleValue<VulkanImageViewWrapper>(value.imageView);
     encoder->EncodeEnumValue(value.descriptorType);
-    encoder->EncodeHandleValue<SamplerWrapper>(value.sampler);
+    encoder->EncodeHandleValue<VulkanSamplerWrapper>(value.sampler);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImageViewAddressPropertiesNVX& value)
@@ -6197,11 +6197,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWin32KeyedMutexAcquireRelea
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.acquireCount);
-    encoder->EncodeHandleArray<DeviceMemoryWrapper>(value.pAcquireSyncs, value.acquireCount);
+    encoder->EncodeHandleArray<VulkanDeviceMemoryWrapper>(value.pAcquireSyncs, value.acquireCount);
     encoder->EncodeUInt64Array(value.pAcquireKeys, value.acquireCount);
     encoder->EncodeUInt32Array(value.pAcquireTimeoutMilliseconds, value.acquireCount);
     encoder->EncodeUInt32Value(value.releaseCount);
-    encoder->EncodeHandleArray<DeviceMemoryWrapper>(value.pReleaseSyncs, value.releaseCount);
+    encoder->EncodeHandleArray<VulkanDeviceMemoryWrapper>(value.pReleaseSyncs, value.releaseCount);
     encoder->EncodeUInt64Array(value.pReleaseKeys, value.releaseCount);
 }
 
@@ -6266,7 +6266,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkConditionalRenderingBeginIn
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeFlagsValue(value.flags);
 }
@@ -6592,7 +6592,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetAndroidHardwareBuf
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkExternalFormatANDROID& value)
@@ -6820,7 +6820,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleValidationCache
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ValidationCacheEXTWrapper>(value.validationCache);
+    encoder->EncodeHandleValue<VulkanValidationCacheEXTWrapper>(value.validationCache);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkShadingRatePaletteNV& value)
@@ -6900,8 +6900,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRayTracingPipelineCreateInf
     encoder->EncodeUInt32Value(value.groupCount);
     EncodeStructArray(encoder, value.pGroups, value.groupCount);
     encoder->EncodeUInt32Value(value.maxRecursionDepth);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
-    encoder->EncodeHandleValue<PipelineWrapper>(value.basePipelineHandle);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanPipelineWrapper>(value.basePipelineHandle);
     encoder->EncodeInt32Value(value.basePipelineIndex);
 }
 
@@ -6909,16 +6909,16 @@ void EncodeStruct(ParameterEncoder* encoder, const VkGeometryTrianglesNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<BufferWrapper>(value.vertexData);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.vertexData);
     encoder->EncodeVkDeviceSizeValue(value.vertexOffset);
     encoder->EncodeUInt32Value(value.vertexCount);
     encoder->EncodeVkDeviceSizeValue(value.vertexStride);
     encoder->EncodeEnumValue(value.vertexFormat);
-    encoder->EncodeHandleValue<BufferWrapper>(value.indexData);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.indexData);
     encoder->EncodeVkDeviceSizeValue(value.indexOffset);
     encoder->EncodeUInt32Value(value.indexCount);
     encoder->EncodeEnumValue(value.indexType);
-    encoder->EncodeHandleValue<BufferWrapper>(value.transformData);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.transformData);
     encoder->EncodeVkDeviceSizeValue(value.transformOffset);
 }
 
@@ -6926,7 +6926,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkGeometryAABBNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<BufferWrapper>(value.aabbData);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.aabbData);
     encoder->EncodeUInt32Value(value.numAABBs);
     encoder->EncodeUInt32Value(value.stride);
     encoder->EncodeVkDeviceSizeValue(value.offset);
@@ -6970,8 +6970,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindAccelerationStructureMe
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<AccelerationStructureNVWrapper>(value.accelerationStructure);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanAccelerationStructureNVWrapper>(value.accelerationStructure);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
     encoder->EncodeUInt32Value(value.deviceIndexCount);
     encoder->EncodeUInt32Array(value.pDeviceIndices, value.deviceIndexCount);
@@ -6982,7 +6982,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSetAccelerat
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.accelerationStructureCount);
-    encoder->EncodeHandleArray<AccelerationStructureNVWrapper>(value.pAccelerationStructures, value.accelerationStructureCount);
+    encoder->EncodeHandleArray<VulkanAccelerationStructureNVWrapper>(value.pAccelerationStructures, value.accelerationStructureCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMemoryRequirementsInfoNV& value)
@@ -6990,7 +6990,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMemory
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.type);
-    encoder->EncodeHandleValue<AccelerationStructureNVWrapper>(value.accelerationStructure);
+    encoder->EncodeHandleValue<VulkanAccelerationStructureNVWrapper>(value.accelerationStructure);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPropertiesNV& value)
@@ -7597,7 +7597,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfoEXT& v
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<ImageWrapper>(value.dstImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.dstImage);
     encoder->EncodeEnumValue(value.dstImageLayout);
     encoder->EncodeUInt32Value(value.regionCount);
     EncodeStructArray(encoder, value.pRegions, value.regionCount);
@@ -7608,7 +7608,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfoEXT& v
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<ImageWrapper>(value.srcImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.srcImage);
     encoder->EncodeEnumValue(value.srcImageLayout);
     encoder->EncodeUInt32Value(value.regionCount);
     EncodeStructArray(encoder, value.pRegions, value.regionCount);
@@ -7619,9 +7619,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToImageInfoEXT& va
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue<ImageWrapper>(value.srcImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.srcImage);
     encoder->EncodeEnumValue(value.srcImageLayout);
-    encoder->EncodeHandleValue<ImageWrapper>(value.dstImage);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.dstImage);
     encoder->EncodeEnumValue(value.dstImageLayout);
     encoder->EncodeUInt32Value(value.regionCount);
     EncodeStructArray(encoder, value.pRegions, value.regionCount);
@@ -7631,7 +7631,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkHostImageLayoutTransitionIn
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<ImageWrapper>(value.image);
+    encoder->EncodeHandleValue<VulkanImageWrapper>(value.image);
     encoder->EncodeEnumValue(value.oldLayout);
     encoder->EncodeEnumValue(value.newLayout);
     EncodeStruct(encoder, value.subresourceRange);
@@ -7731,7 +7731,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentFenceInfoEX
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.swapchainCount);
-    encoder->EncodeHandleArray<FenceWrapper>(value.pFences, value.swapchainCount);
+    encoder->EncodeHandleArray<VulkanFenceWrapper>(value.pFences, value.swapchainCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentModesCreateInfoEXT& value)
@@ -7763,7 +7763,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkReleaseSwapchainImagesInfoE
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SwapchainKHRWrapper>(value.swapchain);
+    encoder->EncodeHandleValue<VulkanSwapchainKHRWrapper>(value.swapchain);
     encoder->EncodeUInt32Value(value.imageIndexCount);
     encoder->EncodeUInt32Array(value.pImageIndices, value.imageIndexCount);
 }
@@ -7807,7 +7807,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkGraphicsPipelineShaderGroup
     encoder->EncodeUInt32Value(value.groupCount);
     EncodeStructArray(encoder, value.pGroups, value.groupCount);
     encoder->EncodeUInt32Value(value.pipelineCount);
-    encoder->EncodeHandleArray<PipelineWrapper>(value.pPipelines, value.pipelineCount);
+    encoder->EncodeHandleArray<VulkanPipelineWrapper>(value.pPipelines, value.pipelineCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkBindShaderGroupIndirectCommandNV& value)
@@ -7836,7 +7836,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSetStateFlagsIndirectComman
 
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsStreamNV& value)
 {
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
     encoder->EncodeVkDeviceSizeValue(value.offset);
 }
 
@@ -7849,7 +7849,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutToken
     encoder->EncodeUInt32Value(value.offset);
     encoder->EncodeUInt32Value(value.vertexBindingUnit);
     encoder->EncodeVkBool32Value(value.vertexDynamicStride);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.pushconstantPipelineLayout);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.pushconstantPipelineLayout);
     encoder->EncodeFlagsValue(value.pushconstantShaderStageFlags);
     encoder->EncodeUInt32Value(value.pushconstantOffset);
     encoder->EncodeUInt32Value(value.pushconstantSize);
@@ -7876,17 +7876,17 @@ void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsInfoNV& va
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.pipelineBindPoint);
-    encoder->EncodeHandleValue<PipelineWrapper>(value.pipeline);
-    encoder->EncodeHandleValue<IndirectCommandsLayoutNVWrapper>(value.indirectCommandsLayout);
+    encoder->EncodeHandleValue<VulkanPipelineWrapper>(value.pipeline);
+    encoder->EncodeHandleValue<VulkanIndirectCommandsLayoutNVWrapper>(value.indirectCommandsLayout);
     encoder->EncodeUInt32Value(value.streamCount);
     EncodeStructArray(encoder, value.pStreams, value.streamCount);
     encoder->EncodeUInt32Value(value.sequencesCount);
-    encoder->EncodeHandleValue<BufferWrapper>(value.preprocessBuffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.preprocessBuffer);
     encoder->EncodeVkDeviceSizeValue(value.preprocessOffset);
     encoder->EncodeVkDeviceSizeValue(value.preprocessSize);
-    encoder->EncodeHandleValue<BufferWrapper>(value.sequencesCountBuffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.sequencesCountBuffer);
     encoder->EncodeVkDeviceSizeValue(value.sequencesCountOffset);
-    encoder->EncodeHandleValue<BufferWrapper>(value.sequencesIndexBuffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.sequencesIndexBuffer);
     encoder->EncodeVkDeviceSizeValue(value.sequencesIndexOffset);
 }
 
@@ -7895,8 +7895,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsMemoryRequ
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.pipelineBindPoint);
-    encoder->EncodeHandleValue<PipelineWrapper>(value.pipeline);
-    encoder->EncodeHandleValue<IndirectCommandsLayoutNVWrapper>(value.indirectCommandsLayout);
+    encoder->EncodeHandleValue<VulkanPipelineWrapper>(value.pipeline);
+    encoder->EncodeHandleValue<VulkanIndirectCommandsLayoutNVWrapper>(value.indirectCommandsLayout);
     encoder->EncodeUInt32Value(value.maxSequencesCount);
 }
 
@@ -8464,7 +8464,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetZirconHandleInfoFU
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeEnumValue(value.handleType);
 }
 
@@ -8472,7 +8472,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImportSemaphoreZirconHandle
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.semaphore);
+    encoder->EncodeHandleValue<VulkanSemaphoreWrapper>(value.semaphore);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.handleType);
     encoder->EncodeUInt32Value(value.zirconHandle);
@@ -8482,7 +8482,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreGetZirconHandleInf
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.semaphore);
+    encoder->EncodeHandleValue<VulkanSemaphoreWrapper>(value.semaphore);
     encoder->EncodeEnumValue(value.handleType);
 }
 
@@ -8497,7 +8497,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetRemoteAddressInfoN
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeHandleValue<VulkanDeviceMemoryWrapper>(value.memory);
     encoder->EncodeEnumValue(value.handleType);
 }
 
@@ -8522,9 +8522,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkFrameBoundaryEXT& value)
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeUInt64Value(value.frameID);
     encoder->EncodeUInt32Value(value.imageCount);
-    encoder->EncodeHandleArray<ImageWrapper>(value.pImages, value.imageCount);
+    encoder->EncodeHandleArray<VulkanImageWrapper>(value.pImages, value.imageCount);
     encoder->EncodeUInt32Value(value.bufferCount);
-    encoder->EncodeHandleArray<BufferWrapper>(value.pBuffers, value.bufferCount);
+    encoder->EncodeHandleArray<VulkanBufferWrapper>(value.pBuffers, value.bufferCount);
     encoder->EncodeUInt64Value(value.tagName);
     encoder->EncodeSizeTValue(value.tagSize);
     encoder->EncodeVoidArray(value.pTag, value.tagSize);
@@ -8675,7 +8675,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMicromapBuildInfoEXT& value
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.mode);
-    encoder->EncodeHandleValue<MicromapEXTWrapper>(value.dstMicromap);
+    encoder->EncodeHandleValue<VulkanMicromapEXTWrapper>(value.dstMicromap);
     encoder->EncodeUInt32Value(value.usageCountsCount);
     EncodeStructArray(encoder, value.pUsageCounts, value.usageCountsCount);
     EncodeStructArray2D(encoder, value.ppUsageCounts, value.usageCountsCount, 1);
@@ -8690,7 +8690,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMicromapCreateInfoEXT& valu
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.createFlags);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeVkDeviceSizeValue(value.size);
     encoder->EncodeEnumValue(value.type);
@@ -8725,7 +8725,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMicromapToMemoryInfoEXT
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<MicromapEXTWrapper>(value.src);
+    encoder->EncodeHandleValue<VulkanMicromapEXTWrapper>(value.src);
     EncodeStruct(encoder, value.dst);
     encoder->EncodeEnumValue(value.mode);
 }
@@ -8735,7 +8735,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToMicromapInfoEXT
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     EncodeStruct(encoder, value.src);
-    encoder->EncodeHandleValue<MicromapEXTWrapper>(value.dst);
+    encoder->EncodeHandleValue<VulkanMicromapEXTWrapper>(value.dst);
     encoder->EncodeEnumValue(value.mode);
 }
 
@@ -8743,8 +8743,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMicromapInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<MicromapEXTWrapper>(value.src);
-    encoder->EncodeHandleValue<MicromapEXTWrapper>(value.dst);
+    encoder->EncodeHandleValue<VulkanMicromapEXTWrapper>(value.src);
+    encoder->EncodeHandleValue<VulkanMicromapEXTWrapper>(value.dst);
     encoder->EncodeEnumValue(value.mode);
 }
 
@@ -8768,7 +8768,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureTriang
     encoder->EncodeUInt32Value(value.usageCountsCount);
     EncodeStructArray(encoder, value.pUsageCounts, value.usageCountsCount);
     EncodeStructArray2D(encoder, value.ppUsageCounts, value.usageCountsCount, 1);
-    encoder->EncodeHandleValue<MicromapEXTWrapper>(value.micromap);
+    encoder->EncodeHandleValue<VulkanMicromapEXTWrapper>(value.micromap);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkMicromapTriangleEXT& value)
@@ -8811,7 +8811,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureTriang
     encoder->EncodeUInt32Value(value.usageCountsCount);
     EncodeStructArray(encoder, value.pUsageCounts, value.usageCountsCount);
     EncodeStructArray2D(encoder, value.ppUsageCounts, value.usageCountsCount, 1);
-    encoder->EncodeHandleValue<MicromapEXTWrapper>(value.micromap);
+    encoder->EncodeHandleValue<VulkanMicromapEXTWrapper>(value.micromap);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI& value)
@@ -8918,7 +8918,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetBindingReferen
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DescriptorSetLayoutWrapper>(value.descriptorSetLayout);
+    encoder->EncodeHandleValue<VulkanDescriptorSetLayoutWrapper>(value.descriptorSetLayout);
     encoder->EncodeUInt32Value(value.binding);
 }
 
@@ -9027,7 +9027,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineIndirectDeviceAddre
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.pipelineBindPoint);
-    encoder->EncodeHandleValue<PipelineWrapper>(value.pipeline);
+    encoder->EncodeHandleValue<VulkanPipelineWrapper>(value.pipeline);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkBindPipelineIndirectCommandNV& value)
@@ -9385,7 +9385,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkShaderCreateInfoEXT& value)
     encoder->EncodeVoidArray(value.pCode, value.codeSize);
     encoder->EncodeString(value.pName);
     encoder->EncodeUInt32Value(value.setLayoutCount);
-    encoder->EncodeHandleArray<DescriptorSetLayoutWrapper>(value.pSetLayouts, value.setLayoutCount);
+    encoder->EncodeHandleArray<VulkanDescriptorSetLayoutWrapper>(value.pSetLayouts, value.setLayoutCount);
     encoder->EncodeUInt32Value(value.pushConstantRangeCount);
     EncodeStructArray(encoder, value.pPushConstantRanges, value.pushConstantRangeCount);
     EncodeStructPtr(encoder, value.pSpecializationInfo);
@@ -9762,8 +9762,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildG
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeEnumValue(value.mode);
-    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(value.srcAccelerationStructure);
-    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(value.dstAccelerationStructure);
+    encoder->EncodeHandleValue<VulkanAccelerationStructureKHRWrapper>(value.srcAccelerationStructure);
+    encoder->EncodeHandleValue<VulkanAccelerationStructureKHRWrapper>(value.dstAccelerationStructure);
     encoder->EncodeUInt32Value(value.geometryCount);
     EncodeStructArray(encoder, value.pGeometries, value.geometryCount);
     EncodeStructArray2D(encoder, value.ppGeometries, value.geometryCount, 1);
@@ -9775,7 +9775,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCreate
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.createFlags);
-    encoder->EncodeHandleValue<BufferWrapper>(value.buffer);
+    encoder->EncodeHandleValue<VulkanBufferWrapper>(value.buffer);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeVkDeviceSizeValue(value.size);
     encoder->EncodeEnumValue(value.type);
@@ -9787,7 +9787,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSetAccelerat
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.accelerationStructureCount);
-    encoder->EncodeHandleArray<AccelerationStructureKHRWrapper>(value.pAccelerationStructures, value.accelerationStructureCount);
+    encoder->EncodeHandleArray<VulkanAccelerationStructureKHRWrapper>(value.pAccelerationStructures, value.accelerationStructureCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceAccelerationStructureFeaturesKHR& value)
@@ -9819,7 +9819,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureDevice
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(value.accelerationStructure);
+    encoder->EncodeHandleValue<VulkanAccelerationStructureKHRWrapper>(value.accelerationStructure);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureVersionInfoKHR& value)
@@ -9833,7 +9833,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyAccelerationStructureTo
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(value.src);
+    encoder->EncodeHandleValue<VulkanAccelerationStructureKHRWrapper>(value.src);
     EncodeStruct(encoder, value.dst);
     encoder->EncodeEnumValue(value.mode);
 }
@@ -9843,7 +9843,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToAccelerationStr
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     EncodeStruct(encoder, value.src);
-    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(value.dst);
+    encoder->EncodeHandleValue<VulkanAccelerationStructureKHRWrapper>(value.dst);
     encoder->EncodeEnumValue(value.mode);
 }
 
@@ -9851,8 +9851,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyAccelerationStructureIn
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(value.src);
-    encoder->EncodeHandleValue<AccelerationStructureKHRWrapper>(value.dst);
+    encoder->EncodeHandleValue<VulkanAccelerationStructureKHRWrapper>(value.src);
+    encoder->EncodeHandleValue<VulkanAccelerationStructureKHRWrapper>(value.dst);
     encoder->EncodeEnumValue(value.mode);
 }
 
@@ -9898,8 +9898,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRayTracingPipelineCreateInf
     EncodeStructPtr(encoder, value.pLibraryInfo);
     EncodeStructPtr(encoder, value.pLibraryInterface);
     EncodeStructPtr(encoder, value.pDynamicState);
-    encoder->EncodeHandleValue<PipelineLayoutWrapper>(value.layout);
-    encoder->EncodeHandleValue<PipelineWrapper>(value.basePipelineHandle);
+    encoder->EncodeHandleValue<VulkanPipelineLayoutWrapper>(value.layout);
+    encoder->EncodeHandleValue<VulkanPipelineWrapper>(value.basePipelineHandle);
     encoder->EncodeInt32Value(value.basePipelineIndex);
 }
 

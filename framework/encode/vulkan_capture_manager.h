@@ -220,7 +220,7 @@ class VulkanCaptureManager : public CaptureManager
         if ((call_id == format::ApiCallId::ApiCall_vkBeginCommandBuffer) ||
             (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
         {
-            auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+            auto cmd_buffer_wrapper = GetWrapper<VulkanCommandBufferWrapper>(command_buffer);
             GFXRECON_ASSERT(cmd_buffer_wrapper != nullptr);
             cmd_buffer_wrapper->is_frame_boundary = false;
         }
@@ -940,7 +940,7 @@ class VulkanCaptureManager : public CaptureManager
 
             for (uint32_t j = 0; j < pSubmits[i].commandBufferCount; ++j)
             {
-                auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(pSubmits[i].pCommandBuffers[j]);
+                auto cmd_buffer_wrapper = GetWrapper<VulkanCommandBufferWrapper>(pSubmits[i].pCommandBuffers[j]);
                 if (CheckCommandBufferWrapperForFrameBoundary(cmd_buffer_wrapper))
                 {
                     break;
@@ -980,7 +980,7 @@ class VulkanCaptureManager : public CaptureManager
             for (uint32_t j = 0; j < pSubmits[i].commandBufferInfoCount; ++j)
             {
                 auto cmd_buffer_wrapper =
-                    GetWrapper<CommandBufferWrapper>(pSubmits[i].pCommandBufferInfos[j].commandBuffer);
+                    GetWrapper<VulkanCommandBufferWrapper>(pSubmits[i].pCommandBufferInfos[j].commandBuffer);
                 if (CheckCommandBufferWrapperForFrameBoundary(cmd_buffer_wrapper))
                 {
                     break;
@@ -1262,9 +1262,15 @@ class VulkanCaptureManager : public CaptureManager
 
     virtual ~VulkanCaptureManager() override {}
 
-    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
+    virtual void CreateStateTracker() override
+    {
+        state_tracker_ = std::make_unique<VulkanStateTracker>();
+    }
 
-    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
+    virtual void DestroyStateTracker() override
+    {
+        state_tracker_ = nullptr;
+    }
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
 
@@ -1307,7 +1313,7 @@ class VulkanCaptureManager : public CaptureManager
     void
     ProcessEnumeratePhysicalDevices(VkResult result, VkInstance instance, uint32_t count, VkPhysicalDevice* devices);
 
-    VkMemoryPropertyFlags GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index);
+    VkMemoryPropertyFlags GetMemoryProperties(VulkanDeviceWrapper* device_wrapper, uint32_t memory_type_index);
 
     const VkImportAndroidHardwareBufferInfoANDROID*
     FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info);
@@ -1317,19 +1323,19 @@ class VulkanCaptureManager : public CaptureManager
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
     bool CheckBindAlignment(VkDeviceSize memoryOffset);
 
-    bool CheckCommandBufferWrapperForFrameBoundary(const CommandBufferWrapper* command_buffer_wrapper);
+    bool CheckCommandBufferWrapperForFrameBoundary(const VulkanCommandBufferWrapper* command_buffer_wrapper);
 
     bool CheckPNextChainForFrameBoundary(const VkBaseInStructure* current);
 
   private:
     void QueueSubmitWriteFillMemoryCmd();
 
-    static VulkanCaptureManager*        instance_;
-    static VulkanLayerTable             vulkan_layer_table_;
-    std::set<DeviceMemoryWrapper*>      mapped_memory_; // Track mapped memory for unassisted tracking mode.
-    std::unique_ptr<VulkanStateTracker> state_tracker_;
-    HardwareBufferMap                   hardware_buffers_;
-    std::mutex                          deferred_operation_mutex;
+    static VulkanCaptureManager*         instance_;
+    static VulkanLayerTable              vulkan_layer_table_;
+    std::set<VulkanDeviceMemoryWrapper*> mapped_memory_; // Track mapped memory for unassisted tracking mode.
+    std::unique_ptr<VulkanStateTracker>  state_tracker_;
+    HardwareBufferMap                    hardware_buffers_;
+    std::mutex                           deferred_operation_mutex;
 };
 
 GFXRECON_END_NAMESPACE(encode)

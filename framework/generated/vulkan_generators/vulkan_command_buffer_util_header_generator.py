@@ -127,7 +127,7 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
                 if (handles):
                     # Generate a function to build a list of handle types and values.
                     cmddef = '\n'
-                    cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {});'.format(
+                    cmddef += 'void Track{}Handles(VulkanCommandBufferWrapper* wrapper, {});'.format(
                         cmd[2:], self.get_arg_list(handles)
                     )
                     write(cmddef, file=self.outFile)
