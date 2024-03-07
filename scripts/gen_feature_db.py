@@ -12,6 +12,7 @@ import abc
 import xml.etree.ElementTree as ET
 from io import StringIO
 from collections.abc import Iterable
+import time
 
 script_name = os.path.basename(__file__)
 
@@ -24,34 +25,7 @@ def is_windows():
 
 # Print usage instructions
 def usage():
-    print("Usage for %s will go here." % script_name)
-    #print("gfxrecon-optimize-renamed.py - Helper script to perform automatic renaming of gfxrecon-optimize.exe prior to optimization.")
-    #print()
-    #print("Usage:")
-    #print("  gfxrecon-optimize-renamed.py <input-file> <output-file> [--dxr] [--d3d12-pso-removal]")
-    #print()
-    #print("Required arguments:")
-    #print("  <input-file>          The path to input GFXReconstruct capture file to be processed.")
-    #print("  <output-file>         The path to output GFXReconstruct capture file to be created.")    
-    #print()
-    #print("Optional arguments:")    
-    #print("  --d3d12-pso-removal   D3D12-only: Remove creation of unreferenced PSOs.")
-    #print("  --dxr                 D3D12-only: Optimize for DXR replay.")
-    #print("  --gpu                 D3D12-only: Use the specified device for the optimizer replay, where index is the zero-based index")
-    #print("                        to the array of physical devices returned by vkEnumeratePhysicalDevices or The optimizer replay")
-    #print("                        may fail if the specified device is not compatible with theIDXGIFactory1::EnumAdapters1.")
-    #print("                        The optimizer replay may fail if the specified device is not compatible with the original")
-    #print("                        capture devices.")
-    #print()    
-    #print("Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.")
-    #print()
-    #print("Example manual usage (D3D12):")
-    #print("  gfxrecon-optimize-renamed.py my_capture.gfxr my_capture_dxr_optimized.gfxr --dxr")
-    #print("  gfxrecon-optimize-renamed.py my_capture.gfxr my_capture_pso_optimized.gfxr --d3d12-pso-removal")
-    #print()
-    #print("Example automatic usage (D3D12 + Vulkan):")
-    #print("  gfxrecon-optimize-renamed.py my_capture.gfxr my_capture_optimized.gfxr") 
-    #print()
+    print("Usage: %s <root traces directory>" % script_name)
 
 def load_json(path):
     f = open(path)
@@ -75,6 +49,14 @@ def gather_stypes(block):
 
     return sTypes
 
+
+def coverage_calc(capture_data, all_data):
+    missingno = 0
+    for name in all_data:
+        if name not in capture_data:
+            missingno += 1
+    return 1.0 - missingno / len(all_data)
+
 if __name__ == "__main__":
 
     #Early exit if we're missing our arguments
@@ -82,23 +64,51 @@ if __name__ == "__main__":
         usage()
         print("Error: missing path to capture directory")
         exit(-1)
-    capture_dir = sys.argv[1]
+    root_traces_dir = sys.argv[1]
 
     #Parse vk.xml
     vk_xml_path = "external/Vulkan-Headers/registry/vk.xml"
     vk_xml_root = ET.parse(vk_xml_path).getroot()
-    commands_root = vk_xml_root.find("commands")
 
     #Collect the names of all vk functions
-    print("Collecting vk function names...")
     all_vk_funcs = []
-    alias_map = {}
+    alias_map = {}      #Map of function aliases to their "true" names
+
+    print("Collecting vk function names...")
+    commands_root = vk_xml_root.find("commands")
     for c in commands_root:
         if "alias" not in c.attrib:
             fn_name = c.find("proto").find("name").text
             all_vk_funcs.append(fn_name)
         else:
             alias_map[c.attrib["name"]] = c.attrib["alias"]
+    
+    print("Collecting vk extensions...")
+    all_vk_extensions = []
+    extensions_root = vk_xml_root.find("extensions")
+    for e in extensions_root:
+        all_vk_extensions.append(e.attrib["name"])
+
+    print("Collecting vk features...")
+    all_vk_features = []
+    types_root = vk_xml_root.find("types")
+    for ty in types_root:
+        if "name" in ty.attrib and "Features" in ty.attrib["name"]:
+            for member in ty:
+                blacklist = ["sType", "pNext"]
+                name = member.find("name").text
+                if name not in blacklist:
+                    all_vk_features.append(name)
+
+
+    print("Collecting vk sTypes...")
+    all_vk_stypes = []
+    types_root = vk_xml_root.find("types")
+    for t in types_root:
+        if "category" in t.attrib and t.attrib["category"] == "struct":
+            for member in t:
+                if "values" in member.attrib and member.find("type").text == "VkStructureType":
+                    all_vk_stypes.append(member.attrib["values"])
 
     #Get name of gfxrecon-convert binary
     GFXR_CONVERT_NAME = "gfxrecon-convert"
@@ -108,6 +118,11 @@ if __name__ == "__main__":
 
     #Variables to collect all vk functions across all traces
     capture_funcs = set()
+    capture_extensions = set()
+    capture_features = set()
+    capture_structs = set()
+    capture_metas = set()
+    capture_stypes = set()
 
     #We expect to find commit-suite.json and extended-suite.json
     #suite_jsons = ["commit-suite.json", "extended-suite.json"]
@@ -115,48 +130,55 @@ if __name__ == "__main__":
     convert_processes = []
     trace_paths = []
     json_paths = []
-    for suite_json in suite_jsons:
-        full_suite_json_path = capture_dir + "/" + suite_json
-        suite = load_json(full_suite_json_path)
+    for file in os.listdir(root_traces_dir):
+        for suite_json in suite_jsons:
+            if os.path.isfile(root_traces_dir + "/" + file + "/" + suite_json):
+                full_suite_json_path = root_traces_dir + "/" + file + "/" + suite_json
+                suite = load_json(full_suite_json_path)
 
-        for trace in suite["traces"].persistent():
-            #Skip non-vulkan traces
-            if "api" in trace and trace["api"] != "vulkan":
-                continue
+                for trace in suite["traces"].persistent():
+                    #Skip non-vulkan traces
+                    if "api" in trace and trace["api"] != "vulkan":
+                        continue
 
-            trace_dir = capture_dir + "/" + trace["directory"]
-            trace_paths.append(trace_dir)
-            for file in os.listdir(trace_dir):
-                filename = os.fsdecode(file)
-                if not filename.endswith(".gfxr"):
-                    continue
+                    trace_dir = root_traces_dir + "/" + file + "/" + trace["directory"]
+                    trace_paths.append(trace_dir)
+                    for trace_file in os.listdir(trace_dir):
+                        filename = os.fsdecode(trace_file)
+                        if not filename.endswith(".gfxr"):
+                            continue
 
-                print("Launching gfxr-convert on %s..." % filename)
-                full_trace_path = trace_dir + "/" + filename
-                out_json_path = os.path.splitext(full_trace_path)[0] + ".json"
-                json_paths.append(out_json_path)
-                cmd = [convert_tool_path, "--output", out_json_path, full_trace_path]
-                p = subprocess.Popen(cmd)
-                convert_processes.append(p)
+                        print("Launching gfxr-convert on %s..." % filename)
+                        full_trace_path = trace_dir + "/" + filename
+                        #out_json_path = os.path.splitext(full_trace_path)[0] + ".json"
+                        out_json_path = "/tmp/" + os.path.splitext(os.path.basename(full_trace_path))[0] + ".json"
+                        json_paths.append(out_json_path)
+                        cmd = [convert_tool_path, "--output", out_json_path, full_trace_path]
+                        p = subprocess.Popen(cmd)
+                        convert_processes.append(p)
+
 
     #Wait for the conversions to complete
     print("Waiting for convert jobs to finish...")
     for p in convert_processes:
         p.wait()
+    print("SLEEPING 30s TO PREVENT FLUSH ISSUE. NEED TO FIX")
+    time.sleep(30)
 
     #Extract desired data from each of the new JSON captures
     print("Processing json captures...")
     for (json_path, trace_path) in zip(json_paths, trace_paths):
         features = {}
+        features["sTypes"] = set()
+        features["metas"] = set()
+        features["functions"] = set()
+
         print("Analyzing %s..." % json_path)
         capture_json = load_json(json_path)
 
         #Iterate over all blocks and extract the function names
         for block in capture_json.persistent():
             if "function" in block:
-                if "functions" not in features:
-                    features["functions"] = set()
-
                 #Grab function's name
                 fn_name = block["function"]["name"]
                 if fn_name in alias_map:
@@ -170,20 +192,30 @@ if __name__ == "__main__":
                 #pEnabledFeatures from vkCreateDevice ppEnabledExtensionNames from both
                 #I'm also assuming that there will be exactly one call to each function
                 if fn_name == "vkCreateInstance":
-                    features["instance_ppEnabledExtensionNames"] = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
+                    exts = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
+                    features["instance_ppEnabledExtensionNames"] = exts
+                    if exts is not None:
+                        capture_extensions.update(exts)
                 elif fn_name == "vkCreateDevice":
-                    features["device_ppEnabledExtensionNames"] = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
-                    features["pEnabledFeatures"] = block["function"]["args"]["pCreateInfo"]["pEnabledFeatures"]
+                    exts = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
+                    features["device_ppEnabledExtensionNames"] = exts
+                    if exts is not None:
+                        capture_extensions.update(exts)
 
+                    feats = block["function"]["args"]["pCreateInfo"]["pEnabledFeatures"]
+                    features["pEnabledFeatures"] = feats
+                    if feats is not None:
+                        capture_features.update(feats)
+                    
             elif "meta" in block:
-                if "metas" not in features:
-                    features["metas"] = set()
-                features["metas"].add(block["meta"]["name"])
+                meta_name = block["meta"]["name"]
+                features["metas"].add(meta_name)
+                capture_metas.add(meta_name)
 
             #Grab the sTypes
-            if "sTypes" not in features:
-                features["sTypes"] = set()
-            features["sTypes"].update(gather_stypes(block))
+            stypes = gather_stypes(block)
+            features["sTypes"].update(stypes)
+            capture_stypes.update(stypes)
 
         #Convert sets into lists
         features["functions"] = sorted(features["functions"])
@@ -205,13 +237,9 @@ if __name__ == "__main__":
         f.write(raw_out)
         f.close()
 
-
     #Report the results
-    missingno = 0
-    for fn_name in all_vk_funcs:
-        if fn_name not in capture_funcs and fn_name not in alias_map:
-            missingno += 1
-
-    print("Coverage rate: %f%%" % (100.0 * (1.0 - missingno / len(all_vk_funcs))))
+    print("Function coverage rate: %f%%" % (100.0 * coverage_calc(capture_funcs, all_vk_funcs)))
+    print("sType coverage rate: %f%%" % (100.0 * coverage_calc(capture_stypes, all_vk_stypes)))
+    print("Extension coverage rate: %f%%" % (100.0 * coverage_calc(capture_extensions, all_vk_extensions)))
 
     print("Done!")
