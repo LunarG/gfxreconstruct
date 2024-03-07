@@ -196,7 +196,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         """Generate the layer dispatch call invocation."""
         call_setup_expr = []
         object_name = values[0].name
-        dispatchfunc = 'GetInstanceTable'
+        dispatchfunc = 'GetOpenXrInstanceTable'
 
         return [
             call_setup_expr, '{}({})->{}({})'.format(
