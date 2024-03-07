@@ -264,16 +264,15 @@ if __name__ == "__main__":
                 suite = load_json(full_suite_json_path)
                 persistent_traces = suite["traces"].persistent()
 
-                convert_processes = []
                 trace_paths = []
                 json_paths = []
                 TRACES_IN_FLIGHT = 64      #Total number of .json files that we'll store in /tmp at a time
                 iterations = min(trace_count, TRACES_IN_FLIGHT)
                 current_trace = 0
-                while current_trace < trace_count:
-                #while current_trace < 1:
-                    for i in range(0, iterations):
-                    #for i in range(0, 1):
+                #while current_trace < trace_count:
+                while current_trace < 1:
+                    #for i in range(0, iterations):
+                    for i in range(0, 1):
                         trace = persistent_traces[current_trace]
                         current_trace += 1
 
@@ -281,6 +280,7 @@ if __name__ == "__main__":
                         if "api" in trace and trace["api"] != "vulkan":
                             continue
 
+                        convert_processes = []
                         trace_dir = root_traces_dir + "/" + traces_dir + "/" + trace["directory"]
                         trace_paths.append(trace_dir)
                         for trace_file in os.listdir(trace_dir):
@@ -326,6 +326,16 @@ if __name__ == "__main__":
                     for t in threads:
                         t.join()
 
+    #Output collated results
+    collated = {}
+    collated["functions"] = sorted(capture_funcs)
+    collated["sTypes"] = sorted(capture_stypes)
+    collated["metas"] = sorted(capture_metas)
+    collated["ppEnabledExtensionNames"] = sorted(capture_extensions)
+    collated["pEnabledFeatures"] = sorted(capture_features)
+    f = open(root_traces_dir + "/collated.db.json", "w")
+    f.write(json.dumps(collated, indent=4))
+    f.close()
 
     #Report the results
     print("Function coverage rate: %f%%" % (100.0 * coverage_calc(capture_funcs, all_vk_funcs)))
