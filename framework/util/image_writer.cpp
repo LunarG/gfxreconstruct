@@ -577,7 +577,7 @@ bool WriteBmpImage(const std::string& filename,
             info_header.planes           = 1;
             info_header.bit_count        = kBmpBitCount;
             info_header.compression      = 0;
-            info_header.size_image       = image_size;
+            info_header.size_image       = 0;
             info_header.x_pels_per_meter = 0;
             info_header.y_pels_per_meter = 0;
             info_header.clr_used         = 0;
