@@ -194,7 +194,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateInstance(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<NoParentWrapper, InstanceWrapper, InstanceWrapper>(NoParentWrapper::kHandleValue, instance, instance, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<OpenXrNoParentWrapper, InstanceWrapper, InstanceWrapper>(OpenXrNoParentWrapper::kHandleValue, instance, instance, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -589,7 +589,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSession(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SessionWrapper>(instance, NoParentWrapper::kHandleValue, session, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, OpenXrNoParentWrapper, SessionWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, session, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -721,7 +721,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateReferenceSpace(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(session, NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -817,7 +817,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateActionSpace(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(session, NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -1139,7 +1139,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchain(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SwapchainWrapper>(session, NoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SwapchainWrapper>(session, OpenXrNoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -1755,7 +1755,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateActionSet(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, ActionSetWrapper>(instance, NoParentWrapper::kHandleValue, actionSet, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, OpenXrNoParentWrapper, ActionSetWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, actionSet, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -1841,7 +1841,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateAction(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<ActionSetWrapper, NoParentWrapper, ActionWrapper>(actionSet, NoParentWrapper::kHandleValue, action, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<ActionSetWrapper, OpenXrNoParentWrapper, ActionWrapper>(actionSet, OpenXrNoParentWrapper::kHandleValue, action, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -2455,7 +2455,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateApiLayerInstance(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<NoParentWrapper, NoParentWrapper, InstanceWrapper>(NoParentWrapper::kHandleValue, NoParentWrapper::kHandleValue, instance, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<OpenXrNoParentWrapper, OpenXrNoParentWrapper, InstanceWrapper>(OpenXrNoParentWrapper::kHandleValue, OpenXrNoParentWrapper::kHandleValue, instance, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -2632,7 +2632,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchainAndroidSurfaceKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SwapchainWrapper>(session, NoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SwapchainWrapper>(session, OpenXrNoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -3621,7 +3621,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateDebugUtilsMessengerEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, DebugUtilsMessengerEXTWrapper>(instance, NoParentWrapper::kHandleValue, messenger, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, OpenXrNoParentWrapper, DebugUtilsMessengerEXTWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, messenger, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -3856,7 +3856,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialAnchorMSFTWrapper>(session, NoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpatialAnchorMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -3908,7 +3908,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorSpaceMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(session, NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4196,7 +4196,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialGraphNodeSpaceMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(session, NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4248,7 +4248,7 @@ XRAPI_ATTR XrResult XRAPI_CALL TryCreateSpatialGraphStaticNodeBindingMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialGraphNodeBindingMSFTWrapper>(session, NoParentWrapper::kHandleValue, nodeBinding, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpatialGraphNodeBindingMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, nodeBinding, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4378,7 +4378,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateHandTrackerEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, HandTrackerEXTWrapper>(session, NoParentWrapper::kHandleValue, handTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, HandTrackerEXTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, handTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4511,7 +4511,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateHandMeshSpaceMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<HandTrackerEXTWrapper, NoParentWrapper, SpaceWrapper>(handTracker, NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<HandTrackerEXTWrapper, OpenXrNoParentWrapper, SpaceWrapper>(handTracker, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4785,7 +4785,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPerceptionAnchorMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialAnchorMSFTWrapper>(session, NoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpatialAnchorMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -5007,7 +5007,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateBodyTrackerFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, BodyTrackerFBWrapper>(session, NoParentWrapper::kHandleValue, bodyTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, BodyTrackerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, bodyTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -5230,7 +5230,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSceneObserverMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SceneObserverMSFTWrapper>(session, NoParentWrapper::kHandleValue, sceneObserver, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SceneObserverMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, sceneObserver, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -5316,7 +5316,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSceneMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SceneObserverMSFTWrapper, NoParentWrapper, SceneMSFTWrapper>(sceneObserver, NoParentWrapper::kHandleValue, scene, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SceneObserverMSFTWrapper, OpenXrNoParentWrapper, SceneMSFTWrapper>(sceneObserver, OpenXrNoParentWrapper::kHandleValue, scene, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -5872,7 +5872,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFacialTrackerHTC(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, FacialTrackerHTCWrapper>(session, NoParentWrapper::kHandleValue, facialTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, FacialTrackerHTCWrapper>(session, OpenXrNoParentWrapper::kHandleValue, facialTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -6347,7 +6347,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFoveationProfileFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, FoveationProfileFBWrapper>(session, NoParentWrapper::kHandleValue, profile, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, FoveationProfileFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, profile, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -6477,7 +6477,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateKeyboardSpaceFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(session, NoParentWrapper::kHandleValue, keyboardSpace, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, keyboardSpace, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -6526,7 +6526,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateTriangleMeshFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, TriangleMeshFBWrapper>(session, NoParentWrapper::kHandleValue, outTriangleMesh, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, TriangleMeshFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outTriangleMesh, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -6844,7 +6844,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughFBWrapper>(session, NoParentWrapper::kHandleValue, outPassthrough, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, PassthroughFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outPassthrough, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7001,7 +7001,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughLayerFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughLayerFBWrapper>(session, NoParentWrapper::kHandleValue, outLayer, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, PassthroughLayerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outLayer, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7197,7 +7197,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateGeometryInstanceFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, GeometryInstanceFBWrapper>(session, NoParentWrapper::kHandleValue, outGeometryInstance, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, GeometryInstanceFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outGeometryInstance, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7648,7 +7648,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceVARJO(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(session, NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7734,7 +7734,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceFromCoordinateFrameUIDML(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(session, NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7784,7 +7784,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerDetectorML(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, MarkerDetectorMLWrapper>(session, NoParentWrapper::kHandleValue, markerDetector, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, MarkerDetectorMLWrapper>(session, OpenXrNoParentWrapper::kHandleValue, markerDetector, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -8183,7 +8183,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceML(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(session, NoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -8396,7 +8396,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateExportedLocalizationMapML(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, ExportedLocalizationMapMLWrapper>(session, NoParentWrapper::kHandleValue, map, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, ExportedLocalizationMapMLWrapper>(session, OpenXrNoParentWrapper::kHandleValue, map, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -8700,7 +8700,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPersistedNameMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialAnchorMSFTWrapper>(session, NoParentWrapper::kHandleValue, spatialAnchor, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpatialAnchorMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, spatialAnchor, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -8959,7 +8959,7 @@ XRAPI_ATTR XrResult XRAPI_CALL RetrieveSpaceQueryResultsFB(
 
     if (result >= 0)
     {
-        CreateWrappedStructHandles<SessionWrapper, NoParentWrapper>(session, NoParentWrapper::kHandleValue, results, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedStructHandles<SessionWrapper, OpenXrNoParentWrapper>(session, OpenXrNoParentWrapper::kHandleValue, results, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -9621,7 +9621,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTrackerFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, FaceTrackerFBWrapper>(session, NoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, FaceTrackerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -9751,7 +9751,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateEyeTrackerFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, EyeTrackerFBWrapper>(session, NoParentWrapper::kHandleValue, eyeTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, EyeTrackerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, eyeTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -10009,7 +10009,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardMETA(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, VirtualKeyboardMETAWrapper>(session, NoParentWrapper::kHandleValue, keyboard, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, VirtualKeyboardMETAWrapper>(session, OpenXrNoParentWrapper::kHandleValue, keyboard, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -10742,7 +10742,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceUserFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceUserFBWrapper>(session, NoParentWrapper::kHandleValue, user, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceUserFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, user, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -10917,7 +10917,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughColorLutMETA(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<PassthroughFBWrapper, NoParentWrapper, PassthroughColorLutMETAWrapper>(passthrough, NoParentWrapper::kHandleValue, colorLut, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<PassthroughFBWrapper, OpenXrNoParentWrapper, PassthroughColorLutMETAWrapper>(passthrough, OpenXrNoParentWrapper::kHandleValue, colorLut, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -11083,7 +11083,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTracker2FB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, FaceTracker2FBWrapper>(session, NoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, FaceTracker2FBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -11251,7 +11251,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughHTC(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughHTCWrapper>(session, NoParentWrapper::kHandleValue, passthrough, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, PassthroughHTCWrapper>(session, OpenXrNoParentWrapper::kHandleValue, passthrough, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -11379,7 +11379,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorHTC(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(session, NoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -11506,7 +11506,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePlaneDetectorEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, NoParentWrapper, PlaneDetectorEXTWrapper>(session, NoParentWrapper::kHandleValue, planeDetector, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, PlaneDetectorEXTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, planeDetector, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
