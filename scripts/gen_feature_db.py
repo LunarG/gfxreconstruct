@@ -228,7 +228,6 @@ if __name__ == "__main__":
                 if name not in blacklist:
                     all_vk_features.append(name)
 
-
     print("Collecting vk sTypes...")
     all_vk_stypes = []
     types_root = vk_xml_root.find("types")
@@ -245,65 +244,88 @@ if __name__ == "__main__":
     convert_tool_path = os.path.join(os.path.dirname(__file__), GFXR_CONVERT_NAME)
 
     #We expect to find commit-suite.json and extended-suite.json
-    suite_jsons = ["commit-suite.json", "extended-suite.json"]
-    #suite_jsons = ["commit-suite.json"]
-    convert_processes = []
-    trace_paths = []
-    json_paths = []
-    for file in os.listdir(root_traces_dir):
+    #suite_jsons = ["commit-suite.json", "extended-suite.json"]
+    suite_jsons = ["commit-suite.json"]
+
+    for traces_dir in os.listdir(root_traces_dir):
         for suite_json in suite_jsons:
-            if os.path.isfile(root_traces_dir + "/" + file + "/" + suite_json):
-                full_suite_json_path = root_traces_dir + "/" + file + "/" + suite_json
+            full_suite_json_path = root_traces_dir + "/" + traces_dir + "/" + suite_json
+            if os.path.isfile(full_suite_json_path):
+                
                 suite = load_json(full_suite_json_path)
+                persistent_traces = suite["traces"]
+                #Count how many traces there are
+                #I hate that I can't just say len(persistent_traces)
+                trace_count = 0
+                for t in persistent_traces:
+                    trace_count += 1
+                print("trace_count: %i" % trace_count)
 
-                for trace in suite["traces"].persistent():
-                    #Skip non-vulkan traces
-                    if "api" in trace and trace["api"] != "vulkan":
-                        continue
+                suite = load_json(full_suite_json_path)
+                persistent_traces = suite["traces"].persistent()
 
-                    trace_dir = root_traces_dir + "/" + file + "/" + trace["directory"]
-                    trace_paths.append(trace_dir)
-                    for trace_file in os.listdir(trace_dir):
-                        filename = os.fsdecode(trace_file)
-                        if not filename.endswith(".gfxr"):
+                convert_processes = []
+                trace_paths = []
+                json_paths = []
+                TRACES_IN_FLIGHT = 64      #Total number of .json files that we'll store in /tmp at a time
+                iterations = min(trace_count, TRACES_IN_FLIGHT)
+                current_trace = 0
+                while current_trace < trace_count:
+                #while current_trace < 1:
+                    for i in range(0, iterations):
+                    #for i in range(0, 1):
+                        trace = persistent_traces[current_trace]
+                        current_trace += 1
+
+                        #Skip non-vulkan traces
+                        if "api" in trace and trace["api"] != "vulkan":
                             continue
 
-                        print("Launching gfxr-convert on %s..." % filename)
-                        full_trace_path = trace_dir + "/" + filename
-                        #out_json_path = os.path.splitext(full_trace_path)[0] + ".json"
-                        out_dir = "/tmp/" + file + "/" + trace["directory"]
-                        os.makedirs(out_dir, exist_ok=True)
-                        out_json_path = out_dir + "/" + os.path.splitext(os.path.basename(full_trace_path))[0] + ".json"
-                        json_paths.append(out_json_path)
-                        cmd = [convert_tool_path, "--output", out_json_path, full_trace_path]
-                        p = subprocess.Popen(cmd)
-                        convert_processes.append(p)
+                        trace_dir = root_traces_dir + "/" + traces_dir + "/" + trace["directory"]
+                        trace_paths.append(trace_dir)
+                        for trace_file in os.listdir(trace_dir):
+                            filename = os.fsdecode(trace_file)
+                            if not filename.endswith(".gfxr"):
+                                continue
 
-    #Wait for the conversions to complete
-    print("Waiting for convert jobs to finish...")
-    for p in convert_processes:
-        p.wait()
+                            print("Launching gfxr-convert on %s..." % filename)
+                            full_trace_path = trace_dir + "/" + filename
+                            out_dir = "/tmp/" + traces_dir + "/" + trace["directory"]
+                            os.makedirs(out_dir, exist_ok=True)
+                            out_json_path = out_dir + "/" + os.path.splitext(os.path.basename(full_trace_path))[0] + ".json"
+                            json_paths.append(out_json_path)
+                            cmd = [convert_tool_path, "--output", out_json_path, full_trace_path]
+                            p = subprocess.Popen(cmd)
+                            convert_processes.append(p)
 
-    #Spawn a thread for each virtual CPU
-    print("Processing json captures...")
-    cpu_count = os.cpu_count()
-    threads = []
-    paths_per_thread = int(len(json_paths) / cpu_count)
-    for i in range(0, cpu_count):
-        if i == cpu_count - 1:
-            j_paths = json_paths[i * paths_per_thread:]
-            t_paths = trace_paths[i * paths_per_thread:]
-        else:
-            j_paths = json_paths[i * paths_per_thread:(i+1) * paths_per_thread]
-            t_paths = trace_paths[i * paths_per_thread:(i+1) * paths_per_thread]
+                    #Wait for the conversions to complete
+                    print("Waiting for convert jobs to finish...")
+                    for p in convert_processes:
+                        p.wait()
 
-        t = threading.Thread(target=trace_analysis, args=[j_paths, t_paths])
-        t.start()
-        threads.append(t)
+                    #Spawn a thread for each virtual CPU
+                    print("Processing json captures...")
+                    cpu_count = os.cpu_count()
+                    threads = []
+                    paths_per_thread = int(iterations / cpu_count)
+                    print("paths_per_thread: %i" % paths_per_thread)
+                    for i in range(0, cpu_count):
+                        if i == cpu_count - 1:
+                            j_paths = json_paths[i * paths_per_thread:]
+                            t_paths = trace_paths[i * paths_per_thread:]
+                        else:
+                            j_paths = json_paths[i * paths_per_thread:(i+1) * paths_per_thread]
+                            t_paths = trace_paths[i * paths_per_thread:(i+1) * paths_per_thread]
 
-    #Wait for threads
-    for t in threads:
-        t.join()
+                        t = threading.Thread(target=trace_analysis, args=[j_paths, t_paths])
+                        t.start()
+                        threads.append(t)
+
+                    #Wait for threads
+                    print("Spawned %i threads" % len(threads))
+                    for t in threads:
+                        t.join()
+
 
     #Report the results
     print("Function coverage rate: %f%%" % (100.0 * coverage_calc(capture_funcs, all_vk_funcs)))
