@@ -14,6 +14,7 @@
 3. [Output](#output)
     1. [Json file output](#json-file-output)
     2. [Image file output](#image-file-output)
+    3. [Buffer file output](#buffer-file-output)
 
 ## Introduction
 
@@ -25,15 +26,17 @@ GFXReconstruct offers the capability to dump resources when replaying a capture 
 
     All images used as render target attachments (both as color and depth attachments) either in render passes or with dynamic rendering.
 
-2. Results of compute (vkCmdDispatch and its variants) and ray tracing (vkCmdTraceRays) shaders.
+2. Vertex and index buffers
+
+    Buffers bound as vertex and index buffers referenced by draw calls which have been marked for dumping.
+
+3. Results of compute (vkCmdDispatch and its variants) and ray tracing (vkCmdTraceRays) shaders.
 
     All result images and buffers used as descriptor bindings by dispatch and ray tracing shaders.
 
-3. Descriptor bindings used as inputs in all shader stages.
+4. Descriptor bindings used as inputs in all shader stages.
 
     All images and buffers used as descriptor bindings by draw calls, dispatch and ray tracing shaders.
-
-4. Rendering state data such as vertex and index buffers.
 
 The resources are dumped into files and can either be image files (bmp or png) or binary files.
 
@@ -253,6 +256,16 @@ Dump resources feature can be control in several ways. To do so, a number of par
               Directory to write dump resources output files. Default is the current working directory.
   --dump-resources-image-format <format>
               Image file format to use when dumping image resources. Available formats are: bmp, png
+  --dump-resources-dump-depth-attachment
+              Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
+  --dump-resources-dump-color-attachment-index
+              Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero
+              based integer. Default is to dump all color attachment
+  --dump-resources-dump-vertex-index-buffers
+              Enables dumping of vertex and index buffers while dumping draw call resources.
+  --dump-resources-json-output-per-command
+              Enables storing a json output file for each dumped command. Overrides default behavior which
+              is generating one output json file that contains the information for all dumped commands.
 ```
 
 ## Output
@@ -317,3 +330,24 @@ Similar to draw calls, compute and ray tracing use the following naming pattern:
 
 Buffer outputs use the following naming pattern: `{[Dispatch|TraceRays]}_{[before|after]}_{command index}_{set}_{binding}_buffer.bin`
 
+### Buffer file output
+
+All buffers are dumped as raw binary files (`.bin`).
+
+Dumped buffers can be:
+
+1. **Descriptors**
+
+Descriptors referenced by a shader which is involved in a command (draw call, dispatch or trace rays) marked for dumping. In this case the naming pattern is described above.
+
+2. **Vertex or index buffers**
+
+Vertex or index buffers used by draw calls marked for dumping. The file name pattern is:
+
+**Vertex buffers**: `VertexBuffer_{command index}_binding_{binding}.bin` where:
+* `{command index}`: The block index of the `vkCmdBindVertexBuffers*` that bound the vertex buffers.
+* `{binding}`: The binding index of each buffer as specified in the `vkCmdBindVertexBuffers*` command
+
+**Index buffers**: `IndexBuffer_{command index}_{index type name}.bin` where:
+* `{command index}`: The block index of the `vkCmdBindIndexBuffers*` that bound the index buffer.
+* `{index type name}`: The index type (i.e. `UINT8`, `UINT16` etc.)

@@ -738,7 +738,13 @@ Optional arguments:
 
   --dump-resources-image-format <format>
               Image file format to use when dumping image resources. Available formats are: bmp, png
-
+  --dump-resources-dump-depth-attachment
+              Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
+  --dump-resources-dump-color-attachment-index
+              Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero
+              based integer. Default is to dump all color attachment
+  --dump-resources-dump-vertex-index-buffers
+              Enables dumping of vertex and index buffers while dumping draw call resources.
 ```
 
 ### Key Controls

@@ -26,6 +26,7 @@
 
 #include "platform.h"
 
+#include <cstddef>
 #include <limits>
 #include <math.h>
 #include <memory>
@@ -238,6 +239,23 @@ static const uint8_t* ConvertIntoTemporaryBuffer(
 
     switch (format)
     {
+        case kFormat_R8:
+        {
+            const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const uint8_t r = bytes[y * width + x];
+
+                    const uint32_t rgba = (0xff << 24) | (r << 16) | (r << 8) | r;
+                    *(temp_buffer++)    = rgba;
+                }
+            }
+        }
+        break;
+
         case kFormat_RGB:
         {
             const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
@@ -552,77 +570,70 @@ bool WriteBmpImage(const std::string& filename,
         row_pitch = pitch;
     }
 
-    // BMP image data doesn't require row padding, so compute size with height * width * kImageBpp, not row_pitch *
-    // height.
-    uint32_t bmp_image_size = height * width * kImageBpp;
-    if (bmp_image_size <= data_size)
+    FILE*   file   = nullptr;
+    int32_t result = util::platform::FileOpen(&file, filename.c_str(), "wb");
+
+    if ((result == 0) && (file != nullptr))
     {
-        FILE*   file   = nullptr;
-        int32_t result = util::platform::FileOpen(&file, filename.c_str(), "wb");
+        BmpFileHeader file_header;
+        BmpInfoHeader info_header;
 
-        if ((result == 0) && (file != nullptr))
+        file_header.type      = ('M' << 8) | 'B';
+        file_header.reserved1 = 0;
+        file_header.reserved2 = 0;
+        file_header.off_bits  = sizeof(file_header) + sizeof(info_header);
+        file_header.size      = (height * width * kImageBpp) + file_header.off_bits;
+
+        info_header.size             = sizeof(info_header);
+        info_header.width            = width;
+        info_header.height           = height;
+        info_header.planes           = 1;
+        info_header.bit_count        = kBmpBitCount;
+        info_header.compression      = 0;
+        info_header.size_image       = 0;
+        info_header.x_pels_per_meter = 0;
+        info_header.y_pels_per_meter = 0;
+        info_header.clr_used         = 0;
+        info_header.clr_important    = 0;
+
+        size_t ret = util::platform::FileWrite(&file_header, sizeof(file_header), 1, file);
+        CheckFwriteRetVal(ret, 1, file);
+
+        ret = util::platform::FileWrite(&info_header, sizeof(info_header), 1, file);
+        CheckFwriteRetVal(ret, 1, file);
+
+        // Y needs to be inverted when writing the bitmap data.
+        auto height_1 = height - 1;
+
+        if (format == kFormat_BGR || format == kFormat_BGRA)
         {
-            BmpFileHeader file_header;
-            BmpInfoHeader info_header;
-
-            file_header.type      = ('M' << 8) | 'B';
-            file_header.reserved1 = 0;
-            file_header.reserved2 = 0;
-            file_header.off_bits  = sizeof(file_header) + sizeof(info_header);
-            file_header.size      = bmp_image_size + file_header.off_bits;
-
-            info_header.size             = sizeof(info_header);
-            info_header.width            = width;
-            info_header.height           = height;
-            info_header.planes           = 1;
-            info_header.bit_count        = kBmpBitCount;
-            info_header.compression      = 0;
-            info_header.size_image       = 0;
-            info_header.x_pels_per_meter = 0;
-            info_header.y_pels_per_meter = 0;
-            info_header.clr_used         = 0;
-            info_header.clr_important    = 0;
-
-            size_t ret = util::platform::FileWrite(&file_header, sizeof(file_header), 1, file);
-            CheckFwriteRetVal(ret, 1, file);
-
-            ret = util::platform::FileWrite(&info_header, sizeof(info_header), 1, file);
-            CheckFwriteRetVal(ret, 1, file);
-
-            // Y needs to be inverted when writing the bitmap data.
-            auto height_1 = height - 1;
-
-            if (format == kFormat_BGR || format == kFormat_BGRA)
+            for (uint32_t y = 0; y < height; ++y)
             {
-                for (uint32_t y = 0; y < height; ++y)
-                {
-                    const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
-                    ret = util::platform::FileWrite(&bytes[(height_1 - y) * row_pitch], 1, width * kImageBpp, file);
+                const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+                ret = util::platform::FileWrite(&bytes[(height_1 - y) * row_pitch], 1, width * kImageBpp, file);
 
-                    CheckFwriteRetVal(ret, width * kImageBpp, file);
-                }
+                CheckFwriteRetVal(ret, width * kImageBpp, file);
             }
-            else
-            {
-                const uint8_t* bytes = ConvertIntoTemporaryBuffer(width, height, data, &row_pitch, format, false);
-                for (uint32_t y = 0; y < height; ++y)
-                {
-                    ret = util::platform::FileWrite(
-                        &bytes[(height_1 - y) * width * kImageBpp], 1, width * kImageBpp, file);
-                }
-            }
-
-            if (!ferror(file))
-            {
-                success = true;
-            }
-
-            util::platform::FileClose(file);
         }
         else
         {
-            GFXRECON_LOG_ERROR("%s() Failed to open file (%s)", __func__, strerror(errno));
+            const uint8_t* bytes = ConvertIntoTemporaryBuffer(width, height, data, &row_pitch, format, false);
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                ret = util::platform::FileWrite(&bytes[(height_1 - y) * width * kImageBpp], 1, width * kImageBpp, file);
+            }
         }
+
+        if (!ferror(file))
+        {
+            success = true;
+        }
+
+        util::platform::FileClose(file);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("%s() Failed to open file (%s)", __func__, strerror(errno));
     }
 
     return success;
@@ -715,9 +726,13 @@ bool WritePngImage(const std::string& filename,
     bool success = false;
 
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
+    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
+
+    const uint8_t* bytes = ConvertIntoTemporaryBuffer(width, height, data, &pitch, format, true);
+
     uint32_t row_pitch               = pitch == 0 ? width * kImageBpp : pitch;
     stbi_write_png_compression_level = 4;
-    if (1 == stbi_write_png(filename.c_str(), width, height, kImageBpp, data, row_pitch))
+    if (1 == stbi_write_png(filename.c_str(), width, height, kImageBpp, bytes, row_pitch))
     {
         success = true;
     }
@@ -754,6 +769,79 @@ bool WritePngImageNoAlpha(
         success = true;
     }
 #endif
+
+    return success;
+}
+
+bool WriteAstcImage(const std::string& filename,
+                    uint32_t           width,
+                    uint32_t           height,
+                    uint32_t           depth,
+                    uint8_t            block_size_x,
+                    uint8_t            block_size_y,
+                    uint8_t            block_size_z,
+                    const void*        data,
+                    size_t             size)
+{
+    if (data == nullptr || !size)
+    {
+        return true;
+    }
+
+    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
+
+    AstcFileHeader header;
+
+    header.magic[0] = 0x13;
+    header.magic[1] = 0xab;
+    header.magic[2] = 0xa1;
+    header.magic[3] = 0x5c;
+
+    header.dim_x[0] = static_cast<uint8_t>((width >> 0) & 0xff);
+    header.dim_x[1] = static_cast<uint8_t>((width >> 8) & 0xff);
+    header.dim_x[2] = static_cast<uint8_t>((width >> 16) & 0xff);
+
+    header.dim_y[0] = static_cast<uint8_t>((height >> 0) & 0xff);
+    header.dim_y[1] = static_cast<uint8_t>((height >> 8) & 0xff);
+    header.dim_y[2] = static_cast<uint8_t>((height >> 16) & 0xff);
+
+    header.dim_z[0] = static_cast<uint8_t>((depth >> 0) & 0xff);
+    header.dim_z[1] = static_cast<uint8_t>((depth >> 8) & 0xff);
+    header.dim_z[2] = static_cast<uint8_t>((depth >> 16) & 0xff);
+
+    header.block_x = block_size_x;
+    header.block_y = block_size_y;
+    header.block_z = block_size_z;
+
+    bool    success = false;
+    FILE*   file    = nullptr;
+    int32_t result  = util::platform::FileOpen(&file, filename.c_str(), "wb");
+    if (!result)
+    {
+        assert(file != nullptr);
+
+        // Write the header
+        int ret = util::platform::FileWrite(&header, sizeof(header), 1, file);
+        CheckFwriteRetVal(ret, 1, file);
+
+        // Write the binary payload
+        ret = util::platform::FileWrite(data, size, 1, file);
+        CheckFwriteRetVal(ret, 1, file);
+
+        ret = util::platform::FileClose(file);
+        CheckFwriteRetVal(ret, 1, file);
+
+        if (!ferror(file))
+        {
+            success = true;
+        }
+    }
+    else
+    {
+        success = false;
+        GFXRECON_LOG_ERROR("%s() Failed to open file (%s)", __func__, strerror(result));
+    }
+
     return success;
 }
 

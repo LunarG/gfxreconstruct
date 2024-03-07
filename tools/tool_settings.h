@@ -125,11 +125,18 @@ const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
-const char kDumpResourcesArgument[]         = "--dump-resources";
-const char kDumpResourcesBeforeDrawOption[] = "--dump-resources-before-draw";
-const char kDumpResourcesImageFormat[]      = "--dump-resources-image-format";
-const char kDumpResourcesScaleArgument[]    = "--dump-resources-scale";
-const char kDumpResourcesDirArgument[]      = "--dump-resources-dir";
+
+const char kDumpResourcesArgument[]               = "--dump-resources";
+const char kDumpResourcesBeforeDrawOption[]       = "--dump-resources-before-draw";
+const char kDumpResourcesImageFormat[]            = "--dump-resources-image-format";
+const char kDumpResourcesScaleArgument[]          = "--dump-resources-scale";
+const char kDumpResourcesDepth[]                  = "--dump-resources-dump-depth-attachment";
+const char kDumpResourcesDirArgument[]            = "--dump-resources-dir";
+const char kDumpResourcesColorAttIdxArg[]         = "--dump-resources-dump-color-attachment-index";
+const char kDumpResourcesDumpVertexIndexBuffers[] = "--dump-resources-dump-vertex-index-buffers";
+const char kDumpResourcesJsonPerCommand[]         = "--dump-resources-json-output-per-command";
+const char kDumpResourcesDumpImmutableResources[] = "--dump-resources-dump-immutable-resources";
+const char kDumpResourcesDumpImageSubresources[]  = "--dump-resources-dump-all-image-subresources";
 
 enum class WsiPlatform
 {
@@ -1113,10 +1120,24 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 
     replay_options.dump_resources              = arg_parser.GetArgumentValue(kDumpResourcesArgument);
     replay_options.dump_resources_before       = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
+    replay_options.dump_resources_dump_depth   = arg_parser.IsOptionSet(kDumpResourcesDepth);
     replay_options.dump_resources_image_format = GetDumpresourcesImageFormat(arg_parser);
     replay_options.dump_resources_scale        = GetDumpResourcesScale(arg_parser);
     replay_options.dump_resources_output_dir   = GetDumpResourcesDir(arg_parser);
     replay_options.dumping_resources           = !replay_options.dump_resources.empty();
+    replay_options.dump_resources_dump_vertex_index_buffer =
+        arg_parser.IsOptionSet(kDumpResourcesDumpVertexIndexBuffers);
+    replay_options.dump_resources_json_per_command = arg_parser.IsOptionSet(kDumpResourcesJsonPerCommand);
+    replay_options.dump_resources_dump_immutable_resources =
+        arg_parser.IsOptionSet(kDumpResourcesDumpImmutableResources);
+    replay_options.dump_resources_dump_all_image_subresources =
+        arg_parser.IsOptionSet(kDumpResourcesDumpImageSubresources);
+
+    std::string dr_color_att_idx = arg_parser.GetArgumentValue(kDumpResourcesColorAttIdxArg);
+    if (!dr_color_att_idx.empty())
+    {
+        replay_options.dump_resources_color_attachment_index = std::stoi(dr_color_att_idx);
+    }
 
     return replay_options;
 }
