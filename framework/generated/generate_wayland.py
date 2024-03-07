@@ -25,6 +25,7 @@
 from io import TextIOWrapper
 import itertools
 import os
+import subprocess
 import xml.etree.ElementTree as ET
 
 
@@ -211,6 +212,8 @@ def message_from_func(message_args: list, func: ET.Element) -> list:
 
 def generate(protocol_path: str) -> None:
 
+    print(f'Generating protocol sources for "{protocol_path}"')
+
     tree = ET.parse(protocol_path)
     root = tree.getroot()
 
@@ -392,7 +395,18 @@ def generate(protocol_path: str) -> None:
         file.write(f'#endif // GFXRECON_GENERATED_WAYLAND_{protocol_name.upper()}_H\n')
 
 
+def clone_wayland_protocols():
+
+    print('Cloning/Pulling wayland-protocols git repository...')
+
+    if os.path.exists(PROTOCOLS_DIR):
+        subprocess.run(['git', 'pull'], cwd=PROTOCOLS_DIR)
+    else:
+        subprocess.run(['git', 'clone', 'https://gitlab.freedesktop.org/wayland/wayland-protocols.git', PROTOCOLS_DIR])
+
+
 def main():
+    clone_wayland_protocols()
     generate(os.path.join(PROTOCOLS_DIR, 'stable', 'xdg-shell', 'xdg-shell.xml'))
 
 
