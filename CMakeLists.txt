@@ -118,7 +118,7 @@ if(${GFXRECON_ENABLE_RELEASE_ASSERTS})
     add_definitions(-DGFXRECON_ENABLE_RELEASE_ASSERTS)
 endif()
 
-option(GFXRECON_TOCPP_SUPPORT "Build ToCpp export tool as part of GFXReconstruct builds." OFF)
+option(GFXRECON_TOCPP_SUPPORT "Build ToCpp export tool as part of GFXReconstruct builds." TRUE)
 
 if(MSVC)
 
