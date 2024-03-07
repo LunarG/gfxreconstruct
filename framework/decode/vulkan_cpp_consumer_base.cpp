@@ -377,7 +377,9 @@ bool VulkanCppConsumerBase::WriteSwapchainFiles()
         result = util::platform::FileOpen(&source_file, source_filename.c_str(), "w");
         if (result == 0)
         {
-            fputs(sSwapchainSourceCode, source_file);
+            fputs(sSwapchainSourceCode_part_1, source_file);
+            fputs(sSwapchainSourceCode_part_2, source_file);
+            fputs(sSwapchainSourceCode_part_3, source_file);
 
             util::platform::FileClose(source_file);
         }
