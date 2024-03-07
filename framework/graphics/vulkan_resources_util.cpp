@@ -889,13 +889,16 @@ void VulkanResourcesUtil::CopyImageBuffer(VkImage                      image,
     }
 }
 
-void VulkanResourcesUtil::CopyBuffer(VkBuffer source_buffer, VkBuffer destination_buffer, uint64_t size)
+void VulkanResourcesUtil::CopyBuffer(VkBuffer source_buffer,
+                                     VkBuffer destination_buffer,
+                                     uint64_t size,
+                                     uint64_t src_offset)
 {
     assert(source_buffer != VK_NULL_HANDLE);
     assert(command_buffer_ != VK_NULL_HANDLE);
 
     VkBufferCopy copy_region;
-    copy_region.srcOffset = 0;
+    copy_region.srcOffset = src_offset;
     copy_region.dstOffset = 0;
     copy_region.size      = size;
 
@@ -1440,10 +1443,8 @@ void VulkanResourcesUtil::ReadFromImageResourceLinear(VkImage                ima
     }
 }
 
-VkResult VulkanResourcesUtil::ReadFromBufferResource(VkBuffer              buffer,
-                                                     uint64_t              size,
-                                                     uint32_t              queue_family_index,
-                                                     std::vector<uint8_t>& data)
+VkResult VulkanResourcesUtil::ReadFromBufferResource(
+    VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data)
 {
     assert(buffer != VK_NULL_HANDLE);
     assert(size);
@@ -1472,7 +1473,7 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(VkBuffer              buffe
         return result;
     }
 
-    CopyBuffer(buffer, staging_buffer_.buffer, size);
+    CopyBuffer(buffer, staging_buffer_.buffer, size, offset);
 
     result = SubmitCommandBuffer(queue);
     if (result != VK_SUCCESS)

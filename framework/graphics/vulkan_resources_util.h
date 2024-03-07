@@ -171,8 +171,8 @@ class VulkanResourcesUtil
                                          const std::vector<uint64_t>& subresource_sizes);
 
     // Use this function to dump the content of a buffer resource into the data vector.
-    VkResult
-    ReadFromBufferResource(VkBuffer buffer, uint64_t size, uint32_t queue_family_index, std::vector<uint8_t>& data);
+    VkResult ReadFromBufferResource(
+        VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data);
 
   private:
     VkResult CreateCommandPool(uint32_t queue_family_index);
@@ -219,7 +219,7 @@ class VulkanResourcesUtil
                          bool                         all_layers_per_level,
                          CopyBufferImageDirection     copy_direction);
 
-    void CopyBuffer(VkBuffer source_buffer, VkBuffer destination_buffer, uint64_t size);
+    void CopyBuffer(VkBuffer source_buffer, VkBuffer destination_buffer, uint64_t size, uint64_t offset);
 
     VkResult ResolveImage(VkImage           image,
                           VkFormat          format,

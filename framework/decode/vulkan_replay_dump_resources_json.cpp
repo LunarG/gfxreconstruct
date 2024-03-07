@@ -22,7 +22,8 @@
 
 #include "vulkan_replay_dump_resources_json.h"
 #include "project_version.h"
-#include "vulkan_replay_dump_resources.h"
+#include "util/logging.h"
+#include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -39,7 +40,7 @@ void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonOpen(const std:
 
     path_outfile /= path_infile.filename();
     outfile = path_outfile.string();
-    if (outfile.size() >= 5 && outfile.compare(outfile.size() - 4, 5, ".gfxr"))
+    if (outfile.size() >= 5 && !outfile.compare(outfile.size() - 5, 5, ".gfxr"))
     {
         outfile = outfile.substr(0, outfile.size() - 5);
     }

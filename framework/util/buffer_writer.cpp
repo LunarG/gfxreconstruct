@@ -22,6 +22,7 @@
 
 #include "buffer_writer.h"
 #include "platform.h"
+#include "logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -35,8 +36,11 @@ bool WriteBuffer(const std::string& filename, const void* data, size_t size)
     FILE*   file   = nullptr;
     int32_t result = util::platform::FileOpen(&file, filename.c_str(), "wb");
 
+    GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
+
     if ((result) || (file == nullptr))
     {
+        GFXRECON_LOG_ERROR("%s() Failed to open file (%s)", __func__, strerror(errno));
         return false;
     }
 

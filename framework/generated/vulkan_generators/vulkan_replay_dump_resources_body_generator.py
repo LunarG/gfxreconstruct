@@ -149,11 +149,11 @@ class VulkanReplayDumpResourcesBodyGenerator(
         if not is_override:
             body += '    if (IsRecording(commandBuffer))\n'
             body += '    {\n'
-            body += '        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;\n'
+            body += '        CommandBufferIterator first, last;\n'
             body += '        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);\n'
             body += '        if (found)\n'
             body += '        {\n'
-            body += '            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)\n'
+            body += '            for (CommandBufferIterator it = first; it < last; ++it)\n'
             body += '            {\n'
 
             dispatchfunc = 'func(*it, '

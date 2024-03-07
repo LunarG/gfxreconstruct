@@ -168,7 +168,7 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
             if cmd[:5] != "vkCmd":
                 continue
 
-            decl = self.make_resource_dump_func_decl(
+            decl = self.make_dump_resources_func_decl(
                 return_type, 'Process_' + cmd, values, cmd in self.DUMP_RESOURCES_OVERRIDES
             )
 

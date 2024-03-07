@@ -49,6 +49,8 @@
     "vkCreateRenderPass2": "OverrideCreateRenderPass2",
     "vkCreateRenderPass2KHR": "OverrideCreateRenderPass2",
     "vkCmdPipelineBarrier": "OverrideCmdPipelineBarrier",
+    "vkCmdPipelineBarrier2": "OverrideCmdPipelineBarrier2",
+    "vkCmdPipelineBarrier2KHR": "OverrideCmdPipelineBarrier2KHR",
     "vkCreateShaderModule": "OverrideCreateShaderModule",
     "vkGetPipelineCacheData": "OverrideGetPipelineCacheData",
     "vkCreatePipelineCache": "OverrideCreatePipelineCache",

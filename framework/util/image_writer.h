@@ -64,6 +64,7 @@ struct BmpInfoHeader
 enum DataFormats
 {
     kFormat_UNSPECIFIED = 0,
+    kFormat_R8,
     kFormat_RGB,
     kFormat_RGBA,
     kFormat_BGR,
@@ -73,7 +74,19 @@ enum DataFormats
     kFormat_A2B10G10R10,
     kFormat_D32_FLOAT,
     kFormat_D24_UNORM,
-    kFormat_D16_UNORM
+    kFormat_D16_UNORM,
+    kFormat_ASTC
+};
+
+struct AstcFileHeader
+{
+    uint8_t magic[4];
+    uint8_t block_x;
+    uint8_t block_y;
+    uint8_t block_z;
+    uint8_t dim_x[3];
+    uint8_t dim_y[3];
+    uint8_t dim_z[3];
 };
 
 bool WriteBmpImage(const std::string& filename,
@@ -105,6 +118,16 @@ bool WritePngImageNoAlpha(const std::string& filename,
                           uint64_t           data_size,
                           const void*        data,
                           uint32_t           pitch = 0);
+
+bool WriteAstcImage(const std::string& filename,
+                    uint32_t           width,
+                    uint32_t           height,
+                    uint32_t           depth,
+                    uint8_t            block_size_x,
+                    uint8_t            block_size_y,
+                    uint8_t            block_size_z,
+                    const void*        data,
+                    size_t             size);
 
 GFXRECON_END_NAMESPACE(imagewriter)
 GFXRECON_END_NAMESPACE(util)

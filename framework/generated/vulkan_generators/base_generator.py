@@ -1352,7 +1352,7 @@ class BaseGenerator(OutputGenerator):
 
         return 'void {}()'.format(name)
 
-    def make_resource_dump_func_decl(
+    def make_dump_resources_func_decl(
         self, return_type, name, values, is_override
     ):
         """make_consumer_decl - return VulkanConsumer class member function declaration.
@@ -1398,8 +1398,8 @@ class BaseGenerator(OutputGenerator):
                     else:
                         param_type = 'const ' + type_name + '*'
                 else:
-                    if value.base_type == 'VkPipeline':
-                        param_type = 'const PipelineInfo*'
+                    if self.is_handle(type_name) and type_name != 'VkCommandBuffer':
+                        param_type = "const " + type_name[2:] + "Info*"
                     else:
                         param_type = type_name
             else:

@@ -348,6 +348,7 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
     uint32_t              queue_family_index{ 0 };
 
     VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 };
 
 typedef struct PipelineCacheData
@@ -365,14 +366,24 @@ struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
 
 struct ShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
 {
-    struct DescriptorInfo
+    // All information stored in ShaderModuleInfo is populated and used
+    // by the dump resources feature
+    struct ShaderDescriptorInfo
     {
-        DescriptorInfo(VkDescriptorType type, bool readonly, uint32_t accessed) : type(type), readonly(readonly), accessed(accessed) {}
-        DescriptorInfo(const DescriptorInfo& other) : type(other.type), readonly(other.readonly), accessed(other.accessed) {}
+        ShaderDescriptorInfo(VkDescriptorType type, bool readonly, uint32_t accessed, uint32_t count, bool is_array) :
+            type(type), readonly(readonly), accessed(accessed), count(count), is_array(is_array)
+        {}
+
+        ShaderDescriptorInfo(const ShaderDescriptorInfo& other) :
+            type(other.type), readonly(other.readonly), accessed(other.accessed), count(other.count),
+            is_array(other.is_array)
+        {}
 
         VkDescriptorType type;
         bool             readonly;
         uint32_t         accessed;
+        uint32_t         count;
+        bool             is_array;
     };
 
     ShaderModuleInfo() = default;
@@ -384,17 +395,49 @@ struct ShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
         used_descriptors_info = other.used_descriptors_info;
     }
 
-    using DescriptorSetInfo   = std::map<uint32_t, DescriptorInfo>;
-    using DescriptorSetsInfos = std::map<uint32_t, DescriptorSetInfo>;
+    // One entry per descriptor binding
+    using ShaderDescriptorSetInfo = std::map<uint32_t, ShaderDescriptorInfo>;
 
-    DescriptorSetsInfos used_descriptors_info;
+    // One entry per descriptor set
+    using ShaderDescriptorSetsInfos = std::map<uint32_t, ShaderDescriptorSetInfo>;
+
+    ShaderDescriptorSetsInfos used_descriptors_info;
 };
 
 struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
 
+    // The following information is populated and used only when the
+    // dump resources feature is in use
     std::unordered_map<VkShaderStageFlagBits, ShaderModuleInfo> shaders;
+
+    struct InputBindingDescription
+    {
+        uint32_t          stride;
+        VkVertexInputRate inputRate;
+    };
+
+    struct InputAttributeDescription
+    {
+        uint32_t binding;
+        VkFormat format;
+        uint32_t offset;
+    };
+
+    // One entry per binding
+    using VertexInputBindingMap = std::unordered_map<uint32_t, InputBindingDescription>;
+    VertexInputBindingMap vertex_input_binding_map;
+
+    // One entry per location
+    using VertexInputAttributeMap = std::unordered_map<uint32_t, InputAttributeDescription>;
+    VertexInputAttributeMap vertex_input_attribute_map;
+
+    // Is VK_DYNAMIC_STATE_VERTEX_INPUT_EXT enabled
+    bool dynamic_vertex_input{ false };
+
+    // Is VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT enabled
+    bool dynamic_vertex_binding_stride{ false };
 };
 
 struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
@@ -408,7 +451,8 @@ struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
 
 struct DescriptorUpdateTemplateInfo : public VulkanObjectInfo<VkDescriptorUpdateTemplate>
 {
-    std::vector<VkDescriptorType> descriptor_image_types;
+    std::vector<VkDescriptorType>                descriptor_image_types;
+    std::vector<VkDescriptorUpdateTemplateEntry> entries;
 };
 
 struct DisplayKHRInfo : public VulkanObjectInfo<VkDisplayKHR>
@@ -531,30 +575,32 @@ struct RenderPassInfo : public VulkanObjectInfo<VkRenderPass>
     std::vector<VkSubpassDependency> dependencies;
 };
 
-struct descriptor_type_image_info
+struct DescriptorTypeImageInfo
 {
-    format::HandleId image_view_id;
-    VkImageLayout    image_layout;
+    const ImageViewInfo* image_view_info;
+    VkImageLayout        image_layout;
 };
 
-struct descriptor_type_buffer_info
+struct DescriptorTypeBufferInfo
 {
-    format::HandleId buffer_id;
-    VkDeviceSize     offset;
-    VkDeviceSize     range;
+    const BufferInfo* buffer_info;
+    VkDeviceSize      offset;
+    VkDeviceSize      range;
 };
 
-struct descriptor_binding_info
+struct DescriptorSetBindingInfo
 {
-    VkDescriptorType            desc_type;
-    descriptor_type_image_info  image_info;
-    descriptor_type_buffer_info buffer_info;
-    format::HandleId            texel_buffer_view;
+    VkDescriptorType                      desc_type;
+    std::vector<DescriptorTypeImageInfo>  image_info;
+    std::vector<DescriptorTypeBufferInfo> buffer_info;
+    std::vector<const BufferViewInfo*>    texel_buffer_view_info;
 };
 
 struct DescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
 {
-    std::unordered_map<uint32_t, descriptor_binding_info> descriptors;
+    // One entry per binding
+    using DescriptorBindingsInfo = std::unordered_map<uint32_t, DescriptorSetBindingInfo>;
+    DescriptorBindingsInfo descriptors;
 };
 
 //

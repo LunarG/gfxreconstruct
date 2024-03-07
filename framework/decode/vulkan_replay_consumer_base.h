@@ -33,7 +33,6 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_replay_dump_resources.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
 #include "decode/vulkan_resource_initializer.h"
@@ -713,6 +712,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     uint32_t                                                   imageMemoryBarrierCount,
                                     const StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers);
 
+    void OverrideCmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2                       func,
+                                     CommandBufferInfo*                              command_buffer_info,
+                                     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo);
+
+    void OverrideCmdPipelineBarrier2KHR(PFN_vkCmdPipelineBarrier2                       func,
+                                        CommandBufferInfo*                              command_buffer_info,
+                                        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo);
+
     VkResult OverrideCreateDescriptorUpdateTemplate(
         PFN_vkCreateDescriptorUpdateTemplate                                      func,
         VkResult                                                                  original_result,
@@ -1196,6 +1203,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     bool CheckCommandBufferInfoForFrameBoundary(const CommandBufferInfo* command_buffer_info);
     bool CheckPNextChainForFrameBoundary(const DeviceInfo* device_info, const PNextNode* pnext);
+
+    void UpdateDescriptorSetInfoWithTemplate(DescriptorSetInfo*                     desc_set_info,
+                                             const DescriptorUpdateTemplateInfo*    template_info,
+                                             const DescriptorUpdateTemplateDecoder* decoder) const;
 
   private:
     struct HardwareBufferInfo

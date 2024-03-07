@@ -49,6 +49,10 @@ enum class SkipGetFenceStatus
     COUNT
 };
 
+// Default color attachment index selection for dump resources feature.
+// This default value essentially defines to dump all attachments.
+static constexpr int kUnspecifiedColorAttachment = -1;
+
 struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };
@@ -87,7 +91,13 @@ struct VulkanReplayOptions : public ReplayOptions
     // Flag to quickly check whether the feature is enabled or not
     bool  dumping_resources{ false };
     bool  dump_resources_before{ false };
+    bool  dump_resources_dump_depth{ false };
+    int   dump_resources_color_attachment_index{ kUnspecifiedColorAttachment };
     float dump_resources_scale{ 1.0f };
+    bool  dump_resources_dump_vertex_index_buffer{ false };
+    bool  dump_resources_json_per_command{ false };
+    bool  dump_resources_dump_immutable_resources{ false };
+    bool  dump_resources_dump_all_image_subresources{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

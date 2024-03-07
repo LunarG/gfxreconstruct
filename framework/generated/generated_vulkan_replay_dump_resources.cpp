@@ -57,11 +57,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewport(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstViewport, viewportCount, pViewports);
             }
@@ -85,11 +85,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetScissor(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstScissor, scissorCount, pScissors);
             }
@@ -111,11 +111,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineWidth(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, lineWidth);
             }
@@ -139,11 +139,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBias(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
             }
@@ -165,11 +165,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetBlendConstants(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, blendConstants);
             }
@@ -192,11 +192,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBounds(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, minDepthBounds, maxDepthBounds);
             }
@@ -219,11 +219,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilCompareMask(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, faceMask, compareMask);
             }
@@ -246,11 +246,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilWriteMask(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, faceMask, writeMask);
             }
@@ -273,11 +273,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilReference(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, faceMask, reference);
             }
@@ -296,7 +296,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorSets(
     PFN_vkCmdBindDescriptorSets                 func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
-    VkPipelineLayout                            layout,
+    const PipelineLayoutInfo*                   layout,
     uint32_t                                    firstSet,
     uint32_t                                    descriptorSetCount,
     HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
@@ -313,27 +313,13 @@ void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindIndexBuffer                    func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const BufferInfo*                           buffer,
     VkDeviceSize                                offset,
     VkIndexType                                 indexType)
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
-            {
-                 func(*it, buffer, offset, indexType);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, buffer, offset, indexType);
-        }
+        OverrideCmdBindIndexBuffer(call_info, func, commandBuffer, buffer, offset, indexType);
     }
 }
 
@@ -343,26 +329,12 @@ void VulkanReplayDumpResources::Process_vkCmdBindVertexBuffers(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
-    const VkBuffer*                             pBuffers,
+    HandlePointerDecoder<VkBuffer>*             pBuffers,
     const VkDeviceSize*                         pOffsets)
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
-            {
-                 func(*it, firstBinding, bindingCount, pBuffers, pOffsets);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, firstBinding, bindingCount, pBuffers, pOffsets);
-        }
+        OverrideCmdBindVertexBuffers(call_info, func, commandBuffer, firstBinding, bindingCount, pBuffers->GetPointer(), pOffsets);
     }
 }
 
@@ -401,7 +373,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirect(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirect                       func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const BufferInfo*                           buffer,
     VkDeviceSize                                offset,
     uint32_t                                    drawCount,
     uint32_t                                    stride)
@@ -416,7 +388,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirect(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndexedIndirect                func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const BufferInfo*                           buffer,
     VkDeviceSize                                offset,
     uint32_t                                    drawCount,
     uint32_t                                    stride)
@@ -445,7 +417,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchIndirect(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDispatchIndirect                   func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const BufferInfo*                           buffer,
     VkDeviceSize                                offset)
 {
     if (IsRecording(commandBuffer))
@@ -465,11 +437,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyBuffer(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, srcBuffer, dstBuffer, regionCount, pRegions);
             }
@@ -496,11 +468,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyImage(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
             }
@@ -528,11 +500,11 @@ void VulkanReplayDumpResources::Process_vkCmdBlitImage(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
             }
@@ -558,11 +530,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyBufferToImage(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
             }
@@ -588,11 +560,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyImageToBuffer(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
             }
@@ -617,11 +589,11 @@ void VulkanReplayDumpResources::Process_vkCmdUpdateBuffer(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, dstBuffer, dstOffset, dataSize, pData);
             }
@@ -646,11 +618,11 @@ void VulkanReplayDumpResources::Process_vkCmdFillBuffer(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, dstBuffer, dstOffset, size, data);
             }
@@ -676,11 +648,11 @@ void VulkanReplayDumpResources::Process_vkCmdClearColorImage(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, image, imageLayout, pColor, rangeCount, pRanges);
             }
@@ -706,11 +678,11 @@ void VulkanReplayDumpResources::Process_vkCmdClearDepthStencilImage(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, image, imageLayout, pDepthStencil, rangeCount, pRanges);
             }
@@ -735,11 +707,11 @@ void VulkanReplayDumpResources::Process_vkCmdClearAttachments(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, attachmentCount, pAttachments, rectCount, pRects);
             }
@@ -766,11 +738,11 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
             }
@@ -793,11 +765,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, event, stageMask);
             }
@@ -820,11 +792,11 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, event, stageMask);
             }
@@ -855,11 +827,11 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
             }
@@ -889,11 +861,11 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
             }
@@ -917,11 +889,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginQuery(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, queryPool, query, flags);
             }
@@ -944,11 +916,11 @@ void VulkanReplayDumpResources::Process_vkCmdEndQuery(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, queryPool, query);
             }
@@ -972,11 +944,11 @@ void VulkanReplayDumpResources::Process_vkCmdResetQueryPool(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, queryPool, firstQuery, queryCount);
             }
@@ -1000,11 +972,11 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pipelineStage, queryPool, query);
             }
@@ -1032,11 +1004,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyQueryPoolResults(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
             }
@@ -1062,11 +1034,11 @@ void VulkanReplayDumpResources::Process_vkCmdPushConstants(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, layout, stageFlags, offset, size, pValues);
             }
@@ -1125,11 +1097,11 @@ void VulkanReplayDumpResources::Process_vkCmdExecuteCommands(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, commandBufferCount, pCommandBuffers);
             }
@@ -1151,11 +1123,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDeviceMask(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, deviceMask);
             }
@@ -1182,11 +1154,11 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchBase(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
             }
@@ -1204,9 +1176,9 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectCount(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirectCount                  func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const BufferInfo*                           buffer,
     VkDeviceSize                                offset,
-    VkBuffer                                    countBuffer,
+    const BufferInfo*                           countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
@@ -1221,9 +1193,9 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirectCount(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndexedIndirectCount           func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const BufferInfo*                           buffer,
     VkDeviceSize                                offset,
-    VkBuffer                                    countBuffer,
+    const BufferInfo*                           countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
@@ -1281,11 +1253,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, event, pDependencyInfo);
             }
@@ -1308,11 +1280,11 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, event, stageMask);
             }
@@ -1336,11 +1308,11 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, eventCount, pEvents, pDependencyInfos);
             }
@@ -1362,11 +1334,11 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pDependencyInfo);
             }
@@ -1390,11 +1362,11 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, stage, queryPool, query);
             }
@@ -1416,11 +1388,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyBuffer2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCopyBufferInfo);
             }
@@ -1442,11 +1414,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyImage2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCopyImageInfo);
             }
@@ -1468,11 +1440,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyBufferToImage2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCopyBufferToImageInfo);
             }
@@ -1494,11 +1466,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyImageToBuffer2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCopyImageToBufferInfo);
             }
@@ -1520,11 +1492,11 @@ void VulkanReplayDumpResources::Process_vkCmdBlitImage2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pBlitImageInfo);
             }
@@ -1546,11 +1518,11 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage2(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pResolveImageInfo);
             }
@@ -1572,11 +1544,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginRendering(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pRenderingInfo);
             }
@@ -1597,11 +1569,11 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it);
             }
@@ -1623,11 +1595,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCullMode(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, cullMode);
             }
@@ -1649,11 +1621,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetFrontFace(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, frontFace);
             }
@@ -1675,11 +1647,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveTopology(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, primitiveTopology);
             }
@@ -1702,11 +1674,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWithCount(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, viewportCount, pViewports);
             }
@@ -1729,11 +1701,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetScissorWithCount(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, scissorCount, pScissors);
             }
@@ -1753,28 +1725,14 @@ void VulkanReplayDumpResources::Process_vkCmdBindVertexBuffers2(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
-    const VkBuffer*                             pBuffers,
+    HandlePointerDecoder<VkBuffer>*             pBuffers,
     const VkDeviceSize*                         pOffsets,
     const VkDeviceSize*                         pSizes,
     const VkDeviceSize*                         pStrides)
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
-            {
-                 func(*it, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
-        }
+        OverrideCmdBindVertexBuffers2(call_info, func, commandBuffer, firstBinding, bindingCount, pBuffers->GetPointer(), pOffsets, pSizes, pStrides);
     }
 }
 
@@ -1786,11 +1744,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthTestEnable(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthTestEnable);
             }
@@ -1812,11 +1770,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthWriteEnable(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthWriteEnable);
             }
@@ -1838,11 +1796,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthCompareOp(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthCompareOp);
             }
@@ -1864,11 +1822,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBoundsTestEnable(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthBoundsTestEnable);
             }
@@ -1890,11 +1848,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilTestEnable(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, stencilTestEnable);
             }
@@ -1920,11 +1878,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilOp(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, faceMask, failOp, passOp, depthFailOp, compareOp);
             }
@@ -1946,11 +1904,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizerDiscardEnable(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, rasterizerDiscardEnable);
             }
@@ -1972,11 +1930,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBiasEnable(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthBiasEnable);
             }
@@ -1998,11 +1956,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveRestartEnable(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, primitiveRestartEnable);
             }
@@ -2033,11 +1991,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginVideoCodingKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pBeginInfo);
             }
@@ -2059,11 +2017,11 @@ void VulkanReplayDumpResources::Process_vkCmdEndVideoCodingKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pEndCodingInfo);
             }
@@ -2085,11 +2043,11 @@ void VulkanReplayDumpResources::Process_vkCmdControlVideoCodingKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCodingControlInfo);
             }
@@ -2111,11 +2069,11 @@ void VulkanReplayDumpResources::Process_vkCmdDecodeVideoKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pDecodeInfo);
             }
@@ -2137,11 +2095,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginRenderingKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pRenderingInfo);
             }
@@ -2162,11 +2120,11 @@ void VulkanReplayDumpResources::Process_vkCmdEndRenderingKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it);
             }
@@ -2189,11 +2147,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDeviceMaskKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, deviceMask);
             }
@@ -2220,11 +2178,11 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchBaseKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
             }
@@ -2258,11 +2216,11 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
             }
@@ -2330,9 +2288,9 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectCountKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirectCountKHR               func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const BufferInfo*                           buffer,
     VkDeviceSize                                offset,
-    VkBuffer                                    countBuffer,
+    const BufferInfo*                           countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
@@ -2347,9 +2305,9 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirectCountKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndexedIndirectCountKHR        func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const BufferInfo*                           buffer,
     VkDeviceSize                                offset,
-    VkBuffer                                    countBuffer,
+    const BufferInfo*                           countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
@@ -2370,11 +2328,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pFragmentSize, combinerOps);
             }
@@ -2384,6 +2342,58 @@ void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateKHR(
         if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
         {
              func(dispatch_rays_command_buffer, pFragmentSize, combinerOps);
+        }
+    }
+}
+
+void VulkanReplayDumpResources::Process_vkCmdSetRenderingAttachmentLocationsKHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetRenderingAttachmentLocationsKHR func,
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderingAttachmentLocationInfoKHR* pLocationInfo)
+{
+    if (IsRecording(commandBuffer))
+    {
+        CommandBufferIterator first, last;
+        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
+        if (found)
+        {
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                 func(*it, pLocationInfo);
+            }
+        }
+
+        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+        {
+             func(dispatch_rays_command_buffer, pLocationInfo);
+        }
+    }
+}
+
+void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetRenderingInputAttachmentIndicesKHR func,
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderingInputAttachmentIndexInfoKHR* pLocationInfo)
+{
+    if (IsRecording(commandBuffer))
+    {
+        CommandBufferIterator first, last;
+        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
+        if (found)
+        {
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                 func(*it, pLocationInfo);
+            }
+        }
+
+        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+        {
+             func(dispatch_rays_command_buffer, pLocationInfo);
         }
     }
 }
@@ -2401,11 +2411,11 @@ void VulkanReplayDumpResources::Process_vkCmdEncodeVideoKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pEncodeInfo);
             }
@@ -2428,11 +2438,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, event, pDependencyInfo);
             }
@@ -2455,11 +2465,11 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, event, stageMask);
             }
@@ -2483,11 +2493,11 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, eventCount, pEvents, pDependencyInfos);
             }
@@ -2509,11 +2519,11 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pDependencyInfo);
             }
@@ -2537,11 +2547,11 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, stage, queryPool, query);
             }
@@ -2566,11 +2576,11 @@ void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarker2AMD(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, stage, dstBuffer, dstOffset, marker);
             }
@@ -2592,11 +2602,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyBuffer2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCopyBufferInfo);
             }
@@ -2618,11 +2628,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyImage2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCopyImageInfo);
             }
@@ -2644,11 +2654,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyBufferToImage2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCopyBufferToImageInfo);
             }
@@ -2670,11 +2680,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyImageToBuffer2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCopyImageToBufferInfo);
             }
@@ -2696,11 +2706,11 @@ void VulkanReplayDumpResources::Process_vkCmdBlitImage2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pBlitImageInfo);
             }
@@ -2722,11 +2732,11 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pResolveImageInfo);
             }
@@ -2748,11 +2758,11 @@ void VulkanReplayDumpResources::Process_vkCmdTraceRaysIndirect2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, indirectDeviceAddress);
             }
@@ -2771,31 +2781,44 @@ void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindIndexBuffer2KHR                func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const BufferInfo*                           buffer,
     VkDeviceSize                                offset,
     VkDeviceSize                                size,
     VkIndexType                                 indexType)
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        OverrideCmdBindIndexBuffer2KHR(call_info, func, commandBuffer, buffer, offset, size, indexType);
+    }
+}
+
+
+void VulkanReplayDumpResources::Process_vkCmdSetLineStippleKHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetLineStippleKHR                  func,
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    lineStippleFactor,
+    uint16_t                                    lineStipplePattern)
+{
+    if (IsRecording(commandBuffer))
+    {
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
-                 func(*it, buffer, offset, size, indexType);
+                 func(*it, lineStippleFactor, lineStipplePattern);
             }
         }
 
         VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
         if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
         {
-             func(dispatch_rays_command_buffer, buffer, offset, size, indexType);
+             func(dispatch_rays_command_buffer, lineStippleFactor, lineStipplePattern);
         }
     }
 }
-
 
 
 void VulkanReplayDumpResources::Process_vkCmdBindDescriptorSets2KHR(
@@ -2806,11 +2829,11 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorSets2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pBindDescriptorSetsInfo);
             }
@@ -2832,11 +2855,11 @@ void VulkanReplayDumpResources::Process_vkCmdPushConstants2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pPushConstantsInfo);
             }
@@ -2858,11 +2881,11 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pPushDescriptorSetInfo);
             }
@@ -2884,11 +2907,11 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pPushDescriptorSetWithTemplateInfo);
             }
@@ -2910,11 +2933,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDescriptorBufferOffsets2EXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pSetDescriptorBufferOffsetsInfo);
             }
@@ -2936,11 +2959,11 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorBufferEmbeddedSampler
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pBindDescriptorBufferEmbeddedSamplersInfo);
             }
@@ -2964,11 +2987,11 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerBeginEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pMarkerInfo);
             }
@@ -2989,11 +3012,11 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerEndEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it);
             }
@@ -3015,11 +3038,11 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerInsertEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pMarkerInfo);
             }
@@ -3045,11 +3068,11 @@ void VulkanReplayDumpResources::Process_vkCmdBindTransformFeedbackBuffersEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
             }
@@ -3074,11 +3097,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginTransformFeedbackEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
             }
@@ -3103,11 +3126,11 @@ void VulkanReplayDumpResources::Process_vkCmdEndTransformFeedbackEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
             }
@@ -3132,11 +3155,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginQueryIndexedEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, queryPool, query, flags, index);
             }
@@ -3160,11 +3183,11 @@ void VulkanReplayDumpResources::Process_vkCmdEndQueryIndexedEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, queryPool, query, index);
             }
@@ -3191,11 +3214,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectByteCountEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
             }
@@ -3223,11 +3246,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectCountAMD(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
             }
@@ -3254,11 +3277,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirectCountAMD(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
             }
@@ -3285,11 +3308,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginConditionalRenderingEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pConditionalRenderingBegin);
             }
@@ -3310,11 +3333,11 @@ void VulkanReplayDumpResources::Process_vkCmdEndConditionalRenderingEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it);
             }
@@ -3338,11 +3361,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWScalingNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstViewport, viewportCount, pViewportWScalings);
             }
@@ -3371,11 +3394,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
             }
@@ -3397,11 +3420,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, discardRectangleEnable);
             }
@@ -3423,11 +3446,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleModeEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, discardRectangleMode);
             }
@@ -3452,11 +3475,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginDebugUtilsLabelEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pLabelInfo);
             }
@@ -3477,11 +3500,11 @@ void VulkanReplayDumpResources::Process_vkCmdEndDebugUtilsLabelEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it);
             }
@@ -3503,11 +3526,11 @@ void VulkanReplayDumpResources::Process_vkCmdInsertDebugUtilsLabelEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pLabelInfo);
             }
@@ -3530,11 +3553,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleLocationsEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pSampleLocationsInfo);
             }
@@ -3559,11 +3582,11 @@ void VulkanReplayDumpResources::Process_vkCmdBindShadingRateImageNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, imageView, imageLayout);
             }
@@ -3587,11 +3610,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportShadingRatePaletteNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstViewport, viewportCount, pShadingRatePalettes);
             }
@@ -3615,11 +3638,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoarseSampleOrderNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
             }
@@ -3648,11 +3671,11 @@ void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructureNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
             }
@@ -3676,11 +3699,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyAccelerationStructureNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, dst, src, mode);
             }
@@ -3715,11 +3738,11 @@ void VulkanReplayDumpResources::Process_vkCmdTraceRaysNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
             }
@@ -3745,11 +3768,11 @@ void VulkanReplayDumpResources::Process_vkCmdWriteAccelerationStructuresProperti
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
             }
@@ -3775,11 +3798,11 @@ void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarkerAMD(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pipelineStage, dstBuffer, dstOffset, marker);
             }
@@ -3803,11 +3826,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, taskCount, firstTask);
             }
@@ -3832,11 +3855,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, buffer, offset, drawCount, stride);
             }
@@ -3863,11 +3886,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectCountNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
             }
@@ -3891,11 +3914,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetExclusiveScissorEnableNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissorEnables);
             }
@@ -3919,11 +3942,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetExclusiveScissorNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
             }
@@ -3945,11 +3968,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCheckpointNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pCheckpointMarker);
             }
@@ -3972,11 +3995,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceMarkerINTEL(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pMarkerInfo);
             }
@@ -3999,11 +4022,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceStreamMarkerINTEL(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pMarkerInfo);
             }
@@ -4026,11 +4049,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceOverrideINTEL(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pOverrideInfo);
             }
@@ -4062,11 +4085,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, lineStippleFactor, lineStipplePattern);
             }
@@ -4089,11 +4112,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCullModeEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, cullMode);
             }
@@ -4115,11 +4138,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetFrontFaceEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, frontFace);
             }
@@ -4141,11 +4164,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveTopologyEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, primitiveTopology);
             }
@@ -4168,11 +4191,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWithCountEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, viewportCount, pViewports);
             }
@@ -4195,11 +4218,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetScissorWithCountEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, scissorCount, pScissors);
             }
@@ -4226,11 +4249,11 @@ void VulkanReplayDumpResources::Process_vkCmdBindVertexBuffers2EXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
             }
@@ -4252,11 +4275,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthTestEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthTestEnable);
             }
@@ -4278,11 +4301,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthWriteEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthWriteEnable);
             }
@@ -4304,11 +4327,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthCompareOpEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthCompareOp);
             }
@@ -4330,11 +4353,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBoundsTestEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthBoundsTestEnable);
             }
@@ -4356,11 +4379,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilTestEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, stencilTestEnable);
             }
@@ -4386,11 +4409,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilOpEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, faceMask, failOp, passOp, depthFailOp, compareOp);
             }
@@ -4414,11 +4437,11 @@ void VulkanReplayDumpResources::Process_vkCmdPreprocessGeneratedCommandsNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pGeneratedCommandsInfo);
             }
@@ -4441,11 +4464,11 @@ void VulkanReplayDumpResources::Process_vkCmdExecuteGeneratedCommandsNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, isPreprocessed, pGeneratedCommandsInfo);
             }
@@ -4469,11 +4492,11 @@ void VulkanReplayDumpResources::Process_vkCmdBindPipelineShaderGroupNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pipelineBindPoint, pipeline, groupIndex);
             }
@@ -4495,11 +4518,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBias2EXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pDepthBiasInfo);
             }
@@ -4524,11 +4547,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateEnumNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, shadingRate, combinerOps);
             }
@@ -4550,27 +4573,13 @@ void VulkanReplayDumpResources::Process_vkCmdSetVertexInputEXT(
     PFN_vkCmdSetVertexInputEXT                  func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    vertexBindingDescriptionCount,
-    const VkVertexInputBindingDescription2EXT*  pVertexBindingDescriptions,
+    StructPointerDecoder<Decoded_VkVertexInputBindingDescription2EXT>* pVertexBindingDescriptions,
     uint32_t                                    vertexAttributeDescriptionCount,
-    const VkVertexInputAttributeDescription2EXT* pVertexAttributeDescriptions)
+    StructPointerDecoder<Decoded_VkVertexInputAttributeDescription2EXT>* pVertexAttributeDescriptions)
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
-            {
-                 func(*it, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions);
-        }
+        OverrideCmdSetVertexInputEXT(call_info, func, commandBuffer, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions);
     }
 }
 
@@ -4585,11 +4594,11 @@ void VulkanReplayDumpResources::Process_vkCmdBindInvocationMaskHUAWEI(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, imageView, imageLayout);
             }
@@ -4612,11 +4621,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetPatchControlPointsEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, patchControlPoints);
             }
@@ -4638,11 +4647,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizerDiscardEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, rasterizerDiscardEnable);
             }
@@ -4664,11 +4673,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBiasEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthBiasEnable);
             }
@@ -4690,11 +4699,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetLogicOpEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, logicOp);
             }
@@ -4716,11 +4725,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveRestartEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, primitiveRestartEnable);
             }
@@ -4744,11 +4753,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorWriteEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, attachmentCount, pColorWriteEnables);
             }
@@ -4774,11 +4783,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMultiEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
             }
@@ -4805,11 +4814,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMultiIndexedEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
             }
@@ -4832,11 +4841,11 @@ void VulkanReplayDumpResources::Process_vkCmdBuildMicromapsEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, infoCount, pInfos);
             }
@@ -4858,11 +4867,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMicromapEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pInfo);
             }
@@ -4884,11 +4893,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMicromapToMemoryEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pInfo);
             }
@@ -4910,11 +4919,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToMicromapEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pInfo);
             }
@@ -4940,11 +4949,11 @@ void VulkanReplayDumpResources::Process_vkCmdWriteMicromapsPropertiesEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, micromapCount, pMicromaps, queryType, queryPool, firstQuery);
             }
@@ -4968,11 +4977,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawClusterHUAWEI(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, groupCountX, groupCountY, groupCountZ);
             }
@@ -4995,11 +5004,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawClusterIndirectHUAWEI(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, buffer, offset);
             }
@@ -5024,11 +5033,11 @@ void VulkanReplayDumpResources::Process_vkCmdUpdatePipelineIndirectBufferNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pipelineBindPoint, pipeline);
             }
@@ -5042,32 +5051,6 @@ void VulkanReplayDumpResources::Process_vkCmdUpdatePipelineIndirectBufferNV(
     }
 }
 
-void VulkanReplayDumpResources::Process_vkCmdSetTessellationDomainOriginEXT(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetTessellationDomainOriginEXT     func,
-    VkCommandBuffer                             commandBuffer,
-    VkTessellationDomainOrigin                  domainOrigin)
-{
-    if (IsRecording(commandBuffer))
-    {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
-            {
-                 func(*it, domainOrigin);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, domainOrigin);
-        }
-    }
-}
-
 void VulkanReplayDumpResources::Process_vkCmdSetDepthClampEnableEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetDepthClampEnableEXT             func,
@@ -5076,11 +5059,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClampEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthClampEnable);
             }
@@ -5102,11 +5085,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetPolygonModeEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, polygonMode);
             }
@@ -5128,11 +5111,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizationSamplesEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, rasterizationSamples);
             }
@@ -5155,11 +5138,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleMaskEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, samples, pSampleMask);
             }
@@ -5181,11 +5164,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetAlphaToCoverageEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, alphaToCoverageEnable);
             }
@@ -5207,11 +5190,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetAlphaToOneEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, alphaToOneEnable);
             }
@@ -5233,11 +5216,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetLogicOpEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, logicOpEnable);
             }
@@ -5261,11 +5244,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorBlendEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstAttachment, attachmentCount, pColorBlendEnables);
             }
@@ -5289,11 +5272,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorBlendEquationEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstAttachment, attachmentCount, pColorBlendEquations);
             }
@@ -5317,11 +5300,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorWriteMaskEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstAttachment, attachmentCount, pColorWriteMasks);
             }
@@ -5335,6 +5318,32 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorWriteMaskEXT(
     }
 }
 
+void VulkanReplayDumpResources::Process_vkCmdSetTessellationDomainOriginEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetTessellationDomainOriginEXT     func,
+    VkCommandBuffer                             commandBuffer,
+    VkTessellationDomainOrigin                  domainOrigin)
+{
+    if (IsRecording(commandBuffer))
+    {
+        CommandBufferIterator first, last;
+        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
+        if (found)
+        {
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                 func(*it, domainOrigin);
+            }
+        }
+
+        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+        {
+             func(dispatch_rays_command_buffer, domainOrigin);
+        }
+    }
+}
+
 void VulkanReplayDumpResources::Process_vkCmdSetRasterizationStreamEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetRasterizationStreamEXT          func,
@@ -5343,11 +5352,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizationStreamEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, rasterizationStream);
             }
@@ -5369,11 +5378,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetConservativeRasterizationModeEXT
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, conservativeRasterizationMode);
             }
@@ -5395,11 +5404,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetExtraPrimitiveOverestimationSize
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, extraPrimitiveOverestimationSize);
             }
@@ -5421,11 +5430,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClipEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, depthClipEnable);
             }
@@ -5447,11 +5456,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleLocationsEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, sampleLocationsEnable);
             }
@@ -5475,11 +5484,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorBlendAdvancedEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstAttachment, attachmentCount, pColorBlendAdvanced);
             }
@@ -5501,11 +5510,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetProvokingVertexModeEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, provokingVertexMode);
             }
@@ -5527,11 +5536,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineRasterizationModeEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, lineRasterizationMode);
             }
@@ -5553,11 +5562,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, stippledLineEnable);
             }
@@ -5579,11 +5588,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClipNegativeOneToOneEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, negativeOneToOne);
             }
@@ -5605,11 +5614,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWScalingEnableNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, viewportWScalingEnable);
             }
@@ -5633,11 +5642,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportSwizzleNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, firstViewport, viewportCount, pViewportSwizzles);
             }
@@ -5659,11 +5668,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageToColorEnableNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, coverageToColorEnable);
             }
@@ -5685,11 +5694,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageToColorLocationNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, coverageToColorLocation);
             }
@@ -5711,11 +5720,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageModulationModeNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, coverageModulationMode);
             }
@@ -5737,11 +5746,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageModulationTableEnableNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, coverageModulationTableEnable);
             }
@@ -5764,11 +5773,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageModulationTableNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, coverageModulationTableCount, pCoverageModulationTable);
             }
@@ -5790,11 +5799,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetShadingRateImageEnableNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, shadingRateImageEnable);
             }
@@ -5816,11 +5825,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetRepresentativeFragmentTestEnable
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, representativeFragmentTestEnable);
             }
@@ -5842,11 +5851,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageReductionModeNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, coverageReductionMode);
             }
@@ -5870,11 +5879,11 @@ void VulkanReplayDumpResources::Process_vkCmdOpticalFlowExecuteNV(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, session, pExecuteInfo);
             }
@@ -5898,11 +5907,11 @@ void VulkanReplayDumpResources::Process_vkCmdBindShadersEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, stageCount, pStages, pShaders);
             }
@@ -5925,11 +5934,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, aspectMask);
             }
@@ -5953,11 +5962,11 @@ void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructuresKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, infoCount, pInfos, ppBuildRangeInfos);
             }
@@ -5983,11 +5992,11 @@ void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructuresIndirect
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
             }
@@ -6009,11 +6018,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyAccelerationStructureKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pInfo);
             }
@@ -6035,11 +6044,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyAccelerationStructureToMemoryKH
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pInfo);
             }
@@ -6061,11 +6070,11 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToAccelerationStructureKH
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pInfo);
             }
@@ -6091,11 +6100,11 @@ void VulkanReplayDumpResources::Process_vkCmdWriteAccelerationStructuresProperti
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
             }
@@ -6139,11 +6148,11 @@ void VulkanReplayDumpResources::Process_vkCmdTraceRaysIndirectKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
             }
@@ -6165,11 +6174,11 @@ void VulkanReplayDumpResources::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, pipelineStackSize);
             }
@@ -6193,11 +6202,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, groupCountX, groupCountY, groupCountZ);
             }
@@ -6222,11 +6231,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, buffer, offset, drawCount, stride);
             }
@@ -6253,11 +6262,11 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectCountEXT(
 {
     if (IsRecording(commandBuffer))
     {
-        VulkanReplayDumpResourcesBase::cmd_buf_it first, last;
+        CommandBufferIterator first, last;
         bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
         if (found)
         {
-            for (VulkanReplayDumpResourcesBase::cmd_buf_it it = first; it < last; ++it)
+            for (CommandBufferIterator it = first; it < last; ++it)
             {
                  func(*it, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
             }

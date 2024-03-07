@@ -47,22 +47,6 @@ enum class ScreenshotFormat : uint32_t
     kPng = 1,
 };
 
-static const char* ScreenshotFormatToCStr(ScreenshotFormat format)
-{
-    switch (format)
-    {
-        case ScreenshotFormat::kBmp:
-            return ".bmp";
-
-        case ScreenshotFormat::kPng:
-            return ".png";
-
-        default:
-            assert(0);
-            return "bmp";
-    }
-}
-
 enum class SwapchainOption : uint32_t
 {
     kVirtual   = 0,
