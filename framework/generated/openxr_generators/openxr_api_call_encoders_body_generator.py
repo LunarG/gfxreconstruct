@@ -541,16 +541,16 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             ):
                 # The VkInstance handle does not have parent, so the 'unused'
                 # values will be provided to the wrapper creation function.
-                parent_type = 'NoParentWrapper'
-                parent_value = 'NoParentWrapper::kHandleValue'
+                parent_type = 'OpenXrNoParentWrapper'
+                parent_value = 'OpenXrNoParentWrapper::kHandleValue'
                 if self.is_handle(values[0].base_type):
                     parent_type = values[0].base_type[2:] + 'Wrapper'
                     parent_value = values[0].name
 
                 # Some handles have two parent handles, such as swapchain images and display modes,
                 # or command buffers and descriptor sets allocated from pools.
-                co_parent_type = 'NoParentWrapper'
-                co_parent_value = 'NoParentWrapper::kHandleValue'
+                co_parent_type = 'OpenXrNoParentWrapper'
+                co_parent_value = 'OpenXrNoParentWrapper::kHandleValue'
                 if self.is_handle(values[1].base_type):
                     co_parent_type = values[1].base_type[2:] + 'Wrapper'
                     co_parent_value = values[1].name
