@@ -108,6 +108,7 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_loader.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.h>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
 )
 
 
