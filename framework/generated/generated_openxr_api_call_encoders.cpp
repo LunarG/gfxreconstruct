@@ -194,7 +194,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateInstance(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<OpenXrNoParentWrapper, InstanceWrapper, InstanceWrapper>(OpenXrNoParentWrapper::kHandleValue, instance, instance, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<OpenXrNoParentWrapper, InstanceWrapper, openxr_wrappers::InstanceWrapper>(OpenXrNoParentWrapper::kHandleValue, instance, instance, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -207,7 +207,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateInstance(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::InstanceWrapper>(instance, omit_output_data);
         encoder->EncodeEnumValue(result);
-        OpenXrCaptureManager::Get()->EndCreateApiCallCapture<const void*, InstanceWrapper, XrInstanceCreateInfo>(result, nullptr, instance, createInfo);
+        OpenXrCaptureManager::Get()->EndCreateApiCallCapture<const void*, openxr_wrappers::InstanceWrapper, XrInstanceCreateInfo>(result, nullptr, instance, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateInstance>::Dispatch(OpenXrCaptureManager::Get(), result, createInfo, instance);
@@ -242,12 +242,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyInstance(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<InstanceWrapper>(instance);
+        manager->EndDestroyApiCallCapture<OpenXrInstanceWrapper>(instance);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyInstance>::Dispatch(manager, result, instance);
 
-    DestroyWrappedHandle<InstanceWrapper>(instance);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::InstanceWrapper>(instance);
 
     return result;
 }
@@ -589,7 +589,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSession(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, OpenXrNoParentWrapper, SessionWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, session, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<InstanceWrapper, OpenXrNoParentWrapper, openxr_wrappers::SessionWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, session, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -603,7 +603,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSession(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SessionWrapper>(session, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrInstance, SessionWrapper, XrSessionCreateInfo>(result, instance, session, createInfo);
+        manager->EndCreateApiCallCapture<XrInstance, openxr_wrappers::SessionWrapper, XrSessionCreateInfo>(result, instance, session, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSession>::Dispatch(manager, result, instance, createInfo, session);
@@ -638,12 +638,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySession(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<SessionWrapper>(session);
+        manager->EndDestroyApiCallCapture<OpenXrSessionWrapper>(session);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroySession>::Dispatch(manager, result, session);
 
-    DestroyWrappedHandle<SessionWrapper>(session);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::SessionWrapper>(session);
 
     return result;
 }
@@ -721,7 +721,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateReferenceSpace(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -735,7 +735,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateReferenceSpace(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(space, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrReferenceSpaceCreateInfo>(result, session, space, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrReferenceSpaceCreateInfo>(result, session, space, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateReferenceSpace>::Dispatch(manager, result, session, createInfo, space);
@@ -817,7 +817,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateActionSpace(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -831,7 +831,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateActionSpace(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(space, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrActionSpaceCreateInfo>(result, session, space, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrActionSpaceCreateInfo>(result, session, space, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateActionSpace>::Dispatch(manager, result, session, createInfo, space);
@@ -912,12 +912,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpace(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(space);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<SpaceWrapper>(space);
+        manager->EndDestroyApiCallCapture<OpenXrSpaceWrapper>(space);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroySpace>::Dispatch(manager, result, space);
 
-    DestroyWrappedHandle<SpaceWrapper>(space);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::SpaceWrapper>(space);
 
     return result;
 }
@@ -1139,7 +1139,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchain(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SwapchainWrapper>(session, OpenXrNoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SwapchainWrapper>(session, OpenXrNoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -1153,7 +1153,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchain(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SwapchainWrapper>(swapchain, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SwapchainWrapper, XrSwapchainCreateInfo>(result, session, swapchain, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SwapchainWrapper, XrSwapchainCreateInfo>(result, session, swapchain, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSwapchain>::Dispatch(manager, result, session, createInfo, swapchain);
@@ -1188,12 +1188,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySwapchain(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SwapchainWrapper>(swapchain);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<SwapchainWrapper>(swapchain);
+        manager->EndDestroyApiCallCapture<OpenXrSwapchainWrapper>(swapchain);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroySwapchain>::Dispatch(manager, result, swapchain);
 
-    DestroyWrappedHandle<SwapchainWrapper>(swapchain);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::SwapchainWrapper>(swapchain);
 
     return result;
 }
@@ -1755,7 +1755,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateActionSet(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, OpenXrNoParentWrapper, ActionSetWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, actionSet, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<InstanceWrapper, OpenXrNoParentWrapper, openxr_wrappers::ActionSetWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, actionSet, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -1769,7 +1769,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateActionSet(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::ActionSetWrapper>(actionSet, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrInstance, ActionSetWrapper, XrActionSetCreateInfo>(result, instance, actionSet, createInfo);
+        manager->EndCreateApiCallCapture<XrInstance, openxr_wrappers::ActionSetWrapper, XrActionSetCreateInfo>(result, instance, actionSet, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateActionSet>::Dispatch(manager, result, instance, createInfo, actionSet);
@@ -1804,12 +1804,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyActionSet(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::ActionSetWrapper>(actionSet);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<ActionSetWrapper>(actionSet);
+        manager->EndDestroyApiCallCapture<OpenXrActionSetWrapper>(actionSet);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyActionSet>::Dispatch(manager, result, actionSet);
 
-    DestroyWrappedHandle<ActionSetWrapper>(actionSet);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::ActionSetWrapper>(actionSet);
 
     return result;
 }
@@ -1841,7 +1841,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateAction(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<ActionSetWrapper, OpenXrNoParentWrapper, ActionWrapper>(actionSet, OpenXrNoParentWrapper::kHandleValue, action, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<ActionSetWrapper, OpenXrNoParentWrapper, openxr_wrappers::ActionWrapper>(actionSet, OpenXrNoParentWrapper::kHandleValue, action, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -1855,7 +1855,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateAction(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::ActionWrapper>(action, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrActionSet, ActionWrapper, XrActionCreateInfo>(result, actionSet, action, createInfo);
+        manager->EndCreateApiCallCapture<XrActionSet, openxr_wrappers::ActionWrapper, XrActionCreateInfo>(result, actionSet, action, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateAction>::Dispatch(manager, result, actionSet, createInfo, action);
@@ -1890,12 +1890,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyAction(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::ActionWrapper>(action);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<ActionWrapper>(action);
+        manager->EndDestroyApiCallCapture<OpenXrActionWrapper>(action);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyAction>::Dispatch(manager, result, action);
 
-    DestroyWrappedHandle<ActionWrapper>(action);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::ActionWrapper>(action);
 
     return result;
 }
@@ -2455,7 +2455,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateApiLayerInstance(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<OpenXrNoParentWrapper, OpenXrNoParentWrapper, InstanceWrapper>(OpenXrNoParentWrapper::kHandleValue, OpenXrNoParentWrapper::kHandleValue, instance, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<OpenXrNoParentWrapper, OpenXrNoParentWrapper, openxr_wrappers::InstanceWrapper>(OpenXrNoParentWrapper::kHandleValue, OpenXrNoParentWrapper::kHandleValue, instance, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -2469,7 +2469,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateApiLayerInstance(
         EncodeStructPtr(encoder, layerInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::InstanceWrapper>(instance, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<const void*, InstanceWrapper, XrApiLayerCreateInfo>(result, nullptr, instance, layerInfo);
+        manager->EndCreateApiCallCapture<const void*, openxr_wrappers::InstanceWrapper, XrApiLayerCreateInfo>(result, nullptr, instance, layerInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(manager, result, info, layerInfo, instance);
@@ -2632,7 +2632,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchainAndroidSurfaceKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SwapchainWrapper>(session, OpenXrNoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SwapchainWrapper>(session, OpenXrNoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -2647,7 +2647,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchainAndroidSurfaceKHR(
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SwapchainWrapper>(swapchain, omit_output_data);
         encoder->EncodeJobjectPtr(surface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, bjectWrapper, XrSwapchainCreateInfo>(result, session, surface, info);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::bjectWrapper, XrSwapchainCreateInfo>(result, session, surface, info);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSwapchainAndroidSurfaceKHR>::Dispatch(manager, result, session, info, swapchain, surface);
@@ -3329,7 +3329,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateVulkanInstanceKHR(
         encoder->EncodeVkInstancePtr(vulkanInstance, omit_output_data);
         encoder->EncodeVkResultPtr(vulkanResult, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrInstance, ResultWrapper, XrVulkanInstanceCreateInfoKHR>(result, instance, vulkanResult, createInfo);
+        manager->EndCreateApiCallCapture<XrInstance, openxr_wrappers::ResultWrapper, XrVulkanInstanceCreateInfoKHR>(result, instance, vulkanResult, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::Dispatch(manager, result, instance, createInfo, vulkanInstance, vulkanResult);
@@ -3375,7 +3375,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateVulkanDeviceKHR(
         encoder->EncodeVkDevicePtr(vulkanDevice, omit_output_data);
         encoder->EncodeVkResultPtr(vulkanResult, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrInstance, ResultWrapper, XrVulkanDeviceCreateInfoKHR>(result, instance, vulkanResult, createInfo);
+        manager->EndCreateApiCallCapture<XrInstance, openxr_wrappers::ResultWrapper, XrVulkanDeviceCreateInfoKHR>(result, instance, vulkanResult, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::Dispatch(manager, result, instance, createInfo, vulkanDevice, vulkanResult);
@@ -3621,7 +3621,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateDebugUtilsMessengerEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, OpenXrNoParentWrapper, DebugUtilsMessengerEXTWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, messenger, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<InstanceWrapper, OpenXrNoParentWrapper, openxr_wrappers::DebugUtilsMessengerEXTWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, messenger, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -3635,7 +3635,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateDebugUtilsMessengerEXT(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::DebugUtilsMessengerEXTWrapper>(messenger, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrInstance, DebugUtilsMessengerEXTWrapper, XrDebugUtilsMessengerCreateInfoEXT>(result, instance, messenger, createInfo);
+        manager->EndCreateApiCallCapture<XrInstance, openxr_wrappers::DebugUtilsMessengerEXTWrapper, XrDebugUtilsMessengerCreateInfoEXT>(result, instance, messenger, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>::Dispatch(manager, result, instance, createInfo, messenger);
@@ -3670,12 +3670,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyDebugUtilsMessengerEXT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::DebugUtilsMessengerEXTWrapper>(messenger);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<DebugUtilsMessengerEXTWrapper>(messenger);
+        manager->EndDestroyApiCallCapture<OpenXrDebugUtilsMessengerEXTWrapper>(messenger);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyDebugUtilsMessengerEXT>::Dispatch(manager, result, messenger);
 
-    DestroyWrappedHandle<DebugUtilsMessengerEXTWrapper>(messenger);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::DebugUtilsMessengerEXTWrapper>(messenger);
 
     return result;
 }
@@ -3856,7 +3856,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpatialAnchorMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpatialAnchorMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -3870,7 +3870,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorMSFT(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpatialAnchorMSFTWrapper>(anchor, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpatialAnchorMSFTWrapper, XrSpatialAnchorCreateInfoMSFT>(result, session, anchor, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpatialAnchorMSFTWrapper, XrSpatialAnchorCreateInfoMSFT>(result, session, anchor, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorMSFT>::Dispatch(manager, result, session, createInfo, anchor);
@@ -3908,7 +3908,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorSpaceMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -3922,7 +3922,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorSpaceMSFT(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(space, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrSpatialAnchorSpaceCreateInfoMSFT>(result, session, space, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrSpatialAnchorSpaceCreateInfoMSFT>(result, session, space, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorSpaceMSFT>::Dispatch(manager, result, session, createInfo, space);
@@ -3957,12 +3957,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialAnchorMSFT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpatialAnchorMSFTWrapper>(anchor);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<SpatialAnchorMSFTWrapper>(anchor);
+        manager->EndDestroyApiCallCapture<OpenXrSpatialAnchorMSFTWrapper>(anchor);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroySpatialAnchorMSFT>::Dispatch(manager, result, anchor);
 
-    DestroyWrappedHandle<SpatialAnchorMSFTWrapper>(anchor);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::SpatialAnchorMSFTWrapper>(anchor);
 
     return result;
 }
@@ -4196,7 +4196,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialGraphNodeSpaceMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4210,7 +4210,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialGraphNodeSpaceMSFT(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(space, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrSpatialGraphNodeSpaceCreateInfoMSFT>(result, session, space, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrSpatialGraphNodeSpaceCreateInfoMSFT>(result, session, space, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpatialGraphNodeSpaceMSFT>::Dispatch(manager, result, session, createInfo, space);
@@ -4248,7 +4248,7 @@ XRAPI_ATTR XrResult XRAPI_CALL TryCreateSpatialGraphStaticNodeBindingMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpatialGraphNodeBindingMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, nodeBinding, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpatialGraphNodeBindingMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, nodeBinding, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4297,12 +4297,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialGraphNodeBindingMSFT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpatialGraphNodeBindingMSFTWrapper>(nodeBinding);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<SpatialGraphNodeBindingMSFTWrapper>(nodeBinding);
+        manager->EndDestroyApiCallCapture<OpenXrSpatialGraphNodeBindingMSFTWrapper>(nodeBinding);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroySpatialGraphNodeBindingMSFT>::Dispatch(manager, result, nodeBinding);
 
-    DestroyWrappedHandle<SpatialGraphNodeBindingMSFTWrapper>(nodeBinding);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::SpatialGraphNodeBindingMSFTWrapper>(nodeBinding);
 
     return result;
 }
@@ -4378,7 +4378,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateHandTrackerEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, HandTrackerEXTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, handTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::HandTrackerEXTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, handTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4392,7 +4392,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateHandTrackerEXT(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::HandTrackerEXTWrapper>(handTracker, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, HandTrackerEXTWrapper, XrHandTrackerCreateInfoEXT>(result, session, handTracker, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::HandTrackerEXTWrapper, XrHandTrackerCreateInfoEXT>(result, session, handTracker, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateHandTrackerEXT>::Dispatch(manager, result, session, createInfo, handTracker);
@@ -4427,12 +4427,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyHandTrackerEXT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::HandTrackerEXTWrapper>(handTracker);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<HandTrackerEXTWrapper>(handTracker);
+        manager->EndDestroyApiCallCapture<OpenXrHandTrackerEXTWrapper>(handTracker);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyHandTrackerEXT>::Dispatch(manager, result, handTracker);
 
-    DestroyWrappedHandle<HandTrackerEXTWrapper>(handTracker);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::HandTrackerEXTWrapper>(handTracker);
 
     return result;
 }
@@ -4511,7 +4511,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateHandMeshSpaceMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<HandTrackerEXTWrapper, OpenXrNoParentWrapper, SpaceWrapper>(handTracker, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<HandTrackerEXTWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(handTracker, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4525,7 +4525,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateHandMeshSpaceMSFT(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(space, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrHandTrackerEXT, SpaceWrapper, XrHandMeshSpaceCreateInfoMSFT>(result, handTracker, space, createInfo);
+        manager->EndCreateApiCallCapture<XrHandTrackerEXT, openxr_wrappers::SpaceWrapper, XrHandMeshSpaceCreateInfoMSFT>(result, handTracker, space, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateHandMeshSpaceMSFT>::Dispatch(manager, result, handTracker, createInfo, space);
@@ -4785,7 +4785,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPerceptionAnchorMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpatialAnchorMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpatialAnchorMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -4799,7 +4799,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPerceptionAnchorMSFT(
         encoder->EncodeIUnknownPtr(perceptionAnchor, omit_output_data);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpatialAnchorMSFTWrapper>(anchor, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpatialAnchorMSFTWrapper, void>(result, session, anchor, nullptr);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpatialAnchorMSFTWrapper, void>(result, session, anchor, nullptr);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPerceptionAnchorMSFT>::Dispatch(manager, result, session, perceptionAnchor, anchor);
@@ -5007,7 +5007,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateBodyTrackerFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, BodyTrackerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, bodyTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::BodyTrackerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, bodyTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -5021,7 +5021,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateBodyTrackerFB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::BodyTrackerFBWrapper>(bodyTracker, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, BodyTrackerFBWrapper, XrBodyTrackerCreateInfoFB>(result, session, bodyTracker, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::BodyTrackerFBWrapper, XrBodyTrackerCreateInfoFB>(result, session, bodyTracker, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateBodyTrackerFB>::Dispatch(manager, result, session, createInfo, bodyTracker);
@@ -5056,12 +5056,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyBodyTrackerFB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::BodyTrackerFBWrapper>(bodyTracker);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<BodyTrackerFBWrapper>(bodyTracker);
+        manager->EndDestroyApiCallCapture<OpenXrBodyTrackerFBWrapper>(bodyTracker);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyBodyTrackerFB>::Dispatch(manager, result, bodyTracker);
 
-    DestroyWrappedHandle<BodyTrackerFBWrapper>(bodyTracker);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::BodyTrackerFBWrapper>(bodyTracker);
 
     return result;
 }
@@ -5230,7 +5230,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSceneObserverMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SceneObserverMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, sceneObserver, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SceneObserverMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, sceneObserver, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -5244,7 +5244,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSceneObserverMSFT(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SceneObserverMSFTWrapper>(sceneObserver, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SceneObserverMSFTWrapper, XrSceneObserverCreateInfoMSFT>(result, session, sceneObserver, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SceneObserverMSFTWrapper, XrSceneObserverCreateInfoMSFT>(result, session, sceneObserver, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSceneObserverMSFT>::Dispatch(manager, result, session, createInfo, sceneObserver);
@@ -5279,12 +5279,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySceneObserverMSFT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SceneObserverMSFTWrapper>(sceneObserver);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<SceneObserverMSFTWrapper>(sceneObserver);
+        manager->EndDestroyApiCallCapture<OpenXrSceneObserverMSFTWrapper>(sceneObserver);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroySceneObserverMSFT>::Dispatch(manager, result, sceneObserver);
 
-    DestroyWrappedHandle<SceneObserverMSFTWrapper>(sceneObserver);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::SceneObserverMSFTWrapper>(sceneObserver);
 
     return result;
 }
@@ -5316,7 +5316,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSceneMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SceneObserverMSFTWrapper, OpenXrNoParentWrapper, SceneMSFTWrapper>(sceneObserver, OpenXrNoParentWrapper::kHandleValue, scene, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SceneObserverMSFTWrapper, OpenXrNoParentWrapper, openxr_wrappers::SceneMSFTWrapper>(sceneObserver, OpenXrNoParentWrapper::kHandleValue, scene, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -5330,7 +5330,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSceneMSFT(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SceneMSFTWrapper>(scene, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSceneObserverMSFT, SceneMSFTWrapper, XrSceneCreateInfoMSFT>(result, sceneObserver, scene, createInfo);
+        manager->EndCreateApiCallCapture<XrSceneObserverMSFT, openxr_wrappers::SceneMSFTWrapper, XrSceneCreateInfoMSFT>(result, sceneObserver, scene, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSceneMSFT>::Dispatch(manager, result, sceneObserver, createInfo, scene);
@@ -5365,12 +5365,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySceneMSFT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SceneMSFTWrapper>(scene);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<SceneMSFTWrapper>(scene);
+        manager->EndDestroyApiCallCapture<OpenXrSceneMSFTWrapper>(scene);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroySceneMSFT>::Dispatch(manager, result, scene);
 
-    DestroyWrappedHandle<SceneMSFTWrapper>(scene);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::SceneMSFTWrapper>(scene);
 
     return result;
 }
@@ -5872,7 +5872,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFacialTrackerHTC(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, FacialTrackerHTCWrapper>(session, OpenXrNoParentWrapper::kHandleValue, facialTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::FacialTrackerHTCWrapper>(session, OpenXrNoParentWrapper::kHandleValue, facialTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -5886,7 +5886,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFacialTrackerHTC(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::FacialTrackerHTCWrapper>(facialTracker, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, FacialTrackerHTCWrapper, XrFacialTrackerCreateInfoHTC>(result, session, facialTracker, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::FacialTrackerHTCWrapper, XrFacialTrackerCreateInfoHTC>(result, session, facialTracker, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateFacialTrackerHTC>::Dispatch(manager, result, session, createInfo, facialTracker);
@@ -5921,12 +5921,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyFacialTrackerHTC(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::FacialTrackerHTCWrapper>(facialTracker);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<FacialTrackerHTCWrapper>(facialTracker);
+        manager->EndDestroyApiCallCapture<OpenXrFacialTrackerHTCWrapper>(facialTracker);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyFacialTrackerHTC>::Dispatch(manager, result, facialTracker);
 
-    DestroyWrappedHandle<FacialTrackerHTCWrapper>(facialTracker);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::FacialTrackerHTCWrapper>(facialTracker);
 
     return result;
 }
@@ -6136,7 +6136,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFB(
         EncodeStructPtr(encoder, info);
         encoder->EncodeXrAsyncRequestIdFBPtr(requestId, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, AsyncRequestIdFBWrapper, XrSpatialAnchorCreateInfoFB>(result, session, requestId, info);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::AsyncRequestIdFBWrapper, XrSpatialAnchorCreateInfoFB>(result, session, requestId, info);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFB>::Dispatch(manager, result, session, info, requestId);
@@ -6347,7 +6347,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFoveationProfileFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, FoveationProfileFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, profile, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::FoveationProfileFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, profile, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -6361,7 +6361,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFoveationProfileFB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::FoveationProfileFBWrapper>(profile, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, FoveationProfileFBWrapper, XrFoveationProfileCreateInfoFB>(result, session, profile, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::FoveationProfileFBWrapper, XrFoveationProfileCreateInfoFB>(result, session, profile, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateFoveationProfileFB>::Dispatch(manager, result, session, createInfo, profile);
@@ -6396,12 +6396,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyFoveationProfileFB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::FoveationProfileFBWrapper>(profile);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<FoveationProfileFBWrapper>(profile);
+        manager->EndDestroyApiCallCapture<OpenXrFoveationProfileFBWrapper>(profile);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyFoveationProfileFB>::Dispatch(manager, result, profile);
 
-    DestroyWrappedHandle<FoveationProfileFBWrapper>(profile);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::FoveationProfileFBWrapper>(profile);
 
     return result;
 }
@@ -6477,7 +6477,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateKeyboardSpaceFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, keyboardSpace, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, keyboardSpace, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -6491,7 +6491,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateKeyboardSpaceFB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(keyboardSpace, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrKeyboardSpaceCreateInfoFB>(result, session, keyboardSpace, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrKeyboardSpaceCreateInfoFB>(result, session, keyboardSpace, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateKeyboardSpaceFB>::Dispatch(manager, result, session, createInfo, keyboardSpace);
@@ -6526,7 +6526,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateTriangleMeshFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, TriangleMeshFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outTriangleMesh, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::TriangleMeshFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outTriangleMesh, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -6540,7 +6540,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateTriangleMeshFB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::TriangleMeshFBWrapper>(outTriangleMesh, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, TriangleMeshFBWrapper, XrTriangleMeshCreateInfoFB>(result, session, outTriangleMesh, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::TriangleMeshFBWrapper, XrTriangleMeshCreateInfoFB>(result, session, outTriangleMesh, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateTriangleMeshFB>::Dispatch(manager, result, session, createInfo, outTriangleMesh);
@@ -6575,12 +6575,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyTriangleMeshFB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<TriangleMeshFBWrapper>(mesh);
+        manager->EndDestroyApiCallCapture<OpenXrTriangleMeshFBWrapper>(mesh);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB>::Dispatch(manager, result, mesh);
 
-    DestroyWrappedHandle<TriangleMeshFBWrapper>(mesh);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
 
     return result;
 }
@@ -6844,7 +6844,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, PassthroughFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outPassthrough, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::PassthroughFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outPassthrough, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -6858,7 +6858,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughFB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::PassthroughFBWrapper>(outPassthrough, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, PassthroughFBWrapper, XrPassthroughCreateInfoFB>(result, session, outPassthrough, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::PassthroughFBWrapper, XrPassthroughCreateInfoFB>(result, session, outPassthrough, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreatePassthroughFB>::Dispatch(manager, result, session, createInfo, outPassthrough);
@@ -6893,12 +6893,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughFB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::PassthroughFBWrapper>(passthrough);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<PassthroughFBWrapper>(passthrough);
+        manager->EndDestroyApiCallCapture<OpenXrPassthroughFBWrapper>(passthrough);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyPassthroughFB>::Dispatch(manager, result, passthrough);
 
-    DestroyWrappedHandle<PassthroughFBWrapper>(passthrough);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::PassthroughFBWrapper>(passthrough);
 
     return result;
 }
@@ -7001,7 +7001,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughLayerFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, PassthroughLayerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outLayer, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::PassthroughLayerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outLayer, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7015,7 +7015,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughLayerFB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::PassthroughLayerFBWrapper>(outLayer, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, PassthroughLayerFBWrapper, XrPassthroughLayerCreateInfoFB>(result, session, outLayer, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::PassthroughLayerFBWrapper, XrPassthroughLayerCreateInfoFB>(result, session, outLayer, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreatePassthroughLayerFB>::Dispatch(manager, result, session, createInfo, outLayer);
@@ -7050,12 +7050,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughLayerFB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::PassthroughLayerFBWrapper>(layer);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<PassthroughLayerFBWrapper>(layer);
+        manager->EndDestroyApiCallCapture<OpenXrPassthroughLayerFBWrapper>(layer);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyPassthroughLayerFB>::Dispatch(manager, result, layer);
 
-    DestroyWrappedHandle<PassthroughLayerFBWrapper>(layer);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::PassthroughLayerFBWrapper>(layer);
 
     return result;
 }
@@ -7197,7 +7197,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateGeometryInstanceFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, GeometryInstanceFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outGeometryInstance, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::GeometryInstanceFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, outGeometryInstance, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7211,7 +7211,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateGeometryInstanceFB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::GeometryInstanceFBWrapper>(outGeometryInstance, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, GeometryInstanceFBWrapper, XrGeometryInstanceCreateInfoFB>(result, session, outGeometryInstance, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::GeometryInstanceFBWrapper, XrGeometryInstanceCreateInfoFB>(result, session, outGeometryInstance, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateGeometryInstanceFB>::Dispatch(manager, result, session, createInfo, outGeometryInstance);
@@ -7246,12 +7246,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyGeometryInstanceFB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::GeometryInstanceFBWrapper>(instance);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<GeometryInstanceFBWrapper>(instance);
+        manager->EndDestroyApiCallCapture<OpenXrGeometryInstanceFBWrapper>(instance);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyGeometryInstanceFB>::Dispatch(manager, result, instance);
 
-    DestroyWrappedHandle<GeometryInstanceFBWrapper>(instance);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::GeometryInstanceFBWrapper>(instance);
 
     return result;
 }
@@ -7648,7 +7648,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceVARJO(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7662,7 +7662,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceVARJO(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(space, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrMarkerSpaceCreateInfoVARJO>(result, session, space, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrMarkerSpaceCreateInfoVARJO>(result, session, space, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateMarkerSpaceVARJO>::Dispatch(manager, result, session, createInfo, space);
@@ -7734,7 +7734,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceFromCoordinateFrameUIDML(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7748,7 +7748,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceFromCoordinateFrameUIDML(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(space, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrCoordinateSpaceCreateInfoML>(result, session, space, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrCoordinateSpaceCreateInfoML>(result, session, space, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpaceFromCoordinateFrameUIDML>::Dispatch(manager, result, session, createInfo, space);
@@ -7784,7 +7784,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerDetectorML(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, MarkerDetectorMLWrapper>(session, OpenXrNoParentWrapper::kHandleValue, markerDetector, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::MarkerDetectorMLWrapper>(session, OpenXrNoParentWrapper::kHandleValue, markerDetector, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7798,7 +7798,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerDetectorML(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::MarkerDetectorMLWrapper>(markerDetector, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, MarkerDetectorMLWrapper, XrMarkerDetectorCreateInfoML>(result, session, markerDetector, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::MarkerDetectorMLWrapper, XrMarkerDetectorCreateInfoML>(result, session, markerDetector, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateMarkerDetectorML>::Dispatch(manager, result, session, createInfo, markerDetector);
@@ -7833,12 +7833,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyMarkerDetectorML(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::MarkerDetectorMLWrapper>(markerDetector);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<MarkerDetectorMLWrapper>(markerDetector);
+        manager->EndDestroyApiCallCapture<OpenXrMarkerDetectorMLWrapper>(markerDetector);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyMarkerDetectorML>::Dispatch(manager, result, markerDetector);
 
-    DestroyWrappedHandle<MarkerDetectorMLWrapper>(markerDetector);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::MarkerDetectorMLWrapper>(markerDetector);
 
     return result;
 }
@@ -8183,7 +8183,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceML(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, space, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -8197,7 +8197,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceML(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(space, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrMarkerSpaceCreateInfoML>(result, session, space, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrMarkerSpaceCreateInfoML>(result, session, space, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateMarkerSpaceML>::Dispatch(manager, result, session, createInfo, space);
@@ -8396,7 +8396,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateExportedLocalizationMapML(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, ExportedLocalizationMapMLWrapper>(session, OpenXrNoParentWrapper::kHandleValue, map, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::ExportedLocalizationMapMLWrapper>(session, OpenXrNoParentWrapper::kHandleValue, map, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -8410,7 +8410,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateExportedLocalizationMapML(
         EncodeStructPtr(encoder, mapUuid);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::ExportedLocalizationMapMLWrapper>(map, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, ExportedLocalizationMapMLWrapper, void>(result, session, map, nullptr);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::ExportedLocalizationMapMLWrapper, void>(result, session, map, nullptr);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateExportedLocalizationMapML>::Dispatch(manager, result, session, mapUuid, map);
@@ -8445,12 +8445,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyExportedLocalizationMapML(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::ExportedLocalizationMapMLWrapper>(map);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<ExportedLocalizationMapMLWrapper>(map);
+        manager->EndDestroyApiCallCapture<OpenXrExportedLocalizationMapMLWrapper>(map);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyExportedLocalizationMapML>::Dispatch(manager, result, map);
 
-    DestroyWrappedHandle<ExportedLocalizationMapMLWrapper>(map);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::ExportedLocalizationMapMLWrapper>(map);
 
     return result;
 }
@@ -8527,7 +8527,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorStoreConnectionMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, SpatialAnchorStoreConnectionMSFTWrapper, SpatialAnchorStoreConnectionMSFTWrapper>(session, spatialAnchorStore, spatialAnchorStore, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, SpatialAnchorStoreConnectionMSFTWrapper, openxr_wrappers::SpatialAnchorStoreConnectionMSFTWrapper>(session, spatialAnchorStore, spatialAnchorStore, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -8540,7 +8540,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorStoreConnectionMSFT(
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpatialAnchorStoreConnectionMSFTWrapper>(spatialAnchorStore, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpatialAnchorStoreConnectionMSFTWrapper, void>(result, session, spatialAnchorStore, nullptr);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpatialAnchorStoreConnectionMSFTWrapper, void>(result, session, spatialAnchorStore, nullptr);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorStoreConnectionMSFT>::Dispatch(manager, result, session, spatialAnchorStore);
@@ -8575,12 +8575,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialAnchorStoreConnectionMSFT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpatialAnchorStoreConnectionMSFTWrapper>(spatialAnchorStore);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<SpatialAnchorStoreConnectionMSFTWrapper>(spatialAnchorStore);
+        manager->EndDestroyApiCallCapture<OpenXrSpatialAnchorStoreConnectionMSFTWrapper>(spatialAnchorStore);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroySpatialAnchorStoreConnectionMSFT>::Dispatch(manager, result, spatialAnchorStore);
 
-    DestroyWrappedHandle<SpatialAnchorStoreConnectionMSFTWrapper>(spatialAnchorStore);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::SpatialAnchorStoreConnectionMSFTWrapper>(spatialAnchorStore);
 
     return result;
 }
@@ -8700,7 +8700,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPersistedNameMSFT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpatialAnchorMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, spatialAnchor, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpatialAnchorMSFTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, spatialAnchor, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -8714,7 +8714,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPersistedNameMSFT(
         EncodeStructPtr(encoder, spatialAnchorCreateInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpatialAnchorMSFTWrapper>(spatialAnchor, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpatialAnchorMSFTWrapper, XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT>(result, session, spatialAnchor, spatialAnchorCreateInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpatialAnchorMSFTWrapper, XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT>(result, session, spatialAnchor, spatialAnchorCreateInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPersistedNameMSFT>::Dispatch(manager, result, session, spatialAnchorCreateInfo, spatialAnchor);
@@ -9621,7 +9621,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTrackerFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, FaceTrackerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::FaceTrackerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -9635,7 +9635,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTrackerFB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::FaceTrackerFBWrapper>(faceTracker, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, FaceTrackerFBWrapper, XrFaceTrackerCreateInfoFB>(result, session, faceTracker, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::FaceTrackerFBWrapper, XrFaceTrackerCreateInfoFB>(result, session, faceTracker, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateFaceTrackerFB>::Dispatch(manager, result, session, createInfo, faceTracker);
@@ -9670,12 +9670,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyFaceTrackerFB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::FaceTrackerFBWrapper>(faceTracker);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<FaceTrackerFBWrapper>(faceTracker);
+        manager->EndDestroyApiCallCapture<OpenXrFaceTrackerFBWrapper>(faceTracker);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyFaceTrackerFB>::Dispatch(manager, result, faceTracker);
 
-    DestroyWrappedHandle<FaceTrackerFBWrapper>(faceTracker);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::FaceTrackerFBWrapper>(faceTracker);
 
     return result;
 }
@@ -9751,7 +9751,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateEyeTrackerFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, EyeTrackerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, eyeTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::EyeTrackerFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, eyeTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -9765,7 +9765,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateEyeTrackerFB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::EyeTrackerFBWrapper>(eyeTracker, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, EyeTrackerFBWrapper, XrEyeTrackerCreateInfoFB>(result, session, eyeTracker, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::EyeTrackerFBWrapper, XrEyeTrackerCreateInfoFB>(result, session, eyeTracker, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateEyeTrackerFB>::Dispatch(manager, result, session, createInfo, eyeTracker);
@@ -9800,12 +9800,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyEyeTrackerFB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::EyeTrackerFBWrapper>(eyeTracker);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<EyeTrackerFBWrapper>(eyeTracker);
+        manager->EndDestroyApiCallCapture<OpenXrEyeTrackerFBWrapper>(eyeTracker);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyEyeTrackerFB>::Dispatch(manager, result, eyeTracker);
 
-    DestroyWrappedHandle<EyeTrackerFBWrapper>(eyeTracker);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::EyeTrackerFBWrapper>(eyeTracker);
 
     return result;
 }
@@ -10009,7 +10009,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardMETA(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, VirtualKeyboardMETAWrapper>(session, OpenXrNoParentWrapper::kHandleValue, keyboard, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::VirtualKeyboardMETAWrapper>(session, OpenXrNoParentWrapper::kHandleValue, keyboard, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -10023,7 +10023,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardMETA(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::VirtualKeyboardMETAWrapper>(keyboard, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, VirtualKeyboardMETAWrapper, XrVirtualKeyboardCreateInfoMETA>(result, session, keyboard, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::VirtualKeyboardMETAWrapper, XrVirtualKeyboardCreateInfoMETA>(result, session, keyboard, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardMETA>::Dispatch(manager, result, session, createInfo, keyboard);
@@ -10058,12 +10058,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyVirtualKeyboardMETA(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::VirtualKeyboardMETAWrapper>(keyboard);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<VirtualKeyboardMETAWrapper>(keyboard);
+        manager->EndDestroyApiCallCapture<OpenXrVirtualKeyboardMETAWrapper>(keyboard);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyVirtualKeyboardMETA>::Dispatch(manager, result, keyboard);
 
-    DestroyWrappedHandle<VirtualKeyboardMETAWrapper>(keyboard);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::VirtualKeyboardMETAWrapper>(keyboard);
 
     return result;
 }
@@ -10099,7 +10099,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardSpaceMETA(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, VirtualKeyboardMETAWrapper, SpaceWrapper>(session, keyboard, keyboardSpace, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, VirtualKeyboardMETAWrapper, openxr_wrappers::SpaceWrapper>(session, keyboard, keyboardSpace, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -10114,7 +10114,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardSpaceMETA(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(keyboardSpace, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrVirtualKeyboardSpaceCreateInfoMETA>(result, session, keyboardSpace, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrVirtualKeyboardSpaceCreateInfoMETA>(result, session, keyboardSpace, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardSpaceMETA>::Dispatch(manager, result, session, keyboard, createInfo, keyboardSpace);
@@ -10742,7 +10742,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceUserFB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceUserFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, user, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceUserFBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, user, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -10756,7 +10756,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceUserFB(
         EncodeStructPtr(encoder, info);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceUserFBWrapper>(user, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceUserFBWrapper, XrSpaceUserCreateInfoFB>(result, session, user, info);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceUserFBWrapper, XrSpaceUserCreateInfoFB>(result, session, user, info);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpaceUserFB>::Dispatch(manager, result, session, info, user);
@@ -10833,12 +10833,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpaceUserFB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceUserFBWrapper>(user);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<SpaceUserFBWrapper>(user);
+        manager->EndDestroyApiCallCapture<OpenXrSpaceUserFBWrapper>(user);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroySpaceUserFB>::Dispatch(manager, result, user);
 
-    DestroyWrappedHandle<SpaceUserFBWrapper>(user);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::SpaceUserFBWrapper>(user);
 
     return result;
 }
@@ -10917,7 +10917,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughColorLutMETA(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<PassthroughFBWrapper, OpenXrNoParentWrapper, PassthroughColorLutMETAWrapper>(passthrough, OpenXrNoParentWrapper::kHandleValue, colorLut, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<PassthroughFBWrapper, OpenXrNoParentWrapper, openxr_wrappers::PassthroughColorLutMETAWrapper>(passthrough, OpenXrNoParentWrapper::kHandleValue, colorLut, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -10931,7 +10931,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughColorLutMETA(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::PassthroughColorLutMETAWrapper>(colorLut, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrPassthroughFB, PassthroughColorLutMETAWrapper, XrPassthroughColorLutCreateInfoMETA>(result, passthrough, colorLut, createInfo);
+        manager->EndCreateApiCallCapture<XrPassthroughFB, openxr_wrappers::PassthroughColorLutMETAWrapper, XrPassthroughColorLutCreateInfoMETA>(result, passthrough, colorLut, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreatePassthroughColorLutMETA>::Dispatch(manager, result, passthrough, createInfo, colorLut);
@@ -10966,12 +10966,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughColorLutMETA(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::PassthroughColorLutMETAWrapper>(colorLut);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<PassthroughColorLutMETAWrapper>(colorLut);
+        manager->EndDestroyApiCallCapture<OpenXrPassthroughColorLutMETAWrapper>(colorLut);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyPassthroughColorLutMETA>::Dispatch(manager, result, colorLut);
 
-    DestroyWrappedHandle<PassthroughColorLutMETAWrapper>(colorLut);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::PassthroughColorLutMETAWrapper>(colorLut);
 
     return result;
 }
@@ -11083,7 +11083,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTracker2FB(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, FaceTracker2FBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::FaceTracker2FBWrapper>(session, OpenXrNoParentWrapper::kHandleValue, faceTracker, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -11097,7 +11097,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTracker2FB(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::FaceTracker2FBWrapper>(faceTracker, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, FaceTracker2FBWrapper, XrFaceTrackerCreateInfo2FB>(result, session, faceTracker, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::FaceTracker2FBWrapper, XrFaceTrackerCreateInfo2FB>(result, session, faceTracker, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateFaceTracker2FB>::Dispatch(manager, result, session, createInfo, faceTracker);
@@ -11132,12 +11132,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyFaceTracker2FB(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::FaceTracker2FBWrapper>(faceTracker);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<FaceTracker2FBWrapper>(faceTracker);
+        manager->EndDestroyApiCallCapture<OpenXrFaceTracker2FBWrapper>(faceTracker);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyFaceTracker2FB>::Dispatch(manager, result, faceTracker);
 
-    DestroyWrappedHandle<FaceTracker2FBWrapper>(faceTracker);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::FaceTracker2FBWrapper>(faceTracker);
 
     return result;
 }
@@ -11251,7 +11251,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughHTC(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, PassthroughHTCWrapper>(session, OpenXrNoParentWrapper::kHandleValue, passthrough, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::PassthroughHTCWrapper>(session, OpenXrNoParentWrapper::kHandleValue, passthrough, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -11265,7 +11265,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughHTC(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::PassthroughHTCWrapper>(passthrough, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, PassthroughHTCWrapper, XrPassthroughCreateInfoHTC>(result, session, passthrough, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::PassthroughHTCWrapper, XrPassthroughCreateInfoHTC>(result, session, passthrough, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreatePassthroughHTC>::Dispatch(manager, result, session, createInfo, passthrough);
@@ -11300,12 +11300,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughHTC(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::PassthroughHTCWrapper>(passthrough);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<PassthroughHTCWrapper>(passthrough);
+        manager->EndDestroyApiCallCapture<OpenXrPassthroughHTCWrapper>(passthrough);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyPassthroughHTC>::Dispatch(manager, result, passthrough);
 
-    DestroyWrappedHandle<PassthroughHTCWrapper>(passthrough);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::PassthroughHTCWrapper>(passthrough);
 
     return result;
 }
@@ -11379,7 +11379,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorHTC(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::SpaceWrapper>(session, OpenXrNoParentWrapper::kHandleValue, anchor, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -11393,7 +11393,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorHTC(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpaceWrapper>(anchor, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, SpaceWrapper, XrSpatialAnchorCreateInfoHTC>(result, session, anchor, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpaceWrapper, XrSpatialAnchorCreateInfoHTC>(result, session, anchor, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorHTC>::Dispatch(manager, result, session, createInfo, anchor);
@@ -11506,7 +11506,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePlaneDetectorEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<SessionWrapper, OpenXrNoParentWrapper, PlaneDetectorEXTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, planeDetector, OpenXrCaptureManager::GetUniqueId);
+        CreateWrappedVulkanHandle<SessionWrapper, OpenXrNoParentWrapper, openxr_wrappers::PlaneDetectorEXTWrapper>(session, OpenXrNoParentWrapper::kHandleValue, planeDetector, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -11520,7 +11520,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePlaneDetectorEXT(
         EncodeStructPtr(encoder, createInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::PlaneDetectorEXTWrapper>(planeDetector, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<XrSession, PlaneDetectorEXTWrapper, XrPlaneDetectorCreateInfoEXT>(result, session, planeDetector, createInfo);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::PlaneDetectorEXTWrapper, XrPlaneDetectorCreateInfoEXT>(result, session, planeDetector, createInfo);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreatePlaneDetectorEXT>::Dispatch(manager, result, session, createInfo, planeDetector);
@@ -11555,12 +11555,12 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPlaneDetectorEXT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::PlaneDetectorEXTWrapper>(planeDetector);
         encoder->EncodeEnumValue(result);
-        manager->EndDestroyApiCallCapture<PlaneDetectorEXTWrapper>(planeDetector);
+        manager->EndDestroyApiCallCapture<OpenXrPlaneDetectorEXTWrapper>(planeDetector);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyPlaneDetectorEXT>::Dispatch(manager, result, planeDetector);
 
-    DestroyWrappedHandle<PlaneDetectorEXTWrapper>(planeDetector);
+    DestroyWrappedOpenXrHandle<openxr_wrappers::PlaneDetectorEXTWrapper>(planeDetector);
 
     return result;
 }

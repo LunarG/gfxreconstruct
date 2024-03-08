@@ -289,16 +289,16 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
                         )
                 else:
                     if member.is_array:
-                        body += '        CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedOpenXrHandles<ParentWrapper, CoParentWrapper, openxr_wrappers::{}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
                             member.base_type[2:], member.name,
                             member.array_length
                         )
                     elif member.is_pointer:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedOpenXrHandle<ParentWrapper, CoParentWrapper, openxr_wrappers::{}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
                             member.base_type[2:], member.name
                         )
                     else:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedOpenXrHandle<ParentWrapper, CoParentWrapper, openxr_wrappers::{}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
                             member.base_type[2:], member.name
                         )
 
