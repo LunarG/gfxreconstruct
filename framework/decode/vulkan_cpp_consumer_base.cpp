@@ -268,9 +268,6 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
                     fprintf(global_file, "  { 0, 0 },\n");
                 }
             }
-            for (const auto& cur_type : pd_mem_types)
-            {
-            }
             fprintf(global_file, "  },\n");
         }
         fprintf(global_file, "};\n");

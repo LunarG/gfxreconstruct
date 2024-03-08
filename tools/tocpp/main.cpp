@@ -593,8 +593,8 @@ int main(int argc, const char** argv)
     std::vector<uint32_t> dimensions;
     ValidateAndConvertDimensionArgument(max_dimensions_argument, dimensions);
 
-    gfxrecon::decode::VulkanCppConsumer        cpp_consumer;
-    bool                                       result;
+    gfxrecon::decode::VulkanCppConsumer cpp_consumer;
+    bool                                result;
 
     // --captured-swapchain
     if (arg_parser.IsOptionSet(g_captured_swapchain_argument.short_option))
