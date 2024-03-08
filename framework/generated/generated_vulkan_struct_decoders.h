@@ -10030,11 +10030,29 @@ struct Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceRawAccessChainsFeaturesNV;
+
+    VkPhysicalDeviceRawAccessChainsFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV
 {
     using struct_type = VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV;
 
     VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceRayTracingValidationFeaturesNV;
+
+    VkPhysicalDeviceRayTracingValidationFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
