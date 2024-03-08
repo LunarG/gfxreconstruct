@@ -269,6 +269,7 @@ if __name__ == "__main__":
 
                 TRACES_IN_FLIGHT = 8      #Total number of .json files that we'll store in /tmp at a time
                 current_trace = 0
+                seen_traces = []          #Some suite files have multiple entries for the same trace
                 while current_trace < trace_count:
                     iterations = min(trace_count - current_trace, TRACES_IN_FLIGHT)
                     trace_paths = []
@@ -283,6 +284,10 @@ if __name__ == "__main__":
 
                         convert_processes = []
                         trace_dir = root_traces_dir + "/" + traces_dir + "/" + trace["directory"]
+                        if trace_dir in seen_traces:
+                            continue
+                        seen_traces.append(trace_dir)
+
                         trace_paths.append(trace_dir)
                         for trace_file in os.listdir(trace_dir):
                             filename = os.fsdecode(trace_file)
