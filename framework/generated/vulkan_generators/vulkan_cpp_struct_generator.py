@@ -295,6 +295,10 @@ class VulkanCppStructGenerator(BaseGenerator):
 
         assert arg.pointer_count == 1, "Allow only a simple array"
 
+        # ex: pDepthInputAttachmentIndex of VkRenderingInputAttachmentIndexInfoKHR has no count.
+        if num_lengths == 0:
+            return local_header, local_body
+
         # TODO: This is a hack, but according to the spec, this is correct
         if arg.name == 'pOffsetForRefFrame':
             lengths = []

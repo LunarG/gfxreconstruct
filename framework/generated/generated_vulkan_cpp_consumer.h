@@ -2174,6 +2174,15 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pFragmentShadingRateCount,
         StructPointerDecoder<Decoded_VkPhysicalDeviceFragmentShadingRateKHR>* pFragmentShadingRates) override;
+    virtual void Process_vkCmdSetRenderingAttachmentLocationsKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfoKHR>* pLocationInfo) override;
+
+    virtual void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pLocationInfo) override;
     virtual void Process_vkWaitForPresentKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2418,6 +2427,11 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pPropertyCount,
         StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties) override;
+    virtual void Process_vkCmdSetLineStippleKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    lineStippleFactor,
+        uint16_t                                    lineStipplePattern) override;
     virtual void Process_vkGetCalibratedTimestampsKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,

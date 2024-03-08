@@ -8367,6 +8367,53 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR);
 }
+void VulkanCppConsumer::Process_vkCmdSetRenderingAttachmentLocationsKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfoKHR>* pLocationInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// commandBuffer
+// pLocationInfo
+    std::stringstream stream_plocation_info;
+    std::string plocation_info_struct = GenerateStruct_VkRenderingAttachmentLocationInfoKHR(stream_plocation_info,
+                                                                                            pLocationInfo->GetPointer(),
+                                                                                            pLocationInfo->GetMetaStructPointer(),
+                                                                                            *this);
+    fprintf(file, "%s", stream_plocation_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdSetRenderingAttachmentLocationsKHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdSetRenderingAttachmentLocationsKHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            plocation_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdSetRenderingAttachmentLocationsKHR);
+}
+
+void VulkanCppConsumer::Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pLocationInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// commandBuffer
+// pLocationInfo
+    std::stringstream stream_plocation_info;
+    std::string plocation_info_struct = GenerateStruct_VkRenderingInputAttachmentIndexInfoKHR(stream_plocation_info,
+                                                                                              pLocationInfo->GetPointer(),
+                                                                                              pLocationInfo->GetMetaStructPointer(),
+                                                                                              *this);
+    fprintf(file, "%s", stream_plocation_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdSetRenderingInputAttachmentIndicesKHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdSetRenderingInputAttachmentIndicesKHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            plocation_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdSetRenderingInputAttachmentIndicesKHR);
+}
 void VulkanCppConsumer::Process_vkWaitForPresentKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -9495,6 +9542,26 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKH
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR);
+}
+void VulkanCppConsumer::Process_vkCmdSetLineStippleKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    lineStippleFactor,
+    uint16_t                                    lineStipplePattern)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+// commandBuffer
+// lineStippleFactor
+// lineStipplePattern
+    pfn_loader_.AddMethodName("vkCmdSetLineStippleKHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdSetLineStippleKHR(%s, %u, %u);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            lineStippleFactor,
+            lineStipplePattern);
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdSetLineStippleKHR);
 }
 void VulkanCppConsumer::Process_vkGetCalibratedTimestampsKHR(
     const ApiCallInfo&                          call_info,

@@ -43,6 +43,50 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+std::string GenerateStruct_StdVideoAV1CDEF(std::ostream &out, const StdVideoAV1CDEF* structInfo, Decoded_StdVideoAV1CDEF* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1ColorConfig(std::ostream &out, const StdVideoAV1ColorConfig* structInfo, Decoded_StdVideoAV1ColorConfig* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1ColorConfigFlags(std::ostream &out, const StdVideoAV1ColorConfigFlags* structInfo, Decoded_StdVideoAV1ColorConfigFlags* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1FilmGrain(std::ostream &out, const StdVideoAV1FilmGrain* structInfo, Decoded_StdVideoAV1FilmGrain* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1FilmGrainFlags(std::ostream &out, const StdVideoAV1FilmGrainFlags* structInfo, Decoded_StdVideoAV1FilmGrainFlags* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1GlobalMotion(std::ostream &out, const StdVideoAV1GlobalMotion* structInfo, Decoded_StdVideoAV1GlobalMotion* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1LoopFilter(std::ostream &out, const StdVideoAV1LoopFilter* structInfo, Decoded_StdVideoAV1LoopFilter* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1LoopFilterFlags(std::ostream &out, const StdVideoAV1LoopFilterFlags* structInfo, Decoded_StdVideoAV1LoopFilterFlags* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1LoopRestoration(std::ostream &out, const StdVideoAV1LoopRestoration* structInfo, Decoded_StdVideoAV1LoopRestoration* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1Quantization(std::ostream &out, const StdVideoAV1Quantization* structInfo, Decoded_StdVideoAV1Quantization* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1QuantizationFlags(std::ostream &out, const StdVideoAV1QuantizationFlags* structInfo, Decoded_StdVideoAV1QuantizationFlags* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1Segmentation(std::ostream &out, const StdVideoAV1Segmentation* structInfo, Decoded_StdVideoAV1Segmentation* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1SequenceHeader(std::ostream &out, const StdVideoAV1SequenceHeader* structInfo, Decoded_StdVideoAV1SequenceHeader* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1SequenceHeaderFlags(std::ostream &out, const StdVideoAV1SequenceHeaderFlags* structInfo, Decoded_StdVideoAV1SequenceHeaderFlags* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1TileInfo(std::ostream &out, const StdVideoAV1TileInfo* structInfo, Decoded_StdVideoAV1TileInfo* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1TileInfoFlags(std::ostream &out, const StdVideoAV1TileInfoFlags* structInfo, Decoded_StdVideoAV1TileInfoFlags* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1TimingInfo(std::ostream &out, const StdVideoAV1TimingInfo* structInfo, Decoded_StdVideoAV1TimingInfo* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoAV1TimingInfoFlags(std::ostream &out, const StdVideoAV1TimingInfoFlags* structInfo, Decoded_StdVideoAV1TimingInfoFlags* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoDecodeAV1PictureInfo(std::ostream &out, const StdVideoDecodeAV1PictureInfo* structInfo, Decoded_StdVideoDecodeAV1PictureInfo* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoDecodeAV1PictureInfoFlags(std::ostream &out, const StdVideoDecodeAV1PictureInfoFlags* structInfo, Decoded_StdVideoDecodeAV1PictureInfoFlags* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoDecodeAV1ReferenceInfo(std::ostream &out, const StdVideoDecodeAV1ReferenceInfo* structInfo, Decoded_StdVideoDecodeAV1ReferenceInfo* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_StdVideoDecodeAV1ReferenceInfoFlags(std::ostream &out, const StdVideoDecodeAV1ReferenceInfoFlags* structInfo, Decoded_StdVideoDecodeAV1ReferenceInfoFlags* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_StdVideoDecodeH264PictureInfo(std::ostream &out, const StdVideoDecodeH264PictureInfo* structInfo, Decoded_StdVideoDecodeH264PictureInfo* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_StdVideoDecodeH264PictureInfoFlags(std::ostream &out, const StdVideoDecodeH264PictureInfoFlags* structInfo, Decoded_StdVideoDecodeH264PictureInfoFlags* metaInfo, VulkanCppConsumerBase &consumer);
@@ -975,6 +1019,14 @@ std::string GenerateStruct_VkPhysicalDeviceFragmentShadingRatePropertiesKHR(std:
 
 std::string GenerateStruct_VkPipelineFragmentShadingRateStateCreateInfoKHR(std::ostream &out, const VkPipelineFragmentShadingRateStateCreateInfoKHR* structInfo, Decoded_VkPipelineFragmentShadingRateStateCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR(std::ostream &out, const VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkRenderingAttachmentLocationInfoKHR(std::ostream &out, const VkRenderingAttachmentLocationInfoKHR* structInfo, Decoded_VkRenderingAttachmentLocationInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkRenderingInputAttachmentIndexInfoKHR(std::ostream &out, const VkRenderingInputAttachmentIndexInfoKHR* structInfo, Decoded_VkRenderingInputAttachmentIndexInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceShaderQuadControlFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderQuadControlFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderQuadControlFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkSurfaceProtectedCapabilitiesKHR(std::ostream &out, const VkSurfaceProtectedCapabilitiesKHR* structInfo, Decoded_VkSurfaceProtectedCapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDevicePresentWaitFeaturesKHR(std::ostream &out, const VkPhysicalDevicePresentWaitFeaturesKHR* structInfo, Decoded_VkPhysicalDevicePresentWaitFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
@@ -1039,6 +1091,10 @@ std::string GenerateStruct_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR(std
 
 std::string GenerateStruct_VkTraceRaysIndirectCommand2KHR(std::ostream &out, const VkTraceRaysIndirectCommand2KHR* structInfo, Decoded_VkTraceRaysIndirectCommand2KHR* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkBufferUsageFlags2CreateInfoKHR(std::ostream &out, const VkBufferUsageFlags2CreateInfoKHR* structInfo, Decoded_VkBufferUsageFlags2CreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkDeviceImageSubresourceInfoKHR(std::ostream &out, const VkDeviceImageSubresourceInfoKHR* structInfo, Decoded_VkDeviceImageSubresourceInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
@@ -1063,6 +1119,16 @@ std::string GenerateStruct_VkPhysicalDeviceCooperativeMatrixFeaturesKHR(std::ost
 
 std::string GenerateStruct_VkPhysicalDeviceCooperativeMatrixPropertiesKHR(std::ostream &out, const VkPhysicalDeviceCooperativeMatrixPropertiesKHR* structInfo, Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkVideoDecodeAV1CapabilitiesKHR(std::ostream &out, const VkVideoDecodeAV1CapabilitiesKHR* structInfo, Decoded_VkVideoDecodeAV1CapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoDecodeAV1DpbSlotInfoKHR(std::ostream &out, const VkVideoDecodeAV1DpbSlotInfoKHR* structInfo, Decoded_VkVideoDecodeAV1DpbSlotInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoDecodeAV1PictureInfoKHR(std::ostream &out, const VkVideoDecodeAV1PictureInfoKHR* structInfo, Decoded_VkVideoDecodeAV1PictureInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoDecodeAV1ProfileInfoKHR(std::ostream &out, const VkVideoDecodeAV1ProfileInfoKHR* structInfo, Decoded_VkVideoDecodeAV1ProfileInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoDecodeAV1SessionParametersCreateInfoKHR(std::ostream &out, const VkVideoDecodeAV1SessionParametersCreateInfoKHR* structInfo, Decoded_VkVideoDecodeAV1SessionParametersCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkPhysicalDeviceVideoMaintenance1FeaturesKHR(std::ostream &out, const VkPhysicalDeviceVideoMaintenance1FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkVideoInlineQueryInfoKHR(std::ostream &out, const VkVideoInlineQueryInfoKHR* structInfo, Decoded_VkVideoInlineQueryInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
@@ -1075,7 +1141,19 @@ std::string GenerateStruct_VkPipelineVertexInputDivisorStateCreateInfoKHR(std::o
 
 std::string GenerateStruct_VkVertexInputBindingDivisorDescriptionKHR(std::ostream &out, const VkVertexInputBindingDivisorDescriptionKHR* structInfo, Decoded_VkVertexInputBindingDivisorDescriptionKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkPhysicalDeviceShaderFloatControls2FeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderFloatControls2FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderFloatControls2FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceIndexTypeUint8FeaturesKHR(std::ostream &out, const VkPhysicalDeviceIndexTypeUint8FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceLineRasterizationFeaturesKHR(std::ostream &out, const VkPhysicalDeviceLineRasterizationFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceLineRasterizationFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceLineRasterizationPropertiesKHR(std::ostream &out, const VkPhysicalDeviceLineRasterizationPropertiesKHR* structInfo, Decoded_VkPhysicalDeviceLineRasterizationPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPipelineRasterizationLineStateCreateInfoKHR(std::ostream &out, const VkPipelineRasterizationLineStateCreateInfoKHR* structInfo, Decoded_VkPipelineRasterizationLineStateCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkCalibratedTimestampInfoKHR(std::ostream &out, const VkCalibratedTimestampInfoKHR* structInfo, Decoded_VkCalibratedTimestampInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceShaderExpectAssumeFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderExpectAssumeFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderExpectAssumeFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkBindDescriptorBufferEmbeddedSamplersInfoEXT(std::ostream &out, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* structInfo, Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
@@ -1447,15 +1525,7 @@ std::string GenerateStruct_VkSurfaceFullScreenExclusiveWin32InfoEXT(std::ostream
 
 std::string GenerateStruct_VkHeadlessSurfaceCreateInfoEXT(std::ostream &out, const VkHeadlessSurfaceCreateInfoEXT* structInfo, Decoded_VkHeadlessSurfaceCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkPhysicalDeviceLineRasterizationFeaturesEXT(std::ostream &out, const VkPhysicalDeviceLineRasterizationFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceLineRasterizationFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkPhysicalDeviceLineRasterizationPropertiesEXT(std::ostream &out, const VkPhysicalDeviceLineRasterizationPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceLineRasterizationPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkPipelineRasterizationLineStateCreateInfoEXT(std::ostream &out, const VkPipelineRasterizationLineStateCreateInfoEXT* structInfo, Decoded_VkPipelineRasterizationLineStateCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT(std::ostream &out, const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkPhysicalDeviceIndexTypeUint8FeaturesEXT(std::ostream &out, const VkPhysicalDeviceIndexTypeUint8FeaturesEXT* structInfo, Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT(std::ostream &out, const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
@@ -1478,6 +1548,12 @@ std::string GenerateStruct_VkPhysicalDeviceHostImageCopyFeaturesEXT(std::ostream
 std::string GenerateStruct_VkPhysicalDeviceHostImageCopyPropertiesEXT(std::ostream &out, const VkPhysicalDeviceHostImageCopyPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceHostImageCopyPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkSubresourceHostMemcpySizeEXT(std::ostream &out, const VkSubresourceHostMemcpySizeEXT* structInfo, Decoded_VkSubresourceHostMemcpySizeEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkMemoryMapPlacedInfoEXT(std::ostream &out, const VkMemoryMapPlacedInfoEXT* structInfo, Decoded_VkMemoryMapPlacedInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT(std::ostream &out, const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT(std::ostream &out, const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT(std::ostream &out, const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT* structInfo, Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
@@ -1934,6 +2010,12 @@ std::string GenerateStruct_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFea
 std::string GenerateStruct_VkPhysicalDeviceLayeredDriverPropertiesMSFT(std::ostream &out, const VkPhysicalDeviceLayeredDriverPropertiesMSFT* structInfo, Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV(std::ostream &out, const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* structInfo, Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceRawAccessChainsFeaturesNV(std::ostream &out, const VkPhysicalDeviceRawAccessChainsFeaturesNV* structInfo, Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV(std::ostream &out, const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* structInfo, Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceRayTracingValidationFeaturesNV(std::ostream &out, const VkPhysicalDeviceRayTracingValidationFeaturesNV* structInfo, Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkAccelerationStructureBuildGeometryInfoKHR(std::ostream &out, const VkAccelerationStructureBuildGeometryInfoKHR* structInfo, Decoded_VkAccelerationStructureBuildGeometryInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
 

@@ -601,6 +601,8 @@ class VulkanCppConsumerBase : public VulkanConsumer
     static std::string BuildValue(const VkFragmentShadingRateCombinerOpKHR value);
     static std::string BuildValue(const VkFragmentShadingRateCombinerOpKHR* values, uint32_t count);
     static std::string BuildValue(const VkPipelineExecutableStatisticValueKHR& value);
+    static std::string BuildValue(const StdVideoAV1FrameRestorationType values);
+    static std::string BuildValue(const StdVideoAV1FrameRestorationType* values, uint32_t count);
 
     template <typename T, class = typename std::enable_if<std::is_arithmetic<T>::value>::type>
     static std::string BuildValue(const T* values, uint32_t count)

@@ -35,6 +35,728 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+std::string GenerateStruct_StdVideoAV1CDEF(std::ostream &out, const StdVideoAV1CDEF* structInfo, Decoded_StdVideoAV1CDEF* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// cdef_damping_minus_3
+    struct_body << "\t" << std::to_string(structInfo->cdef_damping_minus_3) << "," << std::endl;
+// cdef_bits
+    struct_body << "\t\t\t" << std::to_string(structInfo->cdef_bits) << "," << std::endl;
+// cdef_y_pri_strength
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->cdef_y_pri_strength[0]), STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS) << "," << std::endl;
+// cdef_y_sec_strength
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->cdef_y_sec_strength[0]), STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS) << "," << std::endl;
+// cdef_uv_pri_strength
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->cdef_uv_pri_strength[0]), STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS) << "," << std::endl;
+// cdef_uv_sec_strength
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->cdef_uv_sec_strength[0]), STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1CDEF");
+    out << "\t\t" << "StdVideoAV1CDEF " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1ColorConfig(std::ostream &out, const StdVideoAV1ColorConfig* structInfo, Decoded_StdVideoAV1ColorConfig* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string flags_info_var = GenerateStruct_StdVideoAV1ColorConfigFlags(out,
+                                                                            &structInfo->flags,
+                                                                            metaInfo->flags,
+                                                                            consumer);
+// flags
+    struct_body << "\t" << flags_info_var << "," << std::endl;
+// BitDepth
+    struct_body << "\t\t\t" << std::to_string(structInfo->BitDepth) << "," << std::endl;
+// subsampling_x
+    struct_body << "\t\t\t" << std::to_string(structInfo->subsampling_x) << "," << std::endl;
+// subsampling_y
+    struct_body << "\t\t\t" << std::to_string(structInfo->subsampling_y) << "," << std::endl;
+// reserved1
+    struct_body << "\t\t\t" << std::to_string(structInfo->reserved1) << "," << std::endl;
+// color_primaries
+    struct_body << "\t\t\t" << "StdVideoAV1ColorPrimaries(" << structInfo->color_primaries << ")" << "," << std::endl;
+// transfer_characteristics
+    struct_body << "\t\t\t" << "StdVideoAV1TransferCharacteristics(" << structInfo->transfer_characteristics << ")" << "," << std::endl;
+// matrix_coefficients
+    struct_body << "\t\t\t" << "StdVideoAV1MatrixCoefficients(" << structInfo->matrix_coefficients << ")" << "," << std::endl;
+// chroma_sample_position
+    struct_body << "\t\t\t" << "StdVideoAV1ChromaSamplePosition(" << structInfo->chroma_sample_position << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1ColorConfig");
+    out << "\t\t" << "StdVideoAV1ColorConfig " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1ColorConfigFlags(std::ostream &out, const StdVideoAV1ColorConfigFlags* structInfo, Decoded_StdVideoAV1ColorConfigFlags* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// mono_chrome
+    struct_body << "\t" << structInfo->mono_chrome << "," << std::endl;
+// color_range
+    struct_body << "\t\t\t" << structInfo->color_range << "," << std::endl;
+// separate_uv_delta_q
+    struct_body << "\t\t\t" << structInfo->separate_uv_delta_q << "," << std::endl;
+// color_description_present_flag
+    struct_body << "\t\t\t" << structInfo->color_description_present_flag << "," << std::endl;
+// reserved
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1ColorConfigFlags");
+    out << "\t\t" << "StdVideoAV1ColorConfigFlags " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1FilmGrain(std::ostream &out, const StdVideoAV1FilmGrain* structInfo, Decoded_StdVideoAV1FilmGrain* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string flags_info_var = GenerateStruct_StdVideoAV1FilmGrainFlags(out,
+                                                                          &structInfo->flags,
+                                                                          metaInfo->flags,
+                                                                          consumer);
+// flags
+    struct_body << "\t" << flags_info_var << "," << std::endl;
+// grain_scaling_minus_8
+    struct_body << "\t\t\t" << std::to_string(structInfo->grain_scaling_minus_8) << "," << std::endl;
+// ar_coeff_lag
+    struct_body << "\t\t\t" << std::to_string(structInfo->ar_coeff_lag) << "," << std::endl;
+// ar_coeff_shift_minus_6
+    struct_body << "\t\t\t" << std::to_string(structInfo->ar_coeff_shift_minus_6) << "," << std::endl;
+// grain_scale_shift
+    struct_body << "\t\t\t" << std::to_string(structInfo->grain_scale_shift) << "," << std::endl;
+// grain_seed
+    struct_body << "\t\t\t" << structInfo->grain_seed << "," << std::endl;
+// film_grain_params_ref_idx
+    struct_body << "\t\t\t" << std::to_string(structInfo->film_grain_params_ref_idx) << "," << std::endl;
+// num_y_points
+    struct_body << "\t\t\t" << std::to_string(structInfo->num_y_points) << "," << std::endl;
+// point_y_value
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->point_y_value[0]), STD_VIDEO_AV1_MAX_NUM_Y_POINTS) << "," << std::endl;
+// point_y_scaling
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->point_y_scaling[0]), STD_VIDEO_AV1_MAX_NUM_Y_POINTS) << "," << std::endl;
+// num_cb_points
+    struct_body << "\t\t\t" << std::to_string(structInfo->num_cb_points) << "," << std::endl;
+// point_cb_value
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->point_cb_value[0]), STD_VIDEO_AV1_MAX_NUM_CB_POINTS) << "," << std::endl;
+// point_cb_scaling
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->point_cb_scaling[0]), STD_VIDEO_AV1_MAX_NUM_CB_POINTS) << "," << std::endl;
+// num_cr_points
+    struct_body << "\t\t\t" << std::to_string(structInfo->num_cr_points) << "," << std::endl;
+// point_cr_value
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->point_cr_value[0]), STD_VIDEO_AV1_MAX_NUM_CR_POINTS) << "," << std::endl;
+// point_cr_scaling
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->point_cr_scaling[0]), STD_VIDEO_AV1_MAX_NUM_CR_POINTS) << "," << std::endl;
+// ar_coeffs_y_plus_128
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->ar_coeffs_y_plus_128[0]), STD_VIDEO_AV1_MAX_NUM_POS_LUMA) << "," << std::endl;
+// ar_coeffs_cb_plus_128
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->ar_coeffs_cb_plus_128[0]), STD_VIDEO_AV1_MAX_NUM_POS_CHROMA) << "," << std::endl;
+// ar_coeffs_cr_plus_128
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->ar_coeffs_cr_plus_128[0]), STD_VIDEO_AV1_MAX_NUM_POS_CHROMA) << "," << std::endl;
+// cb_mult
+    struct_body << "\t\t\t" << std::to_string(structInfo->cb_mult) << "," << std::endl;
+// cb_luma_mult
+    struct_body << "\t\t\t" << std::to_string(structInfo->cb_luma_mult) << "," << std::endl;
+// cb_offset
+    struct_body << "\t\t\t" << structInfo->cb_offset << "," << std::endl;
+// cr_mult
+    struct_body << "\t\t\t" << std::to_string(structInfo->cr_mult) << "," << std::endl;
+// cr_luma_mult
+    struct_body << "\t\t\t" << std::to_string(structInfo->cr_luma_mult) << "," << std::endl;
+// cr_offset
+    struct_body << "\t\t\t" << structInfo->cr_offset << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1FilmGrain");
+    out << "\t\t" << "StdVideoAV1FilmGrain " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1FilmGrainFlags(std::ostream &out, const StdVideoAV1FilmGrainFlags* structInfo, Decoded_StdVideoAV1FilmGrainFlags* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// chroma_scaling_from_luma
+    struct_body << "\t" << structInfo->chroma_scaling_from_luma << "," << std::endl;
+// overlap_flag
+    struct_body << "\t\t\t" << structInfo->overlap_flag << "," << std::endl;
+// clip_to_restricted_range
+    struct_body << "\t\t\t" << structInfo->clip_to_restricted_range << "," << std::endl;
+// update_grain
+    struct_body << "\t\t\t" << structInfo->update_grain << "," << std::endl;
+// reserved
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1FilmGrainFlags");
+    out << "\t\t" << "StdVideoAV1FilmGrainFlags " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1GlobalMotion(std::ostream &out, const StdVideoAV1GlobalMotion* structInfo, Decoded_StdVideoAV1GlobalMotion* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// GmType
+    struct_body << "\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->GmType[0]), STD_VIDEO_AV1_NUM_REF_FRAMES) << "," << std::endl;
+// gm_params
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int32_t*>(&structInfo->gm_params[0][0]), STD_VIDEO_AV1_NUM_REF_FRAMES) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1GlobalMotion");
+    out << "\t\t" << "StdVideoAV1GlobalMotion " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1LoopFilter(std::ostream &out, const StdVideoAV1LoopFilter* structInfo, Decoded_StdVideoAV1LoopFilter* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string flags_info_var = GenerateStruct_StdVideoAV1LoopFilterFlags(out,
+                                                                           &structInfo->flags,
+                                                                           metaInfo->flags,
+                                                                           consumer);
+// flags
+    struct_body << "\t" << flags_info_var << "," << std::endl;
+// loop_filter_level
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->loop_filter_level[0]), STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS) << "," << std::endl;
+// loop_filter_sharpness
+    struct_body << "\t\t\t" << std::to_string(structInfo->loop_filter_sharpness) << "," << std::endl;
+// update_ref_delta
+    struct_body << "\t\t\t" << std::to_string(structInfo->update_ref_delta) << "," << std::endl;
+// loop_filter_ref_deltas
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->loop_filter_ref_deltas[0]), STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME) << "," << std::endl;
+// update_mode_delta
+    struct_body << "\t\t\t" << std::to_string(structInfo->update_mode_delta) << "," << std::endl;
+// loop_filter_mode_deltas
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->loop_filter_mode_deltas[0]), STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1LoopFilter");
+    out << "\t\t" << "StdVideoAV1LoopFilter " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1LoopFilterFlags(std::ostream &out, const StdVideoAV1LoopFilterFlags* structInfo, Decoded_StdVideoAV1LoopFilterFlags* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// loop_filter_delta_enabled
+    struct_body << "\t" << structInfo->loop_filter_delta_enabled << "," << std::endl;
+// loop_filter_delta_update
+    struct_body << "\t\t\t" << structInfo->loop_filter_delta_update << "," << std::endl;
+// reserved
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1LoopFilterFlags");
+    out << "\t\t" << "StdVideoAV1LoopFilterFlags " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1LoopRestoration(std::ostream &out, const StdVideoAV1LoopRestoration* structInfo, Decoded_StdVideoAV1LoopRestoration* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// FrameRestorationType
+    struct_body << "\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const StdVideoAV1FrameRestorationType*>(&structInfo->FrameRestorationType[0]), STD_VIDEO_AV1_MAX_NUM_PLANES) << "," << std::endl;
+// LoopRestorationSize
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint16_t*>(&structInfo->LoopRestorationSize[0]), STD_VIDEO_AV1_MAX_NUM_PLANES) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1LoopRestoration");
+    out << "\t\t" << "StdVideoAV1LoopRestoration " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1Quantization(std::ostream &out, const StdVideoAV1Quantization* structInfo, Decoded_StdVideoAV1Quantization* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string flags_info_var = GenerateStruct_StdVideoAV1QuantizationFlags(out,
+                                                                             &structInfo->flags,
+                                                                             metaInfo->flags,
+                                                                             consumer);
+// flags
+    struct_body << "\t" << flags_info_var << "," << std::endl;
+// base_q_idx
+    struct_body << "\t\t\t" << std::to_string(structInfo->base_q_idx) << "," << std::endl;
+// DeltaQYDc
+    struct_body << "\t\t\t" << std::to_string(structInfo->DeltaQYDc) << "," << std::endl;
+// DeltaQUDc
+    struct_body << "\t\t\t" << std::to_string(structInfo->DeltaQUDc) << "," << std::endl;
+// DeltaQUAc
+    struct_body << "\t\t\t" << std::to_string(structInfo->DeltaQUAc) << "," << std::endl;
+// DeltaQVDc
+    struct_body << "\t\t\t" << std::to_string(structInfo->DeltaQVDc) << "," << std::endl;
+// DeltaQVAc
+    struct_body << "\t\t\t" << std::to_string(structInfo->DeltaQVAc) << "," << std::endl;
+// qm_y
+    struct_body << "\t\t\t" << std::to_string(structInfo->qm_y) << "," << std::endl;
+// qm_u
+    struct_body << "\t\t\t" << std::to_string(structInfo->qm_u) << "," << std::endl;
+// qm_v
+    struct_body << "\t\t\t" << std::to_string(structInfo->qm_v) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1Quantization");
+    out << "\t\t" << "StdVideoAV1Quantization " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1QuantizationFlags(std::ostream &out, const StdVideoAV1QuantizationFlags* structInfo, Decoded_StdVideoAV1QuantizationFlags* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// using_qmatrix
+    struct_body << "\t" << structInfo->using_qmatrix << "," << std::endl;
+// diff_uv_delta
+    struct_body << "\t\t\t" << structInfo->diff_uv_delta << "," << std::endl;
+// reserved
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1QuantizationFlags");
+    out << "\t\t" << "StdVideoAV1QuantizationFlags " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1Segmentation(std::ostream &out, const StdVideoAV1Segmentation* structInfo, Decoded_StdVideoAV1Segmentation* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// FeatureEnabled
+    struct_body << "\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->FeatureEnabled[0]), STD_VIDEO_AV1_MAX_SEGMENTS) << "," << std::endl;
+// FeatureData
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int16_t*>(&structInfo->FeatureData[0][0]), STD_VIDEO_AV1_MAX_SEGMENTS) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1Segmentation");
+    out << "\t\t" << "StdVideoAV1Segmentation " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1SequenceHeader(std::ostream &out, const StdVideoAV1SequenceHeader* structInfo, Decoded_StdVideoAV1SequenceHeader* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string flags_info_var = GenerateStruct_StdVideoAV1SequenceHeaderFlags(out,
+                                                                               &structInfo->flags,
+                                                                               metaInfo->flags,
+                                                                               consumer);
+    std::string pcolor_config_struct = "NULL";
+    if (structInfo->pColorConfig != NULL) {
+        pcolor_config_struct = GenerateStruct_StdVideoAV1ColorConfig(out,
+                                                                     structInfo->pColorConfig,
+                                                                     metaInfo->pColorConfig->GetMetaStructPointer(),
+                                                                     consumer);
+        pcolor_config_struct.insert(0, "&");
+    }
+    std::string ptiming_info_struct = "NULL";
+    if (structInfo->pTimingInfo != NULL) {
+        ptiming_info_struct = GenerateStruct_StdVideoAV1TimingInfo(out,
+                                                                   structInfo->pTimingInfo,
+                                                                   metaInfo->pTimingInfo->GetMetaStructPointer(),
+                                                                   consumer);
+        ptiming_info_struct.insert(0, "&");
+    }
+// flags
+    struct_body << "\t" << flags_info_var << "," << std::endl;
+// seq_profile
+    struct_body << "\t\t\t" << "StdVideoAV1Profile(" << structInfo->seq_profile << ")" << "," << std::endl;
+// frame_width_bits_minus_1
+    struct_body << "\t\t\t" << std::to_string(structInfo->frame_width_bits_minus_1) << "," << std::endl;
+// frame_height_bits_minus_1
+    struct_body << "\t\t\t" << std::to_string(structInfo->frame_height_bits_minus_1) << "," << std::endl;
+// max_frame_width_minus_1
+    struct_body << "\t\t\t" << structInfo->max_frame_width_minus_1 << "," << std::endl;
+// max_frame_height_minus_1
+    struct_body << "\t\t\t" << structInfo->max_frame_height_minus_1 << "," << std::endl;
+// delta_frame_id_length_minus_2
+    struct_body << "\t\t\t" << std::to_string(structInfo->delta_frame_id_length_minus_2) << "," << std::endl;
+// additional_frame_id_length_minus_1
+    struct_body << "\t\t\t" << std::to_string(structInfo->additional_frame_id_length_minus_1) << "," << std::endl;
+// order_hint_bits_minus_1
+    struct_body << "\t\t\t" << std::to_string(structInfo->order_hint_bits_minus_1) << "," << std::endl;
+// seq_force_integer_mv
+    struct_body << "\t\t\t" << std::to_string(structInfo->seq_force_integer_mv) << "," << std::endl;
+// seq_force_screen_content_tools
+    struct_body << "\t\t\t" << std::to_string(structInfo->seq_force_screen_content_tools) << "," << std::endl;
+// reserved1
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->reserved1[0]), 5) << "," << std::endl;
+// pColorConfig
+    struct_body << "\t\t\t" << pcolor_config_struct << "," << std::endl;
+// pTimingInfo
+    struct_body << "\t\t\t" << ptiming_info_struct << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1SequenceHeader");
+    out << "\t\t" << "StdVideoAV1SequenceHeader " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1SequenceHeaderFlags(std::ostream &out, const StdVideoAV1SequenceHeaderFlags* structInfo, Decoded_StdVideoAV1SequenceHeaderFlags* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// still_picture
+    struct_body << "\t" << structInfo->still_picture << "," << std::endl;
+// reduced_still_picture_header
+    struct_body << "\t\t\t" << structInfo->reduced_still_picture_header << "," << std::endl;
+// use_128x128_superblock
+    struct_body << "\t\t\t" << structInfo->use_128x128_superblock << "," << std::endl;
+// enable_filter_intra
+    struct_body << "\t\t\t" << structInfo->enable_filter_intra << "," << std::endl;
+// enable_intra_edge_filter
+    struct_body << "\t\t\t" << structInfo->enable_intra_edge_filter << "," << std::endl;
+// enable_interintra_compound
+    struct_body << "\t\t\t" << structInfo->enable_interintra_compound << "," << std::endl;
+// enable_masked_compound
+    struct_body << "\t\t\t" << structInfo->enable_masked_compound << "," << std::endl;
+// enable_warped_motion
+    struct_body << "\t\t\t" << structInfo->enable_warped_motion << "," << std::endl;
+// enable_dual_filter
+    struct_body << "\t\t\t" << structInfo->enable_dual_filter << "," << std::endl;
+// enable_order_hint
+    struct_body << "\t\t\t" << structInfo->enable_order_hint << "," << std::endl;
+// enable_jnt_comp
+    struct_body << "\t\t\t" << structInfo->enable_jnt_comp << "," << std::endl;
+// enable_ref_frame_mvs
+    struct_body << "\t\t\t" << structInfo->enable_ref_frame_mvs << "," << std::endl;
+// frame_id_numbers_present_flag
+    struct_body << "\t\t\t" << structInfo->frame_id_numbers_present_flag << "," << std::endl;
+// enable_superres
+    struct_body << "\t\t\t" << structInfo->enable_superres << "," << std::endl;
+// enable_cdef
+    struct_body << "\t\t\t" << structInfo->enable_cdef << "," << std::endl;
+// enable_restoration
+    struct_body << "\t\t\t" << structInfo->enable_restoration << "," << std::endl;
+// film_grain_params_present
+    struct_body << "\t\t\t" << structInfo->film_grain_params_present << "," << std::endl;
+// timing_info_present_flag
+    struct_body << "\t\t\t" << structInfo->timing_info_present_flag << "," << std::endl;
+// initial_display_delay_present_flag
+    struct_body << "\t\t\t" << structInfo->initial_display_delay_present_flag << "," << std::endl;
+// reserved
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1SequenceHeaderFlags");
+    out << "\t\t" << "StdVideoAV1SequenceHeaderFlags " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1TileInfo(std::ostream &out, const StdVideoAV1TileInfo* structInfo, Decoded_StdVideoAV1TileInfo* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string flags_info_var = GenerateStruct_StdVideoAV1TileInfoFlags(out,
+                                                                         &structInfo->flags,
+                                                                         metaInfo->flags,
+                                                                         consumer);
+// flags
+    struct_body << "\t" << flags_info_var << "," << std::endl;
+// TileCols
+    struct_body << "\t\t\t" << std::to_string(structInfo->TileCols) << "," << std::endl;
+// TileRows
+    struct_body << "\t\t\t" << std::to_string(structInfo->TileRows) << "," << std::endl;
+// context_update_tile_id
+    struct_body << "\t\t\t" << structInfo->context_update_tile_id << "," << std::endl;
+// tile_size_bytes_minus_1
+    struct_body << "\t\t\t" << std::to_string(structInfo->tile_size_bytes_minus_1) << "," << std::endl;
+// reserved1
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->reserved1[0]), 7) << "," << std::endl;
+// pMiColStarts
+    struct_body << "\t\t\t" << structInfo->pMiColStarts << "," << std::endl;
+// pMiRowStarts
+    struct_body << "\t\t\t" << structInfo->pMiRowStarts << "," << std::endl;
+// pWidthInSbsMinus1
+    struct_body << "\t\t\t" << structInfo->pWidthInSbsMinus1 << "," << std::endl;
+// pHeightInSbsMinus1
+    struct_body << "\t\t\t" << structInfo->pHeightInSbsMinus1 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1TileInfo");
+    out << "\t\t" << "StdVideoAV1TileInfo " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1TileInfoFlags(std::ostream &out, const StdVideoAV1TileInfoFlags* structInfo, Decoded_StdVideoAV1TileInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// uniform_tile_spacing_flag
+    struct_body << "\t" << structInfo->uniform_tile_spacing_flag << "," << std::endl;
+// reserved
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1TileInfoFlags");
+    out << "\t\t" << "StdVideoAV1TileInfoFlags " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1TimingInfo(std::ostream &out, const StdVideoAV1TimingInfo* structInfo, Decoded_StdVideoAV1TimingInfo* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string flags_info_var = GenerateStruct_StdVideoAV1TimingInfoFlags(out,
+                                                                           &structInfo->flags,
+                                                                           metaInfo->flags,
+                                                                           consumer);
+// flags
+    struct_body << "\t" << flags_info_var << "," << std::endl;
+// num_units_in_display_tick
+    struct_body << "\t\t\t" << structInfo->num_units_in_display_tick << "," << std::endl;
+// time_scale
+    struct_body << "\t\t\t" << structInfo->time_scale << "," << std::endl;
+// num_ticks_per_picture_minus_1
+    struct_body << "\t\t\t" << structInfo->num_ticks_per_picture_minus_1 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1TimingInfo");
+    out << "\t\t" << "StdVideoAV1TimingInfo " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoAV1TimingInfoFlags(std::ostream &out, const StdVideoAV1TimingInfoFlags* structInfo, Decoded_StdVideoAV1TimingInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// equal_picture_interval
+    struct_body << "\t" << structInfo->equal_picture_interval << "," << std::endl;
+// reserved
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1TimingInfoFlags");
+    out << "\t\t" << "StdVideoAV1TimingInfoFlags " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoDecodeAV1PictureInfo(std::ostream &out, const StdVideoDecodeAV1PictureInfo* structInfo, Decoded_StdVideoDecodeAV1PictureInfo* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string flags_info_var = GenerateStruct_StdVideoDecodeAV1PictureInfoFlags(out,
+                                                                                  &structInfo->flags,
+                                                                                  metaInfo->flags,
+                                                                                  consumer);
+    std::string ptile_info_struct = "NULL";
+    if (structInfo->pTileInfo != NULL) {
+        ptile_info_struct = GenerateStruct_StdVideoAV1TileInfo(out,
+                                                               structInfo->pTileInfo,
+                                                               metaInfo->pTileInfo->GetMetaStructPointer(),
+                                                               consumer);
+        ptile_info_struct.insert(0, "&");
+    }
+    std::string pquantization_struct = "NULL";
+    if (structInfo->pQuantization != NULL) {
+        pquantization_struct = GenerateStruct_StdVideoAV1Quantization(out,
+                                                                      structInfo->pQuantization,
+                                                                      metaInfo->pQuantization->GetMetaStructPointer(),
+                                                                      consumer);
+        pquantization_struct.insert(0, "&");
+    }
+    std::string psegmentation_struct = "NULL";
+    if (structInfo->pSegmentation != NULL) {
+        psegmentation_struct = GenerateStruct_StdVideoAV1Segmentation(out,
+                                                                      structInfo->pSegmentation,
+                                                                      metaInfo->pSegmentation->GetMetaStructPointer(),
+                                                                      consumer);
+        psegmentation_struct.insert(0, "&");
+    }
+    std::string ploop_filter_struct = "NULL";
+    if (structInfo->pLoopFilter != NULL) {
+        ploop_filter_struct = GenerateStruct_StdVideoAV1LoopFilter(out,
+                                                                   structInfo->pLoopFilter,
+                                                                   metaInfo->pLoopFilter->GetMetaStructPointer(),
+                                                                   consumer);
+        ploop_filter_struct.insert(0, "&");
+    }
+    std::string pc_d_e_f_struct = "NULL";
+    if (structInfo->pCDEF != NULL) {
+        pc_d_e_f_struct = GenerateStruct_StdVideoAV1CDEF(out,
+                                                         structInfo->pCDEF,
+                                                         metaInfo->pCDEF->GetMetaStructPointer(),
+                                                         consumer);
+        pc_d_e_f_struct.insert(0, "&");
+    }
+    std::string ploop_restoration_struct = "NULL";
+    if (structInfo->pLoopRestoration != NULL) {
+        ploop_restoration_struct = GenerateStruct_StdVideoAV1LoopRestoration(out,
+                                                                             structInfo->pLoopRestoration,
+                                                                             metaInfo->pLoopRestoration->GetMetaStructPointer(),
+                                                                             consumer);
+        ploop_restoration_struct.insert(0, "&");
+    }
+    std::string pglobal_motion_struct = "NULL";
+    if (structInfo->pGlobalMotion != NULL) {
+        pglobal_motion_struct = GenerateStruct_StdVideoAV1GlobalMotion(out,
+                                                                       structInfo->pGlobalMotion,
+                                                                       metaInfo->pGlobalMotion->GetMetaStructPointer(),
+                                                                       consumer);
+        pglobal_motion_struct.insert(0, "&");
+    }
+    std::string pfilm_grain_struct = "NULL";
+    if (structInfo->pFilmGrain != NULL) {
+        pfilm_grain_struct = GenerateStruct_StdVideoAV1FilmGrain(out,
+                                                                 structInfo->pFilmGrain,
+                                                                 metaInfo->pFilmGrain->GetMetaStructPointer(),
+                                                                 consumer);
+        pfilm_grain_struct.insert(0, "&");
+    }
+// flags
+    struct_body << "\t" << flags_info_var << "," << std::endl;
+// frame_type
+    struct_body << "\t\t\t" << "StdVideoAV1FrameType(" << structInfo->frame_type << ")" << "," << std::endl;
+// current_frame_id
+    struct_body << "\t\t\t" << structInfo->current_frame_id << "," << std::endl;
+// OrderHint
+    struct_body << "\t\t\t" << std::to_string(structInfo->OrderHint) << "," << std::endl;
+// primary_ref_frame
+    struct_body << "\t\t\t" << std::to_string(structInfo->primary_ref_frame) << "," << std::endl;
+// refresh_frame_flags
+    struct_body << "\t\t\t" << std::to_string(structInfo->refresh_frame_flags) << "," << std::endl;
+// reserved1
+    struct_body << "\t\t\t" << std::to_string(structInfo->reserved1) << "," << std::endl;
+// interpolation_filter
+    struct_body << "\t\t\t" << "StdVideoAV1InterpolationFilter(" << structInfo->interpolation_filter << ")" << "," << std::endl;
+// TxMode
+    struct_body << "\t\t\t" << "StdVideoAV1TxMode(" << structInfo->TxMode << ")" << "," << std::endl;
+// delta_q_res
+    struct_body << "\t\t\t" << std::to_string(structInfo->delta_q_res) << "," << std::endl;
+// delta_lf_res
+    struct_body << "\t\t\t" << std::to_string(structInfo->delta_lf_res) << "," << std::endl;
+// SkipModeFrame
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->SkipModeFrame[0]), STD_VIDEO_AV1_SKIP_MODE_FRAMES) << "," << std::endl;
+// coded_denom
+    struct_body << "\t\t\t" << std::to_string(structInfo->coded_denom) << "," << std::endl;
+// reserved2
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->reserved2[0]), 3) << "," << std::endl;
+// OrderHints
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->OrderHints[0]), STD_VIDEO_AV1_NUM_REF_FRAMES) << "," << std::endl;
+// expectedFrameId
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint32_t*>(&structInfo->expectedFrameId[0]), STD_VIDEO_AV1_NUM_REF_FRAMES) << "," << std::endl;
+// pTileInfo
+    struct_body << "\t\t\t" << ptile_info_struct << "," << std::endl;
+// pQuantization
+    struct_body << "\t\t\t" << pquantization_struct << "," << std::endl;
+// pSegmentation
+    struct_body << "\t\t\t" << psegmentation_struct << "," << std::endl;
+// pLoopFilter
+    struct_body << "\t\t\t" << ploop_filter_struct << "," << std::endl;
+// pCDEF
+    struct_body << "\t\t\t" << pc_d_e_f_struct << "," << std::endl;
+// pLoopRestoration
+    struct_body << "\t\t\t" << ploop_restoration_struct << "," << std::endl;
+// pGlobalMotion
+    struct_body << "\t\t\t" << pglobal_motion_struct << "," << std::endl;
+// pFilmGrain
+    struct_body << "\t\t\t" << pfilm_grain_struct << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeAV1PictureInfo");
+    out << "\t\t" << "StdVideoDecodeAV1PictureInfo " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoDecodeAV1PictureInfoFlags(std::ostream &out, const StdVideoDecodeAV1PictureInfoFlags* structInfo, Decoded_StdVideoDecodeAV1PictureInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// error_resilient_mode
+    struct_body << "\t" << structInfo->error_resilient_mode << "," << std::endl;
+// disable_cdf_update
+    struct_body << "\t\t\t" << structInfo->disable_cdf_update << "," << std::endl;
+// use_superres
+    struct_body << "\t\t\t" << structInfo->use_superres << "," << std::endl;
+// render_and_frame_size_different
+    struct_body << "\t\t\t" << structInfo->render_and_frame_size_different << "," << std::endl;
+// allow_screen_content_tools
+    struct_body << "\t\t\t" << structInfo->allow_screen_content_tools << "," << std::endl;
+// is_filter_switchable
+    struct_body << "\t\t\t" << structInfo->is_filter_switchable << "," << std::endl;
+// force_integer_mv
+    struct_body << "\t\t\t" << structInfo->force_integer_mv << "," << std::endl;
+// frame_size_override_flag
+    struct_body << "\t\t\t" << structInfo->frame_size_override_flag << "," << std::endl;
+// buffer_removal_time_present_flag
+    struct_body << "\t\t\t" << structInfo->buffer_removal_time_present_flag << "," << std::endl;
+// allow_intrabc
+    struct_body << "\t\t\t" << structInfo->allow_intrabc << "," << std::endl;
+// frame_refs_short_signaling
+    struct_body << "\t\t\t" << structInfo->frame_refs_short_signaling << "," << std::endl;
+// allow_high_precision_mv
+    struct_body << "\t\t\t" << structInfo->allow_high_precision_mv << "," << std::endl;
+// is_motion_mode_switchable
+    struct_body << "\t\t\t" << structInfo->is_motion_mode_switchable << "," << std::endl;
+// use_ref_frame_mvs
+    struct_body << "\t\t\t" << structInfo->use_ref_frame_mvs << "," << std::endl;
+// disable_frame_end_update_cdf
+    struct_body << "\t\t\t" << structInfo->disable_frame_end_update_cdf << "," << std::endl;
+// allow_warped_motion
+    struct_body << "\t\t\t" << structInfo->allow_warped_motion << "," << std::endl;
+// reduced_tx_set
+    struct_body << "\t\t\t" << structInfo->reduced_tx_set << "," << std::endl;
+// reference_select
+    struct_body << "\t\t\t" << structInfo->reference_select << "," << std::endl;
+// skip_mode_present
+    struct_body << "\t\t\t" << structInfo->skip_mode_present << "," << std::endl;
+// delta_q_present
+    struct_body << "\t\t\t" << structInfo->delta_q_present << "," << std::endl;
+// delta_lf_present
+    struct_body << "\t\t\t" << structInfo->delta_lf_present << "," << std::endl;
+// delta_lf_multi
+    struct_body << "\t\t\t" << structInfo->delta_lf_multi << "," << std::endl;
+// segmentation_enabled
+    struct_body << "\t\t\t" << structInfo->segmentation_enabled << "," << std::endl;
+// segmentation_update_map
+    struct_body << "\t\t\t" << structInfo->segmentation_update_map << "," << std::endl;
+// segmentation_temporal_update
+    struct_body << "\t\t\t" << structInfo->segmentation_temporal_update << "," << std::endl;
+// segmentation_update_data
+    struct_body << "\t\t\t" << structInfo->segmentation_update_data << "," << std::endl;
+// UsesLr
+    struct_body << "\t\t\t" << structInfo->UsesLr << "," << std::endl;
+// usesChromaLr
+    struct_body << "\t\t\t" << structInfo->usesChromaLr << "," << std::endl;
+// apply_grain
+    struct_body << "\t\t\t" << structInfo->apply_grain << "," << std::endl;
+// reserved
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeAV1PictureInfoFlags");
+    out << "\t\t" << "StdVideoDecodeAV1PictureInfoFlags " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoDecodeAV1ReferenceInfo(std::ostream &out, const StdVideoDecodeAV1ReferenceInfo* structInfo, Decoded_StdVideoDecodeAV1ReferenceInfo* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string flags_info_var = GenerateStruct_StdVideoDecodeAV1ReferenceInfoFlags(out,
+                                                                                    &structInfo->flags,
+                                                                                    metaInfo->flags,
+                                                                                    consumer);
+// flags
+    struct_body << "\t" << flags_info_var << "," << std::endl;
+// frame_type
+    struct_body << "\t\t\t" << std::to_string(structInfo->frame_type) << "," << std::endl;
+// RefFrameSignBias
+    struct_body << "\t\t\t" << std::to_string(structInfo->RefFrameSignBias) << "," << std::endl;
+// OrderHint
+    struct_body << "\t\t\t" << std::to_string(structInfo->OrderHint) << "," << std::endl;
+// SavedOrderHints
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->SavedOrderHints[0]), STD_VIDEO_AV1_NUM_REF_FRAMES) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeAV1ReferenceInfo");
+    out << "\t\t" << "StdVideoDecodeAV1ReferenceInfo " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_StdVideoDecodeAV1ReferenceInfoFlags(std::ostream &out, const StdVideoDecodeAV1ReferenceInfoFlags* structInfo, Decoded_StdVideoDecodeAV1ReferenceInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+// disable_frame_end_update_cdf
+    struct_body << "\t" << structInfo->disable_frame_end_update_cdf << "," << std::endl;
+// segmentation_enabled
+    struct_body << "\t\t\t" << structInfo->segmentation_enabled << "," << std::endl;
+// reserved
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeAV1ReferenceInfoFlags");
+    out << "\t\t" << "StdVideoDecodeAV1ReferenceInfoFlags " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_StdVideoDecodeH264PictureInfo(std::ostream &out, const StdVideoDecodeH264PictureInfo* structInfo, Decoded_StdVideoDecodeH264PictureInfo* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string flags_info_var = GenerateStruct_StdVideoDecodeH264PictureInfoFlags(out,
@@ -1011,11 +1733,6 @@ std::string GenerateStruct_StdVideoH264SequenceParameterSet(std::ostream &out, c
                                                                      &structInfo->flags,
                                                                      metaInfo->flags,
                                                                      consumer);
-    std::string poffset_for_ref_frame_array = "NULL";
-    if (structInfo->pOffsetForRefFrame != NULL) {
-        poffset_for_ref_frame_array = "pOffsetForRefFrame_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "int32_t " << poffset_for_ref_frame_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pOffsetForRefFrame, structInfo->num_ref_frames_in_pic_order_cnt_cycle) << ";" << std::endl;
-    }
     std::string pscaling_lists_struct = "NULL";
     if (structInfo->pScalingLists != NULL) {
         pscaling_lists_struct = GenerateStruct_StdVideoH264ScalingLists(out,
@@ -1077,7 +1794,6 @@ std::string GenerateStruct_StdVideoH264SequenceParameterSet(std::ostream &out, c
 // reserved2
     struct_body << "\t\t\t" << structInfo->reserved2 << "," << std::endl;
 // pOffsetForRefFrame
-    struct_body << "\t\t\t" << poffset_for_ref_frame_array << "," << std::endl;
 // pScalingLists
     struct_body << "\t\t\t" << pscaling_lists_struct << "," << std::endl;
 // pSequenceParameterSetVui
@@ -13525,6 +14241,90 @@ std::string GenerateStruct_VkPipelineFragmentShadingRateStateCreateInfoKHR(std::
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR(std::ostream &out, const VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// dynamicRenderingLocalRead
+    struct_body << "\t\t\t" << structInfo->dynamicRenderingLocalRead << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceDynamicRenderingLocalReadFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkRenderingAttachmentLocationInfoKHR(std::ostream &out, const VkRenderingAttachmentLocationInfoKHR* structInfo, Decoded_VkRenderingAttachmentLocationInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pcolor_attachment_locations_array = "NULL";
+    if (structInfo->pColorAttachmentLocations != NULL) {
+        pcolor_attachment_locations_array = "pColorAttachmentLocations_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint32_t " << pcolor_attachment_locations_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pColorAttachmentLocations, structInfo->colorAttachmentCount) << ";" << std::endl;
+    }
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// colorAttachmentCount
+    struct_body << "\t\t\t" << structInfo->colorAttachmentCount << "," << std::endl;
+// pColorAttachmentLocations
+    struct_body << "\t\t\t" << pcolor_attachment_locations_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "renderingAttachmentLocationInfoKHR");
+    out << "\t\t" << "VkRenderingAttachmentLocationInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkRenderingInputAttachmentIndexInfoKHR(std::ostream &out, const VkRenderingInputAttachmentIndexInfoKHR* structInfo, Decoded_VkRenderingInputAttachmentIndexInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pcolor_attachment_input_indices_array = "NULL";
+    if (structInfo->pColorAttachmentInputIndices != NULL) {
+        pcolor_attachment_input_indices_array = "pColorAttachmentInputIndices_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint32_t " << pcolor_attachment_input_indices_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pColorAttachmentInputIndices, structInfo->colorAttachmentCount) << ";" << std::endl;
+    }
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// colorAttachmentCount
+    struct_body << "\t\t\t" << structInfo->colorAttachmentCount << "," << std::endl;
+// pColorAttachmentInputIndices
+    struct_body << "\t\t\t" << pcolor_attachment_input_indices_array << "," << std::endl;
+// pDepthInputAttachmentIndex
+// pStencilInputAttachmentIndex
+    std::string variable_name = consumer.AddStruct(struct_body, "renderingInputAttachmentIndexInfoKHR");
+    out << "\t\t" << "VkRenderingInputAttachmentIndexInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceShaderQuadControlFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderQuadControlFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderQuadControlFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// shaderQuadControl
+    struct_body << "\t\t\t" << structInfo->shaderQuadControl << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderQuadControlFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceShaderQuadControlFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkSurfaceProtectedCapabilitiesKHR(std::ostream &out, const VkSurfaceProtectedCapabilitiesKHR* structInfo, Decoded_VkSurfaceProtectedCapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -14267,6 +15067,42 @@ std::string GenerateStruct_VkTraceRaysIndirectCommand2KHR(std::ostream &out, con
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// shaderSubgroupRotate
+    struct_body << "\t\t\t" << structInfo->shaderSubgroupRotate << "," << std::endl;
+// shaderSubgroupRotateClustered
+    struct_body << "\t\t\t" << structInfo->shaderSubgroupRotateClustered << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderSubgroupRotateFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// shaderMaximalReconvergence
+    struct_body << "\t\t\t" << structInfo->shaderMaximalReconvergence << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderMaximalReconvergenceFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkBufferUsageFlags2CreateInfoKHR(std::ostream &out, const VkBufferUsageFlags2CreateInfoKHR* structInfo, Decoded_VkBufferUsageFlags2CreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -14542,6 +15378,137 @@ std::string GenerateStruct_VkPhysicalDeviceCooperativeMatrixPropertiesKHR(std::o
 }
 
 
+std::string GenerateStruct_VkVideoDecodeAV1CapabilitiesKHR(std::ostream &out, const VkVideoDecodeAV1CapabilitiesKHR* structInfo, Decoded_VkVideoDecodeAV1CapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// maxLevel
+    struct_body << "\t\t\t" << "StdVideoAV1Level(" << structInfo->maxLevel << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeAV1CapabilitiesKHR");
+    out << "\t\t" << "VkVideoDecodeAV1CapabilitiesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoDecodeAV1DpbSlotInfoKHR(std::ostream &out, const VkVideoDecodeAV1DpbSlotInfoKHR* structInfo, Decoded_VkVideoDecodeAV1DpbSlotInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pstd_reference_info_struct = "NULL";
+    if (structInfo->pStdReferenceInfo != NULL) {
+        pstd_reference_info_struct = GenerateStruct_StdVideoDecodeAV1ReferenceInfo(out,
+                                                                                   structInfo->pStdReferenceInfo,
+                                                                                   metaInfo->pStdReferenceInfo->GetMetaStructPointer(),
+                                                                                   consumer);
+        pstd_reference_info_struct.insert(0, "&");
+    }
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// pStdReferenceInfo
+    struct_body << "\t\t\t" << pstd_reference_info_struct << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeAV1DpbSlotInfoKHR");
+    out << "\t\t" << "VkVideoDecodeAV1DpbSlotInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoDecodeAV1PictureInfoKHR(std::ostream &out, const VkVideoDecodeAV1PictureInfoKHR* structInfo, Decoded_VkVideoDecodeAV1PictureInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pstd_picture_info_struct = "NULL";
+    if (structInfo->pStdPictureInfo != NULL) {
+        pstd_picture_info_struct = GenerateStruct_StdVideoDecodeAV1PictureInfo(out,
+                                                                               structInfo->pStdPictureInfo,
+                                                                               metaInfo->pStdPictureInfo->GetMetaStructPointer(),
+                                                                               consumer);
+        pstd_picture_info_struct.insert(0, "&");
+    }
+    std::string ptile_offsets_array = "NULL";
+    if (structInfo->pTileOffsets != NULL) {
+        ptile_offsets_array = "pTileOffsets_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint32_t " << ptile_offsets_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pTileOffsets, structInfo->tileCount) << ";" << std::endl;
+    }
+    std::string ptile_sizes_array = "NULL";
+    if (structInfo->pTileSizes != NULL) {
+        ptile_sizes_array = "pTileSizes_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint32_t " << ptile_sizes_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pTileSizes, structInfo->tileCount) << ";" << std::endl;
+    }
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// pStdPictureInfo
+    struct_body << "\t\t\t" << pstd_picture_info_struct << "," << std::endl;
+// referenceNameSlotIndices
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int32_t*>(&structInfo->referenceNameSlotIndices[0]), VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR) << "," << std::endl;
+// frameHeaderOffset
+    struct_body << "\t\t\t" << structInfo->frameHeaderOffset << "," << std::endl;
+// tileCount
+    struct_body << "\t\t\t" << structInfo->tileCount << "," << std::endl;
+// pTileOffsets
+    struct_body << "\t\t\t" << ptile_offsets_array << "," << std::endl;
+// pTileSizes
+    struct_body << "\t\t\t" << ptile_sizes_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeAV1PictureInfoKHR");
+    out << "\t\t" << "VkVideoDecodeAV1PictureInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoDecodeAV1ProfileInfoKHR(std::ostream &out, const VkVideoDecodeAV1ProfileInfoKHR* structInfo, Decoded_VkVideoDecodeAV1ProfileInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// stdProfile
+    struct_body << "\t\t\t" << "StdVideoAV1Profile(" << structInfo->stdProfile << ")" << "," << std::endl;
+// filmGrainSupport
+    struct_body << "\t\t\t" << structInfo->filmGrainSupport << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeAV1ProfileInfoKHR");
+    out << "\t\t" << "VkVideoDecodeAV1ProfileInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoDecodeAV1SessionParametersCreateInfoKHR(std::ostream &out, const VkVideoDecodeAV1SessionParametersCreateInfoKHR* structInfo, Decoded_VkVideoDecodeAV1SessionParametersCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pstd_sequence_header_struct = "NULL";
+    if (structInfo->pStdSequenceHeader != NULL) {
+        pstd_sequence_header_struct = GenerateStruct_StdVideoAV1SequenceHeader(out,
+                                                                               structInfo->pStdSequenceHeader,
+                                                                               metaInfo->pStdSequenceHeader->GetMetaStructPointer(),
+                                                                               consumer);
+        pstd_sequence_header_struct.insert(0, "&");
+    }
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// pStdSequenceHeader
+    struct_body << "\t\t\t" << pstd_sequence_header_struct << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeAV1SessionParametersCreateInfoKHR");
+    out << "\t\t" << "VkVideoDecodeAV1SessionParametersCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkPhysicalDeviceVideoMaintenance1FeaturesKHR(std::ostream &out, const VkPhysicalDeviceVideoMaintenance1FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -14667,6 +15634,107 @@ std::string GenerateStruct_VkVertexInputBindingDivisorDescriptionKHR(std::ostrea
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceShaderFloatControls2FeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderFloatControls2FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderFloatControls2FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// shaderFloatControls2
+    struct_body << "\t\t\t" << structInfo->shaderFloatControls2 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderFloatControls2FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceShaderFloatControls2FeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceIndexTypeUint8FeaturesKHR(std::ostream &out, const VkPhysicalDeviceIndexTypeUint8FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// indexTypeUint8
+    struct_body << "\t\t\t" << structInfo->indexTypeUint8 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceIndexTypeUint8FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceIndexTypeUint8FeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceLineRasterizationFeaturesKHR(std::ostream &out, const VkPhysicalDeviceLineRasterizationFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceLineRasterizationFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// rectangularLines
+    struct_body << "\t\t\t" << structInfo->rectangularLines << "," << std::endl;
+// bresenhamLines
+    struct_body << "\t\t\t" << structInfo->bresenhamLines << "," << std::endl;
+// smoothLines
+    struct_body << "\t\t\t" << structInfo->smoothLines << "," << std::endl;
+// stippledRectangularLines
+    struct_body << "\t\t\t" << structInfo->stippledRectangularLines << "," << std::endl;
+// stippledBresenhamLines
+    struct_body << "\t\t\t" << structInfo->stippledBresenhamLines << "," << std::endl;
+// stippledSmoothLines
+    struct_body << "\t\t\t" << structInfo->stippledSmoothLines << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceLineRasterizationFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceLineRasterizationFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceLineRasterizationPropertiesKHR(std::ostream &out, const VkPhysicalDeviceLineRasterizationPropertiesKHR* structInfo, Decoded_VkPhysicalDeviceLineRasterizationPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// lineSubPixelPrecisionBits
+    struct_body << "\t\t\t" << structInfo->lineSubPixelPrecisionBits << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceLineRasterizationPropertiesKHR");
+    out << "\t\t" << "VkPhysicalDeviceLineRasterizationPropertiesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPipelineRasterizationLineStateCreateInfoKHR(std::ostream &out, const VkPipelineRasterizationLineStateCreateInfoKHR* structInfo, Decoded_VkPipelineRasterizationLineStateCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// lineRasterizationMode
+    struct_body << "\t\t\t" << "VkLineRasterizationModeKHR(" << structInfo->lineRasterizationMode << ")" << "," << std::endl;
+// stippledLineEnable
+    struct_body << "\t\t\t" << structInfo->stippledLineEnable << "," << std::endl;
+// lineStippleFactor
+    struct_body << "\t\t\t" << structInfo->lineStippleFactor << "," << std::endl;
+// lineStipplePattern
+    struct_body << "\t\t\t" << structInfo->lineStipplePattern << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "pipelineRasterizationLineStateCreateInfoKHR");
+    out << "\t\t" << "VkPipelineRasterizationLineStateCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkCalibratedTimestampInfoKHR(std::ostream &out, const VkCalibratedTimestampInfoKHR* structInfo, Decoded_VkCalibratedTimestampInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -14678,6 +15746,23 @@ std::string GenerateStruct_VkCalibratedTimestampInfoKHR(std::ostream &out, const
     struct_body << "\t\t\t" << "VkTimeDomainKHR(" << structInfo->timeDomain << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "calibratedTimestampInfoKHR");
     out << "\t\t" << "VkCalibratedTimestampInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceShaderExpectAssumeFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderExpectAssumeFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderExpectAssumeFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// shaderExpectAssume
+    struct_body << "\t\t\t" << structInfo->shaderExpectAssume << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderExpectAssumeFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceShaderExpectAssumeFeaturesKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -19042,73 +20127,6 @@ std::string GenerateStruct_VkHeadlessSurfaceCreateInfoEXT(std::ostream &out, con
 }
 
 
-std::string GenerateStruct_VkPhysicalDeviceLineRasterizationFeaturesEXT(std::ostream &out, const VkPhysicalDeviceLineRasterizationFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceLineRasterizationFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-// sType
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-// pNext
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-// rectangularLines
-    struct_body << "\t\t\t" << structInfo->rectangularLines << "," << std::endl;
-// bresenhamLines
-    struct_body << "\t\t\t" << structInfo->bresenhamLines << "," << std::endl;
-// smoothLines
-    struct_body << "\t\t\t" << structInfo->smoothLines << "," << std::endl;
-// stippledRectangularLines
-    struct_body << "\t\t\t" << structInfo->stippledRectangularLines << "," << std::endl;
-// stippledBresenhamLines
-    struct_body << "\t\t\t" << structInfo->stippledBresenhamLines << "," << std::endl;
-// stippledSmoothLines
-    struct_body << "\t\t\t" << structInfo->stippledSmoothLines << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceLineRasterizationFeaturesEXT");
-    out << "\t\t" << "VkPhysicalDeviceLineRasterizationFeaturesEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkPhysicalDeviceLineRasterizationPropertiesEXT(std::ostream &out, const VkPhysicalDeviceLineRasterizationPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceLineRasterizationPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-// sType
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-// pNext
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-// lineSubPixelPrecisionBits
-    struct_body << "\t\t\t" << structInfo->lineSubPixelPrecisionBits << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceLineRasterizationPropertiesEXT");
-    out << "\t\t" << "VkPhysicalDeviceLineRasterizationPropertiesEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkPipelineRasterizationLineStateCreateInfoEXT(std::ostream &out, const VkPipelineRasterizationLineStateCreateInfoEXT* structInfo, Decoded_VkPipelineRasterizationLineStateCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-// sType
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-// pNext
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-// lineRasterizationMode
-    struct_body << "\t\t\t" << "VkLineRasterizationModeEXT(" << structInfo->lineRasterizationMode << ")" << "," << std::endl;
-// stippledLineEnable
-    struct_body << "\t\t\t" << structInfo->stippledLineEnable << "," << std::endl;
-// lineStippleFactor
-    struct_body << "\t\t\t" << structInfo->lineStippleFactor << "," << std::endl;
-// lineStipplePattern
-    struct_body << "\t\t\t" << structInfo->lineStipplePattern << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "pipelineRasterizationLineStateCreateInfoEXT");
-    out << "\t\t" << "VkPipelineRasterizationLineStateCreateInfoEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT(std::ostream &out, const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -19142,23 +20160,6 @@ std::string GenerateStruct_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT(std::ost
     struct_body << "\t\t\t" << structInfo->sparseImageFloat32AtomicAdd << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderAtomicFloatFeaturesEXT");
     out << "\t\t" << "VkPhysicalDeviceShaderAtomicFloatFeaturesEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkPhysicalDeviceIndexTypeUint8FeaturesEXT(std::ostream &out, const VkPhysicalDeviceIndexTypeUint8FeaturesEXT* structInfo, Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-// sType
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-// pNext
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-// indexTypeUint8
-    struct_body << "\t\t\t" << structInfo->indexTypeUint8 << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceIndexTypeUint8FeaturesEXT");
-    out << "\t\t" << "VkPhysicalDeviceIndexTypeUint8FeaturesEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -19506,6 +20507,61 @@ std::string GenerateStruct_VkSubresourceHostMemcpySizeEXT(std::ostream &out, con
     struct_body << "\t\t\t" << structInfo->size << "UL" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "subresourceHostMemcpySizeEXT");
     out << "\t\t" << "VkSubresourceHostMemcpySizeEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkMemoryMapPlacedInfoEXT(std::ostream &out, const VkMemoryMapPlacedInfoEXT* structInfo, Decoded_VkMemoryMapPlacedInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// pPlacedAddress
+    out << "\t\t" << "// TODO: Support pPlacedAddress (output?) argument." << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "memoryMapPlacedInfoEXT");
+    out << "\t\t" << "VkMemoryMapPlacedInfoEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT(std::ostream &out, const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// memoryMapPlaced
+    struct_body << "\t\t\t" << structInfo->memoryMapPlaced << "," << std::endl;
+// memoryMapRangePlaced
+    struct_body << "\t\t\t" << structInfo->memoryMapRangePlaced << "," << std::endl;
+// memoryUnmapReserve
+    struct_body << "\t\t\t" << structInfo->memoryUnmapReserve << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceMapMemoryPlacedFeaturesEXT");
+    out << "\t\t" << "VkPhysicalDeviceMapMemoryPlacedFeaturesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT(std::ostream &out, const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// minPlacedMemoryMapAlignment
+    struct_body << "\t\t\t" << structInfo->minPlacedMemoryMapAlignment << "UL" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceMapMemoryPlacedPropertiesEXT");
+    out << "\t\t" << "VkPhysicalDeviceMapMemoryPlacedPropertiesEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -24629,6 +25685,57 @@ std::string GenerateStruct_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesN
     struct_body << "\t\t\t" << structInfo->descriptorPoolOverallocation << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceDescriptorPoolOverallocationFeaturesNV");
     out << "\t\t" << "VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceRawAccessChainsFeaturesNV(std::ostream &out, const VkPhysicalDeviceRawAccessChainsFeaturesNV* structInfo, Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// shaderRawAccessChains
+    struct_body << "\t\t\t" << structInfo->shaderRawAccessChains << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceRawAccessChainsFeaturesNV");
+    out << "\t\t" << "VkPhysicalDeviceRawAccessChainsFeaturesNV " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV(std::ostream &out, const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* structInfo, Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// shaderFloat16VectorAtomics
+    struct_body << "\t\t\t" << structInfo->shaderFloat16VectorAtomics << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderAtomicFloat16VectorFeaturesNV");
+    out << "\t\t" << "VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceRayTracingValidationFeaturesNV(std::ostream &out, const VkPhysicalDeviceRayTracingValidationFeaturesNV* structInfo, Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+// sType
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+// pNext
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+// rayTracingValidation
+    struct_body << "\t\t\t" << structInfo->rayTracingValidation << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceRayTracingValidationFeaturesNV");
+    out << "\t\t" << "VkPhysicalDeviceRayTracingValidationFeaturesNV " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;

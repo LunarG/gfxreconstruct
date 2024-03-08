@@ -2930,6 +2930,26 @@ std::string VulkanCppConsumerBase::BuildValue(const VkPipelineExecutableStatisti
     return output.str();
 }
 
+std::string VulkanCppConsumerBase::BuildValue(const StdVideoAV1FrameRestorationType value)
+{
+    std::stringstream output;
+    output << "(StdVideoAV1FrameRestorationType){ " << util::ToString<StdVideoAV1FrameRestorationType>(value) << "}";
+    return output.str();
+}
+
+std::string VulkanCppConsumerBase::BuildValue(const StdVideoAV1FrameRestorationType* values, uint32_t count)
+{
+    std::stringstream output;
+    output << "{";
+    for (uint32_t idx = 0; idx < count; idx++)
+    {
+        output << VulkanCppConsumerBase::BuildValue(values[idx]) << ", ";
+    }
+    output << "}";
+
+    return output.str();
+}
+
 const GfxToCppPlatform getGfxToCppPlatform(const std::string& format_str)
 {
     for (const PlatformTargets& entry : kValidTargetPlatforms)
