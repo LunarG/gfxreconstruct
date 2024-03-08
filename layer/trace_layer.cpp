@@ -766,6 +766,16 @@ extern "C"
         apiLayerRequest->getInstanceProcAddr   = gfxrecon::OpenXrGetInstanceProcAddr;
         return XR_SUCCESS;
     }
+#else
+
+    // This is a stub to satisfy Windows exports (in the .def file) when ENABLE_OPENXR_SUPPORT is false
+    VKAPI_ATTR uint32_t VKAPI_CALL xrNegotiateLoaderApiLayerInterface(const void* loaderInfo,
+                                                                      const char* layerName,
+                                                                      void*       apiLayerRequest)
+    {
+        return -1; // XR_ERROR_VALIDATION_FAILURE
+    }
+
 #endif // ENABLE_OPENXR_SUPPORT
 
 } // extern "C"
