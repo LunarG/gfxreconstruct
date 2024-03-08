@@ -305,7 +305,7 @@ if __name__ == "__main__":
 
                     #Spawn a thread for each virtual CPU
                     print("Processing json captures...")
-                    cpu_count = os.cpu_count() / 4
+                    cpu_count = int(os.cpu_count() / 4)
                     threads = []
                     paths_per_thread = int(iterations / cpu_count)
                     print("paths_per_thread: %i" % paths_per_thread)
