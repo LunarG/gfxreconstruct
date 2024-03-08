@@ -1287,7 +1287,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLayeredDriver
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRawAccessChainsFeaturesNV& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingValidationFeaturesNV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);

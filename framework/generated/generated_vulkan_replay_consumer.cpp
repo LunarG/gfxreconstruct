@@ -13311,9 +13311,19 @@ static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, V
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRawAccessChainsFeaturesNV>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRayTracingValidationFeaturesNV>());
                 break;
             }
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:

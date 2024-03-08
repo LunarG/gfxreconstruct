@@ -2520,9 +2520,17 @@ struct Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* wrapper);
 
+struct Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV* wrapper);
+
 struct Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* wrapper);
+
+struct Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV* wrapper);
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR;
 struct Decoded_VkAccelerationStructureGeometryTrianglesDataKHR;
