@@ -58,16 +58,16 @@ class VulkanStateWriter
     // Data structures for processing resource memory snapshots.
     struct BufferSnapshotInfo
     {
-        const VulkanBufferWrapper*       buffer_wrapper{ nullptr };
-        const VulkanDeviceMemoryWrapper* memory_wrapper{ nullptr };
+        const vulkan_wrappers::BufferWrapper*       buffer_wrapper{ nullptr };
+        const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper{ nullptr };
         VkMemoryPropertyFlags            memory_properties{};
         bool                             need_staging_copy{ false };
     };
 
     struct ImageSnapshotInfo
     {
-        const VulkanImageWrapper*        image_wrapper{ nullptr };
-        const VulkanDeviceMemoryWrapper* memory_wrapper{ nullptr };
+        const vulkan_wrappers::ImageWrapper*        image_wrapper{ nullptr };
+        const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper{ nullptr };
         VkMemoryPropertyFlags            memory_properties{};
         bool                             need_staging_copy{ false };
         VkImageAspectFlagBits            aspect{};
@@ -82,7 +82,8 @@ class VulkanStateWriter
     };
 
     typedef std::unordered_map<uint32_t, ResourceSnapshotInfo> ResourceSnapshotQueueFamilyTable;
-    typedef std::unordered_map<const VulkanDeviceWrapper*, ResourceSnapshotQueueFamilyTable> DeviceResourceTables;
+    typedef std::unordered_map<const vulkan_wrappers::DeviceWrapper*, ResourceSnapshotQueueFamilyTable>
+        DeviceResourceTables;
 
     struct QueryActivationData
     {
@@ -144,11 +145,11 @@ class VulkanStateWriter
     void
     ProcessHardwareBuffer(format::HandleId memory_id, AHardwareBuffer* hardware_buffer, VkDeviceSize allocation_size);
 
-    void ProcessBufferMemory(const VulkanDeviceWrapper*             device_wrapper,
+    void ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
                              graphics::VulkanResourcesUtil&         resource_util);
 
-    void ProcessImageMemory(const VulkanDeviceWrapper*            device_wrapper,
+    void ProcessImageMemory(const vulkan_wrappers::DeviceWrapper* device_wrapper,
                             const std::vector<ImageSnapshotInfo>& image_snapshot_info,
                             graphics::VulkanResourcesUtil&        resource_util);
 
@@ -162,7 +163,8 @@ class VulkanStateWriter
                                VkDeviceSize*           max_resource_size,
                                VkDeviceSize*           max_staging_copy_size);
 
-    void WriteImageSubresourceLayouts(const VulkanImageWrapper* image_wrapper, VkImageAspectFlags aspect_flags);
+    void WriteImageSubresourceLayouts(const vulkan_wrappers::ImageWrapper* image_wrapper,
+                                      VkImageAspectFlags                   aspect_flags);
 
     void WriteResourceMemoryState(const VulkanStateTable& state_table);
 
@@ -170,7 +172,7 @@ class VulkanStateWriter
 
     void WriteSwapchainImageState(const VulkanStateTable& state_table);
 
-    void WritePhysicalDevicePropertiesMetaData(const VulkanPhysicalDeviceWrapper* physical_device_wrapper);
+    void WritePhysicalDevicePropertiesMetaData(const vulkan_wrappers::PhysicalDeviceWrapper* physical_device_wrapper);
 
     template <typename T>
     void WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiCallId call_id,
@@ -183,25 +185,25 @@ class VulkanStateWriter
                                               format::HandleId surface_id,
                                               VkBool32         supported);
 
-    void WriteGetPhysicalDeviceSurfaceCapabilities(format::HandleId                 physical_device_id,
-                                                   format::HandleId                 surface_id,
-                                                   const VulkanSurfaceCapabilities& capabilities,
-                                                   const VulkanStateTable&          state_table);
+    void WriteGetPhysicalDeviceSurfaceCapabilities(format::HandleId                            physical_device_id,
+                                                   format::HandleId                            surface_id,
+                                                   const vulkan_wrappers::SurfaceCapabilities& capabilities,
+                                                   const VulkanStateTable&                     state_table);
 
-    void WriteGetPhysicalDeviceSurfaceFormats(format::HandleId            physical_device_id,
-                                              format::HandleId            surface_id,
-                                              const VulkanSurfaceFormats& formats,
-                                              const VulkanStateTable&     state_table);
+    void WriteGetPhysicalDeviceSurfaceFormats(format::HandleId                       physical_device_id,
+                                              format::HandleId                       surface_id,
+                                              const vulkan_wrappers::SurfaceFormats& formats,
+                                              const VulkanStateTable&                state_table);
 
-    void WriteGetPhysicalDeviceSurfacePresentModes(format::HandleId                 physical_device_id,
-                                                   format::HandleId                 surface_id,
-                                                   const VulkanSurfacePresentModes& present_modes,
-                                                   const VulkanStateTable&          state_table);
+    void WriteGetPhysicalDeviceSurfacePresentModes(format::HandleId                            physical_device_id,
+                                                   format::HandleId                            surface_id,
+                                                   const vulkan_wrappers::SurfacePresentModes& present_modes,
+                                                   const VulkanStateTable&                     state_table);
 
-    void WriteGetDeviceGroupSurfacePresentModes(format::HandleId                      device_id,
-                                                format::HandleId                      surface_id,
-                                                const VulkanGroupSurfacePresentModes& present_modes,
-                                                const VulkanStateTable&               state_table);
+    void WriteGetDeviceGroupSurfacePresentModes(format::HandleId                                 device_id,
+                                                format::HandleId                                 surface_id,
+                                                const vulkan_wrappers::GroupSurfacePresentModes& present_modes,
+                                                const VulkanStateTable&                          state_table);
 
     void WriteCommandProcessingCreateCommands(format::HandleId device_id,
                                               uint32_t         queue_family_index,
@@ -227,14 +229,15 @@ class VulkanStateWriter
         WriteCommandExecution(queue_id, 1, &command_buffer_id, 0, nullptr, 0, nullptr, nullptr);
     }
 
-    void WriteCommandBufferCommands(const VulkanCommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
+    void WriteCommandBufferCommands(const vulkan_wrappers::CommandBufferWrapper* wrapper,
+                                    const VulkanStateTable&                      state_table);
 
-    void WriteDescriptorUpdateCommand(format::HandleId      device_id,
-                                      const DescriptorInfo* binding,
-                                      VkWriteDescriptorSet* write);
+    void WriteDescriptorUpdateCommand(format::HandleId                         device_id,
+                                      const vulkan_state_info::DescriptorInfo* binding,
+                                      VkWriteDescriptorSet*                    write);
 
-    void WriteQueryPoolReset(format::HandleId                                  device_id,
-                             const std::vector<const VulkanQueryPoolWrapper*>& query_pool_wrappers);
+    void WriteQueryPoolReset(format::HandleId                                             device_id,
+                             const std::vector<const vulkan_wrappers::QueryPoolWrapper*>& query_pool_wrappers);
 
     void WriteQueryActivation(format::HandleId           device_id,
                               uint32_t                   queue_family_index,
@@ -307,25 +310,26 @@ class VulkanStateWriter
         });
     }
 
-    VkMemoryPropertyFlags GetMemoryProperties(const VulkanDeviceWrapper*       device_wrapper,
-                                              const VulkanDeviceMemoryWrapper* memory_wrapper);
+    VkMemoryPropertyFlags GetMemoryProperties(const vulkan_wrappers::DeviceWrapper*       device_wrapper,
+                                              const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper);
 
-    void InvalidateMappedMemoryRange(const VulkanDeviceWrapper* device_wrapper,
-                                     VkDeviceMemory             memory,
-                                     VkDeviceSize               offset,
-                                     VkDeviceSize               size);
+    void InvalidateMappedMemoryRange(const vulkan_wrappers::DeviceWrapper* device_wrapper,
+                                     VkDeviceMemory                        memory,
+                                     VkDeviceSize                          offset,
+                                     VkDeviceSize                          size);
 
-    void GetFenceStatus(const VulkanDeviceWrapper* device_wrapper, VkFence fence, bool* result);
+    void GetFenceStatus(const vulkan_wrappers::DeviceWrapper* device_wrapper, VkFence fence, bool* result);
 
-    bool CheckCommandHandles(const VulkanCommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
+    bool CheckCommandHandles(const vulkan_wrappers::CommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
 
-    bool
-    CheckCommandHandle(CommandHandleType handle_type, format::HandleId handle, const VulkanStateTable& state_table);
+    bool CheckCommandHandle(vulkan_state_info::CommandHandleType handle_type,
+                            format::HandleId                     handle,
+                            const VulkanStateTable&              state_table);
 
-    bool CheckDescriptorStatus(const DescriptorInfo*   descriptor,
-                               uint32_t                index,
-                               const VulkanStateTable& state_table,
-                               VkDescriptorType*       descriptor_type);
+    bool CheckDescriptorStatus(const vulkan_state_info::DescriptorInfo* descriptor,
+                               uint32_t                                 index,
+                               const VulkanStateTable&                  state_table,
+                               VkDescriptorType*                        descriptor_type);
 
     bool IsBufferValid(format::HandleId buffer_id, const VulkanStateTable& state_table);
 
@@ -337,7 +341,8 @@ class VulkanStateWriter
 
     bool IsFramebufferValid(format::HandleId framebuffer_id, const VulkanStateTable& state_table);
 
-    bool IsFramebufferValid(const VulkanFramebufferWrapper* framebuffer_wrapper, const VulkanStateTable& state_table);
+    bool IsFramebufferValid(const vulkan_wrappers::FramebufferWrapper* framebuffer_wrapper,
+                            const VulkanStateTable&                    state_table);
 
     void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
 

@@ -58,13 +58,13 @@ typedef format::HandleId (*PFN_GetHandleId)();
 extern VulkanStateHandleTable state_handle_table_;
 
 template <typename Wrapper>
-format::HandleId GetTempWrapperId(const typename Wrapper::HandleType& handle)
+format::HandleId GetTempVulkanWrapperId(const typename Wrapper::HandleType& handle)
 {
     return 0;
 }
 
 template <>
-inline format::HandleId GetTempWrapperId<VulkanCommandPoolWrapper>(const VkCommandPool& handle)
+inline format::HandleId GetTempVulkanWrapperId<vulkan_wrappers::CommandPoolWrapper>(const VkCommandPool& handle)
 {
     if (handle == kTempCommandPool)
     {
@@ -74,13 +74,13 @@ inline format::HandleId GetTempWrapperId<VulkanCommandPoolWrapper>(const VkComma
 }
 
 template <typename Wrapper>
-format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
+format::HandleId GetVulkanWrappedId(const typename Wrapper::HandleType& handle)
 {
     if (handle == VK_NULL_HANDLE)
     {
         return format::kNullHandleId;
     }
-    auto temp_id = GetTempWrapperId<Wrapper>(handle);
+    auto temp_id = GetTempVulkanWrapperId<Wrapper>(handle);
     if (temp_id != 0)
     {
         return temp_id;
@@ -89,15 +89,15 @@ format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
     auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("GetWrappedId() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed",
-                             handle);
+        GFXRECON_LOG_WARNING(
+            "GetVulkanWrappedId() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed", handle);
         return format::kNullHandleId;
     }
     return wrapper->handle_id;
 }
 
 template <typename Wrapper>
-Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
+Wrapper* GetVulkanWrapper(const typename Wrapper::HandleType& handle)
 {
     if (handle == VK_NULL_HANDLE)
     {
@@ -106,33 +106,33 @@ Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
     auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("GetWrapper() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed",
-                             handle);
+        GFXRECON_LOG_WARNING(
+            "GetVulkanWrapper() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed", handle);
     }
     return wrapper;
 }
 
 template <typename Wrapper>
-bool RemoveWrapper(const Wrapper* wrapper)
+bool RemoveVulkanWrapper(const Wrapper* wrapper)
 {
     return state_handle_table_.RemoveWrapper(wrapper);
 }
 
-uint64_t GetWrappedId(uint64_t, VkObjectType object_type);
+uint64_t GetVulkanWrappedId(uint64_t, VkObjectType object_type);
 
-uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type);
+uint64_t GetVulkanWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type);
 
 inline const VulkanInstanceTable* GetVulkanInstanceTable(VkInstance handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = GetWrapper<VulkanInstanceWrapper>(handle);
+    auto wrapper = GetVulkanWrapper<vulkan_wrappers::InstanceWrapper>(handle);
     return &wrapper->layer_table;
 }
 
 inline const VulkanInstanceTable* GetVulkanInstanceTable(VkPhysicalDevice handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = GetWrapper<VulkanPhysicalDeviceWrapper>(handle);
+    auto wrapper = GetVulkanWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
@@ -140,14 +140,14 @@ inline const VulkanInstanceTable* GetVulkanInstanceTable(VkPhysicalDevice handle
 inline const VulkanDeviceTable* GetVulkanDeviceTable(VkDevice handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = GetWrapper<VulkanDeviceWrapper>(handle);
+    auto wrapper = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(handle);
     return &wrapper->layer_table;
 }
 
 inline const VulkanDeviceTable* GetVulkanDeviceTable(VkQueue handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = GetWrapper<VulkanQueueWrapper>(handle);
+    auto wrapper = GetVulkanWrapper<vulkan_wrappers::QueueWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
@@ -155,21 +155,21 @@ inline const VulkanDeviceTable* GetVulkanDeviceTable(VkQueue handle)
 inline const VulkanDeviceTable* GetVulkanDeviceTable(VkCommandBuffer handle)
 {
     assert(handle != VK_NULL_HANDLE);
-    auto wrapper = GetWrapper<VulkanCommandBufferWrapper>(handle);
+    auto wrapper = GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
 // Wrapper for create wrapper template instantiations that do not make use of all handle parameters.
-struct VulkanNoParentWrapper : public VulkanHandleWrapper<void*>
+struct VulkanNoParentWrapper : public vulkan_wrappers::HandleWrapper<void*>
 {
     static constexpr void* kHandleValue{ VK_NULL_HANDLE };
 };
 
 template <typename VulkanParentWrapper, typename Wrapper>
-void CreateWrappedDispatchHandle(typename VulkanParentWrapper::HandleType parent,
-                                 typename Wrapper::HandleType*            handle,
-                                 PFN_GetHandleId                          get_id)
+void CreateWrappedDispatchVulkanHandle(typename VulkanParentWrapper::HandleType parent,
+                                       typename Wrapper::HandleType*            handle,
+                                       PFN_GetHandleId                          get_id)
 {
     ScopedDestroyLock shared_scoped_lock(true);
     assert(handle != nullptr);
@@ -199,7 +199,7 @@ void CreateWrappedDispatchHandle(typename VulkanParentWrapper::HandleType parent
 }
 
 template <typename Wrapper>
-void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
+void CreateWrappedNonDispatchVulkanHandle(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
 {
     ScopedDestroyLock shared_scoped_lock(false);
     assert(handle != nullptr);
@@ -218,27 +218,29 @@ void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_Ge
 }
 
 template <typename VulkanParentWrapper, typename VulkanCoParentWrapper, typename Wrapper>
-void CreateWrappedHandle(typename VulkanParentWrapper::HandleType,   // Unused by default case.
-                         typename VulkanCoParentWrapper::HandleType, // Unused by default case.
-                         typename Wrapper::HandleType* handle,
-                         PFN_GetHandleId               get_id)
+void CreateWrappedVulkanHandle(typename VulkanParentWrapper::HandleType,   // Unused by default case.
+                               typename VulkanCoParentWrapper::HandleType, // Unused by default case.
+                               typename Wrapper::HandleType* handle,
+                               PFN_GetHandleId               get_id)
 {
-    CreateWrappedNonDispatchHandle<Wrapper>(handle, get_id);
+    CreateWrappedNonDispatchVulkanHandle<Wrapper>(handle, get_id);
 }
 
 template <>
-inline void CreateWrappedHandle<VulkanNoParentWrapper, VulkanNoParentWrapper, VulkanInstanceWrapper>(
+inline void CreateWrappedVulkanHandle<VulkanNoParentWrapper, VulkanNoParentWrapper, vulkan_wrappers::InstanceWrapper>(
     VulkanNoParentWrapper::HandleType, // VkInstance does not have a parent.
     VulkanNoParentWrapper::HandleType, // VkInstance does not have a co-parent.
     VkInstance*     handle,
     PFN_GetHandleId get_id)
 {
-    CreateWrappedDispatchHandle<VulkanNoParentWrapper, VulkanInstanceWrapper>(
+    CreateWrappedDispatchVulkanHandle<VulkanNoParentWrapper, vulkan_wrappers::InstanceWrapper>(
         VulkanNoParentWrapper::kHandleValue, handle, get_id);
 }
 
 template <>
-inline void CreateWrappedHandle<VulkanInstanceWrapper, VulkanNoParentWrapper, VulkanPhysicalDeviceWrapper>(
+inline void CreateWrappedVulkanHandle<vulkan_wrappers::InstanceWrapper,
+                                      VulkanNoParentWrapper,
+                                      vulkan_wrappers::PhysicalDeviceWrapper>(
     VkInstance parent,
     VulkanNoParentWrapper::HandleType, // VkPhysicalDevice does not have a co-parent.
     VkPhysicalDevice* handle,
@@ -247,10 +249,10 @@ inline void CreateWrappedHandle<VulkanInstanceWrapper, VulkanNoParentWrapper, Vu
     assert(parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetWrapper<VulkanInstanceWrapper>(parent);
+    auto parent_wrapper = GetVulkanWrapper<vulkan_wrappers::InstanceWrapper>(parent);
 
     // Filter duplicate physical device retrieval.
-    VulkanPhysicalDeviceWrapper* wrapper = nullptr;
+    vulkan_wrappers::PhysicalDeviceWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_physical_devices)
     {
         if (entry->handle == (*handle))
@@ -262,35 +264,41 @@ inline void CreateWrappedHandle<VulkanInstanceWrapper, VulkanNoParentWrapper, Vu
 
     if (wrapper == nullptr)
     {
-        CreateWrappedDispatchHandle<VulkanInstanceWrapper, VulkanPhysicalDeviceWrapper>(parent, handle, get_id);
+        CreateWrappedDispatchVulkanHandle<vulkan_wrappers::InstanceWrapper, vulkan_wrappers::PhysicalDeviceWrapper>(
+            parent, handle, get_id);
 
-        wrapper                  = GetWrapper<VulkanPhysicalDeviceWrapper>(*handle);
+        wrapper                  = GetVulkanWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_physical_devices.push_back(wrapper);
     }
 }
 
 template <>
-inline void CreateWrappedHandle<VulkanPhysicalDeviceWrapper, VulkanNoParentWrapper, VulkanDeviceWrapper>(
+inline void CreateWrappedVulkanHandle<vulkan_wrappers::PhysicalDeviceWrapper,
+                                      VulkanNoParentWrapper,
+                                      vulkan_wrappers::DeviceWrapper>(
     VkPhysicalDevice,                  // Unused for device creation.
     VulkanNoParentWrapper::HandleType, // VkDevice does not have a co-parent.
     VkDevice*       handle,
     PFN_GetHandleId get_id)
 {
-    CreateWrappedDispatchHandle<VulkanPhysicalDeviceWrapper, VulkanDeviceWrapper>(VK_NULL_HANDLE, handle, get_id);
+    CreateWrappedDispatchVulkanHandle<vulkan_wrappers::PhysicalDeviceWrapper, vulkan_wrappers::DeviceWrapper>(
+        VK_NULL_HANDLE, handle, get_id);
 }
 
 template <>
-inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanNoParentWrapper, VulkanDeviceMemoryWrapper>(
+inline void
+CreateWrappedVulkanHandle<vulkan_wrappers::DeviceWrapper, VulkanNoParentWrapper, vulkan_wrappers::DeviceMemoryWrapper>(
     VkDevice device, VulkanNoParentWrapper::HandleType, VkDeviceMemory* handle, PFN_GetHandleId get_id)
 {
-    CreateWrappedNonDispatchHandle<VulkanDeviceMemoryWrapper>(handle, get_id);
-    auto memory_wrapper           = GetWrapper<VulkanDeviceMemoryWrapper>(*handle);
-    memory_wrapper->parent_device = GetWrapper<VulkanDeviceWrapper>(device);
+    CreateWrappedNonDispatchVulkanHandle<vulkan_wrappers::DeviceMemoryWrapper>(handle, get_id);
+    auto memory_wrapper           = GetVulkanWrapper<vulkan_wrappers::DeviceMemoryWrapper>(*handle);
+    memory_wrapper->parent_device = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(device);
 }
 
 template <>
-inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanNoParentWrapper, VulkanQueueWrapper>(
+inline void
+CreateWrappedVulkanHandle<vulkan_wrappers::DeviceWrapper, VulkanNoParentWrapper, vulkan_wrappers::QueueWrapper>(
     VkDevice parent,
     VulkanNoParentWrapper::HandleType, // VkQueue does not have a co-parent.
     VkQueue*        handle,
@@ -299,10 +307,10 @@ inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanNoParentWrapper, Vulk
     assert(parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetWrapper<VulkanDeviceWrapper>(parent);
+    auto parent_wrapper = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent);
 
     // Filter duplicate physical device retrieval.
-    VulkanQueueWrapper* wrapper = nullptr;
+    vulkan_wrappers::QueueWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_queues)
     {
         if (entry->handle == (*handle))
@@ -314,28 +322,34 @@ inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanNoParentWrapper, Vulk
 
     if (wrapper == nullptr)
     {
-        CreateWrappedDispatchHandle<VulkanDeviceWrapper, VulkanQueueWrapper>(parent, handle, get_id);
+        CreateWrappedDispatchVulkanHandle<vulkan_wrappers::DeviceWrapper, vulkan_wrappers::QueueWrapper>(
+            parent, handle, get_id);
 
-        wrapper                  = GetWrapper<VulkanQueueWrapper>(*handle);
+        wrapper                  = GetVulkanWrapper<vulkan_wrappers::QueueWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_queues.push_back(wrapper);
     }
 }
 
 template <>
-inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanCommandPoolWrapper, VulkanCommandBufferWrapper>(
-    VkDevice parent, VkCommandPool co_parent, VkCommandBuffer* handle, PFN_GetHandleId get_id)
+inline void CreateWrappedVulkanHandle<vulkan_wrappers::DeviceWrapper,
+                                      vulkan_wrappers::CommandPoolWrapper,
+                                      vulkan_wrappers::CommandBufferWrapper>(VkDevice         parent,
+                                                                             VkCommandPool    co_parent,
+                                                                             VkCommandBuffer* handle,
+                                                                             PFN_GetHandleId  get_id)
 {
     assert(co_parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    CreateWrappedDispatchHandle<VulkanDeviceWrapper, VulkanCommandBufferWrapper>(parent, handle, get_id);
+    CreateWrappedDispatchVulkanHandle<vulkan_wrappers::DeviceWrapper, vulkan_wrappers::CommandBufferWrapper>(
+        parent, handle, get_id);
 
     // The command pool must keep track of allocated command buffers, whose wrappers will need to be destroyed when the
     // pool is destroyed.
-    auto parent_wrapper    = GetWrapper<VulkanDeviceWrapper>(parent);
-    auto co_parent_wrapper = GetWrapper<VulkanCommandPoolWrapper>(co_parent);
-    auto wrapper           = GetWrapper<VulkanCommandBufferWrapper>(*handle);
+    auto parent_wrapper    = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent);
+    auto co_parent_wrapper = GetVulkanWrapper<vulkan_wrappers::CommandPoolWrapper>(co_parent);
+    auto wrapper           = GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(*handle);
 
     wrapper->layer_table_ref = &parent_wrapper->layer_table;
     wrapper->parent_pool     = co_parent_wrapper;
@@ -343,21 +357,23 @@ inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanCommandPoolWrapper, V
 }
 
 template <>
-inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanDescriptorPoolWrapper, VulkanDescriptorSetWrapper>(
-    VkDevice, // Unused for descriptor set creation.
-    VkDescriptorPool co_parent,
-    VkDescriptorSet* handle,
-    PFN_GetHandleId  get_id)
+inline void
+CreateWrappedVulkanHandle<vulkan_wrappers::DeviceWrapper,
+                          vulkan_wrappers::DescriptorPoolWrapper,
+                          vulkan_wrappers::DescriptorSetWrapper>(VkDevice, // Unused for descriptor set creation.
+                                                                 VkDescriptorPool co_parent,
+                                                                 VkDescriptorSet* handle,
+                                                                 PFN_GetHandleId  get_id)
 {
     assert(co_parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    CreateWrappedNonDispatchHandle<VulkanDescriptorSetWrapper>(handle, get_id);
+    CreateWrappedNonDispatchVulkanHandle<vulkan_wrappers::DescriptorSetWrapper>(handle, get_id);
 
     // The descriptor pool must keep track of allocated command buffers, whose wrappers will need to be destroyed when
     // the pool is destroyed.
-    auto parent_wrapper = GetWrapper<VulkanDescriptorPoolWrapper>(co_parent);
-    auto wrapper        = GetWrapper<VulkanDescriptorSetWrapper>(*handle);
+    auto parent_wrapper = GetVulkanWrapper<vulkan_wrappers::DescriptorPoolWrapper>(co_parent);
+    auto wrapper        = GetVulkanWrapper<vulkan_wrappers::DescriptorSetWrapper>(*handle);
 
     parent_wrapper->child_sets.insert(std::make_pair(wrapper->handle_id, wrapper));
     wrapper->parent_pool = parent_wrapper;
@@ -366,7 +382,9 @@ inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanDescriptorPoolWrapper
 // Override for display retrieval, which requires the handle wrapper to be owned by a parent to ensure
 // the wrapper memory is released when the parent is destroyed.
 template <>
-inline void CreateWrappedHandle<VulkanPhysicalDeviceWrapper, VulkanNoParentWrapper, VulkanDisplayKHRWrapper>(
+inline void CreateWrappedVulkanHandle<vulkan_wrappers::PhysicalDeviceWrapper,
+                                      VulkanNoParentWrapper,
+                                      vulkan_wrappers::DisplayKHRWrapper>(
     VkPhysicalDevice parent,
     VulkanNoParentWrapper::HandleType, // VkDisplayKHR does not have a co-parent.
     VkDisplayKHR*   handle,
@@ -379,10 +397,10 @@ inline void CreateWrappedHandle<VulkanPhysicalDeviceWrapper, VulkanNoParentWrapp
     if ((*handle) != VK_NULL_HANDLE)
     {
         assert(parent != VK_NULL_HANDLE);
-        auto parent_wrapper = GetWrapper<VulkanPhysicalDeviceWrapper>(parent);
+        auto parent_wrapper = GetVulkanWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(parent);
 
         // Filter duplicate display retrieval.
-        VulkanDisplayKHRWrapper* wrapper = nullptr;
+        vulkan_wrappers::DisplayKHRWrapper* wrapper = nullptr;
         for (auto entry : parent_wrapper->child_displays)
         {
             if (entry->handle == (*handle))
@@ -394,8 +412,8 @@ inline void CreateWrappedHandle<VulkanPhysicalDeviceWrapper, VulkanNoParentWrapp
 
         if (wrapper == nullptr)
         {
-            CreateWrappedNonDispatchHandle<VulkanDisplayKHRWrapper>(handle, get_id);
-            wrapper = GetWrapper<VulkanDisplayKHRWrapper>(*handle);
+            CreateWrappedNonDispatchVulkanHandle<vulkan_wrappers::DisplayKHRWrapper>(handle, get_id);
+            wrapper = GetVulkanWrapper<vulkan_wrappers::DisplayKHRWrapper>(*handle);
             parent_wrapper->child_displays.push_back(wrapper);
         }
     }
@@ -404,19 +422,20 @@ inline void CreateWrappedHandle<VulkanPhysicalDeviceWrapper, VulkanNoParentWrapp
 // Override for images retrieved from a swapchain, which requires the handle wrapper to be owned by a parent to ensure
 // the wrapper memory is released when the parent is destroyed.
 template <>
-inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanSwapchainKHRWrapper, VulkanImageWrapper>(
-    VkDevice, // Unused for swapchain image retrieval.
-    VkSwapchainKHR  co_parent,
-    VkImage*        handle,
-    PFN_GetHandleId get_id)
+inline void CreateWrappedVulkanHandle<vulkan_wrappers::DeviceWrapper,
+                                      vulkan_wrappers::SwapchainKHRWrapper,
+                                      vulkan_wrappers::ImageWrapper>(VkDevice, // Unused for swapchain image retrieval.
+                                                                     VkSwapchainKHR  co_parent,
+                                                                     VkImage*        handle,
+                                                                     PFN_GetHandleId get_id)
 {
     assert(co_parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetWrapper<VulkanSwapchainKHRWrapper>(co_parent);
+    auto parent_wrapper = GetVulkanWrapper<vulkan_wrappers::SwapchainKHRWrapper>(co_parent);
 
     // Filter duplicate display retrieval.
-    VulkanImageWrapper* wrapper = nullptr;
+    vulkan_wrappers::ImageWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_images)
     {
         if (entry->handle == (*handle))
@@ -428,8 +447,8 @@ inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanSwapchainKHRWrapper, 
 
     if (wrapper == nullptr)
     {
-        CreateWrappedNonDispatchHandle<VulkanImageWrapper>(handle, get_id);
-        wrapper                     = GetWrapper<VulkanImageWrapper>(*handle);
+        CreateWrappedNonDispatchVulkanHandle<vulkan_wrappers::ImageWrapper>(handle, get_id);
+        wrapper                     = GetVulkanWrapper<vulkan_wrappers::ImageWrapper>(*handle);
         wrapper->is_swapchain_image = true;
         wrapper->parent_swapchains.insert(co_parent);
         parent_wrapper->child_images.push_back(wrapper);
@@ -439,19 +458,21 @@ inline void CreateWrappedHandle<VulkanDeviceWrapper, VulkanSwapchainKHRWrapper, 
 // Override for display mode creation/retrieval, which requires the handle wrapper to be owned by a parent to ensure
 // the wrapper memory is released when the parent is destroyed.
 template <>
-inline void CreateWrappedHandle<VulkanPhysicalDeviceWrapper, VulkanDisplayKHRWrapper, VulkanDisplayModeKHRWrapper>(
-    VkPhysicalDevice, // Unused for display mode creation.
-    VkDisplayKHR      co_parent,
-    VkDisplayModeKHR* handle,
-    PFN_GetHandleId   get_id)
+inline void
+CreateWrappedVulkanHandle<vulkan_wrappers::PhysicalDeviceWrapper,
+                          vulkan_wrappers::DisplayKHRWrapper,
+                          vulkan_wrappers::DisplayModeKHRWrapper>(VkPhysicalDevice, // Unused for display mode creation.
+                                                                  VkDisplayKHR      co_parent,
+                                                                  VkDisplayModeKHR* handle,
+                                                                  PFN_GetHandleId   get_id)
 {
     assert(co_parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetWrapper<VulkanDisplayKHRWrapper>(co_parent);
+    auto parent_wrapper = GetVulkanWrapper<vulkan_wrappers::DisplayKHRWrapper>(co_parent);
 
     // Display modes can either be retrieved or created; filter duplicate display mode retrieval.
-    VulkanDisplayModeKHRWrapper* wrapper = nullptr;
+    vulkan_wrappers::DisplayModeKHRWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_display_modes)
     {
         if (entry->handle == (*handle))
@@ -463,47 +484,47 @@ inline void CreateWrappedHandle<VulkanPhysicalDeviceWrapper, VulkanDisplayKHRWra
 
     if (wrapper == nullptr)
     {
-        CreateWrappedNonDispatchHandle<VulkanDisplayModeKHRWrapper>(handle, get_id);
-        wrapper = GetWrapper<VulkanDisplayModeKHRWrapper>(*handle);
+        CreateWrappedNonDispatchVulkanHandle<vulkan_wrappers::DisplayModeKHRWrapper>(handle, get_id);
+        wrapper = GetVulkanWrapper<vulkan_wrappers::DisplayModeKHRWrapper>(*handle);
         parent_wrapper->child_display_modes.push_back(wrapper);
     }
 }
 
 template <typename VulkanParentWrapper, typename VulkanCoParentWrapper, typename Wrapper>
-void CreateWrappedHandles(typename VulkanParentWrapper::HandleType   parent,
-                          typename VulkanCoParentWrapper::HandleType co_parent,
-                          typename Wrapper::HandleType*              handles,
-                          uint32_t                                   count,
-                          PFN_GetHandleId                            get_id)
+void CreateWrappedVulkanHandles(typename VulkanParentWrapper::HandleType   parent,
+                                typename VulkanCoParentWrapper::HandleType co_parent,
+                                typename Wrapper::HandleType*              handles,
+                                uint32_t                                   count,
+                                PFN_GetHandleId                            get_id)
 {
     if (handles != nullptr)
     {
         for (uint32_t i = 0; i < count; ++i)
         {
-            CreateWrappedHandle<VulkanParentWrapper, VulkanCoParentWrapper, Wrapper>(
+            CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, Wrapper>(
                 parent, co_parent, &handles[i], get_id);
         }
     }
 }
 
 template <typename Wrapper>
-void DestroyWrappedHandle(typename Wrapper::HandleType handle)
+void DestroyWrappedVulkanHandle(typename Wrapper::HandleType handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
-        auto wrapper = GetWrapper<Wrapper>(handle);
-        RemoveWrapper<Wrapper>(wrapper);
+        auto wrapper = GetVulkanWrapper<Wrapper>(handle);
+        RemoveVulkanWrapper<Wrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedHandle<VulkanInstanceWrapper>(VkInstance handle)
+inline void DestroyWrappedVulkanHandle<vulkan_wrappers::InstanceWrapper>(VkInstance handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = GetWrapper<VulkanInstanceWrapper>(handle);
+        auto wrapper = GetVulkanWrapper<vulkan_wrappers::InstanceWrapper>(handle);
 
         for (auto physical_device_wrapper : wrapper->child_physical_devices)
         {
@@ -511,139 +532,139 @@ inline void DestroyWrappedHandle<VulkanInstanceWrapper>(VkInstance handle)
             {
                 for (auto display_mode_wrapper : display_wrapper->child_display_modes)
                 {
-                    RemoveWrapper<VulkanDisplayModeKHRWrapper>(display_mode_wrapper);
+                    RemoveVulkanWrapper<vulkan_wrappers::DisplayModeKHRWrapper>(display_mode_wrapper);
                     delete display_mode_wrapper;
                 }
 
-                RemoveWrapper<VulkanDisplayKHRWrapper>(display_wrapper);
+                RemoveVulkanWrapper<vulkan_wrappers::DisplayKHRWrapper>(display_wrapper);
                 delete display_wrapper;
             }
 
-            RemoveWrapper<VulkanPhysicalDeviceWrapper>(physical_device_wrapper);
+            RemoveVulkanWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physical_device_wrapper);
             delete physical_device_wrapper;
         }
 
-        RemoveWrapper<VulkanInstanceWrapper>(wrapper);
+        RemoveVulkanWrapper<vulkan_wrappers::InstanceWrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedHandle<VulkanDeviceWrapper>(VkDevice handle)
+inline void DestroyWrappedVulkanHandle<vulkan_wrappers::DeviceWrapper>(VkDevice handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = GetWrapper<VulkanDeviceWrapper>(handle);
+        auto wrapper = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(handle);
 
         for (auto queue_wrapper : wrapper->child_queues)
         {
-            RemoveWrapper<VulkanQueueWrapper>(queue_wrapper);
+            RemoveVulkanWrapper<vulkan_wrappers::QueueWrapper>(queue_wrapper);
             delete queue_wrapper;
         }
 
-        RemoveWrapper<VulkanDeviceWrapper>(wrapper);
+        RemoveVulkanWrapper<vulkan_wrappers::DeviceWrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedHandle<VulkanCommandBufferWrapper>(VkCommandBuffer handle)
+inline void DestroyWrappedVulkanHandle<vulkan_wrappers::CommandBufferWrapper>(VkCommandBuffer handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
         // Remove from parent list.
-        auto wrapper = GetWrapper<VulkanCommandBufferWrapper>(handle);
+        auto wrapper = GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(handle);
         wrapper->parent_pool->child_buffers.erase(wrapper->handle_id);
 
-        RemoveWrapper<VulkanCommandBufferWrapper>(wrapper);
+        RemoveVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedHandle<VulkanCommandPoolWrapper>(VkCommandPool handle)
+inline void DestroyWrappedVulkanHandle<vulkan_wrappers::CommandPoolWrapper>(VkCommandPool handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = GetWrapper<VulkanCommandPoolWrapper>(handle);
+        auto wrapper = GetVulkanWrapper<vulkan_wrappers::CommandPoolWrapper>(handle);
 
         for (const auto& buffer_wrapper : wrapper->child_buffers)
         {
-            RemoveWrapper<VulkanCommandBufferWrapper>(buffer_wrapper.second);
+            RemoveVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(buffer_wrapper.second);
             delete buffer_wrapper.second;
         }
 
-        RemoveWrapper<VulkanCommandPoolWrapper>(wrapper);
+        RemoveVulkanWrapper<vulkan_wrappers::CommandPoolWrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedHandle<VulkanDescriptorSetWrapper>(VkDescriptorSet handle)
+inline void DestroyWrappedVulkanHandle<vulkan_wrappers::DescriptorSetWrapper>(VkDescriptorSet handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
         // Remove from parent list.
-        auto wrapper = GetWrapper<VulkanDescriptorSetWrapper>(handle);
+        auto wrapper = GetVulkanWrapper<vulkan_wrappers::DescriptorSetWrapper>(handle);
         wrapper->parent_pool->child_sets.erase(wrapper->handle_id);
 
-        RemoveWrapper<VulkanDescriptorSetWrapper>(wrapper);
+        RemoveVulkanWrapper<vulkan_wrappers::DescriptorSetWrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedHandle<VulkanDescriptorPoolWrapper>(VkDescriptorPool handle)
+inline void DestroyWrappedVulkanHandle<vulkan_wrappers::DescriptorPoolWrapper>(VkDescriptorPool handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = GetWrapper<VulkanDescriptorPoolWrapper>(handle);
+        auto wrapper = GetVulkanWrapper<vulkan_wrappers::DescriptorPoolWrapper>(handle);
 
         for (const auto& set_wrapper : wrapper->child_sets)
         {
-            RemoveWrapper<VulkanDescriptorSetWrapper>(set_wrapper.second);
+            RemoveVulkanWrapper<vulkan_wrappers::DescriptorSetWrapper>(set_wrapper.second);
             delete set_wrapper.second;
         }
 
-        RemoveWrapper<VulkanDescriptorPoolWrapper>(wrapper);
+        RemoveVulkanWrapper<vulkan_wrappers::DescriptorPoolWrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedHandle<VulkanSwapchainKHRWrapper>(VkSwapchainKHR handle)
+inline void DestroyWrappedVulkanHandle<vulkan_wrappers::SwapchainKHRWrapper>(VkSwapchainKHR handle)
 {
     if (handle != VK_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = GetWrapper<VulkanSwapchainKHRWrapper>(handle);
+        auto wrapper = GetVulkanWrapper<vulkan_wrappers::SwapchainKHRWrapper>(handle);
 
         for (auto image_wrapper : wrapper->child_images)
         {
             image_wrapper->parent_swapchains.erase(handle);
             if (image_wrapper->parent_swapchains.empty())
             {
-                RemoveWrapper<VulkanImageWrapper>(image_wrapper);
+                RemoveVulkanWrapper<vulkan_wrappers::ImageWrapper>(image_wrapper);
                 delete image_wrapper;
             }
         }
 
-        RemoveWrapper<VulkanSwapchainKHRWrapper>(wrapper);
+        RemoveVulkanWrapper<vulkan_wrappers::SwapchainKHRWrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <typename Wrapper>
-void DestroyWrappedHandles(const typename Wrapper::HandleType* handles, uint32_t count)
+void DestroyWrappedVulkanHandles(const typename Wrapper::HandleType* handles, uint32_t count)
 {
     if (handles != nullptr)
     {
         for (uint32_t i = 0; i < count; ++i)
         {
-            DestroyWrappedHandle<Wrapper>(handles[i]);
+            DestroyWrappedVulkanHandle<Wrapper>(handles[i]);
         }
     }
 }
@@ -653,10 +674,10 @@ inline void ResetDescriptorPoolWrapper(VkDescriptorPool handle)
     assert(handle != VK_NULL_HANDLE);
 
     // Destroy child wrappers.
-    auto wrapper = GetWrapper<VulkanDescriptorPoolWrapper>(handle);
+    auto wrapper = GetVulkanWrapper<vulkan_wrappers::DescriptorPoolWrapper>(handle);
     for (const auto& set_wrapper : wrapper->child_sets)
     {
-        RemoveWrapper<VulkanDescriptorSetWrapper>(set_wrapper.second);
+        RemoveVulkanWrapper<vulkan_wrappers::DescriptorSetWrapper>(set_wrapper.second);
         delete set_wrapper.second;
     }
     wrapper->child_sets.clear();

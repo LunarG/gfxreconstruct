@@ -290,16 +290,16 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
                         )
                 else:
                     if member.is_array:
-                        body += '        CreateWrappedHandles<VulkanParentWrapper, VulkanCoParentWrapper, Vulkan{}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedVulkanHandles<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::{}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
                             member.base_type[2:], member.name,
                             member.array_length
                         )
                     elif member.is_pointer:
-                        body += '        CreateWrappedHandle<VulkanParentWrapper, VulkanCoParentWrapper, Vulkan{}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::{}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
                             member.base_type[2:], member.name
                         )
                     else:
-                        body += '        CreateWrappedHandle<VulkanParentWrapper, VulkanCoParentWrapper, Vulkan{}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::{}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
                             member.base_type[2:], member.name
                         )
 

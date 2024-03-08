@@ -114,7 +114,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                     if (handles):
                         # Generate a function to build a list of handle types and values.
                         cmddef = '\n'
-                        cmddef += 'void Track{}Handles(VulkanCommandBufferWrapper* wrapper, {})\n'.format(
+                        cmddef += 'void Track{}Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, {})\n'.format(
                             cmd[2:], self.get_arg_list(handles)
                         )
                         cmddef += '{\n'
@@ -215,8 +215,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                 value_name = '{}[{}]'.format(value_name, index_name)
             elif value.is_pointer:
                 value_name = '(*{})'.format(value_name)
-            body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId<{}>({}));\n'.format(
-                value_name, type_enum_value, 'Vulkan' + value.base_type[2:] + 'Wrapper' ,value_name
+            body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::{}].insert(GetVulkanWrappedId<{}>({}));\n'.format(
+                value_name, type_enum_value, 'vulkan_wrappers::' + value.base_type[2:] + 'Wrapper' ,value_name
             )
 
         elif self.is_struct(

@@ -393,7 +393,7 @@ void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent,
 {
     if (value != nullptr)
     {
-        CreateWrappedHandles<VulkanParentWrapper, VulkanCoParentWrapper, VulkanPhysicalDeviceWrapper>(parent, co_parent, value->physicalDevices, value->physicalDeviceCount, get_id);
+        CreateWrappedVulkanHandles<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::PhysicalDeviceWrapper>(parent, co_parent, value->physicalDevices, value->physicalDeviceCount, get_id);
     }
 }
 
@@ -402,7 +402,7 @@ void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent,
 {
     if (value != nullptr)
     {
-        CreateWrappedHandle<VulkanParentWrapper, VulkanCoParentWrapper, VulkanDisplayKHRWrapper>(parent, co_parent, &value->display, get_id);
+        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::DisplayKHRWrapper>(parent, co_parent, &value->display, get_id);
     }
 }
 
@@ -411,7 +411,7 @@ void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent,
 {
     if (value != nullptr)
     {
-        CreateWrappedHandle<VulkanParentWrapper, VulkanCoParentWrapper, VulkanDisplayKHRWrapper>(parent, co_parent, &value->currentDisplay, get_id);
+        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::DisplayKHRWrapper>(parent, co_parent, &value->currentDisplay, get_id);
     }
 }
 
@@ -420,7 +420,7 @@ void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent,
 {
     if (value != nullptr)
     {
-        CreateWrappedHandle<VulkanParentWrapper, VulkanCoParentWrapper, VulkanDisplayModeKHRWrapper>(parent, co_parent, &value->displayMode, get_id);
+        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::DisplayModeKHRWrapper>(parent, co_parent, &value->displayMode, get_id);
     }
 }
 

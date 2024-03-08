@@ -78,7 +78,7 @@ class ParameterEncoder
     void EncodeFunctionPtr(T value)                                                                                   { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
 
     template<typename Wrapper>
-    void EncodeHandleValue(typename Wrapper::HandleType value)                                                        { EncodeHandleIdValue(GetWrappedId<Wrapper>(value)); }
+    void EncodeHandleValue(typename Wrapper::HandleType value)                                                        { EncodeHandleIdValue(GetVulkanWrappedId<Wrapper>(value)); }
     template<typename T>
     void EncodeEnumValue(T value)                                                                                     { EncodeValue(static_cast<format::EnumEncodeType>(value)); }
     template<typename T>
