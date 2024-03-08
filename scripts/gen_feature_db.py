@@ -266,11 +266,11 @@ if __name__ == "__main__":
 
                 trace_paths = []
                 json_paths = []
-                TRACES_IN_FLIGHT = 64      #Total number of .json files that we'll store in /tmp at a time
-                iterations = min(trace_count, TRACES_IN_FLIGHT)
+                TRACES_IN_FLIGHT = 8      #Total number of .json files that we'll store in /tmp at a time
                 current_trace = 0
                 while current_trace < trace_count:
                 #while current_trace < 1:
+                    iterations = min(trace_count, TRACES_IN_FLIGHT)
                     for i in range(0, iterations):
                     #for i in range(0, 1):
                         trace = persistent_traces[current_trace]
@@ -305,7 +305,7 @@ if __name__ == "__main__":
 
                     #Spawn a thread for each virtual CPU
                     print("Processing json captures...")
-                    cpu_count = os.cpu_count()
+                    cpu_count = os.cpu_count() / 4
                     threads = []
                     paths_per_thread = int(iterations / cpu_count)
                     print("paths_per_thread: %i" % paths_per_thread)
