@@ -766,7 +766,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
             'int': '%d',
             'int32_t': '%d',
             'uint32_t': '%u',
-            'size_t': '%" PRId64 "',
+            'size_t': '%" PRIu64 "',
             'int64_t': '%" PRId64 "',
             'uint64_t': '%" PRIu64 "',
             'float': '%f',
@@ -913,7 +913,7 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     callTempl.append('%s')
                     arrayValue = f', {arg.array_length}'
                     if arg.array_length_value.base_type == 'size_t':
-                        arrayInfo = '[%" PRId64 "]'
+                        arrayInfo = '[%" PRIu64 "]'
                     else:
                         arrayInfo = '[%d]'
 
@@ -921,11 +921,15 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                         arrayLenVarName = makeSnakeCaseName(f'in_{arg.array_length_value.name}')
                         if arg.array_length_value.base_type != 'size_t':
                             body += makeGen(f'const uint32_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
+                            arrayValue = f', *{arrayLenVarName}'
                         else:
                             body += makeGen(f'size_t* {arrayLenVarName} = {arg.array_length_value.name}->GetPointer();',locals(), indent=4)
-                        arrayValue = f', *{arrayLenVarName}'
+                            arrayValue = f', util::platform::SizeTtoUint64(*{arrayLenVarName})'
                     else:
-                        arrayValue = f', {arg.array_length_value.name}'
+                        if arg.array_length_value.base_type == 'size_t':
+                            arrayValue = f', util::platform::SizeTtoUint64({arg.array_length_value.name})'
+                        else:
+                            arrayValue = f', {arg.array_length_value.name}'
 
                 else:
                     callTempl.append('&%s')
@@ -1023,8 +1027,10 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                 # simple input argument (float, etc..)
                 valueSuffix = valueSuffixDict.get(arg.base_type, '')
                 valueFormat = valueFormatDict[arg.base_type]
-
-                callArgs.append(f'{arg.name}')
+                if arg.base_type == "size_t":
+                    callArgs.append(f'util::platform::SizeTtoUint64({arg.name})')
+                else:
+                    callArgs.append(f'{arg.name}')
                 callTempl.append(valueFormat + valueSuffix)
 
         # Build the vk* function call with arguments

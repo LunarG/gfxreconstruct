@@ -6125,11 +6125,11 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(
 // visualID
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceXlibPresentationSupportKHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceXlibPresentationSupportKHR(%s, %u, %s, %" PRId64 ");\n",
+            "\t\tloaded_vkGetPhysicalDeviceXlibPresentationSupportKHR(%s, %u, %s, %" PRIu64 ");\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex,
             dpy_name.c_str(),
-            visualID);
+            util::platform::SizeTtoUint64(visualID));
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR);
 }
@@ -8809,7 +8809,7 @@ void VulkanCppConsumer::Process_vkGetEncodedVideoSessionParametersKHR(
 // pData
     std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
     size_t* in_pdata_size = pDataSize->GetPointer();
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pdata_name.c_str(), *in_pdata_size);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_pdata_size));
     pfn_loader_.AddMethodName("vkGetEncodedVideoSessionParametersKHR");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkGetEncodedVideoSessionParametersKHR(%s, &%s, &%s, &%s, %s), %s);\n",
@@ -9796,12 +9796,12 @@ void VulkanCppConsumer::Process_vkDebugReportMessageEXT(
 // pMessage
     pfn_loader_.AddMethodName("vkDebugReportMessageEXT");
     fprintf(file,
-            "\t\tloaded_vkDebugReportMessageEXT(%s, %s, %s, %" PRIu64 "UL, %" PRId64 ", %d, %p, %p);\n",
+            "\t\tloaded_vkDebugReportMessageEXT(%s, %s, %s, %" PRIu64 "UL, %" PRIu64 ", %d, %p, %p);\n",
             this->GetHandle(instance).c_str(),
             util::ToString<VkDebugReportFlagsEXT>(flags).c_str(),
             util::ToString<VkDebugReportObjectTypeEXT>(objectType).c_str(),
             object,
-            location,
+            util::platform::SizeTtoUint64(location),
             messageCode,
             pLayerPrefix->GetPointer(),
             pMessage->GetPointer());
@@ -10292,7 +10292,7 @@ void VulkanCppConsumer::Process_vkGetShaderInfoAMD(
 // pInfo
     std::string pinfo_name = "pInfo_" + std::to_string(this->GetNextId());
     size_t* in_pinfo_size = pInfoSize->GetPointer();
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pinfo_name.c_str(), *in_pinfo_size);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pinfo_name.c_str(), util::platform::SizeTtoUint64(*in_pinfo_size));
     pfn_loader_.AddMethodName("vkGetShaderInfoAMD");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkGetShaderInfoAMD(%s, %s, %s, %s, &%s, %s), %s);\n",
@@ -10591,10 +10591,10 @@ void VulkanCppConsumer::Process_vkGetRandROutputDisplayEXT(
     }
     pfn_loader_.AddMethodName("vkGetRandROutputDisplayEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetRandROutputDisplayEXT(%s, %s, %" PRId64 ", &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRandROutputDisplayEXT(%s, %s, %" PRIu64 ", &%s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             dpy_name.c_str(),
-            rrOutput,
+            util::platform::SizeTtoUint64(rrOutput),
             pdisplay_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
@@ -11430,7 +11430,7 @@ void VulkanCppConsumer::Process_vkGetValidationCacheDataEXT(
 // pData
     std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
     size_t* in_pdata_size = pDataSize->GetPointer();
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pdata_name.c_str(), *in_pdata_size);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_pdata_size));
     pfn_loader_.AddMethodName("vkGetValidationCacheDataEXT");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkGetValidationCacheDataEXT(%s, %s, &%s, %s), %s);\n",
@@ -11796,13 +11796,13 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureHandleNV(
 // dataSize
 // pData
     std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pdata_name.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
     pfn_loader_.AddMethodName("vkGetAccelerationStructureHandleNV");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetAccelerationStructureHandleNV(%s, %s, %" PRId64 ", %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetAccelerationStructureHandleNV(%s, %s, %" PRIu64 ", %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(accelerationStructure).c_str(),
-            dataSize,
+            util::platform::SizeTtoUint64(dataSize),
             pdata_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
@@ -11857,15 +11857,15 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(
 // dataSize
 // pData
     std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pdata_name.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
     pfn_loader_.AddMethodName("vkGetRayTracingShaderGroupHandlesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesKHR(%s, %s, %u, %u, %" PRId64 ", %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesKHR(%s, %s, %u, %u, %" PRIu64 ", %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             firstGroup,
             groupCount,
-            dataSize,
+            util::platform::SizeTtoUint64(dataSize),
             pdata_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
@@ -11891,15 +11891,15 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesNV(
 // dataSize
 // pData
     std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pdata_name.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
     pfn_loader_.AddMethodName("vkGetRayTracingShaderGroupHandlesNV");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesNV(%s, %s, %u, %u, %" PRId64 ", %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesNV(%s, %s, %u, %u, %" PRIu64 ", %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             firstGroup,
             groupCount,
-            dataSize,
+            util::platform::SizeTtoUint64(dataSize),
             pdata_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
@@ -14799,18 +14799,18 @@ void VulkanCppConsumer::Process_vkWriteMicromapsPropertiesEXT(
 // dataSize
 // pData
     std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pdata_name.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
 // stride
     pfn_loader_.AddMethodName("vkWriteMicromapsPropertiesEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkWriteMicromapsPropertiesEXT(%s, %u, %s, %s, %" PRId64 ", %s, %" PRId64 "), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkWriteMicromapsPropertiesEXT(%s, %u, %s, %s, %" PRIu64 ", %s, %" PRIu64 "), %s);\n",
             this->GetHandle(device).c_str(),
             micromapCount,
             pmicromaps_array.c_str(),
             util::ToString<VkQueryType>(queryType).c_str(),
-            dataSize,
+            util::platform::SizeTtoUint64(dataSize),
             pdata_name.c_str(),
-            stride,
+            util::platform::SizeTtoUint64(stride),
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkWriteMicromapsPropertiesEXT);
@@ -16048,7 +16048,7 @@ void VulkanCppConsumer::Process_vkGetShaderBinaryDataEXT(
 // pData
     std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
     size_t* in_pdata_size = pDataSize->GetPointer();
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pdata_name.c_str(), *in_pdata_size);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_pdata_size));
     pfn_loader_.AddMethodName("vkGetShaderBinaryDataEXT");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkGetShaderBinaryDataEXT(%s, %s, &%s, %s), %s);\n",
@@ -16644,18 +16644,18 @@ void VulkanCppConsumer::Process_vkWriteAccelerationStructuresPropertiesKHR(
 // dataSize
 // pData
     std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pdata_name.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
 // stride
     pfn_loader_.AddMethodName("vkWriteAccelerationStructuresPropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkWriteAccelerationStructuresPropertiesKHR(%s, %u, %s, %s, %" PRId64 ", %s, %" PRId64 "), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkWriteAccelerationStructuresPropertiesKHR(%s, %u, %s, %s, %" PRIu64 ", %s, %" PRIu64 "), %s);\n",
             this->GetHandle(device).c_str(),
             accelerationStructureCount,
             pacceleration_structures_array.c_str(),
             util::ToString<VkQueryType>(queryType).c_str(),
-            dataSize,
+            util::platform::SizeTtoUint64(dataSize),
             pdata_name.c_str(),
-            stride,
+            util::platform::SizeTtoUint64(stride),
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR);
@@ -16811,15 +16811,15 @@ void VulkanCppConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKH
 // dataSize
 // pData
     std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRId64 "];\n", pdata_name.c_str(), dataSize);
+    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
     pfn_loader_.AddMethodName("vkGetRayTracingCaptureReplayShaderGroupHandlesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(%s, %s, %u, %u, %" PRId64 ", %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(%s, %s, %u, %u, %" PRIu64 ", %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             firstGroup,
             groupCount,
-            dataSize,
+            util::platform::SizeTtoUint64(dataSize),
             pdata_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");

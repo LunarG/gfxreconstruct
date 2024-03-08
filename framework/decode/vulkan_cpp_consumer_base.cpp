@@ -248,9 +248,9 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
         }
 
         fprintf(global_file,
-                "VkMemoryType originalMemoryTypes[%" PRId64 "][%" PRId64 "] = {\n",
-                original_memory_types_.size(),
-                max_second_dimension);
+                "VkMemoryType originalMemoryTypes[%" PRIu64 "][%" PRIu64 "] = {\n",
+                util::platform::SizeTtoUint64(original_memory_types_.size()),
+                util::platform::SizeTtoUint64(max_second_dimension));
         for (const auto& pd_mem_types : original_memory_types_)
         {
             fprintf(global_file, "  {\n");
@@ -1272,7 +1272,8 @@ void VulkanCppConsumerBase::Generate_vkGetQueryPoolResults(VkResult             
         frame_split_temp_memory_.push_back(temp_memory);
         temp_memory_name = temp_memory.name;
 
-        fprintf(file, "\tuint8_t %s[%" PRId64 "];\n", temp_memory_name.c_str(), dataSize);
+        fprintf(
+            file, "\tuint8_t %s[%" PRIu64 "];\n", temp_memory_name.c_str(), util::platform::SizeTtoUint64(dataSize));
     }
 
     if (returnValue == VK_SUCCESS)
@@ -1284,7 +1285,7 @@ void VulkanCppConsumerBase::Generate_vkGetQueryPoolResults(VkResult             
                 GetHandle(queryPool).c_str(),
                 firstQuery,
                 queryCount,
-                dataSize,
+                util::platform::SizeTtoUint64(dataSize),
                 temp_memory_name.c_str(),
                 stride,
                 util::ToString<VkQueryResultFlags>(flags).c_str());
@@ -1297,7 +1298,7 @@ void VulkanCppConsumerBase::Generate_vkGetQueryPoolResults(VkResult             
                 GetHandle(queryPool).c_str(),
                 firstQuery,
                 queryCount,
-                dataSize,
+                util::platform::SizeTtoUint64(dataSize),
                 temp_memory_name.c_str(),
                 stride,
                 util::ToString<VkQueryResultFlags>(flags).c_str(),
@@ -3291,7 +3292,10 @@ void VulkanCppConsumerBase::ProcessCreateHardwareBufferCommand(
         }
         else
         {
-            fprintf(file, "\t\t\t%s.plane_info.resize(%" PRId64 ");\n", memory_info.name.c_str(), plane_info.size());
+            fprintf(file,
+                    "\t\t\t%s.plane_info.resize(%" PRIu64 ");\n",
+                    memory_info.name.c_str(),
+                    util::platform::SizeTtoUint64(plane_info.size()));
             fprintf(file, "\n");
             for (uint32_t i = 0; i < static_cast<uint32_t>(plane_info.size()); ++i)
             {
