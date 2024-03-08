@@ -112,55 +112,58 @@ def trace_analysis(json_paths, trace_paths):
         capture_json = load_json(json_path)
 
         #Iterate over all blocks and extract the function names
-        for block in capture_json.persistent():
-            if "function" in block:
-                #Grab function's name
-                fn_name = block["function"]["name"]
-                if fn_name in func_alias_map:
-                    features["functions"].add(func_alias_map[fn_name])
-                    with capture_funcs_lock:
-                        capture_funcs.add(func_alias_map[fn_name])
-                else:
-                    features["functions"].add(fn_name)
-                    with capture_funcs_lock:
-                        capture_funcs.add(fn_name)
+        try:
+            for block in capture_json.persistent():
+                if "function" in block:
+                    #Grab function's name
+                    fn_name = block["function"]["name"]
+                    if fn_name in func_alias_map:
+                        features["functions"].add(func_alias_map[fn_name])
+                        with capture_funcs_lock:
+                            capture_funcs.add(func_alias_map[fn_name])
+                    else:
+                        features["functions"].add(fn_name)
+                        with capture_funcs_lock:
+                            capture_funcs.add(fn_name)
 
-                #Special casing vkCreateInstance and vkCreateDevice as we want to extract
-                #pEnabledFeatures from vkCreateDevice ppEnabledExtensionNames from both
-                #I'm also assuming that there will be exactly one call to each function
-                if fn_name == "vkCreateInstance":
-                    exts = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
-                    features["instance_ppEnabledExtensionNames"] = exts
-                    if exts is not None:
-                        with capture_extensions_lock:
-                            capture_extensions.update(exts)
-                elif fn_name == "vkCreateDevice":
-                    exts = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
-                    features["device_ppEnabledExtensionNames"] = exts
-                    if exts is not None:
-                        with capture_extensions_lock:
-                            capture_extensions.update(exts)
+                    #Special casing vkCreateInstance and vkCreateDevice as we want to extract
+                    #pEnabledFeatures from vkCreateDevice ppEnabledExtensionNames from both
+                    #I'm also assuming that there will be exactly one call to each function
+                    if fn_name == "vkCreateInstance":
+                        exts = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
+                        features["instance_ppEnabledExtensionNames"] = exts
+                        if exts is not None:
+                            with capture_extensions_lock:
+                                capture_extensions.update(exts)
+                    elif fn_name == "vkCreateDevice":
+                        exts = block["function"]["args"]["pCreateInfo"]["ppEnabledExtensionNames"]
+                        features["device_ppEnabledExtensionNames"] = exts
+                        if exts is not None:
+                            with capture_extensions_lock:
+                                capture_extensions.update(exts)
 
-                    feats = block["function"]["args"]["pCreateInfo"]["pEnabledFeatures"]
-                    features["pEnabledFeatures"] = feats
-                    if feats is not None:
-                        with capture_features_lock:
-                            capture_features.update(feats)
-                        
-            elif "meta" in block:
-                meta_name = block["meta"]["name"]
-                if meta_name not in META_COMMANDS:
-                    print("UNRECOGNIZED META COMMAND %s" % meta_name)
-                    exit(-1)
-                features["metas"].add(meta_name)
-                with capture_metas_lock:
-                    capture_metas.add(meta_name)
+                        feats = block["function"]["args"]["pCreateInfo"]["pEnabledFeatures"]
+                        features["pEnabledFeatures"] = feats
+                        if feats is not None:
+                            with capture_features_lock:
+                                capture_features.update(feats)
+                            
+                elif "meta" in block:
+                    meta_name = block["meta"]["name"]
+                    if meta_name not in META_COMMANDS:
+                        print("UNRECOGNIZED META COMMAND %s" % meta_name)
+                        exit(-1)
+                    features["metas"].add(meta_name)
+                    with capture_metas_lock:
+                        capture_metas.add(meta_name)
 
-            #Grab the sTypes
-            stypes = gather_stypes(block)
-            features["sTypes"].update(stypes)
-            with capture_stypes_lock:
-                capture_stypes.update(stypes)
+                #Grab the sTypes
+                stypes = gather_stypes(block)
+                features["sTypes"].update(stypes)
+                with capture_stypes_lock:
+                    capture_stypes.update(stypes)
+        except Exception as e:
+            print("Error: %s" % e)
 
         #Convert sets into lists
         features["functions"] = sorted(features["functions"])
@@ -264,15 +267,13 @@ if __name__ == "__main__":
                 suite = load_json(full_suite_json_path)
                 persistent_traces = suite["traces"].persistent()
 
-                trace_paths = []
-                json_paths = []
                 TRACES_IN_FLIGHT = 8      #Total number of .json files that we'll store in /tmp at a time
                 current_trace = 0
                 while current_trace < trace_count:
-                #while current_trace < 1:
-                    iterations = min(trace_count, TRACES_IN_FLIGHT)
+                    iterations = min(trace_count - current_trace, TRACES_IN_FLIGHT)
+                    trace_paths = []
+                    json_paths = []
                     for i in range(0, iterations):
-                    #for i in range(0, 1):
                         trace = persistent_traces[current_trace]
                         current_trace += 1
 
@@ -303,6 +304,9 @@ if __name__ == "__main__":
                     for p in convert_processes:
                         p.wait()
 
+                    trace_analysis(json_paths, trace_paths)
+
+                    '''
                     #Spawn a thread for each virtual CPU
                     print("Processing json captures...")
                     cpu_count = int(os.cpu_count() / 4)
@@ -325,6 +329,7 @@ if __name__ == "__main__":
                     print("Spawned %i threads" % len(threads))
                     for t in threads:
                         t.join()
+                    '''
 
     #Output collated results
     collated = {}
