@@ -485,8 +485,12 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         ParseBoolString(FindOption(options, kOptionKeyCaptureFileForceFlush), settings->trace_settings_.force_flush);
 
     // Memory tracking options
+#if defined(WIN32) || defined(__APPLE__)
     settings->trace_settings_.memory_tracking_mode = ParseMemoryTrackingModeString(
         FindOption(options, kOptionKeyMemoryTrackingMode), settings->trace_settings_.memory_tracking_mode);
+#else
+    settings->trace_settings_.memory_tracking_mode = MemoryTrackingMode::kUserfaultfd;
+#endif
 
     // Trimming options:
     // Trim frame ranges, trim queue submit ranges, and trim frame hotkey are mutually exclusive.
