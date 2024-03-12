@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -160,7 +160,10 @@ void EncodeStruct(ParameterEncoder* encoder, const AGSDX12ReturnedParams::Extens
     encoder->EncodeUInt32Value(value.floatConversion);
     encoder->EncodeUInt32Value(value.readLaneAt);
     encoder->EncodeUInt32Value(value.rayHitToken);
-    encoder->EncodeUInt32Value(value.padding);
+    uint32_t reserved_vars = 0;
+    // Future "reserved_vars" could be added here
+    reserved_vars |= (value.shaderClock & 0x1) << 0;
+    encoder->EncodeUInt32Value(reserved_vars);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const AGSDisplaySettings& value)
@@ -219,10 +222,10 @@ void Encode_agsDriverExtensionsDX12_CreateDevice(AGSReturnCode                  
                                                  AGSContext*                        context,
                                                  const AGSDX12DeviceCreationParams* creationParams,
                                                  const AGSDX12ExtensionParams*      extensionParams,
-                                                 AGSDX12ReturnedParams*             returnedParams)
+                                                 AGSDX12ReturnedParams*             returnedParams,
+                                                 format::ApiCallId                  api_id)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginTrackedApiCallCapture(
-        format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1);
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedApiCallCapture(api_id);
     if (encoder)
     {
         bool omit_output_data = false;
