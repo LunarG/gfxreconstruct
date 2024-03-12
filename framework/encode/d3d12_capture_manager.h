@@ -795,7 +795,7 @@ class D3D12CaptureManager : public CaptureManager
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
     D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
     AgsDispatchTable   ags_dispatch_table_;   ///< ags dispatch table for functions retrieved from the AGS DLL.
-    int                ags_version_;          ///< ags version.
+    int                ags_version_{};        ///< ags version.
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine when an intercepted API call is
                                               ///< being made directly by the application.
     bool debug_layer_enabled_;                ///< Track if debug layer has been enabled.
