@@ -439,8 +439,8 @@ struct ImageViewInfo : public VulkanObjectInfo<VkImageView>
 
 struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
+    VkFramebufferCreateFlags             framebuffer_flags{ 0 };
     std::unordered_map<uint32_t, size_t> array_counts;
-
     std::vector<format::HandleId> attachment_image_view_ids;
 };
 
