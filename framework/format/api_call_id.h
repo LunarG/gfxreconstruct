@@ -1242,7 +1242,8 @@ enum ApiCallId : uint32_t
     ApiCall_Ags_agsDriverExtensionsDX12_PushMarker_6_0_1                                          = MakeApiCallId(ApiFamily_AGS, 0x1007),
     ApiCall_Ags_agsDriverExtensionsDX12_PopMarker_6_0_1                                           = MakeApiCallId(ApiFamily_AGS, 0x1008),
     ApiCall_Ags_agsDriverExtensionsDX12_SetMarker_6_0_1                                           = MakeApiCallId(ApiFamily_AGS, 0x1009),
-
+    ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_2_0                                        = MakeApiCallId(ApiFamily_AGS, 0x100a),
+    
     ApiCall_D3D12Last,
 
     // clang-format on
