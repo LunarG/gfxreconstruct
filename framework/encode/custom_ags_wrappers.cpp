@@ -39,7 +39,7 @@ AMD_AGS_API AGSReturnCode agsInitialize(int                     agsVersion,
     manager->SetAgsVersion(agsVersion);
     if (((agsVersion >> 22) & 0x3FF) < AMD_AGS_VERSION_MAJOR)
     {
-        MessageBox(NULL, "Warning: The AGS version is not supported.", "AGS Version Warning", MB_ICONWARNING | MB_OK);
+        GFXRECON_LOG_ERROR("The AGS version is not supported.");
     }
     auto call_scope = manager->IncrementCallScope();
 
