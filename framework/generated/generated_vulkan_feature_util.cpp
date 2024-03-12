@@ -4300,6 +4300,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV:
+            {
+                const VkPhysicalDeviceRawAccessChainsFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceRawAccessChainsFeaturesNV*>(next);
+                VkPhysicalDeviceRawAccessChainsFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->shaderRawAccessChains == VK_TRUE) && (query.shaderRawAccessChains == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderRawAccessChains %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceRawAccessChainsFeaturesNV*>(currentNext)->shaderRawAccessChains =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV:
             {
                 const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV*>(next);
@@ -4311,6 +4326,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature shaderFloat16VectorAtomics %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV*>(currentNext)->shaderFloat16VectorAtomics =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
+            {
+                const VkPhysicalDeviceRayTracingValidationFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceRayTracingValidationFeaturesNV*>(next);
+                VkPhysicalDeviceRayTracingValidationFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->rayTracingValidation == VK_TRUE) && (query.rayTracingValidation == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature rayTracingValidation %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceRayTracingValidationFeaturesNV*>(currentNext)->rayTracingValidation =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;

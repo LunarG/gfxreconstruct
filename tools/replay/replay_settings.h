@@ -31,7 +31,8 @@ const char kOptions[] =
     "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-range,--fmr|--flush-"
     "measurement-range,--flush-inside-measurement-range,--use-captured-swapchain-indices,--dcp,--"
-    "discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names";
+    "discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,"
+    "--offscreen-swapchain-frame-boundary";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -65,6 +66,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--swapchain <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-captured-swapchain-indices]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-colorspace-fallback]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--offscreen-swapchain-frame-boundary]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--mfr|--measurement-frame-range <start-frame>-<end-frame>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--flush-measurement-range]");
@@ -200,6 +202,14 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
     GFXRECON_WRITE_CONSOLE("          \t\tSame as \"--swapchain captured\".");
     GFXRECON_WRITE_CONSOLE("          \t\tIgnored if the \"--swapchain\" option is used.");
+    GFXRECON_WRITE_CONSOLE("  --offscreen-swapchain-frame-boundary");
+    GFXRECON_WRITE_CONSOLE("          \t\tShould only be used with offscreen swapchain.");
+    GFXRECON_WRITE_CONSOLE("          \t\tActivates the extension VK_EXT_frame_boundary (always supported if");
+    GFXRECON_WRITE_CONSOLE("          \t\ttrimming, checks for driver support otherwise) and inserts command");
+    GFXRECON_WRITE_CONSOLE("          \t\tbuffer submission with VkFrameBoundaryEXT where vkQueuePresentKHR");
+    GFXRECON_WRITE_CONSOLE("          \t\twas called in the original capture.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThis allows preserving frames when capturing a replay that uses.");
+    GFXRECON_WRITE_CONSOLE("          \t\toffscreen swapchain.");
     GFXRECON_WRITE_CONSOLE("  --measurement-frame-range <start_frame>-<end_frame>");
     GFXRECON_WRITE_CONSOLE("          \t\tCustom framerange to measure FPS for.");
     GFXRECON_WRITE_CONSOLE("          \t\tThis range will include the start frame but not the end frame.");

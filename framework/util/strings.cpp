@@ -57,7 +57,6 @@ std::vector<std::string> SplitString(const std::string_view compound, const char
         else
         {
             // Split string on separator.
-            bool               invalid = false;
             std::istringstream range_input;
             range_input.str(std::string{ compound });
 
