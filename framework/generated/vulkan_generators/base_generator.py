@@ -437,9 +437,7 @@ class BaseGenerator(OutputGenerator):
 
         # Multiple inclusion protection & C++ wrappers.
         if (gen_opts.protect_file and self.genOpts.filename):
-            header_sym = 'GFXRECON_' + re.sub(
-                '\.h', '_H', os.path.basename(self.genOpts.filename)
-            ).upper()
+            header_sym = 'GFXRECON_' + os.path.basename(self.genOpts.filename).replace('.h', '_H').upper()
             write('#ifndef ', header_sym, file=self.outFile)
             write('#define ', header_sym, file=self.outFile)
             self.newline()
