@@ -7158,12 +7158,50 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     auto render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
-        GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
-                        render_pass_info->attachment_description_final_layouts.size());
+        const format::HandleId* attachment_image_view_ids = nullptr;
+        if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
+            VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
+        {
+            // The attachments for imageless framebuffers are provided in the pNext chain of vkCmdBeginRenderPass
+            const Decoded_VkRenderPassAttachmentBeginInfo* attachment_begin_info = nullptr;
+            if (render_pass_begin_info_decoder->GetMetaStructPointer()->pNext != nullptr)
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkBaseOutStructure*>(
+                    render_pass_begin_info_decoder->GetMetaStructPointer()->pNext->GetMetaStructPointer());
+                while (pnext != nullptr)
+                {
+                    if (pnext->decoded_value->sType == VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO)
+                    {
+                        attachment_begin_info = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pnext);
+                        break;
+                    }
+                    if (pnext->pNext != nullptr)
+                    {
+                        pnext =
+                            reinterpret_cast<const Decoded_VkBaseOutStructure*>(pnext->pNext->GetMetaStructPointer());
+                    }
+                    else
+                    {
+                        pnext = nullptr;
+                    }
+                }
+            }
+
+            GFXRECON_ASSERT(attachment_begin_info)
+            GFXRECON_ASSERT(attachment_begin_info->pAttachments.GetLength() ==
+                            render_pass_info->attachment_description_final_layouts.size());
+            attachment_image_view_ids = attachment_begin_info->pAttachments.GetPointer();
+        }
+        else
+        {
+            GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
+                            render_pass_info->attachment_description_final_layouts.size());
+            attachment_image_view_ids = framebuffer_info->attachment_image_view_ids.data();
+        }
 
         for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
         {
-            auto image_view_id   = framebuffer_info->attachment_image_view_ids[i];
+            auto image_view_id   = attachment_image_view_ids[i];
             auto image_view_info = object_info_table_.GetImageViewInfo(image_view_id);
             command_buffer_info->image_layout_barriers[image_view_info->image_id] =
                 render_pass_info->attachment_description_final_layouts[i];
@@ -7215,17 +7253,21 @@ VkResult VulkanReplayConsumerBase::OverrideCreateFramebuffer(
 
     VkResult result = func(device, create_info, allocator, out_framebuffer);
 
-    if ((result == VK_SUCCESS) && ((*out_framebuffer) != VK_NULL_HANDLE) && (create_info->attachmentCount > 0) &&
-        (create_info->pAttachments != nullptr) &&
-        ((create_info->flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) != VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT))
+    if ((result == VK_SUCCESS) && ((*out_framebuffer) != VK_NULL_HANDLE))
     {
         auto framebuffer_info = reinterpret_cast<FramebufferInfo*>(frame_buffer_decoder->GetConsumerData(0));
         GFXRECON_ASSERT(framebuffer_info != nullptr);
 
-        for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
+        framebuffer_info->framebuffer_flags = create_info->flags;
+
+        if ((create_info->attachmentCount > 0) && (create_info->pAttachments != nullptr) &&
+            ((create_info->flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) != VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT))
         {
-            framebuffer_info->attachment_image_view_ids.push_back(
-                create_info_decoder->GetMetaStructPointer()->pAttachments.GetPointer()[i]);
+            for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
+            {
+                framebuffer_info->attachment_image_view_ids.push_back(
+                    create_info_decoder->GetMetaStructPointer()->pAttachments.GetPointer()[i]);
+            }
         }
     }
 
