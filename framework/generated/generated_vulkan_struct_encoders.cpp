@@ -9506,6 +9506,88 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDynamicRender
     encoder->EncodeVkBool32Value(value.dynamicRenderingUnusedAttachments);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencySleepModeInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.lowLatencyMode);
+    encoder->EncodeVkBool32Value(value.lowLatencyBoost);
+    encoder->EncodeUInt32Value(value.minimumIntervalUs);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencySleepInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue<SemaphoreWrapper>(value.signalSemaphore);
+    encoder->EncodeUInt64Value(value.value);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSetLatencyMarkerInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.presentID);
+    encoder->EncodeEnumValue(value.marker);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencyTimingsFrameReportNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.presentID);
+    encoder->EncodeUInt64Value(value.inputSampleTimeUs);
+    encoder->EncodeUInt64Value(value.simStartTimeUs);
+    encoder->EncodeUInt64Value(value.simEndTimeUs);
+    encoder->EncodeUInt64Value(value.renderSubmitStartTimeUs);
+    encoder->EncodeUInt64Value(value.renderSubmitEndTimeUs);
+    encoder->EncodeUInt64Value(value.presentStartTimeUs);
+    encoder->EncodeUInt64Value(value.presentEndTimeUs);
+    encoder->EncodeUInt64Value(value.driverStartTimeUs);
+    encoder->EncodeUInt64Value(value.driverEndTimeUs);
+    encoder->EncodeUInt64Value(value.osRenderQueueStartTimeUs);
+    encoder->EncodeUInt64Value(value.osRenderQueueEndTimeUs);
+    encoder->EncodeUInt64Value(value.gpuRenderStartTimeUs);
+    encoder->EncodeUInt64Value(value.gpuRenderEndTimeUs);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGetLatencyMarkerInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.timingCount);
+    EncodeStructArray(encoder, value.pTimings, value.timingCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencySubmissionPresentIdNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.presentID);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainLatencyCreateInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.latencyModeEnable);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkOutOfBandQueueTypeInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.queueType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencySurfaceCapabilitiesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.presentModeCount);
+    encoder->EncodeEnumArray(value.pPresentModes, value.presentModeCount);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& value)
 {
     encoder->EncodeEnumValue(value.sType);

@@ -23858,6 +23858,188 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDynamicRenderingTilePropertiesQCOM(
     return result;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL SetLatencySleepModeNV(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    const VkLatencySleepModeInfoNV*             pSleepModeInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetLatencySleepModeNV>::Dispatch(manager, device, swapchain, pSleepModeInfo);
+
+    VkResult result = GetDeviceTable(device)->SetLatencySleepModeNV(device, swapchain, pSleepModeInfo);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkSetLatencySleepModeNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue<DeviceWrapper>(device);
+        encoder->EncodeHandleValue<SwapchainKHRWrapper>(swapchain);
+        EncodeStructPtr(encoder, pSleepModeInfo);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLatencySleepModeNV>::Dispatch(manager, result, device, swapchain, pSleepModeInfo);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL LatencySleepNV(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    const VkLatencySleepInfoNV*                 pSleepInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkLatencySleepNV>::Dispatch(manager, device, swapchain, pSleepInfo);
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkLatencySleepInfoNV* pSleepInfo_unwrapped = UnwrapStructPtrHandles(pSleepInfo, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->LatencySleepNV(device, swapchain, pSleepInfo_unwrapped);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkLatencySleepNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue<DeviceWrapper>(device);
+        encoder->EncodeHandleValue<SwapchainKHRWrapper>(swapchain);
+        EncodeStructPtr(encoder, pSleepInfo);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkLatencySleepNV>::Dispatch(manager, result, device, swapchain, pSleepInfo);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL SetLatencyMarkerNV(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    const VkSetLatencyMarkerInfoNV*             pLatencyMarkerInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetLatencyMarkerNV>::Dispatch(manager, device, swapchain, pLatencyMarkerInfo);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkSetLatencyMarkerNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue<DeviceWrapper>(device);
+        encoder->EncodeHandleValue<SwapchainKHRWrapper>(swapchain);
+        EncodeStructPtr(encoder, pLatencyMarkerInfo);
+        manager->EndApiCallCapture();
+    }
+
+    GetDeviceTable(device)->SetLatencyMarkerNV(device, swapchain, pLatencyMarkerInfo);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLatencyMarkerNV>::Dispatch(manager, device, swapchain, pLatencyMarkerInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL GetLatencyTimingsNV(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    VkGetLatencyMarkerInfoNV*                   pLatencyMarkerInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetLatencyTimingsNV>::Dispatch(manager, device, swapchain, pLatencyMarkerInfo);
+
+    GetDeviceTable(device)->GetLatencyTimingsNV(device, swapchain, pLatencyMarkerInfo);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetLatencyTimingsNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue<DeviceWrapper>(device);
+        encoder->EncodeHandleValue<SwapchainKHRWrapper>(swapchain);
+        EncodeStructPtr(encoder, pLatencyMarkerInfo);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetLatencyTimingsNV>::Dispatch(manager, device, swapchain, pLatencyMarkerInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL QueueNotifyOutOfBandNV(
+    VkQueue                                     queue,
+    const VkOutOfBandQueueTypeInfoNV*           pQueueTypeInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueNotifyOutOfBandNV>::Dispatch(manager, queue, pQueueTypeInfo);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkQueueNotifyOutOfBandNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue<QueueWrapper>(queue);
+        EncodeStructPtr(encoder, pQueueTypeInfo);
+        manager->EndApiCallCapture();
+    }
+
+    GetDeviceTable(queue)->QueueNotifyOutOfBandNV(queue, pQueueTypeInfo);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueNotifyOutOfBandNV>::Dispatch(manager, queue, pQueueTypeInfo);
+}
+
 VKAPI_ATTR void VKAPI_CALL CmdSetAttachmentFeedbackLoopEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask)

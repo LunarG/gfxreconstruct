@@ -616,8 +616,6 @@ class VulkanCppStructGenerator(BaseGenerator):
 
             arg_name = struct_prefix + arg.name
 
-            body.append(makeGen('// {arg.name}', locals(), 0))
-
             lengths = []
             if arg.array_length_value is not None:
                 loopCondition = '{arg.array_length}'.format(**locals())
