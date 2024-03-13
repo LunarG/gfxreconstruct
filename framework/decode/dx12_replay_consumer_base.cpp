@@ -2473,6 +2473,7 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
             swapchain_info->window  = window;
             swapchain_info->hwnd_id = hwnd_id;
             swapchain_info->image_ids.resize(image_count);
+            swapchain_info->is_fullscreen = !windowed;
             std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
             // Get the ID3D12CommandQueue from the IUnknown queue object.
