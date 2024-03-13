@@ -64,7 +64,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
     ):
         BaseGenerator.__init__(
             self,
-            process_cmds=False,
+            process_cmds=True,
             process_structs=True,
             feature_break=False,
             err_file=err_file,
@@ -79,7 +79,9 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         self.next_structs_with_handles = dict(
         )  # Map of OpenXR structure types to type value for structs that can be part of a next chain and contain handles.
         self.next_structs = dict(
-        )  # Map of OpenXR structure types to type value for structs that can be part of a ext chain and do not contain handles.
+        )  # Map of OpenXR structure types to type value for structs that can be part of a next chain and do not contain handles.
+        self.output_structs = [
+        ]  # Output structures that retrieve handles, which need to be wrapped.
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -92,6 +94,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(openxr_wrappers)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -118,6 +121,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                 '    case {}:'.format(self.next_structs[base_type]),
                 file=self.outFile
             )
+            prefix = self.get_prefix_from_type(base_type)
             write(
                 '        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
                 .format(base_type),
@@ -183,6 +187,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
         self.newline()
+        write('GFXRECON_END_NAMESPACE(openxr_wrappers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -216,6 +221,18 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
+        # Check for output structures, which retrieve handles that need to be wrapped.
+        for cmd in self.feature_cmd_params:
+            info = self.feature_cmd_params[cmd]
+            values = info[2]
+
+            for value in values:
+                if self.is_output_parameter(value) and self.is_struct(
+                    value.base_type
+                ) and (value.base_type in self.structs_with_handles
+                       ) and (value.base_type not in self.output_structs):
+                    self.output_structs.append(value.base_type)
+
         for struct in self.get_filtered_struct_names():
             if (
                 (struct in self.structs_with_handles)

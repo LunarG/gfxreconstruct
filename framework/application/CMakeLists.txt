@@ -74,6 +74,7 @@ target_link_libraries(gfxrecon_application
                       gfxrecon_format
                       gfxrecon_util
                       vulkan_registry
+                      openxr_headers
                       platform_specific
                      )
 
