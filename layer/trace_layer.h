@@ -30,6 +30,7 @@
 
 #ifdef ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -61,6 +62,23 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
                                                      const VkAllocationCallbacks* pAllocator,
                                                      VkDevice*                    pDevice);
 GFXRECON_END_NAMESPACE(vulkan_entry)
+
+#ifdef ENABLE_OPENXR_SUPPORT
+GFXRECON_BEGIN_NAMESPACE(openxr_entry)
+// OpenXR
+XRAPI_ATTR XrResult XRAPI_CALL EnumerateInstanceExtensionProperties(const char*            layerName,
+                                                                    uint32_t               propertyCapacityInput,
+                                                                    uint32_t*              propertyCountOutput,
+                                                                    XrExtensionProperties* properties);
+XRAPI_ATTR XrResult XRAPI_CALL EnumerateApiLayerProperties(uint32_t              propertyCapacityInput,
+                                                           uint32_t*             propertyCountOutput,
+                                                           XrApiLayerProperties* properties);
+XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function);
+XRAPI_ATTR XrResult XRAPI_CALL dispatch_CreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                               const XrApiLayerCreateInfo* apiLayerInfo,
+                                                               XrInstance*                 instance);
+GFXRECON_END_NAMESPACE(openxr_entry)
+#endif // ENABLE_OPENXR_SUPPORT
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 

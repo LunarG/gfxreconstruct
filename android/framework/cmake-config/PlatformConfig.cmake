@@ -56,7 +56,12 @@ file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/project_version_$<CONFIG>.h" INPUT "${
 add_definitions(-DPROJECT_VERSION_HEADER_FILE="project_version_$<CONFIG>.h")
 
 add_library(platform_specific INTERFACE)
-target_compile_definitions(platform_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION VK_USE_PLATFORM_ANDROID_KHR)
+target_compile_definitions(platform_specific INTERFACE
+                                _FILE_OFFSET_BITS=64
+                                PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
+                                VK_USE_PLATFORM_ANDROID_KHR
+                                XR_USE_PLATFORM_ANDROID
+                                XR_USE_GRAPHICS_API_VULKAN)
 
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${GFXRECON_SOURCE_DIR}/external/Vulkan-Headers/include)

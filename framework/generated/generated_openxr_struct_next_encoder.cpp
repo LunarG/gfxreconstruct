@@ -27,6 +27,8 @@
 **
 */
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "generated/generated_openxr_struct_encoders.h"
 
 #include "encode/parameter_encoder.h"
@@ -34,7 +36,9 @@
 #include "encode/openxr_capture_manager.h"
 #include "util/defines.h"
 
-#include <openxr/openxr.h>
+#include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
+#include "openxr/openxr_platform.h"
 
 #include <cassert>
 #include <cstdio>
@@ -49,15 +53,9 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
 
     auto base = reinterpret_cast<const XrBaseInStructure*>(value);
 
-    // Ignore the structures added to the pnext chain by the loader.
-    while ((base != nullptr)
-    {
-        base = base->next;
-    }
-
     if (base != nullptr)
     {
-        switch (base-type)
+        switch (base->type)
         {
         default:
             {
@@ -73,15 +71,12 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
         case XR_TYPE_SPACE_VELOCITY:
             EncodeStructPtr(encoder, reinterpret_cast<const XrSpaceVelocity*>(base));
             break;
-#ifdef XR_USE_PLATFORM_ANDROID
         case XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrInstanceCreateInfoAndroidKHR*>(base));
             break;
-#endif /* XR_USE_PLATFORM_ANDROID */
         case XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrCompositionLayerDepthInfoKHR*>(base));
             break;
-#ifdef XR_USE_GRAPHICS_API_OPENGL
         case XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrGraphicsBindingOpenGLWin32KHR*>(base));
             break;
@@ -94,27 +89,18 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
         case XR_TYPE_GRAPHICS_BINDING_OPENGL_WAYLAND_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrGraphicsBindingOpenGLWaylandKHR*>(base));
             break;
-#endif /* XR_USE_GRAPHICS_API_OPENGL */
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
         case XR_TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrGraphicsBindingOpenGLESAndroidKHR*>(base));
             break;
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
         case XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrGraphicsBindingVulkanKHR*>(base));
             break;
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_GRAPHICS_API_D3D11
         case XR_TYPE_GRAPHICS_BINDING_D3D11_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrGraphicsBindingD3D11KHR*>(base));
             break;
-#endif /* XR_USE_GRAPHICS_API_D3D11 */
-#ifdef XR_USE_GRAPHICS_API_D3D12
         case XR_TYPE_GRAPHICS_BINDING_D3D12_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrGraphicsBindingD3D12KHR*>(base));
             break;
-#endif /* XR_USE_GRAPHICS_API_D3D12 */
         case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrCompositionLayerColorScaleBiasKHR*>(base));
             break;
@@ -142,11 +128,9 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
         case XR_TYPE_VIEW_CONFIGURATION_DEPTH_RANGE_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const XrViewConfigurationDepthRangeEXT*>(base));
             break;
-#ifdef XR_USE_PLATFORM_EGL
         case XR_TYPE_GRAPHICS_BINDING_EGL_MNDX:
             EncodeStructPtr(encoder, reinterpret_cast<const XrGraphicsBindingEGLMNDX*>(base));
             break;
-#endif /* XR_USE_PLATFORM_EGL */
         case XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const XrSystemHandTrackingPropertiesEXT*>(base));
             break;
@@ -174,22 +158,18 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
         case XR_TYPE_VIEW_CONFIGURATION_VIEW_FOV_EPIC:
             EncodeStructPtr(encoder, reinterpret_cast<const XrViewConfigurationViewFovEPIC*>(base));
             break;
-#ifdef XR_USE_PLATFORM_WIN32
         case XR_TYPE_HOLOGRAPHIC_WINDOW_ATTACHMENT_MSFT:
             EncodeStructPtr(encoder, reinterpret_cast<const XrHolographicWindowAttachmentMSFT*>(base));
             break;
-#endif /* XR_USE_PLATFORM_WIN32 */
         case XR_TYPE_COMPOSITION_LAYER_REPROJECTION_INFO_MSFT:
             EncodeStructPtr(encoder, reinterpret_cast<const XrCompositionLayerReprojectionInfoMSFT*>(base));
             break;
         case XR_TYPE_COMPOSITION_LAYER_REPROJECTION_PLANE_OVERRIDE_MSFT:
             EncodeStructPtr(encoder, reinterpret_cast<const XrCompositionLayerReprojectionPlaneOverrideMSFT*>(base));
             break;
-#ifdef XR_USE_PLATFORM_ANDROID
         case XR_TYPE_ANDROID_SURFACE_SWAPCHAIN_CREATE_INFO_FB:
             EncodeStructPtr(encoder, reinterpret_cast<const XrAndroidSurfaceSwapchainCreateInfoFB*>(base));
             break;
-#endif /* XR_USE_PLATFORM_ANDROID */
         case XR_TYPE_COMPOSITION_LAYER_SECURE_CONTENT_FB:
             EncodeStructPtr(encoder, reinterpret_cast<const XrCompositionLayerSecureContentFB*>(base));
             break;
@@ -319,11 +299,9 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
         case XR_TYPE_SPACE_STORAGE_LOCATION_FILTER_INFO_FB:
             EncodeStructPtr(encoder, reinterpret_cast<const XrSpaceStorageLocationFilterInfoFB*>(base));
             break;
-#ifdef XR_USE_GRAPHICS_API_VULKAN
         case XR_TYPE_SWAPCHAIN_IMAGE_FOVEATION_VULKAN_FB:
             EncodeStructPtr(encoder, reinterpret_cast<const XrSwapchainImageFoveationVulkanFB*>(base));
             break;
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
         case XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB:
             EncodeStructPtr(encoder, reinterpret_cast<const XrCompositionLayerSpaceWarpInfoFB*>(base));
             break;
@@ -354,11 +332,9 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
         case XR_TYPE_SYSTEM_VIRTUAL_KEYBOARD_PROPERTIES_META:
             EncodeStructPtr(encoder, reinterpret_cast<const XrSystemVirtualKeyboardPropertiesMETA*>(base));
             break;
-#ifdef XR_USE_GRAPHICS_API_VULKAN
         case XR_TYPE_VULKAN_SWAPCHAIN_CREATE_INFO_META:
             EncodeStructPtr(encoder, reinterpret_cast<const XrVulkanSwapchainCreateInfoMETA*>(base));
             break;
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
         case XR_TYPE_SYSTEM_HEADSET_ID_PROPERTIES_META:
             EncodeStructPtr(encoder, reinterpret_cast<const XrSystemHeadsetIdPropertiesMETA*>(base));
             break;
@@ -415,3 +391,5 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT

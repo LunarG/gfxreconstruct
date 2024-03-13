@@ -75,9 +75,16 @@ class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
+        write(
+            '#include "encode/custom_openxr_struct_encoders.h"',
+            file=self.outFile
+        )
+
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
+        self.newline()
+        self.forceCommonXrDefines(gen_opts)
         self.newline()
         self.includeOpenXrHeaders(gen_opts)
         self.newline()
@@ -87,7 +94,7 @@ class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
         write(
-            'void EncodePNextStruct(ParameterEncoder* encoder, const void* value);',
+            'void EncodeNextStruct(ParameterEncoder* encoder, const void* value);',
             file=self.outFile
         )
 

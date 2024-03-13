@@ -79,12 +79,21 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, gen_opts)
 
         write(
+            '#include "generated/generated_openxr_struct_handle_wrappers.h"',
+            file=self.outFile
+        )
+        write(
+            '#include "generated/generated_vulkan_struct_handle_wrappers.h"',
+            file=self.outFile
+        )
+        write(
             '#include "generated/generated_openxr_struct_trackers.h"',
             file=self.outFile
         )
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(openxr_trackers)', file=self.outFile)
         self.newline()
 
     def endFile(self):
@@ -127,6 +136,7 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
         self.newline()
+        write('GFXRECON_END_NAMESPACE(openxr_trackers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -147,7 +157,8 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         if struct_type_enum is None:
             return
 
-        self.struct_type_enums[typename] = struct_type_enum
+        if struct_type_enum in self.enumEnumerants['XrStructureType']:
+            self.struct_type_enums[typename] = struct_type_enum
 
         write(
             '{0}* TrackStruct(const {0}* value, HandleUnwrapMemory* unwrap_memory)'
@@ -160,9 +171,10 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         write('        return nullptr;', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
+        wrapper_prefix = self.get_wrapper_prefix_from_type(typename) + '::'
         write(
-            '    {}* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);'
-            .format(typename),
+            '    {}* unwrapped_struct = {}MakeUnwrapStructs(value, 1, unwrap_memory);'
+            .format(typename, wrapper_prefix),
             file=self.outFile
         )
         self.newline()
@@ -174,10 +186,18 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
                     length_expr = self.make_array_length_expression(
                         value, 'unwrapped_struct->'
                     )
+
+                    wrapper_prefix = self.get_wrapper_prefix_from_type(
+                        value.base_type
+                    )
+                    if wrapper_prefix == 'UNKNOWN_WRAPPERS':
+                        wrapper_prefix = 'openxr_wrappers'
+                    wrapper_prefix += '::'
+
                     if value.base_type == 'void':
-                        call_expr = f'MakeUnwrapStructs<uint8_t>(reinterpret_cast<const uint8_t*>({member_expr}), {length_expr}, unwrap_memory)'
+                        call_expr = f'{wrapper_prefix}MakeUnwrapStructs<uint8_t>(reinterpret_cast<const uint8_t*>({member_expr}), {length_expr}, unwrap_memory)'
                     else:
-                        call_expr = f'MakeUnwrapStructs({member_expr}, {length_expr}, unwrap_memory)'
+                        call_expr = f'{wrapper_prefix}MakeUnwrapStructs({member_expr}, {length_expr}, unwrap_memory)'
                     write('    if ({})'.format(member_expr), file=self.outFile)
                     write('    {', file=self.outFile)
                     write(
