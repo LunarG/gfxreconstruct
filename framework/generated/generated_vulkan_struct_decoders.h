@@ -9892,6 +9892,90 @@ struct Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkLatencySleepModeInfoNV
+{
+    using struct_type = VkLatencySleepModeInfoNV;
+
+    VkLatencySleepModeInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkLatencySleepInfoNV
+{
+    using struct_type = VkLatencySleepInfoNV;
+
+    VkLatencySleepInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId signalSemaphore{ format::kNullHandleId };
+};
+
+struct Decoded_VkSetLatencyMarkerInfoNV
+{
+    using struct_type = VkSetLatencyMarkerInfoNV;
+
+    VkSetLatencyMarkerInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkLatencyTimingsFrameReportNV
+{
+    using struct_type = VkLatencyTimingsFrameReportNV;
+
+    VkLatencyTimingsFrameReportNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkGetLatencyMarkerInfoNV
+{
+    using struct_type = VkGetLatencyMarkerInfoNV;
+
+    VkGetLatencyMarkerInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkLatencyTimingsFrameReportNV>* pTimings{ nullptr };
+};
+
+struct Decoded_VkLatencySubmissionPresentIdNV
+{
+    using struct_type = VkLatencySubmissionPresentIdNV;
+
+    VkLatencySubmissionPresentIdNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSwapchainLatencyCreateInfoNV
+{
+    using struct_type = VkSwapchainLatencyCreateInfoNV;
+
+    VkSwapchainLatencyCreateInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkOutOfBandQueueTypeInfoNV
+{
+    using struct_type = VkOutOfBandQueueTypeInfoNV;
+
+    VkOutOfBandQueueTypeInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkLatencySurfaceCapabilitiesNV
+{
+    using struct_type = VkLatencySurfaceCapabilitiesNV;
+
+    VkLatencySurfaceCapabilitiesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkPresentModeKHR> pPresentModes;
+};
+
 struct Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM
 {
     using struct_type = VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM;

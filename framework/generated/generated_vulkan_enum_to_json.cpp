@@ -5595,6 +5595,51 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkInternalAllocationType& 
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkLatencyMarkerNV& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_LATENCY_MARKER_SIMULATION_START_NV:
+            jdata = "VK_LATENCY_MARKER_SIMULATION_START_NV";
+            break;
+        case VK_LATENCY_MARKER_SIMULATION_END_NV:
+            jdata = "VK_LATENCY_MARKER_SIMULATION_END_NV";
+            break;
+        case VK_LATENCY_MARKER_RENDERSUBMIT_START_NV:
+            jdata = "VK_LATENCY_MARKER_RENDERSUBMIT_START_NV";
+            break;
+        case VK_LATENCY_MARKER_RENDERSUBMIT_END_NV:
+            jdata = "VK_LATENCY_MARKER_RENDERSUBMIT_END_NV";
+            break;
+        case VK_LATENCY_MARKER_PRESENT_START_NV:
+            jdata = "VK_LATENCY_MARKER_PRESENT_START_NV";
+            break;
+        case VK_LATENCY_MARKER_PRESENT_END_NV:
+            jdata = "VK_LATENCY_MARKER_PRESENT_END_NV";
+            break;
+        case VK_LATENCY_MARKER_INPUT_SAMPLE_NV:
+            jdata = "VK_LATENCY_MARKER_INPUT_SAMPLE_NV";
+            break;
+        case VK_LATENCY_MARKER_TRIGGER_FLASH_NV:
+            jdata = "VK_LATENCY_MARKER_TRIGGER_FLASH_NV";
+            break;
+        case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV:
+            jdata = "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV";
+            break;
+        case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV:
+            jdata = "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV";
+            break;
+        case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV:
+            jdata = "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV";
+            break;
+        case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV:
+            jdata = "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkLayerSettingTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
@@ -6194,6 +6239,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowUsageFlagBits
             break;
         case VK_OPTICAL_FLOW_USAGE_GLOBAL_FLOW_BIT_NV:
             jdata = "VK_OPTICAL_FLOW_USAGE_GLOBAL_FLOW_BIT_NV";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const VkOutOfBandQueueTypeNV& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV:
+            jdata = "VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV";
+            break;
+        case VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV:
+            jdata = "VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV";
             break;
         default:
             jdata = to_hex_fixed_width(value);
