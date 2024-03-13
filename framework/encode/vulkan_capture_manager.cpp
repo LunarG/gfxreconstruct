@@ -1,26 +1,26 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2023 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
-**
-** Permission is hereby granted, free of charge, to any person obtaining a
-** copy of this software and associated documentation files (the "Software"),
-** to deal in the Software without restriction, including without limitation
-** the rights to use, copy, modify, merge, publish, distribute, sublicense,
-** and/or sell copies of the Software, and to permit persons to whom the
-** Software is furnished to do so, subject to the following conditions:
-**
-** The above copyright notice and this permission notice shall be included in
-** all copies or substantial portions of the Software.
-**
-** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-** DEALINGS IN THE SOFTWARE.
-*/
+ ** Copyright (c) 2018-2021 Valve Corporation
+ ** Copyright (c) 2018-2023 LunarG, Inc.
+ ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+ **
+ ** Permission is hereby granted, free of charge, to any person obtaining a
+ ** copy of this software and associated documentation files (the "Software"),
+ ** to deal in the Software without restriction, including without limitation
+ ** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ ** and/or sell copies of the Software, and to permit persons to whom the
+ ** Software is furnished to do so, subject to the following conditions:
+ **
+ ** The above copyright notice and this permission notice shall be included in
+ ** all copies or substantial portions of the Software.
+ **
+ ** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ ** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ ** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ ** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ ** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ ** DEALINGS IN THE SOFTWARE.
+ */
 
 #include "project_version.h"
 
@@ -420,8 +420,8 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
 
     if (create_info->descriptorUpdateEntryCount > 0)
     {
-        auto wrapper = GetVulkanWrapper<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(update_template);
-        UpdateTemplateInfo* info    = &wrapper->info;
+        auto wrapper             = GetVulkanWrapper<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(update_template);
+        UpdateTemplateInfo* info = &wrapper->info;
 
         for (size_t i = 0; i < create_info->descriptorUpdateEntryCount; ++i)
         {
@@ -637,7 +637,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
     assert(pCreateInfo_unwrapped != nullptr);
 
-    const VulkanInstanceTable* instance_table          = GetVulkanInstanceTable(physicalDevice);
+    const VulkanInstanceTable* instance_table = GetVulkanInstanceTable(physicalDevice);
     auto physical_device_wrapper = GetVulkanWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
 
     graphics::VulkanDeviceUtil                device_util;
@@ -1361,7 +1361,7 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
     VkResult                          result = VK_SUCCESS;
     auto deferred_operation_wrapper = GetVulkanWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(deferredOperation);
     auto device_wrapper             = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    const VulkanDeviceTable* device_table    = GetVulkanDeviceTable(device);
+    const VulkanDeviceTable* device_table = GetVulkanDeviceTable(device);
 
     GFXRECON_ASSERT(device_table != nullptr);
 
@@ -1588,9 +1588,9 @@ void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          res
 
                 auto physical_device_wrapper =
                     GetVulkanWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physical_device);
-                format::HandleId physical_device_id      = physical_device_wrapper->handle_id;
-                VkPhysicalDevice physical_device_handle  = physical_device_wrapper->handle;
-                uint32_t         count                   = 0;
+                format::HandleId physical_device_id     = physical_device_wrapper->handle_id;
+                VkPhysicalDevice physical_device_handle = physical_device_wrapper->handle;
+                uint32_t         count                  = 0;
 
                 VkPhysicalDeviceProperties       properties;
                 VkPhysicalDeviceMemoryProperties memory_properties;
@@ -2106,7 +2106,7 @@ void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice        
             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
         {
             const vulkan_wrappers::DeviceMemoryWrapper* current_memory_wrapper = nullptr;
-            util::PageGuardManager*          manager                = util::PageGuardManager::Get();
+            util::PageGuardManager*                     manager                = util::PageGuardManager::Get();
             assert(manager != nullptr);
 
             for (uint32_t i = 0; i < memoryRangeCount; ++i)

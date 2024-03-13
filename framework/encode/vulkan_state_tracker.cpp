@@ -646,8 +646,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
     {
         for (uint32_t i = 0; i < write_count; ++i)
         {
-            const VkWriteDescriptorSet* write   = &writes[i];
-            auto wrapper = GetVulkanWrapper<vulkan_wrappers::DescriptorSetWrapper>(write->dstSet);
+            const VkWriteDescriptorSet* write = &writes[i];
+            auto wrapper                      = GetVulkanWrapper<vulkan_wrappers::DescriptorSetWrapper>(write->dstSet);
             assert(wrapper != nullptr);
 
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
@@ -1141,7 +1141,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                     const auto* accel_struct = reinterpret_cast<const VkAccelerationStructureKHR*>(src_address);
                     dst_view_ids[i] =
                         GetVulkanWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(*accel_struct);
-                    dst_info[i]              = *accel_struct;
+                    dst_info[i] = *accel_struct;
 
                     src_address += entry.stride;
                 }
@@ -1197,9 +1197,9 @@ void VulkanStateTracker::TrackQueryActivation(
     const vulkan_wrappers::CommandPoolWrapper* command_pool_wrapper = wrapper->parent_pool;
 
     auto& query_pool_info = wrapper->recorded_queries[GetVulkanWrapper<vulkan_wrappers::QueryPoolWrapper>(query_pool)];
-    auto& query_info              = query_pool_info[query];
-    query_info.active             = true;
-    query_info.flags              = flags;
+    auto& query_info      = query_pool_info[query];
+    query_info.active     = true;
+    query_info.flags      = flags;
     query_info.query_type_index   = index;
     query_info.queue_family_index = command_pool_wrapper->queue_family_index;
 }
@@ -1546,7 +1546,7 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
             assert(tlas_build_info.second.blas_count);
 
             // Find to which device memory this address belongs
-            const VkDeviceAddress            address         = tlas_build_info.second.address;
+            const VkDeviceAddress                       address         = tlas_build_info.second.address;
             const vulkan_wrappers::DeviceMemoryWrapper* dev_mem_wrapper = nullptr;
             for (const auto& dev_mem : device_memory_addresses_map)
             {

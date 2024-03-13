@@ -1,25 +1,25 @@
 /*
-** Copyright (c) 2019-2020 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
-**
-** Permission is hereby granted, free of charge, to any person obtaining a
-** copy of this software and associated documentation files (the "Software"),
-** to deal in the Software without restriction, including without limitation
-** the rights to use, copy, modify, merge, publish, distribute, sublicense,
-** and/or sell copies of the Software, and to permit persons to whom the
-** Software is furnished to do so, subject to the following conditions:
-**
-** The above copyright notice and this permission notice shall be included in
-** all copies or substantial portions of the Software.
-**
-** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-** DEALINGS IN THE SOFTWARE.
-*/
+ ** Copyright (c) 2019-2020 LunarG, Inc.
+ ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+ **
+ ** Permission is hereby granted, free of charge, to any person obtaining a
+ ** copy of this software and associated documentation files (the "Software"),
+ ** to deal in the Software without restriction, including without limitation
+ ** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ ** and/or sell copies of the Software, and to permit persons to whom the
+ ** Software is furnished to do so, subject to the following conditions:
+ **
+ ** The above copyright notice and this permission notice shall be included in
+ ** all copies or substantial portions of the Software.
+ **
+ ** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ ** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ ** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ ** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ ** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ ** DEALINGS IN THE SOFTWARE.
+ */
 
 #ifndef GFXRECON_ENCODE_VULKAN_HANDLE_WRAPPERS_H
 #define GFXRECON_ENCODE_VULKAN_HANDLE_WRAPPERS_H
@@ -107,9 +107,9 @@ struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
-    VulkanInstanceTable*                  layer_table_ref{ nullptr };
-    std::vector<DisplayKHRWrapper*>       child_displays;
-    uint32_t                              instance_api_version{ 0 };
+    VulkanInstanceTable*            layer_table_ref{ nullptr };
+    std::vector<DisplayKHRWrapper*> child_displays;
+    uint32_t                        instance_api_version{ 0 };
 
     // Track memory types for use when creating snapshots of buffer and image resource memory content.
     VkPhysicalDeviceMemoryProperties memory_properties{};
@@ -125,10 +125,10 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
 {
-    VulkanInstanceTable                       layer_table;
-    std::vector<PhysicalDeviceWrapper*>       child_physical_devices;
-    bool                                      have_device_properties{ false };
-    uint32_t                                  api_version{ VK_MAKE_VERSION(1, 0, 0) };
+    VulkanInstanceTable                 layer_table;
+    std::vector<PhysicalDeviceWrapper*> child_physical_devices;
+    bool                                have_device_properties{ false };
+    uint32_t                            api_version{ VK_MAKE_VERSION(1, 0, 0) };
 };
 
 struct QueueWrapper : public HandleWrapper<VkQueue>
@@ -138,9 +138,9 @@ struct QueueWrapper : public HandleWrapper<VkQueue>
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
-    VulkanDeviceTable                layer_table;
-    PhysicalDeviceWrapper*           physical_device{ nullptr };
-    std::vector<QueueWrapper*>       child_queues;
+    VulkanDeviceTable          layer_table;
+    PhysicalDeviceWrapper*     physical_device{ nullptr };
+    std::vector<QueueWrapper*> child_queues;
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo              property_feature_info;
@@ -151,8 +151,8 @@ struct FenceWrapper : public HandleWrapper<VkFence>
 {
     // Signaled state at creation to be compared with signaled state at snapshot write. If states are different, the
     // create parameters will need to be modified to reflect the state at snapshot write.
-    bool                 created_signaled{ false };
-    DeviceWrapper*       device{ nullptr };
+    bool           created_signaled{ false };
+    DeviceWrapper* device{ nullptr };
 };
 
 struct EventWrapper : public HandleWrapper<VkEvent>
@@ -169,15 +169,15 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     // The device wrapper will be initialized when allocating the memory. Some handling
     // like StateTracker::TrackTlasToBlasDependencies may use it before mapping
     // the memory.
-    DeviceWrapper*       parent_device{ nullptr };
-    const void*          mapped_data{ nullptr };
-    VkDeviceSize         mapped_offset{ 0 };
-    VkDeviceSize         mapped_size{ 0 };
-    VkMemoryMapFlags     mapped_flags{ 0 };
-    void*                external_allocation{ nullptr };
-    uintptr_t            shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
-    AHardwareBuffer*     hardware_buffer{ nullptr };
-    format::HandleId     hardware_buffer_memory_id{ format::kNullHandleId };
+    DeviceWrapper*   parent_device{ nullptr };
+    const void*      mapped_data{ nullptr };
+    VkDeviceSize     mapped_offset{ 0 };
+    VkDeviceSize     mapped_size{ 0 };
+    VkMemoryMapFlags mapped_flags{ 0 };
+    void*            external_allocation{ nullptr };
+    uintptr_t        shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
+    AHardwareBuffer* hardware_buffer{ nullptr };
+    format::HandleId hardware_buffer_memory_id{ format::kNullHandleId };
 
     // State tracking info for memory with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
@@ -186,8 +186,8 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
-    DeviceWrapper*       bind_device{ nullptr };
-    const void*          bind_pnext{ nullptr };
+    DeviceWrapper*     bind_device{ nullptr };
+    const void*        bind_pnext{ nullptr };
     HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
                                           // HandleUnwrapMemory.
     format::HandleId bind_memory_id{ format::kNullHandleId };
@@ -202,8 +202,8 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
 
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
-    DeviceWrapper*       bind_device{ nullptr };
-    const void*          bind_pnext{ nullptr };
+    DeviceWrapper*     bind_device{ nullptr };
+    const void*        bind_pnext{ nullptr };
     HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
                                           // HandleUnwrapMemory.
     format::HandleId         bind_memory_id{ format::kNullHandleId };
@@ -228,8 +228,8 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
 
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
 {
-    format::HandleId    image_id{ format::kNullHandleId };
-    ImageWrapper*       image{ nullptr };
+    format::HandleId image_id{ format::kNullHandleId };
+    ImageWrapper*    image{ nullptr };
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
@@ -251,9 +251,9 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
     // AcquireNextImageKHR, or AcquireNextImage2KHR as a signal semaphore. State is not signaled when a semaphore is
     // submitted to QueueSubmit, QueueBindSparse, or QueuePresentKHR as a wait semaphore. Initial state after creation
     // is not signaled.
-    bool                 signaled{ false };
-    VkSemaphoreType      type{ VK_SEMAPHORE_TYPE_BINARY_KHR };
-    DeviceWrapper*       device{ nullptr };
+    bool            signaled{ false };
+    VkSemaphoreType type{ VK_SEMAPHORE_TYPE_BINARY_KHR };
+    DeviceWrapper*  device{ nullptr };
 };
 
 struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
@@ -405,8 +405,8 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
     // Members for trimming state tracking.
     uint32_t queue_family_index{ 0 };
 
-    DeviceWrapper*       device{ nullptr };
-    bool                 trim_command_pool{ false };
+    DeviceWrapper* device{ nullptr };
+    bool           trim_command_pool{ false };
 };
 
 // For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
@@ -497,10 +497,10 @@ struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStruc
 
 struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
 {
-    DeviceWrapper*       device{ nullptr };
-    VkObjectType         object_type{ VK_OBJECT_TYPE_UNKNOWN };
-    uint64_t             object_handle{ 0 };
-    uint64_t             data{ 0 };
+    DeviceWrapper* device{ nullptr };
+    VkObjectType   object_type{ VK_OBJECT_TYPE_UNKNOWN };
+    uint64_t       object_handle{ 0 };
+    uint64_t       data{ 0 };
 };
 
 struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
