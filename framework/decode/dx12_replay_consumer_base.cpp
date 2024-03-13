@@ -5108,6 +5108,15 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
                                     track_dump_resources_.split_command_sets.end());
                     break;
                 }
+                // It has to ensure that the splited command list has a pair of BeginQuery and EndQuery.
+                case format::ApiCall_ID3D12GraphicsCommandList_BeginQuery:
+                case format::ApiCall_ID3D12GraphicsCommandList_EndQuery:
+                {
+                    cmd_sets.insert(cmd_sets.end(),
+                                    track_dump_resources_.split_command_sets.begin(),
+                                    track_dump_resources_.split_command_sets.end());
+                    break;
+                }
                 // binding and Set. These commands are the three command lists need.
                 case format::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer:
                 case format::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology:
@@ -5151,6 +5160,7 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
                                             track_dump_resources_.split_command_sets.begin(),
                                             track_dump_resources_.split_command_sets.end());
                             break;
+                        // But if the command is after DrawCall, it's just added at the third CommandList.
                         case graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall:
                             cmd_sets.emplace_back(track_dump_resources_.split_command_sets
                                                       [graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall]);
