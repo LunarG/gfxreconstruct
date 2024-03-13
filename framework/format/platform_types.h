@@ -43,6 +43,9 @@ typedef void*          HINSTANCE;
 typedef void*          HWND;
 typedef void*          HANDLE;
 typedef void*          HMONITOR;
+typedef void*          IUnknown;
+typedef void*          HDC;
+typedef void*          HGLRC;
 
 // Define a version of the WIN32 SECURITY_ATTRIBUTES struct that
 // is suitable for decoding on non-WIN32 platforms.
@@ -91,11 +94,73 @@ struct SECURITY_DESCRIPTOR
 
 struct SECURITY_ATTRIBUTES
 {
-    DWORD  nLength;
-    LPVOID lpSecurityDescriptor;
+    DWORD              nLength;
+    LPVOID             lpSecurityDescriptor;
     int32_t /* BOOL */ bInheritHandle;
 };
+
+struct LUID
+{
+    unsigned long LowPart;
+    long          HighPart;
+};
+
+union LARGE_INTEGER
+{
+    struct
+    {
+        uint32_t LowPart;
+        int32_t  HighPart;
+    } DUMMYSTRUCTNAME;
+    struct
+    {
+        uint32_t LowPart;
+        int32_t  HighPart;
+    } u;
+    int64_t QuadPart;
+};
+
 #endif // WIN32
+
+#ifdef XR_USE_PLATFORM_XLIB
+#include <X11/Xlib.h>
+#include "GL/glx.h"
+#endif // XR_USE_PLATFORM_XLIB
+
+#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
+#include "EGL/egl.h"
+#else
+typedef unsigned int EGLenum;
+typedef void*        EGLDisplay;
+typedef void*        EGLConfig;
+typedef void*        EGLContext;
+#endif // XR_USE_GRAPHICS_API_OPENGL_ES
+
+#ifdef XR_USE_PLATFORM_XCB
+#include <xcb/xcb.h>
+#include "xcb/glx.h"
+#endif
+
+#if !defined(XR_USE_PLATFORM_XLIB)
+typedef void* GLXFBConfig;
+typedef void* GLXDrawable;
+typedef void* GLXContext;
+#endif // !XR_USE_PLATFORM_XLIB
+
+#if !defined(VK_USE_PLATFORM_XCB_KHR) && !defined(XR_USE_PLATFORM_XCB)
+struct xcb_connection_t;
+typedef void* xcb_glx_fbconfig_t;
+typedef void* xcb_glx_drawable_t;
+typedef void* xcb_glx_context_t;
+
+typedef uint32_t xcb_window_t;
+typedef uint32_t xcb_visualid_t;
+#endif // !VK_USE_PLATFORM_XCB_KHR && !XR_USE_PLATFORM_XCB
+
+#if !defined(VK_USE_PLATFORM_WAYLAND_KHR) && !defined(XR_USE_PLATFORM_WAYLAND)
+struct wl_display;
+struct wl_surface;
+#endif // !VK_USE_PLATFORM_WAYLAND_KHR && !XR_USE_PLATFORM_WAYLAND
 
 // Types for platform extensions.
 
@@ -536,9 +601,6 @@ extern "C"
 
 typedef VkFlags VkWaylandSurfaceCreateFlagsKHR;
 
-struct wl_display;
-struct wl_surface;
-
 struct VkWaylandSurfaceCreateInfoKHR
 {
     VkStructureType                sType;
@@ -930,11 +992,6 @@ extern "C"
 
 typedef VkFlags VkXcbSurfaceCreateFlagsKHR;
 
-typedef uint32_t xcb_window_t;
-typedef uint32_t xcb_visualid_t;
-
-struct xcb_connection_t;
-
 struct VkXcbSurfaceCreateInfoKHR
 {
     VkStructureType            sType;
@@ -1200,5 +1257,44 @@ extern "C"
 }
 
 #endif // VK_USE_PLATFORM_SCREEN_QNX
+
+#if !defined(XR_USE_PLATFORM_ANDROID)
+typedef void* jobject;
+#endif // XR_USE_PLATFORM_ANDROID
+
+#if !defined(XR_USE_GRAPHICS_API_D3D11)
+typedef void* ID3D11Device;
+typedef void* ID3D11Texture2D;
+#endif // XR_USE_GRAPHICS_API_D3D11
+
+#if !defined(XR_USE_GRAPHICS_API_D3D12)
+typedef void* ID3D12Device;
+typedef void* ID3D12CommandQueue;
+typedef void* ID3D12Resource;
+typedef void* ID3D12CommandQueue;
+
+enum D3D_FEATURE_LEVEL
+{
+    D3D_FEATURE_LEVEL_1_0_GENERIC,
+    D3D_FEATURE_LEVEL_1_0_CORE,
+    D3D_FEATURE_LEVEL_9_1,
+    D3D_FEATURE_LEVEL_9_2,
+    D3D_FEATURE_LEVEL_9_3,
+    D3D_FEATURE_LEVEL_10_0,
+    D3D_FEATURE_LEVEL_10_1,
+    D3D_FEATURE_LEVEL_11_0,
+    D3D_FEATURE_LEVEL_11_1,
+    D3D_FEATURE_LEVEL_12_0,
+    D3D_FEATURE_LEVEL_12_1,
+    D3D_FEATURE_LEVEL_12_2
+};
+#endif // XR_USE_GRAPHICS_API_D3D12
+
+#if !defined(XR_USE_PLATFORM_ML)
+typedef struct MLCoordinateFrameUID
+{
+    uint64_t data[2];
+} MLCoordinateFrameUID;
+#endif // XR_USE_PLATFORM_ML
 
 #endif // GFXRECON_PLATFORM_TYPES_H

@@ -85,11 +85,68 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
-
+        self.newline()
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
+
+        write(
+            '// Define the platform defines so that we can have entrypoints for each',
+            file=self.outFile
+        )
+        write(
+            '// possible entrypoint in our dispatch table.', file=self.outFile
+        )
+        write('#ifndef XR_USE_PLATFORM_WIN32', file=self.outFile)
+        write('#define XR_USE_PLATFORM_WIN32', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_WAYLAND', file=self.outFile)
+        write('#define XR_USE_PLATFORM_WAYLAND', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_XCB', file=self.outFile)
+        write('#define XR_USE_PLATFORM_XCB', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_XLIB', file=self.outFile)
+        write('#define XR_USE_PLATFORM_XLIB', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_ANDROID', file=self.outFile)
+        write('#define XR_USE_PLATFORM_ANDROID', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_ML', file=self.outFile)
+        write('#define XR_USE_PLATFORM_ML', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_TIMESPEC', file=self.outFile)
+        write('#define XR_USE_TIMESPEC', file=self.outFile)
+        write('#endif', file=self.outFile)
+        self.newline()
+
         self.includeOpenXrHeaders(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -145,12 +202,12 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
         )
         write('{', file=self.outFile)
         write(
-            '    FuncP result = reinterpret_cast<FuncP>(gpa(handle, name));',
+            '    XrResult result = gpa(handle, name, reinterpret_cast<PFN_xrVoidFunction*>(funcp));',
             file=self.outFile
         )
-        write('    if (result != nullptr)', file=self.outFile)
+        write('    if (result != XR_SUCCESS)', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        (*funcp) = result;', file=self.outFile)
+        write('        (*funcp) = nullptr;', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
 

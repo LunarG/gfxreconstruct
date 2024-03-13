@@ -6,6 +6,9 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.cpp               
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.cpp
+                   #${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_encoder_commands.h
+                   #${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_api_call_encoders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_api_call_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_encoder_commands.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.cpp
@@ -17,14 +20,19 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_handle_wrappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/descriptor_update_template_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/handle_unwrap_memory.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_handle_wrappers.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_handle_wrapper_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_handle_wrapper_util.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_info.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_table_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_buffer.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_encoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/scoped_destroy_lock.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/scoped_destroy_lock.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/struct_pointer_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrappers.h
-                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_scoped_destroy_lock.h
-                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_scoped_destroy_lock.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrapper_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrapper_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_info.h
@@ -33,6 +41,16 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_tracker.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_writer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_api_call_encoders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_api_call_encoders.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_encoders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_encoders.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_wrappers.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_wrappers.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_pnext_encoder.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_trackers.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_trackers.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_state_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp

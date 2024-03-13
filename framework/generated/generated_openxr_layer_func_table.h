@@ -30,12 +30,15 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_LAYER_FUNC_TABLE_H
 #define  GFXRECON_GENERATED_OPENXR_LAYER_FUNC_TABLE_H
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "encode/custom_openxr_api_call_encoders.h"
 #include "generated/generated_openxr_api_call_encoders.h"
 #include "layer/trace_layer.h"
 #include "util/defines.h"
 
-#include <openxr/openxr.h>
+#include "openxr/openxr.h"
+#include "openxr/openxr_platform.h"
 
 #include <unordered_map>
 
@@ -100,46 +103,26 @@ const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
     { "xrCreateApiLayerInstance",                                                                            reinterpret_cast<PFN_xrVoidFunction>(encode::CreateApiLayerInstance) },
     { "xrNegotiateLoaderRuntimeInterface",                                                                   reinterpret_cast<PFN_xrVoidFunction>(encode::NegotiateLoaderRuntimeInterface) },
     { "xrNegotiateLoaderApiLayerInterface",                                                                  reinterpret_cast<PFN_xrVoidFunction>(encode::NegotiateLoaderApiLayerInterface) },
-#ifdef XR_USE_PLATFORM_ANDROID
     { "xrSetAndroidApplicationThreadKHR",                                                                    reinterpret_cast<PFN_xrVoidFunction>(encode::SetAndroidApplicationThreadKHR) },
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_PLATFORM_ANDROID
     { "xrCreateSwapchainAndroidSurfaceKHR",                                                                  reinterpret_cast<PFN_xrVoidFunction>(encode::CreateSwapchainAndroidSurfaceKHR) },
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_OPENGL
     { "xrGetOpenGLGraphicsRequirementsKHR",                                                                  reinterpret_cast<PFN_xrVoidFunction>(encode::GetOpenGLGraphicsRequirementsKHR) },
-#endif /* XR_USE_GRAPHICS_API_OPENGL */
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
     { "xrGetOpenGLESGraphicsRequirementsKHR",                                                                reinterpret_cast<PFN_xrVoidFunction>(encode::GetOpenGLESGraphicsRequirementsKHR) },
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
     { "xrGetVulkanInstanceExtensionsKHR",                                                                    reinterpret_cast<PFN_xrVoidFunction>(encode::GetVulkanInstanceExtensionsKHR) },
     { "xrGetVulkanDeviceExtensionsKHR",                                                                      reinterpret_cast<PFN_xrVoidFunction>(encode::GetVulkanDeviceExtensionsKHR) },
     { "xrGetVulkanGraphicsDeviceKHR",                                                                        reinterpret_cast<PFN_xrVoidFunction>(encode::GetVulkanGraphicsDeviceKHR) },
     { "xrGetVulkanGraphicsRequirementsKHR",                                                                  reinterpret_cast<PFN_xrVoidFunction>(encode::GetVulkanGraphicsRequirementsKHR) },
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_GRAPHICS_API_D3D11
     { "xrGetD3D11GraphicsRequirementsKHR",                                                                   reinterpret_cast<PFN_xrVoidFunction>(encode::GetD3D11GraphicsRequirementsKHR) },
-#endif /* XR_USE_GRAPHICS_API_D3D11 */
-#ifdef XR_USE_GRAPHICS_API_D3D12
     { "xrGetD3D12GraphicsRequirementsKHR",                                                                   reinterpret_cast<PFN_xrVoidFunction>(encode::GetD3D12GraphicsRequirementsKHR) },
-#endif /* XR_USE_GRAPHICS_API_D3D12 */
     { "xrGetVisibilityMaskKHR",                                                                              reinterpret_cast<PFN_xrVoidFunction>(encode::GetVisibilityMaskKHR) },
-#ifdef XR_USE_PLATFORM_WIN32
     { "xrConvertWin32PerformanceCounterToTimeKHR",                                                           reinterpret_cast<PFN_xrVoidFunction>(encode::ConvertWin32PerformanceCounterToTimeKHR) },
     { "xrConvertTimeToWin32PerformanceCounterKHR",                                                           reinterpret_cast<PFN_xrVoidFunction>(encode::ConvertTimeToWin32PerformanceCounterKHR) },
-#endif /* XR_USE_PLATFORM_WIN32 */
-#ifdef XR_USE_TIMESPEC
     { "xrConvertTimespecTimeToTimeKHR",                                                                      reinterpret_cast<PFN_xrVoidFunction>(encode::ConvertTimespecTimeToTimeKHR) },
     { "xrConvertTimeToTimespecTimeKHR",                                                                      reinterpret_cast<PFN_xrVoidFunction>(encode::ConvertTimeToTimespecTimeKHR) },
-#endif /* XR_USE_TIMESPEC */
     { "xrInitializeLoaderKHR",                                                                               reinterpret_cast<PFN_xrVoidFunction>(encode::InitializeLoaderKHR) },
-#ifdef XR_USE_GRAPHICS_API_VULKAN
     { "xrCreateVulkanInstanceKHR",                                                                           reinterpret_cast<PFN_xrVoidFunction>(encode::CreateVulkanInstanceKHR) },
     { "xrCreateVulkanDeviceKHR",                                                                             reinterpret_cast<PFN_xrVoidFunction>(encode::CreateVulkanDeviceKHR) },
     { "xrGetVulkanGraphicsDevice2KHR",                                                                       reinterpret_cast<PFN_xrVoidFunction>(encode::GetVulkanGraphicsDevice2KHR) },
     { "xrGetVulkanGraphicsRequirements2KHR",                                                                 reinterpret_cast<PFN_xrVoidFunction>(encode::GetVulkanGraphicsRequirements2KHR) },
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
     { "xrPerfSettingsSetPerformanceLevelEXT",                                                                reinterpret_cast<PFN_xrVoidFunction>(encode::PerfSettingsSetPerformanceLevelEXT) },
     { "xrThermalGetTemperatureTrendEXT",                                                                     reinterpret_cast<PFN_xrVoidFunction>(encode::ThermalGetTemperatureTrendEXT) },
     { "xrSetDebugUtilsObjectNameEXT",                                                                        reinterpret_cast<PFN_xrVoidFunction>(encode::SetDebugUtilsObjectNameEXT) },
@@ -170,10 +153,8 @@ const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
     { "xrLoadControllerModelMSFT",                                                                           reinterpret_cast<PFN_xrVoidFunction>(encode::LoadControllerModelMSFT) },
     { "xrGetControllerModelPropertiesMSFT",                                                                  reinterpret_cast<PFN_xrVoidFunction>(encode::GetControllerModelPropertiesMSFT) },
     { "xrGetControllerModelStateMSFT",                                                                       reinterpret_cast<PFN_xrVoidFunction>(encode::GetControllerModelStateMSFT) },
-#ifdef XR_USE_PLATFORM_WIN32
     { "xrCreateSpatialAnchorFromPerceptionAnchorMSFT",                                                       reinterpret_cast<PFN_xrVoidFunction>(encode::CreateSpatialAnchorFromPerceptionAnchorMSFT) },
     { "xrTryGetPerceptionAnchorFromSpatialAnchorMSFT",                                                       reinterpret_cast<PFN_xrVoidFunction>(encode::TryGetPerceptionAnchorFromSpatialAnchorMSFT) },
-#endif /* XR_USE_PLATFORM_WIN32 */
     { "xrEnumerateReprojectionModesMSFT",                                                                    reinterpret_cast<PFN_xrVoidFunction>(encode::EnumerateReprojectionModesMSFT) },
     { "xrUpdateSwapchainFB",                                                                                 reinterpret_cast<PFN_xrVoidFunction>(encode::UpdateSwapchainFB) },
     { "xrGetSwapchainStateFB",                                                                               reinterpret_cast<PFN_xrVoidFunction>(encode::GetSwapchainStateFB) },
@@ -242,9 +223,7 @@ const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
     { "xrGetMarkerSizeVARJO",                                                                                reinterpret_cast<PFN_xrVoidFunction>(encode::GetMarkerSizeVARJO) },
     { "xrCreateMarkerSpaceVARJO",                                                                            reinterpret_cast<PFN_xrVoidFunction>(encode::CreateMarkerSpaceVARJO) },
     { "xrSetViewOffsetVARJO",                                                                                reinterpret_cast<PFN_xrVoidFunction>(encode::SetViewOffsetVARJO) },
-#ifdef XR_USE_PLATFORM_ML
     { "xrCreateSpaceFromCoordinateFrameUIDML",                                                               reinterpret_cast<PFN_xrVoidFunction>(encode::CreateSpaceFromCoordinateFrameUIDML) },
-#endif /* XR_USE_PLATFORM_ML */
     { "xrCreateMarkerDetectorML",                                                                            reinterpret_cast<PFN_xrVoidFunction>(encode::CreateMarkerDetectorML) },
     { "xrDestroyMarkerDetectorML",                                                                           reinterpret_cast<PFN_xrVoidFunction>(encode::DestroyMarkerDetectorML) },
     { "xrSnapshotMarkerDetectorML",                                                                          reinterpret_cast<PFN_xrVoidFunction>(encode::SnapshotMarkerDetectorML) },
@@ -275,10 +254,8 @@ const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
     { "xrRetrieveSpaceQueryResultsFB",                                                                       reinterpret_cast<PFN_xrVoidFunction>(encode::RetrieveSpaceQueryResultsFB) },
     { "xrSaveSpaceFB",                                                                                       reinterpret_cast<PFN_xrVoidFunction>(encode::SaveSpaceFB) },
     { "xrEraseSpaceFB",                                                                                      reinterpret_cast<PFN_xrVoidFunction>(encode::EraseSpaceFB) },
-#ifdef XR_USE_PLATFORM_WIN32
     { "xrGetAudioOutputDeviceGuidOculus",                                                                    reinterpret_cast<PFN_xrVoidFunction>(encode::GetAudioOutputDeviceGuidOculus) },
     { "xrGetAudioInputDeviceGuidOculus",                                                                     reinterpret_cast<PFN_xrVoidFunction>(encode::GetAudioInputDeviceGuidOculus) },
-#endif /* XR_USE_PLATFORM_WIN32 */
     { "xrShareSpacesFB",                                                                                     reinterpret_cast<PFN_xrVoidFunction>(encode::ShareSpacesFB) },
     { "xrGetSpaceBoundingBox2DFB",                                                                           reinterpret_cast<PFN_xrVoidFunction>(encode::GetSpaceBoundingBox2DFB) },
     { "xrGetSpaceBoundingBox3DFB",                                                                           reinterpret_cast<PFN_xrVoidFunction>(encode::GetSpaceBoundingBox3DFB) },
@@ -343,5 +320,7 @@ const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
 
 #endif //  GFXRECON_GENERATED_OPENXR_LAYER_FUNC_TABLE_H

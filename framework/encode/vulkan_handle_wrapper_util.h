@@ -26,7 +26,7 @@
 
 #include "encode/handle_unwrap_memory.h"
 #include "encode/vulkan_handle_wrappers.h"
-#include "vulkan_scoped_destroy_lock.h"
+#include "scoped_destroy_lock.h"
 #include "format/format.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_dispatch_table.h"

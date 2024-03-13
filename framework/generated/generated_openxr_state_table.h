@@ -30,6 +30,8 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_STATE_TABLE_H
 #define  GFXRECON_GENERATED_OPENXR_STATE_TABLE_H
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "encode/openxr_state_table_base.h"
 
 
@@ -489,5 +491,7 @@ template<> inline openxr_wrappers::VirtualKeyboardMETAWrapper* OpenXrStateHandle
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
 
 #endif //  GFXRECON_GENERATED_OPENXR_STATE_TABLE_H

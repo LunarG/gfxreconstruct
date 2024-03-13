@@ -27,6 +27,8 @@
 **
 */
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "generated/generated_openxr_struct_handle_wrappers.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -181,8 +183,6 @@ void UnwrapStructHandles(XrCompositionLayerCubeKHR* value, HandleUnwrapMemory* u
     {
     }
 }
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
 
 void UnwrapStructHandles(XrCompositionLayerDepthInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -191,8 +191,6 @@ void UnwrapStructHandles(XrCompositionLayerDepthInfoKHR* value, HandleUnwrapMemo
         UnwrapStructHandles(&value->subImage, unwrap_memory);
     }
 }
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
 void UnwrapStructHandles(XrCompositionLayerCylinderKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -209,16 +207,6 @@ void UnwrapStructHandles(XrCompositionLayerEquirectKHR* value, HandleUnwrapMemor
         UnwrapStructHandles(&value->subImage, unwrap_memory);
     }
 }
-#ifdef XR_USE_GRAPHICS_API_OPENGL
-#endif /* XR_USE_GRAPHICS_API_OPENGL */
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_GRAPHICS_API_D3D11
-#endif /* XR_USE_GRAPHICS_API_D3D11 */
-#ifdef XR_USE_GRAPHICS_API_D3D12
-#endif /* XR_USE_GRAPHICS_API_D3D12 */
 
 void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -226,10 +214,6 @@ void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwra
     {
     }
 }
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
 void UnwrapStructHandles(XrCompositionLayerEquirect2KHR* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -252,8 +236,6 @@ void UnwrapStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrap
     {
     }
 }
-#ifdef XR_USE_PLATFORM_EGL
-#endif /* XR_USE_PLATFORM_EGL */
 
 void UnwrapStructHandles(XrSpatialGraphStaticNodeBindingCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -284,10 +266,6 @@ void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, Ha
         value->viewConfigurationLayersInfo = UnwrapStructArrayHandles(value->viewConfigurationLayersInfo, value->viewConfigurationCount, unwrap_memory);
     }
 }
-#ifdef XR_USE_PLATFORM_WIN32
-#endif /* XR_USE_PLATFORM_WIN32 */
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
 
 void UnwrapStructHandles(XrBodyJointsLocateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -398,8 +376,6 @@ void UnwrapStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap
         }
     }
 }
-#ifdef XR_USE_PLATFORM_ML
-#endif /* XR_USE_PLATFORM_ML */
 
 void UnwrapStructHandles(XrMarkerSpaceCreateInfoML* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -471,14 +447,6 @@ void UnwrapStructHandles(XrEventDataSpaceEraseCompleteFB* value, HandleUnwrapMem
     {
     }
 }
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
 void UnwrapStructHandles(XrSpaceShareInfoFB* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -558,8 +526,6 @@ void UnwrapStructHandles(XrEventDataVirtualKeyboardHiddenMETA* value, HandleUnwr
     {
     }
 }
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
 void UnwrapStructHandles(XrSpaceListSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -1028,3 +994,5 @@ const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwra
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT

@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,37 +20,33 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "vulkan_scoped_destroy_lock.h"
+#ifndef GFXRECON_ENCODE_OPENXR_STATE_INFO_H
+#define GFXRECON_ENCODE_OPENXR_STATE_INFO_H
+
+#if ENABLE_OPENXR_SUPPORT
+
+#include "util/defines.h"
+#include "util/memory_output_stream.h"
+
+#include "openxr/openxr.h"
+
+#include <limits>
+#include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(openxr_state_info)
 
-std::shared_mutex ScopedDestroyLock::mutex_for_create_destroy_handle_;
+//
+// Types for state tracking.
+//
 
-ScopedDestroyLock::ScopedDestroyLock(bool shared)
-{
-    lock_shared_ = shared;
-    if (shared)
-    {
-        mutex_for_create_destroy_handle_.lock_shared();
-    }
-    else
-    {
-        mutex_for_create_destroy_handle_.lock();
-    }
-};
+typedef std::shared_ptr<util::MemoryOutputStream> CreateParameters;
 
-ScopedDestroyLock::~ScopedDestroyLock()
-{
-    if (lock_shared_)
-    {
-        mutex_for_create_destroy_handle_.unlock_shared();
-    }
-    else
-    {
-        mutex_for_create_destroy_handle_.unlock();
-    }
-};
-
+GFXRECON_END_NAMESPACE(openxr_state_info)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
+
+#endif // GFXRECON_ENCODE_OPENXR_STATE_INFO_H

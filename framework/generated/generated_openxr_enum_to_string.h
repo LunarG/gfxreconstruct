@@ -30,9 +30,12 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_ENUM_TO_STRING_H
 #define  GFXRECON_GENERATED_OPENXR_ENUM_TO_STRING_H
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "format/platform_types.h"
 #include "util/to_string.h"
-#include <openxr/openxr.h>
+#include "openxr/openxr.h"
+#include "openxr/openxr_platform.h"
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 template <> std::string ToString<XrActionType>(const XrActionType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -65,29 +68,11 @@ std::string XrViewStateFlagBitsToString(const XrViewStateFlagBits value);
 std::string XrViewStateFlagsToString(VkFlags64 vkFlags);
 template <> std::string ToString<XrLoaderInterfaceStructs>(const XrLoaderInterfaceStructs& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrAndroidThreadTypeKHR>(const XrAndroidThreadTypeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_GRAPHICS_API_OPENGL
-#endif /* XR_USE_GRAPHICS_API_OPENGL */
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_GRAPHICS_API_D3D11
-#endif /* XR_USE_GRAPHICS_API_D3D11 */
-#ifdef XR_USE_GRAPHICS_API_D3D12
-#endif /* XR_USE_GRAPHICS_API_D3D12 */
 template <> std::string ToString<XrVisibilityMaskTypeKHR>(const XrVisibilityMaskTypeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 template <> std::string ToString<XrVulkanDeviceCreateFlagBitsKHR>(const XrVulkanDeviceCreateFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrVulkanDeviceCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrVulkanInstanceCreateFlagBitsKHR>(const XrVulkanInstanceCreateFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrVulkanInstanceCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 template <> std::string ToString<XrPerfSettingsDomainEXT>(const XrPerfSettingsDomainEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrPerfSettingsLevelEXT>(const XrPerfSettingsLevelEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrPerfSettingsNotificationLevelEXT>(const XrPerfSettingsNotificationLevelEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -103,20 +88,14 @@ template <> std::string ToString<XrOverlaySessionCreateFlagBitsEXTX>(VkFlags vkF
 template <> std::string ToString<XrCompositionLayerImageLayoutFlagBitsFB>(const XrCompositionLayerImageLayoutFlagBitsFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrCompositionLayerImageLayoutFlagBitsFB>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrBlendFactorFB>(const XrBlendFactorFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#ifdef XR_USE_PLATFORM_EGL
-#endif /* XR_USE_PLATFORM_EGL */
 template <> std::string ToString<XrSpatialGraphNodeTypeMSFT>(const XrSpatialGraphNodeTypeMSFT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrHandEXT>(const XrHandEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrHandJointEXT>(const XrHandJointEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrHandJointSetEXT>(const XrHandJointSetEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrHandPoseTypeMSFT>(const XrHandPoseTypeMSFT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#ifdef XR_USE_PLATFORM_WIN32
-#endif /* XR_USE_PLATFORM_WIN32 */
 template <> std::string ToString<XrReprojectionModeMSFT>(const XrReprojectionModeMSFT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#ifdef XR_USE_PLATFORM_ANDROID
 template <> std::string ToString<XrAndroidSurfaceSwapchainFlagBitsFB>(const XrAndroidSurfaceSwapchainFlagBitsFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrAndroidSurfaceSwapchainFlagBitsFB>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#endif /* XR_USE_PLATFORM_ANDROID */
 template <> std::string ToString<XrCompositionLayerSecureContentFlagBitsFB>(const XrCompositionLayerSecureContentFlagBitsFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrCompositionLayerSecureContentFlagBitsFB>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrBodyJointFB>(const XrBodyJointFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -162,8 +141,6 @@ template <> std::string ToString<XrFrameEndInfoFlagBitsML>(const XrFrameEndInfoF
 template <> std::string ToString<XrFrameEndInfoFlagBitsML>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrGlobalDimmerFrameEndInfoFlagBitsML>(const XrGlobalDimmerFrameEndInfoFlagBitsML& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrGlobalDimmerFrameEndInfoFlagBitsML>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#ifdef XR_USE_PLATFORM_ML
-#endif /* XR_USE_PLATFORM_ML */
 template <> std::string ToString<XrMarkerAprilTagDictML>(const XrMarkerAprilTagDictML& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrMarkerArucoDictML>(const XrMarkerArucoDictML& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrMarkerDetectorCameraML>(const XrMarkerDetectorCameraML& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -185,14 +162,6 @@ template <> std::string ToString<XrHandForearmJointULTRALEAP>(const XrHandForear
 template <> std::string ToString<XrSpaceQueryActionFB>(const XrSpaceQueryActionFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrSpaceStorageLocationFB>(const XrSpaceStorageLocationFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrSpacePersistenceModeFB>(const XrSpacePersistenceModeFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 template <> std::string ToString<XrCompositionLayerSpaceWarpInfoFlagBitsFB>(const XrCompositionLayerSpaceWarpInfoFlagBitsFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrCompositionLayerSpaceWarpInfoFlagBitsFB>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrSemanticLabelsSupportFlagBitsFB>(const XrSemanticLabelsSupportFlagBitsFB& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -220,8 +189,6 @@ template <> std::string ToString<XrVirtualKeyboardLocationTypeMETA>(const XrVirt
 template <> std::string ToString<XrExternalCameraAttachedToDeviceOCULUS>(const XrExternalCameraAttachedToDeviceOCULUS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrExternalCameraStatusFlagBitsOCULUS>(const XrExternalCameraStatusFlagBitsOCULUS& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrExternalCameraStatusFlagBitsOCULUS>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 template <> std::string ToString<XrPerformanceMetricsCounterFlagBitsMETA>(const XrPerformanceMetricsCounterFlagBitsMETA& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrPerformanceMetricsCounterFlagBitsMETA>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrPerformanceMetricsCounterUnitMETA>(const XrPerformanceMetricsCounterUnitMETA& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -250,5 +217,7 @@ template <> std::string ToString<XrEyeCalibrationStatusML>(const XrEyeCalibratio
 template <> std::string ToString<XrHeadsetFitStatusML>(const XrHeadsetFitStatusML& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
 
 #endif //  GFXRECON_GENERATED_OPENXR_ENUM_TO_STRING_H

@@ -30,10 +30,13 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_API_CALL_ENCODERS_H
 #define  GFXRECON_GENERATED_OPENXR_API_CALL_ENCODERS_H
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "format/platform_types.h"
 #include "util/defines.h"
 
-#include <openxr/openxr.h>
+#include "openxr/openxr.h"
+#include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -322,36 +325,27 @@ XRAPI_ATTR XrResult XRAPI_CALL NegotiateLoaderApiLayerInterface(
     const char*                                 layerName,
     XrNegotiateApiLayerRequest*                 apiLayerRequest);
 
-#ifdef XR_USE_PLATFORM_ANDROID
 XRAPI_ATTR XrResult XRAPI_CALL SetAndroidApplicationThreadKHR(
     XrSession                                   session,
     XrAndroidThreadTypeKHR                      threadType,
     uint32_t                                    threadId);
-#endif /* XR_USE_PLATFORM_ANDROID */
 
-#ifdef XR_USE_PLATFORM_ANDROID
 XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchainAndroidSurfaceKHR(
     XrSession                                   session,
     const XrSwapchainCreateInfo*                info,
     XrSwapchain*                                swapchain,
     jobject*                                    surface);
-#endif /* XR_USE_PLATFORM_ANDROID */
 
-#ifdef XR_USE_GRAPHICS_API_OPENGL
 XRAPI_ATTR XrResult XRAPI_CALL GetOpenGLGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsOpenGLKHR*            graphicsRequirements);
-#endif /* XR_USE_GRAPHICS_API_OPENGL */
 
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
 XRAPI_ATTR XrResult XRAPI_CALL GetOpenGLESGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsOpenGLESKHR*          graphicsRequirements);
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 XRAPI_ATTR XrResult XRAPI_CALL GetVulkanInstanceExtensionsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
@@ -376,21 +370,16 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsVulkanKHR*            graphicsRequirements);
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
-#ifdef XR_USE_GRAPHICS_API_D3D11
 XRAPI_ATTR XrResult XRAPI_CALL GetD3D11GraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsD3D11KHR*             graphicsRequirements);
-#endif /* XR_USE_GRAPHICS_API_D3D11 */
 
-#ifdef XR_USE_GRAPHICS_API_D3D12
 XRAPI_ATTR XrResult XRAPI_CALL GetD3D12GraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsD3D12KHR*             graphicsRequirements);
-#endif /* XR_USE_GRAPHICS_API_D3D12 */
 
 XRAPI_ATTR XrResult XRAPI_CALL GetVisibilityMaskKHR(
     XrSession                                   session,
@@ -399,7 +388,6 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVisibilityMaskKHR(
     XrVisibilityMaskTypeKHR                     visibilityMaskType,
     XrVisibilityMaskKHR*                        visibilityMask);
 
-#ifdef XR_USE_PLATFORM_WIN32
 XRAPI_ATTR XrResult XRAPI_CALL ConvertWin32PerformanceCounterToTimeKHR(
     XrInstance                                  instance,
     const LARGE_INTEGER*                        performanceCounter,
@@ -409,9 +397,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ConvertTimeToWin32PerformanceCounterKHR(
     XrInstance                                  instance,
     XrTime                                      time,
     LARGE_INTEGER*                              performanceCounter);
-#endif /* XR_USE_PLATFORM_WIN32 */
 
-#ifdef XR_USE_TIMESPEC
 XRAPI_ATTR XrResult XRAPI_CALL ConvertTimespecTimeToTimeKHR(
     XrInstance                                  instance,
     const struct timespec*                      timespecTime,
@@ -421,12 +407,10 @@ XRAPI_ATTR XrResult XRAPI_CALL ConvertTimeToTimespecTimeKHR(
     XrInstance                                  instance,
     XrTime                                      time,
     struct timespec*                            timespecTime);
-#endif /* XR_USE_TIMESPEC */
 
 XRAPI_ATTR XrResult XRAPI_CALL InitializeLoaderKHR(
     const XrLoaderInitInfoBaseHeaderKHR*        loaderInitInfo);
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 XRAPI_ATTR XrResult XRAPI_CALL CreateVulkanInstanceKHR(
     XrInstance                                  instance,
     const XrVulkanInstanceCreateInfoKHR*        createInfo,
@@ -448,7 +432,6 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsRequirements2KHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsVulkanKHR*            graphicsRequirements);
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
 XRAPI_ATTR XrResult XRAPI_CALL PerfSettingsSetPerformanceLevelEXT(
     XrSession                                   session,
@@ -598,7 +581,6 @@ XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelStateMSFT(
     XrControllerModelKeyMSFT                    modelKey,
     XrControllerModelStateMSFT*                 state);
 
-#ifdef XR_USE_PLATFORM_WIN32
 XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPerceptionAnchorMSFT(
     XrSession                                   session,
     IUnknown*                                   perceptionAnchor,
@@ -608,7 +590,6 @@ XRAPI_ATTR XrResult XRAPI_CALL TryGetPerceptionAnchorFromSpatialAnchorMSFT(
     XrSession                                   session,
     XrSpatialAnchorMSFT                         anchor,
     IUnknown**                                  perceptionAnchor);
-#endif /* XR_USE_PLATFORM_WIN32 */
 
 XRAPI_ATTR XrResult XRAPI_CALL EnumerateReprojectionModesMSFT(
     XrInstance                                  instance,
@@ -912,12 +893,10 @@ XRAPI_ATTR XrResult  XRAPI_CALL SetViewOffsetVARJO(
     XrSession                                   session,
     float                                       offset);
 
-#ifdef XR_USE_PLATFORM_ML
 XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceFromCoordinateFrameUIDML(
     XrSession                                   session,
     const XrCoordinateSpaceCreateInfoML *       createInfo,
     XrSpace*                                    space);
-#endif /* XR_USE_PLATFORM_ML */
 
 XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerDetectorML(
     XrSession                                   session,
@@ -1065,7 +1044,6 @@ XRAPI_ATTR XrResult XRAPI_CALL EraseSpaceFB(
     const XrSpaceEraseInfoFB*                   info,
     XrAsyncRequestIdFB*                         requestId);
 
-#ifdef XR_USE_PLATFORM_WIN32
 XRAPI_ATTR XrResult XRAPI_CALL GetAudioOutputDeviceGuidOculus(
     XrInstance                                  instance,
     wchar_t                                     buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS]);
@@ -1073,7 +1051,6 @@ XRAPI_ATTR XrResult XRAPI_CALL GetAudioOutputDeviceGuidOculus(
 XRAPI_ATTR XrResult XRAPI_CALL GetAudioInputDeviceGuidOculus(
     XrInstance                                  instance,
     wchar_t                                     buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS]);
-#endif /* XR_USE_PLATFORM_WIN32 */
 
 XRAPI_ATTR XrResult XRAPI_CALL ShareSpacesFB(
     XrSession                                   session,
@@ -1352,5 +1329,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnableUserCalibrationEventsML(
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
 
 #endif //  GFXRECON_GENERATED_OPENXR_API_CALL_ENCODERS_H

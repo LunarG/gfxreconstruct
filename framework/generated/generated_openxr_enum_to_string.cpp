@@ -27,6 +27,8 @@
 **
 */
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "generated_openxr_enum_to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -955,20 +957,6 @@ template <> std::string ToString<XrAndroidThreadTypeKHR>(const XrAndroidThreadTy
     return "Unhandled XrAndroidThreadTypeKHR";
 }
 
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_GRAPHICS_API_OPENGL
-#endif /* XR_USE_GRAPHICS_API_OPENGL */
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_GRAPHICS_API_D3D11
-#endif /* XR_USE_GRAPHICS_API_D3D11 */
-#ifdef XR_USE_GRAPHICS_API_D3D12
-#endif /* XR_USE_GRAPHICS_API_D3D12 */
 template <> std::string ToString<XrVisibilityMaskTypeKHR>(const XrVisibilityMaskTypeKHR& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -980,9 +968,6 @@ template <> std::string ToString<XrVisibilityMaskTypeKHR>(const XrVisibilityMask
     return "Unhandled XrVisibilityMaskTypeKHR";
 }
 
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 template <> std::string ToString<XrVulkanDeviceCreateFlagBitsKHR>(const XrVulkanDeviceCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
 {
     return "Unhandled XrVulkanDeviceCreateFlagBitsKHR";
@@ -1003,7 +988,6 @@ template <> std::string ToString<XrVulkanInstanceCreateFlagBitsKHR>(XrFlags xrFl
     return BitmaskToString<XrVulkanInstanceCreateFlagBitsKHR>(xrFlags);
 }
 
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 template <> std::string ToString<XrPerfSettingsDomainEXT>(const XrPerfSettingsDomainEXT& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1134,8 +1118,6 @@ template <> std::string ToString<XrBlendFactorFB>(const XrBlendFactorFB& value, 
     return "Unhandled XrBlendFactorFB";
 }
 
-#ifdef XR_USE_PLATFORM_EGL
-#endif /* XR_USE_PLATFORM_EGL */
 template <> std::string ToString<XrSpatialGraphNodeTypeMSFT>(const XrSpatialGraphNodeTypeMSFT& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1210,8 +1192,6 @@ template <> std::string ToString<XrHandPoseTypeMSFT>(const XrHandPoseTypeMSFT& v
     return "Unhandled XrHandPoseTypeMSFT";
 }
 
-#ifdef XR_USE_PLATFORM_WIN32
-#endif /* XR_USE_PLATFORM_WIN32 */
 template <> std::string ToString<XrReprojectionModeMSFT>(const XrReprojectionModeMSFT& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1224,7 +1204,6 @@ template <> std::string ToString<XrReprojectionModeMSFT>(const XrReprojectionMod
     return "Unhandled XrReprojectionModeMSFT";
 }
 
-#ifdef XR_USE_PLATFORM_ANDROID
 template <> std::string ToString<XrAndroidSurfaceSwapchainFlagBitsFB>(const XrAndroidSurfaceSwapchainFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1240,7 +1219,6 @@ template <> std::string ToString<XrAndroidSurfaceSwapchainFlagBitsFB>(XrFlags xr
     return BitmaskToString<XrAndroidSurfaceSwapchainFlagBitsFB>(xrFlags);
 }
 
-#endif /* XR_USE_PLATFORM_ANDROID */
 template <> std::string ToString<XrCompositionLayerSecureContentFlagBitsFB>(const XrCompositionLayerSecureContentFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1785,8 +1763,6 @@ template <> std::string ToString<XrGlobalDimmerFrameEndInfoFlagBitsML>(XrFlags x
     return BitmaskToString<XrGlobalDimmerFrameEndInfoFlagBitsML>(xrFlags);
 }
 
-#ifdef XR_USE_PLATFORM_ML
-#endif /* XR_USE_PLATFORM_ML */
 template <> std::string ToString<XrMarkerAprilTagDictML>(const XrMarkerAprilTagDictML& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2056,14 +2032,6 @@ template <> std::string ToString<XrSpacePersistenceModeFB>(const XrSpacePersiste
     return "Unhandled XrSpacePersistenceModeFB";
 }
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 template <> std::string ToString<XrCompositionLayerSpaceWarpInfoFlagBitsFB>(const XrCompositionLayerSpaceWarpInfoFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2364,8 +2332,6 @@ template <> std::string ToString<XrExternalCameraStatusFlagBitsOCULUS>(XrFlags x
     return BitmaskToString<XrExternalCameraStatusFlagBitsOCULUS>(xrFlags);
 }
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 template <> std::string ToString<XrPerformanceMetricsCounterFlagBitsMETA>(const XrPerformanceMetricsCounterFlagBitsMETA& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2707,3 +2673,5 @@ template <> std::string ToString<XrHeadsetFitStatusML>(const XrHeadsetFitStatusM
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
