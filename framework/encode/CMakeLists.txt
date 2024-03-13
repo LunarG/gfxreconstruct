@@ -36,6 +36,13 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/capture_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_encoder_commands.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_api_call_encoders.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_api_call_encoders.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_encoders.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_encoders.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_handle_wrappers.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_handle_wrappers.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_encoder_commands.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.cpp
@@ -86,6 +93,17 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_rv_annotation_util.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_rv_annotation_util.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/handle_unwrap_memory.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_capture_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_capture_manager.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_handle_wrappers.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_handle_wrapper_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_handle_wrapper_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_state_info.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_state_table_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_state_tracker.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_state_tracker.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_state_writer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_state_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_buffer.h
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_encoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/scoped_destroy_lock.h
@@ -117,6 +135,16 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_state_table.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.cpp>
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_api_call_encoders.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_api_call_encoders.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_encoders.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_encoders.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_wrappers.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_wrappers.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_next_encoder.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_trackers.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_trackers.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_state_table.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
@@ -146,7 +174,13 @@ target_include_directories(gfxrecon_encode
                                ${CMAKE_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 
-target_link_libraries(gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_encode
+                        gfxrecon_graphics
+                        gfxrecon_format
+                        gfxrecon_util
+                        vulkan_registry
+                        openxr_headers
+                        platform_specific)
 
 common_build_directives(gfxrecon_encode)
 

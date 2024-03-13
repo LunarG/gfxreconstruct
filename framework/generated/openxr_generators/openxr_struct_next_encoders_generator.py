@@ -27,8 +27,8 @@ from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 class OpenXrStructNextEncodersGeneratorOptions(BaseGeneratorOptions):
     """Eliminates JSON black_lists and platform_types files, which are not necessary for
-    pNext switch statement generation.
-    Options for OpenXR API pNext structure encoding C++ code generation.
+    next switch statement generation.
+    Options for OpenXR API next structure encoding C++ code generation.
     """
 
     def __init__(
@@ -55,8 +55,8 @@ class OpenXrStructNextEncodersGeneratorOptions(BaseGeneratorOptions):
 
 class OpenXrStructNextEncodersGenerator(BaseGenerator):
     """OpenXrStructNextEncodersGenerator - subclass of BaseGenerator.
-    Generates C++ code for OpenXR API pNext structure encoding.
-    Generate pNext structure encoding C++ code.
+    Generates C++ code for OpenXR API next structure encoding.
+    Generate next structure encoding C++ code.
     """
 
     def __init__(
@@ -110,18 +110,9 @@ class OpenXrStructNextEncodersGenerator(BaseGenerator):
             file=self.outFile
         )
         self.newline()
-        write(
-            '    // Ignore the structures added to the pnext chain by the loader.',
-            file=self.outFile
-        )
-        write('    while ((base != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        base = base->next;', file=self.outFile)
-        write('    }', file=self.outFile)
-        self.newline()
         write('    if (base != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        switch (base-type)', file=self.outFile)
+        write('        switch (base->type)', file=self.outFile)
         write('        {', file=self.outFile)
         write('        default:', file=self.outFile)
         write('            {', file=self.outFile)

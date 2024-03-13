@@ -232,7 +232,7 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=True,
-            protect_feature=False,
+            protect_feature=True,
             extraOpenXrHeaders=extraOpenXrHeaders
         )
     ]
@@ -247,7 +247,7 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=False,
-            protect_feature=False,
+            protect_feature=True,
             extraOpenXrHeaders=extraOpenXrHeaders
         )
     ]
@@ -263,7 +263,7 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=True,
-            protect_feature=False,
+            protect_feature=True,
             extraOpenXrHeaders=extraOpenXrHeaders
         )
     ]

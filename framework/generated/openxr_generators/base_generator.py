@@ -292,7 +292,7 @@ class BaseGenerator(OutputGenerator):
         self.PLATFORM_TYPES = {}
 
         # Platform specific structure types that have been defined extarnally to the OpenXR header.
-        self.PLATFORM_STRUCTS = []
+        self.PLATFORM_STRUCTS = ['timespec']
 
         self.GENERIC_HANDLE_APICALLS = {}
 
@@ -317,6 +317,7 @@ class BaseGenerator(OutputGenerator):
         self.INDENT_SIZE = 4
 
         # Typenames
+        self.base_types = dict()  # Set of OpenXR basetypes
         self.struct_names = set()  # Set of OpenXR struct typenames
         self.handle_names = set()  # Set of OpenXR handle typenames
         self.flags_types = dict(
@@ -343,6 +344,42 @@ class BaseGenerator(OutputGenerator):
         if self.process_cmds:
             self.feature_cmd_params = dict(
             )  # Map of cmd names to lists of per-parameter ValueInfo
+
+        # Basetypes and their corresponding encode command type
+        self.encode_types = dict()
+        self.encode_types['int8_t'] = 'Int8'
+        self.encode_types['int16_t'] = 'Int16'
+        self.encode_types['int32_t'] = 'Int32'
+        self.encode_types['int64_t'] = 'Int64'
+        self.encode_types['uint8_t'] = 'UInt8'
+        self.encode_types['uint16_t'] = 'UInt16'
+        self.encode_types['uint32_t'] = 'UInt32'
+        self.encode_types['uint64_t'] = 'UInt64'
+        self.encode_types['XR_DEFINE_ATOM'] = 'UInt64'
+
+        # Add Vulkan handle types to handle list
+        self.handle_names.add('VkInstance')
+        self.handle_names.add('VkPhysicalDevice')
+        self.handle_names.add('VkDevice')
+        self.handle_names.add('VkImage')
+        self.handle_names.add('VkSwapchainKHR')
+
+        # Add Vulkan enums
+        self.enum_names.add('VkResult')
+        self.enum_names.add('VkFormat')
+        self.enum_names.add('VkFilter')
+        self.enum_names.add('VkSamplerMipmapMode')
+        self.enum_names.add('VkSamplerAddressMode')
+        self.enum_names.add('VkComponentSwizzle')
+
+        self.atom_names = [
+            'XrSystemId',
+            'XrPath',
+            'XrAsyncRequestIdFB',
+            'XrRenderModelKeyFB',
+            'XrMarkerML',
+            'XrControllerModelKeyMSFT',
+        ]
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate.
@@ -381,16 +418,89 @@ class BaseGenerator(OutputGenerator):
             write('#define ', self.header_sym, file=self.outFile)
             self.newline()
 
+        write('#ifdef ENABLE_OPENXR_SUPPORT', file=self.outFile)
+        self.newline()
+
+    def forceCommonXrDefines(self, gen_opts):
+        """Write OpenXR defines to enable all entrypoint/struct visibility
+        """
+        write(
+            '// Define the platform defines so that we can have entrypoints for each',
+            file=self.outFile
+        )
+        write(
+            '// possible entrypoint in our dispatch table.', file=self.outFile
+        )
+        write('#ifndef XR_USE_PLATFORM_WIN32', file=self.outFile)
+        write('#define XR_USE_PLATFORM_WIN32', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_WAYLAND', file=self.outFile)
+        write('#define XR_USE_PLATFORM_WAYLAND', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_XCB', file=self.outFile)
+        write('#define XR_USE_PLATFORM_XCB', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_XLIB', file=self.outFile)
+        write('#define XR_USE_PLATFORM_XLIB', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_ANDROID', file=self.outFile)
+        write('#define XR_USE_PLATFORM_ANDROID', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_ML', file=self.outFile)
+        write('#define XR_USE_PLATFORM_ML', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_PLATFORM_EGL', file=self.outFile)
+        write('#define XR_USE_PLATFORM_EGL', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
+        write('#define XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
+        write('#endif', file=self.outFile)
+
+        write('#ifndef XR_USE_TIMESPEC', file=self.outFile)
+        write('#define XR_USE_TIMESPEC', file=self.outFile)
+        write('#endif', file=self.outFile)
+
     def includeOpenXrHeaders(self, gen_opts):
         """Write OpenXR header include statements
         """
-        write('#include <openxr/openxr.h>', file=self.outFile)
+        write('#include "openxr/openxr.h"', file=self.outFile)
+        write(
+            '#include "openxr/openxr_loader_negotiation.h"', file=self.outFile
+        )
+        write('#include "openxr/openxr_platform.h"', file=self.outFile)
         for extra_openxr_header in gen_opts.extraOpenXrHeaders:
             header_include_path = re.sub(r'\\', '/', extra_openxr_header)
             write(f'#include "{header_include_path}"', file=self.outFile)
 
     def endFile(self):
         """Method override."""
+
+        self.newline()
+        write('#endif // ENABLE_OPENXR_SUPPORT', file=self.outFile)
+
         # Finish C++ wrapper and multiple inclusion protection
         if (self.genOpts.protect_file and self.genOpts.filename):
             self.newline()
@@ -413,6 +523,8 @@ class BaseGenerator(OutputGenerator):
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
             self.featureExtraProtect = self.__get_feature_protect(interface)
+        else:
+            self.featureExtraProtect = None
 
     def endFeature(self):
         """Method override. Generate code for the feature."""
@@ -459,6 +571,8 @@ class BaseGenerator(OutputGenerator):
             else:
                 # Otherwise, look for base type inside type declaration
                 self.flags_types[name] = type_elem.find('type').text
+        elif (category == "basetype"):
+            self.base_types[name] = type_elem.find('type').text
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override.
@@ -526,8 +640,6 @@ class BaseGenerator(OutputGenerator):
                 text = noneStr(elem.text)
                 tail = noneStr(elem.tail)
                 if (elem.tag == 'name'):
-                    if text.startswith('xr'):
-                        text = text[2:]
                     proto_decl += self.makeProtoName(text, tail)
                 else:
                     proto_decl += text + tail
@@ -1040,7 +1152,9 @@ class BaseGenerator(OutputGenerator):
         if self.is_struct(base_type):
             return base_type
         elif self.is_handle(base_type):
-            return 'Handle'
+            type_name = self.get_prefix_from_type(base_type)
+            type_name += 'Handle'
+            return type_name
         elif self.is_flags(base_type):
             # Strip 'Xr' from base flag type
             return self.flags_types[base_type][2:]
@@ -1168,7 +1282,7 @@ class BaseGenerator(OutputGenerator):
         for member in members:
             membername = noneStr(member.find('name').text)
 
-            # We only care about structures with an type, which can be included in a next chain.
+            # We only care about structures with a type, which can be included in a next chain.
             if membername == 'type':
                 # Check for value in the XML element.
                 values = member.attrib.get('values')
@@ -1224,17 +1338,30 @@ class BaseGenerator(OutputGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
-    def get_handle_prefix(self, handle_name):
+    def get_prefix_from_type(self, handle_name):
         if handle_name.startswith('Vk'):
             return 'Vulkan'
-        else:
+        elif handle_name.startswith('Xr'):
             return 'OpenXr'
+        else:
+            return 'UNKNOWN'
 
-    def get_handle_wrapper_prefix(self, handle_name):
+    def get_handle_wrapper(self, base_type):
+        handle_wrapper = ''
+        if base_type.startswith('Vk'):
+            handle_wrapper = 'vulkan_wrappers::'
+        else:
+            handle_wrapper = 'openxr_wrappers::'
+        handle_wrapper += base_type[2:] + 'Wrapper'
+        return handle_wrapper
+
+    def get_wrapper_prefix_from_type(self, handle_name):
         if handle_name.startswith('Vk'):
             return 'vulkan_wrappers'
-        else:
+        elif handle_name.startswith('Xr'):
             return 'openxr_wrappers'
+        else:
+            return 'UNKNOWN_WRAPPERS'
 
     def make_encoder_method_call(
         self, name, value, values, prefix, omit_output_param=None
@@ -1253,8 +1380,9 @@ class BaseGenerator(OutputGenerator):
                 handle_type_name += self.get_generic_cmd_handle_type_value(
                     name, value.name
                 )
-            arg_name = 'GetOpenXrWrappedId({}, {})'.format(
-                arg_name, handle_type_name
+            wrapper = self.get_wrapper_prefix_from_type(value.name)
+            arg_name = '{}::GetWrappedId({}, {})'.format(
+                wrapper, arg_name, handle_type_name
             )
 
         args = [arg_name]
@@ -1264,6 +1392,8 @@ class BaseGenerator(OutputGenerator):
         is_funcp = False
 
         type_name = self.make_invocation_type_name(value.base_type)
+        is_handle = 'Handle' in type_name
+        is_atom = type_name in self.atom_names
 
         if self.is_struct(type_name):
             args = ['encoder'] + args
@@ -1275,13 +1405,19 @@ class BaseGenerator(OutputGenerator):
                 is_string = True
             elif type_name == 'FunctionPtr':
                 is_funcp = True
-            elif type_name == 'Handle':
-                method_call += self.get_handle_prefix(value.base_type)
 
-            method_call += type_name
+            if type_name.startswith("Vk") and "Flags" in type_name:
+                method_call += 'Flags'
+            elif is_atom:
+                method_call += 'OpenXrAtom'
+            elif type_name in self.base_types and self.base_types[
+                type_name] is not None:
+                method_call += self.encode_types[self.base_types[type_name]]
+            else:
+                method_call += type_name
 
         if is_string:
-            if value.is_array and value.is_dynamic:
+            if value.is_array and value.is_dynamic and value.pointer_count > 1:
                 method_call += 'Array'
                 args.append(self.make_array_length_expression(value, prefix))
         elif value.is_array:
@@ -1308,8 +1444,8 @@ class BaseGenerator(OutputGenerator):
             else:
                 method_call += 'Value'
 
-        if type_name == 'Handle':
-            wrapper_prefix = self.get_handle_wrapper_prefix(value.base_type)
+        if is_handle or is_atom:
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             method_call += '<{}>'.format(
                 wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper'
             )

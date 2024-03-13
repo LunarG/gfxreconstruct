@@ -29,6 +29,9 @@
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "generated/generated_openxr_layer_func_table.h"
+#endif
 #include "generated/generated_vulkan_api_call_encoders.h"
 #include "util/platform.h"
 
@@ -562,18 +565,17 @@ GFXRECON_END_NAMESPACE(vulkan_entry)
 #ifdef ENABLE_OPENXR_SUPPORT
 GFXRECON_BEGIN_NAMESPACE(openxr_entry)
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateInstanceExtensionProperties(const char*            layerName,
-                                                                    uint32_t               propertyCapacityInput,
-                                                                    uint32_t*              propertyCountOutput,
-                                                                    XrExtensionProperties* properties)
-{
-    if (strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME))
-    {
-        return XR_ERROR_VALIDATION_FAILURE;
-    }
-    *propertyCountOutput = 0;
-    return XR_SUCCESS;
-}
+const XrApiLayerProperties kLayerProps = {
+    XR_TYPE_API_LAYER_PROPERTIES,
+    nullptr,
+    GFXRECON_PROJECT_OPENXR_LAYER_NAME,
+    XR_CURRENT_API_VERSION,
+    VK_MAKE_VERSION(GFXRECON_PROJECT_VERSION_MAJOR, GFXRECON_PROJECT_VERSION_MINOR, GFXRECON_PROJECT_VERSION_PATCH),
+    GFXRECON_PROJECT_DESCRIPTION
+    " Version " GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_MAJOR) "." GFXRECON_VERSION_STR(
+        GFXRECON_PROJECT_VERSION_MINOR) "." GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_PATCH)
+        GFXRECON_PROJECT_VERSION_DESIGNATION
+};
 
 struct OpenXrInstanceInfo
 {
@@ -583,9 +585,9 @@ struct OpenXrInstanceInfo
 };
 static std::unordered_map<XrInstance, OpenXrInstanceInfo> xr_instance_infos;
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateApiLayerInstance(const XrInstanceCreateInfo* info,
-                                                      const XrApiLayerCreateInfo* apiLayerInfo,
-                                                      XrInstance*                 instance)
+XRAPI_ATTR XrResult XRAPI_CALL dispatch_CreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                               const XrApiLayerCreateInfo* apiLayerInfo,
+                                                               XrInstance*                 instance)
 {
     if (info == nullptr || apiLayerInfo == nullptr || apiLayerInfo->nextInfo == nullptr || instance == nullptr)
     {
@@ -615,6 +617,44 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateApiLayerInstance(const XrInstanceCreateInfo
     return result;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL EnumerateInstanceExtensionProperties(const char*            layerName,
+                                                                    uint32_t               propertyCapacityInput,
+                                                                    uint32_t*              propertyCountOutput,
+                                                                    XrExtensionProperties* properties)
+{
+    if (strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME))
+    {
+        return XR_ERROR_VALIDATION_FAILURE;
+    }
+    *propertyCountOutput = 0;
+    return XR_SUCCESS;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL EnumerateApiLayerProperties(uint32_t              propertyCapacityInput,
+                                                           uint32_t*             propertyCountOutput,
+                                                           XrApiLayerProperties* properties)
+{
+    XrResult result = XR_ERROR_FUNCTION_UNSUPPORTED;
+
+    if (properties == nullptr)
+    {
+        if (propertyCountOutput != nullptr)
+        {
+            *propertyCountOutput = 1;
+        }
+    }
+    else
+    {
+        if (propertyCapacityInput >= 1)
+        {
+            util::platform::MemoryCopy(properties, sizeof(*properties), &kLayerProps, sizeof(kLayerProps));
+            *propertyCountOutput = 1;
+        }
+    }
+
+    return result;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
     XrResult result = XR_ERROR_FUNCTION_UNSUPPORTED;
@@ -630,11 +670,17 @@ XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const ch
         *function = reinterpret_cast<PFN_xrVoidFunction>(EnumerateInstanceExtensionProperties);
         result    = XR_SUCCESS;
     }
-    else if (!strcmp(name, "xrCreateApiLayerInstance"))
+    else if (!strcmp(name, "xrEnumerateApiLayerProperties"))
     {
-        *function = reinterpret_cast<PFN_xrVoidFunction>(CreateApiLayerInstance);
+        *function = reinterpret_cast<PFN_xrVoidFunction>(EnumerateApiLayerProperties);
         result    = XR_SUCCESS;
     }
+    else if (!strcmp(name, "xrCreateApiLayerInstance"))
+    {
+        *function = reinterpret_cast<PFN_vkVoidFunction>(encode::xrCreateApiLayerInstance);
+        result    = XR_SUCCESS;
+    }
+
     // Everything past this point requires an instance, so if it's not valid by now,
     // return an error
     else if (instance == XR_NULL_HANDLE || xr_instance_infos.find(instance) == xr_instance_infos.end())
@@ -645,6 +691,12 @@ XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const ch
     else
     {
         const OpenXrInstanceInfo& info = xr_instance_infos[instance];
+
+        auto table = encode::openxr_wrappers::GetInstanceTable(instance);
+        if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr))
+        {
+            result = table->GetInstanceProcAddr(instance, name, function);
+        }
 
         // If we reach the end and don't support it, return the next layer/loader function
         if (result == XR_ERROR_FUNCTION_UNSUPPORTED)

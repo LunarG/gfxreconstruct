@@ -24,9 +24,11 @@
 #ifndef GFXRECON_ENCODE_STRUCT_POINTER_ENCODER_H
 #define GFXRECON_ENCODE_STRUCT_POINTER_ENCODER_H
 
+#include "encode/custom_openxr_struct_encoders.h"
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
+#include "generated/generated_openxr_struct_encoders.h"
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "util/defines.h"
 
