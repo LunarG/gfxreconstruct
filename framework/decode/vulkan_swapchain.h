@@ -54,10 +54,7 @@ class VulkanSwapchain
 
     virtual void Clean();
 
-    void SetOptions(VulkanSwapchainOptions& options)
-    {
-        memcpy(&swapchain_options_, &options, sizeof(VulkanSwapchainOptions));
-    }
+    void SetOptions(VulkanSwapchainOptions& options) { swapchain_options_ = options; }
 
     virtual VkResult CreateSurface(VkResult                            original_result,
                                    InstanceInfo*                       instance_info,
