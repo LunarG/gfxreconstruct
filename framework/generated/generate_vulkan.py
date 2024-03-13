@@ -86,7 +86,8 @@ generate_targets = [
     'generated_vulkan_cpp_structs.h',
     'generated_vulkan_cpp_structs.cpp',
     'generated_vulkan_cpp_consumer_extension.h',
-    'generated_vulkan_cpp_consumer_extension.cpp'
+    'generated_vulkan_cpp_consumer_extension.cpp',
+    'generated_vulkan_stype_util.h',
 ]
 
 if __name__ == '__main__':

@@ -1151,7 +1151,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
 
     bool CheckCommandBufferInfoForFrameBoundary(const CommandBufferInfo* command_buffer_info);
-    bool CheckPNextChainForFrameBoundary(const DeviceInfo* device_info, const Decoded_VkBaseOutStructure* current);
+    bool CheckPNextChainForFrameBoundary(const DeviceInfo* device_info, const PNextNode* pnext);
 
   private:
     struct HardwareBufferInfo
