@@ -27,6 +27,8 @@
 **
 */
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "generated/generated_openxr_struct_trackers.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -5589,3 +5591,5 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT

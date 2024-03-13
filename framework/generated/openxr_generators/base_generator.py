@@ -381,16 +381,24 @@ class BaseGenerator(OutputGenerator):
             write('#define ', self.header_sym, file=self.outFile)
             self.newline()
 
+        write('#ifdef ENABLE_OPENXR_SUPPORT', file=self.outFile)
+        self.newline()
+
     def includeOpenXrHeaders(self, gen_opts):
         """Write OpenXR header include statements
         """
-        write('#include <openxr/openxr.h>', file=self.outFile)
+        write('#include "openxr/openxr.h"', file=self.outFile)
+        write('#include "openxr/openxr_platform.h"', file=self.outFile)
         for extra_openxr_header in gen_opts.extraOpenXrHeaders:
             header_include_path = re.sub(r'\\', '/', extra_openxr_header)
             write(f'#include "{header_include_path}"', file=self.outFile)
 
     def endFile(self):
         """Method override."""
+
+        self.newline()
+        write('#endif // ENABLE_OPENXR_SUPPORT', file=self.outFile)
+
         # Finish C++ wrapper and multiple inclusion protection
         if (self.genOpts.protect_file and self.genOpts.filename):
             self.newline()
@@ -413,6 +421,8 @@ class BaseGenerator(OutputGenerator):
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
             self.featureExtraProtect = self.__get_feature_protect(interface)
+        else:
+            self.featureExtraProtect = None
 
     def endFeature(self):
         """Method override. Generate code for the feature."""

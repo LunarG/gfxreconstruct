@@ -30,41 +30,58 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_DISPATCH_TABLE_H
 #define  GFXRECON_GENERATED_OPENXR_DISPATCH_TABLE_H
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
+
 #include "format/platform_types.h"
 #include "util/defines.h"
 #include "util/logging.h"
 
-#include <openxr/openxr.h>
+// Define the platform defines so that we can have entrypoints for each
+// possible entrypoint in our dispatch table.
+#ifndef XR_USE_PLATFORM_WIN32
+#define XR_USE_PLATFORM_WIN32
+#endif
+#ifndef XR_USE_PLATFORM_WAYLAND
+#define XR_USE_PLATFORM_WAYLAND
+#endif
+#ifndef XR_USE_PLATFORM_XCB
+#define XR_USE_PLATFORM_XCB
+#endif
+#ifndef XR_USE_PLATFORM_XLIB
+#define XR_USE_PLATFORM_XLIB
+#endif
+#ifndef XR_USE_PLATFORM_ANDROID
+#define XR_USE_PLATFORM_ANDROID
+#endif
+#ifndef XR_USE_PLATFORM_ML
+#define XR_USE_PLATFORM_ML
+#endif
+#ifndef XR_USE_GRAPHICS_API_VULKAN
+#define XR_USE_GRAPHICS_API_VULKAN
+#endif
+#ifndef XR_USE_GRAPHICS_API_OPENGL
+#define XR_USE_GRAPHICS_API_OPENGL
+#endif
+#ifndef XR_USE_GRAPHICS_API_OPENGL_ES
+#define XR_USE_GRAPHICS_API_OPENGL_ES
+#endif
+#ifndef XR_USE_GRAPHICS_API_D3D11
+#define XR_USE_GRAPHICS_API_D3D11
+#endif
+#ifndef XR_USE_GRAPHICS_API_D3D12
+#define XR_USE_GRAPHICS_API_D3D12
+#endif
+#ifndef XR_USE_TIMESPEC
+#define XR_USE_TIMESPEC
+#endif
+
+#include "openxr/openxr.h"
+#include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_PLATFORM_ANDROID
-#endif /* XR_USE_PLATFORM_ANDROID */
-#ifdef XR_USE_GRAPHICS_API_OPENGL
-#endif /* XR_USE_GRAPHICS_API_OPENGL */
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_GRAPHICS_API_D3D11
-#endif /* XR_USE_GRAPHICS_API_D3D11 */
-#ifdef XR_USE_GRAPHICS_API_D3D12
-#endif /* XR_USE_GRAPHICS_API_D3D12 */
-#ifdef XR_USE_PLATFORM_WIN32
-#endif /* XR_USE_PLATFORM_WIN32 */
-#ifdef XR_USE_TIMESPEC
-#endif /* XR_USE_TIMESPEC */
-#ifdef XR_USE_GRAPHICS_API_VULKAN
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
-#ifdef XR_USE_PLATFORM_WIN32
-#endif /* XR_USE_PLATFORM_WIN32 */
-#ifdef XR_USE_PLATFORM_ML
-#endif /* XR_USE_PLATFORM_ML */
-#ifdef XR_USE_PLATFORM_WIN32
-#endif /* XR_USE_PLATFORM_WIN32 */
 
 typedef const void* DispatchKey;
 
@@ -622,10 +639,10 @@ struct OpenXrInstanceTable
 template <typename GetProcAddr, typename Handle, typename FuncP>
 static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)
 {
-    FuncP result = reinterpret_cast<FuncP>(gpa(handle, name));
-    if (result != nullptr)
+    XrResult result = gpa(handle, name, reinterpret_cast<PFN_xrVoidFunction*>(funcp));
+    if (result != XR_SUCCESS)
     {
-        (*funcp) = result;
+        (*funcp) = nullptr;
     }
 }
 
@@ -902,5 +919,7 @@ static void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance in
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
 
 #endif //  GFXRECON_GENERATED_OPENXR_DISPATCH_TABLE_H

@@ -27,11 +27,14 @@
 **
 */
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "encode/handle_unwrap_memory.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
 
-#include <openxr/openxr.h>
+#include "openxr/openxr.h"
+#include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -399,3 +402,5 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT

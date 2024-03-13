@@ -80,7 +80,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     // the appropriate resource cleanup.
     static void CheckVkCreateInstanceStatus(VkResult result);
 
-    static const VulkanLayerTable* GetVulkanLayerTable() { return &vulkan_layer_table_; }
+    static const VulkanLayerTable* GetLayerTable() { return &vulkan_layer_table_; }
 
     void InitVkInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
 

@@ -27,6 +27,8 @@
 **
 */
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #include "generated/generated_openxr_struct_encoders.h"
 
 #include "encode/custom_openxr_struct_encoders.h"
@@ -34,7 +36,8 @@
 #include "encode/struct_pointer_encoder.h"
 #include "util/defines.h"
 
-#include <openxr/openxr.h>
+#include "openxr/openxr.h"
+#include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -692,7 +695,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerCubeKHR& va
     EncodeStruct(encoder, value.orientation);
 }
 
-#ifdef XR_USE_PLATFORM_ANDROID
 void EncodeStruct(ParameterEncoder* encoder, const XrInstanceCreateInfoAndroidKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -700,7 +702,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrInstanceCreateInfoAndroidKH
     encoder->EncodeVoidPtr(value.applicationVM);
     encoder->EncodeVoidPtr(value.applicationActivity);
 }
-#endif /* XR_USE_PLATFORM_ANDROID */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerDepthInfoKHR& value)
 {
@@ -713,7 +714,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerDepthInfoKH
     encoder->EncodeFloatValue(value.farZ);
 }
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanSwapchainFormatListCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -721,7 +721,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanSwapchainFormatListCr
     encoder->EncodeUInt32Value(value.viewFormatCount);
     encoder->EncodeVkFormatArray(value.viewFormats, value.viewFormatCount);
 }
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerCylinderKHR& value)
 {
@@ -751,7 +750,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerEquirectKHR
     EncodeStruct(encoder, value.bias);
 }
 
-#ifdef XR_USE_GRAPHICS_API_OPENGL
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLWin32KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -804,9 +802,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsOpenGLK
     encoder->EncodeXrVersionValue(value.minApiVersionSupported);
     encoder->EncodeXrVersionValue(value.maxApiVersionSupported);
 }
-#endif /* XR_USE_GRAPHICS_API_OPENGL */
 
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLESAndroidKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -830,9 +826,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsOpenGLE
     encoder->EncodeXrVersionValue(value.minApiVersionSupported);
     encoder->EncodeXrVersionValue(value.maxApiVersionSupported);
 }
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingVulkanKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -858,9 +852,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsVulkanK
     encoder->EncodeXrVersionValue(value.minApiVersionSupported);
     encoder->EncodeXrVersionValue(value.maxApiVersionSupported);
 }
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
-#ifdef XR_USE_GRAPHICS_API_D3D11
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D11KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -882,9 +874,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D11KH
     encoder->EncodeLUIDValue(value.adapterLuid);
     encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
 }
-#endif /* XR_USE_GRAPHICS_API_D3D11 */
 
-#ifdef XR_USE_GRAPHICS_API_D3D12
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D12KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -907,7 +897,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D12KH
     encoder->EncodeLUIDValue(value.adapterLuid);
     encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
 }
-#endif /* XR_USE_GRAPHICS_API_D3D12 */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrVisibilityMaskKHR& value)
 {
@@ -944,7 +933,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoBaseHeaderKHR
     encoder->EncodeVoidPtr(value.next);
 }
 
-#ifdef XR_USE_PLATFORM_ANDROID
 void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoAndroidKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -952,9 +940,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoAndroidKHR& v
     encoder->EncodeVoidPtr(value.applicationVM);
     encoder->EncodeVoidPtr(value.applicationContext);
 }
-#endif /* XR_USE_PLATFORM_ANDROID */
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanInstanceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -985,7 +971,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanGraphicsDeviceGetInfo
     encoder->EncodeXrSystemIdValue(value.systemId);
     encoder->EncodeVkInstanceValue(value.vulkanInstance);
 }
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerEquirect2KHR& value)
 {
@@ -1139,7 +1124,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrViewConfigurationDepthRange
     encoder->EncodeFloatValue(value.maxFarZ);
 }
 
-#ifdef XR_USE_PLATFORM_EGL
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingEGLMNDX& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -1149,7 +1133,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingEGLMNDX& val
     encoder->EncodeEGLConfigValue(value.config);
     encoder->EncodeEGLContextValue(value.context);
 }
-#endif /* XR_USE_PLATFORM_EGL */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpatialGraphNodeSpaceCreateInfoMSFT& value)
 {
@@ -1399,7 +1382,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrViewConfigurationViewFovEPI
     EncodeStruct(encoder, value.maxMutableFov);
 }
 
-#ifdef XR_USE_PLATFORM_WIN32
 void EncodeStruct(ParameterEncoder* encoder, const XrHolographicWindowAttachmentMSFT& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -1407,7 +1389,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHolographicWindowAttachment
     encoder->EncodeIUnknownPtr(value.holographicSpace);
     encoder->EncodeIUnknownPtr(value.coreWindow);
 }
-#endif /* XR_USE_PLATFORM_WIN32 */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerReprojectionInfoMSFT& value)
 {
@@ -1425,14 +1406,12 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerReprojectio
     EncodeStruct(encoder, value.velocity);
 }
 
-#ifdef XR_USE_PLATFORM_ANDROID
 void EncodeStruct(ParameterEncoder* encoder, const XrAndroidSurfaceSwapchainCreateInfoFB& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeFlags64Value(value.createFlags);
 }
-#endif /* XR_USE_PLATFORM_ANDROID */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateBaseHeaderFB& value)
 {
@@ -2243,7 +2222,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGlobalDimmerFrameEndInfoML&
     encoder->EncodeFlags64Value(value.flags);
 }
 
-#ifdef XR_USE_PLATFORM_ML
 void EncodeStruct(ParameterEncoder* encoder, const XrCoordinateSpaceCreateInfoML& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -2251,7 +2229,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCoordinateSpaceCreateInfoML
     encoder->EncodeMLCoordinateFrameUIDValue(value.cfuid);
     EncodeStruct(encoder, value.poseInCoordinateSpace);
 }
-#endif /* XR_USE_PLATFORM_ML */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemMarkerUnderstandingPropertiesML& value)
 {
@@ -2544,7 +2521,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpaceEraseComplete
     encoder->EncodeEnumValue(value.location);
 }
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageFoveationVulkanFB& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -2553,9 +2529,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageFoveationVulk
     encoder->EncodeUInt32Value(value.width);
     encoder->EncodeUInt32Value(value.height);
 }
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
-#ifdef XR_USE_PLATFORM_ANDROID
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateAndroidSurfaceDimensionsFB& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -2563,9 +2537,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateAndroidSurfac
     encoder->EncodeUInt32Value(value.width);
     encoder->EncodeUInt32Value(value.height);
 }
-#endif /* XR_USE_PLATFORM_ANDROID */
 
-#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateSamplerOpenGLESFB& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -2581,9 +2553,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateSamplerOpenGL
     encoder->EncodeFloatValue(value.maxAnisotropy);
     EncodeStruct(encoder, value.borderColor);
 }
-#endif /* XR_USE_GRAPHICS_API_OPENGL_ES */
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateSamplerVulkanFB& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -2600,7 +2570,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateSamplerVulkan
     encoder->EncodeFloatValue(value.maxAnisotropy);
     EncodeStruct(encoder, value.borderColor);
 }
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceShareInfoFB& value)
 {
@@ -3038,7 +3007,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrExternalCameraOCULUS& value
     EncodeStruct(encoder, value.extrinsics);
 }
 
-#ifdef XR_USE_GRAPHICS_API_VULKAN
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanSwapchainCreateInfoMETA& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -3046,7 +3014,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanSwapchainCreateInfoME
     encoder->EncodeVkImageCreateFlagsValue(value.additionalCreateFlags);
     encoder->EncodeVkImageUsageFlagsValue(value.additionalUsageFlags);
 }
-#endif /* XR_USE_GRAPHICS_API_VULKAN */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrPerformanceMetricsStateMETA& value)
 {
@@ -3470,3 +3437,5 @@ void EncodeStruct(ParameterEncoder* encoder, const XrUserCalibrationEnableEvents
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT

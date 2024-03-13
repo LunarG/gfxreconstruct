@@ -29,6 +29,9 @@
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "generated/generated_openxr_layer_func_table.h"
+#endif
 #include "generated/generated_vulkan_api_call_encoders.h"
 #include "util/platform.h"
 
@@ -646,6 +649,18 @@ XRAPI_ATTR XrResult XRAPI_CALL OpenXrGetInstanceProcAddr(XrInstance          ins
     else
     {
         const OpenXrInstanceInfo& info = xr_instance_infos[instance];
+
+        auto table = encode::GetOpenXrInstanceTable(instance);
+        if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr) &&
+            (table->GetInstanceProcAddr(instance, name) != nullptr))
+        {
+            const auto entry = openxr_func_table.find(name);
+            if (entry != openxr_func_table.end())
+            {
+                *function = entry->second;
+                result    = XR_SUCCESS;
+            }
+        }
 
         // If we reach the end and don't support it, return the next layer/loader function
         if (result == XR_ERROR_FUNCTION_UNSUPPORTED)
