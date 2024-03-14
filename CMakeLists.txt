@@ -118,6 +118,80 @@ if(${GFXRECON_ENABLE_RELEASE_ASSERTS})
     add_definitions(-DGFXRECON_ENABLE_RELEASE_ASSERTS)
 endif()
 
+# Taking the sanitizer enablement solution from the `cpp-best-practices`
+# "cmake_template" Github Repo (which is unencombered open source).
+option(GFXRECON_ENABLE_SANITIZER_ADDRESS   "Enable address sanitization"   OFF)
+option(GFXRECON_ENABLE_SANITIZER_LEAK      "Enable leak sanitization"      OFF)
+option(GFXRECON_ENABLE_SANITIZER_MEMORY    "Enable memory sanitization"    OFF)
+option(GFXRECON_ENABLE_SANITIZER_THREAD    "Enable thread sanitization"    OFF)
+option(GFXRECON_ENABLE_SANITIZER_UNDEFINED "Enable undefined sanitization" OFF)
+
+# Now check support for each sanitizer option
+set(SUPPORTS_SANITIZE_ADDRESS FALSE)
+set(SUPPORTS_SANITIZE_LEAK FALSE)
+set(SUPPORTS_SANITIZE_MEMORY FALSE)
+set(SUPPORTS_SANITIZE_THREAD FALSE)
+set(SUPPORTS_SANITIZE_UNDEFINED FALSE)
+if((CMAKE_CXX_COMPILER_ID MATCHES ".*Clang.*" OR CMAKE_CXX_COMPILER_ID MATCHES ".*GNU.*") AND NOT WIN32)
+    set(SUPPORTS_SANITIZE_ADDRESS TRUE)
+    set(SUPPORTS_SANITIZE_LEAK TRUE)
+    set(SUPPORTS_SANITIZE_MEMORY TRUE)
+    set(SUPPORTS_SANITIZE_THREAD TRUE)
+    set(SUPPORTS_SANITIZE_UNDEFINED TRUE)
+elseif(MSVC)
+    set(SUPPORTS_SANITIZE_ADDRESS TRUE)
+endif()
+
+# Set up a list of enabled sanitizers
+# Warn when one or more are not compatible with other sanitizers.
+set(SANITIZER_LIST "")
+if (GFXRECON_ENABLE_SANITIZER_ADDRESS AND SUPPORTS_SANITIZE_ADDRESS)
+    list(APPEND SANITIZER_LIST "address")
+endif()
+if (GFXRECON_ENABLE_SANITIZER_LEAK)
+    list(APPEND SANITIZER_LIST "leak")
+endif()
+if (GFXRECON_ENABLE_SANITIZER_MEMORY)
+    if (GFXRECON_ENABLE_SANITIZER_ADDRESS OR GFXRECON_ENABLE_SANITIZER_LEAK OR GFXRECON_ENABLE_SANITIZER_THREAD)
+        MESSAGE(WARNING "Memory sanitizer does not work with address, thread, or leak sanitizers enabled")
+    else()
+        list(APPEND SANITIZER_LIST "memory")
+    endif()
+endif()
+if (GFXRECON_ENABLE_SANITIZER_THREAD)
+    if (GFXRECON_ENABLE_SANITIZER_ADDRESS OR GFXRECON_ENABLE_SANITIZER_LEAK)
+        MESSAGE(WARNING "Thread sanitizer does not work with address or leak sanitizers enabled")
+    else()
+        list(APPEND SANITIZER_LIST "thread")
+    endif()
+endif()
+if (GFXRECON_ENABLE_SANITIZER_UNDEFINED AND SUPPORTS_SANITIZE_UNDEFINED)
+    list(APPEND SANITIZER_LIST "undefined")
+endif()
+
+list(
+    JOIN
+    SANITIZER_LIST
+    ","
+    SANITIZER_COMMA_LIST)
+
+# Enable them appropriately per platform
+if (SANITIZER_COMMA_LIST)
+    if (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
+        MESSAGE(WARNING "Sanitizers on Clang require all the code to be compiled with the corresponding sanitizer enabled or false positives may occur")
+    endif()
+    if (NOT MSVC)
+        add_compile_options(-fsanitize=${SANITIZER_COMMA_LIST} -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=${SANITIZER_COMMA_LIST})
+    else()
+        if (GFXRECON_ENABLE_SANITIZER_LEAK OR GFXRECON_ENABLE_SANITIZER_MEMORY OR GFXRECON_ENABLE_SANITIZER_THREAD OR GFXRECON_ENABLE_SANITIZER_UNDEFINED)
+            message(WARNING "MSVC only supports address sanitizer")
+        endif()
+        add_compile_options(/fsanitize=${SANITIZER_COMMA_LIST} /INCREMENTAL:NO)
+        add_link_options(/INCREMENTAL:NO)
+    endif()
+endif()
+
 if(MSVC)
 
     # The host toolchain architecture (i.e. are the compiler and other tools compiled to ARM/Intel 32bit/64bit binaries):
