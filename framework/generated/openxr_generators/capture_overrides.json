@@ -1,4 +1,6 @@
 {
     "functions": {
+        "xrInitializeLoaderKHR": "OpenXrCaptureManager::OverrideInitializeLoaderKHR",
+        "xrCreateInstance": "OpenXrCaptureManager::OverrideCreateInstance"
     }
 }

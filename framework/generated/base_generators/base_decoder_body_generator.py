@@ -167,7 +167,7 @@ class BaseDecoderBodyGenerator():
             is_string = True
         elif type_name == 'FunctionPtr':
             is_funcp = True
-        elif type_name == 'Handle':
+        elif type_name == 'VulkanHandle':
             is_handle = True
 
         # is_pointer will be False for static arrays.

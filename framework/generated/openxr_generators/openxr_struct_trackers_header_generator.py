@@ -79,10 +79,13 @@ class OpenXrStructTrackersHeaderGenerator(BaseGenerator):
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
+        self.forceCommonXrDefines(gen_opts)
+        self.newline()
         self.includeOpenXrHeaders(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(openxr)', file=self.outFile)
         self.newline()
         write('template <typename T>', file=self.outFile)
         write(
@@ -119,6 +122,7 @@ class OpenXrStructTrackersHeaderGenerator(BaseGenerator):
             file=self.outFile
         )
         self.newline()
+        write('GFXRECON_END_NAMESPACE(openxr)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 

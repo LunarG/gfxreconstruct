@@ -80,11 +80,8 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
             file=self.outFile
         )
         self.newline()
-        write(
-            '#include "encode/custom_openxr_struct_encoders.h"',
-            file=self.outFile
-        )
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
+        write('#include "encode/openxr_handle_wrappers.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
@@ -133,7 +130,7 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
         for value in values:
             # pNext fields require special treatment and are not processed by typename
             if 'pNext' in value.name:
-                body += '    EncodePNextStruct(encoder, {});\n'.format(
+                body += '    EncodeNextStruct(encoder, {});\n'.format(
                     prefix + value.name
                 )
             else:

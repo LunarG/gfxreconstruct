@@ -64,40 +64,37 @@ struct HandleWrapper
 };
 
 //
-// Type definitions for handle wrappers that do not require additional state info.
+// OpenXR Handle wrappers
 //
 
-// clang-format off
-struct SpaceWrapper : public HandleWrapper<XrSpace> {};
-struct ActionWrapper : public HandleWrapper<XrAction> {};
-struct SwapchainWrapper : public HandleWrapper<XrSwapchain> {};
-struct DebugUtilsMessengerEXTWrapper : public HandleWrapper<XrDebugUtilsMessengerEXT> {};
-struct SpatialAnchorMSFTWrapper : public HandleWrapper<XrSpatialAnchorMSFT> {};
-struct SpatialGraphNodeBindingMSFTWrapper : public HandleWrapper<XrSpatialGraphNodeBindingMSFT> {};
-struct HandTrackerEXTWrapper : public HandleWrapper<XrHandTrackerEXT> {};
-struct BodyTrackerFBWrapper : public HandleWrapper<XrBodyTrackerFB> {};
-struct SceneObserverMSFTWrapper : public HandleWrapper<XrSceneObserverMSFT> {};
-struct SceneMSFTWrapper : public HandleWrapper<XrSceneMSFT> {};
-struct FacialTrackerHTCWrapper : public HandleWrapper<XrFacialTrackerHTC> {};
-struct FoveationProfileFBWrapper : public HandleWrapper<XrFoveationProfileFB> {};
-struct TriangleMeshFBWrapper : public HandleWrapper<XrTriangleMeshFB> {};
-struct PassthroughLayerFBWrapper : public HandleWrapper<XrPassthroughLayerFB> {};
-struct GeometryInstanceFBWrapper : public HandleWrapper<XrGeometryInstanceFB> {};
-struct MarkerDetectorMLWrapper : public HandleWrapper<XrMarkerDetectorML> {};
-struct ExportedLocalizationMapMLWrapper : public HandleWrapper<XrExportedLocalizationMapML> {};
-struct SpatialAnchorStoreConnectionMSFTWrapper : public HandleWrapper<XrSpatialAnchorStoreConnectionMSFT> {};
-struct SpaceUserFBWrapper : public HandleWrapper<XrSpaceUserFB> {};
-struct FaceTrackerFBWrapper : public HandleWrapper<XrFaceTrackerFB> {};
-struct EyeTrackerFBWrapper : public HandleWrapper<XrEyeTrackerFB> {};
-struct VirtualKeyboardMETAWrapper : public HandleWrapper<XrVirtualKeyboardMETA> {};
-struct PassthroughColorLutMETAWrapper : public HandleWrapper<XrPassthroughColorLutMETA> {};
-struct FaceTracker2FBWrapper : public HandleWrapper<XrFaceTracker2FB> {};
-struct PassthroughHTCWrapper : public HandleWrapper<XrPassthroughHTC> {};
-struct PlaneDetectorEXTWrapper : public HandleWrapper<XrPlaneDetectorEXT> {};
-struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR> {};
-// clang-format on
+// Vendor wrappers
 
-struct ActionSetWrapper : public HandleWrapper<XrActionSet>
+struct BodyTrackerFBWrapper : public HandleWrapper<XrBodyTrackerFB>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct EyeTrackerFBWrapper : public HandleWrapper<XrEyeTrackerFB>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct FaceTrackerFBWrapper : public HandleWrapper<XrFaceTrackerFB>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct FaceTracker2FBWrapper : public HandleWrapper<XrFaceTracker2FB>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct FoveationProfileFBWrapper : public HandleWrapper<XrFoveationProfileFB>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct GeometryInstanceFBWrapper : public HandleWrapper<XrGeometryInstanceFB>
 {
     OpenXrInstanceTable* layer_table_ref{ nullptr };
 };
@@ -107,18 +104,172 @@ struct PassthroughFBWrapper : public HandleWrapper<XrPassthroughFB>
     OpenXrInstanceTable* layer_table_ref{ nullptr };
 };
 
-struct SessionWrapper : public HandleWrapper<XrSession>
+struct PassthroughLayerFBWrapper : public HandleWrapper<XrPassthroughLayerFB>
 {
-    OpenXrInstanceTable*               layer_table_ref{ nullptr };
-    std::vector<PassthroughFBWrapper*> child_passthroughs;
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
 };
 
-struct InstanceWrapper : public HandleWrapper<XrInstance>
+struct SpaceUserFBWrapper : public HandleWrapper<XrSpaceUserFB>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct TriangleMeshFBWrapper : public HandleWrapper<XrTriangleMeshFB>
+{
+    OpenXrInstanceTable*       layer_table_ref{ nullptr };
+    XrTriangleMeshCreateInfoFB create_info{};
+};
+
+struct FacialTrackerHTCWrapper : public HandleWrapper<XrFacialTrackerHTC>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct PassthroughHTCWrapper : public HandleWrapper<XrPassthroughHTC>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct ExportedLocalizationMapMLWrapper : public HandleWrapper<XrExportedLocalizationMapML>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct SceneMSFTWrapper : public HandleWrapper<XrSceneMSFT>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct SceneObserverMSFTWrapper : public HandleWrapper<XrSceneObserverMSFT>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct SpatialAnchorMSFTWrapper : public HandleWrapper<XrSpatialAnchorMSFT>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct SpatialAnchorStoreConnectionMSFTWrapper : public HandleWrapper<XrSpatialAnchorStoreConnectionMSFT>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct SpatialGraphNodeBindingMSFTWrapper : public HandleWrapper<XrSpatialGraphNodeBindingMSFT>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct VirtualKeyboardMETAWrapper : public HandleWrapper<XrVirtualKeyboardMETA>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct PassthroughColorLutMETAWrapper : public HandleWrapper<XrPassthroughColorLutMETA>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+// EXT wrappers
+
+struct DebugUtilsMessengerEXTWrapper : public HandleWrapper<XrDebugUtilsMessengerEXT>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct HandTrackerEXTWrapper : public HandleWrapper<XrHandTrackerEXT>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct PlaneDetectorEXTWrapper : public HandleWrapper<XrPlaneDetectorEXT>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+// KHR wrappers
+
+struct DisplayModeKHRWrapper : public HandleWrapper<VkDisplayModeKHR>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct ActionWrapper : public HandleWrapper<XrAction>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct ActionSetWrapper : public HandleWrapper<XrActionSet>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct SpaceWrapper : public HandleWrapper<XrSpace>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+struct SwapchainWrapper : public HandleWrapper<XrSwapchain>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+};
+
+//
+// Atom Wrappers
+//
+
+template <typename T>
+struct AtomWrapper
+{
+    typedef T HandleType;
+
+    // Dispatch table key for dispatchable handles. Must be the first struct member to be compatible with the
+    // loader defined handles.
+    void* dispatch_key{ nullptr };
+
+    // Standard state info required for all handles.
+    HandleType        handle{ 0ULL };                     // Original handle value provided by the driver.
+    format::HandleId  handle_id{ format::kNullHandleId }; // Globally unique ID assigned to the handle by the layer.
+    format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
+    openxr_state_info::CreateParameters create_parameters;
+};
+
+// clang-format off
+struct SystemIdWrapper : public AtomWrapper<XrSystemId> {};
+struct PathWrapper : public AtomWrapper<XrPath> {};
+struct AsyncRequestIdFBWrapper : public AtomWrapper<XrAsyncRequestIdFB> {};
+struct RenderModelKeyFBWrapper : public AtomWrapper<XrRenderModelKeyFB> {};
+struct MarkerMLWrapper : public AtomWrapper<XrMarkerML> {};
+struct ControllerModelKeyMSFTWrapper : public AtomWrapper<XrControllerModelKeyMSFT> {};
+// clang-format on
+
+//
+// Container Wrappers
+//
+
+struct MarkerDetectorMLWrapper : public AtomWrapper<XrMarkerDetectorML>
+{
+    OpenXrInstanceTable*          layer_table_ref{ nullptr };
+    std::vector<MarkerMLWrapper*> child_markers;
+};
+
+struct SessionWrapper : public AtomWrapper<XrSession>
+{
+    OpenXrInstanceTable*                        layer_table_ref{ nullptr };
+    std::vector<PassthroughFBWrapper*>          child_passthroughs;
+    std::vector<AsyncRequestIdFBWrapper*>       child_async_req_ids;
+    std::vector<RenderModelKeyFBWrapper*>       child_render_model_keys;
+    std::vector<ControllerModelKeyMSFTWrapper*> child_controller_model_keys;
+};
+
+struct InstanceWrapper : public AtomWrapper<XrInstance>
 {
     OpenXrInstanceTable            layer_table;
     XrVersion                      api_version{ XR_MAKE_VERSION(1, 0, 0) };
     std::vector<SessionWrapper*>   child_sessions;
     std::vector<ActionSetWrapper*> child_action_sets;
+    std::vector<SystemIdWrapper*>  child_system_ids;
+    std::vector<PathWrapper*>      child_paths;
 };
 
 GFXRECON_END_NAMESPACE(openxr_wrappers)

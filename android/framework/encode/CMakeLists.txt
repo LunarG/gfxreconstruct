@@ -6,9 +6,10 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.cpp               
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.cpp
-                   #${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_encoder_commands.h
-                   #${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_api_call_encoders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_api_call_encoders.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_struct_handle_wrappers.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_struct_handle_wrappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_encoder_commands.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.cpp
@@ -25,6 +26,8 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_handle_wrapper_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_table_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_writer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_writer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_buffer.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/scoped_destroy_lock.h
@@ -47,7 +50,7 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_wrappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_wrappers.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_pnext_encoder.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_next_encoder.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_trackers.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_trackers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_state_table.h

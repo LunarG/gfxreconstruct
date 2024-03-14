@@ -52,14 +52,6 @@ void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory
     }
 }
 
-void UnwrapStructHandles(XrFrameEndInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->layers = UnwrapStructArrayHandles(value->layers, value->layerCount, unwrap_memory);
-    }
-}
-
 void UnwrapStructHandles(XrViewLocateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -208,7 +200,28 @@ void UnwrapStructHandles(XrCompositionLayerEquirectKHR* value, HandleUnwrapMemor
     }
 }
 
+void UnwrapStructHandles(XrGraphicsBindingVulkanKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrSwapchainImageVulkanKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
 void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrVulkanGraphicsDeviceGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -248,14 +261,6 @@ void UnwrapStructHandles(XrHandJointsLocateInfoEXT* value, HandleUnwrapMemory* u
 {
     if (value != nullptr)
     {
-    }
-}
-
-void UnwrapStructHandles(XrSecondaryViewConfigurationLayerInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->layers = UnwrapStructArrayHandles(value->layers, value->layerCount, unwrap_memory);
     }
 }
 
@@ -442,6 +447,13 @@ void UnwrapStructHandles(XrEventDataSpaceSaveCompleteFB* value, HandleUnwrapMemo
 }
 
 void UnwrapStructHandles(XrEventDataSpaceEraseCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrSwapchainImageFoveationVulkanFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -972,10 +984,14 @@ const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwra
         }
         case XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerDepthInfoKHR*>(base), unwrap_memory);
+        case XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const XrGraphicsBindingVulkanKHR*>(base), unwrap_memory);
         case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_FRAME_END_INFO_MSFT:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrSecondaryViewConfigurationFrameEndInfoMSFT*>(base), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerPassthroughFB*>(base), unwrap_memory);
+        case XR_TYPE_SWAPCHAIN_IMAGE_FOVEATION_VULKAN_FB:
+            return UnwrapStructPtrHandles(reinterpret_cast<const XrSwapchainImageFoveationVulkanFB*>(base), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerSpaceWarpInfoFB*>(base), unwrap_memory);
         case XR_TYPE_PASSTHROUGH_COLOR_MAP_LUT_META:
@@ -990,6 +1006,27 @@ const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwra
     }
 
     return nullptr;
+}
+template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper>
+void CreateWrappedStructHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, XrSpaceQueryResultsFB* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedStructArrayHandles<OpenXrParentWrapper, OpenXrCoParentWrapper, XrSpaceQueryResultFB>(parent, co_parent, value->results, value->resultCapacityInput, get_id);
+    }
+}
+
+
+template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper, typename T>
+void CreateWrappedStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        for (size_t i = 0; i < len; ++i)
+        {
+            CreateWrappedStructHandles<OpenXrParentWrapper, OpenXrCoParentWrapper>(parent, co_parent, &value[i], get_id);
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

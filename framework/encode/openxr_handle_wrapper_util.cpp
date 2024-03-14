@@ -27,7 +27,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-OpenXrStateHandleTable state_handle_table_;
+OpenXrStateHandleTable openxr_state_handle_table_;
 
 uint64_t GetOpenXrWrappedId(uint64_t object, XrObjectType object_type)
 {
@@ -122,6 +122,36 @@ uint64_t GetOpenXrWrappedId(uint64_t object, XrObjectType object_type)
             return object;
         default:
             GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized object type %d", object_type);
+            return object;
+    }
+}
+
+uint64_t GetOpenXrWrappedId(uint64_t object, OpenXrAtomName atom_type)
+{
+    switch (atom_type)
+    {
+        case OPENXR_ATOM_NAME_SYSTEM_ID:
+            return GetOpenXrAtomWrappedId<openxr_wrappers::SystemIdWrapper>(format::FromHandleId<XrSystemId>(object));
+        case OPENXR_ATOM_NAME_PATH:
+            return GetOpenXrAtomWrappedId<openxr_wrappers::PathWrapper>(format::FromHandleId<XrPath>(object));
+        case OPENXR_ATOM_NAME_ASYNC_REQUEST_ID_FB:
+            return GetOpenXrAtomWrappedId<openxr_wrappers::AsyncRequestIdFBWrapper>(
+                format::FromHandleId<XrAsyncRequestIdFB>(object));
+        case OPENXR_ATOM_NAME_RENDER_MODEL_KEY_FB:
+            return GetOpenXrAtomWrappedId<openxr_wrappers::RenderModelKeyFBWrapper>(
+                format::FromHandleId<XrRenderModelKeyFB>(object));
+        case OPENXR_ATOM_NAME_MARKER_ML:
+            return GetOpenXrAtomWrappedId<openxr_wrappers::MarkerMLWrapper>(format::FromHandleId<XrMarkerML>(object));
+        case OPENXR_ATOM_NAME_CONTROLLER_MODEL_KEY_MSFT:
+            return GetOpenXrAtomWrappedId<openxr_wrappers::ControllerModelKeyMSFTWrapper>(
+                format::FromHandleId<XrControllerModelKeyMSFT>(object));
+
+        case OPENXR_ATOM_NAME_UNKNOWN:
+            // No conversion will be performed for unknown objects.
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unknown atom type.");
+            return object;
+        default:
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized atom type %d", atom_type);
             return object;
     }
 }

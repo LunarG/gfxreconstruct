@@ -21,10 +21,10 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_CUSTOM_OPENXR_API_CALL_ENCODERS_H
-#define GFXRECON_ENCODE_CUSTOM_OPENXR_API_CALL_ENCODERS_H
+#ifndef GFXRECON_OPEXNR_ENCODE_CUSTOM_STRUCT_ENCODERS_H
+#define GFXRECON_OPEXNR_ENCODE_CUSTOM_STRUCT_ENCODERS_H
 
-#if ENABLE_OPENXR_SUPPORT
+#ifdef ENABLE_OPENXR_SUPPORT
 
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
@@ -74,35 +74,20 @@
 
 #include "openxr/openxr.h"
 #include "openxr/openxr_platform.h"
-#include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateVulkanInstanceKHR(XrInstance                           instance,
-                                                       const XrVulkanInstanceCreateInfoKHR* createInfo,
-                                                       VkInstance*                          vulkanInstance,
-                                                       VkResult*                            vulkanResult);
-
-XRAPI_ATTR XrResult XRAPI_CALL CreateVulkanDeviceKHR(XrInstance                         instance,
-                                                     const XrVulkanDeviceCreateInfoKHR* createInfo,
-                                                     VkDevice*                          vulkanDevice,
-                                                     VkResult*                          vulkanResult);
-
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsDevice2KHR(XrInstance                              instance,
-                                                           const XrVulkanGraphicsDeviceGetInfoKHR* getInfo,
-                                                           VkPhysicalDevice* vulkanPhysicalDevice);
-
-XRAPI_ATTR XrResult XRAPI_CALL CreateTriangleMeshFB(XrSession                         session,
-                                                    const XrTriangleMeshCreateInfoFB* createInfo,
-                                                    XrTriangleMeshFB*                 outTriangleMesh);
-XRAPI_ATTR XrResult XRAPI_CALL DestroyTriangleMeshFB(XrTriangleMeshFB mesh);
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshGetVertexBufferFB(XrTriangleMeshFB mesh, XrVector3f** outVertexBuffer);
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshGetIndexBufferFB(XrTriangleMeshFB mesh, uint32_t** outIndexBuffer);
+void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationLayerInfoMSFT& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrVulkanInstanceCreateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrVulkanDeviceCreateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const timespec& value);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // ENABLE_OPENXR_SUPPORT
 
-#endif // GFXRECON_ENCODE_CUSTOM_OPENXR_API_CALL_ENCODERS_H
+#endif // GFXRECON_OPEXNR_ENCODE_CUSTOM_STRUCT_ENCODERS_H

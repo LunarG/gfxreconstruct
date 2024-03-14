@@ -1179,7 +1179,7 @@ class BaseGenerator(OutputGenerator):
         if self.is_struct(base_type):
             return base_type
         elif self.is_handle(base_type):
-            return 'Handle'
+            return 'VulkanHandle'
         elif self.is_flags(base_type):
             # Strip 'Vk' from base flag type
             return self.flags_types[base_type][2:]
@@ -1435,6 +1435,7 @@ class BaseGenerator(OutputGenerator):
         is_funcp = False
 
         type_name = self.make_invocation_type_name(value.base_type)
+        is_handle = ('VulkanHandle' == type_name)
 
         if self.is_struct(type_name):
             args = ['encoder'] + args
@@ -1446,8 +1447,6 @@ class BaseGenerator(OutputGenerator):
                 is_string = True
             elif type_name == 'FunctionPtr':
                 is_funcp = True
-            elif type_name == 'Handle':
-                method_call += self.get_handle_prefix()
 
             method_call += type_name
 
@@ -1479,7 +1478,7 @@ class BaseGenerator(OutputGenerator):
             else:
                 method_call += 'Value'
 
-        if type_name == 'Handle':
+        if is_handle:
             wrapper_prefix = self.get_handle_wrapper_prefix()
             method_call += '<{}>'.format(wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper')
 

@@ -90,63 +90,8 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
         write('#include "util/defines.h"', file=self.outFile)
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
-
-        write(
-            '// Define the platform defines so that we can have entrypoints for each',
-            file=self.outFile
-        )
-        write(
-            '// possible entrypoint in our dispatch table.', file=self.outFile
-        )
-        write('#ifndef XR_USE_PLATFORM_WIN32', file=self.outFile)
-        write('#define XR_USE_PLATFORM_WIN32', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_WAYLAND', file=self.outFile)
-        write('#define XR_USE_PLATFORM_WAYLAND', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_XCB', file=self.outFile)
-        write('#define XR_USE_PLATFORM_XCB', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_XLIB', file=self.outFile)
-        write('#define XR_USE_PLATFORM_XLIB', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_ANDROID', file=self.outFile)
-        write('#define XR_USE_PLATFORM_ANDROID', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_ML', file=self.outFile)
-        write('#define XR_USE_PLATFORM_ML', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_TIMESPEC', file=self.outFile)
-        write('#define XR_USE_TIMESPEC', file=self.outFile)
-        write('#endif', file=self.outFile)
+        self.forceCommonXrDefines(gen_opts)
         self.newline()
-
         self.includeOpenXrHeaders(gen_opts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -157,7 +102,7 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
         """Method override."""
         self.newline()
 
-        write('typedef const void* DispatchKey;', file=self.outFile)
+        write('typedef const void* OpenXrDispatchKey;', file=self.outFile)
         self.newline()
 
         write(
@@ -165,12 +110,12 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            'static DispatchKey GetDispatchKey(const void* handle)',
+            'static OpenXrDispatchKey GetOpenXrDispatchKey(const void* handle)',
             file=self.outFile
         )
         write('{', file=self.outFile)
         write(
-            '    const DispatchKey* dispatch_key = reinterpret_cast<const DispatchKey*>(handle);',
+            '    const OpenXrDispatchKey* dispatch_key = reinterpret_cast<const OpenXrDispatchKey*>(handle);',
             file=self.outFile
         )
         write('    return (*dispatch_key);', file=self.outFile)
@@ -197,7 +142,7 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            'static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)',
+            'static void LoadOpenXrFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -285,7 +230,7 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
                     '    table->GetInstanceProcAddr = gpa;', file=self.outFile
                 )
             else:
-                expr = '    LoadFunction(gpa, instance, "{}", &table->{});'.format(
+                expr = '    LoadOpenXrFunction(gpa, instance, "{}", &table->{});'.format(
                     name, name[2:]
                 )
                 write(expr, file=self.outFile)

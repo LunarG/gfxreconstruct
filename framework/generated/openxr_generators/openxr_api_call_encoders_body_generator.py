@@ -100,10 +100,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             '#include "encode/custom_openxr_encoder_commands.h"',
             file=self.outFile
         )
-        write(
-            '#include "encode/custom_openxr_array_size_2d.h"',
-            file=self.outFile
-        )
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "encode/openxr_capture_manager.h"', file=self.outFile)
@@ -113,10 +109,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         )
         write('#include "encode/openxr_handle_wrappers.h"', file=self.outFile)
         write('#include "format/api_call_id.h"', file=self.outFile)
-        write(
-            '#include "generated/generated_openxr_command_buffer_util.h"',
-            file=self.outFile
-        )
         write(
             '#include "generated/generated_openxr_struct_handle_wrappers.h"',
             file=self.outFile
@@ -420,11 +412,20 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             decl = 'OpenXrCaptureManager::Get()->'
 
         if name.startswith('xrCreate'):
-            # The handle is the last parameter.
-            handle = values[-1]
-            parent_handle = values[0] if self.is_handle(
-                values[0].base_type
-            ) else None
+            if name == 'xrCreateSwapchainAndroidSurfaceKHR':
+                # The handle is the last parameter.
+                handle = values[-2]
+                parent_handle = values[0] if self.is_handle(
+                    values[0].base_type
+                ) else None
+            else:
+                # The handle is the last parameter.
+                handle = values[-1]
+                parent_handle = values[0] if self.is_handle(
+                    values[0].base_type
+                ) else None
+
+            handle_wrapper = self.get_handle_wrapper(handle.base_type)
 
             #  Search for the create info struct
             info_base_type = 'void'
@@ -439,7 +440,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                     ):
                         print(
                             'WARNING: {} has separate array counts for create info structures ({}) and handles ({})'
-                            .format(name, value.array_length, count)
+                            .format(name, value.array_length, handle.array_length)
                         )
 
             return_value = 'XR_SUCCESS'
@@ -448,11 +449,12 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
 
             if handle.is_array:
                 length_name = self.make_array_length_expression(handle)
+                handle_wrapper = self.get_handle_wrapper(handle.base_type)
 
                 if 'pAllocateInfo->' in length_name:
                     # This is a pool allocation call, which receives one allocate info structure that is shared by all object being allocated.
-                    decl += 'EndPoolCreateApiCallCapture<{}, openxr_wrappers::{}Wrapper, {}>({}, {}, {}, {}, {})'.format(
-                        parent_handle.base_type, handle.base_type[2:],
+                    decl += 'EndPoolCreateApiCallCapture<{}, {}, {}>({}, {}, {}, {}, {})'.format(
+                        parent_handle.base_type, handle_wrapper,
                         info_base_type, return_value, parent_handle.name,
                         length_name, handle.name, info_name
                     )
@@ -468,61 +470,67 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
                             self.structs_with_handles[handle.base_type]
                         )
+                        member_handle_wrapper = self.get_handle_wrapper(member_handle_type)
 
                         if not member_array_length:
-                            unwrap_handle_def = '[]({}* handle_struct)->openxr_wrappers::{wrapper}Wrapper* {{ return GetOpenXrWrapper<openxr_wrappers::{wrapper}Wrapper>(handle_struct->{}); }}'.format(
+                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}r* {{ return GetOpenXrWrapper<{wrapper}>(handle_struct->{}); }}'.format(
                                 handle.base_type,
                                 member_handle_name,
-                                wrapper=member_handle_type[2:]
+                                wrapper=member_handle_wrapper
                             )
 
-                        decl += 'EndStructGroupCreateApiCallCapture<{}, openxr_wrappers::{}Wrapper, {}>({}, {}, {}, {}, {})'.format(
-                            parent_handle.base_type, member_handle_type[2:],
+                        decl += 'EndStructGroupCreateApiCallCapture<{}, {}, {}>({}, {}, {}, {}, {})'.format(
+                            parent_handle.base_type, member_handle_wrapper,
                             handle.base_type, return_value, parent_handle.name,
                             length_name, handle.name, unwrap_handle_def
                         )
                     elif self.is_handle(values[1].base_type):
                         second_handle = values[1]
-                        decl += 'EndGroupCreateApiCallCapture<{}, {}, openxr_wrappers::{}Wrapper, {}>({}, {}, {}, {}, {}, {})'.format(
+                        decl += 'EndGroupCreateApiCallCapture<{}, {}, {}, {}>({}, {}, {}, {}, {}, {})'.format(
                             parent_handle.base_type, second_handle.base_type,
-                            handle.base_type[2:], info_base_type, return_value,
+                            handle_wrapper, info_base_type, return_value,
                             parent_handle.name, second_handle.name,
                             length_name, handle.name, info_name
                         )
                     else:
-                        decl += 'EndGroupCreateApiCallCapture<{}, void*, openxr_wrappers::{}Wrapper, {}>({}, {}, nullptr, {}, {}, {})'.format(
-                            parent_handle.base_type, handle.base_type[2:],
+                        decl += 'EndGroupCreateApiCallCapture<{}, void*, {}, {}>({}, {}, nullptr, {}, {}, {})'.format(
+                            parent_handle.base_type, handle_wrapper,
                             info_base_type, return_value, parent_handle.name,
                             length_name, handle.name, info_name
                         )
 
             else:
+                end_api_call = 'EndCreateApiCallCapture'
+                if handle.base_type in self.atom_names:
+                    end_api_call = 'EndCreateAtomApiCallCapture'
+
                 if handle.base_type in self.struct_names:
                     # TODO: No cases in current OpenXr spec of handle inside non-array output structure
                     raise NotImplementedError
                 elif parent_handle:
-                    decl += 'EndCreateApiCallCapture<{}, openxr_wrappers::{}Wrapper, {}>({}, {}, {}, {})'.format(
-                        parent_handle.base_type, handle.base_type[2:],
+                    decl += '{}<{}, {}, {}>({}, {}, {}, {})'.format(
+                        end_api_call, parent_handle.base_type, handle_wrapper,
                         info_base_type, return_value, parent_handle.name,
                         handle.name, info_name
                     )
                 else:
                     # Instance creation does not have a parent handle; set the parent handle type to 'void*'.
-                    decl += 'EndCreateApiCallCapture<const void*, openxr_wrappers::{}Wrapper, {}>({}, nullptr, {}, {})'.format(
-                        handle.base_type[2:], info_base_type, return_value,
+                    decl += '{}<const void*, {}, {}>({}, nullptr, {}, {})'.format(
+                        end_api_call, handle_wrapper, info_base_type, return_value,
                         handle.name, info_name
                     )
 
         elif name.startswith('xrDestroy'):
             handle = values[0]
+            handle_wrapper = self.get_handle_wrapper(handle.base_type)
 
             if handle.is_array:
-                decl += 'EndDestroyApiCallCapture<OpenXr{}Wrapper>({}, {})'.format(
-                    handle.base_type[2:], handle.array_length, handle.name
+                decl += 'EndDestroyApiCallCapture<{}>({}, {})'.format(
+                    handle_wrapper, handle.array_length, handle.name
                 )
             else:
-                decl += 'EndDestroyApiCallCapture<OpenXr{}Wrapper>({})'.format(
-                    handle.base_type[2:], handle.name
+                decl += 'EndDestroyApiCallCapture<{}>({})'.format(
+                    handle_wrapper, handle.name
                 )
         else:
             decl += 'EndApiCallCapture()'
@@ -544,15 +552,15 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 parent_type = 'OpenXrNoParentWrapper'
                 parent_value = 'OpenXrNoParentWrapper::kHandleValue'
                 if self.is_handle(values[0].base_type):
-                    parent_type = values[0].base_type[2:] + 'Wrapper'
+                    parent_type = self.get_handle_wrapper(values[0].base_type)
                     parent_value = values[0].name
 
                 # Some handles have two parent handles, such as swapchain images and display modes,
                 # or command buffers and descriptor sets allocated from pools.
                 co_parent_type = 'OpenXrNoParentWrapper'
                 co_parent_value = 'OpenXrNoParentWrapper::kHandleValue'
-                if self.is_handle(values[1].base_type):
-                    co_parent_type = values[1].base_type[2:] + 'Wrapper'
+                if self.is_handle(values[1].base_type) and not self.is_output_parameter(values[1]):
+                    co_parent_type = self.get_handle_wrapper(values[1].base_type)
                     co_parent_value = values[1].name
 
                 if value.is_array:
@@ -564,8 +572,10 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                             )
                             break
                     if self.is_handle(value.base_type):
-                        expr += indent + 'CreateWrappedVulkanHandles<{}, {}, openxr_wrappers::{}Wrapper>({}, {}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
-                            parent_type, co_parent_type, value.base_type[2:],
+                        handle_prefix = self.get_handle_prefix(value.base_type)
+                        handle_wrapper = self.get_handle_wrapper(value.base_type)
+                        expr += indent + 'CreateWrapped{}Handles<{}, {}, {}>({}, {}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            handle_prefix, parent_type, co_parent_type, handle_wrapper,
                             parent_value, co_parent_value, value.name,
                             length_name
                         )
@@ -579,8 +589,10 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         )
                 else:
                     if self.is_handle(value.base_type):
-                        expr += indent + 'CreateWrappedVulkanHandle<{}, {}, openxr_wrappers::{}Wrapper>({}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
-                            parent_type, co_parent_type, value.base_type[2:],
+                        handle_prefix = self.get_handle_prefix(value.base_type)
+                        handle_wrapper = self.get_handle_wrapper(value.base_type)
+                        expr += indent + 'CreateWrapped{}Handle<{}, {}, {}>({}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            handle_prefix, parent_type, co_parent_type, handle_wrapper,
                             parent_value, co_parent_value, value.name
                         )
                     elif self.is_struct(
@@ -627,14 +639,15 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         expr = ''
         if name.startswith('xrDestroy'):
             handle = values[0]
+            handle_wrapper = self.get_handle_wrapper(handle.base_type)
 
             if handle.is_array:
-                expr += indent + 'DestroyWrappedOpenXrHandles<openxr_wrappers::{}Wrapper>({}, {});\n'.format(
-                    handle.base_type[2:], handle.name, handle.array_length
+                expr += indent + 'DestroyWrappedOpenXrHandles<{}>({}, {});\n'.format(
+                    handle_wrapper, handle.name, handle.array_length
                 )
             else:
-                expr += indent + 'DestroyWrappedOpenXrHandle<openxr_wrappers::{}Wrapper>({});\n'.format(
-                    handle.base_type[2:], handle.name
+                expr += indent + 'DestroyWrappedOpenXrHandle<{}>({});\n'.format(
+                    handle_wrapper, handle.name
                 )
         return expr
 

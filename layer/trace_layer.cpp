@@ -29,9 +29,9 @@
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
-#ifdef ENABLE_OPENXR_SUPPORT
-#include "generated/generated_openxr_layer_func_table.h"
-#endif
+//#ifdef ENABLE_OPENXR_SUPPORT
+//#include "generated/generated_openxr_layer_func_table.h"
+//#endif
 #include "generated/generated_vulkan_api_call_encoders.h"
 #include "util/platform.h"
 
@@ -146,13 +146,13 @@ static void VulkanAddInstanceHandle(VkInstance instance)
 {
     // Store the instance for use with vkCreateDevice.
     std::lock_guard<std::mutex> lock(vulkan_instance_handles_lock);
-    vulkan_instance_handles[encode::GetDispatchKey(instance)] = instance;
+    vulkan_instance_handles[encode::GetVulkanDispatchKey(instance)] = instance;
 }
 
 static VkInstance VulkanGetInstanceHandle(const void* handle)
 {
     std::lock_guard<std::mutex> lock(vulkan_instance_handles_lock);
-    auto                        entry = vulkan_instance_handles.find(encode::GetDispatchKey(handle));
+    auto                        entry = vulkan_instance_handles.find(encode::GetVulkanDispatchKey(handle));
     return (entry != vulkan_instance_handles.end()) ? entry->second : VK_NULL_HANDLE;
 }
 
@@ -648,25 +648,27 @@ XRAPI_ATTR XrResult XRAPI_CALL OpenXrGetInstanceProcAddr(XrInstance          ins
     }
     else
     {
-        const OpenXrInstanceInfo& info = xr_instance_infos[instance];
+        /*
+                const OpenXrInstanceInfo& info = xr_instance_infos[instance];
 
-        auto table = encode::GetOpenXrInstanceTable(instance);
-        if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr) &&
-            (table->GetInstanceProcAddr(instance, name) != nullptr))
-        {
-            const auto entry = openxr_func_table.find(name);
-            if (entry != openxr_func_table.end())
-            {
-                *function = entry->second;
-                result    = XR_SUCCESS;
-            }
-        }
+                auto table = encode::GetOpenXrInstanceTable(instance);
+                if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr) &&
+                    (table->GetInstanceProcAddr(instance, name) != nullptr))
+                {
+                    const auto entry = openxr_func_table.find(name);
+                    if (entry != openxr_func_table.end())
+                    {
+                        *function = entry->second;
+                        result    = XR_SUCCESS;
+                    }
+                }
 
-        // If we reach the end and don't support it, return the next layer/loader function
-        if (result == XR_ERROR_FUNCTION_UNSUPPORTED)
-        {
-            result = info.next_gipa(instance, name, function);
-        }
+                // If we reach the end and don't support it, return the next layer/loader function
+                if (result == XR_ERROR_FUNCTION_UNSUPPORTED)
+                {
+                    result = info.next_gipa(instance, name, function);
+                }
+        */
     }
     return result;
 }

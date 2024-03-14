@@ -33,7 +33,6 @@
 #ifdef ENABLE_OPENXR_SUPPORT
 
 #include "encode/custom_openxr_struct_handle_wrappers.h"
-#include "encode/handle_unwrap_memory.h"
 #include "encode/openxr_handle_wrapper_util.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
@@ -47,8 +46,6 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 void UnwrapStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(XrFrameEndInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrViewLocateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -90,7 +87,13 @@ void UnwrapStructHandles(XrCompositionLayerCylinderKHR* value, HandleUnwrapMemor
 
 void UnwrapStructHandles(XrCompositionLayerEquirectKHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrGraphicsBindingVulkanKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrSwapchainImageVulkanKHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrVulkanGraphicsDeviceGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrCompositionLayerEquirect2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -101,8 +104,6 @@ void UnwrapStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrap
 void UnwrapStructHandles(XrSpatialGraphStaticNodeBindingCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrHandJointsLocateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(XrSecondaryViewConfigurationLayerInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -156,6 +157,8 @@ void UnwrapStructHandles(XrEventDataSpaceSaveCompleteFB* value, HandleUnwrapMemo
 
 void UnwrapStructHandles(XrEventDataSpaceEraseCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrSwapchainImageFoveationVulkanFB* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrSpaceShareInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrCompositionLayerSpaceWarpInfoFB* value, HandleUnwrapMemory* unwrap_memory);
@@ -208,26 +211,8 @@ XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMem
 
 const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 
-template <typename ParentWrapper, typename CoParentWrapper>
-void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrSpaceQueryResultsFB* value, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        CreateWrappedStructArrayHandles<ParentWrapper, CoParentWrapper, XrSpaceQueryResultFB>(parent, co_parent, value->results, value->resultCapacityInput, get_id);
-    }
-}
-
-template <typename ParentWrapper, typename CoParentWrapper, typename T>
-void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        for (size_t i = 0; i < len; ++i)
-        {
-            CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value[i], get_id);
-        }
-    }
-}
+template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper, typename T>
+void CreateWrappedStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id);
 
 template <typename T>
 T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
@@ -241,7 +226,7 @@ T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_mem
 }
 
 template <typename T>
-const T* UnwrapStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)
+T* UnwrapStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)
 {
     T* unwrapped_struct = nullptr;
 
@@ -254,8 +239,12 @@ const T* UnwrapStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memor
     return unwrapped_struct;
 }
 
+template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper>
+void CreateWrappedStructHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, XrSpaceQueryResultsFB* value, PFN_GetHandleId get_id);
+
+
 template <typename T>
-const T* UnwrapStructArrayHandles(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+T* UnwrapStructArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     if ((values != nullptr) && (len > 0))
     {

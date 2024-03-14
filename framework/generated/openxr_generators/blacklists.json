@@ -1,10 +1,35 @@
 {
   "functions-all": [
+    "xrGetInstanceProcAddr",
+    "xrEnumerateApiLayerProperties",
+    "xrEnumerateInstanceExtensionProperties",
+    "xrCreateApiLayerInstance",
+    "xrNegotiateLoaderRuntimeInterface",
+    "xrNegotiateLoaderApiLayerInterface",
+    "xrCreateTriangleMeshFB",
+    "xrDestroyTriangleMeshFB",
+    "xrTriangleMeshGetVertexBufferFB",
+    "xrTriangleMeshGetIndexBufferFB"
   ],
   "functions-encoder": [
+    "xrCreateVulkanInstanceKHR",
+    "xrCreateVulkanDeviceKHR",
+    "xrGetVulkanGraphicsDevice2KHR"
   ],
   "functions-decoder": [
   ],
   "structures": [
+    "XrBaseOutStructure",
+    "XrBaseInStructure",
+    "XrNegotiateLoaderInfo",
+    "XrNegotiateApiLayerRequest",
+    "XrNegotiateRuntimeRequest",
+    "XrApiLayerNextInfo",
+    "XrApiLayerCreateInfo",
+    "XrFrameEndInfo",
+    "XrBindingModificationsKHR",
+    "XrSecondaryViewConfigurationLayerInfoMSFT",
+    "XrVulkanInstanceCreateInfoKHR",
+    "XrVulkanDeviceCreateInfoKHR"
   ]
 }
