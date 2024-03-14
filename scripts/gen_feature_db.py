@@ -180,7 +180,7 @@ def thread_main(in_stream, trace_path):
         features["pEnabledFeatures"] = sorted(features["pEnabledFeatures"])
 
     raw_out = json.dumps(features, indent=4)
-    print(f"Writing db to {trace_path}")
+    #print(f"Writing db to {trace_path}")
     f = open(trace_path, "w")
     f.write(raw_out)
     f.close()
@@ -255,6 +255,7 @@ if __name__ == "__main__":
     suite_jsons = ["commit-suite.json"]
 
     for traces_dir in os.listdir(root_traces_dir):
+        print("Top level loop")
         for suite_json in suite_jsons:
             full_suite_json_path = root_traces_dir + "/" + traces_dir + "/" + suite_json
             if not os.path.isfile(full_suite_json_path):
@@ -267,7 +268,6 @@ if __name__ == "__main__":
             trace_dir_count = 0
             for t in persistent_traces:
                 trace_dir_count += 1
-            print(f"trace_dir_count: {trace_dir_count}")
 
             suite = load_json(full_suite_json_path)
             persistent_traces = suite["traces"].persistent()
@@ -276,23 +276,28 @@ if __name__ == "__main__":
             convert_processes = []
             threads = []
             seen_traces = []
-            while len(seen_traces) < trace_dir_count:
-                trace_iterations = min(trace_dir_count - len(seen_traces), thread_count)
-                for i in range(len(seen_traces), len(seen_traces) + trace_iterations):
+            trace_dirs_processed = 0
+            while trace_dirs_processed < trace_dir_count:
+                trace_iterations = min(trace_dir_count - trace_dirs_processed, thread_count)
+                print(f"While loop: trace_dirs_processed == {trace_dirs_processed} trace_dir_count == {trace_dir_count} trace_iterations == {trace_iterations}")
+                for i in range(trace_dirs_processed, trace_dirs_processed + trace_iterations):
+                    print(f"iteration loop. i == {i}")
                     trace = persistent_traces[i]
+                    trace_dir = root_traces_dir + "/" + traces_dir + "/" + trace["directory"]
+                    trace_dirs_processed += 1
 
                     if trace_dir in seen_traces:
+                        print("Saw trace")
                         continue
                     seen_traces.append(trace_dir)
                     
                     if "api" in trace and trace["api"] != "vulkan":
                         continue
-                    trace_dir = root_traces_dir + "/" + traces_dir + "/" + trace["directory"]
 
                     trace_files = os.listdir(trace_dir)
 
                     for trace_file in trace_files:
-                        trace_dir_count -= 1
+                        print("Directory scan loop")
                         filename = os.fsdecode(trace_file)
                         if not filename.endswith(".gfxr"):
                             continue
