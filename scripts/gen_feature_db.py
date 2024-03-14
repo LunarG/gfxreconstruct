@@ -278,7 +278,7 @@ if __name__ == "__main__":
             seen_traces = []
             while len(seen_traces) < trace_dir_count:
                 trace_iterations = min(trace_dir_count - len(seen_traces), thread_count)
-                for i in range(0, trace_iterations):
+                for i in range(len(seen_traces), len(seen_traces) + trace_iterations):
                     trace = persistent_traces[i]
                     
                     if "api" in trace and trace["api"] != "vulkan":
@@ -318,9 +318,10 @@ if __name__ == "__main__":
                 #The threads read from the convert process's stdout until it's drained,
                 #and the convert process reads from the optimize process until *it's* drained,
                 #so I don't think I need to explicitly wait on either of those processes, just the threads
+                print("Waiting for the worker threads")
                 for t in threads:
-                    print("Waiting for the worker threads")
                     t.join()
+                print("Done waiting for the workers")
 
     #Output collated results
     collated = {}
