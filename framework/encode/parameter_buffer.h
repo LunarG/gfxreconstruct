@@ -37,16 +37,16 @@ class ParameterBuffer : public util::MemoryOutputStream
     virtual ~ParameterBuffer() {}
 
     // Reset buffer, reserving space for a header at the start of the buffer.
-    void ResetWithHeader(size_t header_size)
+    void ClearWithHeader(size_t header_size)
     {
-        MemoryOutputStream::Reset();
+        MemoryOutputStream::Clear();
         header_size_ = header_size;
         GetBuffer()->resize(header_size_);
     }
 
-    virtual void Reset() override
+    virtual void Clear() override
     {
-        MemoryOutputStream::Reset();
+        MemoryOutputStream::Clear();
         header_size_ = 0;
     }
 

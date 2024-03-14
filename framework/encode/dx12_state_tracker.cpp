@@ -125,7 +125,7 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12CommandList_Wrapper*      lis
         list_info->is_closed = false;
 
         // Clear command data on command buffer reset.
-        list_info->command_data.Reset();
+        list_info->command_data.Clear();
 
         // Clear pending resource transitions.
         list_info->transition_barriers.clear();
@@ -337,7 +337,7 @@ void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           c
     }
     else
     {
-        descriptor_info->create_parameters->Reset();
+        descriptor_info->create_parameters->Clear();
         descriptor_info->create_parameters->Write(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
     }
     descriptor_info->is_copy         = false;
@@ -371,7 +371,7 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
         }
         else
         {
-            dst->create_parameters->Reset();
+            dst->create_parameters->Clear();
         }
 
         // Copy the source descriptor's creation parameters to destination.
