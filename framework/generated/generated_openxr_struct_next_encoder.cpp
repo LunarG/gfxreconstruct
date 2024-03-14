@@ -52,15 +52,9 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
 
     auto base = reinterpret_cast<const XrBaseInStructure*>(value);
 
-    // Ignore the structures added to the pnext chain by the loader.
-    while ((base != nullptr)
-    {
-        base = base->next;
-    }
-
     if (base != nullptr)
     {
-        switch (base-type)
+        switch (base->type)
         {
         default:
             {

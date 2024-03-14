@@ -85,6 +85,7 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(openxr)', file=self.outFile)
         self.newline()
 
     def endFile(self):
@@ -127,6 +128,7 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
         self.newline()
+        write('GFXRECON_END_NAMESPACE(openxr)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -147,7 +149,8 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         if struct_type_enum is None:
             return
 
-        self.struct_type_enums[typename] = struct_type_enum
+        if struct_type_enum in self.enumEnumerants['XrStructureType']:
+            self.struct_type_enums[typename] = struct_type_enum
 
         write(
             '{0}* TrackStruct(const {0}* value, HandleUnwrapMemory* unwrap_memory)'

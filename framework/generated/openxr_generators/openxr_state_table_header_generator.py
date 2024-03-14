@@ -83,67 +83,72 @@ class OpenXrStateTableHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def generate_all(self):
-        insert_code = ''
-        remove_code = ''
-        const_get_code = ''
-        get_code = ''
-        visit_code = ''
-        map_code = ''
+    def add_wrapper_funcs(self, handle_atom):
+        handle_name = handle_atom[2:]
+        wrapper_prefix = self.get_handle_wrapper_prefix(handle_atom)
+        handle_prefix = self.get_handle_prefix(handle_atom)
+        handle_wrapper_func = handle_prefix + handle_name + 'Wrapper'
+        handle_wrapper_type = wrapper_prefix + '::' + handle_name + 'Wrapper'
+        handle_map = handle_atom[0:1].lower() + '_' + handle_atom[2].lower() + handle_atom[3:] + '_map_'
+        self.insert_code += '    bool InsertWrapper(format::HandleId id, {0}* wrapper) {{ return InsertEntry(id, wrapper, {1}); }}\n'.format(
+            handle_wrapper_type, handle_map
+        )
+        self.remove_code += '    bool RemoveWrapper(const {0}* wrapper) {{ return RemoveEntry(wrapper, {1}); }}\n'.format(
+            handle_wrapper_type, handle_map
+        )
+        self.visit_code += '    void VisitWrappers(std::function<void({0}*)> visitor) const {{ for (auto entry : {1}) {{ visitor(entry.second); }} }}\n'.format(
+            handle_wrapper_type, handle_map
+        )
+        self.get_code += '    {0}* Get{1}(format::HandleId id) {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(
+            handle_wrapper_type, handle_wrapper_func, handle_map
+        )
+        self.const_get_code += '    const {0}* Get{1}(format::HandleId id) const {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(
+            handle_wrapper_type, handle_wrapper_func, handle_map
+        )
+        self.map_code += '    std::map<format::HandleId, {0}*> {1};\n'.format(
+            handle_wrapper_type, handle_map
+        )
+        self.xr_insert_code += '    bool InsertWrapper({0}* wrapper) {{ return InsertEntry(wrapper->handle, wrapper, {1}); }}\n'.format(
+            handle_wrapper_type, handle_map
+        )
+        self.xr_remove_code += '    bool RemoveWrapper(const {}* wrapper) {{\n'.format(
+            handle_wrapper_type
+        )
+        self.xr_remove_code += '         if (wrapper == nullptr) return false;\n'
+        self.xr_remove_code += '         return RemoveEntry(wrapper->handle, {});\n'.format(
+            handle_map
+        )
+        self.xr_remove_code += '    }\n'
+        self.xr_get_code += 'template<> inline {0}* OpenXrStateHandleTable::GetWrapper<{0}>({1} handle) {{ return OpenXrStateTableBase::GetWrapper(handle, {2}); }}\n'.format(
+            handle_wrapper_type, handle_atom, handle_map
+        )
+        self.xr_const_get_code += 'template<> inline const {0}* OpenXrStateHandleTable::GetWrapper<{0}>({1} handle) const {{ return OpenXrStateTableBase::GetWrapper(handle, {2}); }}\n'.format(
+            handle_wrapper_type, handle_atom, handle_map
+        )
+        self.xr_map_code += '    std::unordered_map<{0}, {1}*> {2};\n'.format(
+            handle_atom, handle_wrapper_type, handle_map
+        )
 
-        xr_insert_code = ''
-        xr_remove_code = ''
-        xr_const_get_code = ''
-        xr_get_code = ''
-        xr_map_code = ''
+    def generate_all(self):
+        self.insert_code = ''
+        self.remove_code = ''
+        self.const_get_code = ''
+        self.get_code = ''
+        self.visit_code = ''
+        self.map_code = ''
+
+        self.xr_insert_code = ''
+        self.xr_remove_code = ''
+        self.xr_const_get_code = ''
+        self.xr_get_code = ''
+        self.xr_map_code = ''
 
         for xr_handle_name in sorted(self.handle_names):
             if xr_handle_name in self.DUPLICATE_HANDLE_TYPES:
                 continue
-            handle_name = xr_handle_name[2:]
-            wrapper_prefix = self.get_handle_wrapper_prefix(xr_handle_name)
-            handle_prefix = self.get_handle_prefix(xr_handle_name)
-            handle_wrapper_func = handle_prefix + handle_name + 'Wrapper'
-            handle_wrapper_type = wrapper_prefix + '::' + handle_name + 'Wrapper'
-            handle_map = handle_name[0].lower() + handle_name[1:] + '_map_'
-            insert_code += '    bool InsertWrapper(format::HandleId id, {0}* wrapper) {{ return InsertEntry(id, wrapper, {1}); }}\n'.format(
-                handle_wrapper_type, handle_map
-            )
-            remove_code += '    bool RemoveWrapper(const {0}* wrapper) {{ return RemoveEntry(wrapper, {1}); }}\n'.format(
-                handle_wrapper_type, handle_map
-            )
-            visit_code += '    void VisitWrappers(std::function<void({0}*)> visitor) const {{ for (auto entry : {1}) {{ visitor(entry.second); }} }}\n'.format(
-                handle_wrapper_type, handle_map
-            )
-            get_code += '    {0}* Get{1}(format::HandleId id) {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(
-                handle_wrapper_type, handle_wrapper_func, handle_map
-            )
-            const_get_code += '    const {0}* Get{1}(format::HandleId id) const {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(
-                handle_wrapper_type, handle_wrapper_func, handle_map
-            )
-            map_code += '    std::map<format::HandleId, {0}*> {1};\n'.format(
-                handle_wrapper_type, handle_map
-            )
-            xr_insert_code += '    bool InsertWrapper({0}* wrapper) {{ return InsertEntry(wrapper->handle, wrapper, {1}); }}\n'.format(
-                handle_wrapper_type, handle_map
-            )
-            xr_remove_code += '    bool RemoveWrapper(const {}* wrapper) {{\n'.format(
-                handle_wrapper_type
-            )
-            xr_remove_code += '         if (wrapper == nullptr) return false;\n'
-            xr_remove_code += '         return RemoveEntry(wrapper->handle, {});\n'.format(
-                handle_map
-            )
-            xr_remove_code += '    }\n'
-            xr_get_code += 'template<> inline {0}* OpenXrStateHandleTable::GetWrapper<{0}>({1} handle) {{ return OpenXrStateTableBase::GetWrapper(handle, {2}); }}\n'.format(
-                handle_wrapper_type, xr_handle_name, handle_map
-            )
-            xr_const_get_code += 'template<> inline const {0}* OpenXrStateHandleTable::GetWrapper<{0}>({1} handle) const {{ return OpenXrStateTableBase::GetWrapper(handle, {2}); }}\n'.format(
-                handle_wrapper_type, xr_handle_name, handle_map
-            )
-            xr_map_code += '    std::unordered_map<{0}, {1}*> {2};\n'.format(
-                xr_handle_name, handle_wrapper_type, handle_map
-            )
+            self.add_wrapper_funcs(xr_handle_name)
+        for xr_atom in sorted(self.atom_names):
+            self.add_wrapper_funcs(xr_atom)
 
         self.newline()
         code = 'class OpenXrStateTable : OpenXrStateTableBase\n'
@@ -152,18 +157,18 @@ class OpenXrStateTableHeaderGenerator(BaseGenerator):
         code += '    OpenXrStateTable() {}\n'
         code += '    ~OpenXrStateTable() {}\n'
         code += '\n'
-        code += insert_code
+        code += self.insert_code
         code += '\n'
-        code += remove_code
+        code += self.remove_code
         code += '\n'
-        code += const_get_code
+        code += self.const_get_code
         code += '\n'
-        code += get_code
+        code += self.get_code
         code += '\n'
-        code += visit_code
+        code += self.visit_code
         code += '\n'
         code += '  private:\n'
-        code += map_code
+        code += self.map_code
         code += '};\n'
         code += '\n'
         code += 'class OpenXrStateHandleTable : OpenXrStateTableBase\n'
@@ -172,25 +177,28 @@ class OpenXrStateTableHeaderGenerator(BaseGenerator):
         code += '    OpenXrStateHandleTable() {}\n'
         code += '    ~OpenXrStateHandleTable() {}\n'
         code += '\n'
-        code += xr_insert_code
+        code += self.xr_insert_code
         code += '\n'
-        code += xr_remove_code
+        code += self.xr_remove_code
         code += '\n'
         code += '    template<typename Wrapper> const Wrapper* GetWrapper(typename Wrapper::HandleType handle) const { return nullptr; }\n'
         code += '\n'
         code += '    template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }\n'
         code += '\n'
         code += '  private:\n'
-        code += xr_map_code
+        code += self.xr_map_code
         code += '};\n'
         code += '\n'
-        code += xr_const_get_code
+        code += self.xr_const_get_code
         code += '\n'
-        code += xr_get_code
+        code +=self. xr_get_code
         write(code, file=self.outFile)
 
     def write_include(self):
         write(
             '#include "encode/openxr_state_table_base.h"\n', file=self.outFile
+        )
+        write(
+            '#include "encode/vulkan_handle_wrappers.h"\n', file=self.outFile
         )
         self.newline()

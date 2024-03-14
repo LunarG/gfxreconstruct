@@ -42,6 +42,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(vulkan)
 
 template <typename T>
 T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
@@ -887,5 +888,6 @@ VkPhysicalDeviceMeshShaderPropertiesEXT* TrackStruct(const VkPhysicalDeviceMeshS
 
 void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory);
 
+GFXRECON_END_NAMESPACE(vulkan)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -35,27 +35,53 @@
 #include "format/platform_types.h"
 #include "util/defines.h"
 
+// Define the platform defines so that we can have entrypoints for each
+// possible entrypoint in our dispatch table.
+#ifndef XR_USE_PLATFORM_WIN32
+#define XR_USE_PLATFORM_WIN32
+#endif
+#ifndef XR_USE_PLATFORM_WAYLAND
+#define XR_USE_PLATFORM_WAYLAND
+#endif
+#ifndef XR_USE_PLATFORM_XCB
+#define XR_USE_PLATFORM_XCB
+#endif
+#ifndef XR_USE_PLATFORM_XLIB
+#define XR_USE_PLATFORM_XLIB
+#endif
+#ifndef XR_USE_PLATFORM_ANDROID
+#define XR_USE_PLATFORM_ANDROID
+#endif
+#ifndef XR_USE_PLATFORM_ML
+#define XR_USE_PLATFORM_ML
+#endif
+#ifndef XR_USE_PLATFORM_EGL
+#define XR_USE_PLATFORM_EGL
+#endif
+#ifndef XR_USE_GRAPHICS_API_VULKAN
+#define XR_USE_GRAPHICS_API_VULKAN
+#endif
+#ifndef XR_USE_GRAPHICS_API_OPENGL
+#define XR_USE_GRAPHICS_API_OPENGL
+#endif
+#ifndef XR_USE_GRAPHICS_API_OPENGL_ES
+#define XR_USE_GRAPHICS_API_OPENGL_ES
+#endif
+#ifndef XR_USE_GRAPHICS_API_D3D11
+#define XR_USE_GRAPHICS_API_D3D11
+#endif
+#ifndef XR_USE_GRAPHICS_API_D3D12
+#define XR_USE_GRAPHICS_API_D3D12
+#endif
+#ifndef XR_USE_TIMESPEC
+#define XR_USE_TIMESPEC
+#endif
+
 #include "openxr/openxr.h"
 #include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
-
-XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(
-    XrInstance                                  instance,
-    const char*                                 name,
-    PFN_xrVoidFunction*                         function);
-
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateApiLayerProperties(
-    uint32_t                                    propertyCapacityInput,
-    uint32_t*                                   propertyCountOutput,
-    XrApiLayerProperties*                       properties);
-
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateInstanceExtensionProperties(
-    const char*                                 layerName,
-    uint32_t                                    propertyCapacityInput,
-    uint32_t*                                   propertyCountOutput,
-    XrExtensionProperties*                      properties);
 
 XRAPI_ATTR XrResult XRAPI_CALL CreateInstance(
     const XrInstanceCreateInfo*                 createInfo,
@@ -311,19 +337,6 @@ XRAPI_ATTR XrResult XRAPI_CALL StopHapticFeedback(
     XrSession                                   session,
     const XrHapticActionInfo*                   hapticActionInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateApiLayerInstance(
-    const XrInstanceCreateInfo*                 info,
-    const XrApiLayerCreateInfo*                 layerInfo,
-    XrInstance*                                 instance);
-
-XRAPI_ATTR XrResult XRAPI_CALL NegotiateLoaderRuntimeInterface(
-    const XrNegotiateLoaderInfo*                loaderInfo,
-    XrNegotiateRuntimeRequest*                  runtimeRequest);
-
-XRAPI_ATTR XrResult XRAPI_CALL NegotiateLoaderApiLayerInterface(
-    const XrNegotiateLoaderInfo*                loaderInfo,
-    const char*                                 layerName,
-    XrNegotiateApiLayerRequest*                 apiLayerRequest);
 
 XRAPI_ATTR XrResult XRAPI_CALL SetAndroidApplicationThreadKHR(
     XrSession                                   session,
@@ -410,23 +423,6 @@ XRAPI_ATTR XrResult XRAPI_CALL ConvertTimeToTimespecTimeKHR(
 
 XRAPI_ATTR XrResult XRAPI_CALL InitializeLoaderKHR(
     const XrLoaderInitInfoBaseHeaderKHR*        loaderInitInfo);
-
-XRAPI_ATTR XrResult XRAPI_CALL CreateVulkanInstanceKHR(
-    XrInstance                                  instance,
-    const XrVulkanInstanceCreateInfoKHR*        createInfo,
-    VkInstance*                                 vulkanInstance,
-    VkResult*                                   vulkanResult);
-
-XRAPI_ATTR XrResult XRAPI_CALL CreateVulkanDeviceKHR(
-    XrInstance                                  instance,
-    const XrVulkanDeviceCreateInfoKHR*          createInfo,
-    VkDevice*                                   vulkanDevice,
-    VkResult*                                   vulkanResult);
-
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsDevice2KHR(
-    XrInstance                                  instance,
-    const XrVulkanGraphicsDeviceGetInfoKHR*     getInfo,
-    VkPhysicalDevice*                           vulkanPhysicalDevice);
 
 XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsRequirements2KHR(
     XrInstance                                  instance,
@@ -769,22 +765,6 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateKeyboardSpaceFB(
     XrSession                                   session,
     const XrKeyboardSpaceCreateInfoFB*          createInfo,
     XrSpace*                                    keyboardSpace);
-
-XRAPI_ATTR XrResult XRAPI_CALL CreateTriangleMeshFB(
-    XrSession                                   session,
-    const XrTriangleMeshCreateInfoFB*           createInfo,
-    XrTriangleMeshFB*                           outTriangleMesh);
-
-XRAPI_ATTR XrResult XRAPI_CALL DestroyTriangleMeshFB(
-    XrTriangleMeshFB                            mesh);
-
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshGetVertexBufferFB(
-    XrTriangleMeshFB                            mesh,
-    XrVector3f**                                outVertexBuffer);
-
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshGetIndexBufferFB(
-    XrTriangleMeshFB                            mesh,
-    uint32_t**                                  outIndexBuffer);
 
 XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshBeginUpdateFB(
     XrTriangleMeshFB                            mesh);

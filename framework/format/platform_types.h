@@ -43,7 +43,6 @@ typedef void*          HINSTANCE;
 typedef void*          HWND;
 typedef void*          HANDLE;
 typedef void*          HMONITOR;
-typedef void*          IUnknown;
 typedef void*          HDC;
 typedef void*          HGLRC;
 
@@ -51,10 +50,20 @@ typedef void*          HGLRC;
 // is suitable for decoding on non-WIN32 platforms.
 typedef uint32_t DWORD;
 // typedef int32_t  BOOL; // Conflicts with objective-c declaration on macOS
-typedef void*    LPVOID;
-typedef uint8_t  BYTE;
-typedef uint16_t WORD;
-typedef WORD     SECURITY_DESCRIPTOR_CONTROL;
+typedef void*         LPVOID;
+typedef uint8_t       BYTE;
+typedef uint16_t      WORD;
+typedef unsigned long ULONG;
+typedef uint32_t      HRESULT;
+typedef WORD          SECURITY_DESCRIPTOR_CONTROL;
+typedef uint32_t&     REFIID;
+
+class IUnknown
+{
+    virtual HRESULT QueryInterface(REFIID riid, void** ppvObject) = 0;
+    virtual ULONG   AddRef()                                      = 0;
+    virtual ULONG   Release()                                     = 0;
+};
 
 struct SID_IDENTIFIER_AUTHORITY
 {
@@ -99,26 +108,8 @@ struct SECURITY_ATTRIBUTES
     int32_t /* BOOL */ bInheritHandle;
 };
 
-struct LUID
-{
-    unsigned long LowPart;
-    long          HighPart;
-};
-
-union LARGE_INTEGER
-{
-    struct
-    {
-        uint32_t LowPart;
-        int32_t  HighPart;
-    } DUMMYSTRUCTNAME;
-    struct
-    {
-        uint32_t LowPart;
-        int32_t  HighPart;
-    } u;
-    int64_t QuadPart;
-};
+typedef int64_t      LUID;
+typedef int64_t      LARGE_INTEGER;
 
 #endif // WIN32
 
@@ -143,16 +134,15 @@ typedef void*        EGLContext;
 
 #if !defined(XR_USE_PLATFORM_XLIB)
 typedef void* GLXFBConfig;
-typedef void* GLXDrawable;
+typedef uint32_t GLXDrawable;
 typedef void* GLXContext;
 #endif // !XR_USE_PLATFORM_XLIB
 
 #if !defined(VK_USE_PLATFORM_XCB_KHR) && !defined(XR_USE_PLATFORM_XCB)
 struct xcb_connection_t;
-typedef void* xcb_glx_fbconfig_t;
-typedef void* xcb_glx_drawable_t;
-typedef void* xcb_glx_context_t;
-
+typedef uint32_t xcb_glx_fbconfig_t;
+typedef uint32_t xcb_glx_drawable_t;
+typedef uint32_t xcb_glx_context_t;
 typedef uint32_t xcb_window_t;
 typedef uint32_t xcb_visualid_t;
 #endif // !VK_USE_PLATFORM_XCB_KHR && !XR_USE_PLATFORM_XCB

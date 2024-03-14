@@ -33,6 +33,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(openxr)
 
 XrApiLayerProperties* TrackStruct(const XrApiLayerProperties* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -4918,8 +4919,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrViewConfigurationView*>(value), unwrap_memory);
         case XR_TYPE_SWAPCHAIN_CREATE_INFO:
             return TrackStruct(reinterpret_cast<const XrSwapchainCreateInfo*>(value), unwrap_memory);
-        case XR_TYPE_SWAPCHAIN_IMAGE_BASE_HEADER:
-            return TrackStruct(reinterpret_cast<const XrSwapchainImageBaseHeader*>(value), unwrap_memory);
         case XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO:
             return TrackStruct(reinterpret_cast<const XrSwapchainImageAcquireInfo*>(value), unwrap_memory);
         case XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO:
@@ -4934,8 +4933,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrFrameState*>(value), unwrap_memory);
         case XR_TYPE_FRAME_BEGIN_INFO:
             return TrackStruct(reinterpret_cast<const XrFrameBeginInfo*>(value), unwrap_memory);
-        case XR_TYPE_COMPOSITION_LAYER_BASE_HEADER:
-            return TrackStruct(reinterpret_cast<const XrCompositionLayerBaseHeader*>(value), unwrap_memory);
         case XR_TYPE_FRAME_END_INFO:
             return TrackStruct(reinterpret_cast<const XrFrameEndInfo*>(value), unwrap_memory);
         case XR_TYPE_VIEW_LOCATE_INFO:
@@ -4972,16 +4969,12 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrInputSourceLocalizedNameGetInfo*>(value), unwrap_memory);
         case XR_TYPE_HAPTIC_ACTION_INFO:
             return TrackStruct(reinterpret_cast<const XrHapticActionInfo*>(value), unwrap_memory);
-        case XR_TYPE_HAPTIC_BASE_HEADER:
-            return TrackStruct(reinterpret_cast<const XrHapticBaseHeader*>(value), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW:
             return TrackStruct(reinterpret_cast<const XrCompositionLayerProjectionView*>(value), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
             return TrackStruct(reinterpret_cast<const XrCompositionLayerProjection*>(value), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_QUAD:
             return TrackStruct(reinterpret_cast<const XrCompositionLayerQuad*>(value), unwrap_memory);
-        case XR_TYPE_EVENT_DATA_BASE_HEADER:
-            return TrackStruct(reinterpret_cast<const XrEventDataBaseHeader*>(value), unwrap_memory);
         case XR_TYPE_EVENT_DATA_EVENTS_LOST:
             return TrackStruct(reinterpret_cast<const XrEventDataEventsLost*>(value), unwrap_memory);
         case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
@@ -5048,8 +5041,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrEventDataVisibilityMaskChangedKHR*>(value), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
             return TrackStruct(reinterpret_cast<const XrCompositionLayerColorScaleBiasKHR*>(value), unwrap_memory);
-        case XR_TYPE_LOADER_INIT_INFO_BASE_HEADER_KHR:
-            return TrackStruct(reinterpret_cast<const XrLoaderInitInfoBaseHeaderKHR*>(value), unwrap_memory);
         case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
             return TrackStruct(reinterpret_cast<const XrLoaderInitInfoAndroidKHR*>(value), unwrap_memory);
         case XR_TYPE_VULKAN_INSTANCE_CREATE_INFO_KHR:
@@ -5060,8 +5051,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrVulkanGraphicsDeviceGetInfoKHR*>(value), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
             return TrackStruct(reinterpret_cast<const XrCompositionLayerEquirect2KHR*>(value), unwrap_memory);
-        case XR_TYPE_BINDING_MODIFICATION_BASE_HEADER_KHR:
-            return TrackStruct(reinterpret_cast<const XrBindingModificationBaseHeaderKHR*>(value), unwrap_memory);
         case XR_TYPE_BINDING_MODIFICATIONS_KHR:
             return TrackStruct(reinterpret_cast<const XrBindingModificationsKHR*>(value), unwrap_memory);
         case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
@@ -5154,8 +5143,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrCompositionLayerReprojectionPlaneOverrideMSFT*>(value), unwrap_memory);
         case XR_TYPE_ANDROID_SURFACE_SWAPCHAIN_CREATE_INFO_FB:
             return TrackStruct(reinterpret_cast<const XrAndroidSurfaceSwapchainCreateInfoFB*>(value), unwrap_memory);
-        case XR_TYPE_SWAPCHAIN_STATE_BASE_HEADER_FB:
-            return TrackStruct(reinterpret_cast<const XrSwapchainStateBaseHeaderFB*>(value), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_SECURE_CONTENT_FB:
             return TrackStruct(reinterpret_cast<const XrCompositionLayerSecureContentFB*>(value), unwrap_memory);
         case XR_TYPE_SYSTEM_BODY_TRACKING_PROPERTIES_FB:
@@ -5344,8 +5331,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrLocalizationMapML*>(value), unwrap_memory);
         case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
             return TrackStruct(reinterpret_cast<const XrEventDataLocalizationChangedML*>(value), unwrap_memory);
-        case XR_TYPE_LOCALIZATION_MAP_QUERY_INFO_BASE_HEADER_ML:
-            return TrackStruct(reinterpret_cast<const XrLocalizationMapQueryInfoBaseHeaderML*>(value), unwrap_memory);
         case XR_TYPE_MAP_LOCALIZATION_REQUEST_INFO_ML:
             return TrackStruct(reinterpret_cast<const XrMapLocalizationRequestInfoML*>(value), unwrap_memory);
         case XR_TYPE_LOCALIZATION_MAP_IMPORT_INFO_ML:
@@ -5362,10 +5347,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrSceneMarkerTypeFilterMSFT*>(value), unwrap_memory);
         case XR_TYPE_SCENE_MARKER_QR_CODES_MSFT:
             return TrackStruct(reinterpret_cast<const XrSceneMarkerQRCodesMSFT*>(value), unwrap_memory);
-        case XR_TYPE_SPACE_QUERY_INFO_BASE_HEADER_FB:
-            return TrackStruct(reinterpret_cast<const XrSpaceQueryInfoBaseHeaderFB*>(value), unwrap_memory);
-        case XR_TYPE_SPACE_FILTER_INFO_BASE_HEADER_FB:
-            return TrackStruct(reinterpret_cast<const XrSpaceFilterInfoBaseHeaderFB*>(value), unwrap_memory);
         case XR_TYPE_SPACE_QUERY_INFO_FB:
             return TrackStruct(reinterpret_cast<const XrSpaceQueryInfoFB*>(value), unwrap_memory);
         case XR_TYPE_SPACE_STORAGE_LOCATION_FILTER_INFO_FB:
@@ -5589,6 +5570,7 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
     return nullptr;
 }
 
+GFXRECON_END_NAMESPACE(openxr)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

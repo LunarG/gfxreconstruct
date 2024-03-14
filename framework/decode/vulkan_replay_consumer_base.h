@@ -1183,10 +1183,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     util::platform::LibraryHandle                                    loader_handle_;
     PFN_vkGetInstanceProcAddr                                        get_instance_proc_addr_;
     PFN_vkCreateInstance                                             create_instance_proc_;
-    std::unordered_map<encode::DispatchKey, PFN_vkGetDeviceProcAddr> get_device_proc_addrs_;
-    std::unordered_map<encode::DispatchKey, PFN_vkCreateDevice>      create_device_procs_;
-    std::unordered_map<encode::DispatchKey, encode::VulkanInstanceTable> instance_tables_;
-    std::unordered_map<encode::DispatchKey, encode::VulkanDeviceTable>   device_tables_;
+    std::unordered_map<encode::VulkanDispatchKey, PFN_vkGetDeviceProcAddr>     get_device_proc_addrs_;
+    std::unordered_map<encode::VulkanDispatchKey, PFN_vkCreateDevice>          create_device_procs_;
+    std::unordered_map<encode::VulkanDispatchKey, encode::VulkanInstanceTable> instance_tables_;
+    std::unordered_map<encode::VulkanDispatchKey, encode::VulkanDeviceTable>   device_tables_;
     std::function<void(const char*)>                                 fatal_error_handler_;
     std::shared_ptr<application::Application>                        application_;
     VulkanObjectInfoTable                                            object_info_table_;

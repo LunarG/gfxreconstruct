@@ -32,9 +32,52 @@
 
 #ifdef ENABLE_OPENXR_SUPPORT
 
+#include "encode/custom_openxr_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
+
+// Define the platform defines so that we can have entrypoints for each
+// possible entrypoint in our dispatch table.
+#ifndef XR_USE_PLATFORM_WIN32
+#define XR_USE_PLATFORM_WIN32
+#endif
+#ifndef XR_USE_PLATFORM_WAYLAND
+#define XR_USE_PLATFORM_WAYLAND
+#endif
+#ifndef XR_USE_PLATFORM_XCB
+#define XR_USE_PLATFORM_XCB
+#endif
+#ifndef XR_USE_PLATFORM_XLIB
+#define XR_USE_PLATFORM_XLIB
+#endif
+#ifndef XR_USE_PLATFORM_ANDROID
+#define XR_USE_PLATFORM_ANDROID
+#endif
+#ifndef XR_USE_PLATFORM_ML
+#define XR_USE_PLATFORM_ML
+#endif
+#ifndef XR_USE_PLATFORM_EGL
+#define XR_USE_PLATFORM_EGL
+#endif
+#ifndef XR_USE_GRAPHICS_API_VULKAN
+#define XR_USE_GRAPHICS_API_VULKAN
+#endif
+#ifndef XR_USE_GRAPHICS_API_OPENGL
+#define XR_USE_GRAPHICS_API_OPENGL
+#endif
+#ifndef XR_USE_GRAPHICS_API_OPENGL_ES
+#define XR_USE_GRAPHICS_API_OPENGL_ES
+#endif
+#ifndef XR_USE_GRAPHICS_API_D3D11
+#define XR_USE_GRAPHICS_API_D3D11
+#endif
+#ifndef XR_USE_GRAPHICS_API_D3D12
+#define XR_USE_GRAPHICS_API_D3D12
+#endif
+#ifndef XR_USE_TIMESPEC
+#define XR_USE_TIMESPEC
+#endif
 
 #include "openxr/openxr.h"
 #include "openxr/openxr_platform.h"
@@ -44,7 +87,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void EncodePNextStruct(ParameterEncoder* encoder, const void* value);
+void EncodeNextStruct(ParameterEncoder* encoder, const void* value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrExtensionProperties& value);
@@ -77,7 +120,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFrameWaitInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrFrameState& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrFrameBeginInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrViewLocateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrViewState& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrFovf& value);
@@ -100,8 +142,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrBoundSourcesForActionEnumer
 void EncodeStruct(ParameterEncoder* encoder, const XrInputSourceLocalizedNameGetInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrHapticActionInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrHapticBaseHeader& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrBaseInStructure& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrBaseOutStructure& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrOffset2Di& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrExtent2Di& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrRect2Di& value);
@@ -121,11 +161,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrRect2Df& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrVector4f& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrColor4f& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerNextInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerCreateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrNegotiateLoaderInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrNegotiateRuntimeRequest& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrNegotiateApiLayerRequest& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerCubeKHR& value);
 
@@ -171,14 +206,11 @@ void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoBaseHeaderKHR
 
 void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoAndroidKHR& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const XrVulkanInstanceCreateInfoKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrVulkanDeviceCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanGraphicsDeviceGetInfoKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerEquirect2KHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationBaseHeaderKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataPerfSettingsEXT& value);
 
@@ -229,7 +261,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandPoseTypeInfoMSFT& value
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationSessionBeginInfoMSFT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationStateMSFT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationFrameStateMSFT& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationLayerInfoMSFT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationFrameEndInfoMSFT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationSwapchainCreateInfoMSFT& value);
 

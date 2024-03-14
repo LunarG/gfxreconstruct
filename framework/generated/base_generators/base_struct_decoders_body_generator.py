@@ -92,7 +92,7 @@ class BaseStructDecodersBodyGenerator():
             is_string = True
         elif type_name == 'FunctionPtr':
             is_funcp = True
-        elif type_name == 'Handle':
+        elif type_name == 'VulkanHandle':
             is_handle = True
         elif type_name == 'Enum':
             is_enum = True

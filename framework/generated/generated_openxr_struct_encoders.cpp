@@ -31,8 +31,8 @@
 
 #include "generated/generated_openxr_struct_encoders.h"
 
-#include "encode/custom_openxr_struct_encoders.h"
 #include "encode/parameter_encoder.h"
+#include "encode/openxr_handle_wrappers.h"
 #include "encode/struct_pointer_encoder.h"
 #include "util/defines.h"
 
@@ -47,7 +47,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerProperties& value)
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeString(value.layerName);
-    encoder->EncodeXrVersionValue(value.specVersion);
+    encoder->EncodeUInt64Value(value.specVersion);
     encoder->EncodeUInt32Value(value.layerVersion);
     encoder->EncodeString(value.description);
 }
@@ -66,7 +66,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrApplicationInfo& value)
     encoder->EncodeUInt32Value(value.applicationVersion);
     encoder->EncodeString(value.engineName);
     encoder->EncodeUInt32Value(value.engineVersion);
-    encoder->EncodeXrVersionValue(value.apiVersion);
+    encoder->EncodeUInt64Value(value.apiVersion);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrInstanceCreateInfo& value)
@@ -85,7 +85,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrInstanceProperties& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrVersionValue(value.runtimeVersion);
+    encoder->EncodeUInt64Value(value.runtimeVersion);
     encoder->EncodeString(value.runtimeName);
 }
 
@@ -112,15 +112,15 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemGraphicsProperties& v
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemTrackingProperties& value)
 {
-    encoder->EncodeXrBool32Value(value.orientationTracking);
-    encoder->EncodeXrBool32Value(value.positionTracking);
+    encoder->EncodeUInt32Value(value.orientationTracking);
+    encoder->EncodeUInt32Value(value.positionTracking);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemProperties& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrSystemIdValue(value.systemId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::SystemIdWrapper>(value.systemId);
     encoder->EncodeUInt32Value(value.vendorId);
     encoder->EncodeString(value.systemName);
     EncodeStruct(encoder, value.graphicsProperties);
@@ -132,7 +132,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSessionCreateInfo& value)
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeFlags64Value(value.createFlags);
-    encoder->EncodeXrSystemIdValue(value.systemId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::SystemIdWrapper>(value.systemId);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrVector3f& value)
@@ -184,7 +184,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrActionSpaceCreateInfo& valu
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::ActionWrapper>(value.action);
-    encoder->EncodeXrPathValue(value.subactionPath);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.subactionPath);
     EncodeStruct(encoder, value.poseInActionSpace);
 }
 
@@ -201,7 +201,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrViewConfigurationProperties
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeEnumValue(value.viewConfigurationType);
-    encoder->EncodeXrBool32Value(value.fovMutable);
+    encoder->EncodeUInt32Value(value.fovMutable);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrViewConfigurationView& value)
@@ -247,7 +247,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageWaitInfo& val
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrDurationValue(value.timeout);
+    encoder->EncodeInt64Value(value.timeout);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageReleaseInfo& value)
@@ -273,9 +273,9 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFrameState& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrTimeValue(value.predictedDisplayTime);
-    encoder->EncodeXrDurationValue(value.predictedDisplayPeriod);
-    encoder->EncodeXrBool32Value(value.shouldRender);
+    encoder->EncodeInt64Value(value.predictedDisplayTime);
+    encoder->EncodeInt64Value(value.predictedDisplayPeriod);
+    encoder->EncodeUInt32Value(value.shouldRender);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrFrameBeginInfo& value)
@@ -292,22 +292,12 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader&
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrTimeValue(value.displayTime);
-    encoder->EncodeEnumValue(value.environmentBlendMode);
-    encoder->EncodeUInt32Value(value.layerCount);
-    EncodeStructArray2D(encoder, value.layers, ArraySize2D<XrStructureType, const void*, XrTime, XrEnvironmentBlendMode, uint32_t, const XrCompositionLayerBaseHeader* const*>(type, next, displayTime, environmentBlendMode, layerCount, layers));
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const XrViewLocateInfo& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeEnumValue(value.viewConfigurationType);
-    encoder->EncodeXrTimeValue(value.displayTime);
+    encoder->EncodeInt64Value(value.displayTime);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
 }
 
@@ -350,21 +340,21 @@ void EncodeStruct(ParameterEncoder* encoder, const XrActionCreateInfo& value)
     encoder->EncodeString(value.actionName);
     encoder->EncodeEnumValue(value.actionType);
     encoder->EncodeUInt32Value(value.countSubactionPaths);
-    encoder->EncodeXrPathArray(value.subactionPaths, value.countSubactionPaths);
+    encoder->EncodeOpenXrAtomArray<openxr_wrappers::PathWrapper>(value.subactionPaths, value.countSubactionPaths);
     encoder->EncodeString(value.localizedActionName);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrActionSuggestedBinding& value)
 {
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::ActionWrapper>(value.action);
-    encoder->EncodeXrPathValue(value.binding);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.binding);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrInteractionProfileSuggestedBinding& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrPathValue(value.interactionProfile);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.interactionProfile);
     encoder->EncodeUInt32Value(value.countSuggestedBindings);
     EncodeStructArray(encoder, value.suggestedBindings, value.countSuggestedBindings);
 }
@@ -381,7 +371,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrInteractionProfileState& va
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrPathValue(value.interactionProfile);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.interactionProfile);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrActionStateGetInfo& value)
@@ -389,17 +379,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrActionStateGetInfo& value)
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::ActionWrapper>(value.action);
-    encoder->EncodeXrPathValue(value.subactionPath);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.subactionPath);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrActionStateBoolean& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.currentState);
-    encoder->EncodeXrBool32Value(value.changedSinceLastSync);
-    encoder->EncodeXrTimeValue(value.lastChangeTime);
-    encoder->EncodeXrBool32Value(value.isActive);
+    encoder->EncodeUInt32Value(value.currentState);
+    encoder->EncodeUInt32Value(value.changedSinceLastSync);
+    encoder->EncodeInt64Value(value.lastChangeTime);
+    encoder->EncodeUInt32Value(value.isActive);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrActionStateFloat& value)
@@ -407,9 +397,9 @@ void EncodeStruct(ParameterEncoder* encoder, const XrActionStateFloat& value)
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeFloatValue(value.currentState);
-    encoder->EncodeXrBool32Value(value.changedSinceLastSync);
-    encoder->EncodeXrTimeValue(value.lastChangeTime);
-    encoder->EncodeXrBool32Value(value.isActive);
+    encoder->EncodeUInt32Value(value.changedSinceLastSync);
+    encoder->EncodeInt64Value(value.lastChangeTime);
+    encoder->EncodeUInt32Value(value.isActive);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrVector2f& value)
@@ -423,22 +413,22 @@ void EncodeStruct(ParameterEncoder* encoder, const XrActionStateVector2f& value)
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     EncodeStruct(encoder, value.currentState);
-    encoder->EncodeXrBool32Value(value.changedSinceLastSync);
-    encoder->EncodeXrTimeValue(value.lastChangeTime);
-    encoder->EncodeXrBool32Value(value.isActive);
+    encoder->EncodeUInt32Value(value.changedSinceLastSync);
+    encoder->EncodeInt64Value(value.lastChangeTime);
+    encoder->EncodeUInt32Value(value.isActive);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrActionStatePose& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.isActive);
+    encoder->EncodeUInt32Value(value.isActive);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrActiveActionSet& value)
 {
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::ActionSetWrapper>(value.actionSet);
-    encoder->EncodeXrPathValue(value.subactionPath);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.subactionPath);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrActionsSyncInfo& value)
@@ -460,7 +450,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrInputSourceLocalizedNameGet
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrPathValue(value.sourcePath);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.sourcePath);
     encoder->EncodeFlags64Value(value.whichComponents);
 }
 
@@ -469,25 +459,13 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHapticActionInfo& value)
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::ActionWrapper>(value.action);
-    encoder->EncodeXrPathValue(value.subactionPath);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.subactionPath);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrHapticBaseHeader& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrBaseInStructure& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    EncodeStructPtr(encoder, value.next);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrBaseOutStructure& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    EncodeStructPtr(encoder, value.next);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrOffset2Di& value)
@@ -563,7 +541,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataInstanceLossPendin
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrTimeValue(value.lossTime);
+    encoder->EncodeInt64Value(value.lossTime);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSessionStateChanged& value)
@@ -572,7 +550,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSessionStateChange
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(value.session);
     encoder->EncodeEnumValue(value.state);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataReferenceSpaceChangePending& value)
@@ -581,8 +559,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataReferenceSpaceChan
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(value.session);
     encoder->EncodeEnumValue(value.referenceSpaceType);
-    encoder->EncodeXrTimeValue(value.changeTime);
-    encoder->EncodeXrBool32Value(value.poseValid);
+    encoder->EncodeInt64Value(value.changeTime);
+    encoder->EncodeUInt32Value(value.poseValid);
     EncodeStruct(encoder, value.poseInPreviousSpace);
 }
 
@@ -597,7 +575,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHapticVibration& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrDurationValue(value.duration);
+    encoder->EncodeInt64Value(value.duration);
     encoder->EncodeFloatValue(value.frequency);
     encoder->EncodeFloatValue(value.amplitude);
 }
@@ -630,58 +608,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrColor4f& value)
     encoder->EncodeFloatValue(value.a);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerNextInfo& value)
-{
-    encoder->EncodeEnumValue(value.structType);
-    encoder->EncodeUInt32Value(value.structVersion);
-    encoder->EncodeSizeTValue(value.structSize);
-    encoder->EncodeString(value.layerName);
-    encoder->EncodeFunctionPtr(value.nextGetInstanceProcAddr);
-    encoder->EncodeFunctionPtr(value.nextCreateApiLayerInstance);
-    EncodeStructPtr(encoder, value.next);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerCreateInfo& value)
-{
-    encoder->EncodeEnumValue(value.structType);
-    encoder->EncodeUInt32Value(value.structVersion);
-    encoder->EncodeSizeTValue(value.structSize);
-    encoder->EncodeVoidPtr(value.loaderInstance);
-    encoder->EncodeString(value.settings_file_location);
-    EncodeStructPtr(encoder, value.nextInfo);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrNegotiateLoaderInfo& value)
-{
-    encoder->EncodeEnumValue(value.structType);
-    encoder->EncodeUInt32Value(value.structVersion);
-    encoder->EncodeSizeTValue(value.structSize);
-    encoder->EncodeUInt32Value(value.minInterfaceVersion);
-    encoder->EncodeUInt32Value(value.maxInterfaceVersion);
-    encoder->EncodeXrVersionValue(value.minApiVersion);
-    encoder->EncodeXrVersionValue(value.maxApiVersion);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrNegotiateRuntimeRequest& value)
-{
-    encoder->EncodeEnumValue(value.structType);
-    encoder->EncodeUInt32Value(value.structVersion);
-    encoder->EncodeSizeTValue(value.structSize);
-    encoder->EncodeUInt32Value(value.runtimeInterfaceVersion);
-    encoder->EncodeXrVersionValue(value.runtimeApiVersion);
-    encoder->EncodeFunctionPtr(value.getInstanceProcAddr);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrNegotiateApiLayerRequest& value)
-{
-    encoder->EncodeEnumValue(value.structType);
-    encoder->EncodeUInt32Value(value.structVersion);
-    encoder->EncodeSizeTValue(value.structSize);
-    encoder->EncodeUInt32Value(value.layerInterfaceVersion);
-    encoder->EncodeXrVersionValue(value.layerApiVersion);
-    encoder->EncodeFunctionPtr(value.getInstanceProcAddr);
-    encoder->EncodeFunctionPtr(value.createApiLayerInstance);
-}
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerCubeKHR& value)
 {
@@ -754,8 +680,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLWin32K
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeHDCValue(value.hDC);
-    encoder->EncodeHGLRCValue(value.hGLRC);
+    encoder->EncodeVoidPtr(value.hDC);
+    encoder->EncodeVoidPtr(value.hGLRC);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLXlibKHR& value)
@@ -764,9 +690,9 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLXlibKH
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeVoidPtr(value.xDisplay);
     encoder->EncodeUInt32Value(value.visualid);
-    encoder->EncodeGLXFBConfigValue(value.glxFBConfig);
-    encoder->EncodeGLXDrawableValue(value.glxDrawable);
-    encoder->EncodeGLXContextValue(value.glxContext);
+    encoder->EncodeVoidPtr(value.glxFBConfig);
+    encoder->EncodeUInt32Value(value.glxDrawable);
+    encoder->EncodeVoidPtr(value.glxContext);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLXcbKHR& value)
@@ -775,10 +701,10 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLXcbKHR
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeVoidPtr(value.connection);
     encoder->EncodeUInt32Value(value.screenNumber);
-    encoder->EncodeXcb_Glx_FbconfigValue(value.fbconfigid);
+    encoder->EncodeUInt32Value(value.fbconfigid);
     encoder->EncodeUInt32Value(value.visualid);
-    encoder->EncodeXcb_Glx_DrawableValue(value.glxDrawable);
-    encoder->EncodeXcb_Glx_ContextValue(value.glxContext);
+    encoder->EncodeUInt32Value(value.glxDrawable);
+    encoder->EncodeUInt32Value(value.glxContext);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLWaylandKHR& value)
@@ -799,17 +725,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsOpenGLK
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrVersionValue(value.minApiVersionSupported);
-    encoder->EncodeXrVersionValue(value.maxApiVersionSupported);
+    encoder->EncodeUInt64Value(value.minApiVersionSupported);
+    encoder->EncodeUInt64Value(value.maxApiVersionSupported);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLESAndroidKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeEGLDisplayValue(value.display);
-    encoder->EncodeEGLConfigValue(value.config);
-    encoder->EncodeEGLContextValue(value.context);
+    encoder->EncodeVoidPtr(value.display);
+    encoder->EncodeVoidPtr(value.config);
+    encoder->EncodeVoidPtr(value.context);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageOpenGLESKHR& value)
@@ -823,17 +749,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsOpenGLE
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrVersionValue(value.minApiVersionSupported);
-    encoder->EncodeXrVersionValue(value.maxApiVersionSupported);
+    encoder->EncodeUInt64Value(value.minApiVersionSupported);
+    encoder->EncodeUInt64Value(value.maxApiVersionSupported);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingVulkanKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVkInstanceValue(value.instance);
-    encoder->EncodeVkPhysicalDeviceValue(value.physicalDevice);
-    encoder->EncodeVkDeviceValue(value.device);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::InstanceWrapper>(value.instance);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PhysicalDeviceWrapper>(value.physicalDevice);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(value.device);
     encoder->EncodeUInt32Value(value.queueFamilyIndex);
     encoder->EncodeUInt32Value(value.queueIndex);
 }
@@ -842,36 +768,36 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageVulkanKHR& va
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVkImageValue(value.image);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageWrapper>(value.image);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsVulkanKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrVersionValue(value.minApiVersionSupported);
-    encoder->EncodeXrVersionValue(value.maxApiVersionSupported);
+    encoder->EncodeUInt64Value(value.minApiVersionSupported);
+    encoder->EncodeUInt64Value(value.maxApiVersionSupported);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D11KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeID3D11DevicePtr(value.device);
+    encoder->EncodeVoidPtrPtr(value.device);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageD3D11KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeID3D11Texture2DPtr(value.texture);
+    encoder->EncodeVoidPtrPtr(value.texture);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D11KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeLUIDValue(value.adapterLuid);
+    encoder->EncodeInt64Value(value.adapterLuid);
     encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
 }
 
@@ -879,22 +805,22 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D12KHR& va
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeID3D12DevicePtr(value.device);
-    encoder->EncodeID3D12CommandQueuePtr(value.queue);
+    encoder->EncodeVoidPtrPtr(value.device);
+    encoder->EncodeVoidPtrPtr(value.queue);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageD3D12KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeID3D12ResourcePtr(value.texture);
+    encoder->EncodeVoidPtrPtr(value.texture);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D12KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeLUIDValue(value.adapterLuid);
+    encoder->EncodeInt64Value(value.adapterLuid);
     encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
 }
 
@@ -941,35 +867,12 @@ void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoAndroidKHR& v
     encoder->EncodeVoidPtr(value.applicationContext);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const XrVulkanInstanceCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrSystemIdValue(value.systemId);
-    encoder->EncodeFlags64Value(value.createFlags);
-    encoder->EncodeFunctionPtr(value.pfnGetInstanceProcAddr);
-    encoder->EncodeVkInstanceCreateInfoPtr(value.vulkanCreateInfo);
-    encoder->EncodeVkAllocationCallbacksPtr(value.vulkanAllocator);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrVulkanDeviceCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrSystemIdValue(value.systemId);
-    encoder->EncodeFlags64Value(value.createFlags);
-    encoder->EncodeFunctionPtr(value.pfnGetInstanceProcAddr);
-    encoder->EncodeVkPhysicalDeviceValue(value.vulkanPhysicalDevice);
-    encoder->EncodeVkDeviceCreateInfoPtr(value.vulkanCreateInfo);
-    encoder->EncodeVkAllocationCallbacksPtr(value.vulkanAllocator);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanGraphicsDeviceGetInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrSystemIdValue(value.systemId);
-    encoder->EncodeVkInstanceValue(value.vulkanInstance);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::SystemIdWrapper>(value.systemId);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::InstanceWrapper>(value.vulkanInstance);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerEquirect2KHR& value)
@@ -991,14 +894,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationBaseHead
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeUInt32Value(value.bindingModificationCount);
-    EncodeStructArray2D(encoder, value.bindingModifications, ArraySize2D<XrStructureType, const void*, uint32_t, const XrBindingModificationBaseHeaderKHR* const*>(type, next, bindingModificationCount, bindingModifications));
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataPerfSettingsEXT& value)
@@ -1054,14 +949,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemEyeGazeInteractionPro
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsEyeGazeInteraction);
+    encoder->EncodeUInt32Value(value.supportsEyeGazeInteraction);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEyeGazeSampleTimeEXT& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSessionCreateInfoOverlayEXTX& value)
@@ -1076,7 +971,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataMainSessionVisibil
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.visible);
+    encoder->EncodeUInt32Value(value.visible);
     encoder->EncodeFlags64Value(value.flags);
 }
 
@@ -1086,7 +981,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSpatialAnchorCreateInfoMSFT
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
     EncodeStruct(encoder, value.pose);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpatialAnchorSpaceCreateInfoMSFT& value)
@@ -1129,9 +1024,9 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingEGLMNDX& val
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeFunctionPtr(value.getProcAddress);
-    encoder->EncodeEGLDisplayValue(value.display);
-    encoder->EncodeEGLConfigValue(value.config);
-    encoder->EncodeEGLContextValue(value.context);
+    encoder->EncodeVoidPtr(value.display);
+    encoder->EncodeVoidPtr(value.config);
+    encoder->EncodeVoidPtr(value.context);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpatialGraphNodeSpaceCreateInfoMSFT& value)
@@ -1149,7 +1044,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSpatialGraphStaticNodeBindi
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
     EncodeStruct(encoder, value.poseInSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpatialGraphNodeBindingPropertiesGetInfoMSFT& value)
@@ -1170,7 +1065,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemHandTrackingPropertie
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsHandTracking);
+    encoder->EncodeUInt32Value(value.supportsHandTracking);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrHandTrackerCreateInfoEXT& value)
@@ -1186,7 +1081,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandJointsLocateInfoEXT& va
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.baseSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrHandJointLocationEXT& value)
@@ -1207,7 +1102,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandJointLocationsEXT& valu
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.isActive);
+    encoder->EncodeUInt32Value(value.isActive);
     encoder->EncodeUInt32Value(value.jointCount);
     EncodeStructArray(encoder, value.jointLocations, value.jointCount);
 }
@@ -1224,7 +1119,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemHandTrackingMeshPrope
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsHandTrackingMesh);
+    encoder->EncodeUInt32Value(value.supportsHandTrackingMesh);
     encoder->EncodeUInt32Value(value.maxHandMeshIndexCount);
     encoder->EncodeUInt32Value(value.maxHandMeshVertexCount);
 }
@@ -1241,7 +1136,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandMeshUpdateInfoMSFT& val
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
     encoder->EncodeEnumValue(value.handPoseType);
 }
 
@@ -1261,7 +1156,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandMeshVertexMSFT& value)
 
 void EncodeStruct(ParameterEncoder* encoder, const XrHandMeshVertexBufferMSFT& value)
 {
-    encoder->EncodeXrTimeValue(value.vertexUpdateTime);
+    encoder->EncodeInt64Value(value.vertexUpdateTime);
     encoder->EncodeUInt32Value(value.vertexCapacityInput);
     encoder->EncodeUInt32Value(value.vertexCountOutput);
     EncodeStructArray(encoder, value.vertices, value.vertexCapacityInput);
@@ -1271,9 +1166,9 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandMeshMSFT& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.isActive);
-    encoder->EncodeXrBool32Value(value.indexBufferChanged);
-    encoder->EncodeXrBool32Value(value.vertexBufferChanged);
+    encoder->EncodeUInt32Value(value.isActive);
+    encoder->EncodeUInt32Value(value.indexBufferChanged);
+    encoder->EncodeUInt32Value(value.vertexBufferChanged);
     EncodeStruct(encoder, value.indexBuffer);
     EncodeStruct(encoder, value.vertexBuffer);
 }
@@ -1298,7 +1193,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationS
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeEnumValue(value.viewConfigurationType);
-    encoder->EncodeXrBool32Value(value.active);
+    encoder->EncodeUInt32Value(value.active);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationFrameStateMSFT& value)
@@ -1307,16 +1202,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationF
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeUInt32Value(value.viewConfigurationCount);
     EncodeStructArray(encoder, value.viewConfigurationStates, value.viewConfigurationCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationLayerInfoMSFT& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeEnumValue(value.viewConfigurationType);
-    encoder->EncodeEnumValue(value.environmentBlendMode);
-    encoder->EncodeUInt32Value(value.layerCount);
-    EncodeStructArray2D(encoder, value.layers, ArraySize2D<XrStructureType, const void*, XrViewConfigurationType, XrEnvironmentBlendMode, uint32_t, const XrCompositionLayerBaseHeader* const*>(type, next, viewConfigurationType, environmentBlendMode, layerCount, layers));
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationFrameEndInfoMSFT& value)
@@ -1338,7 +1223,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrControllerModelKeyStateMSFT
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrControllerModelKeyMSFTValue(value.modelKey);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::ControllerModelKeyMSFTWrapper>(value.modelKey);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrControllerModelNodePropertiesMSFT& value)
@@ -1436,7 +1321,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemBodyTrackingPropertie
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsBodyTracking);
+    encoder->EncodeUInt32Value(value.supportsBodyTracking);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrBodyTrackerCreateInfoFB& value)
@@ -1466,32 +1351,32 @@ void EncodeStruct(ParameterEncoder* encoder, const XrBodyJointsLocateInfoFB& val
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.baseSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrBodyJointLocationsFB& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.isActive);
+    encoder->EncodeUInt32Value(value.isActive);
     encoder->EncodeFloatValue(value.confidence);
     encoder->EncodeUInt32Value(value.jointCount);
     EncodeStructArray(encoder, value.jointLocations, value.jointCount);
     encoder->EncodeUInt32Value(value.skeletonChangedCount);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrInteractionProfileDpadBindingEXT& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrPathValue(value.binding);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.binding);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::ActionSetWrapper>(value.actionSet);
     encoder->EncodeFloatValue(value.forceThreshold);
     encoder->EncodeFloatValue(value.forceThresholdReleased);
     encoder->EncodeFloatValue(value.centerRegion);
     encoder->EncodeFloatValue(value.wedgeAngle);
-    encoder->EncodeXrBool32Value(value.isSticky);
+    encoder->EncodeUInt32Value(value.isSticky);
     EncodeStructPtr(encoder, value.onHaptic);
     EncodeStructPtr(encoder, value.offHaptic);
 }
@@ -1501,7 +1386,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrInteractionProfileAnalogThr
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::ActionWrapper>(value.action);
-    encoder->EncodeXrPathValue(value.binding);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.binding);
     encoder->EncodeFloatValue(value.onThreshold);
     encoder->EncodeFloatValue(value.offThreshold);
     EncodeStructPtr(encoder, value.onHaptic);
@@ -1554,7 +1439,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSceneFrustumBoundMSFT& valu
 void EncodeStruct(ParameterEncoder* encoder, const XrSceneBoundsMSFT& value)
 {
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
     encoder->EncodeUInt32Value(value.sphereCount);
     EncodeStructArray(encoder, value.spheres, value.sphereCount);
     encoder->EncodeUInt32Value(value.boxCount);
@@ -1585,7 +1470,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSceneComponentMSFT& value)
     encoder->EncodeEnumValue(value.componentType);
     EncodeStruct(encoder, value.id);
     EncodeStruct(encoder, value.parentId);
-    encoder->EncodeXrTimeValue(value.updateTime);
+    encoder->EncodeInt64Value(value.updateTime);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSceneComponentsMSFT& value)
@@ -1623,7 +1508,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSceneComponentsLocateInfoMS
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.baseSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
     encoder->EncodeUInt32Value(value.componentIdCount);
     EncodeStructArray(encoder, value.componentIds, value.componentIdCount);
 }
@@ -1661,7 +1546,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrScenePlaneMSFT& value)
     encoder->EncodeEnumValue(value.alignment);
     EncodeStruct(encoder, value.size);
     encoder->EncodeUInt64Value(value.meshBufferId);
-    encoder->EncodeXrBool32Value(value.supportsIndicesUint16);
+    encoder->EncodeUInt32Value(value.supportsIndicesUint16);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrScenePlanesMSFT& value)
@@ -1683,7 +1568,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrScenePlaneAlignmentFilterIn
 void EncodeStruct(ParameterEncoder* encoder, const XrSceneMeshMSFT& value)
 {
     encoder->EncodeUInt64Value(value.meshBufferId);
-    encoder->EncodeXrBool32Value(value.supportsIndicesUint16);
+    encoder->EncodeUInt32Value(value.supportsIndicesUint16);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSceneMeshesMSFT& value)
@@ -1767,8 +1652,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrViveTrackerPathsHTCX& value
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrPathValue(value.persistentPath);
-    encoder->EncodeXrPathValue(value.rolePath);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.persistentPath);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.rolePath);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataViveTrackerConnectedHTCX& value)
@@ -1782,16 +1667,16 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemFacialTrackingPropert
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportEyeFacialTracking);
-    encoder->EncodeXrBool32Value(value.supportLipFacialTracking);
+    encoder->EncodeUInt32Value(value.supportEyeFacialTracking);
+    encoder->EncodeUInt32Value(value.supportLipFacialTracking);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrFacialExpressionsHTC& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.isActive);
-    encoder->EncodeXrTimeValue(value.sampleTime);
+    encoder->EncodeUInt32Value(value.isActive);
+    encoder->EncodeInt64Value(value.sampleTime);
     encoder->EncodeUInt32Value(value.expressionCount);
     encoder->EncodeFloatPtr(value.expressionWeightings);
 }
@@ -1845,7 +1730,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandTrackingScaleFB& value)
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeFloatValue(value.sensorOutput);
     encoder->EncodeFloatValue(value.currentOutput);
-    encoder->EncodeXrBool32Value(value.overrideHandScale);
+    encoder->EncodeUInt32Value(value.overrideHandScale);
     encoder->EncodeFloatValue(value.overrideValueInput);
 }
 
@@ -1879,7 +1764,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemSpatialEntityProperti
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsSpatialEntity);
+    encoder->EncodeUInt32Value(value.supportsSpatialEntity);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpatialAnchorCreateInfoFB& value)
@@ -1888,7 +1773,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSpatialAnchorCreateInfoFB& 
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
     EncodeStruct(encoder, value.poseInSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceComponentStatusSetInfoFB& value)
@@ -1896,16 +1781,16 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSpaceComponentStatusSetInfo
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeEnumValue(value.componentType);
-    encoder->EncodeXrBool32Value(value.enabled);
-    encoder->EncodeXrDurationValue(value.timeout);
+    encoder->EncodeUInt32Value(value.enabled);
+    encoder->EncodeInt64Value(value.timeout);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceComponentStatusFB& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.enabled);
-    encoder->EncodeXrBool32Value(value.changePending);
+    encoder->EncodeUInt32Value(value.enabled);
+    encoder->EncodeUInt32Value(value.changePending);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrUuidEXT& value)
@@ -1917,7 +1802,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpatialAnchorCreat
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrAsyncRequestIdFBValue(value.requestId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::AsyncRequestIdFBWrapper>(value.requestId);
     encoder->EncodeEnumValue(value.result);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
     EncodeStruct(encoder, value.uuid);
@@ -1927,12 +1812,12 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpaceSetStatusComp
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrAsyncRequestIdFBValue(value.requestId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::AsyncRequestIdFBWrapper>(value.requestId);
     encoder->EncodeEnumValue(value.result);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
     EncodeStruct(encoder, value.uuid);
     encoder->EncodeEnumValue(value.componentType);
-    encoder->EncodeXrBool32Value(value.enabled);
+    encoder->EncodeUInt32Value(value.enabled);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrFoveationProfileCreateInfoFB& value)
@@ -1969,7 +1854,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemKeyboardTrackingPrope
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsKeyboardTracking);
+    encoder->EncodeUInt32Value(value.supportsKeyboardTracking);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrKeyboardTrackingDescriptionFB& value)
@@ -2010,7 +1895,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemPassthroughProperties
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsPassthrough);
+    encoder->EncodeUInt32Value(value.supportsPassthrough);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemPassthroughProperties2FB& value)
@@ -2061,7 +1946,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGeometryInstanceTransformFB
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.baseSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
     EncodeStruct(encoder, value.pose);
     EncodeStruct(encoder, value.scale);
 }
@@ -2108,7 +1993,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrRenderModelPathInfoFB& valu
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrPathValue(value.path);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::PathWrapper>(value.path);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrRenderModelPropertiesFB& value)
@@ -2117,7 +2002,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrRenderModelPropertiesFB& va
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeUInt32Value(value.vendorId);
     encoder->EncodeString(value.modelName);
-    encoder->EncodeXrRenderModelKeyFBValue(value.modelKey);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::RenderModelKeyFBWrapper>(value.modelKey);
     encoder->EncodeUInt32Value(value.modelVersion);
     encoder->EncodeFlags64Value(value.flags);
 }
@@ -2135,14 +2020,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrRenderModelLoadInfoFB& valu
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrRenderModelKeyFBValue(value.modelKey);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::RenderModelKeyFBWrapper>(value.modelKey);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemRenderModelPropertiesFB& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsRenderModelLoading);
+    encoder->EncodeUInt32Value(value.supportsRenderModelLoading);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrRenderModelCapabilitiesRequestFB& value)
@@ -2156,21 +2041,21 @@ void EncodeStruct(ParameterEncoder* encoder, const XrViewLocateFoveatedRendering
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.foveatedRenderingActive);
+    encoder->EncodeUInt32Value(value.foveatedRenderingActive);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrFoveatedViewConfigurationViewVARJO& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.foveatedRenderingActive);
+    encoder->EncodeUInt32Value(value.foveatedRenderingActive);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemFoveatedRenderingPropertiesVARJO& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsFoveatedRendering);
+    encoder->EncodeUInt32Value(value.supportsFoveatedRendering);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerDepthTestVARJO& value)
@@ -2185,7 +2070,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemMarkerTrackingPropert
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsMarkerTracking);
+    encoder->EncodeUInt32Value(value.supportsMarkerTracking);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataMarkerTrackingUpdateVARJO& value)
@@ -2193,9 +2078,9 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataMarkerTrackingUpda
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeUInt64Value(value.markerId);
-    encoder->EncodeXrBool32Value(value.isActive);
-    encoder->EncodeXrBool32Value(value.isPredicted);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeUInt32Value(value.isActive);
+    encoder->EncodeUInt32Value(value.isPredicted);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrMarkerSpaceCreateInfoVARJO& value)
@@ -2234,7 +2119,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemMarkerUnderstandingPr
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsMarkerUnderstanding);
+    encoder->EncodeUInt32Value(value.supportsMarkerUnderstanding);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrMarkerDetectorCreateInfoML& value)
@@ -2274,7 +2159,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrMarkerDetectorCustomProfile
     encoder->EncodeEnumValue(value.resolutionHint);
     encoder->EncodeEnumValue(value.cameraHint);
     encoder->EncodeEnumValue(value.cornerRefineMethod);
-    encoder->EncodeXrBool32Value(value.useEdgeRefinement);
+    encoder->EncodeUInt32Value(value.useEdgeRefinement);
     encoder->EncodeEnumValue(value.fullAnalysisIntervalHint);
 }
 
@@ -2296,7 +2181,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrMarkerSpaceCreateInfoML& va
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::MarkerDetectorMLWrapper>(value.markerDetector);
-    encoder->EncodeXrMarkerMLValue(value.marker);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::MarkerMLWrapper>(value.marker);
     EncodeStruct(encoder, value.poseInMarkerSpace);
 }
 
@@ -2338,14 +2223,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrLocalizationMapImportInfoML
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeUInt32Value(value.size);
-    encoder->EncodeStringArray(value.data, value.size);
+    encoder->EncodeString(value.data);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrLocalizationEnableEventsInfoML& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.enabled);
+    encoder->EncodeUInt32Value(value.enabled);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpatialAnchorPersistenceNameMSFT& value)
@@ -2372,7 +2257,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSpatialAnchorFromPersistedA
 void EncodeStruct(ParameterEncoder* encoder, const XrSceneMarkerMSFT& value)
 {
     encoder->EncodeEnumValue(value.markerType);
-    encoder->EncodeXrTimeValue(value.lastSeenTime);
+    encoder->EncodeInt64Value(value.lastSeenTime);
     EncodeStruct(encoder, value.center);
     EncodeStruct(encoder, value.size);
 }
@@ -2425,7 +2310,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSpaceQueryInfoFB& value)
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeEnumValue(value.queryAction);
     encoder->EncodeUInt32Value(value.maxResultCount);
-    encoder->EncodeXrDurationValue(value.timeout);
+    encoder->EncodeInt64Value(value.timeout);
     EncodeStructPtr(encoder, value.filter);
     EncodeStructPtr(encoder, value.excludeFilter);
 }
@@ -2471,14 +2356,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpaceQueryResultsA
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrAsyncRequestIdFBValue(value.requestId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::AsyncRequestIdFBWrapper>(value.requestId);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpaceQueryCompleteFB& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrAsyncRequestIdFBValue(value.requestId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::AsyncRequestIdFBWrapper>(value.requestId);
     encoder->EncodeEnumValue(value.result);
 }
 
@@ -2503,7 +2388,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpaceSaveCompleteF
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrAsyncRequestIdFBValue(value.requestId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::AsyncRequestIdFBWrapper>(value.requestId);
     encoder->EncodeEnumValue(value.result);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
     EncodeStruct(encoder, value.uuid);
@@ -2514,7 +2399,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpaceEraseComplete
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrAsyncRequestIdFBValue(value.requestId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::AsyncRequestIdFBWrapper>(value.requestId);
     encoder->EncodeEnumValue(value.result);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
     EncodeStruct(encoder, value.uuid);
@@ -2525,7 +2410,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageFoveationVulk
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVkImageValue(value.image);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageWrapper>(value.image);
     encoder->EncodeUInt32Value(value.width);
     encoder->EncodeUInt32Value(value.height);
 }
@@ -2542,14 +2427,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateSamplerOpenGL
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeEGLenumValue(value.minFilter);
-    encoder->EncodeEGLenumValue(value.magFilter);
-    encoder->EncodeEGLenumValue(value.wrapModeS);
-    encoder->EncodeEGLenumValue(value.wrapModeT);
-    encoder->EncodeEGLenumValue(value.swizzleRed);
-    encoder->EncodeEGLenumValue(value.swizzleGreen);
-    encoder->EncodeEGLenumValue(value.swizzleBlue);
-    encoder->EncodeEGLenumValue(value.swizzleAlpha);
+    encoder->EncodeUInt32Value(value.minFilter);
+    encoder->EncodeUInt32Value(value.magFilter);
+    encoder->EncodeUInt32Value(value.wrapModeS);
+    encoder->EncodeUInt32Value(value.wrapModeT);
+    encoder->EncodeUInt32Value(value.swizzleRed);
+    encoder->EncodeUInt32Value(value.swizzleGreen);
+    encoder->EncodeUInt32Value(value.swizzleBlue);
+    encoder->EncodeUInt32Value(value.swizzleAlpha);
     encoder->EncodeFloatValue(value.maxAnisotropy);
     EncodeStruct(encoder, value.borderColor);
 }
@@ -2585,7 +2470,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpaceShareComplete
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrAsyncRequestIdFBValue(value.requestId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::AsyncRequestIdFBWrapper>(value.requestId);
     encoder->EncodeEnumValue(value.result);
 }
 
@@ -2615,7 +2500,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHapticAmplitudeEnvelopeVibr
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrDurationValue(value.duration);
+    encoder->EncodeInt64Value(value.duration);
     encoder->EncodeUInt32Value(value.amplitudeCount);
     encoder->EncodeFloatArray(value.amplitudes, value.amplitudeCount);
 }
@@ -2646,7 +2531,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSemanticLabelsFB& value)
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeUInt32Value(value.bufferCapacityInput);
     encoder->EncodeUInt32Value(value.bufferCountOutput);
-    encoder->EncodeStringArray(value.buffer, value.bufferCapacityInput);
+    encoder->EncodeString(value.buffer);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrRoomLayoutFB& value)
@@ -2688,7 +2573,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSceneCaptureComple
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrAsyncRequestIdFBValue(value.requestId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::AsyncRequestIdFBWrapper>(value.requestId);
     encoder->EncodeEnumValue(value.result);
 }
 
@@ -2697,7 +2582,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSceneCaptureRequestInfoFB& 
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeUInt32Value(value.requestByteCount);
-    encoder->EncodeStringArray(value.request, value.requestByteCount);
+    encoder->EncodeString(value.request);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceContainerFB& value)
@@ -2728,14 +2613,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemFoveationEyeTrackedPr
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsFoveationEyeTracked);
+    encoder->EncodeUInt32Value(value.supportsFoveationEyeTracked);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemFaceTrackingPropertiesFB& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsFaceTracking);
+    encoder->EncodeUInt32Value(value.supportsFaceTracking);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrFaceTrackerCreateInfoFB& value)
@@ -2749,13 +2634,13 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFaceExpressionInfoFB& value
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrFaceExpressionStatusFB& value)
 {
-    encoder->EncodeXrBool32Value(value.isValid);
-    encoder->EncodeXrBool32Value(value.isEyeFollowingBlendshapesValid);
+    encoder->EncodeUInt32Value(value.isValid);
+    encoder->EncodeUInt32Value(value.isEyeFollowingBlendshapesValid);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrFaceExpressionWeightsFB& value)
@@ -2767,12 +2652,12 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFaceExpressionWeightsFB& va
     encoder->EncodeUInt32Value(value.confidenceCount);
     encoder->EncodeFloatArray(value.confidences, value.confidenceCount);
     EncodeStruct(encoder, value.status);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEyeGazeFB& value)
 {
-    encoder->EncodeXrBool32Value(value.isValid);
+    encoder->EncodeUInt32Value(value.isValid);
     EncodeStruct(encoder, value.gazePose);
     encoder->EncodeFloatValue(value.gazeConfidence);
 }
@@ -2788,14 +2673,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEyeGazesInfoFB& value)
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.baseSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemEyeTrackingPropertiesFB& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsEyeTracking);
+    encoder->EncodeUInt32Value(value.supportsEyeTracking);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEyeGazesFB& value)
@@ -2803,7 +2688,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEyeGazesFB& value)
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     EncodeStructArray(encoder, value.gaze, XR_EYE_POSITION_COUNT_FB);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrPassthroughKeyboardHandsIntensityFB& value)
@@ -2828,7 +2713,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHapticPcmVibrationFB& value
     encoder->EncodeUInt32Value(value.bufferSize);
     encoder->EncodeFloatArray(value.buffer, value.bufferSize);
     encoder->EncodeFloatValue(value.sampleRate);
-    encoder->EncodeXrBool32Value(value.append);
+    encoder->EncodeUInt32Value(value.append);
     encoder->EncodeUInt32Ptr(value.samplesConsumed);
 }
 
@@ -2843,7 +2728,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerDepthTestFB
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.depthMask);
+    encoder->EncodeUInt32Value(value.depthMask);
     encoder->EncodeEnumValue(value.compareOp);
 }
 
@@ -2865,7 +2750,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemVirtualKeyboardProper
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsVirtualKeyboard);
+    encoder->EncodeUInt32Value(value.supportsVirtualKeyboard);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrVirtualKeyboardCreateInfoMETA& value)
@@ -2897,7 +2782,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVirtualKeyboardModelVisibil
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.visible);
+    encoder->EncodeUInt32Value(value.visible);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrVirtualKeyboardAnimationStateMETA& value)
@@ -2983,7 +2868,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataVirtualKeyboardHid
 
 void EncodeStruct(ParameterEncoder* encoder, const XrExternalCameraIntrinsicsOCULUS& value)
 {
-    encoder->EncodeXrTimeValue(value.lastChangeTime);
+    encoder->EncodeInt64Value(value.lastChangeTime);
     EncodeStruct(encoder, value.fov);
     encoder->EncodeFloatValue(value.virtualNearPlaneDistance);
     encoder->EncodeFloatValue(value.virtualFarPlaneDistance);
@@ -2992,7 +2877,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrExternalCameraIntrinsicsOCU
 
 void EncodeStruct(ParameterEncoder* encoder, const XrExternalCameraExtrinsicsOCULUS& value)
 {
-    encoder->EncodeXrTimeValue(value.lastChangeTime);
+    encoder->EncodeInt64Value(value.lastChangeTime);
     encoder->EncodeFlags64Value(value.cameraStatusFlags);
     encoder->EncodeEnumValue(value.attachedToDevice);
     EncodeStruct(encoder, value.relativePose);
@@ -3011,15 +2896,15 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanSwapchainCreateInfoME
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVkImageCreateFlagsValue(value.additionalCreateFlags);
-    encoder->EncodeVkImageUsageFlagsValue(value.additionalUsageFlags);
+    encoder->EncodeFlagsValue(value.additionalCreateFlags);
+    encoder->EncodeFlagsValue(value.additionalUsageFlags);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrPerformanceMetricsStateMETA& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.enabled);
+    encoder->EncodeUInt32Value(value.enabled);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrPerformanceMetricsCounterMETA& value)
@@ -3045,7 +2930,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpaceListSaveCompl
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrAsyncRequestIdFBValue(value.requestId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::AsyncRequestIdFBWrapper>(value.requestId);
     encoder->EncodeEnumValue(value.result);
 }
 
@@ -3053,7 +2938,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSpaceUserCreateInfoFB& valu
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrSpaceUserIdFBValue(value.userId);
+    encoder->EncodeUInt64Value(value.userId);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemHeadsetIdPropertiesMETA& value)
@@ -3068,7 +2953,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrRecommendedLayerResolutionM
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     EncodeStruct(encoder, value.recommendedImageDimensions);
-    encoder->EncodeXrBool32Value(value.isValid);
+    encoder->EncodeUInt32Value(value.isValid);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrRecommendedLayerResolutionGetInfoMETA& value)
@@ -3076,7 +2961,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrRecommendedLayerResolutionG
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     EncodeStructPtr(encoder, value.layer);
-    encoder->EncodeXrTimeValue(value.predictedDisplayTime);
+    encoder->EncodeInt64Value(value.predictedDisplayTime);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrPassthroughColorLutDataMETA& value)
@@ -3147,8 +3032,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemFaceTrackingPropertie
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsVisualFaceTracking);
-    encoder->EncodeXrBool32Value(value.supportsAudioFaceTracking);
+    encoder->EncodeUInt32Value(value.supportsVisualFaceTracking);
+    encoder->EncodeUInt32Value(value.supportsAudioFaceTracking);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrFaceTrackerCreateInfo2FB& value)
@@ -3164,7 +3049,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFaceExpressionInfo2FB& valu
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrFaceExpressionWeights2FB& value)
@@ -3175,10 +3060,10 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFaceExpressionWeights2FB& v
     encoder->EncodeFloatArray(value.weights, value.weightCount);
     encoder->EncodeUInt32Value(value.confidenceCount);
     encoder->EncodeFloatArray(value.confidences, value.confidenceCount);
-    encoder->EncodeXrBool32Value(value.isValid);
-    encoder->EncodeXrBool32Value(value.isEyeFollowingBlendshapesValid);
+    encoder->EncodeUInt32Value(value.isValid);
+    encoder->EncodeUInt32Value(value.isEyeFollowingBlendshapesValid);
     encoder->EncodeEnumValue(value.dataSource);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrPassthroughCreateInfoHTC& value)
@@ -3204,7 +3089,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrPassthroughMeshTransformInf
     encoder->EncodeUInt32Value(value.indexCount);
     encoder->EncodeUInt32Array(value.indices, value.indexCount);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.baseSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
     EncodeStruct(encoder, value.pose);
     EncodeStruct(encoder, value.scale);
 }
@@ -3254,7 +3139,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemAnchorPropertiesHTC& 
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsAnchor);
+    encoder->EncodeUInt32Value(value.supportsAnchor);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpatialAnchorNameHTC& value)
@@ -3289,7 +3174,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemForceFeedbackCurlProp
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsForceFeedbackCurl);
+    encoder->EncodeUInt32Value(value.supportsForceFeedbackCurl);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrForceFeedbackCurlApplyLocationMNDX& value)
@@ -3318,7 +3203,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandTrackingDataSourceState
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.isActive);
+    encoder->EncodeUInt32Value(value.isActive);
     encoder->EncodeEnumValue(value.dataSource);
 }
 
@@ -3348,7 +3233,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrPlaneDetectorBeginInfoEXT& 
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.baseSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
     encoder->EncodeUInt32Value(value.orientationCount);
     encoder->EncodeEnumArray(value.orientations, value.orientationCount);
     encoder->EncodeUInt32Value(value.semanticTypeCount);
@@ -3364,7 +3249,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrPlaneDetectorGetInfoEXT& va
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.baseSpace);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrPlaneDetectorLocationEXT& value)
@@ -3403,14 +3288,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataUserPresenceChange
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(value.session);
-    encoder->EncodeXrBool32Value(value.isUserPresent);
+    encoder->EncodeUInt32Value(value.isUserPresent);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemUserPresencePropertiesEXT& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.supportsUserPresence);
+    encoder->EncodeUInt32Value(value.supportsUserPresence);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataHeadsetFitChangedML& value)
@@ -3418,7 +3303,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataHeadsetFitChangedM
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeEnumValue(value.status);
-    encoder->EncodeXrTimeValue(value.time);
+    encoder->EncodeInt64Value(value.time);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataEyeCalibrationChangedML& value)
@@ -3432,7 +3317,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrUserCalibrationEnableEvents
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeXrBool32Value(value.enabled);
+    encoder->EncodeUInt32Value(value.enabled);
 }
 
 GFXRECON_END_NAMESPACE(encode)
