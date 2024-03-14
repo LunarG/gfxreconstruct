@@ -280,14 +280,14 @@ if __name__ == "__main__":
                 trace_iterations = min(trace_dir_count - len(seen_traces), thread_count)
                 for i in range(len(seen_traces), len(seen_traces) + trace_iterations):
                     trace = persistent_traces[i]
-                    
-                    if "api" in trace and trace["api"] != "vulkan":
-                        continue
-                    trace_dir = root_traces_dir + "/" + traces_dir + "/" + trace["directory"]
 
                     if trace_dir in seen_traces:
                         continue
                     seen_traces.append(trace_dir)
+                    
+                    if "api" in trace and trace["api"] != "vulkan":
+                        continue
+                    trace_dir = root_traces_dir + "/" + traces_dir + "/" + trace["directory"]
 
                     trace_files = os.listdir(trace_dir)
 
