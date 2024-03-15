@@ -233,6 +233,8 @@ for line in input_lines:
       process Vulkan API Call document
   else if doc.contains("header"):
       process header document
+  else if doc.contains("meta"):
+      process meta command block
   else:
       warning: unknown JSON line
 ```
@@ -250,6 +252,16 @@ All values of a header are strings.
   conversion of the file.
 * `"vulkan-version"`: The version of the Vulkan headers that the GFXReconstruct
   used for conversion was built against.
+
+### Meta Objects
+Meta command objects contain `"index"` at the top level, which is a
+JSON number representing the position of the call in the sequence of
+successfully-decoded blocks in the original binary capture file,
+and a nested object under the key `"meta"` which contains the data captured
+from a meta command.
+
+Examples of meta commands include host memory allocation,
+filling buffers and images, and resizing the application window. 
 
 ### vkFunc Objects
 
