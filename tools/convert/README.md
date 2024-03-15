@@ -12,7 +12,7 @@ filename for the output.
 gfxrecon-convert - A tool to convert GFXReconstruct capture files to text.
 
 Usage:
-  gfxrecon-convert.exe [-h | --help] [--version] [--output filename] <file>
+  gfxrecon-convert [-h | --help] [--version] <file>
 
 Required arguments:
   <file>                Path to the GFXReconstruct capture file to be converted
@@ -24,6 +24,15 @@ Optional arguments:
   --output filename     'stdout' or a path to a file to write JSON output
                         to. Default is the input filepath with "gfxr" replaced
                         by "jsonl".
+  --format <format>     JSON format to write.
+           json         Standard JSON format (indented)
+           jsonl        JSON lines format (every object in a single line)
+  --include-binaries    Dump binaries from Vulkan traces in a separate file with an unique name. The main JSON file
+                        will include a reference with the file name. The binary files are dumped in a subdirectory
+  --expand-flags        Print flags values from Vulkan traces with its correspondent symbolic representation. Otherwise,
+                        the flags are printed as hexadecimal value.
+  --file-per-frame      Creates a new file for every frame processed. Frame number is added as a suffix
+                        to the output file name.
   --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
                         displayed when abort() is called (Windows debug only).
 ```
