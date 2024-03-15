@@ -549,6 +549,9 @@ Optional arguments:
               was called in the original capture.
               This allows preserving frames when capturing a replay that uses.
               offscreen swapchain.
+  --use-ext-frame-boundary
+              Convert all offscreen frame boundaries to `VK_EXT_frame_boundary`
+              frame boundaries.
 ```
 
 ### Key Controls

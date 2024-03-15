@@ -101,6 +101,8 @@
     "vkCreateFramebuffer": "OverrideCreateFramebuffer",
     "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",
     "vkWaitForPresentKHR": "OverrideWaitForPresentKHR",
-    "vkWaitSemaphores": "OverrideWaitSemaphores"
+    "vkWaitSemaphores": "OverrideWaitSemaphores",
+    "vkCmdInsertDebugUtilsLabelEXT": "OverrideCmdInsertDebugUtilsLabelEXT",
+    "vkFrameBoundaryANDROID": "OverrideFrameBoundaryANDROID"
   }
 }
