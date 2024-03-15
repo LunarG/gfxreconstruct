@@ -220,9 +220,8 @@ the representation will be an empty array: `[]`.
 All current and future lines have a top-level JSON object with a key that
 identifies the type of the line and a value that is a nested object holding
 the data for the line, possibly in further nested structure.
-The currently-defined two keys are `"header"` and `"vkFunc"`.
-A line can hold _either_ a nested `"header"` or a nested `"vkFunc"`,
-but not _both_.
+The currently-defined three keys are `"header"`, `"vkFunc"`, and `"meta"`.
+A line can hold _exactly one of_ a nested `"header"`, nested `"vkFunc"`, or nested `"meta"`, not more.
 A tool can work out what kind of JSON document each line contains by checking
 for the presence of the keys in the top-level object.
 In pseudocode that could look something like this:
