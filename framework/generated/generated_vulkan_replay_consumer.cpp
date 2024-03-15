@@ -983,6 +983,7 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     MapStructArrayHandles(pCreateInfos->GetMetaStructPointer(), pCreateInfos->GetLength(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pPipelines->IsNull()) { pPipelines->SetHandleLength(createInfoCount); }
+    if (omitted_pipeline_cache_data_) {AllowCompileDuringPipelineCreation(createInfoCount, in_pCreateInfos);}
     VkPipeline* out_pPipelines = pPipelines->GetHandlePointer();
 
     VkResult replay_result = GetDeviceTable(in_device)->CreateGraphicsPipelines(in_device, in_pipelineCache, createInfoCount, in_pCreateInfos, in_pAllocator, out_pPipelines);
@@ -1007,6 +1008,7 @@ void VulkanReplayConsumer::Process_vkCreateComputePipelines(
     MapStructArrayHandles(pCreateInfos->GetMetaStructPointer(), pCreateInfos->GetLength(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pPipelines->IsNull()) { pPipelines->SetHandleLength(createInfoCount); }
+    if (omitted_pipeline_cache_data_) {AllowCompileDuringPipelineCreation(createInfoCount, in_pCreateInfos);}
     VkPipeline* out_pPipelines = pPipelines->GetHandlePointer();
 
     VkResult replay_result = GetDeviceTable(in_device)->CreateComputePipelines(in_device, in_pipelineCache, createInfoCount, in_pCreateInfos, in_pAllocator, out_pPipelines);
@@ -6741,6 +6743,7 @@ void VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(
     MapStructArrayHandles(pCreateInfos->GetMetaStructPointer(), pCreateInfos->GetLength(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pPipelines->IsNull()) { pPipelines->SetHandleLength(createInfoCount); }
+    if (omitted_pipeline_cache_data_) {AllowCompileDuringPipelineCreation(createInfoCount, in_pCreateInfos);}
     VkPipeline* out_pPipelines = pPipelines->GetHandlePointer();
 
     VkResult replay_result = GetDeviceTable(in_device)->CreateRayTracingPipelinesNV(in_device, in_pipelineCache, createInfoCount, in_pCreateInfos, in_pAllocator, out_pPipelines);
