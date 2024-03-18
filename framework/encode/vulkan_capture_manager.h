@@ -1253,6 +1253,9 @@ class VulkanCaptureManager : public CaptureManager
         EndFrame();
     }
 
+    void PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
+                                                   const VkDebugUtilsLabelEXT* pLabelInfo);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
