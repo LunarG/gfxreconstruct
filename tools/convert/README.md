@@ -91,7 +91,20 @@ This header may be expanded in the future but these fields will remain.
 }
 ```
 
-The first Vulkan function of the capture follows the header.
+Following the header is an annotation block containing metadata about the capture.
+
+```json
+{
+  "index": 1,
+  "annotation": {
+    "type": "kJson",
+    "label": "operation",
+    "data": "{\n    \"tool\": \"capture\",\n    \"timestamp\": \"2024-02-22T20:22:52Z\",\n    \"gfxrecon-version\": \"1.0.3-dev (dev:fc05196+dx12)\",\n    \"vulkan-version\": \"1.3.275\",\n    \"capture-parameters\": \n    {\n    \"file-flush\": true\n    }\n}"
+  }
+}
+```
+
+The first Vulkan function of the capture follows.
 Of note are the fields `"vkFunc"` which identifies the line as Vulkan function
 call, and `"index"` which is a monotonically increasing positive integer
 representing the position of the call in the sequence recorded in the capture.
@@ -220,8 +233,8 @@ the representation will be an empty array: `[]`.
 All current and future lines have a top-level JSON object with a key that
 identifies the type of the line and a value that is a nested object holding
 the data for the line, possibly in further nested structure.
-The currently-defined three keys are `"header"`, `"vkFunc"`, and `"meta"`.
-A line can hold _exactly one of_ a nested `"header"`, nested `"vkFunc"`, or nested `"meta"`, not more.
+The currently-defined keys are `"header"`, `"vkFunc"`, `"annotation"`, and `"meta"`.
+A line can hold _exactly one of_ a nested `"header"`, `"vkFunc"`, `"annotation"`, or `"meta"`.
 A tool can work out what kind of JSON document each line contains by checking
 for the presence of the keys in the top-level object.
 In pseudocode that could look something like this:
@@ -230,9 +243,11 @@ In pseudocode that could look something like this:
 for line in input_lines:
   doc = json.parse(line)
   if doc.contains("vkFunc"):
-      process Vulkan API Call document
+      process Vulkan API Call block
   else if doc.contains("header"):
-      process header document
+      process header block
+  else if doc.contains("annotation"):
+      process annotation block
   else if doc.contains("meta"):
       process meta command block
   else:
@@ -261,7 +276,40 @@ and a nested object under the key `"meta"` which contains the data captured
 from a meta command.
 
 Examples of meta commands include host memory allocation,
-filling buffers and images, and resizing the application window. 
+filling buffers and images, and resizing the application window.
+
+```json
+{
+  "index": 41,
+  "meta": {
+    "name": "ResizeWindowCommand2",
+    "args": {
+      "surface_id": 9,
+      "width": 800,
+      "height": 600,
+      "pre_transform": 0
+    }
+  }
+},
+```
+
+Of note is that the value of "data" in FillMemoryCommand is not preserved in the JSON output,
+instead being replaced by "\[Binary data\].
+
+```json
+{
+  "index": 74,
+  "meta": {
+    "name": "FillMemoryCommand",
+    "args": {
+      "memory_id": 38,
+      "offset": 0,
+      "size": 262144,
+      "data": "[Binary data]"
+    }
+  }
+}
+```
 
 ### vkFunc Objects
 
