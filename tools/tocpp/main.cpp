@@ -105,7 +105,7 @@ CommandLineArgument g_captured_swapchain_argument = {
     false,
     "-s",
     "--captured-swapchain",
-    "\t\t\t\t",
+    "\t\t\t",
     "",
     "Use the swapchain as it was captured during toCpp replay instead of using the \"Virtual Swapchain\" paths."
 };
