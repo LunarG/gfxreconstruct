@@ -2111,43 +2111,52 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
     {
         if (track_dump_resources_.target.execute_block_index == GetCurrentBlockIndex())
         {
-            auto                            captured_command_lists = command_lists->GetHandlePointer();
-            auto                            command_list_ids       = command_lists->GetPointer();
-            std::vector<format::HandleId>   front_command_list_ids;
-            std::vector<ID3D12CommandList*> modified_command_lists;
-
-            for (uint32_t i = 0; i < num_command_lists; ++i)
+            if (needs_mapping)
             {
-                front_command_list_ids.emplace_back(command_list_ids[i]);
-                if (i == track_dump_resources_.target.dump_resources_target.command_index)
-                {
-                    is_complete = true;
-                    modified_command_lists.emplace_back(track_dump_resources_.split_command_sets[0].list);
+                GFXRECON_LOG_ERROR("Cannot dump resources on a command queue that requires additional processing for "
+                                   "DXR or EI so no resources will be dumped. Optimizing the capture file may allow "
+                                   "dump resources to succeed.");
+            }
+            else
+            {
+                auto                            captured_command_lists = command_lists->GetHandlePointer();
+                auto                            command_list_ids       = command_lists->GetPointer();
+                std::vector<format::HandleId>   front_command_list_ids;
+                std::vector<ID3D12CommandList*> modified_command_lists;
 
+                for (uint32_t i = 0; i < num_command_lists; ++i)
+                {
+                    front_command_list_ids.emplace_back(command_list_ids[i]);
+                    if (i == track_dump_resources_.target.dump_resources_target.command_index)
+                    {
+                        is_complete = true;
+                        modified_command_lists.emplace_back(track_dump_resources_.split_command_sets[0].list);
+
+                        auto modified_num_command_lists = modified_command_lists.size();
+                        replay_object->ExecuteCommandLists(modified_num_command_lists, modified_command_lists.data());
+                        modified_command_lists.clear();
+
+                        CopyResourcesForBeforeDrawcall(replay_object_info, front_command_list_ids);
+
+                        ID3D12CommandList* ppCommandLists[] = { track_dump_resources_.split_command_sets[1].list };
+                        replay_object->ExecuteCommandLists(1, ppCommandLists);
+
+                        CopyResourcesForAfterDrawcall(replay_object_info, front_command_list_ids);
+
+                        WriteDumpResources(replay_object_info);
+
+                        modified_command_lists.emplace_back(track_dump_resources_.split_command_sets[2].list);
+                    }
+                    else
+                    {
+                        modified_command_lists.emplace_back(captured_command_lists[i]);
+                    }
+                }
+                if (is_complete && !modified_command_lists.empty())
+                {
                     auto modified_num_command_lists = modified_command_lists.size();
                     replay_object->ExecuteCommandLists(modified_num_command_lists, modified_command_lists.data());
-                    modified_command_lists.clear();
-
-                    CopyResourcesForBeforeDrawcall(replay_object_info, front_command_list_ids);
-
-                    ID3D12CommandList* ppCommandLists[] = { track_dump_resources_.split_command_sets[1].list };
-                    replay_object->ExecuteCommandLists(1, ppCommandLists);
-
-                    CopyResourcesForAfterDrawcall(replay_object_info, front_command_list_ids);
-
-                    WriteDumpResources(replay_object_info);
-
-                    modified_command_lists.emplace_back(track_dump_resources_.split_command_sets[2].list);
                 }
-                else
-                {
-                    modified_command_lists.emplace_back(captured_command_lists[i]);
-                }
-            }
-            if (is_complete && !modified_command_lists.empty())
-            {
-                auto modified_num_command_lists = modified_command_lists.size();
-                replay_object->ExecuteCommandLists(modified_num_command_lists, modified_command_lists.data());
             }
         }
     }
