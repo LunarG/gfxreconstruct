@@ -16,11 +16,7 @@
 */
 
 #include <fstream>
-#ifdef __ANDROID__
-#include <ftw.h>
-#else
 #include <filesystem>
-#endif
 #include <util/date_time.h>
 
 #include "project_version.h"
@@ -71,8 +67,6 @@ CommandLineArgument g_target_argument = { true,
                                           " (Defaults to win32)",
 #elif defined(__APPLE__)
                                           " (Defaults to macos)",
-#elif defined(__ANDROID__)
-                                          " (Defaults to android)",
 #else
                                           " (Defaults to xcb)",
 #endif
@@ -254,9 +248,6 @@ static gfxrecon::decode::GfxToCppPlatform GetCppTargetPlatform(const gfxrecon::u
 #elif defined(__APPLE__)
         GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'macos'.");
         platform_enum = gfxrecon::decode::GfxToCppPlatform::PLATFORM_MACOS;
-#elif defined(__ANDROID__)
-        GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'android'.");
-        platform_enum = gfxrecon::decode::GfxToCppPlatform::PLATFORM_ANDROID;
 #else
         GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'xcb'.");
         platform_enum = gfxrecon::decode::GfxToCppPlatform::PLATFORM_XCB;
@@ -348,49 +339,6 @@ static bool AndroidDirsExist(const std::string& android_dir)
 
     return true;
 }
-
-#ifdef __ANDROID__
-static int CopyDirectoryContents(const char* src_path, const struct stat* sb, int typeflag, struct FTW* ftwbuf)
-{
-    // Don't copy the directory itself.
-    if (ftwbuf->level == 0)
-    {
-        return 0;
-    }
-
-    std::string  file_name(src_path);
-    const size_t src_root_found = file_name.find(android_template_root);
-    if (src_root_found != std::string::npos)
-    {
-        // Get the path of the resource without the path of template directory.
-        file_name.erase(src_root_found, src_root_found + android_template_root.size());
-    }
-
-    std::string dst_path = gfxrecon::util::filepath::Join(output_dirname, file_name);
-    switch (typeflag)
-    {
-        case FTW_D:
-        {
-            mkdir(dst_path.c_str(), sb->st_mode);
-            break;
-        }
-        case FTW_F:
-        {
-            std::ifstream src(src_path, std::ios::binary);
-            std::ofstream dst(dst_path, std::ios::binary);
-            dst << src.rdbuf();
-            break;
-        }
-    }
-
-    if (!gfxrecon::util::filepath::Exists(dst_path))
-    {
-        GFXRECON_LOG_ERROR("Template file couldn't be created: %s", dst_path.c_str());
-    }
-
-    return 0;
-}
-#endif // __ANDROID__
 
 static std::string GetOutputFilename(const std::string& capture_file)
 {
@@ -561,13 +509,6 @@ int main(int argc, const char** argv)
         // The maximum number of directories that nftw() will hold open simultaneously.
         const int max_open_fd = 20;
 
-        // Copy the android template into the output dir.
-#ifdef __ANDROID__
-        if (nftw(android_template_root.c_str(), CopyDirectoryContents, max_open_fd, 0) != 0)
-        {
-            GFXRECON_LOG_ERROR("Error during copying of android template files!");
-        }
-#else
         if (!gfxrecon::util::filepath::Exists(output_dirname))
         {
             GFXRECON_LOG_ERROR("Android template target directory was not found: %s", output_dirname.c_str());
@@ -578,7 +519,6 @@ int main(int argc, const char** argv)
                 std::filesystem::copy_options::update_existing | std::filesystem::copy_options::recursive;
             std::filesystem::copy(android_template_root.c_str(), output_dirname, copy_options);
         }
-#endif // __ANDROID__
 
         output_filename = gfxrecon::util::filepath::Join(output_dirname, path_vulkanmain + "VulkanMain.cpp");
         output_dirname  = gfxrecon::util::filepath::Join(output_dirname, path_assets);
