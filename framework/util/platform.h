@@ -641,6 +641,15 @@ inline T AlignValue(T original)
     return (original + (alignment_t - 1)) & ~(alignment_t - 1);
 }
 
+inline uint64_t SizeTtoUint64(size_t value)
+{
+#if defined(_WIN64)
+    return value;
+#else
+    return static_cast<uint64_t>(value);
+#endif
+}
+
 GFXRECON_END_NAMESPACE(platform)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

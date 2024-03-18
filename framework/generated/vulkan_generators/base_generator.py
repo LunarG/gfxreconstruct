@@ -38,13 +38,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import re
-import sys
-import json
-from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write
-from vkconventions import VulkanConventions
+# The content of this file was derived from the Khronos Registry cgenerator.py
+# and related Python files found in the KhronosGroup/Vulkan-Headers GitHub repository.
 
+import os,re,sys,json
+from collections import OrderedDict
+from generator import (GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write)
+from vkconventions import VulkanConventions
 
 def _make_re_string(list, default=None):
     """Turn a list of strings into a regexp string matching exactly those strings.
@@ -145,7 +145,9 @@ class ValueInfo():
       array_dimension - Number of the array dimension
       platform_base_type - For platform specific type definitions, stores the original base_type declaration before platform to trace type substitution.
       platform_full_type - For platform specific type definitions, stores the original full_type declaration before platform to trace type substitution.
+      bitfield_width -
       is_pointer - True if the value is a pointer.
+      is_optional - True if the value is optional
       is_array - True if the member is an array.
       is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
       is_const - True if the member is a const.
@@ -165,6 +167,7 @@ class ValueInfo():
         platform_full_type=None,
         bitfield_width=None,
         is_const=False,
+        is_optional=False,
         is_com_outptr=False
     ):
         self.name = name
@@ -180,6 +183,7 @@ class ValueInfo():
         self.bitfield_width = bitfield_width
 
         self.is_pointer = True if pointer_count > 0 else False
+        self.is_optional = is_optional
         self.is_array = True if array_length else False
         self.is_dynamic = True if not array_capacity else False
         self.is_const = is_const
@@ -396,21 +400,19 @@ class BaseGenerator(OutputGenerator):
 
         # Command parameter and struct member data for the current feature
         if self.process_structs:
-            self.feature_struct_members = dict(
-            )  # Map of struct names to lists of per-member ValueInfo
-            self.feature_struct_aliases = dict(
-            )  # Map of struct names to aliases
-            self.extension_structs_with_handles = dict(
-            )  # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
-            self.extension_structs_with_handle_ptrs = dict(
-            )  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
+            self.feature_struct_members = OrderedDict()            # Map of struct names to lists of per-member ValueInfo
+            self.feature_struct_aliases = OrderedDict()            # Map of struct names to aliases
+            self.feature_union_members = OrderedDict()             # Map of union names to lists of per-member ValueInfo
+            self.feature_union_aliases = OrderedDict()             # Map of union names to aliases
+            self.extension_structs_with_handles = OrderedDict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
+            self.extension_structs_with_handle_ptrs = OrderedDict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.process_cmds:
-            self.feature_cmd_params = dict(
-            )  # Map of cmd names to lists of per-parameter ValueInfo
+            self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
 
+    #
+    # Indicates that the current feature has C++ code to generate.
+    # The subclass should override this method.
     def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate.
-        The subclass should override this method."""
         return False
 
     def generate_feature(self):
@@ -473,10 +475,10 @@ class BaseGenerator(OutputGenerator):
 
         # Reset feature specific data sets
         if self.process_structs:
-            self.feature_struct_members = dict()
-            self.feature_struct_aliases = dict()
+            self.feature_struct_members = OrderedDict()
+            self.feature_struct_aliases = OrderedDict()
         if self.process_cmds:
-            self.feature_cmd_params = dict()
+            self.feature_cmd_params = OrderedDict()
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
@@ -545,6 +547,8 @@ class BaseGenerator(OutputGenerator):
             # Skip code generation for union encode/decode functions.
             if category == 'struct':
                 self.genStruct(typeinfo, name, alias)
+            else:
+                self.genUnion(typeinfo, name, alias)
         elif (category == 'handle'):
             self.handle_names.add(name)
         elif (category == 'bitmask'):
@@ -575,6 +579,26 @@ class BaseGenerator(OutputGenerator):
                 )
             else:
                 self.feature_struct_aliases[typename] = alias
+
+    def genUnion(self, typeinfo, typename, alias):
+        """Method override.
+        Union (e.g. C "union" type) generation.
+        This is a special case of the <type> tag where the contents are
+        interpreted as a set of <member> tags instead of freeform C
+        C type declarations. The <member> tags are just like <param>
+        tags - they are a declaration of a struct or union member.
+        """
+        # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
+        # would produce multiple definition errors for functions with struct parameters.
+        if self.process_structs:
+            if not alias:
+                if typename not in self.feature_union_members:
+                    self.feature_union_members[typename] = self.make_value_info(
+                        typeinfo.elem.findall('.//member')
+                    )
+            else:
+                if typename not in self.feature_union_aliases:
+                    self.feature_union_aliases[typename] = alias
 
     def genGroup(self, groupinfo, group_name, alias):
         """Method override.
@@ -615,6 +639,7 @@ class BaseGenerator(OutputGenerator):
     def genCmd(self, cmdinfo, name, alias):
         """Method override. Command generation."""
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
+
         if self.process_cmds:
             # Create the declaration for the function prototype
             proto = cmdinfo.elem.find('proto')
@@ -667,6 +692,10 @@ class BaseGenerator(OutputGenerator):
                 )
                 base_type = type_info['baseType']
 
+            is_optional = False
+            if 'optional' in param.attrib:
+                is_optional = param.attrib.get('optional').lower() == 'true'
+
             # Get array length, always use altlen when available to avoid parsing latexmath
             if 'altlen' in param.attrib:
                 array_length = param.attrib.get('altlen')
@@ -702,7 +731,8 @@ class BaseGenerator(OutputGenerator):
                     array_dimension=array_dimension,
                     platform_base_type=platform_base_type,
                     platform_full_type=platform_full_type,
-                    bitfield_width=bitfield_width
+                    bitfield_width=bitfield_width,
+                    is_optional=is_optional
                 )
             )
 

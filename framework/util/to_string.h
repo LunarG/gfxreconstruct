@@ -116,12 +116,10 @@ inline std::string ToString(uint32_t      apiFlags,
                             uint32_t      tabCount      = kToStringDefaultTabCount,
                             uint32_t      tabSize       = kToStringDefaultTabSize)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(apiFlags);
     GFXRECON_UNREFERENCED_PARAMETER(toStringFlags);
     GFXRECON_UNREFERENCED_PARAMETER(tabCount);
     GFXRECON_UNREFERENCED_PARAMETER(tabSize);
-
-    return "0";
+    return std::to_string(apiFlags);
 }
 
 template <typename HandleIdType>

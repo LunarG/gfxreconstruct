@@ -5062,7 +5062,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
             bool     new_cache_data  = true;
             auto     cache_data_size = *pDataSize->GetPointer();
             uint32_t capture_pipeline_cache_data_hash =
-                gfxrecon::util::hash::CheckSum(reinterpret_cast<const uint32_t*>(pData->GetPointer()), cache_data_size);
+                gfxrecon::util::hash::GenerateCheckSum<uint32_t>(pData->GetPointer(), cache_data_size);
 
             auto iterator = pipeline_cache_info->pipeline_cache_data.find(capture_pipeline_cache_data_hash);
             if (iterator != pipeline_cache_info->pipeline_cache_data.end())
@@ -5150,8 +5150,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
             // but it might not be valid for replay time if considering platform/driver version change. So in the
             // following process, we'll try to find corresponding replay time pipeline cache data.
             matched_replay_cache_data_exist_  = false;
-            capture_pipeline_cache_data_hash_ = gfxrecon::util::hash::CheckSum(
-                reinterpret_cast<const uint32_t*>(create_info.pInitialData), create_info.initialDataSize);
+            capture_pipeline_cache_data_hash_ = gfxrecon::util::hash::GenerateCheckSum<uint32_t>(
+                reinterpret_cast<const uint8_t*>(create_info.pInitialData), create_info.initialDataSize);
             capture_pipeline_cache_data_      = const_cast<void*>(create_info.pInitialData);
             capture_pipeline_cache_data_size_ = create_info.initialDataSize;
 

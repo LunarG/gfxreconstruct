@@ -59,6 +59,8 @@ from decode_pnext_struct_generator import DecodePNextStructGenerator, DecodePNex
 
 # Consumers
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
+from vulkan_cpp_consumer_body_generator import VulkanCppConsumerBodyGenerator,VulkanCppConsumerBodyGeneratorOptions
+from vulkan_cpp_consumer_header_generator import VulkanCppConsumerHeaderGenerator, VulkanCppConsumerHeaderGeneratorOptions
 from vulkan_json_consumer_header_generator import VulkanExportJsonConsumerHeaderGenerator, VulkanExportJsonConsumerHeaderGeneratorOptions
 from vulkan_json_consumer_body_generator import VulkanExportJsonConsumerBodyGenerator, VulkanExportJsonConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator, VulkanReplayConsumerBodyGeneratorOptions
@@ -99,6 +101,10 @@ from vulkan_struct_to_json_body_generator import VulkanStructToJsonBodyGenerator
 
 # Constants
 from vulkan_constant_maps_generator import VulkanConstantMapsGenerator, VulkanConstantMapsGeneratorOptions
+
+# ToCpp
+from vulkan_cpp_struct_generator import VulkanCppStructGenerator, VulkanCppStructGeneratorOptions
+from vulkan_cpp_consumer_extension_generator import VulkanCppConsumerExtensionGenerator, VulkanCppConsumerExtensionGeneratorOptions
 
 # Simple timer functions
 start_time = None
@@ -327,6 +333,21 @@ def make_gen_opts(args):
         )
     ]
 
+    gen_opts['generated_vulkan_cpp_consumer.h'] = [
+        VulkanConsumerHeaderGenerator,
+        VulkanConsumerHeaderGeneratorOptions(
+        class_name         = 'VulkanCppConsumer',
+        base_class_header   = 'vulkan_cpp_consumer_base.h',
+        is_override        = True,
+        filename          = 'generated_vulkan_cpp_consumer.h',
+        directory         = directory,
+        blacklists        = blacklists,
+        platform_types     = platform_types,
+        prefix_text        = prefix_strings + vk_prefix_strings,
+        protect_file       = True,
+        protect_feature    = False)
+    ]
+
     gen_opts['generated_vulkan_referenced_resource_consumer.h'] = [
         VulkanReferencedResourceHeaderGenerator,
         VulkanReferencedResourceHeaderGeneratorOptions(
@@ -335,7 +356,7 @@ def make_gen_opts(args):
             blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
+            protect_file=True,
             protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
@@ -358,6 +379,82 @@ def make_gen_opts(args):
             protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
+    ]
+
+    gen_opts['generated_vulkan_cpp_consumer.h'] = [
+        VulkanCppConsumerHeaderGenerator,
+        VulkanCppConsumerHeaderGeneratorOptions(
+        class_name         = 'VulkanCppConsumer',
+        base_class_header  = 'vulkan_cpp_consumer_base.h',
+        is_override        = True,
+        filename           = 'generated_vulkan_cpp_consumer.h',
+        directory          = directory,
+        blacklists         = blacklists,
+        platform_types     = platform_types,
+        prefix_text        = prefix_strings + vk_prefix_strings,
+        protect_file       = True,
+        protect_feature    = False)
+    ]
+
+    gen_opts['generated_vulkan_cpp_consumer.cpp'] = [
+        VulkanCppConsumerBodyGenerator,
+        VulkanCppConsumerBodyGeneratorOptions(
+            filename           = 'generated_vulkan_cpp_consumer.cpp',
+            directory          = directory,
+            blacklists         = blacklists,
+            platform_types     = platform_types,
+            prefix_text        = prefix_strings + vk_prefix_strings,
+            protect_file       = False,
+            protect_feature    = False,
+            extraVulkanHeaders=extraVulkanHeaders)
+    ]
+
+    gen_opts['generated_vulkan_cpp_structs.h'] = [
+        VulkanCppStructGenerator,
+        VulkanCppStructGeneratorOptions(
+            filename           = 'generated_vulkan_cpp_structs.h',
+            directory          = directory,
+            blacklists         = blacklists,
+            platform_types     = platform_types,
+            prefix_text        = prefix_strings + vk_prefix_strings,
+            protect_file       = True,
+            protect_feature    = False)
+    ]
+
+    gen_opts['generated_vulkan_cpp_structs.cpp'] = [
+        VulkanCppStructGenerator,
+        VulkanCppStructGeneratorOptions(
+            filename          = 'generated_vulkan_cpp_structs.cpp',
+            directory         = directory,
+            blacklists        = blacklists,
+            platform_types     = platform_types,
+            prefix_text        = prefix_strings + vk_prefix_strings,
+            protect_file       = False,
+            protect_feature    = False)
+    ]
+
+    gen_opts['generated_vulkan_cpp_consumer_extension.h'] = [
+        VulkanCppConsumerExtensionGenerator,
+        VulkanCppConsumerExtensionGeneratorOptions(
+            filename          = 'generated_vulkan_cpp_consumer_extension.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            platform_types     = platform_types,
+            prefix_text        = prefix_strings + vk_prefix_strings,
+            protect_file       = True,
+            protect_feature    = False)
+    ]
+
+    gen_opts['generated_vulkan_cpp_consumer_extension.cpp'] = [
+        VulkanCppConsumerExtensionGenerator,
+        VulkanCppConsumerExtensionGeneratorOptions(
+            filename          = 'generated_vulkan_cpp_consumer_extension.cpp',
+            directory         = directory,
+            blacklists        = blacklists,
+            platform_types     = platform_types,
+            prefix_text        = prefix_strings + vk_prefix_strings,
+            protect_file       = False,
+            protect_feature    = False)
     ]
 
     gen_opts['generated_vulkan_replay_consumer.cpp'] = [
@@ -613,10 +710,10 @@ def make_gen_opts(args):
             filename='generated_vulkan_enum_to_string.h',
             directory=directory,
             blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=True,
-            protectFeature=False,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
     ]
@@ -627,10 +724,10 @@ def make_gen_opts(args):
             filename='generated_vulkan_enum_to_string.cpp',
             directory=directory,
             blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=False,
-            protectFeature=False,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
     ]
@@ -641,10 +738,10 @@ def make_gen_opts(args):
             filename='generated_vulkan_object_info_table_base2.h',
             directory=directory,
             blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=True,
-            protectFeature=False,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
     ]
@@ -655,10 +752,10 @@ def make_gen_opts(args):
             filename='generated_vulkan_state_table.h',
             directory=directory,
             blacklists=blacklists,
-            platformTypes=platform_types,
-            prefixText=prefix_strings + vk_prefix_strings,
-            protectFile=True,
-            protectFeature=False,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )
     ]
@@ -728,7 +825,7 @@ def make_gen_opts(args):
             filename='generated_vulkan_enum_to_json.h',
             directory=directory,
             blacklists=blacklists,
-            platformTypes=platform_types,
+            platform_types=platform_types,
             prefixText=prefix_strings + vk_prefix_strings,
             protectFile=True,
             protectFeature=False,
@@ -742,7 +839,7 @@ def make_gen_opts(args):
             filename='generated_vulkan_enum_to_json.cpp',
             directory=directory,
             blacklists=blacklists,
-            platformTypes=platform_types,
+            platform_types=platform_types,
             prefixText=prefix_strings + vk_prefix_strings,
             protectFile=False,
             protectFeature=False,
