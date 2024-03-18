@@ -2477,31 +2477,31 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             }
         }
 
+        if (options_.offscreen_swapchain_frame_boundary)
+        {
+            bool frameBoundaryExtensionFound = false;
+
+            for (const char* extensionName : filtered_extensions)
+            {
+                if (gfxrecon::util::platform::StringCompareNoCase(extensionName, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
+                {
+                    frameBoundaryExtensionFound = true;
+                    break;
+                }
+            }
+
+            if (!frameBoundaryExtensionFound)
+            {
+                filtered_extensions.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+            }
+        }
+
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(filtered_extensions.size());
         modified_create_info.ppEnabledExtensionNames = filtered_extensions.data();
     }
     else
     {
         GFXRECON_LOG_WARNING("The vkCreateInstance parameter pCreateInfo is NULL.");
-    }
-
-    if (options_.offscreen_swapchain_frame_boundary)
-    {
-        bool frameBoundaryExtensionFound = false;
-
-        for (const char* extensionName : filtered_extensions)
-        {
-            if (gfxrecon::util::platform::StringCompareNoCase(extensionName, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
-            {
-                frameBoundaryExtensionFound = true;
-                break;
-            }
-        }
-
-        if (!frameBoundaryExtensionFound)
-        {
-            filtered_extensions.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
-        }
     }
 
     // Disable layers; any layers needed for replay should be enabled for the replay app with the VK_INSTANCE_LAYERS
