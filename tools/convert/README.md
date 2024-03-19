@@ -1,11 +1,14 @@
 # Convert
 
-The `gfxrecon-convert` tool converts a capture file into a series of JSON
+The `gfxrecon-convert` tool converts a capture file into a JSON document (or a series of JSON
 documents, one per line following the
-[JSON Lines standard](https://jsonlines.org/).
-The text output is written by default to a .jsonl file in the directory of the
+[JSON Lines standard](https://jsonlines.org/).)
+
+The text output is written by default to a .json file in the directory of the
 specified GFXReconstruct capture file. Use `--output` to override the default
 filename for the output.
+
+Compile with the CONVERT_EXPERIMENTAL_D3D12 flag in order to enable convertion of D3D12 captures.
 
 
 ```text
@@ -91,7 +94,7 @@ This header may be expanded in the future but these fields will remain.
 }
 ```
 
-Following the header is an annotation block containing metadata about the capture.
+Following the header there may be an annotation block containing metadata about the capture.
 
 ```json
 {
@@ -144,7 +147,38 @@ representing the position of the call in the sequence recorded in the capture.
     }
   }
 }
+```
 
+# D3D12 example
+```json
+{
+  "index": 79,
+  "method": {
+    "name": "CreateHeap",
+    "thread": 1,
+    "object": {
+      "type": "ID3D12Device",
+      "handle": 7
+    },
+    "return": "S_OK",
+    "args": {
+      "pDesc": {
+        "SizeInBytes": 2097152,
+        "Properties": {
+          "Type": "D3D12_HEAP_TYPE_CUSTOM",
+          "CPUPageProperty": "D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE",
+          "MemoryPoolPreference": "D3D12_MEMORY_POOL_L1",
+          "CreationNodeMask": "0b00000000000000000000000000000000",
+          "VisibleNodeMask": "0b00000000000000000000000000000000"
+        },
+        "Alignment": 0,
+        "Flags": "0x00000044"
+      },
+      "riid": "IID_ID3D12Heap",
+      "ppvHeap": 170
+    }
+  }
+}
 ```
 
 ### Type Mapping of Values
@@ -233,8 +267,8 @@ the representation will be an empty array: `[]`.
 All current and future lines have a top-level JSON object with a key that
 identifies the type of the line and a value that is a nested object holding
 the data for the line, possibly in further nested structure.
-The currently-defined keys are `"header"`, `"vkFunc"`, `"annotation"`, and `"meta"`.
-A line can hold _exactly one of_ a nested `"header"`, `"vkFunc"`, `"annotation"`, or `"meta"`.
+The currently-defined keys are `"header"`, `"vkFunc"`, `"annotation"`, `"state"`, and `"meta"`.
+A line can hold _exactly one of_ a nested `"header"`, `"vkFunc"`, `"annotation"`, `"state"`, or `"meta"`.
 A tool can work out what kind of JSON document each line contains by checking
 for the presence of the keys in the top-level object.
 In pseudocode that could look something like this:
@@ -248,6 +282,8 @@ for line in input_lines:
       process header block
   else if doc.contains("annotation"):
       process annotation block
+  else if doc.contains("state"):
+      process state block
   else if doc.contains("meta"):
       process meta command block
   else:
@@ -294,7 +330,7 @@ filling buffers and images, and resizing the application window.
 ```
 
 Of note is that the value of "data" in FillMemoryCommand is not preserved in the JSON output,
-instead being replaced by "\[Binary data\].
+instead being replaced by "\[Binary data\]".
 
 ```json
 {
@@ -343,6 +379,7 @@ Within the nested object are several elements.
 * `"name"`: A JSON string which identifies the function that was called
   with the name defined in the C-API.
 * `"return"`: An optional element whose value represents what was returned from Vulkan at capture time translated to JSON according to the C-API type as detailed above in section _Type Mapping of Values_.
+* `"thread"`: An integer which represents the calling thread this API call was issued from.
 * `"args"`: A nested object with a set of key:value pairs, one for each
   argument passed to the function.
   The arguments are output in the same order as defined by the C-API although
@@ -394,7 +431,7 @@ Each element in that array is a JSON object for the corresponding C struct.
 
 ### JSON Lines to JSON
 
-Because every line is a separate JSON object, the output as a whole is not
+Because, in .jsonl mode, every line is a separate JSON object, the output as a whole is not
 valid JSON.
 It can, however, be trivially transformed into a valid JSON array by
 appending a comma to each line and topping and tailing with square brackets.
