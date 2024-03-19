@@ -6044,13 +6044,9 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
             call_info,
             replay_object,
             pCommandList);
-        auto in_pCommandList = MapObject<ID3D12GraphicsCommandList>(pCommandList);
-        reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->ExecuteBundle(in_pCommandList);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
-        {
-            command_set.list->ExecuteBundle(in_pCommandList);
-        }
+        auto in_pCommandList = GetObjectInfo(pCommandList);
+        OverrideExecuteBundle(replay_object,
+                              in_pCommandList);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle>::Dispatch(
             this,
             call_info,

@@ -102,7 +102,8 @@
       "Reset": "OverrideCommandListReset",
       "CopyTextureRegion": "OverrideCopyTextureRegion",
       "IASetIndexBuffer": "OverrideIASetIndexBuffer",
-      "IASetVertexBuffers": "OverrideIASetVertexBuffers"
+      "IASetVertexBuffers": "OverrideIASetVertexBuffers",
+      "ExecuteBundle": "OverrideExecuteBundle"
     },
     "ID3D12GraphicsCommandList4": {
       "BuildRaytracingAccelerationStructure": "OverrideBuildRaytracingAccelerationStructure",

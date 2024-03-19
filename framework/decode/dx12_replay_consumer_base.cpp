@@ -4262,6 +4262,37 @@ Dx12ReplayConsumerBase::OverrideSetName(DxObjectInfo* replay_object_info, HRESUL
     return result;
 }
 
+void Dx12ReplayConsumerBase::OverrideExecuteBundle(DxObjectInfo* replay_object_info,
+                                                   DxObjectInfo* command_list_object_info)
+{
+    GFXRECON_ASSERT(replay_object_info != nullptr);
+    GFXRECON_ASSERT(replay_object_info->object != nullptr);
+    GFXRECON_ASSERT(command_list_object_info != nullptr);
+    GFXRECON_ASSERT(command_list_object_info->object != nullptr);
+
+    auto command_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+    reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object_info->object)->ExecuteBundle(command_list);
+
+    auto dump_command_sets = GetCommandListsForDumpResources(replay_object_info);
+
+    // size = 1: this replay_object is the target command list, but this ExecuteBundle isn't the target drawcall.
+    // size = 0: this replay_object isn't the target command list.
+    // size = 3: this replay_object is the target command list, also this ExecuteBundle is the target drawcall.
+    if (dump_command_sets.size() == 1)
+    {
+        dump_command_sets[0].list->ExecuteBundle(command_list);
+    }
+    else
+    {
+        uint32_t i = 0;
+        for (auto& command_set : dump_command_sets)
+        {
+            command_set.list->ExecuteBundle(track_dump_resources_.split_bundle_command_sets[i].list);
+            ++i;
+        }
+    }
+}
+
 std::wstring Dx12ReplayConsumerBase::ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id)
 {
     std::wstring object_creator = util::GetDx12CallIdString(call_id);
@@ -5045,156 +5076,184 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
     std::vector<graphics::CommandSet> cmd_sets;
     if (options_.enable_dump_resources)
     {
-        auto block_index = GetCurrentBlockIndex();
-        auto api_call_id = GetCurrentApiCallId();
-        if (track_dump_resources_.target.begin_block_index == block_index)
-        {
-            auto cmd_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
-            auto cmd_list            = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
-            auto device              = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
+        auto block_index         = GetCurrentBlockIndex();
+        auto api_call_id         = GetCurrentApiCallId();
+        auto cmd_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
+        auto cmd_list            = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+        auto device              = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(cmd_list);
 
-            for (auto& command_set : track_dump_resources_.split_command_sets)
+        std::array<graphics::CommandSet, 3>* command_sets  = nullptr;
+        decode::TrackDumpDrawcall*           drawcall_info = nullptr;
+        bool                                 is_bundle     = false;
+        if ((command_list_object_info->capture_id == track_dump_resources_.target.bundle_commandlist_id) &&
+            (track_dump_resources_.target.bundle_target_drawcall != nullptr) &&
+            (track_dump_resources_.target.bundle_target_drawcall->begin_block_index <= block_index) &&
+            (track_dump_resources_.target.bundle_target_drawcall->close_block_index >= block_index))
+        {
+            is_bundle     = true;
+            command_sets  = &track_dump_resources_.split_bundle_command_sets;
+            drawcall_info = track_dump_resources_.target.bundle_target_drawcall.get();
+        }
+        else if ((command_list_object_info->capture_id == track_dump_resources_.target.command_list_id) &&
+                 (track_dump_resources_.target.begin_block_index <= block_index) &&
+                 (track_dump_resources_.target.close_block_index >= block_index))
+        {
+            command_sets  = &track_dump_resources_.split_command_sets;
+            drawcall_info = &track_dump_resources_.target;
+        }
+        else
+        {
+            return cmd_sets;
+        }
+
+        for (auto& command_set : *command_sets)
+        {
+            if (command_set.allocator == nullptr)
             {
                 device->CreateCommandAllocator(cmd_list_extra_info->create_list_type,
                                                IID_PPV_ARGS(&command_set.allocator));
+            }
+            if (command_set.list == nullptr)
+            {
                 device->CreateCommandList(0,
                                           cmd_list_extra_info->create_list_type,
                                           command_set.allocator,
                                           nullptr,
                                           IID_PPV_ARGS(&command_set.list));
             }
+        }
+
+        if (track_dump_resources_.target.begin_block_index == block_index)
+        {
             device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.fence));
             track_dump_resources_.fence_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
         }
 
-        if ((command_list_object_info->capture_id == track_dump_resources_.target.command_list_id) &&
-            (track_dump_resources_.target.begin_block_index <= block_index) &&
-            (track_dump_resources_.target.close_block_index >= block_index))
+        graphics::TrackDumpResources::SplitCommandType split_type =
+            graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall;
+
+        if (block_index == drawcall_info->drawcall_block_index)
         {
-            graphics::TrackDumpResources::SplitCommandType split_type =
-                graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall;
+            split_type = graphics::TrackDumpResources::SplitCommandType::kDrawCall;
+        }
+        else if (block_index >= drawcall_info->drawcall_block_index)
+        {
+            split_type = graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall;
+        }
 
-            if (block_index == track_dump_resources_.target.drawcall_block_index)
+        // Here is to split command lists.
+        switch (api_call_id)
+        {
+            case format::ApiCall_ID3D12GraphicsCommandList_Reset:
             {
-                split_type = graphics::TrackDumpResources::SplitCommandType::kDrawCall;
+                for (auto& command_set : *command_sets)
+                {
+                    command_set.list->Close();
+                    command_set.allocator->Reset();
+                    cmd_sets.emplace_back(command_set);
+                }
+                break;
             }
-            else if (block_index >= track_dump_resources_.target.drawcall_block_index)
+            case format::ApiCall_ID3D12GraphicsCommandList_Close:
             {
-                split_type = graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall;
+                if (drawcall_info->begin_renderpass_block_index != 0)
+                {
+                    ID3D12GraphicsCommandList4* command_list4_before;
+                    (*command_sets)[graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall]
+                        .list->QueryInterface(IID_PPV_ARGS(&command_list4_before));
+                    command_list4_before->EndRenderPass();
+
+                    ID3D12GraphicsCommandList4* command_list4_draw_call;
+                    (*command_sets)[graphics::TrackDumpResources::SplitCommandType::kDrawCall].list->QueryInterface(
+                        IID_PPV_ARGS(&command_list4_draw_call));
+                    command_list4_draw_call->EndRenderPass();
+                }
+                cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
+                break;
             }
-
-            // Here is to split command lists.
-            switch (api_call_id)
+            // It has to ensure that the splited command list has a pair of BeginQuery and EndQuery.
+            case format::ApiCall_ID3D12GraphicsCommandList_BeginQuery:
+            case format::ApiCall_ID3D12GraphicsCommandList_EndQuery:
             {
-                case format::ApiCall_ID3D12GraphicsCommandList_Reset:
+                cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
+                break;
+            }
+            // binding and Set. These commands are the three command lists need.
+            case format::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer:
+            case format::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology:
+            case format::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers:
+            case format::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor:
+            case format::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds:
+            case format::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets:
+            case format::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef:
+            case format::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects:
+            case format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
+            case format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage:
+            case format::ApiCall_ID3D12GraphicsCommandList_RSSetViewports:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetPipelineState:
+            case format::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1:
+            case format::ApiCall_ID3D12GraphicsCommandList_SetPredication:
+            case format::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession:
+            case format::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions:
+            case format::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask:
+            case format::ApiCall_ID3D12GraphicsCommandList_SOSetTargets:
+            case format::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate:
+            {
+                switch (split_type)
                 {
-                    for (auto& command_set : track_dump_resources_.split_command_sets)
-                    {
-                        command_set.list->Close();
-                        command_set.allocator->Reset();
-                        cmd_sets.emplace_back(command_set);
-                    }
-                    break;
+                    case graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall:
+                        cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
+                        break;
+                    // But if the command is after DrawCall, it's just added at the third CommandList.
+                    case graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall:
+                        cmd_sets.emplace_back(
+                            (*command_sets)[graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall]);
+                        break;
+                    default:
+                        break;
                 }
-                case format::ApiCall_ID3D12GraphicsCommandList_Close:
+                break;
+            }
+            case format::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass:
+            {
+                if (block_index == drawcall_info->begin_renderpass_block_index)
                 {
-                    if (track_dump_resources_.target.begin_renderpass_block_index != 0)
-                    {
-                        ID3D12GraphicsCommandList4* command_list4_before;
-                        track_dump_resources_
-                            .split_command_sets[graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall]
-                            .list->QueryInterface(IID_PPV_ARGS(&command_list4_before));
-                        command_list4_before->EndRenderPass();
-
-                        ID3D12GraphicsCommandList4* command_list4_draw_call;
-                        track_dump_resources_
-                            .split_command_sets[graphics::TrackDumpResources::SplitCommandType::kDrawCall]
-                            .list->QueryInterface(IID_PPV_ARGS(&command_list4_draw_call));
-                        command_list4_draw_call->EndRenderPass();
-                    }
-                    cmd_sets.insert(cmd_sets.end(),
-                                    track_dump_resources_.split_command_sets.begin(),
-                                    track_dump_resources_.split_command_sets.end());
-                    break;
+                    cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
                 }
-                // It has to ensure that the splited command list has a pair of BeginQuery and EndQuery.
-                case format::ApiCall_ID3D12GraphicsCommandList_BeginQuery:
-                case format::ApiCall_ID3D12GraphicsCommandList_EndQuery:
+                break;
+            }
+            case format::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle:
+            {
+                if (block_index == drawcall_info->drawcall_block_index)
                 {
-                    cmd_sets.insert(cmd_sets.end(),
-                                    track_dump_resources_.split_command_sets.begin(),
-                                    track_dump_resources_.split_command_sets.end());
-                    break;
+                    cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
                 }
-                // binding and Set. These commands are the three command lists need.
-                case format::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer:
-                case format::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology:
-                case format::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers:
-                case format::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor:
-                case format::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds:
-                case format::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets:
-                case format::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef:
-                case format::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects:
-                case format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
-                case format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage:
-                case format::ApiCall_ID3D12GraphicsCommandList_RSSetViewports:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetPipelineState:
-                case format::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1:
-                case format::ApiCall_ID3D12GraphicsCommandList_SetPredication:
-                case format::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession:
-                case format::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions:
-                case format::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask:
-                case format::ApiCall_ID3D12GraphicsCommandList_SOSetTargets:
-                case format::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate:
+                else
                 {
-                    switch (split_type)
-                    {
-                        case graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall:
-                            cmd_sets.insert(cmd_sets.end(),
-                                            track_dump_resources_.split_command_sets.begin(),
-                                            track_dump_resources_.split_command_sets.end());
-                            break;
-                        // But if the command is after DrawCall, it's just added at the third CommandList.
-                        case graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall:
-                            cmd_sets.emplace_back(track_dump_resources_.split_command_sets
-                                                      [graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall]);
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
+                    cmd_sets.emplace_back((*command_sets)[split_type]);
                 }
-                case format::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass:
-                {
-                    if (block_index == track_dump_resources_.target.begin_renderpass_block_index)
-                    {
-                        cmd_sets.insert(cmd_sets.end(),
-                                        track_dump_resources_.split_command_sets.begin(),
-                                        track_dump_resources_.split_command_sets.end());
-                    }
-                    break;
-                }
-                default:
-                {
-                    // command type could be changed data, drawcalls.
-                    cmd_sets.emplace_back(track_dump_resources_.split_command_sets[split_type]);
-                    break;
-                }
+                break;
+            }
+            default:
+            {
+                // command type could be changed data, drawcalls.
+                cmd_sets.emplace_back((*command_sets)[split_type]);
+                break;
             }
         }
     }
@@ -5395,97 +5454,199 @@ bool MatchDescriptorCPUGPUHandle(size_t                                      rep
 void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(DxObjectInfo*                        queue_object_info,
                                                             const std::vector<format::HandleId>& front_command_list_ids)
 {
-    // vertex
-    for (const auto& view : track_dump_resources_.target.captured_vertex_buffer_views)
-    {
-        graphics::CopyResourceData copy_resource_data;
-        copy_resource_data.subresource_indices.emplace_back(0);
-        CopyResourceForBeforeDrawcallByGPUVA(
-            queue_object_info, front_command_list_ids, view.BufferLocation, view.SizeInBytes, copy_resource_data);
+    // If Bundle have the bindings, using the bindings, or using the command's bindings.
+    auto bundle_target_drawcall = track_dump_resources_.target.bundle_target_drawcall.get();
 
-        track_dump_resources_.copy_vertex_resources.emplace_back(std::move(copy_resource_data));
+    // vertex
+    if (bundle_target_drawcall)
+    {
+        for (const auto& view : bundle_target_drawcall->captured_vertex_buffer_views)
+        {
+            graphics::CopyResourceData copy_resource_data;
+            copy_resource_data.subresource_indices.emplace_back(0);
+            CopyResourceForBeforeDrawcallByGPUVA(
+                queue_object_info, front_command_list_ids, view.BufferLocation, view.SizeInBytes, copy_resource_data);
+
+            track_dump_resources_.copy_vertex_resources.emplace_back(std::move(copy_resource_data));
+        }
+    }
+
+    if (track_dump_resources_.copy_vertex_resources.empty())
+    {
+        for (const auto& view : track_dump_resources_.target.captured_vertex_buffer_views)
+        {
+            graphics::CopyResourceData copy_resource_data;
+            copy_resource_data.subresource_indices.emplace_back(0);
+            CopyResourceForBeforeDrawcallByGPUVA(
+                queue_object_info, front_command_list_ids, view.BufferLocation, view.SizeInBytes, copy_resource_data);
+
+            track_dump_resources_.copy_vertex_resources.emplace_back(std::move(copy_resource_data));
+        }
     }
 
     // index
     track_dump_resources_.copy_index_resource.subresource_indices.emplace_back(0);
-    CopyResourceForBeforeDrawcallByGPUVA(queue_object_info,
-                                         front_command_list_ids,
-                                         track_dump_resources_.target.captured_index_buffer_view.BufferLocation,
-                                         track_dump_resources_.target.captured_index_buffer_view.SizeInBytes,
-                                         track_dump_resources_.copy_index_resource);
+    if (bundle_target_drawcall)
+    {
+        CopyResourceForBeforeDrawcallByGPUVA(queue_object_info,
+                                             front_command_list_ids,
+                                             bundle_target_drawcall->captured_index_buffer_view.BufferLocation,
+                                             bundle_target_drawcall->captured_index_buffer_view.SizeInBytes,
+                                             track_dump_resources_.copy_index_resource);
+    }
+
+    if (track_dump_resources_.copy_index_resource.source_resource_id == format::kNullHandleId)
+    {
+        CopyResourceForBeforeDrawcallByGPUVA(queue_object_info,
+                                             front_command_list_ids,
+                                             track_dump_resources_.target.captured_index_buffer_view.BufferLocation,
+                                             track_dump_resources_.target.captured_index_buffer_view.SizeInBytes,
+                                             track_dump_resources_.copy_index_resource);
+    }
 
     // descriptor
-    auto heap_size = track_dump_resources_.target.descriptor_heap_ids.size();
-    track_dump_resources_.descriptor_heap_datas.resize(heap_size);
-    for (uint32_t heap_index = 0; heap_index < heap_size; ++heap_index)
+    bool is_copy_descriptor = false;
+    if (bundle_target_drawcall)
     {
-        auto heap_object_info = GetObjectInfo(track_dump_resources_.target.descriptor_heap_ids[heap_index]);
-        auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
-
-        // constant buffer
-        for (const auto& info_pair : heap_extra_info->constant_buffer_infos)
+        auto heap_size = bundle_target_drawcall->descriptor_heap_ids.size();
+        track_dump_resources_.descriptor_heap_datas.resize(heap_size);
+        for (uint32_t heap_index = 0; heap_index < heap_size; ++heap_index)
         {
-            const auto& info = info_pair.second;
-            if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
-                                            info.replay_handle.ptr,
-                                            heap_extra_info->capture_gpu_addr_begin,
-                                            track_dump_resources_.target.captured_descriptor_gpu_handles))
-            {
-                graphics::CopyResourceData copy_resource_data;
-                copy_resource_data.subresource_indices.emplace_back(0);
-                CopyResourceForBeforeDrawcallByGPUVA(queue_object_info,
-                                                     front_command_list_ids,
-                                                     info.captured_view.BufferLocation,
-                                                     info.captured_view.SizeInBytes,
-                                                     copy_resource_data);
+            auto heap_object_info = GetObjectInfo(bundle_target_drawcall->descriptor_heap_ids[heap_index]);
+            auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
 
-                track_dump_resources_.descriptor_heap_datas[heap_index].copy_constant_buffer_resources.emplace_back(
-                    std::move(copy_resource_data));
-            }
-        }
-
-        if (TEST_SHADER_RES)
-        {
-            // shader resource
-            for (const auto& info_pair : heap_extra_info->shader_resource_infos)
+            // constant buffer
+            for (const auto& info_pair : heap_extra_info->constant_buffer_infos)
             {
                 const auto& info = info_pair.second;
                 if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
                                                 info.replay_handle.ptr,
                                                 heap_extra_info->capture_gpu_addr_begin,
-                                                track_dump_resources_.target.captured_descriptor_gpu_handles))
+                                                bundle_target_drawcall->captured_descriptor_gpu_handles))
                 {
-                    uint64_t offset = 0;
-                    uint64_t size   = 0;
-                    switch (info.view.ViewDimension)
-                    {
-                        case D3D12_SRV_DIMENSION_BUFFER:
-                        {
-                            auto size = info.view.Buffer.StructureByteStride;
-                            if (size == 0)
-                            {
-                                size = graphics::dx12::GetSubresourcePixelByteSize(info.view.Format);
-                            }
-                            offset = info.view.Buffer.FirstElement * size;
-                            size   = info.view.Buffer.NumElements * size;
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-
                     graphics::CopyResourceData copy_resource_data;
-                    copy_resource_data.subresource_indices = info.subresource_indices;
-                    CopyResourceForBeforeDrawcall(
-                        queue_object_info, front_command_list_ids, info.resource_id, offset, size, copy_resource_data);
-
-                    track_dump_resources_.descriptor_heap_datas[heap_index].copy_shader_resources.emplace_back(
+                    copy_resource_data.subresource_indices.emplace_back(0);
+                    CopyResourceForBeforeDrawcallByGPUVA(queue_object_info,
+                                                         front_command_list_ids,
+                                                         info.captured_view.BufferLocation,
+                                                         info.captured_view.SizeInBytes,
+                                                         copy_resource_data);
+                    is_copy_descriptor = true;
+                    track_dump_resources_.descriptor_heap_datas[heap_index].copy_constant_buffer_resources.emplace_back(
                         std::move(copy_resource_data));
                 }
             }
 
-            // unordered access
-            for (const auto& info_pair : heap_extra_info->unordered_access_infos)
+            if (TEST_SHADER_RES)
+            {
+                // shader resource
+                for (const auto& info_pair : heap_extra_info->shader_resource_infos)
+                {
+                    const auto& info = info_pair.second;
+                    if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
+                                                    info.replay_handle.ptr,
+                                                    heap_extra_info->capture_gpu_addr_begin,
+                                                    bundle_target_drawcall->captured_descriptor_gpu_handles))
+                    {
+                        uint64_t offset = 0;
+                        uint64_t size   = 0;
+                        switch (info.view.ViewDimension)
+                        {
+                            case D3D12_SRV_DIMENSION_BUFFER:
+                            {
+                                auto size = info.view.Buffer.StructureByteStride;
+                                if (size == 0)
+                                {
+                                    size = graphics::dx12::GetSubresourcePixelByteSize(info.view.Format);
+                                }
+                                offset = info.view.Buffer.FirstElement * size;
+                                size   = info.view.Buffer.NumElements * size;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        graphics::CopyResourceData copy_resource_data;
+                        copy_resource_data.subresource_indices = info.subresource_indices;
+                        CopyResourceForBeforeDrawcall(queue_object_info,
+                                                      front_command_list_ids,
+                                                      info.resource_id,
+                                                      offset,
+                                                      size,
+                                                      copy_resource_data);
+                        is_copy_descriptor = true;
+                        track_dump_resources_.descriptor_heap_datas[heap_index].copy_shader_resources.emplace_back(
+                            std::move(copy_resource_data));
+                    }
+                }
+
+                // unordered access
+                for (const auto& info_pair : heap_extra_info->unordered_access_infos)
+                {
+                    const auto& info = info_pair.second;
+                    if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
+                                                    info.replay_handle.ptr,
+                                                    heap_extra_info->capture_gpu_addr_begin,
+                                                    bundle_target_drawcall->captured_descriptor_gpu_handles))
+                    {
+                        uint64_t offset = 0;
+                        uint64_t size   = 0;
+                        switch (info.view.ViewDimension)
+                        {
+                            case D3D12_UAV_DIMENSION_BUFFER:
+                            {
+                                auto size = info.view.Buffer.StructureByteStride;
+                                if (size == 0)
+                                {
+                                    size = graphics::dx12::GetSubresourcePixelByteSize(info.view.Format);
+                                }
+                                offset = info.view.Buffer.FirstElement * size;
+                                size   = info.view.Buffer.NumElements * size;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                        graphics::UnorderedAccess copy_resource_data;
+                        copy_resource_data.resource.subresource_indices = info.subresource_indices;
+                        CopyResourceForBeforeDrawcall(queue_object_info,
+                                                      front_command_list_ids,
+                                                      info.resource_id,
+                                                      offset,
+                                                      size,
+                                                      copy_resource_data.resource);
+
+                        if (info.counter_resource_id != format::kNullHandleId)
+                        {
+                            copy_resource_data.counter_resource.subresource_indices.emplace_back(0);
+                            CopyResourceForBeforeDrawcall(queue_object_info,
+                                                          front_command_list_ids,
+                                                          info.counter_resource_id,
+                                                          info.view.Buffer.CounterOffsetInBytes,
+                                                          0,
+                                                          copy_resource_data.resource);
+                        }
+                        is_copy_descriptor = true;
+                        track_dump_resources_.descriptor_heap_datas[heap_index].copy_unordered_accesses.emplace_back(
+                            std::move(copy_resource_data));
+                    }
+                }
+            }
+        }
+    }
+
+    if (!is_copy_descriptor)
+    {
+        auto heap_size = track_dump_resources_.target.descriptor_heap_ids.size();
+        track_dump_resources_.descriptor_heap_datas.resize(heap_size);
+        for (uint32_t heap_index = 0; heap_index < heap_size; ++heap_index)
+        {
+            auto heap_object_info = GetObjectInfo(track_dump_resources_.target.descriptor_heap_ids[heap_index]);
+            auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
+
+            // constant buffer
+            for (const auto& info_pair : heap_extra_info->constant_buffer_infos)
             {
                 const auto& info = info_pair.second;
                 if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
@@ -5493,51 +5654,119 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(DxObjectInfo*       
                                                 heap_extra_info->capture_gpu_addr_begin,
                                                 track_dump_resources_.target.captured_descriptor_gpu_handles))
                 {
-                    uint64_t offset = 0;
-                    uint64_t size   = 0;
-                    switch (info.view.ViewDimension)
-                    {
-                        case D3D12_UAV_DIMENSION_BUFFER:
-                        {
-                            auto size = info.view.Buffer.StructureByteStride;
-                            if (size == 0)
-                            {
-                                size = graphics::dx12::GetSubresourcePixelByteSize(info.view.Format);
-                            }
-                            offset = info.view.Buffer.FirstElement * size;
-                            size   = info.view.Buffer.NumElements * size;
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                    graphics::UnorderedAccess copy_resource_data;
-                    copy_resource_data.resource.subresource_indices = info.subresource_indices;
-                    CopyResourceForBeforeDrawcall(queue_object_info,
-                                                  front_command_list_ids,
-                                                  info.resource_id,
-                                                  offset,
-                                                  size,
-                                                  copy_resource_data.resource);
+                    graphics::CopyResourceData copy_resource_data;
+                    copy_resource_data.subresource_indices.emplace_back(0);
+                    CopyResourceForBeforeDrawcallByGPUVA(queue_object_info,
+                                                         front_command_list_ids,
+                                                         info.captured_view.BufferLocation,
+                                                         info.captured_view.SizeInBytes,
+                                                         copy_resource_data);
 
-                    if (info.counter_resource_id != format::kNullHandleId)
+                    track_dump_resources_.descriptor_heap_datas[heap_index].copy_constant_buffer_resources.emplace_back(
+                        std::move(copy_resource_data));
+                }
+            }
+
+            if (TEST_SHADER_RES)
+            {
+                // shader resource
+                for (const auto& info_pair : heap_extra_info->shader_resource_infos)
+                {
+                    const auto& info = info_pair.second;
+                    if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
+                                                    info.replay_handle.ptr,
+                                                    heap_extra_info->capture_gpu_addr_begin,
+                                                    track_dump_resources_.target.captured_descriptor_gpu_handles))
                     {
-                        copy_resource_data.counter_resource.subresource_indices.emplace_back(0);
+                        uint64_t offset = 0;
+                        uint64_t size   = 0;
+                        switch (info.view.ViewDimension)
+                        {
+                            case D3D12_SRV_DIMENSION_BUFFER:
+                            {
+                                auto size = info.view.Buffer.StructureByteStride;
+                                if (size == 0)
+                                {
+                                    size = graphics::dx12::GetSubresourcePixelByteSize(info.view.Format);
+                                }
+                                offset = info.view.Buffer.FirstElement * size;
+                                size   = info.view.Buffer.NumElements * size;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        graphics::CopyResourceData copy_resource_data;
+                        copy_resource_data.subresource_indices = info.subresource_indices;
                         CopyResourceForBeforeDrawcall(queue_object_info,
                                                       front_command_list_ids,
-                                                      info.counter_resource_id,
-                                                      info.view.Buffer.CounterOffsetInBytes,
-                                                      0,
-                                                      copy_resource_data.resource);
+                                                      info.resource_id,
+                                                      offset,
+                                                      size,
+                                                      copy_resource_data);
+
+                        track_dump_resources_.descriptor_heap_datas[heap_index].copy_shader_resources.emplace_back(
+                            std::move(copy_resource_data));
                     }
-                    track_dump_resources_.descriptor_heap_datas[heap_index].copy_unordered_accesses.emplace_back(
-                        std::move(copy_resource_data));
+                }
+
+                // unordered access
+                for (const auto& info_pair : heap_extra_info->unordered_access_infos)
+                {
+                    const auto& info = info_pair.second;
+                    if (MatchDescriptorCPUGPUHandle(heap_extra_info->replay_cpu_addr_begin,
+                                                    info.replay_handle.ptr,
+                                                    heap_extra_info->capture_gpu_addr_begin,
+                                                    track_dump_resources_.target.captured_descriptor_gpu_handles))
+                    {
+                        uint64_t offset = 0;
+                        uint64_t size   = 0;
+                        switch (info.view.ViewDimension)
+                        {
+                            case D3D12_UAV_DIMENSION_BUFFER:
+                            {
+                                auto size = info.view.Buffer.StructureByteStride;
+                                if (size == 0)
+                                {
+                                    size = graphics::dx12::GetSubresourcePixelByteSize(info.view.Format);
+                                }
+                                offset = info.view.Buffer.FirstElement * size;
+                                size   = info.view.Buffer.NumElements * size;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                        graphics::UnorderedAccess copy_resource_data;
+                        copy_resource_data.resource.subresource_indices = info.subresource_indices;
+                        CopyResourceForBeforeDrawcall(queue_object_info,
+                                                      front_command_list_ids,
+                                                      info.resource_id,
+                                                      offset,
+                                                      size,
+                                                      copy_resource_data.resource);
+
+                        if (info.counter_resource_id != format::kNullHandleId)
+                        {
+                            copy_resource_data.counter_resource.subresource_indices.emplace_back(0);
+                            CopyResourceForBeforeDrawcall(queue_object_info,
+                                                          front_command_list_ids,
+                                                          info.counter_resource_id,
+                                                          info.view.Buffer.CounterOffsetInBytes,
+                                                          0,
+                                                          copy_resource_data.resource);
+                        }
+                        track_dump_resources_.descriptor_heap_datas[heap_index].copy_unordered_accesses.emplace_back(
+                            std::move(copy_resource_data));
+                    }
                 }
             }
         }
     }
 
     // render target
+    // render target isn't available in Bundle.
     auto rt_size = track_dump_resources_.replay_render_target_handles.size();
     track_dump_resources_.copy_render_target_resources.resize(rt_size);
 
@@ -5579,6 +5808,7 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(DxObjectInfo*       
     }
 
     // depth stencil
+    // depth stencil isn't available in Bundle.
     if (track_dump_resources_.replay_depth_stencil_handle.ptr != decode::kNullCpuAddress)
     {
         auto heap_object_info = GetObjectInfo(track_dump_resources_.depth_stencil_heap_id);
@@ -5603,20 +5833,43 @@ void Dx12ReplayConsumerBase::CopyResourcesForBeforeDrawcall(DxObjectInfo*       
 
     // ExecuteIndirect
     track_dump_resources_.copy_exe_indirect_argument.subresource_indices.emplace_back(0);
-    CopyResourceForBeforeDrawcall(queue_object_info,
-                                  front_command_list_ids,
-                                  track_dump_resources_.target.exe_indirect_argument_id,
-                                  track_dump_resources_.target.exe_indirect_argument_offset,
-                                  0,
-                                  track_dump_resources_.copy_exe_indirect_argument);
-
     track_dump_resources_.copy_exe_indirect_count.subresource_indices.emplace_back(0);
-    CopyResourceForBeforeDrawcall(queue_object_info,
-                                  front_command_list_ids,
-                                  track_dump_resources_.target.exe_indirect_count_id,
-                                  track_dump_resources_.target.exe_indirect_count_offset,
-                                  0,
-                                  track_dump_resources_.copy_exe_indirect_count);
+    if (bundle_target_drawcall)
+    {
+        CopyResourceForBeforeDrawcall(queue_object_info,
+                                      front_command_list_ids,
+                                      bundle_target_drawcall->exe_indirect_argument_id,
+                                      bundle_target_drawcall->exe_indirect_argument_offset,
+                                      0,
+                                      track_dump_resources_.copy_exe_indirect_argument);
+
+        CopyResourceForBeforeDrawcall(queue_object_info,
+                                      front_command_list_ids,
+                                      bundle_target_drawcall->exe_indirect_count_id,
+                                      bundle_target_drawcall->exe_indirect_count_offset,
+                                      0,
+                                      track_dump_resources_.copy_exe_indirect_count);
+    }
+
+    if (track_dump_resources_.copy_exe_indirect_argument.source_resource_id == format::kNullHandleId)
+    {
+        CopyResourceForBeforeDrawcall(queue_object_info,
+                                      front_command_list_ids,
+                                      track_dump_resources_.target.exe_indirect_argument_id,
+                                      track_dump_resources_.target.exe_indirect_argument_offset,
+                                      0,
+                                      track_dump_resources_.copy_exe_indirect_argument);
+    }
+
+    if (track_dump_resources_.copy_exe_indirect_count.source_resource_id == format::kNullHandleId)
+    {
+        CopyResourceForBeforeDrawcall(queue_object_info,
+                                      front_command_list_ids,
+                                      track_dump_resources_.target.exe_indirect_count_id,
+                                      track_dump_resources_.target.exe_indirect_count_offset,
+                                      0,
+                                      track_dump_resources_.copy_exe_indirect_count);
+    }
 }
 
 void Dx12ReplayConsumerBase::CopyResourceForBeforeDrawcallByGPUVA(
@@ -5772,6 +6025,8 @@ void Dx12ReplayConsumerBase::CopyResourcesForAfterDrawcall(DxObjectInfo*        
     // render target
     CopyResourcesForAfterDrawcall(
         queue_object_info, front_command_list_ids, track_dump_resources_.copy_render_target_resources);
+
+    // depth stencil
     CopyResourceForAfterDrawcall(
         queue_object_info, front_command_list_ids, track_dump_resources_.copy_depth_stencil_resource);
 
@@ -6033,7 +6288,7 @@ void Dx12ReplayConsumerBase::WriteDumpResources(DxObjectInfo* queue_object_info)
 {
     gfxrecon::graphics::Dx12DumpResourcesConfig config;
     config.captured_file_name                                   = options_.filename;
-    config.dump_resources_target                                = options_.dump_resources_target;
+    config.dump_resources_target                                = track_dump_resources_.target.dump_resources_target;
     std::unique_ptr<graphics::Dx12DumpResources> dump_resources = gfxrecon::graphics::Dx12DumpResources::Create(config);
 
     auto queue_extra_info = GetExtraInfo<D3D12CommandQueueInfo>(queue_object_info);

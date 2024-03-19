@@ -23,6 +23,8 @@
 #ifndef GFXRECON_DECODE_DX12_BROWSE_CONSUMER_H
 #define GFXRECON_DECODE_DX12_BROWSE_CONSUMER_H
 
+#include <memory>
+
 #include "generated/generated_dx12_decoder.h"
 #include "graphics/dx12_dump_resources.h"
 
@@ -59,7 +61,12 @@ struct TrackDumpDrawcall
     format::HandleId exe_indirect_count_id{ format::kNullHandleId };
     uint64_t         exe_indirect_count_offset{ 0 };
 
-    uint64_t drawcall_block_index{ 0 };
+    // Bundle
+    format::HandleId bundle_commandlist_id{ format::kNullHandleId };
+    // It couldn't use the structure that is the same to the parent structure, so use std::shared_ptr.
+    std::shared_ptr<TrackDumpDrawcall> bundle_target_drawcall;
+
+    uint64_t drawcall_block_index{ 0 }; // It could also be ExecuteIndirect or ExecuteBundle block index.
     uint64_t execute_block_index{ 0 };
 
     void Clear()
@@ -67,12 +74,15 @@ struct TrackDumpDrawcall
         captured_vertex_buffer_views.clear();
         descriptor_heap_ids.clear();
         captured_descriptor_gpu_handles.clear();
+        bundle_commandlist_id  = format::kNullHandleId;
+        bundle_target_drawcall = nullptr;
     }
 };
 
 struct TrackDumpCommandList
 {
     uint64_t         begin_block_index{ 0 };
+    uint64_t         close_block_index{ 0 };
     uint64_t         current_begin_renderpass_block_index{ 0 };
     uint64_t         current_set_render_targets_block_index{ 0 };
     format::HandleId current_root_signature_handle_id{ format::kNullHandleId };
@@ -96,6 +106,7 @@ struct TrackDumpCommandList
     void Clear()
     {
         begin_block_index                      = 0;
+        close_block_index                      = 0;
         current_begin_renderpass_block_index   = 0;
         current_set_render_targets_block_index = 0;
         current_captured_vertex_buffer_views.clear();
@@ -135,7 +146,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
         if (it != track_commandlist_infos_.end())
         {
             auto drawcall_size = it->second.track_dump_drawcalls.size();
-            GFXRECON_ASSERT(drawcall_size > dump_resources_target_.drawcall_index);
+            GFXRECON_ASSERT(drawcall_size > target_drawcall_index_);
 
             if (is_modified_args)
             {
@@ -145,7 +156,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                   dump_resources_target_.command_index,
                                   dump_resources_target_.drawcall_index);
             }
-            auto& target                 = it->second.track_dump_drawcalls[dump_resources_target_.drawcall_index];
+            auto& target                 = it->second.track_dump_drawcalls[target_drawcall_index_];
             target.dump_resources_target = dump_resources_target_;
             return &target;
         }
@@ -384,6 +395,13 @@ class Dx12BrowseConsumer : public Dx12Consumer
             call_info, object_id, pArgumentBuffer, ArgumentBufferOffset, pCountBuffer, CountBufferOffset);
     }
 
+    virtual void Process_ID3D12GraphicsCommandList_ExecuteBundle(const ApiCallInfo& call_info,
+                                                                 format::HandleId   object_id,
+                                                                 format::HandleId   pCommandList)
+    {
+        TrackTargetDrawcall(call_info, object_id, format::kNullHandleId, 0, format::kNullHandleId, 0, pCommandList);
+    }
+
     virtual void Process_ID3D12GraphicsCommandList_Close(const ApiCallInfo& call_info,
                                                          format::HandleId   object_id,
                                                          HRESULT            return_value)
@@ -393,6 +411,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
             auto it = track_commandlist_infos_.find(object_id);
             if (it != track_commandlist_infos_.end())
             {
+                it->second.close_block_index = call_info.index;
                 for (auto& drawcall : it->second.track_dump_drawcalls)
                 {
                     drawcall.close_block_index = call_info.index;
@@ -430,52 +449,80 @@ class Dx12BrowseConsumer : public Dx12Consumer
                         GFXRECON_ASSERT(NumCommandLists > dump_resources_target_.command_index);
                     }
                 }
-                auto command_lists   = ppCommandLists->GetPointer();
-                target_command_list_ = command_lists[dump_resources_target_.command_index];
 
-                auto it = track_commandlist_infos_.find(target_command_list_);
-                GFXRECON_ASSERT(it != track_commandlist_infos_.end());
-
-                auto drawcall_size = it->second.track_dump_drawcalls.size();
-                if (drawcall_size <= dump_resources_target_.drawcall_index)
+                auto command_lists = ppCommandLists->GetPointer();
+                for (uint32_t cmd_index = dump_resources_target_.command_index; cmd_index < NumCommandLists;
+                     ++cmd_index)
                 {
-                    if (TEST_AVAILABLE_ARGS)
+                    auto cmd_list = command_lists[cmd_index];
+                    auto it       = track_commandlist_infos_.find(cmd_list);
+                    GFXRECON_ASSERT(it != track_commandlist_infos_.end());
+
+                    uint32_t all_drawcall_count = 0; // Include normal drawcall and bundle drawcall.
+                    uint32_t drawcall_index     = 0;
+                    for (auto& drawcall : it->second.track_dump_drawcalls)
                     {
-                        is_modified_args = true;
-                        while (true)
+                        if (drawcall.bundle_commandlist_id != format::kNullHandleId)
                         {
-                            ++dump_resources_target_.command_index;
-                            if (NumCommandLists <= dump_resources_target_.command_index)
+                            auto bundle_it     = track_commandlist_infos_.find(drawcall.bundle_commandlist_id);
+                            auto drawcall_size = bundle_it->second.track_dump_drawcalls.size();
+                            if (drawcall_size > 0)
                             {
-                                target_command_list_ = format::kNullHandleId;
-                                ++track_submit_index_;
-                                ++dump_resources_target_.submit_index;
-                                dump_resources_target_.command_index  = 0;
-                                dump_resources_target_.drawcall_index = 0;
-                                return;
-                            }
-                            target_command_list_ = command_lists[dump_resources_target_.command_index];
+                                all_drawcall_count += drawcall_size;
+                                if (all_drawcall_count > dump_resources_target_.drawcall_index)
+                                {
+                                    auto target_drawcall_index =
+                                        dump_resources_target_.drawcall_index + drawcall_size - all_drawcall_count;
 
-                            it = track_commandlist_infos_.find(target_command_list_);
-                            GFXRECON_ASSERT(it != track_commandlist_infos_.end());
-
-                            drawcall_size = it->second.track_dump_drawcalls.size();
-                            if (drawcall_size <= dump_resources_target_.drawcall_index)
-                            {
-                                continue;
+                                    drawcall.bundle_target_drawcall = std::make_shared<TrackDumpDrawcall>(
+                                        bundle_it->second.track_dump_drawcalls[target_drawcall_index]);
+                                }
                             }
                         }
+                        else
+                        {
+                            ++all_drawcall_count;
+                        }
+                        if (all_drawcall_count > dump_resources_target_.drawcall_index)
+                        {
+                            drawcall.execute_block_index = call_info.index;
+                            target_command_list_         = cmd_list;
+                            target_drawcall_index_       = drawcall_index;
+                            break;
+                        }
+                        ++drawcall_index;
                     }
-                    else
+
+                    // It didn't find the target drawcall.
+                    if (target_command_list_ == format::kNullHandleId)
                     {
-                        GFXRECON_LOG_FATAL("The target drawcall index(%d) of dump resources is out of range(%d).",
-                                           dump_resources_target_.drawcall_index,
-                                           drawcall_size);
-                        GFXRECON_ASSERT(drawcall_size > dump_resources_target_.drawcall_index);
+                        if (TEST_AVAILABLE_ARGS)
+                        {
+                            // Find a drawcall in the following command list.
+                            is_modified_args = true;
+                            ++dump_resources_target_.command_index;
+                            dump_resources_target_.drawcall_index = 0;
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_FATAL("The target drawcall index(%d) of dump resources is out of range(%d).",
+                                               dump_resources_target_.drawcall_index,
+                                               all_drawcall_count);
+                            GFXRECON_ASSERT(all_drawcall_count > dump_resources_target_.drawcall_index);
+                            break;
+                        }
                     }
                 }
-                it->second.track_dump_drawcalls[dump_resources_target_.drawcall_index].execute_block_index =
-                    call_info.index;
+
+                // It didn't find the target drawcall.
+                if (TEST_AVAILABLE_ARGS && target_command_list_ == format::kNullHandleId)
+                {
+                    // Find a drawcall in the following submit.
+                    is_modified_args = true;
+                    ++dump_resources_target_.submit_index;
+                    dump_resources_target_.command_index  = 0;
+                    dump_resources_target_.drawcall_index = 0;
+                }
             }
             ++track_submit_index_;
         }
@@ -488,6 +535,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
     DumpResourcesTarget dump_resources_target_{};
     uint32_t            track_submit_index_{ 0 };
     format::HandleId    target_command_list_{ 0 };
+    uint32_t            target_drawcall_index_{ 0 };
 
     // Key is commandlist_id. We need to know the commandlist of the info because in a commandlist block
     // between reset and close, it might have the other commandlist's commands.
@@ -517,7 +565,8 @@ class Dx12BrowseConsumer : public Dx12Consumer
                              format::HandleId   exe_indirect_argument_id     = format::kNullHandleId,
                              uint64_t           exe_indirect_argument_offset = 0,
                              format::HandleId   exe_indirect_count_id        = format::kNullHandleId,
-                             uint64_t           exe_indirect_count_offset    = 0)
+                             uint64_t           exe_indirect_count_offset    = 0,
+                             format::HandleId   bundle_commandlist_id        = format::kNullHandleId)
     {
         if (target_command_list_ == format::kNullHandleId)
         {
@@ -539,6 +588,8 @@ class Dx12BrowseConsumer : public Dx12Consumer
                 track_drawcall.exe_indirect_argument_offset    = exe_indirect_argument_offset;
                 track_drawcall.exe_indirect_count_id           = exe_indirect_count_id;
                 track_drawcall.exe_indirect_count_offset       = exe_indirect_count_offset;
+                track_drawcall.bundle_commandlist_id           = bundle_commandlist_id;
+
                 it->second.track_dump_drawcalls.emplace_back(std::move(track_drawcall));
             }
         }

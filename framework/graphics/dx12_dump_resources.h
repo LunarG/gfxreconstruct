@@ -142,6 +142,7 @@ struct TrackDumpResources
         kAfterDrawCall,
     };
     std::array<CommandSet, 3> split_command_sets;
+    std::array<CommandSet, 3> split_bundle_command_sets;
 
     graphics::dx12::ID3D12FenceComPtr fence;
     HANDLE                            fence_event;
