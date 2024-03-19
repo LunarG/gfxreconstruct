@@ -57,8 +57,8 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     uint64_t                        GetMinAllocationSize() const { return min_allocation_size_; }
     uint64_t                        GetMaxAllocationSize() const { return max_allocation_size_; }
 
-    const std::unordered_set<std::string>& GetInstanceExtensions() const { return instance_extensions_; }
-    const std::unordered_set<std::string>& GetDeviceExtensions() const { return device_extensions_; }
+    const std::unordered_set<std::string>&              GetInstanceExtensions() const { return instance_extensions_; }
+    const std::vector<std::unordered_set<std::string>>& GetDeviceExtensions() const { return device_extension_sets_; }
 
     const std::set<gfxrecon::format::HandleId>& GetInstantiatedDevices() const { return used_physical_devices_; }
     const VkPhysicalDeviceProperties*           GetDeviceProperties(gfxrecon::format::HandleId id) const
@@ -169,11 +169,13 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
             {
                 auto create_info = pCreateInfo->GetPointer();
 
+                std::unordered_set<std::string> enabled_extensions;
                 for (uint32_t i = 0; i < create_info->enabledExtensionCount; i++)
                 {
                     std::string extension(create_info->ppEnabledExtensionNames[i]);
-                    device_extensions_.insert(extension);
+                    enabled_extensions.insert(extension);
                 }
+                device_extension_sets_.push_back(enabled_extensions);
             }
         }
     }
@@ -424,8 +426,8 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     uint32_t    api_version_{ 0 };
 
     // Extension info.
-    std::unordered_set<std::string> instance_extensions_;
-    std::unordered_set<std::string> device_extensions_;
+    std::unordered_set<std::string>              instance_extensions_;
+    std::vector<std::unordered_set<std::string>> device_extension_sets_;
 
     // Physical device info.
     std::set<gfxrecon::format::HandleId>                                       used_physical_devices_;
