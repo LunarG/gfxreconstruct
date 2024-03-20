@@ -223,7 +223,7 @@ static gfxrecon::decode::GfxToCppPlatform GetCppTargetPlatform(const gfxrecon::u
 
         return gfxrecon::decode::kTargetPlatformByName.at(platform);
     }
-    else 
+    else
     {
         GFXRECON_LOG_INFO("Platform not specified, defaulting to XCB.");
         return gfxrecon::decode::GfxToCppPlatform::PLATFORM_XCB;
