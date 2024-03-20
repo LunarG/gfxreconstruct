@@ -8,7 +8,7 @@ The text output is written by default to a .json file in the directory of the
 specified GFXReconstruct capture file. Use `--output` to override the default
 filename for the output.
 
-Compile with the CONVERT_EXPERIMENTAL_D3D12 flag in order to enable convertion of D3D12 captures.
+Compile with the CONVERT_EXPERIMENTAL_D3D12 flag in order to enable conversion of D3D12 captures.
 
 
 ```text
@@ -149,7 +149,7 @@ representing the position of the call in the sequence recorded in the capture.
 }
 ```
 
-# D3D12 example
+### D3D12 example
 ```json
 {
   "index": 79,
@@ -221,6 +221,8 @@ interpreted as an unsigned decimal integer.
 Tools written now should test whether masks are represented as JSON numbers and
 fail gracefully if not as some changes are anticipated to this aspect of the
 JSON Lines file format.
+In D3D12 conversions, bitfields are expressed as '0bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+with as many x's as there are bits.
 
 #### Void Pointers
 
