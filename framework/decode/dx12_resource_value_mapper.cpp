@@ -449,9 +449,16 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
               state_object_extra_info,
               { command_signature_extra_info, argument_buffer_object_info, argument_buffer_offset } });
     }
-    else
+    else if (max_command_count != 0)
     {
         // Add resource value offsets to resource_value_infos based on the command signature's arguments.
+        for (auto& info : command_signature_extra_info->resource_value_infos)
+        {
+            if (info.type == ResourceValueType::kIndirectArgumentDispatchRays)
+            {
+                const_cast<D3D12StateObjectInfo*>(info.state_object) = state_object_extra_info;
+            }
+        }
         GetExecuteIndirectResourceValues(command_list_extra_info->resource_value_info_map[argument_buffer_object_info],
                                          command_signature_extra_info->resource_value_infos,
                                          max_command_count,
