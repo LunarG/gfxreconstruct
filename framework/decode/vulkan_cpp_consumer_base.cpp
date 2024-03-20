@@ -1342,11 +1342,12 @@ static void BuildInstanceCreateInfo(std::ostream&                       out,
     if (struct_info->enabledExtensionCount > 0)
     {
         GfxToCppPlatform cur_platform = consumer.GetPlatform();
-        std::string cur_extension_name = kTargetPlatforms.at(cur_platform).wsiSurfaceExtName;
+        std::string      cur_extension_name = kTargetPlatforms.at(cur_platform).wsiSurfaceExtName;
 
         // Generate a map of WSI extensions to the new extension for this current platform
         std::map<std::string, std::string> replace_map;
-        for(const auto& [platform_enum, info] : kTargetPlatforms) {
+        for (const auto& [platform_enum, info] : kTargetPlatforms)
+        {
             replace_map[info.wsiSurfaceExtName] = cur_extension_name;
         }
 
