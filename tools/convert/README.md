@@ -41,14 +41,14 @@ Optional arguments:
 ```
 
 
-The JSON document on each line is designed to be parsed by tools such as simple
+The JSON document is designed to be parsed by tools such as simple
 Python scripts as well as being useful for inspecting by eye after pretty
 printing, for example by piping through a command-line tool such as
 [`jq`](https://stedolan.github.io/jq/).
 For these post-processing use cases, `gfxrecon-convert` can be used to stream
 from binary captures directly, without
 having to save the intermediate JSON files to storage.
-Because each JSON object is on its own line, line oriented tools such as
+With `"--format jsonl"`, because each JSON object is on its own line, line oriented tools such as
 grep, sed, head, and split can be applied ahead of JSON-aware ones which
 are heavier-weight to reduce their workload on large captures.
 
@@ -108,7 +108,7 @@ Following the header there may be an annotation block containing metadata about 
 ```
 
 ### Vulkan function
-The first Vulkan function of the capture follows.
+For Vulkan, the first Vulkan function of the capture follows.
 Of note are the fields `"vkFunc"` which identifies the line as Vulkan function
 call, and `"index"` which is a monotonically increasing positive integer
 representing the position of the call in the sequence recorded in the capture.
@@ -151,7 +151,7 @@ representing the position of the call in the sequence recorded in the capture.
 ```
 
 ### D3D12 method
-The first D3D12 function of the capture follows.
+For D3D12, the first D3D12 function of the capture follows.
 Of note are the fields `"method"` which identifies the line as D3D12 method
 call, and `"index"` which is a monotonically increasing positive integer
 representing the position of the call in the sequence recorded in the capture.
@@ -315,6 +315,8 @@ All values of a header are strings.
 * `"vulkan-version"`: The version of the Vulkan headers that the GFXReconstruct
   used for conversion was built against.
 
+Of note is that `"vulkan-version"` is currently reported even for D3D12 captures.
+
 ### Meta Objects
 Meta command objects contain `"index"` at the top level, which is a
 JSON number representing the position of the call in the sequence of
@@ -358,7 +360,7 @@ instead being replaced by "\[Binary data\]".
 }
 ```
 
-### vkFunc Objects
+### Function/Method Objects
 
 Vulkan function objects contain `"index"` at the top level, which is a
 JSON number representing the position of the call in the sequence of
@@ -438,6 +440,35 @@ Each element in that array is a JSON object for the corresponding C struct.
       }
     ]
   }
+```
+
+#### D3D12 method
+D3D12 method objects are nearly identical to their Vulkan counterparts.
+See the example below.
+
+```json
+{
+  "index": 19,
+  "method": {
+    "name": "CreateCommandQueue",
+    "thread": 1,
+    "object": {
+      "type": "ID3D12Device",
+      "handle": 7
+    },
+    "return": "S_OK",
+    "args": {
+      "pDesc": {
+        "Type": "D3D12_COMMAND_LIST_TYPE_COMPUTE",
+        "Priority": 0,
+        "Flags": "0x00000001",
+        "NodeMask": "0b00000000000000000000000000000000"
+      },
+      "riid": "IID_ID3D12CommandQueue",
+      "ppCommandQueue": 14
+    }
+  }
+}
 ```
 
 ### JSON Lines to JSON
