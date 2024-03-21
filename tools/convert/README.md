@@ -151,7 +151,7 @@ representing the position of the call in the sequence recorded in the capture.
 ```
 
 ### D3D12 method
-For D3D12, the first D3D12 function of the capture follows.
+For D3D12, the first D3D12 method of the capture follows.
 Of note are the fields `"method"` which identifies the line as D3D12 method
 call, and `"index"` which is a monotonically increasing positive integer
 representing the position of the call in the sequence recorded in the capture.
@@ -444,6 +444,8 @@ Each element in that array is a JSON object for the corresponding C struct.
 
 #### D3D12 method
 D3D12 method objects are nearly identical to their Vulkan counterparts.
+They use the `"method"` key instead of `"function"`, and have an `"object"` field detailing
+the corresponding object type and handle value. 
 See the example below.
 
 ```json
