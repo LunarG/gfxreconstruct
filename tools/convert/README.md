@@ -60,14 +60,14 @@ JSON document (JSON Lines). Below are the first few lines from a capture of vkcu
 
 ```json
 {"header":{"source-path":"vkcube.f1.gfxr","json-version":"0.8.0","gfxrecon-version":"0.9.15-dev","vulkan-version":"1.3.224"}}
-{"index":0,"vkFunc":{"name":"vkCreateInstance","return":"VK_SUCCESS","args":{"pCreateInfo":{"sType":"VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO","pNext":null,"flags":1,"pApplicationInfo":{"sType":"VK_S...
-{"index":1,"vkFunc":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":null}}}
-{"index":2,"vkFunc":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":[2,3,4]}}}
-{"index":3,"vkFunc":{"name":"vkGetPhysicalDeviceProperties","args":{"physicalDevice":2,"pProperties":{"apiVersion":4206786,"driverVersion":2140487808,"vendorID":4318,"deviceID":9568,"deviceType":"V...
-{"index":4,"vkFunc":{"name":"vkGetPhysicalDeviceProperties","args":{"physicalDevice":3,"pProperties":{"apiVersion":4206796,"driverVersion":92274693,"vendorID":32902,"deviceID":18086,"deviceType":"V...
-{"index":5,"vkFunc":{"name":"vkGetPhysicalDeviceProperties","args":{"physicalDevice":4,"pProperties":{"apiVersion":4202700,"driverVersion":1,"vendorID":65541,"deviceID":0,"deviceType":"VK_PHYSICAL_...
-{"index":6,"vkFunc":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":null}}}
-{"index":7,"vkFunc":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":[2,3,4]}}}
+{"index":0,"function":{"name":"vkCreateInstance","return":"VK_SUCCESS","args":{"pCreateInfo":{"sType":"VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO","pNext":null,"flags":1,"pApplicationInfo":{"sType":"VK_S...
+{"index":1,"function":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":null}}}
+{"index":2,"function":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":[2,3,4]}}}
+{"index":3,"function":{"name":"vkGetPhysicalDeviceProperties","args":{"physicalDevice":2,"pProperties":{"apiVersion":4206786,"driverVersion":2140487808,"vendorID":4318,"deviceID":9568,"deviceType":"V...
+{"index":4,"function":{"name":"vkGetPhysicalDeviceProperties","args":{"physicalDevice":3,"pProperties":{"apiVersion":4206796,"driverVersion":92274693,"vendorID":32902,"deviceID":18086,"deviceType":"V...
+{"index":5,"function":{"name":"vkGetPhysicalDeviceProperties","args":{"physicalDevice":4,"pProperties":{"apiVersion":4202700,"driverVersion":1,"vendorID":65541,"deviceID":0,"deviceType":"VK_PHYSICAL_...
+{"index":6,"function":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":null}}}
+{"index":7,"function":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":[2,3,4]}}}
 
 ```
 
@@ -109,14 +109,14 @@ Following the header there may be an annotation block containing metadata about 
 
 ### Vulkan function
 For Vulkan, the first Vulkan function of the capture follows.
-Of note are the fields `"vkFunc"` which identifies the line as Vulkan function
+Of note are the fields `"function"` which identifies the line as Vulkan function
 call, and `"index"` which is a monotonically increasing positive integer
 representing the position of the call in the sequence recorded in the capture.
 
 ```json
 {
   "index": 0,
-  "vkFunc": {
+  "function": {
     "name": "vkCreateInstance",
     "return": "VK_SUCCESS",
     "args": {
@@ -274,8 +274,8 @@ the representation will be an empty array: `[]`.
 All current and future lines have a top-level JSON object with a key that
 identifies the type of the line and a value that is a nested object holding
 the data for the line, possibly in further nested structure.
-The currently-defined keys are `"header"`, `"vkFunc"`, `"annotation"`, `"state"`, and `"meta"`.
-A line can hold _exactly one of_ a nested `"header"`, `"vkFunc"`, `"annotation"`, `"state"`, or `"meta"`.
+The currently-defined keys are `"header"`, `"function"`, `"annotation"`, `"state"`, and `"meta"`.
+A line can hold _exactly one of_ a nested `"header"`, `"function"`, `"annotation"`, `"state"`, or `"meta"`.
 D3D12 captures may also contain the key `"method"` for object methods.
 
 A tool can work out what kind of JSON document each line contains by checking
@@ -285,7 +285,7 @@ In pseudocode that could look something like this:
 ```
 for line in input_lines:
   doc = json.parse(line)
-  if doc.contains("vkFunc"):
+  if doc.contains("function"):
       process Vulkan API Call block
   else if doc.contains("method"):
       process method call block
@@ -315,7 +315,7 @@ All values of a header are strings.
 * `"vulkan-version"`: The version of the Vulkan headers that the GFXReconstruct
   used for conversion was built against.
 
-Of note is that `"vulkan-version"` is currently reported even for D3D12 captures.
+Of note is that `"vulkan-version"` is currently erroneously reported even for D3D12 captures.
 
 ### Meta Objects
 Meta command objects contain `"index"` at the top level, which is a
@@ -365,13 +365,13 @@ instead being replaced by "\[Binary data\]".
 Vulkan function objects contain `"index"` at the top level, which is a
 JSON number representing the position of the call in the sequence of
 successfully-decoded blocks in the original binary capture file,
-and a nested object under the key `"vkFunc"` which contains the data captured
+and a nested object under the key `"function"` which contains the data captured
 from a Vulkan call.
 
 ```json
 {
   "index": 0,
-  "vkFunc": {
+  "function": {
     "name": "vkCreateInstance",
     "return": "VK_SUCCESS",
     "args": {
@@ -536,12 +536,12 @@ in this case being displayed.
 In this example we see the `pImageIndices` index being cycled through:
 
 ```json
-{"index":137,"vkFunc":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[10],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[0],"pResults":null}}}}
-{"index":142,"vkFunc":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[13],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[1],"pResults":null}}}}
-{"index":147,"vkFunc":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[10],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[2],"pResults":null}}}}
-{"index":152,"vkFunc":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[13],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[0],"pResults":null}}}}
-{"index":157,"vkFunc":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[10],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[1],"pResults":null}}}}
-{"index":162,"vkFunc":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[13],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[2],"pResults":null}}}}
+{"index":137,"function":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[10],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[0],"pResults":null}}}}
+{"index":142,"function":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[13],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[1],"pResults":null}}}}
+{"index":147,"function":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[10],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[2],"pResults":null}}}}
+{"index":152,"function":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[13],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[0],"pResults":null}}}}
+{"index":157,"function":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[10],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[1],"pResults":null}}}}
+{"index":162,"function":{"name":"vkQueuePresentKHR","return":"VK_SUCCESS","args":{"queue":7,"pPresentInfo":{"sType":"VK_STRUCTURE_TYPE_PRESENT_INFO_KHR","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[13],"swapchainCount":1,"pSwapchains":[14],"pImageIndices":[2],"pResults":null}}}}
 ...
 ```
 
@@ -562,7 +562,7 @@ ordering of function arguments, to match the C-API.
 
 {
   "index": 102,
-  "vkFunc": {
+  "function": {
     "name": "vkCmdBindPipeline",
     "args": {
       "commandBuffer": 43,
@@ -573,7 +573,7 @@ ordering of function arguments, to match the C-API.
 }
 {
   "index": 107,
-  "vkFunc": {
+  "function": {
     "name": "vkCmdEndRenderPass",
     "args": {
       "commandBuffer": 43
@@ -598,7 +598,7 @@ The same excerpt as shown for the JSON pretty print above:
 
 ```yaml
 index: 102
-vkFunc:
+function:
   name: vkCmdBindPipeline
   args:
     commandBuffer: 43
@@ -606,7 +606,7 @@ vkFunc:
     pipeline: 42
 ---
 index: 107
-vkFunc:
+function:
   name: vkCmdEndRenderPass
   args:
     commandBuffer: 43
@@ -662,13 +662,13 @@ This substitution in `jq` turns each argument into its own JSON object with name
 and value fields, and orders them all in an array.
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | jq '.vkFunc.args = (.vkFunc.args | to_entries | map_values({"name":(.key), "value":(.value)}))'
+gfxrecon-convert --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | jq '.function.args = (.function.args | to_entries | map_values({"name":(.key), "value":(.value)}))'
 ```
 
 ```json
 {
   "index": 76,
-  "vkFunc": {
+  "function": {
     "name": "vkMapMemory",
     "return": "VK_SUCCESS",
     "args": [
@@ -704,19 +704,19 @@ gfxrecon-convert --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | 
 This can be stripped-down to just the values:
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | jq -c '.vkFunc.args = (.vkFunc.args | to_entries | map_values(.value))'
+gfxrecon-convert --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | jq -c '.function.args = (.function.args | to_entries | map_values(.value))'
 ```
 
 Note the `-c` option to `jq` preserves the JSON Lines output rather than
 pretty-printing indented JSON.
 
 ```json
-{"index":72,"vkFunc":{"name":"vkBindBufferMemory","return":"VK_SUCCESS","args":[6,32,33,0]}}
-{"index":73,"vkFunc":{"name":"vkCreateBuffer","return":"VK_SUCCESS","args":[6,{"sType":"VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO","pNext":null,"flags":0,"size":1216,"usage":16,"sharingMode":"VK_SHARING_MODE_EXCLUSIVE","queueFamilyIndexCount":0,"pQueueFamilyIndices":null},null,34]}}
-{"index":74,"vkFunc":{"name":"vkGetBufferMemoryRequirements","args":[6,34,{"size":1280,"alignment":256,"memoryTypeBits":1921}]}}
-{"index":75,"vkFunc":{"name":"vkAllocateMemory","return":"VK_SUCCESS","args":[6,{"sType":"VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO","pNext":null,"allocationSize":1280,"memoryTypeIndex":8},null,35]}}
-{"index":76,"vkFunc":{"name":"vkMapMemory","return":"VK_SUCCESS","args":[6,35,0,18446744073709552000,0,"0x55f5aa64d380"]}}
-{"index":77,"vkFunc":{"name":"vkBindBufferMemory","return":"VK_SUCCESS","args":[6,34,35,0]}}
+{"index":72,"function":{"name":"vkBindBufferMemory","return":"VK_SUCCESS","args":[6,32,33,0]}}
+{"index":73,"function":{"name":"vkCreateBuffer","return":"VK_SUCCESS","args":[6,{"sType":"VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO","pNext":null,"flags":0,"size":1216,"usage":16,"sharingMode":"VK_SHARING_MODE_EXCLUSIVE","queueFamilyIndexCount":0,"pQueueFamilyIndices":null},null,34]}}
+{"index":74,"function":{"name":"vkGetBufferMemoryRequirements","args":[6,34,{"size":1280,"alignment":256,"memoryTypeBits":1921}]}}
+{"index":75,"function":{"name":"vkAllocateMemory","return":"VK_SUCCESS","args":[6,{"sType":"VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO","pNext":null,"allocationSize":1280,"memoryTypeIndex":8},null,35]}}
+{"index":76,"function":{"name":"vkMapMemory","return":"VK_SUCCESS","args":[6,35,0,18446744073709552000,0,"0x55f5aa64d380"]}}
+{"index":77,"function":{"name":"vkBindBufferMemory","return":"VK_SUCCESS","args":[6,34,35,0]}}
 ```
 
 
@@ -728,7 +728,7 @@ These might be useful to keep beside a set of multi-gigabyte binary traces to
 allow fast grepping when looking for traces that use particular named arguments.
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | jq  -c "[.. | objects | keys[]] | unique" | sed "s/\"args\",//" | sed "s/\"index\",//" | sed "s/\"name\",//" | sed "s/\"return\",//" | sed "s/,\"vkFunc\"//" | sort | uniq
+gfxrecon-convert --output stdout vkcube.f1.gfxr | jq  -c "[.. | objects | keys[]] | unique" | sed "s/\"args\",//" | sed "s/\"index\",//" | sed "s/\"name\",//" | sed "s/\"return\",//" | sed "s/,\"function\"//" | sort | uniq
 ```
 
 Output:
@@ -776,15 +776,15 @@ frame which would give the developer inspiration to look into merging some of
 them if possible.
 
 ```json
-{"index":168,"vkFunc":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[91],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":89}}}
-{"index":337,"vkFunc":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":96,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[98],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":99}}}
+{"index":168,"function":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[91],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":89}}}
+{"index":337,"function":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":96,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[98],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":99}}}
 ... skip hundreds of similar calls ...
-{"index":6580,"vkFunc":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":96,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[128],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":129}}}
-{"index":6585,"vkFunc":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":96,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[131],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":132}}}
-{"index":6755,"vkFunc":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":2,"pCommandBuffers":[1894,1895],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":1896}}}
-{"index":6757,"vkFunc":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":2,"pCommandBuffers":[1912,1913],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":1897}}}
-{"index":6812,"vkFunc":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[2120],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":"VK_NULL_HANDLE"}}}
-{"index":6814,"vkFunc":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[867],"pWaitDstStageMask":[65536],"commandBufferCount":1,"pCommandBuffers":[2167],"signalSemaphoreCount":1,"pSignalSemaphores":[878]}],"fence":877}}}
+{"index":6580,"function":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":96,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[128],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":129}}}
+{"index":6585,"function":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":96,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[131],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":132}}}
+{"index":6755,"function":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":2,"pCommandBuffers":[1894,1895],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":1896}}}
+{"index":6757,"function":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":2,"pCommandBuffers":[1912,1913],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":1897}}}
+{"index":6812,"function":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":0,"pWaitSemaphores":null,"pWaitDstStageMask":null,"commandBufferCount":1,"pCommandBuffers":[2120],"signalSemaphoreCount":0,"pSignalSemaphores":null}],"fence":"VK_NULL_HANDLE"}}}
+{"index":6814,"function":{"name":"vkQueueSubmit","return":"VK_SUCCESS","args":{"queue":68,"submitCount":1,"pSubmits":[{"sType":"VK_STRUCTURE_TYPE_SUBMIT_INFO","pNext":null,"waitSemaphoreCount":1,"pWaitSemaphores":[867],"pWaitDstStageMask":[65536],"commandBufferCount":1,"pCommandBuffers":[2167],"signalSemaphoreCount":1,"pSignalSemaphores":[878]}],"fence":877}}}
 ```
 
 Similar line-oriented scripts could extend this idea to outputting the first n
