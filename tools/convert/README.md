@@ -8,7 +8,7 @@ The text output is written by default to a .json file in the directory of the
 specified GFXReconstruct capture file. Use `--output` to override the default
 filename for the output.
 
-Compile with the CONVERT_EXPERIMENTAL_D3D12 flag in order to enable conversion of D3D12 captures.
+Configure with the CONVERT_EXPERIMENTAL_D3D12 flag in order to enable conversion of D3D12 captures.
 
 
 ```text
@@ -55,7 +55,7 @@ are heavier-weight to reduce their workload on large captures.
 
 ## JSON Structure
 
-The tool's output is an ordered list of JSON structures, one per line in `--output jsonl` mode, each line a valid
+The tool's output is an ordered list of JSON structures, one per line in `--format jsonl` mode, each line a valid
 JSON structure. Below are the first few lines from a capture of vkcube, truncated to 200 columns.
 
 ```json
@@ -82,15 +82,13 @@ The first line is a header identifying the source capture file,
 the version of the file format,
 the version of GFXReconstruct used to generate the file,
 and the version of the Vulkan headers used to build that GFXReconstruct version.
-This header may be expanded in the future but these fields will remain.
 
 ```json
 {
   "header": {
-    "source-path": "vkcube.f1.gfxr",
-    "json-version": "0.8.0",
-    "gfxrecon-version": "0.9.15-dev",
-    "vulkan-version": "1.3.224"
+    "source-path": "..\\captures\\vkcube_frames_1_through_20_20240321T112609.gfxr",
+    "gfxrecon-version": "1.0.3-dev (dev:52a52d3+dx12)",
+    "vulkan-version": "1.3.280"
   }
 }
 ```
@@ -309,8 +307,6 @@ All values of a header are strings.
 * `"source-path"`: The path to the gfxr file which was the source for
   conversion. The exact string passed to the application is stored, whether
   it is a relative or absolute path.
-* `"json-version"`: The version of the Convert JSON Lines file format used by
-  the current file.
 * `"gfxrecon-version"`: The release or build of GFXReconstruct used to do the
   conversion of the file.
 * `"vulkan-version"`: The version of the Vulkan headers that the GFXReconstruct
