@@ -363,11 +363,11 @@ instead being replaced by "\[Binary data\]".
 
 ### Function/Method Objects
 
-Vulkan function objects contain `"index"` at the top level, which is a
+Function/method objects contain `"index"` at the top level, which is a
 JSON number representing the position of the call in the sequence of
 successfully-decoded blocks in the original binary capture file,
-and a nested object under the key `"function"` which contains the data captured
-from a Vulkan call.
+and a nested object under the key `"function"` (`"method"` in D3D12) which contains the data captured
+from a given call.
 
 ```json
 {
@@ -400,6 +400,7 @@ Within the nested object are several elements.
   JSON tools may reorder them arbitrarily after further processing.
   The value of each element is translated from the corresponding argument in the
   capture file as detailed above in section _Type Mapping of Values_.
+* `"object"`: A nested object with a `"type"` and a `"handle"` (D3D12 only)
 
 #### Function Arguments
 
