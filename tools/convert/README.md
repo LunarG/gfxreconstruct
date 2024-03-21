@@ -107,6 +107,7 @@ Following the header there may be an annotation block containing metadata about 
 }
 ```
 
+### Vulkan function
 The first Vulkan function of the capture follows.
 Of note are the fields `"vkFunc"` which identifies the line as Vulkan function
 call, and `"index"` which is a monotonically increasing positive integer
@@ -149,7 +150,11 @@ representing the position of the call in the sequence recorded in the capture.
 }
 ```
 
-### D3D12 example
+### D3D12 method
+The first D3D12 function of the capture follows.
+Of note are the fields `"method"` which identifies the line as D3D12 method
+call, and `"index"` which is a monotonically increasing positive integer
+representing the position of the call in the sequence recorded in the capture.
 ```json
 {
   "index": 79,
@@ -271,6 +276,8 @@ identifies the type of the line and a value that is a nested object holding
 the data for the line, possibly in further nested structure.
 The currently-defined keys are `"header"`, `"vkFunc"`, `"annotation"`, `"state"`, and `"meta"`.
 A line can hold _exactly one of_ a nested `"header"`, `"vkFunc"`, `"annotation"`, `"state"`, or `"meta"`.
+D3D12 captures may also contain the key `"method"` for object methods.
+
 A tool can work out what kind of JSON document each line contains by checking
 for the presence of the keys in the top-level object.
 In pseudocode that could look something like this:
@@ -280,6 +287,8 @@ for line in input_lines:
   doc = json.parse(line)
   if doc.contains("vkFunc"):
       process Vulkan API Call block
+  else if doc.contains("method"):
+      process method call block
   else if doc.contains("header"):
       process header block
   else if doc.contains("annotation"):
