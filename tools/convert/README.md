@@ -55,19 +55,20 @@ are heavier-weight to reduce their workload on large captures.
 
 ## JSON Structure
 
-The tool's output is an ordered list of strings, one per line, each line a valid
-JSON document (JSON Lines). Below are the first few lines from a capture of vkcube, truncated to 200 columns.
+The tool's output is an ordered list of JSON structures, one per line in `--output jsonl` mode, each line a valid
+JSON structure. Below are the first few lines from a capture of vkcube, truncated to 200 columns.
 
 ```json
-{"header":{"source-path":"vkcube.f1.gfxr","json-version":"0.8.0","gfxrecon-version":"0.9.15-dev","vulkan-version":"1.3.224"}}
-{"index":0,"function":{"name":"vkCreateInstance","return":"VK_SUCCESS","args":{"pCreateInfo":{"sType":"VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO","pNext":null,"flags":1,"pApplicationInfo":{"sType":"VK_S...
-{"index":1,"function":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":null}}}
-{"index":2,"function":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":[2,3,4]}}}
-{"index":3,"function":{"name":"vkGetPhysicalDeviceProperties","args":{"physicalDevice":2,"pProperties":{"apiVersion":4206786,"driverVersion":2140487808,"vendorID":4318,"deviceID":9568,"deviceType":"V...
-{"index":4,"function":{"name":"vkGetPhysicalDeviceProperties","args":{"physicalDevice":3,"pProperties":{"apiVersion":4206796,"driverVersion":92274693,"vendorID":32902,"deviceID":18086,"deviceType":"V...
-{"index":5,"function":{"name":"vkGetPhysicalDeviceProperties","args":{"physicalDevice":4,"pProperties":{"apiVersion":4202700,"driverVersion":1,"vendorID":65541,"deviceID":0,"deviceType":"VK_PHYSICAL_...
-{"index":6,"function":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":null}}}
-{"index":7,"function":{"name":"vkEnumeratePhysicalDevices","return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":3,"pPhysicalDevices":[2,3,4]}}}
+{"header":{"source-path":"..\\captures\\vkcube_frames_1_through_20_20240321T112609.gfxr","gfxrecon-version":"1.0.3-dev (dev:52a52d3+dx12)","vulkan-version":"1.3.280"}}
+{"index":1,"annotation":{"type":"kJson","label":"operation","data":"{\n    \"tool\": \"capture\",\n    \"timestamp\": \"2024-03-21T15:26:09Z\",\n    \"gfxrecon-version\": \"1.0.3-dev (dev:52a52d3+dx12...
+{"index":2,"function":{"name":"vkCreateInstance","thread":1,"return":"VK_SUCCESS","args":{"pCreateInfo":...{"sType":"VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO","flags":"0x00000001","pApplicationInfo":{"sTyp...
+{"index":3,"function":{"name":"vkEnumeratePhysicalDevices","thread":1,"return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":2,"pPhysicalDevices":null}}}
+{"index":4,"function":{"name":"vkEnumeratePhysicalDevices","thread":1,"return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":2,"pPhysicalDevices":[2,3]}}}
+{"index":5,"meta":{"name":"SetDevicePropertiesCommand","args":{"physical_device_id":2,"api_version":4206842,"driver_version":1659359,"vendor_id":32902,"device_id":18086,"device_type":1,"pipeline_cache...
+{"index":6,"meta":{"name":"SetDeviceMemoryPropertiesCommand","args":{"physical_device_id":2}}}...
+{"index":7,"meta":{"name":"SetDevicePropertiesCommand","args":{"physical_device_id":3,"api_version":4206852,"driver_version":2287403008,"vendor_id":4318,"device_id":9632,"device_type":2,"pipeline_cach...
+{"index":8,"meta":{"name":"SetDeviceMemoryPropertiesCommand","args":{"physical_device_id":3}}}
+{"index":9,"function":{"name":"vkEnumeratePhysicalDevices","thread":1,"return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":2,"pPhysicalDevices":null}}}
 
 ```
 
