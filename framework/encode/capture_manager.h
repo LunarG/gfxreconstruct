@@ -284,7 +284,7 @@ class CaptureManager
     util::Keyboard                    keyboard_;
     std::string                       screenshot_prefix_;
     util::ScreenshotFormat            screenshot_format_;
-    static std::atomic<uint64_t>      block_index_;
+    std::atomic<uint64_t>             block_index_;
 
     void WriteToFile(const void* data, size_t size);
 

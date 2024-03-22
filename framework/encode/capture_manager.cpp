@@ -55,7 +55,6 @@ uint32_t                                                 CaptureManager::instanc
 std::mutex                                               CaptureManager::instance_lock_;
 thread_local std::unique_ptr<CaptureManager::ThreadData> CaptureManager::thread_data_;
 CaptureManager::ApiCallMutexT                            CaptureManager::api_call_mutex_;
-std::atomic<uint64_t>                                    CaptureManager::block_index_          = 0;
 std::function<void()>                                    CaptureManager::delete_instance_func_ = nullptr;
 
 std::atomic<format::HandleId> CaptureManager::unique_id_counter_{ format::kNullHandleId };
@@ -97,9 +96,9 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
     queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
-    accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
-    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false)
+    debug_device_lost_(false), screenshot_prefix_(""), block_index_(0), screenshots_enabled_(false),
+    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false),
+    queue_zero_only_(false), allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false)
 {}
 
 CaptureManager::~CaptureManager()

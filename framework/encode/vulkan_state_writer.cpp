@@ -99,6 +99,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     marker.frame_number = frame_number;
     output_stream_->Write(&marker, sizeof(marker));
 
+    // For the Begin Marker meta command
+    ++blocks_written_;
+
     // Instance, device, and queue creation.
     StandardCreateWrite<InstanceWrapper>(state_table);
     WritePhysicalDeviceState(state_table);
@@ -1871,7 +1874,6 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkMapMemory, &parameter_stream_);
             parameter_stream_.Reset();
-            ++blocks_written_;
         }
     });
 }
