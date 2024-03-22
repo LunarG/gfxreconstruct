@@ -229,7 +229,7 @@ Solution menu item.
 
 Building on Linux requires the installation of the following packages:
 
-- A C++ compiler with C++-14 support
+- A C++ compiler with C++-17 support
 - Git
 - CMake
 - X11 + XCB and/or Wayland development libraries

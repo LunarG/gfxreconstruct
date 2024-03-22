@@ -13,7 +13,6 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/hash.h
-                   ${GFXRECON_SOURCE_DIR}/framework/util/hash.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/image_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/image_writer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/keyboard.h

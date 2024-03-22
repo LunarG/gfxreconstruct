@@ -1018,8 +1018,11 @@ Dx12StateTracker::CommitAccelerationStructureCopyInfo(DxAccelerationStructureCop
     // Mark that the source acceleration structure was copied.
     source_build_info.was_copy_source = true;
 
-    // TODO: Set dest_size from post build info.
-    dest_build_info.dest_size = 1;
+    if (D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_CLONE != accel_struct_copy.mode)
+    {
+        // TODO: Set dest_size from post build info.
+        dest_build_info.dest_size = 1;
+    }
 
     inputs_data_resource = dest_build_info.input_data_resource;
 

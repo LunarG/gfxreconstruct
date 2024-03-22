@@ -71,7 +71,6 @@ struct HandleWrapper
 
 // clang-format off
 struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
-struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
 struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
 struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
@@ -500,6 +499,13 @@ struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
     VkObjectType   object_type{ VK_OBJECT_TYPE_UNKNOWN };
     uint64_t       object_handle{ 0 };
     uint64_t       data{ 0 };
+};
+
+struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
+{
+    DeviceWrapper*            device{ nullptr };
+    VkPipelineCacheCreateInfo create_info;
+    std::vector<uint8_t>      cache_data;
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.

@@ -6107,6 +6107,36 @@ template <> std::string ToString<VkLayerSettingTypeEXT>(const VkLayerSettingType
     return "Unhandled VkLayerSettingTypeEXT";
 }
 
+template <> std::string ToString<VkLatencyMarkerNV>(const VkLatencyMarkerNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_LATENCY_MARKER_SIMULATION_START_NV: return "VK_LATENCY_MARKER_SIMULATION_START_NV";
+    case VK_LATENCY_MARKER_SIMULATION_END_NV: return "VK_LATENCY_MARKER_SIMULATION_END_NV";
+    case VK_LATENCY_MARKER_RENDERSUBMIT_START_NV: return "VK_LATENCY_MARKER_RENDERSUBMIT_START_NV";
+    case VK_LATENCY_MARKER_RENDERSUBMIT_END_NV: return "VK_LATENCY_MARKER_RENDERSUBMIT_END_NV";
+    case VK_LATENCY_MARKER_PRESENT_START_NV: return "VK_LATENCY_MARKER_PRESENT_START_NV";
+    case VK_LATENCY_MARKER_PRESENT_END_NV: return "VK_LATENCY_MARKER_PRESENT_END_NV";
+    case VK_LATENCY_MARKER_INPUT_SAMPLE_NV: return "VK_LATENCY_MARKER_INPUT_SAMPLE_NV";
+    case VK_LATENCY_MARKER_TRIGGER_FLASH_NV: return "VK_LATENCY_MARKER_TRIGGER_FLASH_NV";
+    case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV";
+    case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV";
+    case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV";
+    case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV: return "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV";
+    default: break;
+    }
+    return "Unhandled VkLatencyMarkerNV";
+}
+
+template <> std::string ToString<VkOutOfBandQueueTypeNV>(const VkOutOfBandQueueTypeNV& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV: return "VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV";
+    case VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV: return "VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV";
+    default: break;
+    }
+    return "Unhandled VkOutOfBandQueueTypeNV";
+}
+
 template <> std::string ToString<VkBlockMatchWindowCompareModeQCOM>(const VkBlockMatchWindowCompareModeQCOM& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
