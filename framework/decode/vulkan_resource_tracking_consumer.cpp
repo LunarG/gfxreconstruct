@@ -226,6 +226,8 @@ void VulkanResourceTrackingConsumer::Process_vkCreateDevice(
             device_info.SetReplayDevicePhysicalMemoryProperties(
                 physical_device_info->GetReplayDevicePhysicalMemoryProperties());
 
+            device_info.SetCapturePhysicalDeviceId(physical_device_info->GetCaptureId());
+
             GetTrackedObjectInfoTable()->AddTrackedDeviceInfo(std::move(device_info));
             AddDeviceTable(*replay_device, get_device_proc_addr);
         }
@@ -380,6 +382,7 @@ void VulkanResourceTrackingConsumer::Process_vkCreateImage(
         image_info.SetImageReplayHandleId(*replay_image);
         image_info.SetCaptureId(*(image->GetPointer()));
         image_info.SetImageFlag(true);
+        image_info.SetCaptureDeviceId(in_device->GetCaptureId());
         GetTrackedObjectInfoTable()->AddTrackedResourceInfo(std::move(image_info));
     }
 }
@@ -886,6 +889,115 @@ void VulkanResourceTrackingConsumer::CalculateReplayBindingOffsetAndMemoryAlloca
             iterator.second = tracked_device_memory;
         }
     }
+}
+
+void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout(
+    const ApiCallInfo&                                 call_info,
+    format::HandleId                                   device,
+    format::HandleId                                   image,
+    StructPointerDecoder<Decoded_VkImageSubresource>*  pSubresource,
+    StructPointerDecoder<Decoded_VkSubresourceLayout>* pLayout)
+{
+    auto                device_info         = GetTrackedObjectInfoTable()->GetTrackedDeviceInfo(device);
+    auto                image_info          = GetTrackedObjectInfoTable()->GetTrackedResourceInfo(image);
+    VkDevice            in_device           = device_info->GetHandleId();
+    VkImage             in_image            = image_info->GetImageReplayHandleId();
+    auto                layout_capture_time = pLayout->GetPointer();
+    VkSubresourceLayout subresource_layout_playback_time;
+
+    GFXRECON_ASSERT(layout_capture_time);
+    GetDeviceTable(in_device)->GetImageSubresourceLayout(
+        in_device, in_image, pSubresource->GetPointer(), &subresource_layout_playback_time);
+    image_info->SetImageSubresourceLayout(
+        pSubresource->GetPointer(), layout_capture_time, &subresource_layout_playback_time);
+}
+
+void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout2KHR(
+    const ApiCallInfo&                                     call_info,
+    format::HandleId                                       device,
+    format::HandleId                                       image,
+    StructPointerDecoder<Decoded_VkImageSubresource2KHR>*  pSubresource,
+    StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
+{
+    auto                    device_info = GetTrackedObjectInfoTable()->GetTrackedDeviceInfo(device);
+    auto                    image_info  = GetTrackedObjectInfoTable()->GetTrackedResourceInfo(image);
+    VkDevice                in_device   = device_info->GetHandleId();
+    VkImage                 in_image    = image_info->GetImageReplayHandleId();
+    VkSubresourceLayout2KHR subresource_layout_playback_time;
+    auto                    layout_capture_time = pLayout->GetPointer();
+
+    GFXRECON_ASSERT(layout_capture_time);
+
+    GetDeviceTable(in_device)->GetImageSubresourceLayout2KHR(
+        in_device, in_image, pSubresource->GetPointer(), &subresource_layout_playback_time);
+    image_info->SetImageSubresourceLayout(&pSubresource->GetPointer()->imageSubresource,
+                                          &layout_capture_time->subresourceLayout,
+                                          &subresource_layout_playback_time.subresourceLayout);
+}
+
+void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout2EXT(
+    const ApiCallInfo&                                     call_info,
+    format::HandleId                                       device,
+    format::HandleId                                       image,
+    StructPointerDecoder<Decoded_VkImageSubresource2KHR>*  pSubresource,
+    StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout)
+{
+    auto                    device_info = GetTrackedObjectInfoTable()->GetTrackedDeviceInfo(device);
+    auto                    image_info  = GetTrackedObjectInfoTable()->GetTrackedResourceInfo(image);
+    VkDevice                in_device   = device_info->GetHandleId();
+    VkImage                 in_image    = image_info->GetImageReplayHandleId();
+    VkSubresourceLayout2KHR subresource_layout_playback_time;
+    auto                    layout_capture_time = pLayout->GetPointer();
+
+    GFXRECON_ASSERT(layout_capture_time);
+
+    GetDeviceTable(in_device)->GetImageSubresourceLayout2EXT(
+        in_device, in_image, pSubresource->GetPointer(), &subresource_layout_playback_time);
+    image_info->SetImageSubresourceLayout(&pSubresource->GetPointer()->imageSubresource,
+                                          &layout_capture_time->subresourceLayout,
+                                          &subresource_layout_playback_time.subresourceLayout);
+}
+
+void VulkanResourceTrackingConsumer::Process_vkGetPhysicalDeviceProperties(
+    const ApiCallInfo&                                        call_info,
+    format::HandleId                                          physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties)
+{
+    auto             physical_device_info = GetTrackedObjectInfoTable()->GetTrackedPhysicalDeviceInfo(physicalDevice);
+    VkPhysicalDevice physical_device      = physical_device_info->GetHandleId();
+    VkPhysicalDeviceProperties replay_properties;
+
+    GetInstanceTable(physical_device)->GetPhysicalDeviceProperties(physical_device, &replay_properties);
+    physical_device_info->SetCaptureDevicePhysicalProperties(*pProperties->GetPointer());
+    physical_device_info->SetReplayDevicePhysicalProperties(replay_properties);
+}
+
+void VulkanResourceTrackingConsumer::Process_vkGetPhysicalDeviceProperties2(
+    const ApiCallInfo&                                         call_info,
+    format::HandleId                                           physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
+{
+    auto             physical_device_info = GetTrackedObjectInfoTable()->GetTrackedPhysicalDeviceInfo(physicalDevice);
+    VkPhysicalDevice physical_device      = physical_device_info->GetHandleId();
+    VkPhysicalDeviceProperties2 replay_properties;
+
+    GetInstanceTable(physical_device)->GetPhysicalDeviceProperties2(physical_device, &replay_properties);
+    physical_device_info->SetCaptureDevicePhysicalProperties(pProperties->GetPointer()->properties);
+    physical_device_info->SetReplayDevicePhysicalProperties(replay_properties.properties);
+}
+
+void VulkanResourceTrackingConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
+    const ApiCallInfo&                                         call_info,
+    format::HandleId                                           physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
+{
+    auto             physical_device_info = GetTrackedObjectInfoTable()->GetTrackedPhysicalDeviceInfo(physicalDevice);
+    VkPhysicalDevice physical_device      = physical_device_info->GetHandleId();
+    VkPhysicalDeviceProperties2 replay_properties;
+
+    GetInstanceTable(physical_device)->GetPhysicalDeviceProperties2KHR(physical_device, &replay_properties);
+    physical_device_info->SetCaptureDevicePhysicalProperties(pProperties->GetPointer()->properties);
+    physical_device_info->SetReplayDevicePhysicalProperties(replay_properties.properties);
 }
 
 GFXRECON_END_NAMESPACE(decode)

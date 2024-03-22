@@ -173,6 +173,41 @@ class VulkanResourceTrackingConsumer : public VulkanConsumer
 
     void CalculateReplayBindingOffsetAndMemoryAllocationSize();
 
+    void Process_vkGetImageSubresourceLayout(const ApiCallInfo&                                 call_info,
+                                             format::HandleId                                   device,
+                                             format::HandleId                                   image,
+                                             StructPointerDecoder<Decoded_VkImageSubresource>*  pSubresource,
+                                             StructPointerDecoder<Decoded_VkSubresourceLayout>* pLayout) override;
+
+    void
+    Process_vkGetImageSubresourceLayout2KHR(const ApiCallInfo&                                     call_info,
+                                            format::HandleId                                       device,
+                                            format::HandleId                                       image,
+                                            StructPointerDecoder<Decoded_VkImageSubresource2KHR>*  pSubresource,
+                                            StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout) override;
+
+    void
+    Process_vkGetImageSubresourceLayout2EXT(const ApiCallInfo&                                     call_info,
+                                            format::HandleId                                       device,
+                                            format::HandleId                                       image,
+                                            StructPointerDecoder<Decoded_VkImageSubresource2KHR>*  pSubresource,
+                                            StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout) override;
+
+    void Process_vkGetPhysicalDeviceProperties(
+        const ApiCallInfo&                                        call_info,
+        format::HandleId                                          physicalDevice,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties) override;
+
+    void Process_vkGetPhysicalDeviceProperties2(
+        const ApiCallInfo&                                         call_info,
+        format::HandleId                                           physicalDevice,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties) override;
+
+    void Process_vkGetPhysicalDeviceProperties2KHR(
+        const ApiCallInfo&                                         call_info,
+        format::HandleId                                           physicalDevice,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties) override;
+
   protected:
     VulkanTrackedObjectInfoTable* GetTrackedObjectInfoTable() { return tracked_object_info_table_; }
 

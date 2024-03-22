@@ -80,6 +80,11 @@ TrackedDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceInfo(format::Ha
     return GetTrackedObjectInfo<TrackedDeviceInfo>(id, &tracked_device_map_);
 }
 
+const TrackedDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceInfo(format::HandleId id) const
+{
+    return GetTrackedObjectInfo<TrackedDeviceInfo>(id, &tracked_device_map_);
+}
+
 // Return specified handle ID's device memory information from the tracked memories information table map
 TrackedDeviceMemoryInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoryInfo(format::HandleId id)
 {
