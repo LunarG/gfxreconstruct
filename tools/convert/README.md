@@ -101,7 +101,7 @@ Following the header there may be an annotation block containing metadata about 
   "annotation": {
     "type": "kJson",
     "label": "operation",
-    "data": "{\n    \"tool\": \"capture\",\n    \"timestamp\": \"2024-02-22T20:22:52Z\",\n    \"gfxrecon-version\": \"1.0.3-dev (dev:fc05196+dx12)\",\n    \"vulkan-version\": \"1.3.275\",\n    \"capture-parameters\": \n    {\n    \"file-flush\": true\n    }\n}"
+    "data": "{\n    \"tool\": \"capture\",\n    \"timestamp\": \"2024-03-21T15:26:09Z\",\n    \"gfxrecon-version\": \"1.0.3-dev (dev:52a52d3+dx12)\",\n    \"vulkan-version\": \"1.3.280\"\n}"
   }
 }
 ```
@@ -114,33 +114,34 @@ representing the position of the call in the sequence recorded in the capture.
 
 ```json
 {
-  "index": 0,
+  "index": 2,
   "function": {
     "name": "vkCreateInstance",
+    "thread": 1,
     "return": "VK_SUCCESS",
     "args": {
       "pCreateInfo": {
         "sType": "VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO",
-        "pNext": null,
-        "flags": 1,
+        "flags": "0x00000001",
         "pApplicationInfo": {
           "sType": "VK_STRUCTURE_TYPE_APPLICATION_INFO",
-          "pNext": null,
           "pApplicationName": "vkcube",
           "applicationVersion": 0,
           "pEngineName": "vkcube",
           "engineVersion": 0,
-          "apiVersion": 4194304
+          "apiVersion": 4194304,
+          "pNext": null
         },
         "enabledLayerCount": 0,
         "ppEnabledLayerNames": null,
         "enabledExtensionCount": 4,
         "ppEnabledExtensionNames": [
-          "VK_KHR_get_physical_device_properties2",
           "VK_KHR_surface",
-          "VK_KHR_xcb_surface",
+          "VK_KHR_win32_surface",
+          "VK_KHR_get_physical_device_properties2",
           "VK_KHR_portability_enumeration"
-        ]
+        ],
+        "pNext": null
       },
       "pAllocator": null,
       "pInstance": 1
@@ -225,6 +226,8 @@ interpreted as an unsigned decimal integer.
 Tools written now should test whether masks are represented as JSON numbers and
 fail gracefully if not as some changes are anticipated to this aspect of the
 JSON Lines file format.
+The --expand-flags argument can be provided in order to output flags as their symbolic
+representation instead of as an integer literal.
 In D3D12 conversions, bitfields are expressed as '0bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 with as many x's as there are bits.
 
