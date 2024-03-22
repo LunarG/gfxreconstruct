@@ -830,6 +830,15 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderCoreBuiltin
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT; }
+template <> constexpr VkStructureType GetSType<VkLatencySleepModeInfoNV>(){ return VK_STRUCTURE_TYPE_LATENCY_SLEEP_MODE_INFO_NV; }
+template <> constexpr VkStructureType GetSType<VkLatencySleepInfoNV>(){ return VK_STRUCTURE_TYPE_LATENCY_SLEEP_INFO_NV; }
+template <> constexpr VkStructureType GetSType<VkSetLatencyMarkerInfoNV>(){ return VK_STRUCTURE_TYPE_SET_LATENCY_MARKER_INFO_NV; }
+template <> constexpr VkStructureType GetSType<VkLatencyTimingsFrameReportNV>(){ return VK_STRUCTURE_TYPE_LATENCY_TIMINGS_FRAME_REPORT_NV; }
+template <> constexpr VkStructureType GetSType<VkGetLatencyMarkerInfoNV>(){ return VK_STRUCTURE_TYPE_GET_LATENCY_MARKER_INFO_NV; }
+template <> constexpr VkStructureType GetSType<VkLatencySubmissionPresentIdNV>(){ return VK_STRUCTURE_TYPE_LATENCY_SUBMISSION_PRESENT_ID_NV; }
+template <> constexpr VkStructureType GetSType<VkSwapchainLatencyCreateInfoNV>(){ return VK_STRUCTURE_TYPE_SWAPCHAIN_LATENCY_CREATE_INFO_NV; }
+template <> constexpr VkStructureType GetSType<VkOutOfBandQueueTypeInfoNV>(){ return VK_STRUCTURE_TYPE_OUT_OF_BAND_QUEUE_TYPE_INFO_NV; }
+template <> constexpr VkStructureType GetSType<VkLatencySurfaceCapabilitiesNV>(){ return VK_STRUCTURE_TYPE_LATENCY_SURFACE_CAPABILITIES_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM; }
 template <> constexpr VkStructureType GetSType<VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM>(){ return VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDevicePerStageDescriptorSetFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PER_STAGE_DESCRIPTOR_SET_FEATURES_NV; }
