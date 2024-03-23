@@ -205,7 +205,7 @@ bool PageGuardManager::UffdInit()
         // enable for api version and check features
         struct uffdio_api uffdio_api;
         uffdio_api.api      = UFFD_API;
-        uffdio_api.features = UFFD_FEATURE_PAGEFAULT_FLAG_WP | UFFD_FEATURE_THREAD_ID;
+        uffdio_api.features = UFFD_FEATURE_THREAD_ID;
         if (ioctl(uffd_fd_, UFFDIO_API, &uffdio_api) == -1)
         {
             GFXRECON_LOG_ERROR("ioctl/uffdio_api: %s", strerror(errno));
@@ -220,7 +220,7 @@ bool PageGuardManager::UffdInit()
             return false;
         }
 
-        const uint64_t required_features[] = { UFFD_FEATURE_PAGEFAULT_FLAG_WP, UFFD_FEATURE_THREAD_ID };
+        const uint64_t required_features[] = { UFFD_FEATURE_THREAD_ID };
         for (size_t i = 0; i < sizeof(required_features) / sizeof(required_features[0]); ++i)
         {
             if ((uffdio_api.features & required_features[i]) != required_features[i])
@@ -549,7 +549,7 @@ bool PageGuardManager::UffdRegisterMemory(const void* address, size_t length)
     struct uffdio_register uffdio_register;
     uffdio_register.range.start = GFXRECON_PTR_TO_UINT64(address);
     uffdio_register.range.len   = length;
-    uffdio_register.mode        = UFFDIO_REGISTER_MODE_WP | UFFDIO_REGISTER_MODE_MISSING;
+    uffdio_register.mode        = UFFDIO_REGISTER_MODE_MISSING;
     if (ioctl(uffd_fd_, UFFDIO_REGISTER, &uffdio_register) == -1)
     {
         GFXRECON_LOG_ERROR("ioctl/uffdio_register: %s", strerror(errno));
@@ -564,17 +564,6 @@ bool PageGuardManager::UffdRegisterMemory(const void* address, size_t length)
         GFXRECON_LOG_ERROR("Unexpected userfaultfd ioctl set (expected: 0x%llx got: 0x%llx)\n",
                            expected_ioctls,
                            uffdio_register.ioctls);
-        return false;
-    }
-
-    struct uffdio_writeprotect prot_p;
-    prot_p.range.start = GFXRECON_PTR_TO_UINT64(address);
-    prot_p.range.len   = length;
-    prot_p.mode        = UFFDIO_WRITEPROTECT_MODE_WP;
-    if (ioctl(uffd_fd_, UFFDIO_WRITEPROTECT, &prot_p))
-    {
-        GFXRECON_LOG_ERROR("ioctl/uffdio_writeprotect: %s\n", strerror(errno));
-
         return false;
     }
 
