@@ -1,6 +1,7 @@
 /*
-** Copyright (c) 2020 Valve Corporation
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2021 Samsung
+** Copyright (c) 2023 Google
+** Copyright (c) 2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,25 +22,34 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "util/hash.h"
+/*
+** This file is generated from the Khronos Vulkan XML API Registry.
+**
+*/
+
+#ifndef  GFXRECON_GENERATED_VULKAN_CPP_CONSUMER_EXTENSION_H
+#define  GFXRECON_GENERATED_VULKAN_CPP_CONSUMER_EXTENSION_H
+
+#include "util/defines.h"
+#include "vulkan/vulkan.h"
+#include "vk_video/vulkan_video_codec_h264std.h"
+#include "vk_video/vulkan_video_codec_h264std_decode.h"
+#include "vk_video/vulkan_video_codec_h264std_encode.h"
+#include "vk_video/vulkan_video_codec_h265std.h"
+#include "vk_video/vulkan_video_codec_h265std_decode.h"
+#include "vk_video/vulkan_video_codec_h265std_encode.h"
+#include "vk_video/vulkan_video_codecs_common.h"
+
+#include <iostream>
+#include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
-GFXRECON_BEGIN_NAMESPACE(hash)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
-uint32_t CheckSum(const uint32_t* code, size_t code_size)
-{
-    uint32_t sum            = 0;
-    size_t   uint_code_size = code_size / sizeof(uint32_t);
-    for (size_t i = 0; i < uint_code_size; i++)
-    {
-        uint32_t u = code[i];
-        uint32_t s = i % 32;
-        sum ^= (u << s) | (u >> (32 - s));
-    }
-    return sum;
-}
+class VulkanCppConsumerBase;
+std::string GenerateExtension(std::ostream& out, const void* struct_info, void* meta_info, VulkanCppConsumerBase& consumer);
 
-GFXRECON_END_NAMESPACE(hash)
-GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif

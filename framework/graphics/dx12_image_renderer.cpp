@@ -70,6 +70,9 @@ void DX12ImageRenderer::ConvertR8G8B8A8ToB8G8R8A8(std::vector<char>& data, UINT 
 
 void DX12ImageRenderer::ConvertR10G10B10A2ToB8G8R8A8(std::vector<char>& data, UINT width, UINT height, UINT pitch)
 {
+    GFXRECON_LOG_INFO_ONCE("Converting image data form R10G10B10A2 to B8G8R8A8. Image RGB data will be truncated to 8 "
+                           "bits and alpha data will be set to 0xFF.");
+
     uint32_t* pixel;
     uint32_t  r16, g16, b16, a16, b8g8r8a8;
     for (UINT j = 0; j < height; j++)
@@ -78,10 +81,14 @@ void DX12ImageRenderer::ConvertR10G10B10A2ToB8G8R8A8(std::vector<char>& data, UI
         {
             pixel = (uint32_t*)((uint8_t*)&data[0] + i * 4 + j * pitch);
 
-            r16      = ((*pixel >> 0U) & 0x3FFU) << 6U;
-            g16      = ((*pixel >> 10U) & 0x3FFU) << 6U;
-            b16      = ((*pixel >> 20U) & 0x3FFU) << 6U;
-            a16      = ((*pixel >> 30U) & 0x03U) << 14U;
+            r16 = ((*pixel >> 0U) & 0x3FFU) << 6U;
+            g16 = ((*pixel >> 10U) & 0x3FFU) << 6U;
+            b16 = ((*pixel >> 20U) & 0x3FFU) << 6U;
+
+            // Ignore 2-bit alpha, generate opaque image data.
+            a16 = 0xFFFFU;
+
+            // This truncates 10bit RGB channels to 8 bits.
             b8g8r8a8 = ((b16 >> 8U) << 0U) | ((g16 >> 8U) << 8U) | ((r16 >> 8U) << 16U) | ((a16 >> 8U) << 24U);
             *pixel   = b8g8r8a8;
         }

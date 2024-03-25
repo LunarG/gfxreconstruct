@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,19 @@
 /// It is also worth checking http://gpuopen.com/gaming-product/amd-gpu-services-ags-library/ for any updates and
 /// articles on AGS. \internal Online documentation is publicly hosted here:
 /// http://gpuopen-librariesandsdks.github.io/ags/ \endinternal
+///
+/// ---------------------------------------
+/// What's new in AGS 6.2 since version 6.1
+/// ---------------------------------------
+/// AGS 6.2 includes the following updates:
+/// * Shader clock intrinsics
+/// * Minor improvements and fixes
+///
+/// ---------------------------------------
+/// What's new in AGS 6.1 since version 6.0
+/// ---------------------------------------
+/// AGS 6.1 includes the following updates:
+/// * RDNA3 detection
 ///
 /// ---------------------------------------
 /// What's new in AGS 6.0 since version 5.4.2
@@ -109,8 +122,8 @@
 #define AMD_AGS_H
 
 #define AMD_AGS_VERSION_MAJOR 6 ///< AGS major version
-#define AMD_AGS_VERSION_MINOR 0 ///< AGS minor version
-#define AMD_AGS_VERSION_PATCH 1 ///< AGS patch version
+#define AMD_AGS_VERSION_MINOR 2 ///< AGS minor version
+#define AMD_AGS_VERSION_PATCH 0 ///< AGS patch version
 
 #ifdef __cplusplus
 extern "C"
@@ -130,6 +143,11 @@ extern "C"
      patch) ///< Macro to create the app and engine versions for the fields in \ref AGSDX12ExtensionParams and \ref
             ///< AGSDX11ExtensionParams and the Radeon Software Version
 #define AGS_UNSPECIFIED_VERSION 0xFFFFAD00 ///< Use this to specify no version
+#define AGS_CURRENT_VERSION    \
+    AGS_MAKE_VERSION(          \
+        AMD_AGS_VERSION_MAJOR, \
+        AMD_AGS_VERSION_MINOR, \
+        AMD_AGS_VERSION_PATCH) ///< Macro to return the current AGS version as defined by the AGS header file
     /// @}
 
 #if !defined(AGS_DIRECTX_TYPES_INCLUDED)
@@ -177,7 +195,8 @@ extern "C"
         AGS_NO_AMD_DRIVER_INSTALLED, ///< Returned if the AMD GPU driver does not appear to be installed
         AGS_EXTENSION_NOT_SUPPORTED, ///< Returned if the driver does not support the requested driver extension
         AGS_ADL_FAILURE,             ///< Failure in ADL (the AMD Display Library)
-        AGS_DX_FAILURE               ///< Failure from DirectX runtime
+        AGS_DX_FAILURE,              ///< Failure from DirectX runtime
+        AGS_D3DDEVICE_NOT_CREATED    ///< Failure due to not creating the D3D device successfully via AGS.
     } AGSReturnCode;
 
     /// @}
@@ -264,6 +283,7 @@ extern "C"
             AsicFamily_Vega, ///< AMD Vega architecture, including Raven Ridge (ie AMD Ryzen CPU + AMD Vega GPU).
             AsicFamily_RDNA, ///< AMD RDNA architecture
             AsicFamily_RDNA2, ///< AMD RDNA2 architecture
+            AsicFamily_RDNA3, ///< AMD RDNA3 architecture
 
             AsicFamily_Count ///< Number of enumerated ASIC families
         } AsicFamily;
@@ -409,20 +429,20 @@ extern "C"
 
     ///
     /// Function used to initialize the AGS library.
-    /// agsVersion must be specified as AGS_MAKE_VERSION( AMD_AGS_VERSION_MAJOR, AMD_AGS_VERSION_MINOR,
-    /// AMD_AGS_VERSION_PATCH ) or the call will return \ref AGS_INVALID_ARGS. Must be called prior to any of the
-    /// subsequent AGS API calls. Must be called prior to ID3D11Device or ID3D12Device creation. \note The caller of
-    /// this function should handle the possibility of the call failing in the cases below. One option is to do a vendor
-    /// id check and only call \ref agsInitialize if there is an AMD GPU present. \note This function will fail with
-    /// \ref AGS_NO_AMD_DRIVER_INSTALLED if there is no AMD driver found on the system. \note This function will fail
-    /// with \ref AGS_LEGACY_DRIVER in Catalyst versions before 12.20.
+    /// agsVersion must be specified as AGS_CURRENT_VERSION or the call will return \ref AGS_INVALID_ARGS.
+    /// Must be called prior to any of the subsequent AGS API calls.
+    /// Must be called prior to ID3D11Device or ID3D12Device creation.
+    /// \note The caller of this function should handle the possibility of the call failing in the cases below. One
+    /// option is to do a vendor id check and only call \ref agsInitialize if there is an AMD GPU present. \note This
+    /// function will fail with \ref AGS_NO_AMD_DRIVER_INSTALLED if there is no AMD driver found on the system. \note
+    /// This function will fail with \ref AGS_LEGACY_DRIVER in Catalyst versions before 12.20.
     ///
-    /// \param [in] agsVersion                          The API version specified using the \ref AGS_MAKE_VERSION macro.
-    /// If this does not match the version in the binary this initialization call will fail. \param [in] config Optional
-    /// pointer to a AGSConfiguration struct to override the default library configuration. \param [out] context Address
-    /// of a pointer to a context. This function allocates a context on the heap which is then required for all
-    /// subsequent API calls. \param [out] gpuInfo                            Optional pointer to a AGSGPUInfo struct
-    /// which will get filled in for all the GPUs in the system.
+    /// \param [in] agsVersion                          The API version specified using the \ref AGS_CURRENT_VERSION
+    /// macro. If this does not match the version in the binary this initialization call will fail. \param [in] config
+    /// Optional pointer to a AGSConfiguration struct to override the default library configuration. \param [out]
+    /// context                            Address of a pointer to a context. This function allocates a context on the
+    /// heap which is then required for all subsequent API calls. \param [out] gpuInfo Optional pointer to a AGSGPUInfo
+    /// struct which will get filled in for all the GPUs in the system.
     ///
     AMD_AGS_API AGSReturnCode agsInitialize(int                     agsVersion,
                                             const AGSConfiguration* config,
@@ -455,6 +475,47 @@ extern "C"
                                                 int                       displayIndex,
                                                 const AGSDisplaySettings* settings);
 
+    /// @}
+
+    /// @}
+
+    /// \defgroup dxappreg App Registration
+    /// @{
+    /// This extension allows an application to voluntarily register itself with the driver, providing a more robust app
+    /// detection solution and avoid the issue of the driver relying on exe names to match the app to a driver profile.
+    /// It is available when creating the device for both DirectX11 and DirectX12 via \ref
+    /// agsDriverExtensionsDX11_CreateDevice and \ref agsDriverExtensionsDX12_CreateDevice respectively. This feature is
+    /// supported in Radeon Software Version 17.9.2 onwards. Rules:
+    /// * AppName or EngineName must be set, but both are not required. Engine profiles will be used only if app
+    /// specific profiles do not exist.
+    /// * In an engine, the EngineName should be set, so a default profile can be built. If an app modifies the engine,
+    /// the AppName should be set, to allow a profile for the specific app.
+    /// * Version number is not mandatory, but recommended. The use of which can prevent the use of profiles for
+    /// incompatible versions (for instance engine versions that introduce or change features), and can help prevent
+    /// older profiles from being used (and introducing new bugs) before the profile is tested with new app builds.
+    /// * If Version numbers are used and a new version is introduced, a new profile will not be enabled until an AMD
+    /// engineer has been able to update a previous profile, or make a new one.
+    ///
+    /// The cases for profile selection are as follows:
+    ///
+    /// |Case|Profile Applied|
+    /// |----|---------------|
+    /// | App or Engine Version has profile | The profile is used. |
+    /// | App or Engine Version num < profile version num | The closest profile > the version number is used. |
+    /// | App or Engine Version num > profile version num | No profile selected/The previous method is used. |
+    /// | App and Engine Version have profile | The App's profile is used. |
+    /// | App and Engine Version num < profile version | The closest App profile > the version number is used. |
+    /// | App and Engine Version, no App profile found | The Engine profile will be used. |
+    /// | App/Engine name but no Version, has profile | The latest profile is used. |
+    /// | No name or version, or no profile | The previous app detection method is used. |
+    ///
+    /// As shown above, if an App name is given, and a profile is found for that app, that will be prioritized. The
+    /// Engine name and profile will be used only if no app name is given, or no viable profile is found for the app
+    /// name. In the case that App nor Engine have a profile, the previous app detection methods will be used. If given
+    /// a version number that is larger than any profile version number, no profile will be selected. This is
+    /// specifically to prevent cases where an update to an engine or app will cause catastrophic breaks in the profile,
+    /// allowing an engineer to test the profile before clearing it for public use with the new engine/app update.
+    ///
     /// @}
 
     /// \defgroup dx12 DirectX12 Extensions
@@ -507,35 +568,37 @@ extern "C"
             unsigned int floatConversion : 1; ///< Supported in Radeon Software Version 20.5.1 onwards.
             unsigned int readLaneAt : 1;      ///< Supported in Radeon Software Version 20.11.2 onwards.
             unsigned int rayHitToken : 1;     ///< Supported in Radeon Software Version 20.11.2 onwards.
-            unsigned int padding : 20;        ///< Reserved
+            unsigned int shaderClock : 1;     ///< Supported in Radeon Software Version 23.1.1 onwards.
+            unsigned int padding : 19;        ///< Reserved
         } ExtensionsSupported;
         ExtensionsSupported extensionsSupported; ///< List of supported extensions
     } AGSDX12ReturnedParams;
 
     /// The space id for DirectX12 intrinsic support
-    const unsigned int AGS_DX12_SHADER_INSTRINSICS_SPACE_ID = 0x7FFF0ADE; // 2147420894
+    const unsigned int AGS_DX12_SHADER_INTRINSICS_SPACE_ID = 0x7FFF0ADE; // 2147420894
 
     ///
     /// Function used to create a D3D12 device with additional AMD-specific initialization parameters.
     ///
     /// When using the HLSL shader extensions please note:
-    /// * The shader compiler should not use the D3DCOMPILE_SKIP_OPTIMIZATION (/Od) option, otherwise it will not work.
+    /// * The shader compiler should not use the D3DCOMPILE_SKIP_OPTIMIZATION (/Od) option or /O0, otherwise it will not
+    /// work.
     /// * The shader compiler needs D3DCOMPILE_ENABLE_STRICTNESS (/Ges) enabled.
     /// * The intrinsic instructions require a 5.1 shader model.
     /// * The Root Signature will need to reserve an extra UAV resource slot. This is not a real resource that requires
     /// allocating, it is just used to encode the intrinsic instructions.
     ///
     /// The easiest way to set up the reserved UAV slot is to specify it at u0.  The register space id will
-    /// automatically be assumed to be \ref AGS_DX12_SHADER_INSTRINSICS_SPACE_ID. The HLSL expects this as default and
+    /// automatically be assumed to be \ref AGS_DX12_SHADER_INTRINSICS_SPACE_ID. The HLSL expects this as default and
     /// the set up code would look similar to this: \code{.cpp} CD3DX12_DESCRIPTOR_RANGE range[];
     /// ...
-    /// range[ 0 ].Init( D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, AGS_DX12_SHADER_INSTRINSICS_SPACE_ID ); // u0 at
+    /// range[ 0 ].Init( D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, AGS_DX12_SHADER_INTRINSICS_SPACE_ID ); // u0 at
     /// driver-reserved space id \endcode
     ///
     /// Newer drivers also support a user-specified slot in which case the register space id is assumed to be 0.  It is
     /// important that the \ref AGSDX12ReturnedParams::ExtensionsSupported::UAVBindSlot bit is set. to ensure the driver
-    /// can support this.  If not, then u0 and \ref AGS_DX12_SHADER_INSTRINSICS_SPACE_ID must be used. If the driver
-    /// does support this feature and a non zero slot is required, then the HLSL must also define
+    /// can support this.  If not, then u0 and \ref AGS_DX12_SHADER_INTRINSICS_SPACE_ID must be used. If the driver does
+    /// support this feature and a non zero slot is required, then the HLSL must also define
     /// AMD_EXT_SHADER_INTRINSIC_UAV_OVERRIDE as the matching slot value.
     ///
     /// \param [in] context                             Pointer to a context. This is generated by \ref agsInitialize
@@ -574,7 +637,7 @@ extern "C"
     ///
     /// \param [in] context                             Pointer to a context.
     /// \param [in] commandList                         Pointer to the command list.
-    /// \param [in] data                                The marker string.
+    /// \param [in] data                                The UTF-8 marker string.
     ///
     AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_PushMarker(AGSContext*                context,
                                                                  ID3D12GraphicsCommandList* commandList,
@@ -596,7 +659,7 @@ extern "C"
     ///
     /// \param [in] context                             Pointer to a context.
     /// \param [in] commandList                         Pointer to the command list.
-    /// \param [in] data                                The marker string.
+    /// \param [in] data                                The UTF-8 marker string.
     ///
     AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_SetMarker(AGSContext*                context,
                                                                 ID3D12GraphicsCommandList* commandList,
@@ -733,45 +796,6 @@ extern "C"
                                                                     ID3D11DeviceContext* immediateContext,
                                                                     unsigned int*        immediateContextReferences);
 
-    /// @}
-
-    /// \defgroup dx11appreg App Registration
-    /// @{
-    /// This extension allows an apllication to voluntarily register itself with the driver, providing a more robust app
-    /// detection solution and avoid the issue of the driver relying on exe names to match the app to a driver profile.
-    /// This feature is supported in Radeon Software Version 17.9.2 onwards.
-    /// Rules:
-    /// * AppName or EngineName must be set, but both are not required. Engine profiles will be used only if app
-    /// specific profiles do not exist.
-    /// * In an engine, the EngineName should be set, so a default profile can be built. If an app modifies the engine,
-    /// the AppName should be set, to allow a profile for the specific app.
-    /// * Version number is not mandatory, but heavily suggested. The use of which can prevent the use of profiles for
-    /// incompatible versions (for instance engine versions that introduce or change features), and can help prevent
-    /// older profiles from being used (and introducing new bugs) before the profile is tested with new app builds.
-    /// * If Version numbers are used and a new version is introduced, a new profile will not be enabled until an AMD
-    /// engineer has been able to update a previous profile, or make a new one.
-    ///
-    /// The cases for profile selection are as follows:
-    ///
-    /// |Case|Profile Applied|
-    /// |----|---------------|
-    /// | App or Engine Version has profile | The profile is used. |
-    /// | App or Engine Version num < profile version num | The closest profile > the version number is used. |
-    /// | App or Engine Version num > profile version num | No profile selected/The previous method is used. |
-    /// | App and Engine Version have profile | The App's profile is used. |
-    /// | App and Engine Version num < profile version | The closest App profile > the version number is used. |
-    /// | App and Engine Version, no App profile found | The Engine profile will be used. |
-    /// | App/Engine name but no Version, has profile | The latest profile is used. |
-    /// | No name or version, or no profile | The previous app detection method is used. |
-    ///
-    /// As shown above, if an App name is given, and a profile is found for that app, that will be prioritized. The
-    /// Engine name and profile will be used only if no app name is given, or no viable profile is found for the app
-    /// name. In the case that App nor Engine have a profile, the previous app detection methods will be used. If given
-    /// a version number that is larger than any profile version number, no profile will be selected. This is
-    /// specifically to prevent cases where an update to an engine or app will cause catastrophic  breaks in the
-    /// profile, allowing an engineer to test the profile before clearing it for public use with the new engine/app
-    /// update.
-    ///
     /// @}
 
     /// \defgroup breadcrumbs Breadcrumb API
@@ -1000,11 +1024,11 @@ extern "C"
     /// @{
 
     /// Additional topologies supported via extensions
-    typedef enum AGSPrimitiveTopology
+    typedef enum AGSPrimitiveTopologyDX11
     {
         AGS_PRIMITIVE_TOPOLOGY_QUADLIST       = 7, ///< Quad list
         AGS_PRIMITIVE_TOPOLOGY_SCREENRECTLIST = 9  ///< Screen rect list
-    } AGSPrimitiveTopology;
+    } AGSPrimitiveTopologyDX11;
 
     ///
     /// Function used to set the primitive topology. If you are using any of the extended topology types, then this
@@ -1035,14 +1059,13 @@ extern "C"
 
     /// \defgroup dx11UAVOverlap UAV Overlap
     /// API for enabling overlapping UAV writes
-    /// @{
-
     ///
-    /// Function used indicate to the driver that it doesn't need to sync the UAVs bound for the subsequent set of
-    /// back-to-back dispatches. When calling back-to-back draw calls or dispatch calls that write to the same UAV, the
-    /// AMD DX11 driver will automatically insert a barrier to ensure there are no write after write (WAW) hazards. If
-    /// the app can guarantee there is no overlap between the writes between these calls, then this extension will
-    /// remove those barriers allowing the work to run in parallel on the GPU.
+    /// The AMD DX11 driver will automatically track resource usage and insert barriers as necessary to clear
+    /// read-after-write (RAW) and write-after-write (WAW) hazards. The UAV overlap extension allows applications to
+    /// indicate to the driver it can skip inserting barriers for UAV resources used in dispatches and draws within the
+    /// \ref agsDriverExtensionsDX11_BeginUAVOverlap/ \ref agsDriverExtensionsDX11_EndUAVOverlap calls. This can be
+    /// useful for applications to allow multiple back-to-back dispatches or draws in flight even if they are accessing
+    /// the same UAV resource but the data written or read does not overlap within the resource.
     ///
     /// Usage would be as follows:
     /// \code{.cpp}
@@ -1059,6 +1082,10 @@ extern "C"
     ///     // Reenable automatic WAW syncs
     ///     agsDriverExtensionsDX11_EndUAVOverlap( m_agsContext );
     /// \endcode
+    /// @{
+
+    ///
+    /// Function used indicate to the driver the start of the overlap scope.
     ///
     /// \param [in] context                             Pointer to a context.
     /// \param [in] dxContext                           Pointer to the DirectX device context.  If this is to work using
@@ -1070,8 +1097,7 @@ extern "C"
                                                                       ID3D11DeviceContext* dxContext);
 
     ///
-    /// Function used indicate to the driver it can no longer overlap the batch of back-to-back dispatches that has been
-    /// submitted.
+    /// Function used indicate to the driver the end of the overlap scope.
     ///
     /// \param [in] context                             Pointer to a context.
     /// \param [in] dxContext                           Pointer to the DirectX device context.  If this is to work using
