@@ -115,6 +115,7 @@ void android_main(struct android_app* app)
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
                     GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+
                 gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        decoder;
                 uint32_t                               start_frame, end_frame;
@@ -132,14 +133,16 @@ void android_main(struct android_app* app)
                                                      replay_options.quit_after_measurement_frame_range,
                                                      replay_options.flush_measurement_frame_range,
                                                      replay_options.flush_inside_measurement_range,
+                                                     1,
+                                                     0,
                                                      measurement_file_name);
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
-                replay_consumer.SetFpsInfo(&fps_info);
 
                 decoder.AddConsumer(&replay_consumer);
                 file_processor.AddDecoder(&decoder);
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
+                application->SetWasFinalLoop(true);
 
                 // Warn if the capture layer is active.
                 CheckActiveLayers(kLayerProperty);
@@ -152,8 +155,11 @@ void android_main(struct android_app* app)
                 application->SetFpsInfo(&fps_info);
 
                 fps_info.BeginFile();
+                fps_info.BeginLoop();
 
                 application->Run();
+
+                fps_info.EndLoop();
 
                 // Add one so that it matches the trim range frame number semantic
                 fps_info.EndFile(file_processor.GetCurrentFrameNumber() + 1);

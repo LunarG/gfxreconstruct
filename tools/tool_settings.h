@@ -26,6 +26,8 @@
 #if defined(D3D12_SUPPORT)
 #include "decode/dx_replay_options.h"
 #include <initguid.h>
+#include "decode/dx12_tracking_consumer.h"
+#include "decode/dx12_tracked_object_info_table.h"
 #include "generated/generated_dx12_decoder.h"
 #endif
 #include "decode/file_processor.h"
@@ -107,6 +109,9 @@ const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-r
 const char kSwapchainOption[]                    = "--swapchain";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
+const char kLoopingEndAfterCountArgument[]    = "--looping-end-after-count";
+const char kLoopingEndAfterDurationArgument[] = "--looping-end-after-duration";
+const char kPreserveWindowsOption[]           = "--preserve-windows";
 const char kColorspaceFallback[]              = "--use-colorspace-fallback";
 const char kOffscreenSwapchainFrameBoundary[] = "--offscreen-swapchain-frame-boundary";
 const char kFormatArgument[]                  = "--format";
@@ -265,6 +270,27 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
     };
 }
 
+#if defined(D3D12_SUPPORT)
+static void DxGetFirstPassTracking(const std::string&                            filename,
+                                   const gfxrecon::decode::DxReplayOptions&      replay_options,
+                                   gfxrecon::decode::Dx12TrackedObjectInfoTable* tracked_object_info_table)
+{
+    gfxrecon::decode::FileProcessor file_processor_tracking;
+    gfxrecon::decode::Dx12Decoder   decoder;
+
+    auto tracking_consumer = new gfxrecon::decode::DX12TrackingConsumer(replay_options, tracked_object_info_table);
+
+    if (file_processor_tracking.Initialize(filename))
+    {
+        decoder.AddConsumer(tracking_consumer);
+        file_processor_tracking.AddDecoder(&decoder);
+        file_processor_tracking.ProcessAllFrames();
+        file_processor_tracking.RemoveDecoder(&decoder);
+        decoder.RemoveConsumer(tracking_consumer);
+    }
+}
+#endif
+
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     uint32_t    pause_frame = 0;
@@ -280,6 +306,31 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
     }
 
     return pause_frame;
+}
+
+static void GetLoopingEndOptions(const gfxrecon::util::ArgumentParser& arg_parser,
+                                 uint32_t&                             looping_end_after_count,
+                                 uint64_t&                             looping_end_after_duration)
+{
+    looping_end_after_count    = 0;
+    looping_end_after_duration = 0;
+
+    const auto& count = arg_parser.GetArgumentValue(kLoopingEndAfterCountArgument);
+    if (!count.empty())
+    {
+        looping_end_after_count = std::stoi(count);
+    }
+
+    const auto& duration = arg_parser.GetArgumentValue(kLoopingEndAfterDurationArgument);
+    if (!duration.empty())
+    {
+        looping_end_after_duration = std::stoi(duration);
+    }
+
+    if (count.empty() && duration.empty())
+    {
+        looping_end_after_count = 1;
+    }
 }
 
 static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -824,6 +875,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     }
 
     IsForceWindowed(options, arg_parser);
+
+    if (arg_parser.IsOptionSet(kPreserveWindowsOption))
+    {
+        options.preserve_windows = true;
+    }
 }
 
 static gfxrecon::decode::VulkanReplayOptions
@@ -936,7 +992,10 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 }
 
 #if defined(D3D12_SUPPORT)
-static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
+static gfxrecon::decode::DxReplayOptions
+GetDxReplayOptions(const gfxrecon::util::ArgumentParser&         arg_parser,
+                   const std::string&                            filename,
+                   gfxrecon::decode::Dx12TrackedObjectInfoTable* tracked_object_info_table)
 {
     gfxrecon::decode::DxReplayOptions replay_options;
     GetReplayOptions(replay_options, arg_parser);
@@ -948,6 +1007,8 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     if (arg_parser.IsOptionSet(kDxTwoPassReplay))
     {
         replay_options.enable_d3d12_two_pass_replay = true;
+
+        DxGetFirstPassTracking(filename, replay_options, tracked_object_info_table);
     }
 
     if (arg_parser.IsOptionSet(kDiscardCachedPsosLongOption) || arg_parser.IsOptionSet(kDiscardCachedPsosShortOption))

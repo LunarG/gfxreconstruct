@@ -60,8 +60,7 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
     application_(application),
     options_(options), current_message_length_(0), info_queue_(nullptr), resource_data_util_(nullptr),
     frame_buffer_renderer_(nullptr), debug_layer_enabled_(false), set_auto_breadcrumbs_enablement_(false),
-    set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false), loading_trim_state_(false),
-    fps_info_(nullptr)
+    set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false), loading_trim_state_(false)
 {
     if (options_.enable_validation_layer)
     {
@@ -189,7 +188,12 @@ Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
     if (WaitIdle(kWaitMilliseconds))
     {
         DestroyActiveObjects();
-        DestroyActiveWindows();
+        DestroyWindows(active_windows_);
+        if (application_->GetWasFinalLoop())
+        {
+            DestroyWindows(inactive_windows_);
+        }
+        window_handles_.clear();
         DestroyActiveEvents();
         DestroyHeapAllocations();
         if (info_queue_ != nullptr)
@@ -216,9 +220,9 @@ void Dx12ReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 {
     GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = false;
-    if (fps_info_ != nullptr)
+    if (application_ != nullptr)
     {
-        fps_info_->ProcessStateEndMarker(frame_number);
+        application_->ProcessStateEndMarker(frame_number);
     }
 
     // The accel_struct_builder_ is no longer needed after the trim state load is complete.
@@ -799,11 +803,23 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
 
     if (window_factory != nullptr && desc_pointer != nullptr)
     {
-        ReplaceWindowedResolution(desc_pointer->BufferDesc.Width, desc_pointer->BufferDesc.Height);
-        window = window_factory->Create(kDefaultWindowPositionX,
-                                        kDefaultWindowPositionY,
-                                        desc_pointer->BufferDesc.Width,
-                                        desc_pointer->BufferDesc.Height);
+        if (options_.preserve_windows && !inactive_windows_.empty())
+        {
+            window = *inactive_windows_.begin();
+
+            ReplaceWindowedResolution(desc_pointer->BufferDesc.Width, desc_pointer->BufferDesc.Height);
+            window->SetSize(desc_pointer->BufferDesc.Width, desc_pointer->BufferDesc.Height);
+
+            inactive_windows_.erase(window);
+        }
+        else
+        {
+            ReplaceWindowedResolution(desc_pointer->BufferDesc.Width, desc_pointer->BufferDesc.Height);
+            window = window_factory->Create(kDefaultWindowPositionX,
+                                            kDefaultWindowPositionY,
+                                            desc_pointer->BufferDesc.Width,
+                                            desc_pointer->BufferDesc.Height);
+        }
     }
 
     if (window != nullptr)
@@ -842,7 +858,14 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
             }
             else
             {
-                window_factory->Destroy(window);
+                if (options_.preserve_windows)
+                {
+                    inactive_windows_.insert(window);
+                }
+                else
+                {
+                    window_factory->Destroy(window);
+                }
             }
         }
         else
@@ -2390,9 +2413,21 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
 
     if (window_factory != nullptr && desc_pointer != nullptr)
     {
-        ReplaceWindowedResolution(desc_pointer->Width, desc_pointer->Height);
-        window = window_factory->Create(
-            kDefaultWindowPositionX, kDefaultWindowPositionY, desc_pointer->Width, desc_pointer->Height);
+        if (options_.preserve_windows && !inactive_windows_.empty())
+        {
+            window = *inactive_windows_.begin();
+
+            ReplaceWindowedResolution(desc_pointer->Width, desc_pointer->Height);
+            window->SetSize(desc_pointer->Width, desc_pointer->Height);
+
+            inactive_windows_.erase(window);
+        }
+        else
+        {
+            ReplaceWindowedResolution(desc_pointer->Width, desc_pointer->Height);
+            window = window_factory->Create(
+                kDefaultWindowPositionX, kDefaultWindowPositionY, desc_pointer->Width, desc_pointer->Height);
+        }
     }
 
     if (window != nullptr)
@@ -2438,7 +2473,14 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
             }
             else
             {
-                window_factory->Destroy(window);
+                if (options_.preserve_windows)
+                {
+                    inactive_windows_.insert(window);
+                }
+                else
+                {
+                    window_factory->Destroy(window);
+                }
             }
         }
         else
@@ -2666,13 +2708,23 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
             {
                 ReleaseSwapchainImages(swapchain_info);
             }
-            auto wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
-            auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-            if (window_factory)
+
+            if (options_.preserve_windows)
             {
-                window_factory->Destroy(swapchain_info->window);
+                inactive_windows_.insert(swapchain_info->window);
+                active_windows_.erase(swapchain_info->window);
             }
-            active_windows_.erase(swapchain_info->window);
+            else
+            {
+                auto wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
+                auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+
+                if (window_factory)
+                {
+                    window_factory->Destroy(swapchain_info->window);
+                }
+                active_windows_.erase(swapchain_info->window);
+            }
 
             if (swapchain_info->hwnd_id != 0)
             {
@@ -2702,19 +2754,19 @@ void Dx12ReplayConsumerBase::DestroyActiveObjects()
     object_info_table_.clear();
 }
 
-void Dx12ReplayConsumerBase::DestroyActiveWindows()
+void Dx12ReplayConsumerBase::DestroyWindows(DxWindowList& windows)
 {
-    auto wsi_context    = application_ ? application_->GetWsiContext("", true) : nullptr;
+    auto wsi_context = application_ ? application_->GetWsiContext("", true) : nullptr;
+    assert(wsi_context);
     auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-    if (window_factory)
+    assert(window_factory);
+
+    for (auto window : windows)
     {
-        for (auto window : active_windows_)
-        {
-            window_factory->Destroy(window);
-        }
+        window_factory->Destroy(window);
     }
-    active_windows_.clear();
-    window_handles_.clear();
+
+    windows.clear();
 }
 
 void Dx12ReplayConsumerBase::DestroyActiveEvents()

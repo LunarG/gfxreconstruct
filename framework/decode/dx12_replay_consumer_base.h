@@ -37,7 +37,6 @@
 #include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_image_renderer.h"
 #include "decode/screenshot_handler_base.h"
-#include "graphics/fps_info.h"
 #include "graphics/dx12_util.h"
 #include "application/application.h"
 
@@ -54,9 +53,16 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ReplayConsumerBase : public Dx12Consumer
 {
   public:
+    typedef std::unordered_set<Window*> DxWindowList;
+
+  public:
     Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application, const DxReplayOptions& options);
 
     virtual ~Dx12ReplayConsumerBase() override;
+
+    DxWindowList GetInactiveWindows() const { return inactive_windows_; }
+
+    void SetInactiveWindows(DxWindowList& windows) { inactive_windows_ = windows; }
 
     virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record)
     {
@@ -64,8 +70,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
-
-    void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
 
     void PostReplay();
 
@@ -821,7 +825,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void DestroyActiveObjects();
 
-    void DestroyActiveWindows();
+    void DestroyWindows(DxWindowList& windows);
 
     void DestroyActiveEvents();
 
@@ -878,7 +882,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     Dx12ObjectInfoTable                                   object_info_table_;
     std::shared_ptr<application::Application>             application_;
     DxReplayOptions                                       options_;
-    std::unordered_set<Window*>                           active_windows_;
+    DxWindowList                                          active_windows_;
+    DxWindowList                                          inactive_windows_;
     std::unordered_map<uint64_t, HWND>                    window_handles_;
     std::unordered_map<uint64_t, MappedMemoryEntry>       mapped_memory_;
     std::unordered_map<uint64_t, void*>                   heap_allocations_;
@@ -894,7 +899,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     bool                                                  set_breadcrumb_context_enablement_;
     bool                                                  set_page_fault_enablement_;
     bool                                                  loading_trim_state_;
-    graphics::FpsInfo*                                    fps_info_;
     std::unique_ptr<Dx12ResourceValueMapper>              resource_value_mapper_;
     std::unique_ptr<Dx12AccelerationStructureBuilder>     accel_struct_builder_;
     graphics::Dx12ShaderIdMap                             shader_id_map_;

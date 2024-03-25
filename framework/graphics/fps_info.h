@@ -42,21 +42,38 @@ class FpsInfo
             bool                   quit_after_range               = false,
             bool                   flush_measurement_range        = false,
             bool                   flush_inside_measurement_range = false,
+            uint32_t               looping_end_after_count        = 1,
+            uint64_t               looping_end_after_duration     = 0,
             const std::string_view measurement_file_name          = "");
 
     void LogToConsole();
 
     void BeginFile();
+    void BeginLoop();
+    void EndLoad(uint64_t capture_file_frame);
+    void EndLoop();
+    void EndFile(uint64_t end_file_processor_frame);
+    void BeginFrame(uint64_t file_processor_frame);
+    void EndFrame(uint64_t file_processor_frame);
     bool ShouldWaitIdleBeforeFrame(uint64_t file_processor_frame);
     bool ShouldWaitIdleAfterFrame(uint64_t file_processor_frame);
     bool ShouldQuit(uint64_t file_processor_frame);
-    void BeginFrame(uint64_t file_processor_frame);
-    void EndFrame(uint64_t file_processor_frame);
-    void EndFile(uint64_t end_file_processor_frame);
-    void ProcessStateEndMarker(uint64_t file_processor_frame);
+    bool ShouldLoop(uint32_t file_processor_loop);
 
   private:
-    uint64_t start_time_;
+    uint64_t loop_start_time_;
+    uint64_t loop_end_time_;
+    uint64_t total_loop_time_;
+
+    uint64_t load_start_time_;
+    uint64_t load_end_time_;
+    uint64_t total_load_time_;
+
+    uint64_t replay_start_time_;
+    uint64_t replay_end_time_;
+    uint64_t total_replay_time_;
+
+    int64_t replay_start_frame_;
 
     uint64_t measurement_start_frame_;
     uint64_t measurement_end_frame_;
@@ -64,13 +81,13 @@ class FpsInfo
     int64_t measurement_start_time_;
     int64_t measurement_end_time_;
 
-    uint64_t replay_start_time_;
-    int64_t  replay_start_frame_;
-
     bool has_measurement_range_;
     bool quit_after_range_;
     bool flush_measurement_range_;
     bool flush_inside_measurement_range_;
+
+    uint32_t looping_end_after_count_;
+    uint64_t looping_end_after_duration_;
 
     bool started_measurement_;
     bool ended_measurement_;

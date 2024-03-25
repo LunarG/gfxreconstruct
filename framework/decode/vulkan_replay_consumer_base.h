@@ -41,7 +41,6 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
-#include "graphics/fps_info.h"
 #include "util/defines.h"
 #include "util/logging.h"
 
@@ -73,14 +72,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     virtual ~VulkanReplayConsumerBase() override;
 
+    VulkanSwapchain::VulkanWindowList GetInactiveWindows() { return swapchain_->GetInactiveWindows(); }
+
+    void SetInactiveWindows(VulkanSwapchain::VulkanWindowList& windows) { swapchain_->SetInactiveWindows(windows); }
+
     virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) override
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
-
-    void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
 
     virtual void WaitDevicesIdle() override;
 
@@ -1198,7 +1199,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unique_ptr<ScreenshotHandler>                               screenshot_handler_;
     std::unique_ptr<VulkanSwapchain>                                 swapchain_;
     std::string                                                      screenshot_file_prefix_;
-    graphics::FpsInfo*                                               fps_info_;
 
     // Imported semaphores are semaphores that are used to track external memory.
     // During replay, the external memory is not present (we have no Fds or handles to valid

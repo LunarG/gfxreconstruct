@@ -31,6 +31,8 @@
 #include "util/date_time.h"
 #include "graphics/fps_info.h"
 
+#include "vulkan/vulkan.h"
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -46,7 +48,10 @@ class Application final
   public:
     Application(const std::string& name, decode::FileProcessor* file_processor);
 
-    Application(const std::string& name, const std::string& cli_wsi_extension, decode::FileProcessor* file_processor);
+    Application(const std::string&     name,
+                const std::string&     cli_wsi_extension,
+                decode::FileProcessor* file_processor,
+                bool                   enable_vulkan);
 
     ~Application();
 
@@ -58,7 +63,7 @@ class Application final
 
     WsiContext* GetWsiContext(const std::string& wsi_extension, bool auto_select = false);
 
-    const std::string& GetWsiCliContext() const { return cli_wsi_extension_; }
+    const std::string& GetWsiCliExtension() const { return cli_wsi_extension_; }
 
     bool IsRunning() const { return running_; }
 
@@ -70,7 +75,13 @@ class Application final
 
     void SetPauseFrame(uint32_t pause_frame) { pause_frame_ = pause_frame; }
 
+    bool GetWasFinalLoop() const { return was_final_loop_; }
+
+    void SetWasFinalLoop(bool was_final_loop) { was_final_loop_ = was_final_loop; }
+
     bool PlaySingleFrame();
+
+    void ProcessStateEndMarker(uint64_t file_processor_frame);
 
     void ProcessEvents(bool wait_for_input);
 
@@ -86,15 +97,21 @@ class Application final
 
   private:
     // clang-format off
-    std::string                                                  name_;              ///< Application name to display in window title bar.
-    decode::FileProcessor*                                       file_processor_;    ///< The FileProcessor object responsible for decoding and processing capture file data.
-    bool                                                         running_;           ///< Indicates that the application is actively processing system events for playback.
-    bool                                                         paused_;            ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
-    uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.
-    std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
-    std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
-    graphics::FpsInfo*                                           fps_info_;          ///< A optional FPS info object that logs the FPS across a configured framerange.
-                                                                                     ///< capture file data.
+    std::string                                                  name_;                     ///< Application name to display in window title bar.
+    decode::FileProcessor*                                       file_processor_;           ///< The FileProcessor object responsible for decoding and processing capture file data.
+    bool                                                         running_;                  ///< Indicates that the application is actively processing system events for playback.
+    bool                                                         paused_;                   ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
+    uint32_t                                                     pause_frame_;              ///< The number for a frame that replay should pause after.
+    bool                                                         was_final_loop_;           ///< Indicates that the most recent replay loop is supposed to be the final one.
+    std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;             ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
+    std::string                                                  cli_wsi_extension_;        ///< WSI extension selected on CLI, empty string if no CLI selection
+    graphics::FpsInfo*                                           fps_info_;                 ///< A optional FPS info object that logs the FPS across a configured framerange.
+    bool                                                         vulkan_enabled_;           ///< Indicates whether Vulkan is enabled for this application.
+    util::platform::LibraryHandle                                vk_loader_handle_;         ///< Vulkan loader for loading the ghost Vulkan instance.
+    PFN_vkCreateInstance                                         vk_create_instance_proc_;  ///< Loaded function for creating the ghost Vulkan instance.
+    PFN_vkDestroyInstance                                        vk_destroy_instance_proc_; ///< Loaded function for destroying the ghost Vulkan instance.
+    VkInstance                                                   vk_ghost_instance_;        ///< The handle to the ghost Vulkan instance.
+                                                                                            ///< capture file data.
     // clang-format on
 };
 

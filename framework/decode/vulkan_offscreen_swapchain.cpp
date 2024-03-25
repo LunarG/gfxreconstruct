@@ -37,10 +37,11 @@ VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                       
 {
     GFXRECON_ASSERT(surface);
 
-    instance_table_        = instance_table;
-    application_           = application;
-    options_surface_index_ = replay_options.surface_index;
-    insert_frame_boundary_ = replay_options.offscreen_swapchain_frame_boundary;
+    instance_table_           = instance_table;
+    application_              = application;
+    options_surface_index_    = replay_options.surface_index;
+    options_preserve_windows_ = replay_options.preserve_windows;
+    insert_frame_boundary_    = replay_options.offscreen_swapchain_frame_boundary;
 
     // For multi-surface captures, when replay is restricted to a specific surface, only create a surface for
     // the specified index.

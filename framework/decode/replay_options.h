@@ -52,6 +52,7 @@ struct ReplayOptions
     uint32_t windowed_width{ 0 };
     uint32_t windowed_height{ 0 };
     int32_t  override_gpu_index{ -1 };
+    bool     preserve_windows{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)
