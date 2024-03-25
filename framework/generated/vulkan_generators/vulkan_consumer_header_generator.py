@@ -142,8 +142,9 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
+    #
+    # Indicates that the current feature has C++ code to generate.
     def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
             return True
         return False

@@ -80,7 +80,14 @@ generate_targets = [
     'generated_vulkan_struct_to_json.cpp',
     'generated_vulkan_enum_to_json.h',
     'generated_vulkan_enum_to_json.cpp',
-    'generated_vulkan_constant_maps.h'
+    'generated_vulkan_constant_maps.h',
+    'generated_vulkan_cpp_consumer.h',
+    'generated_vulkan_cpp_consumer.cpp',
+    'generated_vulkan_cpp_structs.h',
+    'generated_vulkan_cpp_structs.cpp',
+    'generated_vulkan_cpp_consumer_extension.h',
+    'generated_vulkan_cpp_consumer_extension.cpp',
+    'generated_vulkan_stype_util.h',
 ]
 
 if __name__ == '__main__':

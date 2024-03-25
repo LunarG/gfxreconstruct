@@ -88,6 +88,7 @@ class ParameterEncoder
 
     // Pointers
     void EncodeUInt8Ptr(const uint8_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
+    void EncodeUInt16Ptr(const uint16_t* ptr, bool omit_data = false, bool omit_addr = false)                         { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeInt32Ptr(const int32_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeUInt32Ptr(const uint32_t* ptr, bool omit_data = false, bool omit_addr = false)                         { EncodePointer(ptr, omit_data, omit_addr); }
 
@@ -167,7 +168,11 @@ class ParameterEncoder
     template <size_t N, size_t M>
     void EncodeInt82DMatrix(const int8_t (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const int8_t*>(arr), n * m, omit_data, omit_addr); }
     template <size_t N, size_t M>
+    void EncodeInt162DMatrix(const int16_t (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const int16_t*>(arr), n * m, omit_data, omit_addr); }
+    template <size_t N, size_t M>
     void EncodeUInt162DMatrix(const uint16_t (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const uint16_t*>(arr), n * m, omit_data, omit_addr); }
+    template <size_t N, size_t M>
+    void EncodeInt322DMatrix(const int32_t (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const int32_t*>(arr), n * m, omit_data, omit_addr); }
 
     // clang-format on
 

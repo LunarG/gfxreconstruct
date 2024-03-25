@@ -344,9 +344,17 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
     VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 };
 
+typedef struct PipelineCacheData
+{
+    std::vector<uint8_t> capture_cache_data;
+    std::vector<uint8_t> replay_cache_data;
+} PipelineCacheData;
+
 struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+    // hash id of capture time pipeline cache data to capture and replay time pipeline cache data map;
+    std::unordered_map<uint32_t, std::vector<PipelineCacheData>> pipeline_cache_data;
 };
 
 struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
@@ -390,7 +398,7 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t             width{ 0 };
     uint32_t             height{ 0 };
     VkFormat             format{ VK_FORMAT_UNDEFINED };
-    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirutalSwapchain.
+    std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirtualSwapchain.
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // The acquired_indices value and the remapping performed with it.
@@ -403,6 +411,10 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<uint32_t> queue_family_indices{ 0 };
+
+    // For virtual swapchain, we want the compression on virtual images to be the same as on the true swapchain
+    std::vector<VkImageCompressionFixedRateFlagsEXT> compression_fixed_rate_flags;
+    std::shared_ptr<VkImageCompressionControlEXT>    compression_control;
 
     // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
     // backing images.
@@ -428,8 +440,8 @@ struct ImageViewInfo : public VulkanObjectInfo<VkImageView>
 
 struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
+    VkFramebufferCreateFlags             framebuffer_flags{ 0 };
     std::unordered_map<uint32_t, size_t> array_counts;
-
     std::vector<format::HandleId> attachment_image_view_ids;
 };
 
