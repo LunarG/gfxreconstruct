@@ -85,6 +85,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
     }
+    swapchain_resources_[*replay_swapchain]->present_mode = create_info->presentMode;
     return result;
 }
 
@@ -245,6 +246,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
     }
 
     auto& swapchain_resources = swapchain_resources_[swapchain];
+
     if (!offscreen)
     {
         for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
@@ -363,7 +365,17 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
             }
         }
     }
-
+    // Intercept: Issue #1454
+    if ((*replay_image_count == capture_image_count) && (VK_PRESENT_MODE_FIFO_KHR == swapchain_resources->present_mode))
+    {
+        // Do not create swapchain images, reuse originals
+        const_cast<SwapchainKHRInfo*>(swapchain_info)->bypass_virtual_swapchain = true;
+        for (uint32_t i = 0u; i < capture_image_count; ++i)
+        {
+            images[i] = swapchain_resources->replay_swapchain_images[i];
+        }
+        return result;
+    }
     uint32_t virtual_swapchain_count = static_cast<uint32_t>(swapchain_resources->virtual_swapchain_images.size());
 
     // If the call was made more than once because the first call returned VK_INCOMPLETE, only the new images
@@ -722,6 +734,11 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         uint32_t    capture_image_index = capture_image_indices[i];
         uint32_t    replay_image_index  = present_info->pImageIndices[i];
 
+        if (swapchain_info->bypass_virtual_swapchain)
+        {
+            continue;
+        }
+
         // Get the per swapchain resource data so we have access to the virtual swapchain-specific information.
         if (swapchain_resources_.find(swapchain_info->handle) == swapchain_resources_.end())
         {
@@ -741,6 +758,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
                                "queue (Handle %" PRIu64 ") in swapchain (ID = %" PRIu64 ")",
                                queue,
                                swapchain_info->capture_id);
+
             continue;
         }
 

@@ -413,6 +413,7 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t                  image_array_layers{ 0 };
     VkImageUsageFlags         image_usage{ 0 };
     VkSharingMode             image_sharing_mode{ VK_SHARING_MODE_EXCLUSIVE };
+    bool                      bypass_virtual_swapchain{ false };
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
