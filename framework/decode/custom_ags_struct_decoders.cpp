@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -277,7 +277,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_AGS_DX12_
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &bit_value);
     value->rayHitToken = bit_value;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &bit_value);
-    value->shaderClock = (bit_value & 0x1);
+    value->padding = bit_value;
 
     return bytes_read;
 }

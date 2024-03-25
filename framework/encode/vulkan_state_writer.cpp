@@ -146,7 +146,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     StandardCreateWrite<ShaderModuleWrapper>(state_table);
     StandardCreateWrite<DescriptorSetLayoutWrapper>(state_table);
     WritePipelineLayoutState(state_table);
-    WritePipelineCacheState(state_table);
+    StandardCreateWrite<PipelineCacheWrapper>(state_table);
     WritePipelineState(state_table);
     WriteAccelerationStructureKHRState(state_table);
     WriteTlasToBlasDependenciesMetadata(state_table);
@@ -544,48 +544,6 @@ void VulkanStateWriter::WritePipelineLayoutState(const VulkanStateTable& state_t
     {
         DestroyTemporaryDeviceObject(format::ApiCall_vkDestroyDescriptorSetLayout, entry.first, entry.second);
     }
-}
-
-void VulkanStateWriter::WritePipelineCacheState(const VulkanStateTable& state_table)
-{
-    state_table.VisitWrappers([&](const PipelineCacheWrapper* wrapper) {
-        GFXRECON_ASSERT(wrapper != nullptr);
-
-        // Pipeline cache data can be indirectly changed by pipeline creation command or directly changed by calls like
-        // vkMergePipelineCaches. So here we query and write its latest state, not the state when the pipeline cache was
-        // created.
-        size_t   data_size;
-        VkResult result = wrapper->device->layer_table.GetPipelineCacheData(
-            wrapper->device->handle, wrapper->handle, &data_size, nullptr);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
-
-        if (data_size != 0)
-        {
-            const_cast<PipelineCacheWrapper*>(wrapper)->cache_data.resize(data_size);
-
-            result = wrapper->device->layer_table.GetPipelineCacheData(
-                wrapper->device->handle,
-                wrapper->handle,
-                &data_size,
-                const_cast<PipelineCacheWrapper*>(wrapper)->cache_data.data());
-
-            GFXRECON_ASSERT(result == VK_SUCCESS);
-
-            const_cast<PipelineCacheWrapper*>(wrapper)->create_info.initialDataSize = data_size;
-            const_cast<PipelineCacheWrapper*>(wrapper)->create_info.pInitialData    = wrapper->cache_data.data();
-        }
-        else
-        {
-            const_cast<PipelineCacheWrapper*>(wrapper)->create_info.initialDataSize = 0;
-            const_cast<PipelineCacheWrapper*>(wrapper)->create_info.pInitialData    = nullptr;
-        }
-
-        WriteCreatePipelineCache(wrapper->device->handle_id,
-                                 &wrapper->create_info,
-                                 nullptr,
-                                 const_cast<VkPipelineCache*>(&wrapper->handle),
-                                 VK_SUCCESS);
-    });
 }
 
 void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
@@ -1858,7 +1816,7 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
         if (wrapper->mapped_data != nullptr)
         {
             const VkResult result         = VK_SUCCESS;
-            const auto     device_wrapper = wrapper->parent_device;
+            const auto     device_wrapper = wrapper->map_device;
 
             // Map the replay memory.
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
@@ -2553,27 +2511,6 @@ void VulkanStateWriter::WriteDestroyDeviceObject(format::ApiCallId            ca
 
     WriteFunctionCall(call_id, &parameter_stream_);
 
-    parameter_stream_.Reset();
-}
-
-void VulkanStateWriter::WriteCreatePipelineCache(format::HandleId                 device_id,
-                                                 const VkPipelineCacheCreateInfo* pCreateInfo,
-                                                 const VkAllocationCallbacks*     allocator,
-                                                 VkPipelineCache*                 pPipelineCache,
-                                                 VkResult                         result)
-{
-    bool              omit_output_data = false;
-    format::ApiCallId call_id          = format::ApiCallId::ApiCall_vkCreatePipelineCache;
-    encoder_.EncodeHandleIdValue(device_id);
-    EncodeStructPtr(&encoder_, pCreateInfo);
-    EncodeStructPtr(&encoder_, allocator);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
-    encoder_.EncodeHandlePtr<PipelineCacheWrapper>(pPipelineCache, omit_output_data);
-    encoder_.EncodeEnumValue(result);
-    WriteFunctionCall(call_id, &parameter_stream_);
     parameter_stream_.Reset();
 }
 

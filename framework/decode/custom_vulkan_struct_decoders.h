@@ -39,6 +39,19 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// TODO: This is currently used when mapping external object IDs to object handles that are created on replay. This
+// functionality could instead be provided through the replay consumer's PreProcessExternalObject and
+// PostProcessExternalObject methods if they were moved to the VulkanObjectInfo table, which would make them available
+// to the struct decoders.
+struct Decoded_VkBaseOutStructure
+{
+    using struct_type = VkBaseOutStructure;
+
+    VkBaseOutStructure* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 // Decoded union wrappers.
 struct Decoded_VkClearColorValue
 {

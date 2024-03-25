@@ -223,7 +223,7 @@ inline size_t GetSystemPageSize()
     return sSysInfo.dwPageSize;
 }
 
-inline void* AllocateRawMemory(size_t aligned_size, bool use_write_watch = false, void* address = nullptr)
+inline void* AllocateRawMemory(size_t aligned_size, bool use_write_watch = false)
 {
     assert(aligned_size > 0);
 
@@ -236,7 +236,7 @@ inline void* AllocateRawMemory(size_t aligned_size, bool use_write_watch = false
             flags |= MEM_WRITE_WATCH;
         }
 
-        return VirtualAlloc(address, aligned_size, flags, PAGE_READWRITE);
+        return VirtualAlloc(nullptr, aligned_size, flags, PAGE_READWRITE);
     }
 
     return nullptr;
@@ -277,13 +277,6 @@ inline uint64_t GetCurrentThreadId()
     return static_cast<uint64_t>(syscall(SYS_gettid));
 #endif
 }
-
-#if !defined(__APPLE__)
-inline int SendSignalToThread(uint64_t tid, int signal)
-{
-    return syscall(SYS_tgkill, getpid(), tid, signal);
-}
-#endif
 
 inline void TriggerDebugBreak()
 {
@@ -512,14 +505,13 @@ inline size_t GetSystemPageSize()
 }
 
 // Memory allocation without extra space for private info like with new or malloc
-inline void* AllocateRawMemory(size_t aligned_size, bool use_write_watch = false, void* address = nullptr)
+inline void* AllocateRawMemory(size_t aligned_size, bool use_write_watch = false)
 {
     assert(aligned_size > 0);
 
     if (aligned_size > 0)
     {
-        const int flags  = address ? (MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED) : (MAP_PRIVATE | MAP_ANONYMOUS);
-        void*     memory = mmap(address, aligned_size, PROT_READ | PROT_WRITE, flags, -1, 0);
+        void* memory = mmap(nullptr, aligned_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
         if (memory == MAP_FAILED)
         {
@@ -647,15 +639,6 @@ inline T AlignValue(T original)
 
     T alignment_t = static_cast<T>(Alignment);
     return (original + (alignment_t - 1)) & ~(alignment_t - 1);
-}
-
-inline uint64_t SizeTtoUint64(size_t value)
-{
-#if defined(_WIN64)
-    return value;
-#else
-    return static_cast<uint64_t>(value);
-#endif
 }
 
 GFXRECON_END_NAMESPACE(platform)

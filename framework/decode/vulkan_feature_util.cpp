@@ -45,7 +45,6 @@ GFXRECON_BEGIN_NAMESPACE(feature_util)
 std::set<std::string> kIgnorableExtensions = {
     VK_EXT_TOOLING_INFO_EXTENSION_NAME,
     VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
-    "VK_ANDROID_frame_boundary",
 };
 
 VkResult GetInstanceLayers(PFN_vkEnumerateInstanceLayerProperties instance_layer_proc,

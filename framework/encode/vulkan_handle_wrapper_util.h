@@ -280,17 +280,6 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DeviceWr
 }
 
 template <>
-inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeviceMemoryWrapper>(VkDevice device,
-                                                                                     NoParentWrapper::HandleType,
-                                                                                     VkDeviceMemory* handle,
-                                                                                     PFN_GetHandleId get_id)
-{
-    CreateWrappedNonDispatchHandle<DeviceMemoryWrapper>(handle, get_id);
-    auto memory_wrapper           = GetWrapper<DeviceMemoryWrapper>(*handle);
-    memory_wrapper->parent_device = GetWrapper<DeviceWrapper>(device);
-}
-
-template <>
 inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
     VkDevice parent,
     NoParentWrapper::HandleType, // VkQueue does not have a co-parent.
@@ -434,7 +423,6 @@ CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, 
         CreateWrappedNonDispatchHandle<ImageWrapper>(handle, get_id);
         wrapper                     = GetWrapper<ImageWrapper>(*handle);
         wrapper->is_swapchain_image = true;
-        wrapper->parent_swapchains.insert(co_parent);
         parent_wrapper->child_images.push_back(wrapper);
     }
 }
@@ -625,12 +613,8 @@ inline void DestroyWrappedHandle<SwapchainKHRWrapper>(VkSwapchainKHR handle)
 
         for (auto image_wrapper : wrapper->child_images)
         {
-            image_wrapper->parent_swapchains.erase(handle);
-            if (image_wrapper->parent_swapchains.empty())
-            {
-                RemoveWrapper<ImageWrapper>(image_wrapper);
-                delete image_wrapper;
-            }
+            RemoveWrapper<ImageWrapper>(image_wrapper);
+            delete image_wrapper;
         }
 
         RemoveWrapper<SwapchainKHRWrapper>(wrapper);

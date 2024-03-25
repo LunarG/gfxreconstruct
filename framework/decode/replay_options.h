@@ -47,7 +47,6 @@ struct ReplayOptions
     bool     omit_null_hardware_buffers{ false };
     bool     quit_after_measurement_frame_range{ false };
     bool     flush_measurement_frame_range{ false };
-    bool     flush_inside_measurement_range{ false };
     bool     force_windowed{ false };
     uint32_t windowed_width{ 0 };
     uint32_t windowed_height{ 0 };

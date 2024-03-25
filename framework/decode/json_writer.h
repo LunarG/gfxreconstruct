@@ -108,14 +108,11 @@ class JsonWriter : public AnnotationHandler
     std::string GenerateFilename(const std::string_view filename);
     bool        WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data);
 
-    inline void SetCurrentBlockIndex(uint64_t block_index) { block_index_ = block_index; }
-
   private:
     util::OutputStream*    os_;
     nlohmann::ordered_json header_;
     util::JsonOptions      json_options_;
     nlohmann::ordered_json json_data_;
-    uint64_t               block_index_;
     uint32_t               num_streams_{ 0 };
     /// Number of side-files generated for dumping binary blobs etc.
     uint32_t num_files_{ 0 };

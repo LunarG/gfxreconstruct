@@ -727,10 +727,6 @@ CaptureSettings::ParseMemoryTrackingModeString(const std::string&               
     {
         result = MemoryTrackingMode::kPageGuard;
     }
-    else if (util::platform::StringCompareNoCase("userfaultfd", value_string.c_str()) == 0)
-    {
-        result = MemoryTrackingMode::kUserfaultfd;
-    }
     else if (util::platform::StringCompareNoCase("assisted", value_string.c_str()) == 0)
     {
         result = MemoryTrackingMode::kAssisted;

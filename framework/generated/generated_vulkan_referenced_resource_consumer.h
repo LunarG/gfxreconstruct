@@ -27,9 +27,6 @@
 **
 */
 
-#ifndef  GFXRECON_GENERATED_VULKAN_REFERENCED_RESOURCE_CONSUMER_H
-#define  GFXRECON_GENERATED_VULKAN_REFERENCED_RESOURCE_CONSUMER_H
-
 #include "decode/vulkan_referenced_resource_consumer_base.h"
 #include "util/defines.h"
 
@@ -701,5 +698,3 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif

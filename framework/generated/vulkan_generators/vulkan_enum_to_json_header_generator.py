@@ -30,7 +30,7 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
     def __init__(
         self,
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
         directory='.',
         prefixText='',
@@ -41,7 +41,7 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
         BaseGeneratorOptions.__init__(
             self,
             blacklists,
-            platform_types,
+            platformTypes,
             filename,
             directory,
             prefixText,

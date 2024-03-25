@@ -35,12 +35,7 @@ AMD_AGS_API AGSReturnCode agsInitialize(int                     agsVersion,
 {
     AGSReturnCode result = AGSReturnCode::AGS_SUCCESS;
 
-    auto manager = D3D12CaptureManager::Get();
-    manager->SetAgsVersion(agsVersion);
-    if (((agsVersion >> 22) & 0x3FF) < AMD_AGS_VERSION_MAJOR)
-    {
-        GFXRECON_LOG_ERROR("The AGS version is not supported.");
-    }
+    auto manager    = D3D12CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -139,57 +134,22 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_CreateDevice(AGSContext*      
         {
             shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
         }
-        auto ags_version = manager->GetAgsVersion();
-        int  ags_major   = (ags_version >> 22) & 0x3FF;
-        int  ags_minor   = (ags_version >> 12) & 0x3FF;
-        if (ags_version == AGS_CURRENT_VERSION)
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1>::Dispatch(
+            manager, context, creationParams, extensionParams, returnedParams);
+
+        result = manager->GetAgsDispatchTable().agsDriverExtensionsDX12_CreateDevice(
+            context, creationParams, extensionParams, returnedParams);
+
+        if (SUCCEEDED(result))
         {
-            CustomWrapperPreCall<format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_2_0>::Dispatch(
-                manager, context, creationParams, extensionParams, returnedParams);
-
-            result = manager->GetAgsDispatchTable().agsDriverExtensionsDX12_CreateDevice(
-                context, creationParams, extensionParams, returnedParams);
-
-            if (SUCCEEDED(result))
-            {
-                WrapObject(creationParams->iid, reinterpret_cast<void**>(&(returnedParams->pDevice)), nullptr);
-            }
-
-            Encode_agsDriverExtensionsDX12_CreateDevice(
-                result,
-                context,
-                creationParams,
-                extensionParams,
-                returnedParams,
-                format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_2_0);
-
-            CustomWrapperPostCall<format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_2_0>::Dispatch(
-                manager, result, context, creationParams, extensionParams, returnedParams);
+            WrapObject(creationParams->iid, reinterpret_cast<void**>(&(returnedParams->pDevice)), nullptr);
         }
-        else if (ags_major == AMD_AGS_VERSION_MAJOR && ags_minor < 2)
-        {
-            CustomWrapperPreCall<format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1>::Dispatch(
-                manager, context, creationParams, extensionParams, returnedParams);
 
-            result = manager->GetAgsDispatchTable().agsDriverExtensionsDX12_CreateDevice(
-                context, creationParams, extensionParams, returnedParams);
+        Encode_agsDriverExtensionsDX12_CreateDevice(result, context, creationParams, extensionParams, returnedParams);
 
-            if (SUCCEEDED(result))
-            {
-                WrapObject(creationParams->iid, reinterpret_cast<void**>(&(returnedParams->pDevice)), nullptr);
-            }
-
-            Encode_agsDriverExtensionsDX12_CreateDevice(
-                result,
-                context,
-                creationParams,
-                extensionParams,
-                returnedParams,
-                format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1);
-
-            CustomWrapperPostCall<format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1>::Dispatch(
-                manager, result, context, creationParams, extensionParams, returnedParams);
-        }
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1>::Dispatch(
+            manager, result, context, creationParams, extensionParams, returnedParams);
     }
     else
     {

@@ -175,7 +175,6 @@ nlohmann::ordered_json& JsonWriter::WriteMetaCommandStart(const std::string_view
 {
     auto& json_data = WriteBlockStart();
 
-    json_data[format::kNameIndex] = block_index_;
     nlohmann::ordered_json& meta = json_data[format::kNameMeta];
     meta[format::kNameName]      = command_name;
     return meta[format::kNameArgs];

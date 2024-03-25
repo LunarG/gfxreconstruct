@@ -2,7 +2,6 @@
 #
 # Copyright (c) 2018-2020 Valve Corporation
 # Copyright (c) 2018-2023 LunarG, Inc.
-# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -562,8 +561,6 @@ class VulkanReplayConsumerBodyGenerator(
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'
                                 .format(length_name, paramname=value.name)
                             )
-                            if name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV':
-                                preexpr.append('if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, in_pCreateInfos);}}'.format(length_name))
                             if need_temp_value:
                                 expr += '{}->GetHandlePointer();'.format(
                                     value.name

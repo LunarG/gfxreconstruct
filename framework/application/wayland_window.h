@@ -44,8 +44,6 @@ class WaylandWindow : public decode::Window
 
     struct wl_shell_surface* GetShellSurface() const { return shell_surface_; }
 
-    struct xdg_toplevel* GetXdgToplevel() const { return xdg_toplevel_; }
-
     virtual bool Create(const std::string& title,
                         const int32_t      x,
                         const int32_t      y,
@@ -82,34 +80,25 @@ class WaylandWindow : public decode::Window
     static void HandleSurfaceEnter(void* data, struct wl_surface* surface, struct wl_output* output);
     static void HandleSurfaceLeave(void* data, struct wl_surface* surface, struct wl_output* output);
 
-    static void HandleShellSurfacePing(void* data, wl_shell_surface* shell_surface, uint32_t serial);
-    static void HandleShellSurfaceConfigure(
-        void* data, wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height);
-    static void HandleShellSurfacePopupDone(void* data, wl_shell_surface* shell_surface);
+    static void HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial);
 
-    static void HandleXdgSurfaceConfigure(void* data, struct xdg_surface* xdg_surface, uint32_t serial);
+    static void
+    HandleConfigure(void* data, wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height);
 
-    static void HandleXdgToplevelConfigure(
-        void* data, struct xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, struct wl_array* states);
-    static void HandleXdgToplevelClose(void* data, struct xdg_toplevel* xdg_toplevel);
+    static void HandlePopupDone(void* data, wl_shell_surface* shell_surface);
 
     void UpdateWindowSize();
 
   private:
     static struct wl_surface_listener       surface_listener_;
     static struct wl_shell_surface_listener shell_surface_listener_;
-    static struct xdg_surface_listener      xdg_surface_listener_;
-    static struct xdg_toplevel_listener     xdg_toplevel_listener_;
     WaylandContext*                         wayland_context_;
     struct wl_surface*                      surface_;
     struct wl_shell_surface*                shell_surface_;
-    struct xdg_surface*                     xdg_surface_;
-    struct xdg_toplevel*                    xdg_toplevel_;
     uint32_t                                width_;
     uint32_t                                height_;
     int32_t                                 scale_;
     struct wl_output*                       output_;
-    bool                                    xdg_surface_configured_;
 };
 
 class WaylandWindowFactory : public decode::WindowFactory

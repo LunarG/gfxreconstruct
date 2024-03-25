@@ -49,14 +49,9 @@ class CaptureSettings
         // flush.
         kAssisted = 1,
         // Use guard pages to determine which regions of memory to write on unmap and queue submit.  This mode replaces
-        // the mapped memory value returned by the driver with a shadow allocation that the capture layer can monitor,
-        // using the PROT_NONE + SIGSEGV trick, to determine which regions of memory have been modified by the
-        // application.
-        kPageGuard = 2,
-        // Similar mechanism as page guard. The mapper memory returned by the driver is replaced by a shadow
-        // allocation but in this case the memory is monitored using the userfaultfd mechanism provided by the linux
-        // kernel.
-        kUserfaultfd = 3
+        // the mapped memory value returned by the driver with a shadow allocation that the capture layer can monitor
+        // to determine which regions of memory have been modified by the application.
+        kPageGuard = 2
     };
 
     enum RuntimeTriggerState
@@ -106,7 +101,7 @@ class CaptureSettings
         bool                         page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                         page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
         bool                         page_guard_persistent_memory{ false };
-        bool                         page_guard_align_buffer_sizes{ true };
+        bool                         page_guard_align_buffer_sizes{ false };
         bool                         page_guard_track_ahb_memory{ false };
         bool                         page_guard_unblock_sigsegv{ false };
         bool                         page_guard_signal_handler_watcher{ false };

@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -84,8 +84,6 @@ static std::string GetAgsResultValueString(AGSReturnCode result)
             return "AGS_ADL_FAILURE";
         case AGS_DX_FAILURE:
             return "AGS_DX_FAILURE";
-        case AGS_D3DDEVICE_NOT_CREATED:
-            return "AGS_D3DDEVICE_NOT_CREATED";
         default:
             return std::to_string(result);
     }
@@ -217,22 +215,13 @@ void AgsReplayConsumer::Process_agsInitialize(const ApiCallInfo&      call_info,
         {
             GFXRECON_LOG_WARNING_ONCE(
                 "agsInitialize function was called with a non-null 'config' parameter during capture. "
-                "Now for replay, the parameter is set to a nullptr value, because the callback pointers can't be "
-                "translated.");
+                "Now for replay, the parameter is set to a nullptr value, because the callback pointers can't be translated.");
         }
 
-        AGSConfiguration* forced_config   = nullptr;
-        auto              current_version = AGS_CURRENT_VERSION;
-
-        if (agsVersion != current_version)
-        {
-            GFXRECON_LOG_WARNING_ONCE(
-                "The agsInitialize function was called with an AGS version that is different from the current version."
-                "The replay will be processed with the latest AGS version.");
-        }
+        AGSConfiguration* forced_config = nullptr;
 
         AGSReturnCode result =
-            ags_dispatch_table_.agsInitialize(current_version, forced_config, &current_context_, &gpu_info_replay);
+            ags_dispatch_table_.agsInitialize(agsVersion, forced_config, &current_context_, &gpu_info_replay);
 
         CheckReplayResult("Process_agsInitialize", return_value, result);
     }
@@ -275,7 +264,7 @@ void AgsReplayConsumer::Process_agsDriverExtensionsDX12_CreateDevice(
         dx12_replay_consumer_->AddObject(&(object_info.capture_id),
                                          reinterpret_cast<void**>(&(object_info.object)),
                                          std::move(object_info),
-                                         format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_2_0);
+                                         format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1);
 
         returned_parameters.extensionsSupported.padding          = 0;
         pReturnParams->GetPointer()->extensionsSupported.padding = 0;

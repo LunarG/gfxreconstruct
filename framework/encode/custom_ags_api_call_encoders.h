@@ -57,8 +57,7 @@ void Encode_agsDriverExtensionsDX12_CreateDevice(AGSReturnCode                  
                                                  AGSContext*                        context,
                                                  const AGSDX12DeviceCreationParams* creationParams,
                                                  const AGSDX12ExtensionParams*      extensionParams,
-                                                 AGSDX12ReturnedParams*             returnedParams,
-                                                 format::ApiCallId                  api_id);
+                                                 AGSDX12ReturnedParams*             returnedParams);
 
 void Encode_agsDriverExtensionsDX12_DestroyDevice(AGSReturnCode result,
                                                   AGSContext*   context,

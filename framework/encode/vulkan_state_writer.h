@@ -121,8 +121,6 @@ class VulkanStateWriter
 
     void WritePipelineLayoutState(const VulkanStateTable& state_table);
 
-    void WritePipelineCacheState(const VulkanStateTable& state_table);
-
     void WritePipelineState(const VulkanStateTable& state_table);
 
     void WriteDescriptorSetState(const VulkanStateTable& state_table);
@@ -253,12 +251,6 @@ class VulkanStateWriter
                                   format::HandleId             device_id,
                                   format::HandleId             object_id,
                                   const VkAllocationCallbacks* allocator);
-
-    void WriteCreatePipelineCache(format::HandleId                 device_id,
-                                  const VkPipelineCacheCreateInfo* pCreateInfo,
-                                  const VkAllocationCallbacks*     allocator,
-                                  VkPipelineCache*                 pPipelineCache,
-                                  VkResult                         result);
 
     void DestroyTemporaryDeviceObject(format::ApiCallId               call_id,
                                       format::HandleId                object_id,

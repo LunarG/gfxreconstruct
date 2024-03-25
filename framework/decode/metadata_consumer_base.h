@@ -103,11 +103,6 @@ class MetadataConsumerBase
     virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                const uint8_t*                              data)
     {}
-
-    virtual void SetCurrentBlockIndex(uint64_t block_index) {}
-
-  protected:
-    uint64_t block_index_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

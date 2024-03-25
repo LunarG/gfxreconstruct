@@ -57,13 +57,13 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
                                         HandlePointerDecoder<VkSurfaceKHR>* surface,
                                         const encode::InstanceTable*        instance_table,
                                         application::Application*           application,
-                                        const VulkanReplayOptions&          replay_options)
+                                        int32_t                             options_surface_index)
 {
     assert(instance_info != nullptr);
 
     instance_table_        = instance_table;
     application_           = application;
-    options_surface_index_ = replay_options.surface_index;
+    options_surface_index_ = options_surface_index;
 
     VkInstance    instance       = instance_info->handle;
     VkSurfaceKHR* replay_surface = nullptr;

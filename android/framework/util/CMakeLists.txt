@@ -13,6 +13,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/hash.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/hash.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/image_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/image_writer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/keyboard.h
@@ -30,7 +31,6 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/page_guard_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/page_guard_manager.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/util/page_guard_manager_uffd.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/page_status_tracker.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/platform.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.h

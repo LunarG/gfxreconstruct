@@ -12,7 +12,12 @@
     "vkCmdPushDescriptorSetWithTemplateKHR",
     "vkBuildAccelerationStructuresKHR",
     "vkCopyAccelerationStructureKHR",
-    "vkCreateRayTracingPipelinesKHR"
+    "vkCreateRayTracingPipelinesKHR",
+    "vkSetLatencySleepModeNV",
+    "vkLatencySleepNV",
+    "vkSetLatencyMarkerNV",
+    "vkGetLatencyTimingsNV",
+    "vkQueueNotifyOutOfBandNV"
   ],
   "functions-encoder": [
     "vkCreateComputePipelines",
@@ -30,6 +35,15 @@
     "VkWriteDescriptorSet",
     "VkPerformanceValueINTEL",
     "VkAccelerationStructureGeometryKHR",
-    "VkAccelerationStructureMotionInstanceNV"
+    "VkAccelerationStructureMotionInstanceNV",
+    "VkGetLatencyMarkerInfoNV",
+    "VkLatencySleepInfoNV",
+    "VkLatencySleepModeInfoNV",
+    "VkLatencyTimingsFrameReportNV",
+    "VkOutOfBandQueueTypeInfoNV",
+    "VkSetLatencyMarkerInfoNV",
+    "VkLatencySubmissionPresentIdNV",
+    "VkLatencySurfaceCapabilitiesNV",
+    "VkSwapchainLatencyCreateInfoNV"
   ]
 }

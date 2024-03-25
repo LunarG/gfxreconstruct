@@ -243,7 +243,6 @@ Optional arguments:
                         Image file format to use for screenshot generation.
                         Available formats are:
                             bmp         Bitmap file format.  This is the default format.
-                            png         Portable Network Graphics file format.
   --screenshot-dir <dir>
                         Directory to write screenshots.  Default is the current
                         working directory.

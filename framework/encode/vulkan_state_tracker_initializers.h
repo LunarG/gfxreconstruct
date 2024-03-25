@@ -1,6 +1,5 @@
 /*
 ** Copyright (c) 2019-2021 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -225,26 +224,6 @@ inline void InitializeState<VkDevice, EventWrapper, VkEventCreateInfo>(VkDevice 
     wrapper->create_parameters = std::move(create_parameters);
 
     wrapper->device = GetWrapper<DeviceWrapper>(parent_handle);
-}
-
-template <>
-inline void
-InitializeState<VkDevice, PipelineCacheWrapper, VkPipelineCacheCreateInfo>(VkDevice              parent_handle,
-                                                                           PipelineCacheWrapper* wrapper,
-                                                                           const VkPipelineCacheCreateInfo* create_info,
-                                                                           format::ApiCallId create_call_id,
-                                                                           CreateParameters  create_parameters)
-{
-    assert(wrapper != nullptr);
-    assert(create_info != nullptr);
-    assert(create_parameters != nullptr);
-
-    wrapper->create_call_id    = create_call_id;
-    wrapper->create_parameters = std::move(create_parameters);
-
-    wrapper->device = GetWrapper<DeviceWrapper>(parent_handle);
-
-    wrapper->create_info = *create_info;
 }
 
 template <>

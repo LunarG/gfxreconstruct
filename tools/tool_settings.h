@@ -103,16 +103,14 @@ const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kMeasurementFileArgument[]            = "--measurement-file";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
-const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
-const char kColorspaceFallback[]              = "--use-colorspace-fallback";
-const char kOffscreenSwapchainFrameBoundary[] = "--offscreen-swapchain-frame-boundary";
-const char kFormatArgument[]                  = "--format";
-const char kIncludeBinariesOption[]           = "--include-binaries";
-const char kExpandFlagsOption[]               = "--expand-flags";
-const char kFilePerFrameOption[]              = "--file-per-frame";
+const char kColorspaceFallback[]    = "--use-colorspace-fallback";
+const char kFormatArgument[]        = "--format";
+const char kIncludeBinariesOption[] = "--include-binaries";
+const char kExpandFlagsOption[]     = "--expand-flags";
+const char kFilePerFrameOption[]    = "--file-per-frame";
 #if defined(WIN32)
 const char kApiFamilyOption[]             = "--api";
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
@@ -812,11 +810,6 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
         options.flush_measurement_frame_range = true;
     }
 
-    if (arg_parser.IsOptionSet(kFlushInsideMeasurementRangeOption))
-    {
-        options.flush_inside_measurement_range = true;
-    }
-
     const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
     if (!override_gpu.empty())
     {
@@ -898,11 +891,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (arg_parser.IsOptionSet(kColorspaceFallback))
     {
         replay_options.use_colorspace_fallback = true;
-    }
-
-    if (arg_parser.IsOptionSet(kOffscreenSwapchainFrameBoundary))
-    {
-        replay_options.offscreen_swapchain_frame_boundary = true;
     }
 
     replay_options.replace_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);

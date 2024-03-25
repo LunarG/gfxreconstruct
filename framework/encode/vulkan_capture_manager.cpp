@@ -1995,12 +1995,11 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
                 wrapper->mapped_size   = size;
             }
 
-            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-                GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd
+            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-                    // Hardware buffer memory is tracked separately, so VkDeviceMemory mappings should be ignored to
-                    // avoid duplicate memory tracking entries.
-                    && (wrapper->hardware_buffer == nullptr)
+                // Hardware buffer memory is tracked separately, so VkDeviceMemory mappings should be ignored to avoid
+                // duplicate memory tracking entries.
+                && (wrapper->hardware_buffer == nullptr)
 #endif
             )
             {
@@ -2058,8 +2057,7 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
             GFXRECON_LOG_WARNING("VkDeviceMemory object with handle = %" PRIx64 " has been mapped more than once",
                                  memory);
 
-            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-                GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
             {
                 assert((wrapper->mapped_offset == offset) && (wrapper->mapped_size == size));
 
@@ -2085,8 +2083,7 @@ void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice        
 
     if (pMemoryRanges != nullptr)
     {
-        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-            GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             const DeviceMemoryWrapper* current_memory_wrapper = nullptr;
             util::PageGuardManager*    manager                = util::PageGuardManager::Get();
@@ -2155,8 +2152,7 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
 
     if (wrapper->mapped_data != nullptr)
     {
-        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-            GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
@@ -2221,8 +2217,7 @@ void VulkanCaptureManager::PreProcess_vkFreeMemory(VkDevice                     
 
         if (wrapper->mapped_data != nullptr)
         {
-            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-                GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
             {
                 util::PageGuardManager* manager = util::PageGuardManager::Get();
                 assert(manager != nullptr);
@@ -2251,8 +2246,7 @@ void VulkanCaptureManager::PostProcess_vkFreeMemory(VkDevice                    
         // Destroy external resources.
         auto wrapper = GetWrapper<DeviceMemoryWrapper>(memory);
 
-        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-            GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
@@ -2428,8 +2422,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
 
 void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
 {
-    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-        GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
@@ -2639,9 +2632,7 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint3
 
 bool VulkanCaptureManager::CheckBindAlignment(VkDeviceSize memoryOffset)
 {
-    if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-         GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
-        !GetPageGuardAlignBufferSizes())
+    if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) && !GetPageGuardAlignBufferSizes())
     {
         return (memoryOffset % util::platform::GetSystemPageSize()) == 0;
     }
@@ -2658,32 +2649,6 @@ bool VulkanCaptureManager::CheckCommandBufferWrapperForFrameBoundary(const Comma
         EndFrame();
         return true;
     }
-    return false;
-}
-
-bool VulkanCaptureManager::CheckPNextChainForFrameBoundary(const VkBaseInStructure* current)
-{
-    if (current == nullptr)
-    {
-        return false;
-    }
-
-    while (current->sType != VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT && current->pNext != nullptr)
-    {
-        current = current->pNext;
-    }
-
-    if (current->sType == VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT)
-    {
-        const VkFrameBoundaryEXT* frame_boundary = reinterpret_cast<const VkFrameBoundaryEXT*>(current);
-
-        if (frame_boundary->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT)
-        {
-            EndFrame();
-            return true;
-        }
-    }
-
     return false;
 }
 

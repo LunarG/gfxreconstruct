@@ -24,7 +24,6 @@
 #ifndef GFXRECON_DECODE_PNEXT_NODE_H
 #define GFXRECON_DECODE_PNEXT_NODE_H
 
-#include "generated/generated_vulkan_stype_util.h"
 #include "util/defines.h"
 
 #include <cassert>
@@ -54,26 +53,6 @@ class PNextNode
 
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) = 0;
 };
-
-template <typename T>
-const T* GetPNextMetaStruct(const PNextNode* pnext)
-{
-    struct MetaStructHeader
-    {
-        VkStructureType* sType;
-        PNextNode*       pNext;
-    };
-    while (pnext != nullptr)
-    {
-        const auto* header = reinterpret_cast<const MetaStructHeader*>(pnext->GetMetaStructPointer());
-        if (*header->sType == gfxrecon::util::GetSType<typename T::struct_type>())
-        {
-            return reinterpret_cast<const T*>(header);
-        }
-        pnext = header->pNext;
-    }
-    return nullptr;
-}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

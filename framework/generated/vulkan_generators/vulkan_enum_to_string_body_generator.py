@@ -35,23 +35,23 @@ class VulkanEnumToStringBodyGeneratorOptions(BaseGeneratorOptions):
         # Path to JSON file listing apicalls and structs to ignore.
         blacklists=None,
         # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-        platform_types=None,
+        platformTypes=None,
         filename=None,
         directory='.',
-        prefix_text='',
-        protect_file=False,
-        protect_feature=True,
+        prefixText='',
+        protectFile=False,
+        protectFeature=True,
         extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
             blacklists,
-            platform_types,
+            platformTypes,
             filename,
             directory,
-            prefix_text,
-            protect_file,
-            protect_feature,
+            prefixText,
+            protectFile,
+            protectFeature,
             extraVulkanHeaders=extraVulkanHeaders
         )
 

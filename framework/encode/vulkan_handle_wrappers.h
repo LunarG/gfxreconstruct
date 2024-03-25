@@ -71,6 +71,7 @@ struct HandleWrapper
 
 // clang-format off
 struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
+struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
 struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
 struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
@@ -161,14 +162,9 @@ struct EventWrapper : public HandleWrapper<VkEvent>
 
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 {
-    uint32_t     memory_type_index{ std::numeric_limits<uint32_t>::max() };
-    VkDeviceSize allocation_size{ 0 };
-    // This is the device which was used to allocate the memory.
-    // Spec states if the memory can be mapped, the mapping device must be this device.
-    // The device wrapper will be initialized when allocating the memory. Some handling
-    // like VulkanStateTracker::TrackTlasToBlasDependencies may use it before mapping
-    // the memory.
-    DeviceWrapper*   parent_device{ nullptr };
+    uint32_t         memory_type_index{ std::numeric_limits<uint32_t>::max() };
+    VkDeviceSize     allocation_size{ 0 };
+    DeviceWrapper*   map_device{ nullptr };
     const void*      mapped_data{ nullptr };
     VkDeviceSize     mapped_offset{ 0 };
     VkDeviceSize     mapped_size{ 0 };
@@ -205,19 +201,18 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     const void*        bind_pnext{ nullptr };
     HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
                                           // HandleUnwrapMemory.
-    format::HandleId         bind_memory_id{ format::kNullHandleId };
-    VkDeviceSize             bind_offset{ 0 };
-    uint32_t                 queue_family_index{ 0 };
-    VkImageType              image_type{ VK_IMAGE_TYPE_2D };
-    VkFormat                 format{ VK_FORMAT_UNDEFINED };
-    VkExtent3D               extent{ 0, 0, 0 };
-    uint32_t                 mip_levels{ 0 };
-    uint32_t                 array_layers{ 0 };
-    VkSampleCountFlagBits    samples{};
-    VkImageTiling            tiling{};
-    VkImageLayout            current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
-    bool                     is_swapchain_image{ false };
-    std::set<VkSwapchainKHR> parent_swapchains;
+    format::HandleId      bind_memory_id{ format::kNullHandleId };
+    VkDeviceSize          bind_offset{ 0 };
+    uint32_t              queue_family_index{ 0 };
+    VkImageType           image_type{ VK_IMAGE_TYPE_2D };
+    VkFormat              format{ VK_FORMAT_UNDEFINED };
+    VkExtent3D            extent{ 0, 0, 0 };
+    uint32_t              mip_levels{ 0 };
+    uint32_t              array_layers{ 0 };
+    VkSampleCountFlagBits samples{};
+    VkImageTiling         tiling{};
+    VkImageLayout         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    bool                  is_swapchain_image{ false };
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
@@ -499,13 +494,6 @@ struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
     VkObjectType   object_type{ VK_OBJECT_TYPE_UNKNOWN };
     uint64_t       object_handle{ 0 };
     uint64_t       data{ 0 };
-};
-
-struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
-{
-    DeviceWrapper*            device{ nullptr };
-    VkPipelineCacheCreateInfo create_info;
-    std::vector<uint8_t>      cache_data;
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.

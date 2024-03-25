@@ -146,7 +146,6 @@ int main(int argc, const char** argv)
             bool        has_mfr                            = false;
             bool        quit_after_measurement_frame_range = false;
             bool        flush_measurement_frame_range      = false;
-            bool        flush_inside_measurement_range     = false;
             std::string measurement_file_name;
 
             if (vulkan_replay_options.enable_vulkan)
@@ -154,7 +153,6 @@ int main(int argc, const char** argv)
                 has_mfr                            = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
                 quit_after_measurement_frame_range = vulkan_replay_options.quit_after_measurement_frame_range;
                 flush_measurement_frame_range      = vulkan_replay_options.flush_measurement_frame_range;
-                flush_inside_measurement_range     = vulkan_replay_options.flush_inside_measurement_range;
             }
 
             if (has_mfr)
@@ -167,7 +165,6 @@ int main(int argc, const char** argv)
                                                  has_mfr,
                                                  quit_after_measurement_frame_range,
                                                  flush_measurement_frame_range,
-                                                 flush_inside_measurement_range,
                                                  measurement_file_name);
 
             gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);

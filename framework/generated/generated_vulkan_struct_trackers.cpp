@@ -5646,74 +5646,6 @@ VkPhysicalDeviceFragmentShadingRateKHR* TrackStruct(const VkPhysicalDeviceFragme
     return unwrapped_struct;
 }
 
-VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR* TrackStruct(const VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkRenderingAttachmentLocationInfoKHR* TrackStruct(const VkRenderingAttachmentLocationInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkRenderingAttachmentLocationInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pColorAttachmentLocations)
-    {
-        unwrapped_struct->pColorAttachmentLocations = MakeUnwrapStructs(unwrapped_struct->pColorAttachmentLocations, unwrapped_struct->colorAttachmentCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkRenderingInputAttachmentIndexInfoKHR* TrackStruct(const VkRenderingInputAttachmentIndexInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkRenderingInputAttachmentIndexInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pColorAttachmentInputIndices)
-    {
-        unwrapped_struct->pColorAttachmentInputIndices = MakeUnwrapStructs(unwrapped_struct->pColorAttachmentInputIndices, unwrapped_struct->colorAttachmentCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceShaderQuadControlFeaturesKHR* TrackStruct(const VkPhysicalDeviceShaderQuadControlFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceShaderQuadControlFeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
 VkSurfaceProtectedCapabilitiesKHR* TrackStruct(const VkSurfaceProtectedCapabilitiesKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -6199,36 +6131,6 @@ VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR* TrackStruct(const VkPhysicalD
     return unwrapped_struct;
 }
 
-VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR* TrackStruct(const VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* TrackStruct(const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
 VkPhysicalDeviceMaintenance5FeaturesKHR* TrackStruct(const VkPhysicalDeviceMaintenance5FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -6413,89 +6315,6 @@ VkPhysicalDeviceCooperativeMatrixPropertiesKHR* TrackStruct(const VkPhysicalDevi
     return unwrapped_struct;
 }
 
-VkVideoDecodeAV1ProfileInfoKHR* TrackStruct(const VkVideoDecodeAV1ProfileInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoDecodeAV1ProfileInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoDecodeAV1CapabilitiesKHR* TrackStruct(const VkVideoDecodeAV1CapabilitiesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoDecodeAV1CapabilitiesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoDecodeAV1SessionParametersCreateInfoKHR* TrackStruct(const VkVideoDecodeAV1SessionParametersCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoDecodeAV1SessionParametersCreateInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoDecodeAV1PictureInfoKHR* TrackStruct(const VkVideoDecodeAV1PictureInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoDecodeAV1PictureInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pTileOffsets)
-    {
-        unwrapped_struct->pTileOffsets = MakeUnwrapStructs(unwrapped_struct->pTileOffsets, unwrapped_struct->tileCount, unwrap_memory);
-    }
-    if (unwrapped_struct->pTileSizes)
-    {
-        unwrapped_struct->pTileSizes = MakeUnwrapStructs(unwrapped_struct->pTileSizes, unwrapped_struct->tileCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkVideoDecodeAV1DpbSlotInfoKHR* TrackStruct(const VkVideoDecodeAV1DpbSlotInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkVideoDecodeAV1DpbSlotInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
 VkPhysicalDeviceVideoMaintenance1FeaturesKHR* TrackStruct(const VkPhysicalDeviceVideoMaintenance1FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -6575,81 +6394,6 @@ VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR* TrackStruct(const VkPhysicalD
     return unwrapped_struct;
 }
 
-VkPhysicalDeviceShaderFloatControls2FeaturesKHR* TrackStruct(const VkPhysicalDeviceShaderFloatControls2FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceShaderFloatControls2FeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceIndexTypeUint8FeaturesKHR* TrackStruct(const VkPhysicalDeviceIndexTypeUint8FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceIndexTypeUint8FeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceLineRasterizationFeaturesKHR* TrackStruct(const VkPhysicalDeviceLineRasterizationFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceLineRasterizationFeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceLineRasterizationPropertiesKHR* TrackStruct(const VkPhysicalDeviceLineRasterizationPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceLineRasterizationPropertiesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPipelineRasterizationLineStateCreateInfoKHR* TrackStruct(const VkPipelineRasterizationLineStateCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPipelineRasterizationLineStateCreateInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
 VkCalibratedTimestampInfoKHR* TrackStruct(const VkCalibratedTimestampInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -6658,21 +6402,6 @@ VkCalibratedTimestampInfoKHR* TrackStruct(const VkCalibratedTimestampInfoKHR* va
     }
 
     VkCalibratedTimestampInfoKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceShaderExpectAssumeFeaturesKHR* TrackStruct(const VkPhysicalDeviceShaderExpectAssumeFeaturesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceShaderExpectAssumeFeaturesKHR* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
@@ -9334,6 +9063,51 @@ VkHeadlessSurfaceCreateInfoEXT* TrackStruct(const VkHeadlessSurfaceCreateInfoEXT
     return unwrapped_struct;
 }
 
+VkPhysicalDeviceLineRasterizationFeaturesEXT* TrackStruct(const VkPhysicalDeviceLineRasterizationFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceLineRasterizationFeaturesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceLineRasterizationPropertiesEXT* TrackStruct(const VkPhysicalDeviceLineRasterizationPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceLineRasterizationPropertiesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPipelineRasterizationLineStateCreateInfoEXT* TrackStruct(const VkPipelineRasterizationLineStateCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPipelineRasterizationLineStateCreateInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
 VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* TrackStruct(const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -9342,6 +9116,21 @@ VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* TrackStruct(const VkPhysicalDevice
     }
 
     VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
+
+    return unwrapped_struct;
+}
+
+VkPhysicalDeviceIndexTypeUint8FeaturesEXT* TrackStruct(const VkPhysicalDeviceIndexTypeUint8FeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    VkPhysicalDeviceIndexTypeUint8FeaturesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
@@ -9527,51 +9316,6 @@ VkHostImageCopyDevicePerformanceQueryEXT* TrackStruct(const VkHostImageCopyDevic
     }
 
     VkHostImageCopyDevicePerformanceQueryEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceMapMemoryPlacedFeaturesEXT* TrackStruct(const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceMapMemoryPlacedFeaturesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceMapMemoryPlacedPropertiesEXT* TrackStruct(const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceMapMemoryPlacedPropertiesEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkMemoryMapPlacedInfoEXT* TrackStruct(const VkMemoryMapPlacedInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkMemoryMapPlacedInfoEXT* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
@@ -12576,149 +12320,6 @@ VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* TrackStruct(const 
     return unwrapped_struct;
 }
 
-VkLatencySleepModeInfoNV* TrackStruct(const VkLatencySleepModeInfoNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkLatencySleepModeInfoNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkLatencySleepInfoNV* TrackStruct(const VkLatencySleepInfoNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkLatencySleepInfoNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkSetLatencyMarkerInfoNV* TrackStruct(const VkSetLatencyMarkerInfoNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkSetLatencyMarkerInfoNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkLatencyTimingsFrameReportNV* TrackStruct(const VkLatencyTimingsFrameReportNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkLatencyTimingsFrameReportNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkGetLatencyMarkerInfoNV* TrackStruct(const VkGetLatencyMarkerInfoNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkGetLatencyMarkerInfoNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pTimings)
-    {
-        unwrapped_struct->pTimings = MakeUnwrapStructs(unwrapped_struct->pTimings, unwrapped_struct->timingCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkLatencySubmissionPresentIdNV* TrackStruct(const VkLatencySubmissionPresentIdNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkLatencySubmissionPresentIdNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkSwapchainLatencyCreateInfoNV* TrackStruct(const VkSwapchainLatencyCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkSwapchainLatencyCreateInfoNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkOutOfBandQueueTypeInfoNV* TrackStruct(const VkOutOfBandQueueTypeInfoNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkOutOfBandQueueTypeInfoNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkLatencySurfaceCapabilitiesNV* TrackStruct(const VkLatencySurfaceCapabilitiesNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkLatencySurfaceCapabilitiesNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-    if (unwrapped_struct->pPresentModes)
-    {
-        unwrapped_struct->pPresentModes = MakeUnwrapStructs(unwrapped_struct->pPresentModes, unwrapped_struct->presentModeCount, unwrap_memory);
-    }
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
 VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* TrackStruct(const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -12941,51 +12542,6 @@ VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* TrackStruct(const VkPhys
     }
 
     VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceRawAccessChainsFeaturesNV* TrackStruct(const VkPhysicalDeviceRawAccessChainsFeaturesNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceRawAccessChainsFeaturesNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* TrackStruct(const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
-
-    return unwrapped_struct;
-}
-
-VkPhysicalDeviceRayTracingValidationFeaturesNV* TrackStruct(const VkPhysicalDeviceRayTracingValidationFeaturesNV* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    VkPhysicalDeviceRayTracingValidationFeaturesNV* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);
@@ -14053,14 +13609,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRatePropertiesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES_KHR:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_LOCATION_INFO_KHR:
-            return TrackStruct(reinterpret_cast<const VkRenderingAttachmentLocationInfoKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO_KHR:
-            return TrackStruct(reinterpret_cast<const VkRenderingInputAttachmentIndexInfoKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_QUAD_CONTROL_FEATURES_KHR:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderQuadControlFeaturesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR:
             return TrackStruct(reinterpret_cast<const VkSurfaceProtectedCapabilitiesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR:
@@ -14123,10 +13671,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES_KHR:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES_KHR:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceMaintenance5FeaturesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES_KHR:
@@ -14151,16 +13695,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixPropertiesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PROFILE_INFO_KHR:
-            return TrackStruct(reinterpret_cast<const VkVideoDecodeAV1ProfileInfoKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_CAPABILITIES_KHR:
-            return TrackStruct(reinterpret_cast<const VkVideoDecodeAV1CapabilitiesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
-            return TrackStruct(reinterpret_cast<const VkVideoDecodeAV1SessionParametersCreateInfoKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
-            return TrackStruct(reinterpret_cast<const VkVideoDecodeAV1PictureInfoKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_DPB_SLOT_INFO_KHR:
-            return TrackStruct(reinterpret_cast<const VkVideoDecodeAV1DpbSlotInfoKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
@@ -14171,20 +13705,8 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPipelineVertexInputDivisorStateCreateInfoKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES_KHR:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderFloatControls2FeaturesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_KHR:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceIndexTypeUint8FeaturesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_KHR:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceLineRasterizationFeaturesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES_KHR:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceLineRasterizationPropertiesKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO_KHR:
-            return TrackStruct(reinterpret_cast<const VkPipelineRasterizationLineStateCreateInfoKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR:
             return TrackStruct(reinterpret_cast<const VkCalibratedTimestampInfoKHR*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES_KHR:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderExpectAssumeFeaturesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES_KHR:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceMaintenance6FeaturesKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES_KHR:
@@ -14517,8 +14039,16 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkSurfaceFullScreenExclusiveWin32InfoEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT:
             return TrackStruct(reinterpret_cast<const VkHeadlessSurfaceCreateInfoEXT*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_EXT:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceLineRasterizationFeaturesEXT*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES_EXT:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceLineRasterizationPropertiesEXT*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO_EXT:
+            return TrackStruct(reinterpret_cast<const VkPipelineRasterizationLineStateCreateInfoEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT*>(value), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT:
+            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceIndexTypeUint8FeaturesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT:
@@ -14541,12 +14071,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkSubresourceHostMemcpySizeEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY_EXT:
             return TrackStruct(reinterpret_cast<const VkHostImageCopyDevicePerformanceQueryEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT:
-            return TrackStruct(reinterpret_cast<const VkMemoryMapPlacedInfoEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT:
@@ -14929,24 +14453,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_LATENCY_SLEEP_MODE_INFO_NV:
-            return TrackStruct(reinterpret_cast<const VkLatencySleepModeInfoNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_LATENCY_SLEEP_INFO_NV:
-            return TrackStruct(reinterpret_cast<const VkLatencySleepInfoNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_SET_LATENCY_MARKER_INFO_NV:
-            return TrackStruct(reinterpret_cast<const VkSetLatencyMarkerInfoNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_LATENCY_TIMINGS_FRAME_REPORT_NV:
-            return TrackStruct(reinterpret_cast<const VkLatencyTimingsFrameReportNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_GET_LATENCY_MARKER_INFO_NV:
-            return TrackStruct(reinterpret_cast<const VkGetLatencyMarkerInfoNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_LATENCY_SUBMISSION_PRESENT_ID_NV:
-            return TrackStruct(reinterpret_cast<const VkLatencySubmissionPresentIdNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_LATENCY_CREATE_INFO_NV:
-            return TrackStruct(reinterpret_cast<const VkSwapchainLatencyCreateInfoNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_OUT_OF_BAND_QUEUE_TYPE_INFO_NV:
-            return TrackStruct(reinterpret_cast<const VkOutOfBandQueueTypeInfoNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_LATENCY_SURFACE_CAPABILITIES_NV:
-            return TrackStruct(reinterpret_cast<const VkLatencySurfaceCapabilitiesNV*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
@@ -14977,12 +14483,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceLayeredDriverPropertiesMSFT*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
             return TrackStruct(reinterpret_cast<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceRawAccessChainsFeaturesNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV*>(value), unwrap_memory);
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
-            return TrackStruct(reinterpret_cast<const VkPhysicalDeviceRayTracingValidationFeaturesNV*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
             return TrackStruct(reinterpret_cast<const VkAccelerationStructureGeometryTrianglesDataKHR*>(value), unwrap_memory);
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR:

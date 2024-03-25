@@ -2185,16 +2185,6 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         StructPointerDecoder<Decoded_VkExtent2D>*   pFragmentSize,
         PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) override;
 
-    virtual void Process_vkCmdSetRenderingAttachmentLocationsKHR(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfoKHR>* pLocationInfo) override;
-
-    virtual void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pLocationInfo) override;
-
     virtual void Process_vkWaitForPresentKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -2450,12 +2440,6 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         format::HandleId                            physicalDevice,
         PointerDecoder<uint32_t>*                   pPropertyCount,
         StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties) override;
-
-    virtual void Process_vkCmdSetLineStippleKHR(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        uint32_t                                    lineStippleFactor,
-        uint16_t                                    lineStipplePattern) override;
 
     virtual void Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
         const ApiCallInfo&                          call_info,
@@ -3812,6 +3796,11 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkPipelineIndirectDeviceAddressInfoNV>* pInfo) override;
 
+    virtual void Process_vkCmdSetTessellationDomainOriginEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkTessellationDomainOrigin                  domainOrigin) override;
+
     virtual void Process_vkCmdSetDepthClampEnableEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -3868,11 +3857,6 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         uint32_t                                    firstAttachment,
         uint32_t                                    attachmentCount,
         PointerDecoder<VkColorComponentFlags>*      pColorWriteMasks) override;
-
-    virtual void Process_vkCmdSetTessellationDomainOriginEXT(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer,
-        VkTessellationDomainOrigin                  domainOrigin) override;
 
     virtual void Process_vkCmdSetRasterizationStreamEXT(
         const ApiCallInfo&                          call_info,
@@ -4072,37 +4056,6 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo,
         StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties) override;
-
-    virtual void Process_vkSetLatencySleepModeNV(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            swapchain,
-        StructPointerDecoder<Decoded_VkLatencySleepModeInfoNV>* pSleepModeInfo) override;
-
-    virtual void Process_vkLatencySleepNV(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            swapchain,
-        StructPointerDecoder<Decoded_VkLatencySleepInfoNV>* pSleepInfo) override;
-
-    virtual void Process_vkSetLatencyMarkerNV(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            device,
-        format::HandleId                            swapchain,
-        StructPointerDecoder<Decoded_VkSetLatencyMarkerInfoNV>* pLatencyMarkerInfo) override;
-
-    virtual void Process_vkGetLatencyTimingsNV(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            device,
-        format::HandleId                            swapchain,
-        StructPointerDecoder<Decoded_VkGetLatencyMarkerInfoNV>* pLatencyMarkerInfo) override;
-
-    virtual void Process_vkQueueNotifyOutOfBandNV(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            queue,
-        StructPointerDecoder<Decoded_VkOutOfBandQueueTypeInfoNV>* pQueueTypeInfo) override;
 
     virtual void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
         const ApiCallInfo&                          call_info,

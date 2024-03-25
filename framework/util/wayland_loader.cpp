@@ -70,6 +70,12 @@ bool WaylandLoader::Initialize()
                 util::platform::GetProcAddress(libwayland_, "wl_display_flush"));
             function_table_.display_roundtrip = reinterpret_cast<decltype(wl_display_roundtrip)*>(
                 util::platform::GetProcAddress(libwayland_, "wl_display_roundtrip"));
+            function_table_.compositor_interface = reinterpret_cast<decltype(wl_compositor_interface)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_compositor_interface"));
+            function_table_.shell_interface = reinterpret_cast<decltype(wl_shell_interface)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_shell_interface"));
+            function_table_.seat_interface = reinterpret_cast<decltype(wl_seat_interface)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_seat_interface"));
 
             // Proxy functions
             function_table_.proxy_add_listener = reinterpret_cast<decltype(wl_proxy_add_listener)*>(
@@ -85,12 +91,6 @@ bool WaylandLoader::Initialize()
                     util::platform::GetProcAddress(libwayland_, "wl_proxy_marshal_constructor_versioned"));
 
             // Interfaces
-            function_table_.compositor_interface = reinterpret_cast<decltype(wl_compositor_interface)*>(
-                util::platform::GetProcAddress(libwayland_, "wl_compositor_interface"));
-            function_table_.shell_interface = reinterpret_cast<decltype(wl_shell_interface)*>(
-                util::platform::GetProcAddress(libwayland_, "wl_shell_interface"));
-            function_table_.seat_interface = reinterpret_cast<decltype(wl_seat_interface)*>(
-                util::platform::GetProcAddress(libwayland_, "wl_seat_interface"));
             function_table_.registry_interface = reinterpret_cast<decltype(wl_registry_interface)*>(
                 util::platform::GetProcAddress(libwayland_, "wl_registry_interface"));
             function_table_.keyboard_interface = reinterpret_cast<decltype(wl_keyboard_interface)*>(
@@ -99,14 +99,10 @@ bool WaylandLoader::Initialize()
                 util::platform::GetProcAddress(libwayland_, "wl_output_interface"));
             function_table_.pointer_interface = reinterpret_cast<decltype(wl_pointer_interface)*>(
                 util::platform::GetProcAddress(libwayland_, "wl_pointer_interface"));
-            function_table_.surface_interface = reinterpret_cast<decltype(wl_surface_interface)*>(
-                util::platform::GetProcAddress(libwayland_, "wl_surface_interface"));
             function_table_.shell_surface_interface = reinterpret_cast<decltype(wl_shell_surface_interface)*>(
                 util::platform::GetProcAddress(libwayland_, "wl_shell_surface_interface"));
-
-            // additional protocols
-            function_table_.xdg = std::make_unique<wayland_xdg_shell_table>();
-            function_table_.xdg->initialize(this);
+            function_table_.surface_interface = reinterpret_cast<decltype(wl_surface_interface)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_surface_interface"));
         }
         else
         {

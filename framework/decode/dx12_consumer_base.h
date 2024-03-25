@@ -83,7 +83,7 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                                            UINT                                     SrcDepthPitch)
     {}
 
-    virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
+    void SetCurrentBlockIndex(uint64_t block_index) { current_block_index_ = block_index; }
 
     bool ContainsDxrWorkload() const { return dxr_workload_; }
 
@@ -92,11 +92,14 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
     bool ContainsOptFillMem() const { return opt_fillmem_; }
 
   protected:
-    auto GetCurrentBlockIndex() { return block_index_; }
+    auto GetCurrentBlockIndex() { return current_block_index_; }
 
     bool dxr_workload_{ false };
     bool ei_workload_{ false };
     bool opt_fillmem_{ false };
+
+  private:
+    uint64_t current_block_index_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)
