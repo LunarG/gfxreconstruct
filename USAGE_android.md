@@ -162,12 +162,12 @@ wise, mechanism. However, as described in
 it has some limitation when capturing applications that install their own
 signal handler for handling the `SIGSEGV` signal. This limitation exists
 only on Linux and Android applications. To work around this
-limitation there is the `uffd` mechanism.
+limitation there is the `userfaultfd` mechanism.
 
-##### 4. `uffd`
+##### 4. `userfaultfd`
 This mode utilizes the userfaultfd mechanism provided by the Linux kernel which
 allows user space applications to detect and handle page faults.
-Under the hood `uffd` is the same mechanism as `page_guard` but instead of trapping
+Under the hood `userfaultfd` is the same mechanism as `page_guard` but instead of trapping
 the shadow memory regions with the `PROT_NONE` + `SIGSEGV` trick, it
 registers those memory regions for tracking to the userfaultfd mechanism.
 
@@ -207,7 +207,7 @@ the rest of the threads that potentially are touching pages that are being
 reset. The signal used one of the real time signals, the first in the range
 [`SIGRTMIN`, `SIGRTMAX`] that has no handler already installed.
 
-`uffd` is less efficient performance wise than `page_guard` but
+`userfaultfd` is less efficient performance wise than `page_guard` but
 should be fast enough for real-world applications and games.
 
 ##### Disabling Debug Breaks Triggered by the GFXReconstruct Layer
