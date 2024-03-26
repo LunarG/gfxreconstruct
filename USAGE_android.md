@@ -829,7 +829,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--screenshot-prefix PREFIX] [--screenshot-scale SCALE]
                           [--screenshot-size WIDTHxHEIGHT] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
-                          [--mfr START-END]
+                          [--mfr START-END] [--replace-shaders <dir>]
                           [--measurement-file DEVICE_FILE] [--quit-after-measurement-range]
                           [--flush-measurement-range] [-m MODE]
                           [--swapchain MODE] [--use-captured-swapchain-indices]
@@ -873,7 +873,9 @@ optional arguments:
                         (forwarded to replay tool)
   --screenshot-format FORMAT
                         Image file format to use for screenshot generation.
-                        Available formats are: bmp (forwarded to replay tool)
+                        Available formats are:
+                            bmp         Bitmap file format.  This is the default format.
+                            png         Portable Network Graphics file format.
   --screenshot-dir DIR  Directory to write screenshots. Default is "/sdcard"
                         (forwarded to replay tool)
   --screenshot-prefix PREFIX
@@ -893,6 +895,10 @@ optional arguments:
                         Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (forwarded to replay tool)
+  --replace-shaders <dir> Replace the shader code in each CreateShaderModule
+                        with the contents of the file <dir>/sh<handle_id> if found, where
+                        <handle_id> is the handle id of the CreateShaderModule call.
+                        See gfxrecon-extract.
   --opcd, --omit-pipeline-cache-data
                         Omit pipeline cache data from calls to
                         vkCreatePipelineCache and skip calls to
