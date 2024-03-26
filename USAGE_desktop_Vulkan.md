@@ -648,6 +648,8 @@ Optional arguments:
                                         capture directly on the swapchain setup for replay.
                             offscreen   Disable creating swapchains, surfaces
                                         and windows. To see rendering, add the --screenshots option.
+  --vssb
+                        Skip blit to real swapchain to gain performance during replay.
   --use-captured-swapchain-indices
                         Same as "--swapchain captured". Ignored if the "--swapchain" option is used.
   --measurement-frame-range <start_frame>-<end_frame>

@@ -661,6 +661,13 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
     {
         return VK_ERROR_FEATURE_NOT_PRESENT;
     }
+    else if (swapchain_options_.skip_additional_present_blts)
+    {
+        // If we're to skip the BLT, just go ahead and perform the present even thought it won't
+        // produce the valid image to the screen.  The intent for this path is mostly for performance
+        // evaluation.
+        return func(queue_info->handle, present_info);
+    }
 
     VkQueue  queue              = queue_info->handle;
     uint32_t queue_family_index = queue_info->family_index;
