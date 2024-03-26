@@ -9519,7 +9519,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkLatencySleepInfoNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<SemaphoreWrapper>(value.signalSemaphore);
+    encoder->EncodeHandleValue<vulkan_wrappers::SemaphoreWrapper>(value.signalSemaphore);
     encoder->EncodeUInt64Value(value.value);
 }
 

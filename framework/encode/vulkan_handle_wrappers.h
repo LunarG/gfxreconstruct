@@ -72,7 +72,7 @@ struct HandleWrapper
 
 // clang-format off
 struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
-struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
+// struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
 struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
 struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};

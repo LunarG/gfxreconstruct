@@ -235,11 +235,11 @@ inline void InitializeState<VkDevice, vulkan_wrappers::EventWrapper, VkEventCrea
 
 template <>
 inline void
-InitializeState<VkDevice, vulka_wrappers::PipelineCacheWrapper, VkPipelineCacheCreateInfo>(VkDevice              parent_handle,
-                                                                           vulka_wrappers::PipelineCacheWrapper* wrapper,
+InitializeState<VkDevice, vulkan_wrappers::PipelineCacheWrapper, VkPipelineCacheCreateInfo>(VkDevice              parent_handle,
+                                                                           vulkan_wrappers::PipelineCacheWrapper* wrapper,
                                                                            const VkPipelineCacheCreateInfo* create_info,
                                                                            format::ApiCallId create_call_id,
-                                                                           CreateParameters  create_parameters)
+                                                                           vulkan_state_info::CreateParameters  create_parameters)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -248,7 +248,7 @@ InitializeState<VkDevice, vulka_wrappers::PipelineCacheWrapper, VkPipelineCacheC
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device = GetWrapper<vulka_wrappers::DeviceWrapper>(parent_handle);
+    wrapper->device = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
 
     wrapper->create_info = *create_info;
 }

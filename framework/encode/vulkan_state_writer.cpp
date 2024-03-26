@@ -549,7 +549,7 @@ void VulkanStateWriter::WritePipelineLayoutState(const VulkanStateTable& state_t
 
 void VulkanStateWriter::WritePipelineCacheState(const VulkanStateTable& state_table)
 {
-    state_table.VisitWrappers([&](const PipelineCacheWrapper* wrapper) {
+    state_table.VisitWrappers([&](const vulkan_wrappers::PipelineCacheWrapper* wrapper) {
         GFXRECON_ASSERT(wrapper != nullptr);
 
         // Pipeline cache data can be indirectly changed by pipeline creation command or directly changed by calls like
@@ -562,23 +562,24 @@ void VulkanStateWriter::WritePipelineCacheState(const VulkanStateTable& state_ta
 
         if (data_size != 0)
         {
-            const_cast<PipelineCacheWrapper*>(wrapper)->cache_data.resize(data_size);
+            const_cast<vulkan_wrappers::PipelineCacheWrapper*>(wrapper)->cache_data.resize(data_size);
 
             result = wrapper->device->layer_table.GetPipelineCacheData(
                 wrapper->device->handle,
                 wrapper->handle,
                 &data_size,
-                const_cast<PipelineCacheWrapper*>(wrapper)->cache_data.data());
+                const_cast<vulkan_wrappers::PipelineCacheWrapper*>(wrapper)->cache_data.data());
 
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
-            const_cast<PipelineCacheWrapper*>(wrapper)->create_info.initialDataSize = data_size;
-            const_cast<PipelineCacheWrapper*>(wrapper)->create_info.pInitialData    = wrapper->cache_data.data();
+            const_cast<vulkan_wrappers::PipelineCacheWrapper*>(wrapper)->create_info.initialDataSize = data_size;
+            const_cast<vulkan_wrappers::PipelineCacheWrapper*>(wrapper)->create_info.pInitialData =
+                wrapper->cache_data.data();
         }
         else
         {
-            const_cast<PipelineCacheWrapper*>(wrapper)->create_info.initialDataSize = 0;
-            const_cast<PipelineCacheWrapper*>(wrapper)->create_info.pInitialData    = nullptr;
+            const_cast<vulkan_wrappers::PipelineCacheWrapper*>(wrapper)->create_info.initialDataSize = 0;
+            const_cast<vulkan_wrappers::PipelineCacheWrapper*>(wrapper)->create_info.pInitialData    = nullptr;
         }
 
         WriteCreatePipelineCache(wrapper->device->handle_id,
@@ -2581,7 +2582,7 @@ void VulkanStateWriter::WriteCreatePipelineCache(format::HandleId               
     {
         omit_output_data = true;
     }
-    encoder_.EncodeHandlePtr<PipelineCacheWrapper>(pPipelineCache, omit_output_data);
+    encoder_.EncodeHandlePtr<vulkan_wrappers::PipelineCacheWrapper>(pPipelineCache, omit_output_data);
     encoder_.EncodeEnumValue(result);
     WriteFunctionCall(call_id, &parameter_stream_);
     parameter_stream_.Reset();
