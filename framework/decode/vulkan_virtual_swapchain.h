@@ -144,6 +144,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         // as a vector of the actual hardware ones used during replay.
         std::vector<VirtualImage> virtual_swapchain_images;
         std::vector<VkImage>      replay_swapchain_images;
+        VkPresentModeKHR          present_mode;
     };
 
     bool AddSwapchainResourceData(VkSwapchainKHR swapchain);
