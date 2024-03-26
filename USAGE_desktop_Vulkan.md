@@ -124,6 +124,101 @@ The following command would be executed from the command line to set the
 export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct
 ```
 
+#### Understanding GFXReconstruct Layer Memory Capture
+
+The Vulkan API allows Vulkan memory objects to be mapped by an application
+for direct modification.
+To successfully capture an application, the GFXReconstruct layer must be able to
+detect if the application modifies the mapped memory in order to dump the changes
+in the capture file so that they can be re-applied while replaying.
+To achieve this GFXR utilizes four different modes:
+
+##### 1. `assisted`
+This mode expects the application to call `vkFlushMappedMemoryRanges`
+after memory is modified; the memory ranges specified to the
+`vkFlushMappedMemoryRanges` call will be written to the capture file
+during the call.
+
+##### 2. `unassisted`
+This mode writes the full content of mapped memory to the capture file
+on calls to `vkUnmapMemory` and `vkQueueSubmit`. It is very inefficient
+for performance and it will bloat capture file sizes. May be unusable
+with real-world applications that map large amounts of memory.
+
+##### 3. `page_guard`
+`page_guard` tracks modifications to individual memory pages, which are
+written to the capture file on calls to `vkFlushMappedMemoryRanges`,
+`vkUnmapMemory`, and `vkQueueSubmit`. This method requires allocating
+shadow memory for all mapped memory. The way the changes are being tracked
+varies depending on the operating system.
+- On Windows `Vectored Exception Handling` mechanism is used on the shadow
+memories that correspond to the mapped device memory regions.
+- On Linux and Android the shadow memory regions are similarly trapped by
+changing its access protection to `PROT_NONE`. Every access from the
+application will generate a `SIGSEGV` which is handled by the appropriate
+signal handler installed by the page guard manager.
+
+Because a shadow memory is allocated and returned to the application instead
+of the actual mapped memory returned by the driver, both reads and writes need
+to be tracked.
+- Writes need to be dumped to the capture file.
+- Reads must trigger a memory copy from the actual mapped memory into the shadow
+memory so that the application will read the correct/updated data each time.
+
+`page_guard` is the most efficient, both performance and capture file size
+wise, mechanism. However, as described in
+[Conflicts With Crash Detection Libraries](#conflicts-with-crash-detection-libraries),
+it has some limitation when capturing applications that install their own
+signal handler for handling the `SIGSEGV` signal. This limitation exists
+only on Linux and Android applications. To work around this
+limitation there is the `userfaultfd` mechanism.
+
+##### 4. `userfaultfd`
+This mode utilizes the userfaultfd mechanism provided by the Linux kernel which
+allows user space applications to detect and handle page faults.
+Under the hood `userfaultfd` is the same mechanism as `page_guard` but instead of trapping
+the shadow memory regions with the `PROT_NONE` + `SIGSEGV` trick, it
+registers those memory regions for tracking to the userfaultfd mechanism.
+
+Shadow memory regions are registered using the
+`UFFDIO_REGISTER_MODE_WP | UFFDIO_REGISTER_MODE_MISSING` flags with the
+userfaultfd mechanism and a handler thread is started and polls for faults
+to trigger. The combination of those flags will trigger a fault in two cases:
+- When an unallocated page is accessed with either a write or a read.
+- When a page is written.
+
+This imposes a limitation: When the shadow memory is freshly allocated all
+pages will be unallocated, making tracking both reads and writes simple as
+both will trigger a fault. However, after the first time the accesses are
+tracked and dumped to the capture file, the reads cannot be tracked any longer
+as the pages will be already allocated and won't trigger a fault.
+To workaround this each time the memory is examined, the dirty regions are
+being "reset". This involves unregistering those subregions from userfaultfd,
+requesting new pages from the OS to be provided at the same virtual addresses
+and then the subregions are registered again for tracking.
+This has a performance penalty as in this case both reads and writes need
+to be copied from the actual mapped memory into the shadow memory when
+detected, while the `page_guard` method requires this only for reads.
+
+Also there is another limitation. The way the new pages are requested each
+time and the regions are unregistered and registered again, makes this
+mechanism prone to race conditions when there are multiple threads. If a
+thread is accessing a specific page within a region and at the same time
+that region is being reset, then the access is not trapped and undefined
+behavior occurs.
+
+In order to work around this a list of the thread ids that access each
+region is kept. When that specific region is being reset a signal is
+sent to each thread which will force them to enter a signal handler that
+GFXR registers for that signal. The signal handler essentially performs a
+form of synchronization between the thread that is triggering the reset and
+the rest of the threads that potentially are touching pages that are being
+reset. The signal used one of the real time signals, the first in the range
+[`SIGRTMIN`, `SIGRTMAX`] that has no handler already installed.
+
+`userfaultfd` is less efficient performance wise than `page_guard` but
+should be fast enough for real-world applications and games.
+
 ### Capture Options
 
 The GFXReconstruct layer supports several options, which may be enabled
@@ -180,7 +275,7 @@ Log File Create New | GFXRECON_LOG_FILE_CREATE_NEW | BOOL | Specifies that log f
 Log File Flush After Write | GFXRECON_LOG_FILE_FLUSH_AFTER_WRITE | BOOL | Flush the log file to disk after each write when true. Default is: `false`
 Log File Keep Open | GFXRECON_LOG_FILE_KEEP_OPEN | BOOL | Keep the log file open between log messages when true, or close and reopen the log file for each message when false. Default is: `true`
 Log Output to Debug Console | GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING | BOOL | Windows only option.  Log messages will be written to the Debug Console with `OutputDebugStringA`. Default is: `false`
-Memory Tracking Mode | GFXRECON_MEMORY_TRACKING_MODE | STRING | Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: `page_guard`, `assisted`, and `unassisted`. Default is `page_guard` <ul><li>`page_guard` tracks modifications to individual memory pages, which are written to the capture file on calls to `vkFlushMappedMemoryRanges`, `vkUnmapMemory`, and `vkQueueSubmit`. Tracking modifications requires allocating shadow memory for all mapped memory and that the `SIGSEGV` signal is enabled in the thread's signal mask.</li><li>`assisted` expects the application to call `vkFlushMappedMemoryRanges` after memory is modified; the memory ranges specified to the `vkFlushMappedMemoryRanges` call will be written to the capture file during the call.</li><li>`unassisted` writes the full content of mapped memory to the capture file on calls to `vkUnmapMemory` and `vkQueueSubmit`. It is very inefficient and may be unusable with real-world applications that map large amounts of memory.</li></ul>
+Memory Tracking Mode | GFXRECON_MEMORY_TRACKING_MODE | STRING | Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: `page_guard`, `userfaultfd`, `assisted`, and `unassisted`. See [Understanding GFXReconstruct Layer Memory Capture](#understanding-gfxreconstruct-layer-memory-capture) for more details. Default is `page_guard`.
 Page Guard Copy on Map | GFXRECON_PAGE_GUARD_COPY_ON_MAP | BOOL | When the `page_guard` memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped. Default is: `true`
 Page Guard Separate Read Tracking | GFXRECON_PAGE_GUARD_SEPARATE_READ | BOOL | When the `page_guard` memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page. Default is: `true`
 Page Guard External Memory | GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY | BOOL | When the `page_guard` memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory. Only available on Windows. Default is `false`
@@ -194,8 +289,49 @@ Queue Zero Only | GFXRECON_QUEUE_ZERO_ONLY | BOOL | Forces to using only QueueFa
 Allow Pipeline Compile Required | GFXRECON_ALLOW_PIPELINE_COMPILE_REQUIRED | BOOL | The default behaviour forces VK_PIPELINE_COMPILE_REQUIRED to be returned from Create*Pipelines calls which have VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT set, and skips dispatching and recording the calls. This forces applications to fallback to recompiling pipelines without caching, the Vulkan calls for which will be captured. Enabling this option causes capture to record the application's calls and implementation's return values unmodified, but the resulting captures are fragile to changes in Vulkan implementations if they use pipeline caching.
 #### Memory Tracking Known Issues
 
-There is a known issue with the page guard memory tracking method. The logic behind that method is to apply a memory protection to the guarded/shadowed regions so that accesses made by the user to trigger a segmentation fault which is handled by GFXReconstruct.
-If the access is made by a system call (like `fread()`) then there won't be a segmentation fault generated and the function will fail. As a result the mapped region will not be updated.
+### Capture Limitations
+
+#### Conflicts With Crash Detection Libraries
+
+As described in
+[Understanding GFXReconstruct Layer Memory Capture](#understanding-gfxreconstruct-layer-memory-capture),
+the capture layer, when it utilizing the `page_guard` mechanism, it uses a signal
+handler to detect modifications to mapped memory.
+Only one signal handler for that signal can be registered at a time, which can
+lead to a potential conflict with crash detection libraries that will also
+register a signal handler.
+
+Conflict between the `page_guard` mechanism  and crash detection libraries depends on the
+order with which each component registers its signal handler.
+The capture layer will not register its signal handler until the first call to
+`vkMapMemory`.
+As long as the application initializes the crash detection library before
+calling `vkMapMemory`, there should be no conflict.
+
+The conflict occurs when the application initializes its Vulkan component and
+its crash detection library concurrently.
+Applications have been observed to initialize Vulkan and begin uploading
+resources with one or more threads, while at the same time initializing a crash
+detection library from another thread.
+For this scenario, the crash detection library sets its signal handler after the
+first call to `vkMapMemory`, while a resource upload thread is actively writing
+to the mapped memory.
+After the crash detection library sets its signal handler, it immediately
+receives a SIGSEGV event generated by the concurrent write to mapped memory,
+which it detects as a crash and terminates the application.
+
+`userfaultfd` mechanism was introduced in order to work around such conflicts.
+
+#### Memory Tracking Limitations
+
+There is a limitation with the `page_guard` memory tracking method used by the
+GFXReconstruct capture layer.
+The logic behind that method is to apply a memory protection to the
+guarded/shadowed regions so that accesses made by the user to trigger a
+segmentation fault which is handled by GFXReconstruct.
+If the access is made by a system call (like `fread()`) then there won't be a
+segmentation fault generated and the function will fail.
+As a result the mapped region will not be updated.
 
 #### Settings File
 
