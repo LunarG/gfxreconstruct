@@ -34,28 +34,35 @@ const uint32_t MAX_FRAME_CAPACITY = 1000;
 enum class GfxToCppPlatform
 {
     PLATFORM_ANDROID,
-    PLATFORM_MACOS,
-    PLATFORM_WAYLAND,
+    // PLATFORM_MACOS,
+    // PLATFORM_WAYLAND,
     PLATFORM_WIN32,
     PLATFORM_XCB,
-    PLATFORM_XLIB,
-    PLATFORM_COUNT // MUST BE LAST
+    // PLATFORM_XLIB,
 };
 
-struct PlatformTargets
+struct PlatformTargetInfo
 {
-    gfxrecon::decode::GfxToCppPlatform platformEnum;
-    char                               platformName[32];
-    char                               wsiSurfaceExtName[32];
+    std::string platformName;
+    std::string wsiSurfaceExtName;
 };
 
-const PlatformTargets kValidTargetPlatforms[] = {
-    { GfxToCppPlatform::PLATFORM_ANDROID, "android", VK_KHR_ANDROID_SURFACE_EXTENSION_NAME },
-    { GfxToCppPlatform::PLATFORM_MACOS, "macos", VK_EXT_METAL_SURFACE_EXTENSION_NAME },
-    { GfxToCppPlatform::PLATFORM_WAYLAND, "wayland", VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME },
-    { GfxToCppPlatform::PLATFORM_WIN32, "win32", VK_KHR_WIN32_SURFACE_EXTENSION_NAME },
-    { GfxToCppPlatform::PLATFORM_XCB, "xcb", VK_KHR_XCB_SURFACE_EXTENSION_NAME },
-    { GfxToCppPlatform::PLATFORM_XLIB, "xlib", VK_KHR_XLIB_SURFACE_EXTENSION_NAME }
+const std::map<gfxrecon::decode::GfxToCppPlatform, PlatformTargetInfo> kTargetPlatforms = {
+    { GfxToCppPlatform::PLATFORM_ANDROID, { "android", VK_KHR_ANDROID_SURFACE_EXTENSION_NAME } },
+    //{ GfxToCppPlatform::PLATFORM_MACOS, {"macos", VK_EXT_METAL_SURFACE_EXTENSION_NAME } },
+    //{ GfxToCppPlatform::PLATFORM_WAYLAND, {"wayland", VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME } },
+    { GfxToCppPlatform::PLATFORM_WIN32, { "win32", VK_KHR_WIN32_SURFACE_EXTENSION_NAME } },
+    { GfxToCppPlatform::PLATFORM_XCB, { "xcb", VK_KHR_XCB_SURFACE_EXTENSION_NAME } },
+    //{ GfxToCppPlatform::PLATFORM_XLIB, {"xlib", VK_KHR_XLIB_SURFACE_EXTENSION_NAME } },
+};
+
+const std::map<std::string, GfxToCppPlatform> kTargetPlatformByName = {
+    { "android", GfxToCppPlatform::PLATFORM_ANDROID },
+    //{ "macos", GfxToCppPlatform::PLATFORM_MACOS},
+    //{ "wayland", GfxToCppPlatform::PLATFORM_WAYLAND},
+    { "win32", GfxToCppPlatform::PLATFORM_WIN32 },
+    { "xcb", GfxToCppPlatform::PLATFORM_XCB },
+    //{ "xlib", GfxToCppPlatform::PLATFORM_XLIB},
 };
 
 struct GfxToCppVariable
