@@ -55,8 +55,7 @@ are heavier-weight to reduce their workload on large captures.
 
 ## JSON Structure
 
-The tool's output is an ordered list of JSON structures, one per line in `--format jsonl` mode, each line a valid
-JSON structure. Below are the first few lines from a capture of vkcube, truncated to 200 columns.
+The tool's output is an ordered list of JSON structures, or a single JSON structure per line in `--format jsonl` mode. Below are the first few lines from a capture of vkcube, converted using the "--format jsonl" flag, truncated to 200 columns.
 
 ```json
 {"header":{"source-path":"..\\captures\\vkcube_frames_1_through_20_20240321T112609.gfxr","gfxrecon-version":"1.0.3-dev (dev:52a52d3+dx12)","vulkan-version":"1.3.280"}}
@@ -69,8 +68,9 @@ JSON structure. Below are the first few lines from a capture of vkcube, truncate
 {"index":7,"meta":{"name":"SetDevicePropertiesCommand","args":{"physical_device_id":3,"api_version":4206852,"driver_version":2287403008,"vendor_id":4318,"device_id":9632,"device_type":2,"pipeline_cach...
 {"index":8,"meta":{"name":"SetDeviceMemoryPropertiesCommand","args":{"physical_device_id":3}}}
 {"index":9,"function":{"name":"vkEnumeratePhysicalDevices","thread":1,"return":"VK_SUCCESS","args":{"instance":1,"pPhysicalDeviceCount":2,"pPhysicalDevices":null}}}
-
 ```
+
+Subsequent examples are from captures converted with "--format jsonl" and then pretty-printed with jq.
 
 The file begins with a header object containing some metadata, followed by a
 series of objects representing the sequence of Vulkan calls stored in the
@@ -276,8 +276,8 @@ the representation will be an empty array: `[]`.
 All current and future lines have a top-level JSON object with a key that
 identifies the type of the line and a value that is a nested object holding
 the data for the line, possibly in further nested structure.
-The currently-defined keys are `"header"`, `"function"`, `"annotation"`, `"state"`, and `"meta"`.
-A line can hold _exactly one of_ a nested `"header"`, `"function"`, `"annotation"`, `"state"`, or `"meta"`.
+The currently-defined keys are `"header"`, `"function"`, `"annotation"`, `"state"`, `"frame"`, and `"meta"`.
+A line can hold _exactly one of_ a nested `"header"`, `"function"`, `"annotation"`, `"state"`, `"frame"`, or `"meta"`.
 D3D12 captures may also contain the key `"method"` for object methods.
 
 A tool can work out what kind of JSON document each line contains by checking
@@ -297,6 +297,8 @@ for line in input_lines:
       process annotation block
   else if doc.contains("state"):
       process state block
+  else if doc.contains("frame"):
+      process frame block
   else if doc.contains("meta"):
       process meta command block
   else:
@@ -705,7 +707,7 @@ gfxrecon-convert --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | 
 This can be stripped-down to just the values:
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | jq -c '.function.args = (.function.args | to_entries | map_values(.value))'
+gfxrecon-convert --format jsonl --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | jq -c '.function.args = (.function.args | to_entries | map_values(.value))'
 ```
 
 Note the `-c` option to `jq` preserves the JSON Lines output rather than
@@ -729,7 +731,7 @@ These might be useful to keep beside a set of multi-gigabyte binary traces to
 allow fast grepping when looking for traces that use particular named arguments.
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | jq  -c "[.. | objects | keys[]] | unique" | sed "s/\"args\",//" | sed "s/\"index\",//" | sed "s/\"name\",//" | sed "s/\"return\",//" | sed "s/,\"function\"//" | sort | uniq
+gfxrecon-convert --format jsonl --output stdout vkcube.f1.gfxr | jq  -c "[.. | objects | keys[]] | unique" | sed "s/\"args\",//" | sed "s/\"index\",//" | sed "s/\"name\",//" | sed "s/\"return\",//" | sed "s/,\"function\"//" | sort | uniq
 ```
 
 Output:
@@ -767,7 +769,7 @@ for l in sys.stdin:
 As an example, let's use that to see all the submits in the first frame:
 
 ```bash
-gfxrecon-convert --output stdout bigcapture.gfxr | stop-after-match.py vkQueuePresent | fgrep --line-buffered vkQueueSubmit
+gfxrecon-convert --format jsonl --output stdout bigcapture.gfxr | stop-after-match.py vkQueuePresent | fgrep --line-buffered vkQueueSubmit
 ```
 
 For one particular 33GB capture, the above pipeline runs in around a second on a
