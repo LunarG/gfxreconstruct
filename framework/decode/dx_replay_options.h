@@ -29,6 +29,7 @@
 
 #include "util/defines.h"
 #include "util/options.h"
+#include "util/logging.h"
 
 #include <vector>
 #include <string>
@@ -38,6 +39,13 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 static constexpr uint32_t kDefaultBatchingMemoryUsage = 80;
 
+struct DumpResourcesTarget
+{
+    uint32_t submit_index{ 0 };
+    uint32_t command_index{ 0 };
+    uint32_t drawcall_index{ 0 };
+};
+
 struct DxReplayOptions : public ReplayOptions
 {
     bool                 enable_d3d12{ true };
@@ -46,6 +54,8 @@ struct DxReplayOptions : public ReplayOptions
     std::vector<int32_t> AllowedDebugMessages;
     std::vector<int32_t> DeniedDebugMessages;
     bool                 override_object_names{ false };
+    bool                 enable_dump_resources{ false };
+    DumpResourcesTarget  dump_resources_target{};
 
     util::ScreenshotFormat       screenshot_format{ util::ScreenshotFormat::kBmp };
     std::vector<ScreenshotRange> screenshot_ranges;

@@ -106,15 +106,7 @@ static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_p
         {
             output_filename = output_filename.substr(0, ext_pos);
         }
-        switch (output_format)
-        {
-            case JsonFormat::JSONL:
-                output_filename += ".jsonl";
-                break;
-            case JsonFormat::JSON:
-            default:
-                output_filename += ".json";
-        }
+        output_filename += "." + gfxrecon::util::get_json_format(output_format);
     }
     return output_filename;
 }
@@ -125,19 +117,7 @@ static gfxrecon::util::JsonFormat GetOutputFormat(const gfxrecon::util::Argument
     if (arg_parser.IsArgumentSet(kFormatArgument))
     {
         output_format = arg_parser.GetArgumentValue(kFormatArgument);
-        if (output_format == "json")
-        {
-            return JsonFormat::JSON;
-        }
-        else if (output_format == "jsonl")
-        {
-            return JsonFormat::JSONL;
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Unrecognized format %s. Defaulting to JSON format.", output_format.c_str());
-            return JsonFormat::JSON;
-        }
+        return gfxrecon::util::get_json_format(output_format);
     }
     return JsonFormat::JSON;
 }
@@ -274,8 +254,8 @@ int main(int argc, const char** argv)
 
             // If CONVERT_EXPERIMENTAL_D3D12 was set, then add DX12 consumer/decoder
 #ifdef CONVERT_EXPERIMENTAL_D3D12
-            Dx12JsonConsumer                    dx12_json_consumer;
-            gfxrecon::decode::Dx12Decoder       dx12_decoder;
+            Dx12JsonConsumer              dx12_json_consumer;
+            gfxrecon::decode::Dx12Decoder dx12_decoder;
 
             dx12_decoder.AddConsumer(&dx12_json_consumer);
             file_processor.AddDecoder(&dx12_decoder);

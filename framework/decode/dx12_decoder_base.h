@@ -212,6 +212,8 @@ class Dx12DecoderBase : public ApiDecoder
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
+    virtual void SetCurrentApiCallId(format::ApiCallId api_call_id) override;
+
   protected:
     const std::vector<Dx12Consumer*>& GetConsumers() const { return consumers_; }
 
