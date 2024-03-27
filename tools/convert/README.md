@@ -537,7 +537,7 @@ The switches for that are `--line-buffered` for `grep` and `--unbuffered` for
 We can limit output to functions of particular interest easily with a pipeline.
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1-10.gfxr | fgrep --line-buffered "vkQueuePresent"
+gfxrecon-convert --output stdout --format jsonl vkcube.f1-10.gfxr | fgrep --line-buffered "vkQueuePresent"
 ```
 
 We use `--line-buffered` to keep results flowing.
@@ -562,7 +562,7 @@ A common one on many platforms, written in C, and with no dependencies is `jq`.
 Here we output to stdout and pipe through them to `jq`:
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | jq
+gfxrecon-convert --output stdout --format jsonl vkcube.f1.gfxr | jq .
 ```
 
 The result (abbreviated below) is nicely formatted for human comprehension and preserves the
@@ -601,7 +601,7 @@ We pipe our output into it after adding a line with the YAML separator `---`
 between each JSON line.
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | sed -s "s/$/\n---\n/" | yq -P
+  gfxrecon-convert --format jsonl --output stdout vkcube.f1.gfxr | sed -s "s/$/\n---\n/" | yq -P
 ```
 
 The same excerpt as shown for the JSON pretty print above:
@@ -634,7 +634,7 @@ This would be useful when collecting a set of existing traces to reproduce a bug
 somewhere in the graphics stack for which that function was implicated.
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | sed "s/.*\"name\":\"vk\([^\"]*\).*/vk\1/" | sort | uniq | egrep -v "{\"header\""
+gfxrecon-convert --format jsonl --output stdout vkcube.f1.gfxr | egrep '"function"|"method"' | sed "s/.*\"name\":\"vk\([^\"]*\).*/vk\1/" | sort -u
 ```
 Output:
 ```
@@ -654,13 +654,13 @@ vkWaitForFences
 Splitting the `sed` command in two should execute several times faster:
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | sed "s/.*\"name\":\"vk/vk/" | sed "s/\",.*//" | sort | uniq | egrep -v "{\"header\""
+gfxrecon-convert --format jsonl --output stdout vkcube.f1.gfxr | egrep '"function"|"method"' | sed "s/.*\"name\":\"vk/vk/" | sed "s/\",.*//" | sort -u
 ```
 
 For large captures, screening out runs of duplicate function names before the sort can be a little faster still:
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | sed "s/.*\"name\":\"vk/vk/" | sed "s/\",.*//" | uniq | sort | uniq | egrep -v "{\"header\""
+gfxrecon-convert --format jsonl --output stdout vkcube.f1.gfxr | egrep '"function"|"method"' | sed "s/.*\"name\":\"vk/vk/" | sed "s/\",.*//" | uniq | sort -u
 ```
 
 ### Transform Arguments to Positional Array Form
@@ -672,7 +672,7 @@ This substitution in `jq` turns each argument into its own JSON object with name
 and value fields, and orders them all in an array.
 
 ```bash
-gfxrecon-convert --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | jq '.function.args = (.function.args | to_entries | map_values({"name":(.key), "value":(.value)}))'
+gfxrecon-convert --output stdout --format jsonl vkcube.f1.gfxr | egrep '"function"|"method"' | jq '.function.args = (.function.args | to_entries | map_values({"name":(.key), "value":(.value)}))'
 ```
 
 ```json
@@ -714,7 +714,7 @@ gfxrecon-convert --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | 
 This can be stripped-down to just the values:
 
 ```bash
-gfxrecon-convert --format jsonl --output stdout vkcube.f1.gfxr | egrep -v "^{\"header\":{\"" | jq -c '.function.args = (.function.args | to_entries | map_values(.value))'
+gfxrecon-convert --format jsonl --output stdout vkcube.f1.gfxr | egrep '"function"|"method"' | jq -c '.function.args = (.function.args | to_entries | map_values(.value))'
 ```
 
 Note the `-c` option to `jq` preserves the JSON Lines output rather than
