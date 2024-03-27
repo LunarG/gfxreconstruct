@@ -654,8 +654,10 @@ Dx12ResourceDataUtil::RecordCommandsToCopyResource(
     const std::vector<dx12::ResourceStateInfo>&            after_states,
     ID3D12Resource*                                        staging_buffer)
 {
-    // The resource state required to copy data to the target resource.
-    const dx12::ResourceStateInfo copy_state = { D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_BARRIER_FLAG_NONE };
+    const dx12::ResourceStateInfo common_state = { D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_BARRIER_FLAG_NONE };
+    const dx12::ResourceStateInfo copy_state   = { copy_type == kCopyTypeRead ? D3D12_RESOURCE_STATE_COPY_SOURCE
+                                                                            : D3D12_RESOURCE_STATE_COPY_DEST,
+                                                 D3D12_RESOURCE_BARRIER_FLAG_NONE };
 
     uint64_t subresource_count = subresource_layouts.size();
 
@@ -675,6 +677,7 @@ Dx12ResourceDataUtil::RecordCommandsToCopyResource(
         return E_INVALIDARG;
     }
 
+    // Transition subresources to copy state.
     for (UINT i = 0; i < subresource_count; ++i)
     {
         if ((before_states[i].states & D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE) ==
@@ -686,9 +689,13 @@ Dx12ResourceDataUtil::RecordCommandsToCopyResource(
             return E_INVALIDARG;
         }
 
-        // Prepare resource state.
-        AddTransitionBarrier(target_command_list, target_resource, i, before_states[i], copy_state);
+        // Prepare resource state. Resources in common state will be implicitly promoted to the appropriate copy state.
+        AddTransitionBarrier(target_command_list, target_resource, i, before_states[i], common_state);
+    }
 
+    // Copy subresources' data.
+    for (UINT i = 0; i < subresource_count; ++i)
+    {
         // Copy data.
         if (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
         {
@@ -729,9 +736,20 @@ Dx12ResourceDataUtil::RecordCommandsToCopyResource(
                 target_command_list->CopyTextureRegion(&texture_location, 0, 0, 0, &copy_location, nullptr);
             }
         }
+    }
 
-        // Restore resource state.
-        AddTransitionBarrier(target_command_list, target_resource, i, copy_state, after_states[i]);
+    // Transition subresources to final state.
+    for (UINT i = 0; i < subresource_count; ++i)
+    {
+        // If the final desired state is STATE_COMMON and the resource will decay to STATE_COMMON, skip the final
+        // transition barrier.
+        bool decays_to_common = (copy_state.states == D3D12_RESOURCE_STATE_COPY_SOURCE) ||
+                                (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER) ||
+                                ((resource_desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS) != 0);
+        if (!decays_to_common || (after_states[i].states != D3D12_RESOURCE_STATE_COMMON))
+        {
+            AddTransitionBarrier(target_command_list, target_resource, i, copy_state, after_states[i]);
+        }
     }
 
     return S_OK;
