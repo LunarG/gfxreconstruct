@@ -349,7 +349,11 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
                 }
                 else
                 {
-                    GFXRECON_LOG_ERROR("D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC's vertex data has 0 byte size.");
+                    GFXRECON_LOG_DEBUG("D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC's vertex data has 0 byte size. "
+                                       "(vertex count: %u, vertex stride in bytes: %" PRIu64
+                                       "). Skipping acceleration structure input data for this desc.",
+                                       triangles_desc.VertexCount,
+                                       triangles_desc.VertexBuffer.StrideInBytes);
                 }
             }
             else if (geom_desc->Type == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
