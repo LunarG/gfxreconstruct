@@ -79,9 +79,9 @@ listed above but pretty-printed with
 `gfxrecon-convert --output stdout vkcube.f1.gfxr | jq`.
 
 The first line is a header identifying the source capture file,
-the version of the file format,
-the version of GFXReconstruct used to generate the file,
-and the version of the Vulkan headers used to build that GFXReconstruct version.
+and the version of GFXReconstruct and Vulkan headers used to build `gfxrecon-convert`.
+Note this is *not necessarily* the revision of the source used to build the capture layer
+that saved the source `.gfxr` capture file; see the `annotation` below.
 
 ```json
 {
@@ -94,6 +94,9 @@ and the version of the Vulkan headers used to build that GFXReconstruct version.
 ```
 
 Following the header there may be an annotation block containing metadata about the capture.
+This annotation contains the version of the GFXReconstruct source and Vulkan headers
+used to build the capture layer that was active during application capture.  In more
+straightforward terms, this is the version of GFXReconstruct that created the `.gfxr` file.
 
 ```json
 {
