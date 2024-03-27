@@ -23,7 +23,7 @@
 */
 #include "project_version.h"
 #include "tool_settings.h"
-#include "decode/json_writer.h" /// @todo move to util?
+#include "decode/json_writer.h"
 #include "decode/decode_api_detection.h"
 #include "format/format.h"
 #include "util/file_output_stream.h"
