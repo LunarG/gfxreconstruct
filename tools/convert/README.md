@@ -484,7 +484,11 @@ See the example below.
 Because, in .jsonl mode, every line is a separate JSON object, the output as a whole is not
 valid JSON.
 It can, however, be trivially transformed into a valid JSON array by
-appending a comma to each line and topping and tailing with square brackets.
+appending a comma to each line and topping and tailing with square brackets.  One may
+use `jq` from the command line to perform this operation:
+```
+jq --slurp . file.jsonl > file.json
+```
 
 
 ### Caveats and Gotchas
