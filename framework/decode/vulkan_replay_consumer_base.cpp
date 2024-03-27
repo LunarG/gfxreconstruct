@@ -1030,14 +1030,14 @@ void VulkanReplayConsumerBase::AddInstanceTable(VkInstance instance)
     create_device_procs_[dispatch_key] =
         reinterpret_cast<PFN_vkCreateDevice>(get_instance_proc_addr_(instance, "vkCreateDevice"));
 
-    encode::InstanceTable& table = instance_tables_[dispatch_key];
-    encode::LoadInstanceTable(get_instance_proc_addr_, instance, &table);
+    encode::VulkanInstanceTable& table = instance_tables_[dispatch_key];
+    encode::LoadVulkanInstanceTable(get_instance_proc_addr_, instance, &table);
 }
 
 void VulkanReplayConsumerBase::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
 {
-    encode::DeviceTable& table = device_tables_[encode::GetDispatchKey(device)];
-    encode::LoadDeviceTable(gpa, device, &table);
+    encode::VulkanDeviceTable& table = device_tables_[encode::GetDispatchKey(device)];
+    encode::LoadVulkanDeviceTable(gpa, device, &table);
 }
 
 PFN_vkGetDeviceProcAddr VulkanReplayConsumerBase::GetDeviceAddrProc(VkPhysicalDevice physical_device)
@@ -1050,14 +1050,14 @@ PFN_vkCreateDevice VulkanReplayConsumerBase::GetCreateDeviceProc(VkPhysicalDevic
     return create_device_procs_[encode::GetDispatchKey(physical_device)];
 }
 
-const encode::InstanceTable* VulkanReplayConsumerBase::GetInstanceTable(const void* handle) const
+const encode::VulkanInstanceTable* VulkanReplayConsumerBase::GetInstanceTable(const void* handle) const
 {
     auto table = instance_tables_.find(encode::GetDispatchKey(handle));
     assert(table != instance_tables_.end());
     return (table != instance_tables_.end()) ? &table->second : nullptr;
 }
 
-const encode::DeviceTable* VulkanReplayConsumerBase::GetDeviceTable(const void* handle) const
+const encode::VulkanDeviceTable* VulkanReplayConsumerBase::GetDeviceTable(const void* handle) const
 {
     auto table = device_tables_.find(encode::GetDispatchKey(handle));
     assert(table != device_tables_.end());

@@ -106,7 +106,7 @@ class LayerFuncTableGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         self.newline()
         write(
-            'const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {',
+            'const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {',
             file=self.outFile
         )
 

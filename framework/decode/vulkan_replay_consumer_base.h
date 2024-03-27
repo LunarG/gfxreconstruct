@@ -207,9 +207,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VulkanObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
 
-    const encode::InstanceTable* GetInstanceTable(const void* handle) const;
+    const encode::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
 
-    const encode::DeviceTable* GetDeviceTable(const void* handle) const;
+    const encode::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
@@ -1185,8 +1185,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     PFN_vkCreateInstance                                             create_instance_proc_;
     std::unordered_map<encode::DispatchKey, PFN_vkGetDeviceProcAddr> get_device_proc_addrs_;
     std::unordered_map<encode::DispatchKey, PFN_vkCreateDevice>      create_device_procs_;
-    std::unordered_map<encode::DispatchKey, encode::InstanceTable>   instance_tables_;
-    std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
+    std::unordered_map<encode::DispatchKey, encode::VulkanInstanceTable> instance_tables_;
+    std::unordered_map<encode::DispatchKey, encode::VulkanDeviceTable>   device_tables_;
     std::function<void(const char*)>                                 fatal_error_handler_;
     std::shared_ptr<application::Application>                        application_;
     VulkanObjectInfoTable                                            object_info_table_;

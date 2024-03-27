@@ -48,7 +48,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
+const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {
     { "vkCreateInstance",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CreateInstance) },
     { "vkDestroyInstance",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::DestroyInstance) },
     { "vkEnumeratePhysicalDevices",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::EnumeratePhysicalDevices) },

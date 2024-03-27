@@ -1417,7 +1417,7 @@ class BaseGenerator(OutputGenerator):
                     arg_name, handle_type_name
                 )
             else:
-                arg_name = 'GetWrappedId({}, {})'.format(
+                arg_name = 'GetVulkanWrappedId({}, {})'.format(
                     arg_name, handle_type_name
                 )
 
@@ -1471,7 +1471,7 @@ class BaseGenerator(OutputGenerator):
 
         if (method_call == 'encoder->EncodeHandleValue' or method_call == 'encoder->EncodeHandleArray' 
             or method_call == 'encoder->EncodeHandlePtr'):
-            method_call += '<{}>'.format(value.base_type[2:] + 'Wrapper')
+            method_call += '<{}>'.format('vulkan_wrappers::' + value.base_type[2:] + 'Wrapper')
 
         if self.is_output_parameter(value) and omit_output_param:
             args.append(omit_output_param)

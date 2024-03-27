@@ -38,7 +38,7 @@ VulkanResourceInitializer::VulkanResourceInitializer(const DeviceInfo*          
                                                      const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                      bool                                    have_shader_stencil_write,
                                                      VulkanResourceAllocator*                resource_allocator,
-                                                     const encode::DeviceTable*              device_table) :
+                                                     const encode::VulkanDeviceTable*        device_table) :
     device_(device_info->handle),
     staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
     draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE),

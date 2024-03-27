@@ -65,14 +65,14 @@ public:
 
     std::string GetWsiExtension() const override;
 
-    VkResult CreateSurface(const encode::InstanceTable* table,
-                           VkInstance                   instance,
-                           VkFlags                      flags,
-                           VkSurfaceKHR*                pSurface) override;
+    VkResult CreateSurface(const encode::VulkanInstanceTable* table,
+                           VkInstance                         instance,
+                           VkFlags                            flags,
+                           VkSurfaceKHR*                      pSurface) override;
 
-    void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+    void DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
-private:
+  private:
     GFXReconWindowDelegate* window_delegate_;
     MetalContext* metal_context_;
     NSWindow*     window_;
@@ -92,10 +92,11 @@ public:
 
     void Destroy(decode::Window* window) override;
 
-    VkBool32 GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                  VkPhysicalDevice             physical_device,
-                                                  uint32_t                     queue_family_index) override;
-private:
+    VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                  VkPhysicalDevice                   physical_device,
+                                                  uint32_t                           queue_family_index) override;
+
+  private:
     MetalContext* metal_context_;
 };
 

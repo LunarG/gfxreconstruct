@@ -31,7 +31,7 @@ VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                       
                                                  const std::string&                  wsi_extension,
                                                  VkFlags                             flags,
                                                  HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                                 const encode::InstanceTable*        instance_table,
+                                                 const encode::VulkanInstanceTable*  instance_table,
                                                  application::Application*           application,
                                                  const VulkanReplayOptions&          replay_options)
 {
@@ -82,7 +82,7 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
                                                       const VkSwapchainCreateInfoKHR*       create_info,
                                                       const VkAllocationCallbacks*          allocator,
                                                       HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                      const encode::DeviceTable*            device_table)
+                                                      const encode::VulkanDeviceTable*      device_table)
 {
     GFXRECON_ASSERT(device_info);
     device_table_ = device_table;

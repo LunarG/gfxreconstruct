@@ -703,13 +703,13 @@ static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountEXT(VkCommandBuff
 // clang-format on
 GFXRECON_END_NAMESPACE(noop)
 
-struct LayerTable
+struct VulkanLayerTable
 {
     PFN_vkCreateInstance CreateInstance{ nullptr };
     PFN_vkCreateDevice CreateDevice{ nullptr };
 };
 
-struct InstanceTable
+struct VulkanInstanceTable
 {
     PFN_vkDestroyInstance DestroyInstance{ noop::DestroyInstance };
     PFN_vkEnumeratePhysicalDevices EnumeratePhysicalDevices{ noop::EnumeratePhysicalDevices };
@@ -819,7 +819,7 @@ struct InstanceTable
     PFN_vkGetPhysicalDeviceOpticalFlowImageFormatsNV GetPhysicalDeviceOpticalFlowImageFormatsNV{ noop::GetPhysicalDeviceOpticalFlowImageFormatsNV };
 };
 
-struct DeviceTable
+struct VulkanDeviceTable
 {
     PFN_vkGetDeviceProcAddr GetDeviceProcAddr{ noop::GetDeviceProcAddr };
     PFN_vkDestroyDevice DestroyDevice{ noop::DestroyDevice };
@@ -1360,7 +1360,7 @@ static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP
     }
 }
 
-static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)
+static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, VulkanInstanceTable* table)
 {
     assert(table != nullptr);
 
@@ -1472,7 +1472,7 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceOpticalFlowImageFormatsNV", &table->GetPhysicalDeviceOpticalFlowImageFormatsNV);
 }
 
-static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)
+static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)
 {
     assert(table != nullptr);
 

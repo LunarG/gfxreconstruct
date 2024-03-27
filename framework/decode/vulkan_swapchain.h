@@ -53,7 +53,7 @@ class VulkanSwapchain
                                    const std::string&                  wsi_extension,
                                    VkFlags                             flags,
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                   const encode::InstanceTable*        instance_table,
+                                   const encode::VulkanInstanceTable*  instance_table,
                                    application::Application*           application,
                                    const VulkanReplayOptions&          replay_options);
 
@@ -68,7 +68,7 @@ class VulkanSwapchain
                                         const VkSwapchainCreateInfoKHR*       create_info,
                                         const VkAllocationCallbacks*          allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const encode::DeviceTable*            device_table) = 0;
+                                        const encode::VulkanDeviceTable*      device_table) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
@@ -154,8 +154,8 @@ class VulkanSwapchain
   protected:
     typedef std::unordered_set<Window*> ActiveWindows;
 
-    const encode::InstanceTable* instance_table_{ nullptr };
-    const encode::DeviceTable*   device_table_{ nullptr };
+    const encode::VulkanInstanceTable* instance_table_{ nullptr };
+    const encode::VulkanDeviceTable*   device_table_{ nullptr };
 
     application::Application* application_{ nullptr };
     ActiveWindows             active_windows_;

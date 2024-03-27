@@ -53,7 +53,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
 
     void WriteImage(const std::string&                      filename_prefix,
                     VkDevice                                device,
-                    const encode::DeviceTable*              device_table,
+                    const encode::VulkanDeviceTable*        device_table,
                     const VkPhysicalDeviceMemoryProperties& memory_properties,
                     VulkanResourceAllocator*                allocator,
                     VkImage                                 image,
@@ -64,7 +64,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
                     uint32_t                                copy_height,
                     VkImageLayout                           image_layout);
 
-    void DestroyDeviceResources(VkDevice device, const encode::DeviceTable* device_table);
+    void DestroyDeviceResources(VkDevice device, const encode::VulkanDeviceTable* device_table);
 
   private:
     struct CopyResource
@@ -93,18 +93,18 @@ class ScreenshotHandler : public ScreenshotHandlerBase
 
     VkFormat GetConversionFormat(VkFormat image_format) const;
 
-    VkDeviceSize GetCopyBufferSize(VkDevice                   device,
-                                   const encode::DeviceTable* device_table,
-                                   VkFormat                   format,
-                                   uint32_t                   width,
-                                   uint32_t                   height) const;
+    VkDeviceSize GetCopyBufferSize(VkDevice                         device,
+                                   const encode::VulkanDeviceTable* device_table,
+                                   VkFormat                         format,
+                                   uint32_t                         width,
+                                   uint32_t                         height) const;
 
     uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
                                 uint32_t                                type_bits,
                                 VkMemoryPropertyFlags                   property_flags) const;
 
     VkResult CreateCopyResource(VkDevice                                device,
-                                const encode::DeviceTable*              device_table,
+                                const encode::VulkanDeviceTable*        device_table,
                                 const VkPhysicalDeviceMemoryProperties& memory_properties,
                                 VkDeviceSize                            buffer_size,
                                 VkFormat                                image_format,

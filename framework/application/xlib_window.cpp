@@ -294,10 +294,10 @@ std::string XlibWindow::GetWsiExtension() const
     return VK_KHR_XLIB_SURFACE_EXTENSION_NAME;
 }
 
-VkResult XlibWindow::CreateSurface(const encode::InstanceTable* table,
-                                   VkInstance                   instance,
-                                   VkFlags                      flags,
-                                   VkSurfaceKHR*                pSurface)
+VkResult XlibWindow::CreateSurface(const encode::VulkanInstanceTable* table,
+                                   VkInstance                         instance,
+                                   VkFlags                            flags,
+                                   VkSurfaceKHR*                      pSurface)
 {
     if (table != nullptr)
     {
@@ -310,7 +310,7 @@ VkResult XlibWindow::CreateSurface(const encode::InstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void XlibWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void XlibWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table != nullptr)
     {
@@ -342,9 +342,9 @@ void XlibWindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 XlibWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                                 VkPhysicalDevice             physical_device,
-                                                                 uint32_t                     queue_family_index)
+VkBool32 XlibWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                                 VkPhysicalDevice                   physical_device,
+                                                                 uint32_t                           queue_family_index)
 {
     const auto display = xlib_context_->OpenDisplay();
     const auto xlib    = xlib_context_->GetXlibFunctionTable();

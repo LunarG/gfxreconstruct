@@ -80,10 +80,13 @@ class Window
 
     virtual std::string GetWsiExtension() const = 0;
 
-    virtual VkResult
-    CreateSurface(const encode::InstanceTable* table, VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;
+    virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
+                                   VkInstance                         instance,
+                                   VkFlags                            flags,
+                                   VkSurfaceKHR*                      pSurface) = 0;
 
-    virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) = 0;
+    virtual void
+    DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) = 0;
 };
 
 class WindowFactory
@@ -99,9 +102,9 @@ class WindowFactory
 
     virtual void Destroy(Window* window) = 0;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                          VkPhysicalDevice             physical_device,
-                                                          uint32_t                     queue_family_index) = 0;
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                          VkPhysicalDevice                   physical_device,
+                                                          uint32_t                           queue_family_index) = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

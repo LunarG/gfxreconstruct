@@ -45,7 +45,7 @@ class VulkanResourceInitializer
                               const VkPhysicalDeviceMemoryProperties& memory_properties,
                               bool                                    have_shader_stencil_write,
                               VulkanResourceAllocator*                resource_allocator,
-                              const encode::DeviceTable*              device_table);
+                              const encode::VulkanDeviceTable*        device_table);
 
     ~VulkanResourceInitializer();
 
@@ -202,7 +202,7 @@ class VulkanResourceInitializer
     VkPhysicalDeviceMemoryProperties      memory_properties_;
     bool                                  have_shader_stencil_write_;
     VulkanResourceAllocator*              resource_allocator_;
-    const encode::DeviceTable*            device_table_;
+    const encode::VulkanDeviceTable*      device_table_;
     const DeviceInfo*                     device_info_;
 };
 

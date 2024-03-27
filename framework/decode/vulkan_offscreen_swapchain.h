@@ -40,7 +40,7 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    const std::string&                  wsi_extension,
                                    VkFlags                             flags,
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                   const encode::InstanceTable*        instance_table,
+                                   const encode::VulkanInstanceTable*  instance_table,
                                    application::Application*           application,
                                    const VulkanReplayOptions&          replay_options) override;
 
@@ -55,7 +55,7 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                         const VkSwapchainCreateInfoKHR*       create_info,
                                         const VkAllocationCallbacks*          allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const encode::DeviceTable*            device_table) override;
+                                        const encode::VulkanDeviceTable*      device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,

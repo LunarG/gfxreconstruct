@@ -55,7 +55,7 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
                                         const std::string&                  wsi_extension,
                                         VkFlags                             flags,
                                         HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                        const encode::InstanceTable*        instance_table,
+                                        const encode::VulkanInstanceTable*  instance_table,
                                         application::Application*           application,
                                         const VulkanReplayOptions&          replay_options)
 {
