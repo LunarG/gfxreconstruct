@@ -265,10 +265,10 @@ std::string Win32Window::GetWsiExtension() const
     return VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 }
 
-VkResult Win32Window::CreateSurface(const encode::InstanceTable* table,
-                                    VkInstance                   instance,
-                                    VkFlags                      flags,
-                                    VkSurfaceKHR*                pSurface)
+VkResult Win32Window::CreateSurface(const encode::VulkanInstanceTable* table,
+                                    VkInstance                         instance,
+                                    VkFlags                            flags,
+                                    VkSurfaceKHR*                      pSurface)
 {
     if (table != nullptr)
     {
@@ -282,7 +282,7 @@ VkResult Win32Window::CreateSurface(const encode::InstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void Win32Window::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void Win32Window::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table != nullptr)
     {
@@ -315,9 +315,9 @@ void Win32WindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 Win32WindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                                  VkPhysicalDevice             physical_device,
-                                                                  uint32_t                     queue_family_index)
+VkBool32 Win32WindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                                  VkPhysicalDevice                   physical_device,
+                                                                  uint32_t                           queue_family_index)
 {
     return table->GetPhysicalDeviceWin32PresentationSupportKHR(physical_device, queue_family_index);
 }

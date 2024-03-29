@@ -364,6 +364,8 @@ void UnwrapStructHandles(VkPipelineIndirectDeviceAddressInfoNV* value, HandleUnw
 
 void UnwrapStructHandles(VkShaderCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkLatencySleepInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
@@ -386,77 +388,77 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
 
 const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 
-template <typename ParentWrapper, typename CoParentWrapper>
-void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkPhysicalDeviceGroupProperties* value, PFN_GetHandleId get_id)
+template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
+void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkPhysicalDeviceGroupProperties* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedHandles<ParentWrapper, CoParentWrapper, PhysicalDeviceWrapper>(parent, co_parent, value->physicalDevices, value->physicalDeviceCount, get_id);
+        CreateWrappedVulkanHandles<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::PhysicalDeviceWrapper>(parent, co_parent, value->physicalDevices, value->physicalDeviceCount, get_id);
     }
 }
 
-template <typename ParentWrapper, typename CoParentWrapper>
-void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayPropertiesKHR* value, PFN_GetHandleId get_id)
+template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
+void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayPropertiesKHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedHandle<ParentWrapper, CoParentWrapper, DisplayKHRWrapper>(parent, co_parent, &value->display, get_id);
+        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::DisplayKHRWrapper>(parent, co_parent, &value->display, get_id);
     }
 }
 
-template <typename ParentWrapper, typename CoParentWrapper>
-void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayPlanePropertiesKHR* value, PFN_GetHandleId get_id)
+template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
+void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayPlanePropertiesKHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedHandle<ParentWrapper, CoParentWrapper, DisplayKHRWrapper>(parent, co_parent, &value->currentDisplay, get_id);
+        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::DisplayKHRWrapper>(parent, co_parent, &value->currentDisplay, get_id);
     }
 }
 
-template <typename ParentWrapper, typename CoParentWrapper>
-void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayModePropertiesKHR* value, PFN_GetHandleId get_id)
+template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
+void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayModePropertiesKHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedHandle<ParentWrapper, CoParentWrapper, DisplayModeKHRWrapper>(parent, co_parent, &value->displayMode, get_id);
+        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::DisplayModeKHRWrapper>(parent, co_parent, &value->displayMode, get_id);
     }
 }
 
-template <typename ParentWrapper, typename CoParentWrapper>
-void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayProperties2KHR* value, PFN_GetHandleId get_id)
+template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
+void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayProperties2KHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->displayProperties, get_id);
+        CreateWrappedStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value->displayProperties, get_id);
     }
 }
 
-template <typename ParentWrapper, typename CoParentWrapper>
-void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayPlaneProperties2KHR* value, PFN_GetHandleId get_id)
+template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
+void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayPlaneProperties2KHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->displayPlaneProperties, get_id);
+        CreateWrappedStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value->displayPlaneProperties, get_id);
     }
 }
 
-template <typename ParentWrapper, typename CoParentWrapper>
-void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayModeProperties2KHR* value, PFN_GetHandleId get_id)
+template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
+void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayModeProperties2KHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->displayModeProperties, get_id);
+        CreateWrappedStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value->displayModeProperties, get_id);
     }
 }
 
-template <typename ParentWrapper, typename CoParentWrapper, typename T>
-void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)
+template <typename VulkanParentWrapper, typename VulkanCoParentWrapper, typename T>
+void CreateWrappedStructArrayHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
         for (size_t i = 0; i < len; ++i)
         {
-            CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value[i], get_id);
+            CreateWrappedStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value[i], get_id);
         }
     }
 }

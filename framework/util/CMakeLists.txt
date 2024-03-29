@@ -64,6 +64,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/output_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager_uffd.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/page_status_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/platform.h
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.h
@@ -99,6 +100,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_stype_util.h
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>

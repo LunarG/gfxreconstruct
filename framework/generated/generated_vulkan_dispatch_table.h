@@ -669,6 +669,11 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetShaderBinaryDataEXT(VkDevice, VkShaderE
 static VKAPI_ATTR void VKAPI_CALL CmdBindShadersEXT(VkCommandBuffer, uint32_t, const VkShaderStageFlagBits*, const VkShaderEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindShadersEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL GetFramebufferTilePropertiesQCOM(VkDevice, VkFramebuffer, uint32_t*, VkTilePropertiesQCOM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetFramebufferTilePropertiesQCOM was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetDynamicRenderingTilePropertiesQCOM(VkDevice, const VkRenderingInfo*, VkTilePropertiesQCOM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDynamicRenderingTilePropertiesQCOM was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL SetLatencySleepModeNV(VkDevice, VkSwapchainKHR, const VkLatencySleepModeInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSetLatencySleepModeNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL LatencySleepNV(VkDevice, VkSwapchainKHR, const VkLatencySleepInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkLatencySleepNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL SetLatencyMarkerNV(VkDevice, VkSwapchainKHR, const VkSetLatencyMarkerInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSetLatencyMarkerNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetLatencyTimingsNV(VkDevice, VkSwapchainKHR, VkGetLatencyMarkerInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetLatencyTimingsNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL QueueNotifyOutOfBandNV(VkQueue, const VkOutOfBandQueueTypeInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkQueueNotifyOutOfBandNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetAttachmentFeedbackLoopEnableEXT(VkCommandBuffer, VkImageAspectFlags) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetAttachmentFeedbackLoopEnableEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
@@ -698,13 +703,13 @@ static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountEXT(VkCommandBuff
 // clang-format on
 GFXRECON_END_NAMESPACE(noop)
 
-struct LayerTable
+struct VulkanLayerTable
 {
     PFN_vkCreateInstance CreateInstance{ nullptr };
     PFN_vkCreateDevice CreateDevice{ nullptr };
 };
 
-struct InstanceTable
+struct VulkanInstanceTable
 {
     PFN_vkDestroyInstance DestroyInstance{ noop::DestroyInstance };
     PFN_vkEnumeratePhysicalDevices EnumeratePhysicalDevices{ noop::EnumeratePhysicalDevices };
@@ -814,7 +819,7 @@ struct InstanceTable
     PFN_vkGetPhysicalDeviceOpticalFlowImageFormatsNV GetPhysicalDeviceOpticalFlowImageFormatsNV{ noop::GetPhysicalDeviceOpticalFlowImageFormatsNV };
 };
 
-struct DeviceTable
+struct VulkanDeviceTable
 {
     PFN_vkGetDeviceProcAddr GetDeviceProcAddr{ noop::GetDeviceProcAddr };
     PFN_vkDestroyDevice DestroyDevice{ noop::DestroyDevice };
@@ -1312,6 +1317,11 @@ struct DeviceTable
     PFN_vkCmdBindShadersEXT CmdBindShadersEXT{ noop::CmdBindShadersEXT };
     PFN_vkGetFramebufferTilePropertiesQCOM GetFramebufferTilePropertiesQCOM{ noop::GetFramebufferTilePropertiesQCOM };
     PFN_vkGetDynamicRenderingTilePropertiesQCOM GetDynamicRenderingTilePropertiesQCOM{ noop::GetDynamicRenderingTilePropertiesQCOM };
+    PFN_vkSetLatencySleepModeNV SetLatencySleepModeNV{ noop::SetLatencySleepModeNV };
+    PFN_vkLatencySleepNV LatencySleepNV{ noop::LatencySleepNV };
+    PFN_vkSetLatencyMarkerNV SetLatencyMarkerNV{ noop::SetLatencyMarkerNV };
+    PFN_vkGetLatencyTimingsNV GetLatencyTimingsNV{ noop::GetLatencyTimingsNV };
+    PFN_vkQueueNotifyOutOfBandNV QueueNotifyOutOfBandNV{ noop::QueueNotifyOutOfBandNV };
     PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT CmdSetAttachmentFeedbackLoopEnableEXT{ noop::CmdSetAttachmentFeedbackLoopEnableEXT };
     PFN_vkCreateAccelerationStructureKHR CreateAccelerationStructureKHR{ noop::CreateAccelerationStructureKHR };
     PFN_vkDestroyAccelerationStructureKHR DestroyAccelerationStructureKHR{ noop::DestroyAccelerationStructureKHR };
@@ -1350,7 +1360,7 @@ static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP
     }
 }
 
-static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)
+static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, VulkanInstanceTable* table)
 {
     assert(table != nullptr);
 
@@ -1462,7 +1472,7 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceOpticalFlowImageFormatsNV", &table->GetPhysicalDeviceOpticalFlowImageFormatsNV);
 }
 
-static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)
+static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)
 {
     assert(table != nullptr);
 
@@ -1962,6 +1972,11 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdBindShadersEXT", &table->CmdBindShadersEXT);
     LoadFunction(gpa, device, "vkGetFramebufferTilePropertiesQCOM", &table->GetFramebufferTilePropertiesQCOM);
     LoadFunction(gpa, device, "vkGetDynamicRenderingTilePropertiesQCOM", &table->GetDynamicRenderingTilePropertiesQCOM);
+    LoadFunction(gpa, device, "vkSetLatencySleepModeNV", &table->SetLatencySleepModeNV);
+    LoadFunction(gpa, device, "vkLatencySleepNV", &table->LatencySleepNV);
+    LoadFunction(gpa, device, "vkSetLatencyMarkerNV", &table->SetLatencyMarkerNV);
+    LoadFunction(gpa, device, "vkGetLatencyTimingsNV", &table->GetLatencyTimingsNV);
+    LoadFunction(gpa, device, "vkQueueNotifyOutOfBandNV", &table->QueueNotifyOutOfBandNV);
     LoadFunction(gpa, device, "vkCmdSetAttachmentFeedbackLoopEnableEXT", &table->CmdSetAttachmentFeedbackLoopEnableEXT);
     LoadFunction(gpa, device, "vkCreateAccelerationStructureKHR", &table->CreateAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkDestroyAccelerationStructureKHR", &table->DestroyAccelerationStructureKHR);

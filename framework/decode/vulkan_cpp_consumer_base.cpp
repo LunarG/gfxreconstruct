@@ -42,7 +42,6 @@ struct GfxToCppPlatformMap
 
 const GfxToCppPlatform GetGfxToCppPlatform(const std::string& format_str);
 const std::string      GfxToCppPlatformToString(GfxToCppPlatform platform);
-bool                   GfxToCppPlatformIsValid(const GfxToCppPlatform& platform);
 
 VulkanCppConsumerBase::VulkanCppConsumerBase() :
     frame_file_(nullptr), global_file_(nullptr), main_file_(nullptr), pfn_loader_()
@@ -95,15 +94,6 @@ void VulkanCppConsumerBase::WriteMainHeader()
         case GfxToCppPlatform::PLATFORM_XCB:
             fprintf(main_file_, "%s", sXcbOutputMainStart);
             break;
-        case GfxToCppPlatform::PLATFORM_COUNT:
-        default:
-        {
-            fprintf(main_file_,
-                    "// Nothing to generate for unknown platform: %s\n",
-                    GfxToCppPlatformToString(platform_).c_str());
-            assert(false);
-            break;
-        }
     }
 }
 
@@ -120,15 +110,6 @@ void VulkanCppConsumerBase::WriteMainFooter()
         case GfxToCppPlatform::PLATFORM_XCB:
             fprintf(main_file_, "%s", sXcbOutputMainEnd);
             break;
-        case GfxToCppPlatform::PLATFORM_COUNT:
-        default:
-        {
-            fprintf(main_file_,
-                    "// Nothing to generate for unknown platform: %s\n",
-                    GfxToCppPlatformToString(platform_).c_str());
-            assert(false);
-            break;
-        }
     }
 }
 
@@ -165,15 +146,6 @@ bool VulkanCppConsumerBase::WriteGlobalHeaderFile()
                         sXcbOutputHeader,
                         sCommonOutputHeaderFunctions);
                 break;
-            case GfxToCppPlatform::PLATFORM_COUNT:
-            default:
-            {
-                fprintf(header_file,
-                        "// Nothing to generate for unknown platform: %s\n",
-                        GfxToCppPlatformToString(platform_).c_str());
-                assert(false);
-                break;
-            }
         }
 
         PrintToFile(header_file, "extern %s;\n", GfxToCppVariable::GenerateStringVec(variable_data_));
@@ -216,13 +188,6 @@ void VulkanCppConsumerBase::PrintOutCMakeFile()
             case GfxToCppPlatform::PLATFORM_XCB:
                 fprintf(cmake_file, "%s", sXcbCMakeFile);
                 break;
-            case GfxToCppPlatform::PLATFORM_COUNT:
-            default:
-            {
-                fprintf(stderr, "Error while opening file: %s\n", filename.c_str());
-                assert(false);
-                break;
-            }
         }
         util::platform::FileClose(cmake_file);
     }
@@ -307,14 +272,6 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
                 fputs(formatted_output_override_method, global_file);
                 delete[] formatted_output_override_method;
                 break;
-            }
-            case GfxToCppPlatform::PLATFORM_COUNT:
-            default:
-            {
-                fprintf(main_file_,
-                        "// Nothing to generate for unknown platform: %s\n",
-                        GfxToCppPlatformToString(platform_).c_str());
-                return;
             }
         }
 
@@ -403,16 +360,13 @@ bool VulkanCppConsumerBase::Initialize(const std::string&      filename,
         int32_t result = util::platform::FileOpen(&main_file_, filename.c_str(), "w");
         if (result == 0)
         {
-            if (platform != GfxToCppPlatform::PLATFORM_COUNT)
-            {
-                filename_    = filename;
-                platform_    = platform;
-                out_dir_     = outputDir;
-                bin_out_dir_ = "bin";
-                spv_out_dir_ = "spv";
-                src_out_dir_ = "src";
-                success      = true;
-            }
+            filename_    = filename;
+            platform_    = platform;
+            out_dir_     = outputDir;
+            bin_out_dir_ = "bin";
+            spv_out_dir_ = "spv";
+            src_out_dir_ = "src";
+            success      = true;
 
             WriteMainHeader();
         }
@@ -1387,17 +1341,14 @@ static void BuildInstanceCreateInfo(std::ostream&                       out,
     std::string              enabled_extensions_names = "NULL";
     if (struct_info->enabledExtensionCount > 0)
     {
-        // The array should be setup so that the enum could be used as an index.  Just verify it
         GfxToCppPlatform cur_platform = consumer.GetPlatform();
-        assert(kValidTargetPlatforms[static_cast<uint32_t>(cur_platform)].platformEnum == cur_platform);
-        std::string cur_extension_name = kValidTargetPlatforms[static_cast<uint32_t>(cur_platform)].wsiSurfaceExtName;
+        std::string      cur_extension_name = kTargetPlatforms.at(cur_platform).wsiSurfaceExtName;
 
         // Generate a map of WSI extensions to the new extension for this current platform
         std::map<std::string, std::string> replace_map;
-        const uint32_t max_count = static_cast<uint32_t>(sizeof(kValidTargetPlatforms) / sizeof(PlatformTargets));
-        for (uint32_t ii = 0; ii < max_count; ++ii)
+        for (const auto& [platform_enum, info] : kTargetPlatforms)
         {
-            replace_map[kValidTargetPlatforms[ii].wsiSurfaceExtName] = cur_extension_name;
+            replace_map[info.wsiSurfaceExtName] = cur_extension_name;
         }
 
         extension_names =
@@ -1750,12 +1701,6 @@ void VulkanCppConsumerBase::GenerateSurfaceCreation(GfxToCppPlatform        plat
             create_info_struct_var_name = GenerateStruct_VkXcbSurfaceCreateInfoKHR(
                 stream_create_info, &xcb_struct_info, &decoded_xcb_info, *this);
             surface_create_func_call = "vkCreateXcbSurfaceKHR";
-            break;
-        }
-        case GfxToCppPlatform::PLATFORM_COUNT:
-        default:
-        {
-            assert(false);
             break;
         }
     }
@@ -2952,33 +2897,12 @@ std::string VulkanCppConsumerBase::BuildValue(const StdVideoAV1FrameRestorationT
 
 const GfxToCppPlatform getGfxToCppPlatform(const std::string& format_str)
 {
-    for (const PlatformTargets& entry : kValidTargetPlatforms)
-    {
-        if (format_str == entry.platformName)
-        {
-            return entry.platformEnum;
-        }
-    }
-
-    return GfxToCppPlatform::PLATFORM_COUNT;
+    return kTargetPlatformByName.at(format_str);
 }
 
 const std::string GfxToCppPlatformToString(GfxToCppPlatform platform)
 {
-    for (const PlatformTargets& entry : kValidTargetPlatforms)
-    {
-        if (platform == entry.platformEnum)
-        {
-            return entry.platformName;
-        }
-    }
-
-    return "<unknown platform>";
-}
-
-bool GfxToCppPlatformIsValid(const GfxToCppPlatform& platform)
-{
-    return platform != GfxToCppPlatform::PLATFORM_COUNT;
+    return kTargetPlatforms.at(platform).platformName;
 }
 
 std::string VulkanCppConsumerBase::AddStruct(const std::stringstream& content, const std::string& var_namePrefix)

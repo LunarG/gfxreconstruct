@@ -63,13 +63,7 @@ CommandLineArgument g_target_argument = { true,
                                           "-t",
                                           "--target",
                                           "<platform>\t\t\t",
-#if defined(_WIN32) || defined(_WIN64) || defined(__MINGW32__) || defined(__MINGW64__)
-                                          " (Defaults to win32)",
-#elif defined(__APPLE__)
-                                          " (Defaults to macos)",
-#else
                                           " (Defaults to xcb)",
-#endif
                                           "The type of platform for the intended target Vulkan source.\n"
                                           "\t\t\t\t\t\t\t  Available Platforms:\n"
                                           "\t\t\t\t\t\t\t     android    Generate for Android.\n"
@@ -212,7 +206,6 @@ static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::Ar
 
 static gfxrecon::decode::GfxToCppPlatform GetCppTargetPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    gfxrecon::decode::GfxToCppPlatform platform_enum = gfxrecon::decode::GfxToCppPlatform::PLATFORM_COUNT;
     std::string                        platform;
 
     // We can just check for the short argument because the argument parser will assign even
@@ -221,40 +214,20 @@ static gfxrecon::decode::GfxToCppPlatform GetCppTargetPlatform(const gfxrecon::u
     {
         platform = arg_parser.GetArgumentValue(g_target_argument.short_option);
         printf("Platform set to %s\n", platform.c_str());
-    }
 
-    if (platform.length() > 0)
-    {
-        // Choose the appropriate platform
-        const uint32_t max_count = static_cast<uint32_t>(sizeof(gfxrecon::decode::kValidTargetPlatforms) /
-                                                         sizeof(gfxrecon::decode::PlatformTargets));
-        for (uint32_t ii = 0; ii < max_count; ++ii)
+        if (gfxrecon::decode::kTargetPlatformByName.count(platform) == 0)
         {
-            if (gfxrecon::util::platform::StringCompare(gfxrecon::decode::kValidTargetPlatforms[ii].platformName,
-                                                        platform.c_str()) == 0)
-            {
-                platform_enum = gfxrecon::decode::kValidTargetPlatforms[ii].platformEnum;
-                break;
-            }
+            GFXRECON_LOG_ERROR("The specified platform \"%s\" is not known!", platform.c_str());
+            exit(1);
         }
-    }
 
-    // If no platform was found, default to a given one for the platform
-    if (platform_enum >= gfxrecon::decode::GfxToCppPlatform::PLATFORM_COUNT)
+        return gfxrecon::decode::kTargetPlatformByName.at(platform);
+    }
+    else
     {
-#if defined(_WIN32) || defined(_WIN64) || defined(__MINGW32__) || defined(__MINGW64__)
-        GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'win32'.");
-        platform_enum = gfxrecon::decode::GfxToCppPlatform::PLATFORM_WIN32;
-#elif defined(__APPLE__)
-        GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'macos'.");
-        platform_enum = gfxrecon::decode::GfxToCppPlatform::PLATFORM_MACOS;
-#else
-        GFXRECON_LOG_INFO("Target platform is not specified or invalid, fall back to 'xcb'.");
-        platform_enum = gfxrecon::decode::GfxToCppPlatform::PLATFORM_XCB;
-#endif
+        GFXRECON_LOG_INFO("Platform not specified, defaulting to XCB.");
+        return gfxrecon::decode::GfxToCppPlatform::PLATFORM_XCB;
     }
-
-    return platform_enum;
 }
 
 static bool OutputDirectoryIsValid(std::string& out_dir)

@@ -5153,6 +5153,36 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_LATENCY_SUBMISSION_PRESENT_ID_NV: {
+                auto casted_struct = reinterpret_cast<const VkLatencySubmissionPresentIdNV*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkLatencySubmissionPresentIdNV*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkLatencySubmissionPresentIdNV(out,
+                                               casted_struct,
+                                               decoded_struct,
+                                               consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_LATENCY_SURFACE_CAPABILITIES_NV: {
+                auto casted_struct = reinterpret_cast<const VkLatencySurfaceCapabilitiesNV*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkLatencySurfaceCapabilitiesNV*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkLatencySurfaceCapabilitiesNV(out,
+                                               casted_struct,
+                                               decoded_struct,
+                                               consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_LATENCY_CREATE_INFO_NV: {
+                auto casted_struct = reinterpret_cast<const VkSwapchainLatencyCreateInfoNV*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkSwapchainLatencyCreateInfoNV*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkSwapchainLatencyCreateInfoNV(out,
+                                               casted_struct,
+                                               decoded_struct,
+                                               consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM: {
                 auto casted_struct = reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pnext_meta_data->GetMetaStructPointer());

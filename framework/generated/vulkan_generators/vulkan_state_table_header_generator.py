@@ -106,22 +106,23 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
             if vkhandle_name in self.DUPLICATE_HANDLE_TYPES:
                 continue
             handle_name = vkhandle_name[2:]
-            handle_wrapper = handle_name + 'Wrapper'
+            handle_wrapper_func = handle_name + 'Wrapper'
+            handle_wrapper_type = 'vulkan_wrappers::' + handle_name + 'Wrapper'
             handle_map = handle_name[0].lower() + handle_name[1:] + '_map_'
-            insert_code += '    bool InsertWrapper(format::HandleId id, {0}* wrapper) {{ return InsertEntry(id, wrapper, {1}); }}\n'.format(handle_wrapper, handle_map)
-            remove_code += '    bool RemoveWrapper(const {0}* wrapper) {{ return RemoveEntry(wrapper, {1}); }}\n'.format(handle_wrapper, handle_map)
-            visit_code += '    void VisitWrappers(std::function<void({0}*)> visitor) const {{ for (auto entry : {1}) {{ visitor(entry.second); }} }}\n'.format(handle_wrapper, handle_map)
-            get_code += '    {0}* Get{0}(format::HandleId id) {{ return GetWrapper<{0}>(id, {1}); }}\n'.format(handle_wrapper, handle_map)
-            const_get_code += '    const {0}* Get{0}(format::HandleId id) const {{ return GetWrapper<{0}>(id, {1}); }}\n'.format(handle_wrapper, handle_map)
-            map_code += '    std::map<format::HandleId, {0}*> {1};\n'.format(handle_wrapper, handle_map)
-            vk_insert_code += '    bool InsertWrapper({0}* wrapper) {{ return InsertEntry(wrapper->handle, wrapper, {1}); }}\n'.format(handle_wrapper, handle_map)
-            vk_remove_code += '    bool RemoveWrapper(const {}* wrapper) {{\n'.format(handle_wrapper)
+            insert_code += '    bool InsertWrapper(format::HandleId id, {0}* wrapper) {{ return InsertEntry(id, wrapper, {1}); }}\n'.format(handle_wrapper_type, handle_map)
+            remove_code += '    bool RemoveWrapper(const {0}* wrapper) {{ return RemoveEntry(wrapper, {1}); }}\n'.format(handle_wrapper_type, handle_map)
+            visit_code += '    void VisitWrappers(std::function<void({0}*)> visitor) const {{ for (auto entry : {1}) {{ visitor(entry.second); }} }}\n'.format(handle_wrapper_type, handle_map)
+            get_code += '    {0}* Get{1}(format::HandleId id) {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(handle_wrapper_type, handle_wrapper_func, handle_map)
+            const_get_code += '    const {0}* Get{1}(format::HandleId id) const {{ return GetWrapper<{0}>(id, {2}); }}\n'.format(handle_wrapper_type, handle_wrapper_func, handle_map)
+            map_code += '    std::map<format::HandleId, {0}*> {1};\n'.format(handle_wrapper_type, handle_map)
+            vk_insert_code += '    bool InsertWrapper({0}* wrapper) {{ return InsertEntry(wrapper->handle, wrapper, {1}); }}\n'.format(handle_wrapper_type, handle_map)
+            vk_remove_code += '    bool RemoveWrapper(const {}* wrapper) {{\n'.format(handle_wrapper_type)
             vk_remove_code += '         if (wrapper == nullptr) return false;\n'
             vk_remove_code += '         return RemoveEntry(wrapper->handle, {});\n'.format(handle_map)
             vk_remove_code += '    }\n'
-            vk_get_code += 'template<> inline {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper, vkhandle_name, handle_map)
-            vk_const_get_code += 'template<> inline const {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) const {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper, vkhandle_name, handle_map)
-            vk_map_code += '    std::unordered_map<{0}, {1}*> {2};\n'.format(vkhandle_name, handle_wrapper, handle_map)
+            vk_get_code += 'template<> inline {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, vkhandle_name, handle_map)
+            vk_const_get_code += 'template<> inline const {0}* VulkanStateHandleTable::GetWrapper<{0}>({1} handle) const {{ return VulkanStateTableBase::GetWrapper(handle, {2}); }}\n'.format(handle_wrapper_type, vkhandle_name, handle_map)
+            vk_map_code += '    std::unordered_map<{0}, {1}*> {2};\n'.format(vkhandle_name, handle_wrapper_type, handle_map)
 
         self.newline()
         code = 'class VulkanStateTable : VulkanStateTableBase\n'
