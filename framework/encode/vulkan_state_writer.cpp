@@ -298,7 +298,7 @@ void VulkanStateWriter::WriteTrimCommandPool(const VulkanStateTable& state_table
             encoder_.EncodeFlagsValue(0);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkTrimCommandPool, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
     });
 }
@@ -329,7 +329,7 @@ void VulkanStateWriter::WritePrivateDataSlotState(const VulkanStateTable& state_
                 encoder_.EncodeEnumValue(VK_SUCCESS);
 
                 WriteFunctionCall(format::ApiCallId::ApiCall_vkSetPrivateData, &parameter_stream_);
-                parameter_stream_.Reset();
+                parameter_stream_.Clear();
             }
         }
     });
@@ -1031,7 +1031,7 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
             encoder_.EncodeEnumValue(result);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
 
         if (wrapper->acquire_full_screen_exclusive_mode)
@@ -1045,7 +1045,7 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
             encoder_.EncodeEnumValue(result);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
 
         if (wrapper->release_full_screen_exclusive_mode)
@@ -1059,7 +1059,7 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
             encoder_.EncodeEnumValue(result);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
 
         if (wrapper->using_local_dimming_AMD)
@@ -1073,7 +1073,7 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
             encoder_.EncodeVkBool32Value(wrapper->local_dimming_enable_AMD);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkSetLocalDimmingAMD, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
     });
 }
@@ -1190,7 +1190,7 @@ void VulkanStateWriter::WriteDeferredOperationJoinCommand(format::HandleId devic
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
@@ -1549,7 +1549,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             EncodeStructPtr(&encoder_, &memory_requirements);
 
             WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
 
             // Write memory bind command.
             if (wrapper->bind_pnext == nullptr)
@@ -1578,7 +1578,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
 
                 WriteFunctionCall(format::ApiCall_vkBindBufferMemory2, &parameter_stream_);
             }
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
 
             // Group buffers with memory bindings by device for memory snapshot.
             ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
@@ -1637,7 +1637,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             EncodeStructPtr(&encoder_, &memory_requirements);
 
             WriteFunctionCall(format::ApiCall_vkGetImageMemoryRequirements, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
 
             // Write memory bind command.
             if (wrapper->bind_pnext == nullptr)
@@ -1666,7 +1666,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
 
                 WriteFunctionCall(format::ApiCall_vkBindImageMemory2, &parameter_stream_);
             }
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
 
             VkMemoryPropertyFlags memory_properties = 0;
             if (memory_wrapper != nullptr)
@@ -1787,7 +1787,7 @@ void VulkanStateWriter::WriteImageSubresourceLayouts(const vulkan_wrappers::Imag
             EncodeStructPtr(&encoder_, &layout);
 
             WriteFunctionCall(format::ApiCall_vkGetImageSubresourceLayout, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
     }
 }
@@ -1876,7 +1876,7 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
             encoder_.EncodeEnumValue(result);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkMapMemory, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
             ++blocks_written_;
         }
     });
@@ -2003,7 +2003,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiC
     EncodeStructArray<T>(&encoder_, nullptr, 0);
 
     WriteFunctionCall(call_id, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 
     // Then write the call with the data.
     encoder_.EncodeHandleIdValue(physical_device_id);
@@ -2011,7 +2011,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiC
     EncodeStructArray(&encoder_, properties, property_count);
 
     WriteFunctionCall(call_id, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceSupport(format::HandleId physical_device_id,
@@ -2028,7 +2028,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceSupport(format::HandleId ph
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceCapabilities(
@@ -2045,7 +2045,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceCapabilities(
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId                       physical_device_id,
@@ -2065,7 +2065,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId   
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 
     // Then write the call with the data.
     encoder_.EncodeHandleIdValue(physical_device_id);
@@ -2075,7 +2075,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId   
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteGetPhysicalDeviceSurfacePresentModes(
@@ -2098,7 +2098,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfacePresentModes(
         encoder_.EncodeEnumValue(result);
 
         WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         // Then write the call with the data.
         encoder_.EncodeHandleIdValue(physical_device_id);
@@ -2108,7 +2108,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfacePresentModes(
         encoder_.EncodeEnumValue(result);
 
         WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     }
     else
     {
@@ -2126,7 +2126,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfacePresentModes(
         encoder_.EncodeEnumValue(result);
 
         WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         // Then write the call with the data.
         encoder_.EncodeHandleIdValue(physical_device_id);
@@ -2136,7 +2136,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfacePresentModes(
         encoder_.EncodeEnumValue(result);
 
         WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     }
 }
 
@@ -2156,7 +2156,7 @@ void VulkanStateWriter::WriteGetDeviceGroupSurfacePresentModes(
         encoder_.EncodeEnumValue(result);
 
         WriteFunctionCall(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     }
     else
     {
@@ -2172,7 +2172,7 @@ void VulkanStateWriter::WriteGetDeviceGroupSurfacePresentModes(
         encoder_.EncodeEnumValue(result);
 
         WriteFunctionCall(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     }
 }
 
@@ -2192,7 +2192,7 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId de
     encoder_.EncodeHandleIdPtr(&queue_id);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetDeviceQueue, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 
     // Create the command pool for the current queue family index.
     VkCommandPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
@@ -2207,7 +2207,7 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId de
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateCommandPool, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 
     VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
     alloc_info.pNext                       = nullptr;
@@ -2221,7 +2221,7 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId de
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkAllocateCommandBuffers, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteCommandBegin(format::HandleId command_buffer_id)
@@ -2238,7 +2238,7 @@ void VulkanStateWriter::WriteCommandBegin(format::HandleId command_buffer_id)
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkBeginCommandBuffer, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteCommandEnd(format::HandleId command_buffer_id)
@@ -2249,7 +2249,7 @@ void VulkanStateWriter::WriteCommandEnd(format::HandleId command_buffer_id)
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkEndCommandBuffer, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteCommandExecution(format::HandleId            queue_id,
@@ -2285,14 +2285,14 @@ void VulkanStateWriter::WriteCommandExecution(format::HandleId            queue_
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueSubmit, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 
     // Write queue wait idle.
     encoder_.EncodeHandleIdValue(queue_id);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueWaitIdle, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteCommandBufferCommands(const vulkan_wrappers::CommandBufferWrapper* wrapper,
@@ -2316,7 +2316,7 @@ void VulkanStateWriter::WriteCommandBufferCommands(const vulkan_wrappers::Comman
 
             parameter_stream_.Write(parameter_data, (*parameter_size));
             WriteFunctionCall((*call_id), &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
 
             offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
         }
@@ -2383,7 +2383,7 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
     EncodeStructArray(&encoder_, copy, 0);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkUpdateDescriptorSets, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteQueryPoolReset(
@@ -2403,7 +2403,7 @@ void VulkanStateWriter::WriteQueryPoolReset(
         encoder_.EncodeUInt32Value(wrapper->query_count);
 
         WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdResetQueryPool, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     }
 
     WriteCommandEnd(kTempCommandBufferId);
@@ -2434,7 +2434,7 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
             encoder_.EncodeUInt32Value(query_entry.index);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdWriteTimestamp, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
         else if (query_entry.type == VK_QUERY_TYPE_TRANSFORM_FEEDBACK_STREAM_EXT)
         {
@@ -2445,7 +2445,7 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
             encoder_.EncodeUInt32Value(query_entry.type_index);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
 
             encoder_.EncodeHandleIdValue(kTempCommandBufferId);
             encoder_.EncodeHandleIdValue(query_entry.pool_id);
@@ -2453,7 +2453,7 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
             encoder_.EncodeUInt32Value(query_entry.type_index);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
         else if (query_entry.type == VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV)
         {
@@ -2475,14 +2475,14 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
             encoder_.EncodeFlagsValue(query_entry.flags);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdBeginQuery, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
 
             encoder_.EncodeHandleIdValue(kTempCommandBufferId);
             encoder_.EncodeHandleIdValue(query_entry.pool_id);
             encoder_.EncodeUInt32Value(query_entry.index);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdEndQuery, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
     }
 
@@ -2515,7 +2515,7 @@ void VulkanStateWriter::WriteCreateFence(format::HandleId device_id, format::Han
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateFence, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteSetEvent(format::HandleId device_id, format::HandleId event_id)
@@ -2527,7 +2527,7 @@ void VulkanStateWriter::WriteSetEvent(format::HandleId device_id, format::Handle
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkSetEvent, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteSignalSemaphoreValue(format::ApiCallId api_call_id,
@@ -2550,7 +2550,7 @@ void VulkanStateWriter::WriteSignalSemaphoreValue(format::ApiCallId api_call_id,
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(api_call_id, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteDestroyDeviceObject(format::ApiCallId            call_id,
@@ -2564,7 +2564,7 @@ void VulkanStateWriter::WriteDestroyDeviceObject(format::ApiCallId            ca
 
     WriteFunctionCall(call_id, &parameter_stream_);
 
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::WriteCreatePipelineCache(format::HandleId                 device_id,

@@ -447,7 +447,7 @@ ParameterEncoder* CaptureManager::InitApiCallCapture(format::ApiCallId call_id)
     thread_data->call_id_ = call_id;
 
     // Reset the parameter buffer and reserve space for an uncompressed FunctionCallHeader.
-    thread_data->parameter_buffer_->ResetWithHeader(sizeof(format::FunctionCallHeader));
+    thread_data->parameter_buffer_->ClearWithHeader(sizeof(format::FunctionCallHeader));
 
     return thread_data->parameter_encoder_.get();
 }
@@ -459,7 +459,7 @@ ParameterEncoder* CaptureManager::InitMethodCallCapture(format::ApiCallId call_i
     thread_data->object_id_ = object_id;
 
     // Reset the parameter buffer and reserve space for an uncompressed MethodCallHeader.
-    thread_data->parameter_buffer_->ResetWithHeader(sizeof(format::MethodCallHeader));
+    thread_data->parameter_buffer_->ClearWithHeader(sizeof(format::MethodCallHeader));
 
     return thread_data->parameter_encoder_.get();
 }

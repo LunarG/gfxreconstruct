@@ -47,7 +47,7 @@ void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWra
         (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
     {
         // Clear command data on command buffer reset.
-        wrapper->command_data.Reset();
+        wrapper->command_data.Clear();
         wrapper->pending_layouts.clear();
         wrapper->recorded_queries.clear();
         wrapper->tlas_build_info_map.clear();
@@ -87,7 +87,7 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
 
     for (const auto& entry : wrapper->child_buffers)
     {
-        entry.second->command_data.Reset();
+        entry.second->command_data.Clear();
         entry.second->pending_layouts.clear();
         entry.second->recorded_queries.clear();
         entry.second->tlas_build_info_map.clear();
