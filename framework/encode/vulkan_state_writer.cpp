@@ -2585,7 +2585,7 @@ void VulkanStateWriter::WriteCreatePipelineCache(format::HandleId               
     encoder_.EncodeHandlePtr<vulkan_wrappers::PipelineCacheWrapper>(pPipelineCache, omit_output_data);
     encoder_.EncodeEnumValue(result);
     WriteFunctionCall(call_id, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void VulkanStateWriter::DestroyTemporaryDeviceObject(format::ApiCallId               call_id,
