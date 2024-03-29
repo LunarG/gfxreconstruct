@@ -2203,7 +2203,7 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(format::HandleId de
     encoder_.EncodeHandleIdValue(device_id);
     EncodeStructPtr(&encoder_, &create_info);
     EncodeStructPtr(&encoder_, allocator);
-    encoder_.EncodeHandlePtr<vulkan_wrappers::CommandPoolWrapper>(&command_pool);
+    encoder_.EncodeVulkanHandlePtr<vulkan_wrappers::CommandPoolWrapper>(&command_pool);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateCommandPool, &parameter_stream_);
@@ -2281,7 +2281,7 @@ void VulkanStateWriter::WriteCommandExecution(format::HandleId            queue_
     encoder_.EncodeUInt32Value(signal_semaphore_count);
     encoder_.EncodeHandleIdArray(signal_semaphore_ids, signal_semaphore_count);
 
-    encoder_.EncodeHandleValue<vulkan_wrappers::FenceWrapper>(fence);
+    encoder_.EncodeVulkanHandleValue<vulkan_wrappers::FenceWrapper>(fence);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueSubmit, &parameter_stream_);
@@ -2582,7 +2582,7 @@ void VulkanStateWriter::WriteCreatePipelineCache(format::HandleId               
     {
         omit_output_data = true;
     }
-    encoder_.EncodeHandlePtr<vulkan_wrappers::PipelineCacheWrapper>(pPipelineCache, omit_output_data);
+    encoder_.EncodeVulkanHandlePtr<vulkan_wrappers::PipelineCacheWrapper>(pPipelineCache, omit_output_data);
     encoder_.EncodeEnumValue(result);
     WriteFunctionCall(call_id, &parameter_stream_);
     parameter_stream_.Reset();

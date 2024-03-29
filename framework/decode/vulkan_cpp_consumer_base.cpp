@@ -1269,7 +1269,7 @@ static std::vector<std::string> FilterLayers(const char* const* layerArray, cons
     }
 
     const std::vector<std::string> layer_black_list = {
-        GFXRECON_PROJECT_LAYER_NAME,
+        GFXRECON_PROJECT_VULKAN_LAYER_NAME,
         "VK_LAYER_LUNARG_device_simulation",
     };
 
