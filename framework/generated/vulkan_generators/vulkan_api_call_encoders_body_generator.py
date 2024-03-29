@@ -213,7 +213,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             dispatchfunc = 'GetVulkanInstanceTable'
             if values[0].base_type == 'VkDevice':
                 object_name = 'physical_device'
-                call_setup_expr.append("auto device_wrapper = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>({});".format(values[0].name))
+                wrapper_prefix = self.get_handle_wrapper_prefix()
+                call_setup_expr.append("auto device_wrapper = GetVulkanWrapper<{}::DeviceWrapper>({});".format(wrapper_prefix, values[0].name))
                 call_setup_expr.append("auto physical_device = device_wrapper->physical_device->handle;")
         else:
             dispatchfunc = 'GetVulkanDeviceTable'
@@ -441,6 +442,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if name == 'vkCreateInstance':
             decl = 'VulkanCaptureManager::Get()->'
 
+        wrapper_prefix = self.get_handle_wrapper_prefix()
+
         if name.startswith('vkCreate') or name.startswith(
             'vkAllocate'
         ) or self.retrieves_handles(values):
@@ -478,8 +481,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
                 if 'pAllocateInfo->' in length_name:
                     # This is a pool allocation call, which receives one allocate info structure that is shared by all object being allocated.
-                    decl += 'EndPoolCreateApiCallCapture<{}, vulkan_wrappers::{}Wrapper, {}>({}, {}, {}, {}, {})'.format(
-                        parent_handle.base_type, handle.base_type[2:],
+                    decl += 'EndPoolCreateApiCallCapture<{}, {}::{}Wrapper, {}>({}, {}, {}, {}, {})'.format(
+                        parent_handle.base_type, wrapper_prefix, handle.base_type[2:],
                         info_base_type, return_value, parent_handle.name,
                         length_name, handle.name, info_name
                     )
@@ -497,30 +500,49 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         )
 
                         if not member_array_length:
-                            unwrap_handle_def = '[]({}* handle_struct)->vulkan_wrappers::{wrapper}Wrapper* {{ return GetVulkanWrapper<vulkan_wrappers::{wrapper}Wrapper>(handle_struct->{}); }}'.format(
+                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper_prefix}::{wrapper}Wrapper* {{ return GetVulkanWrapper<{wrapper_prefix}::{wrapper}Wrapper>(handle_struct->{}); }}'.format(
                                 handle.base_type,
                                 member_handle_name,
+                                wrapper_prefix=wrapper_prefix,
                                 wrapper=member_handle_type[2:]
                             )
 
-                        decl += 'EndStructGroupCreateApiCallCapture<{}, vulkan_wrappers::{}Wrapper, {}>({}, {}, {}, {}, {})'.format(
-                            parent_handle.base_type, member_handle_type[2:],
-                            handle.base_type, return_value, parent_handle.name,
-                            length_name, handle.name, unwrap_handle_def
+                        decl += 'EndStructGroupCreateApiCallCapture<{}, {}::{}Wrapper, {}>({}, {}, {}, {}, {})'.format(
+                            parent_handle.base_type,
+                            wrapper_prefix,
+                            member_handle_type[2:],
+                            handle.base_type,
+                            return_value,
+                            parent_handle.name,
+                            length_name,
+                            handle.name,
+                            unwrap_handle_def
                         )
                     elif self.is_handle(values[1].base_type):
                         second_handle = values[1]
-                        decl += 'EndGroupCreateApiCallCapture<{}, {}, vulkan_wrappers::{}Wrapper, {}>({}, {}, {}, {}, {}, {})'.format(
-                            parent_handle.base_type, second_handle.base_type,
-                            handle.base_type[2:], info_base_type, return_value,
-                            parent_handle.name, second_handle.name,
-                            length_name, handle.name, info_name
+                        decl += 'EndGroupCreateApiCallCapture<{}, {}, {}::{}Wrapper, {}>({}, {}, {}, {}, {}, {})'.format(
+                            parent_handle.base_type,
+                            second_handle.base_type,
+                            wrapper_prefix,
+                            handle.base_type[2:],
+                            info_base_type, return_value,
+                            parent_handle.name,
+                            second_handle.name,
+                            length_name,
+                            handle.name,
+                            info_name
                         )
                     else:
-                        decl += 'EndGroupCreateApiCallCapture<{}, void*, vulkan_wrappers::{}Wrapper, {}>({}, {}, nullptr, {}, {}, {})'.format(
-                            parent_handle.base_type, handle.base_type[2:],
-                            info_base_type, return_value, parent_handle.name,
-                            length_name, handle.name, info_name
+                        decl += 'EndGroupCreateApiCallCapture<{}, void*, {}::{}Wrapper, {}>({}, {}, nullptr, {}, {}, {})'.format(
+                            parent_handle.base_type,
+                            wrapper_prefix,
+                            handle.base_type[2:],
+                            info_base_type,
+                            return_value,
+                            parent_handle.name,
+                            length_name,
+                            handle.name,
+                            info_name
                         )
 
             else:
@@ -528,16 +550,25 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     # TODO: No cases in current Vulkan spec of handle inside non-array output structure
                     raise NotImplementedError
                 elif parent_handle:
-                    decl += 'EndCreateApiCallCapture<{}, vulkan_wrappers::{}Wrapper, {}>({}, {}, {}, {})'.format(
-                        parent_handle.base_type, handle.base_type[2:],
-                        info_base_type, return_value, parent_handle.name,
-                        handle.name, info_name
+                    decl += 'EndCreateApiCallCapture<{}, {}::{}Wrapper, {}>({}, {}, {}, {})'.format(
+                        parent_handle.base_type,
+                        wrapper_prefix,
+                        handle.base_type[2:],
+                        info_base_type,
+                        return_value,
+                        parent_handle.name,
+                        handle.name,
+                        info_name
                     )
                 else:
                     # Instance creation does not have a parent handle; set the parent handle type to 'void*'.
-                    decl += 'EndCreateApiCallCapture<const void*, vulkan_wrappers::{}Wrapper, {}>({}, nullptr, {}, {})'.format(
-                        handle.base_type[2:], info_base_type, return_value,
-                        handle.name, info_name
+                    decl += 'EndCreateApiCallCapture<const void*, {}::{}Wrapper, {}>({}, nullptr, {}, {})'.format(
+                        wrapper_prefix,
+                        handle.base_type[2:],
+                        info_base_type,
+                        return_value,
+                        handle.name,
+                        info_name
                     )
 
         elif name.startswith('vkDestroy') or name.startswith('vkFree') or (
@@ -554,12 +585,12 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     handle = values[3]
 
             if handle.is_array:
-                decl += 'EndDestroyApiCallCapture<vulkan_wrappers::{}Wrapper>({}, {})'.format(
-                    handle.base_type[2:], handle.array_length, handle.name
+                decl += 'EndDestroyApiCallCapture<{}::{}Wrapper>({}, {})'.format(
+                    wrapper_prefix, handle.base_type[2:], handle.array_length, handle.name
                 )
             else:
-                decl += 'EndDestroyApiCallCapture<vulkan_wrappers::{}Wrapper>({})'.format(
-                    handle.base_type[2:], handle.name
+                decl += 'EndDestroyApiCallCapture<{}::{}Wrapper>({})'.format(
+                    wrapper_prefix, handle.base_type[2:], handle.name
                 )
 
         elif values[0].base_type == 'VkCommandBuffer':
@@ -580,6 +611,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def make_handle_wrapping(self, values, indent):
         expr = ''
+        wrapper_prefix = self.get_handle_wrapper_prefix()
+
         for value in values:
             if self.is_output_parameter(value) and (
                 self.is_handle(value.base_type) or (
@@ -592,7 +625,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 parent_type = 'VulkanNoParentWrapper'
                 parent_value = 'VulkanNoParentWrapper::kHandleValue'
                 if self.is_handle(values[0].base_type):
-                    parent_type = 'vulkan_wrappers::' + values[0].base_type[2:] + 'Wrapper'
+                    parent_type = wrapper_prefix + '::' + values[0].base_type[2:] + 'Wrapper'
                     parent_value = values[0].name
 
                 # Some handles have two parent handles, such as swapchain images and display modes,
@@ -600,7 +633,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 co_parent_type = 'VulkanNoParentWrapper'
                 co_parent_value = 'VulkanNoParentWrapper::kHandleValue'
                 if self.is_handle(values[1].base_type):
-                    co_parent_type = 'vulkan_wrappers::' + values[1].base_type[2:] + 'Wrapper'
+                    co_parent_type = wrapper_prefix + '::' + values[1].base_type[2:] + 'Wrapper'
                     co_parent_value = values[1].name
                 elif values[1].base_type.endswith(
                     'AllocateInfo'
@@ -610,7 +643,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     members = self.structs_with_handles[values[1].base_type]
                     for member in members:
                         if self.is_handle(member.base_type):
-                            co_parent_type = 'vulkan_wrappers::' + member.base_type[2:] + 'Wrapper'
+                            co_parent_type = wrapper_prefix + '::' + member.base_type[2:] + 'Wrapper'
                             co_parent_value = values[
                                 1].name + '->' + member.name
                             break
@@ -624,8 +657,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                             )
                             break
                     if self.is_handle(value.base_type):
-                        expr += indent + 'CreateWrappedVulkanHandles<{}, {}, vulkan_wrappers::{}Wrapper>({}, {}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
-                            parent_type, co_parent_type, value.base_type[2:],
+                        expr += indent + 'CreateWrappedVulkanHandles<{}, {}, {}::{}Wrapper>({}, {}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
+                            parent_type, co_parent_type, wrapper_prefix, value.base_type[2:],
                             parent_value, co_parent_value, value.name,
                             length_name
                         )
@@ -639,8 +672,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         )
                 else:
                     if self.is_handle(value.base_type):
-                        expr += indent + 'CreateWrappedVulkanHandle<{}, {}, vulkan_wrappers::{}Wrapper>({}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
-                            parent_type, co_parent_type, value.base_type[2:],
+                        expr += indent + 'CreateWrappedVulkanHandle<{}, {}, {}::{}Wrapper>({}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
+                            parent_type, co_parent_type, wrapper_prefix, value.base_type[2:],
                             parent_value, co_parent_value, value.name
                         )
                     elif self.is_struct(
@@ -701,13 +734,15 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 if ("Pool" in handle.base_type) and name.startswith('vkFree'):
                     handle = values[3]
 
+            wrapper_prefix = self.get_handle_wrapper_prefix()
+
             if handle.is_array:
-                expr += indent + 'DestroyWrappedVulkanHandles<vulkan_wrappers::{}Wrapper>({}, {});\n'.format(
-                    handle.base_type[2:], handle.name, handle.array_length
+                expr += indent + 'DestroyWrappedVulkanHandles<{}::{}Wrapper>({}, {});\n'.format(
+                    wrapper_prefix, handle.base_type[2:], handle.name, handle.array_length
                 )
             else:
-                expr += indent + 'DestroyWrappedVulkanHandle<vulkan_wrappers::{}Wrapper>({});\n'.format(
-                    handle.base_type[2:], handle.name
+                expr += indent + 'DestroyWrappedVulkanHandle<{}::{}Wrapper>({});\n'.format(
+                    wrapper_prefix, handle.base_type[2:], handle.name
                 )
         return expr
 
