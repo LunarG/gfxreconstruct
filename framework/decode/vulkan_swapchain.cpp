@@ -32,11 +32,11 @@ const uint32_t kDefaultWindowHeight    = 240;
 
 void VulkanSwapchain::Clean()
 {
-    if (options_surface_index_ >= create_surface_count_)
+    if (swapchain_options_.select_surface_index >= create_surface_count_)
     {
         GFXRECON_LOG_WARNING("Rendering was restricted to surface index %u, but a surface was never created for that "
                              "index; replay created %d surface(s)",
-                             options_surface_index_,
+                             swapchain_options_.select_surface_index,
                              create_surface_count_);
     }
 
@@ -56,14 +56,12 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
                                         VkFlags                             flags,
                                         HandlePointerDecoder<VkSurfaceKHR>* surface,
                                         const encode::VulkanInstanceTable*  instance_table,
-                                        application::Application*           application,
-                                        const VulkanReplayOptions&          replay_options)
+                                        application::Application*           application)
 {
     assert(instance_info != nullptr);
 
-    instance_table_        = instance_table;
-    application_           = application;
-    options_surface_index_ = replay_options.surface_index;
+    instance_table_ = instance_table;
+    application_    = application;
 
     VkInstance    instance       = instance_info->handle;
     VkSurfaceKHR* replay_surface = nullptr;
@@ -76,7 +74,8 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
 
     // For multi-surface captures, when replay is restricted to a specific surface, only create a surface for
     // the specified index.
-    if ((options_surface_index_ == -1) || (options_surface_index_ == create_surface_count_))
+    if ((swapchain_options_.select_surface_index == -1) ||
+        (swapchain_options_.select_surface_index == create_surface_count_))
     {
         // Create a window for our surface.
         assert(application_);

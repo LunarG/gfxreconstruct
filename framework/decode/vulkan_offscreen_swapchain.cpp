@@ -32,19 +32,17 @@ VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                       
                                                  VkFlags                             flags,
                                                  HandlePointerDecoder<VkSurfaceKHR>* surface,
                                                  const encode::VulkanInstanceTable*  instance_table,
-                                                 application::Application*           application,
-                                                 const VulkanReplayOptions&          replay_options)
+                                                 application::Application*           application)
 {
     GFXRECON_ASSERT(surface);
 
-    instance_table_        = instance_table;
-    application_           = application;
-    options_surface_index_ = replay_options.surface_index;
-    insert_frame_boundary_ = replay_options.offscreen_swapchain_frame_boundary;
+    instance_table_ = instance_table;
+    application_    = application;
 
     // For multi-surface captures, when replay is restricted to a specific surface, only create a surface for
     // the specified index.
-    if ((options_surface_index_ == -1) || (options_surface_index_ == create_surface_count_))
+    if ((swapchain_options_.select_surface_index == -1) ||
+        (swapchain_options_.select_surface_index == create_surface_count_))
     {
 
         const format::HandleId* id             = surface->GetPointer();
