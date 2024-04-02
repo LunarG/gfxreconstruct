@@ -50,11 +50,10 @@ class Dx12DetectionConsumer : public Dx12Consumer
 
     virtual bool IsComplete(uint64_t block_index) override
     {
-        return (block_index > kMaxDX12BlockLimit) || WasD3D12APIDetected();
+        return WasD3D12APIDetected();
     }
 
   private:
-    static int const kMaxDX12BlockLimit = 1000;
     bool dx12_consumer_usage_;
 };
 
