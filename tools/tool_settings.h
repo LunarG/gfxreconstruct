@@ -115,6 +115,8 @@ const char kFormatArgument[]                      = "--format";
 const char kIncludeBinariesOption[]               = "--include-binaries";
 const char kExpandFlagsOption[]                   = "--expand-flags";
 const char kFilePerFrameOption[]                  = "--file-per-frame";
+const char kSkipGetFenceStatus[]                  = "--skip-get-fence-status";
+const char kSkipGetFenceRanges[]                  = "--skip-get-fence-ranges";
 #if defined(WIN32)
 const char kApiFamilyOption[]             = "--api";
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
@@ -938,6 +940,37 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (!surface_index.empty())
     {
         replay_options.surface_index = std::stoi(surface_index);
+    }
+
+    const std::string& skip_get_fence_status = arg_parser.GetArgumentValue(kSkipGetFenceStatus);
+    if (!skip_get_fence_status.empty())
+    {
+        const int i_skip_get_fence_status = std::stoi(skip_get_fence_status);
+        if (i_skip_get_fence_status < static_cast<int>(gfxrecon::decode::SkipGetFenceStatus::COUNT))
+        {
+            replay_options.skip_get_fence_status =
+                static_cast<gfxrecon::decode::SkipGetFenceStatus>(i_skip_get_fence_status);
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Unexpected value after '--skip-get-fence-status' : '%s'. Closing the program.",
+                               skip_get_fence_status.c_str());
+            abort();
+        }
+    }
+
+    const std::string& skip_get_fence_ranges = arg_parser.GetArgumentValue(kSkipGetFenceRanges);
+    if (skip_get_fence_ranges.empty())
+    {
+        gfxrecon::util::UintRange range;
+        range.first = 1;
+        range.last  = std::numeric_limits<uint32_t>::max();
+        replay_options.skip_get_fence_ranges.push_back(range);
+    }
+    else
+    {
+        replay_options.skip_get_fence_ranges =
+            gfxrecon::util::GetUintRanges(skip_get_fence_ranges.c_str(), "skip-get-fence-ranges");
     }
 
     return replay_options;
