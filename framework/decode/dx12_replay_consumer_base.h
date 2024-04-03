@@ -998,33 +998,36 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
-    void CopyResourcesForBeforeDrawcall(DxObjectInfo*                        queue_object_info,
-                                        const std::vector<format::HandleId>& front_command_list_ids);
+    void InitializeDumpResources();
 
-    void CopyResourceForBeforeDrawcallByGPUVA(DxObjectInfo*                        queue_object_info,
-                                              const std::vector<format::HandleId>& front_command_list_ids,
-                                              D3D12_GPU_VIRTUAL_ADDRESS            capture_source_gpu_va,
-                                              uint64_t                             source_size,
-                                              graphics::CopyResourceData&          copy_resource_data);
+    void CopyDrawcallResources(DxObjectInfo*                        queue_object_info,
+                               const std::vector<format::HandleId>& front_command_list_ids,
+                               const std::string&                   write_type);
 
-    void CopyResourceForBeforeDrawcall(DxObjectInfo*                        queue_object_info,
-                                       const std::vector<format::HandleId>& front_command_list_ids,
-                                       format::HandleId                     source_resource_id,
-                                       uint64_t                             source_offset,
-                                       uint64_t                             source_size,
-                                       graphics::CopyResourceData&          copy_resource_data);
+    void CopyDrawcallResourceByGPUVA(DxObjectInfo*                                       queue_object_info,
+                                     const std::vector<format::HandleId>&                front_command_list_ids,
+                                     D3D12_GPU_VIRTUAL_ADDRESS                           capture_source_gpu_va,
+                                     uint64_t                                            source_size,
+                                     const std::vector<std::pair<std::string, int32_t>>& json_path,
+                                     const std::string&                                  file_name,
+                                     const std::string&                                  write_type);
 
-    void CopyResourcesForAfterDrawcall(DxObjectInfo*                        queue_object_info,
-                                       const std::vector<format::HandleId>& front_command_list_ids);
+    void CopyDrawcallResource(DxObjectInfo*                                       queue_object_info,
+                              const std::vector<format::HandleId>&                front_command_list_ids,
+                              format::HandleId                                    source_resource_id,
+                              uint64_t                                            source_offset,
+                              uint64_t                                            source_size,
+                              const std::vector<uint32_t>&                        subresource_indices,
+                              const std::vector<std::pair<std::string, int32_t>>& json_path,
+                              const std::string&                                  file_name,
+                              const std::string&                                  write_type);
 
-    // source_resource_id have been saved in CopyResourceData in CopyResourcesForBeforeDrawcall.
-    void CopyResourcesForAfterDrawcall(DxObjectInfo*                            queue_object_info,
-                                       const std::vector<format::HandleId>&     front_command_list_ids,
-                                       std::vector<graphics::CopyResourceData>& copy_resource_datas);
-
-    void CopyResourceForAfterDrawcall(DxObjectInfo*                        queue_object_info,
-                                      const std::vector<format::HandleId>& front_command_list_ids,
-                                      graphics::CopyResourceData&          copy_resource_data);
+    void CopyDrawcallResource(DxObjectInfo*                        queue_object_info,
+                              const std::vector<format::HandleId>& front_command_list_ids,
+                              format::HandleId                     source_resource_id,
+                              uint64_t                             source_offset,
+                              uint64_t                             source_size,
+                              graphics::CopyResourceData&          copy_resource_data);
 
     bool CopyResourceAsyncQueue(const std::vector<format::HandleId>& front_command_list_ids,
                                 graphics::CopyResourceData&          copy_resource_data,
@@ -1051,8 +1054,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                                  HANDLE                             fence_event,
                                                                  graphics::CopyResourceData*        copy_resource_data,
                                                                  std::vector<std::vector<uint8_t>>* subresource_datas);
-
-    void WriteDumpResources(DxObjectInfo* queue_object_info);
 
     std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
     Dx12ObjectInfoTable                                   object_info_table_;
@@ -1088,6 +1089,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     graphics::TrackDumpResources                          track_dump_resources_;
 
+    std::unique_ptr<graphics::Dx12DumpResources>      dump_resources_{ nullptr };
     std::vector<graphics::dx12::ID3D12ResourceComPtr> dump_resources_staging_buffers_;
     std::vector<uint64_t>                             dump_resources_staging_buffer_sizes_;
 };

@@ -39,25 +39,57 @@ const bool TEST_READABLE = false;
 
 Dx12DumpResources::Dx12DumpResources() : json_file_handle_(nullptr) {}
 
-Dx12DumpResources::~Dx12DumpResources()
+Dx12DumpResources::~Dx12DumpResources() {}
+
+void Dx12DumpResources::StartDump(const TrackDumpResources& resources)
 {
-    EndFile();
+    WriteBlockStart();
+
+    util::FieldToJson(drawcall_["block_index"], resources.target.drawcall_block_index, json_options_);
+    util::FieldToJson(drawcall_["execute_block_index"], resources.target.execute_block_index, json_options_);
 }
 
-void Dx12DumpResources::WriteResources(nlohmann::ordered_json&              jdata,
-                                       const std::string&                   prefix_file_name,
-                                       const std::vector<CopyResourceData>& resource_datas)
+void Dx12DumpResources::WriteResource(const CopyResourceData&                             resource_data,
+                                      const std::vector<std::pair<std::string, int32_t>>& json_path,
+                                      const std::string&                                  file_name,
+                                      const std::string&                                  type)
 {
-    uint32_t i = 0;
-    for (const auto& resource : resource_datas)
+    if (resource_data.source_resource_id == format::kNullHandleId)
     {
-        WriteResource(jdata[i], prefix_file_name, resource);
-        ++i;
+        return;
     }
+
+    auto* jdata_sub = &drawcall_;
+    for (const auto& path : json_path)
+    {
+        if (path.second == format::kNoneIndex)
+        {
+            jdata_sub = &(*jdata_sub)[path.first];
+        }
+        else
+        {
+            jdata_sub = &(*jdata_sub)[path.first][path.second];
+        }
+    }
+    std::string prefix_file_name = json_options_.data_sub_dir + "_" + file_name;
+    WriteResource(*jdata_sub, prefix_file_name, type, resource_data);
+
+    if (TEST_READABLE)
+    {
+        TestWriteReadableResource(prefix_file_name, type, resource_data);
+    }
+}
+
+void Dx12DumpResources::CloseDump()
+{
+    json_data_[NameDrawCall()] = drawcall_;
+    WriteBlockEnd();
+    EndFile();
 }
 
 void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
                                       const std::string&      prefix_file_name,
+                                      const std::string&      suffix,
                                       const CopyResourceData& resource_data)
 {
     if (resource_data.source_resource_id == format::kNullHandleId)
@@ -65,139 +97,33 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json& jdata,
         return;
     }
 
-    std::string file_name = prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id);
+    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data.source_resource_id);
 
-    util::FieldToJson(jdata["resource_id"], resource_data.source_resource_id, json_options_);
+    util::FieldToJson(jdata["res_id"], resource_data.source_resource_id, json_options_);
+    std::string json_path = suffix + "_file_name";
     for (const auto sub_index : resource_data.subresource_indices)
     {
         auto offset = resource_data.subresource_offsets[sub_index];
         auto size   = resource_data.subresource_sizes[sub_index];
 
-        auto& jdata_sub = jdata["subresource"][sub_index];
+        auto& jdata_sub = jdata["sub"][sub_index];
         util::FieldToJson(jdata_sub["index"], sub_index, json_options_);
         util::FieldToJson(jdata_sub["offset"], offset, json_options_);
         util::FieldToJson(jdata_sub["size"], size, json_options_);
 
-        // Write before data.
-        GFXRECON_ASSERT(!resource_data.before_datas[sub_index].empty());
+        // Write data.
+        GFXRECON_ASSERT(!resource_data.datas[sub_index].empty());
 
-        std::string before_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_before.bin";
-        util::FieldToJson(jdata_sub["before_file_name"], before_file_name.c_str(), json_options_);
+        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index) + "_" + suffix + ".bin ";
+        util::FieldToJson(jdata_sub[json_path], file_name_sub.c_str(), json_options_);
 
-        std::string before_filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, before_file_name);
-        WriteBinaryFile(before_filepath, resource_data.before_datas[sub_index], offset, size);
-
-        // Write after data.
-        GFXRECON_ASSERT(!resource_data.after_datas[sub_index].empty());
-
-        std::string after_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_after.bin";
-        util::FieldToJson(jdata_sub["after_file_name"], after_file_name.c_str(), json_options_);
-
-        std::string after_filepath = gfxrecon::util::filepath::Join(json_options_.root_dir, after_file_name);
-        WriteBinaryFile(after_filepath, resource_data.after_datas[sub_index], offset, size);
-    }
-}
-
-void Dx12DumpResources::WriteResources(const TrackDumpResources& resources)
-{
-    WriteDrawCallCommandToFile([&](auto& jdata) {
-        util::FieldToJson(jdata["block_index"], resources.target.drawcall_block_index, json_options_);
-        util::FieldToJson(jdata["execute_block_index"], resources.target.execute_block_index, json_options_);
-
-        // vertex
-        WriteResources(jdata["vertex"], json_options_.data_sub_dir, resources.copy_vertex_resources);
-
-        // index
-        WriteResource(jdata["index"], json_options_.data_sub_dir, resources.copy_index_resource);
-
-        // descriptor
-        uint32_t index = 0;
-        for (const auto& heap_data : resources.descriptor_heap_datas)
-        {
-            auto& jdata_sub = jdata["descriptor_heap"][index];
-            util::FieldToJson(jdata_sub["heap_id"], resources.target.descriptor_heap_ids[index], json_options_);
-
-            std::string filename =
-                json_options_.data_sub_dir + "_heap_id_" + std::to_string(resources.target.descriptor_heap_ids[index]);
-            WriteResources(jdata_sub["constant_buffer"], filename, heap_data.copy_constant_buffer_resources);
-            WriteResources(jdata_sub["shader_resource"], filename, heap_data.copy_shader_resources);
-
-            uint32_t uav_index = 0;
-            for (const auto& uav_data : heap_data.copy_unordered_accesses)
-            {
-                WriteResource(jdata_sub["unordered_access"][uav_index]["resource"], filename, uav_data.resource);
-                WriteResource(
-                    jdata_sub["unordered_access"][uav_index]["counter_resource"], filename, uav_data.counter_resource);
-                ++uav_index;
-            }
-            ++index;
-        }
-
-        // render target
-        WriteResources(jdata["render_target"], json_options_.data_sub_dir, resources.copy_render_target_resources);
-        WriteResource(jdata["depth_stencil"], json_options_.data_sub_dir, resources.copy_depth_stencil_resource);
-
-        // ExecuteIndirect
-        WriteResource(
-            jdata["ExecuteIndirect_argument"], json_options_.data_sub_dir, resources.copy_exe_indirect_argument);
-        WriteResource(jdata["ExecuteIndirect_count"], json_options_.data_sub_dir, resources.copy_exe_indirect_count);
-    });
-
-    if (TEST_READABLE)
-    {
-        std::string prefix_file_name =
-            gfxrecon::util::filepath::Join(json_options_.root_dir, json_options_.data_sub_dir);
-
-        // vertex
-        TestWriteReadableResources(prefix_file_name, resources.copy_vertex_resources);
-
-        // index
-        TestWriteReadableResource(prefix_file_name, resources.copy_index_resource);
-
-        // descriptor
-        uint32_t index = 0;
-        for (const auto& heap_data : resources.descriptor_heap_datas)
-        {
-            TestWriteReadableResources(prefix_file_name + "_heap_id_" +
-                                           std::to_string(resources.target.descriptor_heap_ids[index]),
-                                       heap_data.copy_constant_buffer_resources);
-
-            TestWriteReadableResources(prefix_file_name + "_heap_id_" +
-                                           std::to_string(resources.target.descriptor_heap_ids[index]),
-                                       heap_data.copy_shader_resources);
-
-            for (const auto& uav_data : heap_data.copy_unordered_accesses)
-            {
-                TestWriteReadableResource(prefix_file_name + "_heap_id_" +
-                                              std::to_string(resources.target.descriptor_heap_ids[index]),
-                                          uav_data.resource);
-                TestWriteReadableResource(prefix_file_name + "_heap_id_" +
-                                              std::to_string(resources.target.descriptor_heap_ids[index]),
-                                          uav_data.counter_resource);
-            }
-            ++index;
-        }
-
-        // render target
-        TestWriteReadableResources(prefix_file_name, resources.copy_render_target_resources);
-        TestWriteReadableResource(prefix_file_name, resources.copy_depth_stencil_resource);
-
-        // ExecuteIndirect
-        TestWriteReadableResource(prefix_file_name, resources.copy_exe_indirect_argument);
-        TestWriteReadableResource(prefix_file_name, resources.copy_exe_indirect_count);
-    }
-}
-
-void Dx12DumpResources::TestWriteReadableResources(const std::string&                   prefix_file_name,
-                                                   const std::vector<CopyResourceData>& resource_datas)
-{
-    for (const auto& resource : resource_datas)
-    {
-        TestWriteReadableResource(prefix_file_name, resource);
+        std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
+        WriteBinaryFile(file_path, resource_data.datas[sub_index], offset, size);
     }
 }
 
 void Dx12DumpResources::TestWriteReadableResource(const std::string&      prefix_file_name,
+                                                  const std::string&      suffix,
                                                   const CopyResourceData& resource_data)
 {
     if (resource_data.source_resource_id == format::kNullHandleId)
@@ -207,74 +133,58 @@ void Dx12DumpResources::TestWriteReadableResource(const std::string&      prefix
 
     if (resource_data.desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
-        TestWriteFloatResource(prefix_file_name, resource_data);
+        TestWriteFloatResource(prefix_file_name, suffix, resource_data);
     }
     else
     {
-        TestWriteImageResource(prefix_file_name, resource_data);
+        TestWriteImageResource(prefix_file_name, suffix, resource_data);
     }
 }
 
 void Dx12DumpResources::TestWriteFloatResource(const std::string&      prefix_file_name,
+                                               const std::string&      suffix,
                                                const CopyResourceData& resource_data)
 {
-    std::string file_name = prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id);
+    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data.source_resource_id);
 
     for (const auto sub_index : resource_data.subresource_indices)
     {
         auto offset    = resource_data.subresource_offsets[sub_index];
         auto data_size = resource_data.subresource_sizes[sub_index];
 
-        // Write before data.
-        GFXRECON_ASSERT(!resource_data.before_datas[sub_index].empty());
+        // Write data.
+        GFXRECON_ASSERT(!resource_data.datas[sub_index].empty());
 
-        auto before_data_begin_sub =
-            reinterpret_cast<const float*>(resource_data.before_datas[sub_index].data() + offset);
-        uint32_t    size        = data_size / (sizeof(float));
-        std::string before_data = "";
+        auto        data_begin_sub = reinterpret_cast<const float*>(resource_data.datas[sub_index].data() + offset);
+        uint32_t    size           = data_size / (sizeof(float));
+        std::string data           = "";
         for (uint32_t i = 0; i < size; ++i)
         {
-            before_data += std::to_string(before_data_begin_sub[i]);
-            before_data += "\n";
+            data += std::to_string(data_begin_sub[i]);
+            data += "\n";
         }
 
-        std::string before_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_before.txt";
-        FILE*       before_file_handle;
-        util::platform::FileOpen(&before_file_handle, before_file_name.c_str(), "w");
-        util::platform::FilePuts(before_data.c_str(), before_file_handle);
-        util::platform::FileClose(before_file_handle);
-
-        // Write after data.
-        GFXRECON_ASSERT(!resource_data.after_datas[sub_index].empty());
-
-        auto after_data_begin_sub =
-            reinterpret_cast<const float*>(resource_data.after_datas[sub_index].data() + offset);
-        std::string after_data = "";
-        for (uint32_t i = 0; i < size; ++i)
-        {
-            after_data += std::to_string(after_data_begin_sub[i]);
-            after_data += "\n";
-        }
-
-        std::string after_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_after.txt";
-        FILE*       after_file_handle;
-        util::platform::FileOpen(&after_file_handle, after_file_name.c_str(), "w");
-        util::platform::FilePuts(after_data.c_str(), after_file_handle);
-        util::platform::FileClose(after_file_handle);
+        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index) + "_" + suffix + ".txt";
+        std::string file_path     = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
+        FILE*       file_handle;
+        util::platform::FileOpen(&file_handle, file_path.c_str(), "w");
+        util::platform::FilePuts(data.c_str(), file_handle);
+        util::platform::FileClose(file_handle);
     }
 }
 
 void Dx12DumpResources::TestWriteImageResource(const std::string&      prefix_file_name,
+                                               const std::string&      suffix,
                                                const CopyResourceData& resource_data)
 {
-    std::string file_name = prefix_file_name + "_resource_id_" + std::to_string(resource_data.source_resource_id);
+    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data.source_resource_id);
 
     for (const auto sub_index : resource_data.subresource_indices)
     {
         auto offset = resource_data.subresource_offsets[sub_index];
         auto size   = resource_data.subresource_sizes[sub_index];
 
-        std::string before_file_name = file_name + "_subresource_" + std::to_string(sub_index);
+        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
 
         // WriteBmpImage expects 4 bytes per pixel.
         uint64_t row_pitch_aligned_size = ((size + (resource_data.footprints[sub_index].Footprint.RowPitch - 1)) /
@@ -289,39 +199,25 @@ void Dx12DumpResources::TestWriteImageResource(const std::string&      prefix_fi
                                  "'%s_before\\after.bmp'. Only formats "
                                  "with 4 bytes per pixel are supported. Current format %" PRIu32
                                  " is %.2f bytes per pixel.",
-                                 before_file_name.c_str(),
+                                 file_name_sub.c_str(),
                                  resource_data.footprints[sub_index].Footprint.Format,
                                  bytes_per_pixel);
             continue;
         }
 
-        // Write before data.
-        GFXRECON_ASSERT(!resource_data.before_datas[sub_index].empty());
+        // Write data.
+        GFXRECON_ASSERT(!resource_data.datas[sub_index].empty());
 
-        before_file_name += "_before.bmp";
-        if (!util::imagewriter::WriteBmpImage(before_file_name,
+        file_name_sub += "_" + suffix + ".bmp ";
+        std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
+        if (!util::imagewriter::WriteBmpImage(file_path,
                                               resource_data.footprints[sub_index].Footprint.Width,
                                               resource_data.footprints[sub_index].Footprint.Height,
                                               size,
-                                              resource_data.before_datas[sub_index].data() + offset,
+                                              resource_data.datas[sub_index].data() + offset,
                                               resource_data.footprints[sub_index].Footprint.RowPitch))
         {
-            GFXRECON_LOG_ERROR("Dump image could not be created: failed to write BMP file %s",
-                               before_file_name.c_str());
-        }
-
-        // Write after data.
-        GFXRECON_ASSERT(!resource_data.after_datas[sub_index].empty());
-
-        std::string after_file_name = file_name + "_subresource_" + std::to_string(sub_index) + "_after.bmp";
-        if (!util::imagewriter::WriteBmpImage(after_file_name,
-                                              resource_data.footprints[sub_index].Footprint.Width,
-                                              resource_data.footprints[sub_index].Footprint.Height,
-                                              size,
-                                              resource_data.after_datas[sub_index].data() + offset,
-                                              resource_data.footprints[sub_index].Footprint.RowPitch))
-        {
-            GFXRECON_LOG_ERROR("Dump image could not be created: failed to write BMP file %s", after_file_name.c_str());
+            GFXRECON_LOG_ERROR("Dump image could not be created: failed to write BMP file %s", file_name_sub.c_str());
         }
     }
 }
@@ -365,6 +261,12 @@ HRESULT Dx12DumpResources::Init(const Dx12DumpResourcesConfig& config)
     header_["source-path"] = config.captured_file_name;
 
     StartFile();
+
+    // Emit the header object as the first line of the file:
+    WriteBlockStart();
+    json_data_["source-path"] = header_;
+    WriteBlockEnd();
+
     return result;
 }
 
@@ -375,11 +277,6 @@ void Dx12DumpResources::StartFile()
     {
         util::platform::FilePuts("[\n", json_file_handle_);
     }
-
-    // Emit the header object as the first line of the file:
-    WriteBlockStart();
-    json_data_["header"] = header_;
-    WriteBlockEnd();
 }
 
 void Dx12DumpResources::EndFile()
