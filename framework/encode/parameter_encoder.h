@@ -77,10 +77,6 @@ class ParameterEncoder
     void EncodeVkBool32Value(VkBool32 value)                                                                          { EncodeValue(value); }
 #if ENABLE_OPENXR_SUPPORT
     void EncodeD3D_FEATURE_LEVELValue(D3D_FEATURE_LEVEL value)                                                        { EncodeValue(value); }
-    void EncodeVkFilterValue(VkFilter value)                                                                          { EncodeValue(value); }
-    void EncodeVkSamplerMipmapModeValue(VkSamplerMipmapMode value)                                                    { EncodeValue(value); }
-    void EncodeVkSamplerAddressModeValue(VkSamplerAddressMode value)                                                  { EncodeValue(value); }
-    void EncodeVkComponentSwizzleValue(VkComponentSwizzle value)                                                      { EncodeValue(value); }
 #endif // ENABLE_OPENXR_SUPPORT
     void EncodeVkSampleMaskValue(VkSampleMask value)                                                                  { EncodeValue(static_cast<format::SampleMaskEncodeType>(value)); }
     void EncodeVkDeviceSizeValue(VkDeviceSize value)                                                                  { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
@@ -172,7 +168,6 @@ class ParameterEncoder
     void EncodeVkFormatArray(const VkFormat* arr, size_t len, bool omit_data = false, bool omit_addr = false)         { EncodeArrayConverted<format::FormatEncodeType>(arr, len, omit_data, omit_addr); }
 #if ENABLE_OPENXR_SUPPORT
     void EncodeXrBool32Array(const XrBool32* arr, size_t len, bool omit_data = false, bool omit_addr = false)         { EncodeArray(arr, len, omit_data, omit_addr); }
-    void EncodeXrPathArray(const XrPath* arr, size_t len, bool omit_data = false, bool omit_addr = false)             { EncodeArray(arr, len, omit_data, omit_addr); }
 #endif // ENABLE_OPENXR_SUPPORT
 
     // Array of bytes.
