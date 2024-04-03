@@ -83,42 +83,38 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateInstance(
-    const XrInstanceCreateInfo*                 createInfo,
-    XrInstance*                                 instance);
-
-XRAPI_ATTR XrResult XRAPI_CALL DestroyInstance(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyInstance(
     XrInstance                                  instance);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProperties(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetInstanceProperties(
     XrInstance                                  instance,
     XrInstanceProperties*                       instanceProperties);
 
-XRAPI_ATTR XrResult XRAPI_CALL PollEvent(
+XRAPI_ATTR XrResult XRAPI_CALL xrPollEvent(
     XrInstance                                  instance,
     XrEventDataBuffer*                          eventData);
 
-XRAPI_ATTR XrResult XRAPI_CALL ResultToString(
+XRAPI_ATTR XrResult XRAPI_CALL xrResultToString(
     XrInstance                                  instance,
     XrResult                                    value,
     char                                        buffer[XR_MAX_RESULT_STRING_SIZE]);
 
-XRAPI_ATTR XrResult XRAPI_CALL StructureTypeToString(
+XRAPI_ATTR XrResult XRAPI_CALL xrStructureTypeToString(
     XrInstance                                  instance,
     XrStructureType                             value,
     char                                        buffer[XR_MAX_STRUCTURE_NAME_SIZE]);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSystem(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSystem(
     XrInstance                                  instance,
     const XrSystemGetInfo*                      getInfo,
     XrSystemId*                                 systemId);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSystemProperties(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSystemProperties(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrSystemProperties*                         properties);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateEnvironmentBlendModes(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateEnvironmentBlendModes(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrViewConfigurationType                     viewConfigurationType,
@@ -126,58 +122,58 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateEnvironmentBlendModes(
     uint32_t*                                   environmentBlendModeCountOutput,
     XrEnvironmentBlendMode*                     environmentBlendModes);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSession(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSession(
     XrInstance                                  instance,
     const XrSessionCreateInfo*                  createInfo,
     XrSession*                                  session);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySession(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySession(
     XrSession                                   session);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateReferenceSpaces(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateReferenceSpaces(
     XrSession                                   session,
     uint32_t                                    spaceCapacityInput,
     uint32_t*                                   spaceCountOutput,
     XrReferenceSpaceType*                       spaces);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateReferenceSpace(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateReferenceSpace(
     XrSession                                   session,
     const XrReferenceSpaceCreateInfo*           createInfo,
     XrSpace*                                    space);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetReferenceSpaceBoundsRect(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetReferenceSpaceBoundsRect(
     XrSession                                   session,
     XrReferenceSpaceType                        referenceSpaceType,
     XrExtent2Df*                                bounds);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateActionSpace(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateActionSpace(
     XrSession                                   session,
     const XrActionSpaceCreateInfo*              createInfo,
     XrSpace*                                    space);
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateSpace(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpace(
     XrSpace                                     space,
     XrSpace                                     baseSpace,
     XrTime                                      time,
     XrSpaceLocation*                            location);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpace(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpace(
     XrSpace                                     space);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateViewConfigurations(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViewConfigurations(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     uint32_t                                    viewConfigurationTypeCapacityInput,
     uint32_t*                                   viewConfigurationTypeCountOutput,
     XrViewConfigurationType*                    viewConfigurationTypes);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetViewConfigurationProperties(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetViewConfigurationProperties(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrViewConfigurationType                     viewConfigurationType,
     XrViewConfigurationProperties*              configurationProperties);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateViewConfigurationViews(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViewConfigurationViews(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrViewConfigurationType                     viewConfigurationType,
@@ -185,63 +181,63 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateViewConfigurationViews(
     uint32_t*                                   viewCountOutput,
     XrViewConfigurationView*                    views);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateSwapchainFormats(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainFormats(
     XrSession                                   session,
     uint32_t                                    formatCapacityInput,
     uint32_t*                                   formatCountOutput,
     int64_t*                                    formats);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchain(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchain(
     XrSession                                   session,
     const XrSwapchainCreateInfo*                createInfo,
     XrSwapchain*                                swapchain);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySwapchain(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySwapchain(
     XrSwapchain                                 swapchain);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateSwapchainImages(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainImages(
     XrSwapchain                                 swapchain,
     uint32_t                                    imageCapacityInput,
     uint32_t*                                   imageCountOutput,
     XrSwapchainImageBaseHeader*                 images);
 
-XRAPI_ATTR XrResult XRAPI_CALL AcquireSwapchainImage(
+XRAPI_ATTR XrResult XRAPI_CALL xrAcquireSwapchainImage(
     XrSwapchain                                 swapchain,
     const XrSwapchainImageAcquireInfo*          acquireInfo,
     uint32_t*                                   index);
 
-XRAPI_ATTR XrResult XRAPI_CALL WaitSwapchainImage(
+XRAPI_ATTR XrResult XRAPI_CALL xrWaitSwapchainImage(
     XrSwapchain                                 swapchain,
     const XrSwapchainImageWaitInfo*             waitInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL ReleaseSwapchainImage(
+XRAPI_ATTR XrResult XRAPI_CALL xrReleaseSwapchainImage(
     XrSwapchain                                 swapchain,
     const XrSwapchainImageReleaseInfo*          releaseInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL BeginSession(
+XRAPI_ATTR XrResult XRAPI_CALL xrBeginSession(
     XrSession                                   session,
     const XrSessionBeginInfo*                   beginInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL EndSession(
+XRAPI_ATTR XrResult XRAPI_CALL xrEndSession(
     XrSession                                   session);
 
-XRAPI_ATTR XrResult XRAPI_CALL RequestExitSession(
+XRAPI_ATTR XrResult XRAPI_CALL xrRequestExitSession(
     XrSession                                   session);
 
-XRAPI_ATTR XrResult XRAPI_CALL WaitFrame(
+XRAPI_ATTR XrResult XRAPI_CALL xrWaitFrame(
     XrSession                                   session,
     const XrFrameWaitInfo*                      frameWaitInfo,
     XrFrameState*                               frameState);
 
-XRAPI_ATTR XrResult XRAPI_CALL BeginFrame(
+XRAPI_ATTR XrResult XRAPI_CALL xrBeginFrame(
     XrSession                                   session,
     const XrFrameBeginInfo*                     frameBeginInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL EndFrame(
+XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(
     XrSession                                   session,
     const XrFrameEndInfo*                       frameEndInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateViews(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateViews(
     XrSession                                   session,
     const XrViewLocateInfo*                     viewLocateInfo,
     XrViewState*                                viewState,
@@ -249,345 +245,362 @@ XRAPI_ATTR XrResult XRAPI_CALL LocateViews(
     uint32_t*                                   viewCountOutput,
     XrView*                                     views);
 
-XRAPI_ATTR XrResult XRAPI_CALL StringToPath(
+XRAPI_ATTR XrResult XRAPI_CALL xrStringToPath(
     XrInstance                                  instance,
     const char*                                 pathString,
     XrPath*                                     path);
 
-XRAPI_ATTR XrResult XRAPI_CALL PathToString(
+XRAPI_ATTR XrResult XRAPI_CALL xrPathToString(
     XrInstance                                  instance,
     XrPath                                      path,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateActionSet(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateActionSet(
     XrInstance                                  instance,
     const XrActionSetCreateInfo*                createInfo,
     XrActionSet*                                actionSet);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyActionSet(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyActionSet(
     XrActionSet                                 actionSet);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateAction(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateAction(
     XrActionSet                                 actionSet,
     const XrActionCreateInfo*                   createInfo,
     XrAction*                                   action);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyAction(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyAction(
     XrAction                                    action);
 
-XRAPI_ATTR XrResult XRAPI_CALL SuggestInteractionProfileBindings(
+XRAPI_ATTR XrResult XRAPI_CALL xrSuggestInteractionProfileBindings(
     XrInstance                                  instance,
     const XrInteractionProfileSuggestedBinding* suggestedBindings);
 
-XRAPI_ATTR XrResult XRAPI_CALL AttachSessionActionSets(
+XRAPI_ATTR XrResult XRAPI_CALL xrAttachSessionActionSets(
     XrSession                                   session,
     const XrSessionActionSetsAttachInfo*        attachInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetCurrentInteractionProfile(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetCurrentInteractionProfile(
     XrSession                                   session,
     XrPath                                      topLevelUserPath,
     XrInteractionProfileState*                  interactionProfile);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetActionStateBoolean(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateBoolean(
     XrSession                                   session,
     const XrActionStateGetInfo*                 getInfo,
     XrActionStateBoolean*                       state);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetActionStateFloat(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateFloat(
     XrSession                                   session,
     const XrActionStateGetInfo*                 getInfo,
     XrActionStateFloat*                         state);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetActionStateVector2f(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateVector2f(
     XrSession                                   session,
     const XrActionStateGetInfo*                 getInfo,
     XrActionStateVector2f*                      state);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetActionStatePose(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStatePose(
     XrSession                                   session,
     const XrActionStateGetInfo*                 getInfo,
     XrActionStatePose*                          state);
 
-XRAPI_ATTR XrResult XRAPI_CALL SyncActions(
+XRAPI_ATTR XrResult XRAPI_CALL xrSyncActions(
     XrSession                                   session,
     const XrActionsSyncInfo*                    syncInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateBoundSourcesForAction(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateBoundSourcesForAction(
     XrSession                                   session,
     const XrBoundSourcesForActionEnumerateInfo* enumerateInfo,
     uint32_t                                    sourceCapacityInput,
     uint32_t*                                   sourceCountOutput,
     XrPath*                                     sources);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetInputSourceLocalizedName(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetInputSourceLocalizedName(
     XrSession                                   session,
     const XrInputSourceLocalizedNameGetInfo*    getInfo,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL ApplyHapticFeedback(
+XRAPI_ATTR XrResult XRAPI_CALL xrApplyHapticFeedback(
     XrSession                                   session,
     const XrHapticActionInfo*                   hapticActionInfo,
     const XrHapticBaseHeader*                   hapticFeedback);
 
-XRAPI_ATTR XrResult XRAPI_CALL StopHapticFeedback(
+XRAPI_ATTR XrResult XRAPI_CALL xrStopHapticFeedback(
     XrSession                                   session,
     const XrHapticActionInfo*                   hapticActionInfo);
 
 
-XRAPI_ATTR XrResult XRAPI_CALL SetAndroidApplicationThreadKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetAndroidApplicationThreadKHR(
     XrSession                                   session,
     XrAndroidThreadTypeKHR                      threadType,
     uint32_t                                    threadId);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchainAndroidSurfaceKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchainAndroidSurfaceKHR(
     XrSession                                   session,
     const XrSwapchainCreateInfo*                info,
     XrSwapchain*                                swapchain,
     jobject*                                    surface);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetOpenGLGraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetOpenGLGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsOpenGLKHR*            graphicsRequirements);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetOpenGLESGraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetOpenGLESGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsOpenGLESKHR*          graphicsRequirements);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanInstanceExtensionsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanInstanceExtensionsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanDeviceExtensionsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanDeviceExtensionsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsDeviceKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     VkInstance                                  vkInstance,
     VkPhysicalDevice*                           vkPhysicalDevice);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsVulkanKHR*            graphicsRequirements);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetD3D11GraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D11GraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsD3D11KHR*             graphicsRequirements);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetD3D12GraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D12GraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsD3D12KHR*             graphicsRequirements);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVisibilityMaskKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVisibilityMaskKHR(
     XrSession                                   session,
     XrViewConfigurationType                     viewConfigurationType,
     uint32_t                                    viewIndex,
     XrVisibilityMaskTypeKHR                     visibilityMaskType,
     XrVisibilityMaskKHR*                        visibilityMask);
 
-XRAPI_ATTR XrResult XRAPI_CALL ConvertWin32PerformanceCounterToTimeKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrConvertWin32PerformanceCounterToTimeKHR(
     XrInstance                                  instance,
     const LARGE_INTEGER*                        performanceCounter,
     XrTime*                                     time);
 
-XRAPI_ATTR XrResult XRAPI_CALL ConvertTimeToWin32PerformanceCounterKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToWin32PerformanceCounterKHR(
     XrInstance                                  instance,
     XrTime                                      time,
     LARGE_INTEGER*                              performanceCounter);
 
-XRAPI_ATTR XrResult XRAPI_CALL ConvertTimespecTimeToTimeKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimespecTimeToTimeKHR(
     XrInstance                                  instance,
     const struct timespec*                      timespecTime,
     XrTime*                                     time);
 
-XRAPI_ATTR XrResult XRAPI_CALL ConvertTimeToTimespecTimeKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
     XrInstance                                  instance,
     XrTime                                      time,
     struct timespec*                            timespecTime);
 
-XRAPI_ATTR XrResult XRAPI_CALL InitializeLoaderKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrInitializeLoaderKHR(
     const XrLoaderInitInfoBaseHeaderKHR*        loaderInitInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsRequirements2KHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(
+    XrInstance                                  instance,
+    const XrVulkanInstanceCreateInfoKHR*        createInfo,
+    VkInstance*                                 vulkanInstance,
+    VkResult*                                   vulkanResult);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(
+    XrInstance                                  instance,
+    const XrVulkanDeviceCreateInfoKHR*          createInfo,
+    VkDevice*                                   vulkanDevice,
+    VkResult*                                   vulkanResult);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(
+    XrInstance                                  instance,
+    const XrVulkanGraphicsDeviceGetInfoKHR*     getInfo,
+    VkPhysicalDevice*                           vulkanPhysicalDevice);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirements2KHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsVulkanKHR*            graphicsRequirements);
 
-XRAPI_ATTR XrResult XRAPI_CALL PerfSettingsSetPerformanceLevelEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrPerfSettingsSetPerformanceLevelEXT(
     XrSession                                   session,
     XrPerfSettingsDomainEXT                     domain,
     XrPerfSettingsLevelEXT                      level);
 
-XRAPI_ATTR XrResult XRAPI_CALL ThermalGetTemperatureTrendEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrThermalGetTemperatureTrendEXT(
     XrSession                                   session,
     XrPerfSettingsDomainEXT                     domain,
     XrPerfSettingsNotificationLevelEXT*         notificationLevel,
     float*                                      tempHeadroom,
     float*                                      tempSlope);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetDebugUtilsObjectNameEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetDebugUtilsObjectNameEXT(
     XrInstance                                  instance,
     const XrDebugUtilsObjectNameInfoEXT*        nameInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateDebugUtilsMessengerEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateDebugUtilsMessengerEXT(
     XrInstance                                  instance,
     const XrDebugUtilsMessengerCreateInfoEXT*   createInfo,
     XrDebugUtilsMessengerEXT*                   messenger);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyDebugUtilsMessengerEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyDebugUtilsMessengerEXT(
     XrDebugUtilsMessengerEXT                    messenger);
 
-XRAPI_ATTR XrResult                                    XRAPI_CALL SubmitDebugUtilsMessageEXT(
+XRAPI_ATTR XrResult                                    XRAPI_CALL xrSubmitDebugUtilsMessageEXT(
     XrInstance                                  instance,
     XrDebugUtilsMessageSeverityFlagsEXT         messageSeverity,
     XrDebugUtilsMessageTypeFlagsEXT             messageTypes,
     const XrDebugUtilsMessengerCallbackDataEXT* callbackData);
 
-XRAPI_ATTR XrResult XRAPI_CALL SessionBeginDebugUtilsLabelRegionEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSessionBeginDebugUtilsLabelRegionEXT(
     XrSession                                   session,
     const XrDebugUtilsLabelEXT*                 labelInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL SessionEndDebugUtilsLabelRegionEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSessionEndDebugUtilsLabelRegionEXT(
     XrSession                                   session);
 
-XRAPI_ATTR XrResult XRAPI_CALL SessionInsertDebugUtilsLabelEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSessionInsertDebugUtilsLabelEXT(
     XrSession                                   session,
     const XrDebugUtilsLabelEXT*                 labelInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorMSFT(
     XrSession                                   session,
     const XrSpatialAnchorCreateInfoMSFT*        createInfo,
     XrSpatialAnchorMSFT*                        anchor);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorSpaceMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorSpaceMSFT(
     XrSession                                   session,
     const XrSpatialAnchorSpaceCreateInfoMSFT*   createInfo,
     XrSpace*                                    space);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpatialAnchorMSFT(
     XrSpatialAnchorMSFT                         anchor);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceActiveEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceActiveEXT(
     XrSession                                   session,
     XrPath                                      interactionProfile,
     XrPath                                      topLevelPath,
     XrBool32                                    isActive);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceStateBoolEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceStateBoolEXT(
     XrSession                                   session,
     XrPath                                      topLevelPath,
     XrPath                                      inputSourcePath,
     XrBool32                                    state);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceStateFloatEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceStateFloatEXT(
     XrSession                                   session,
     XrPath                                      topLevelPath,
     XrPath                                      inputSourcePath,
     float                                       state);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceStateVector2fEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceStateVector2fEXT(
     XrSession                                   session,
     XrPath                                      topLevelPath,
     XrPath                                      inputSourcePath,
     XrVector2f                                  state);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceLocationEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceLocationEXT(
     XrSession                                   session,
     XrPath                                      topLevelPath,
     XrPath                                      inputSourcePath,
     XrSpace                                     space,
     XrPosef                                     pose);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialGraphNodeSpaceMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialGraphNodeSpaceMSFT(
     XrSession                                   session,
     const XrSpatialGraphNodeSpaceCreateInfoMSFT* createInfo,
     XrSpace*                                    space);
 
-XRAPI_ATTR XrResult XRAPI_CALL TryCreateSpatialGraphStaticNodeBindingMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrTryCreateSpatialGraphStaticNodeBindingMSFT(
     XrSession                                   session,
     const XrSpatialGraphStaticNodeBindingCreateInfoMSFT* createInfo,
     XrSpatialGraphNodeBindingMSFT*              nodeBinding);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialGraphNodeBindingMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpatialGraphNodeBindingMSFT(
     XrSpatialGraphNodeBindingMSFT               nodeBinding);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpatialGraphNodeBindingPropertiesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpatialGraphNodeBindingPropertiesMSFT(
     XrSpatialGraphNodeBindingMSFT               nodeBinding,
     const XrSpatialGraphNodeBindingPropertiesGetInfoMSFT* getInfo,
     XrSpatialGraphNodeBindingPropertiesMSFT*    properties);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateHandTrackerEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandTrackerEXT(
     XrSession                                   session,
     const XrHandTrackerCreateInfoEXT*           createInfo,
     XrHandTrackerEXT*                           handTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyHandTrackerEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyHandTrackerEXT(
     XrHandTrackerEXT                            handTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateHandJointsEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateHandJointsEXT(
     XrHandTrackerEXT                            handTracker,
     const XrHandJointsLocateInfoEXT*            locateInfo,
     XrHandJointLocationsEXT*                    locations);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateHandMeshSpaceMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandMeshSpaceMSFT(
     XrHandTrackerEXT                            handTracker,
     const XrHandMeshSpaceCreateInfoMSFT*        createInfo,
     XrSpace*                                    space);
 
-XRAPI_ATTR XrResult XRAPI_CALL UpdateHandMeshMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrUpdateHandMeshMSFT(
     XrHandTrackerEXT                            handTracker,
     const XrHandMeshUpdateInfoMSFT*             updateInfo,
     XrHandMeshMSFT*                             handMesh);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelKeyMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelKeyMSFT(
     XrSession                                   session,
     XrPath                                      topLevelUserPath,
     XrControllerModelKeyStateMSFT*              controllerModelKeyState);
 
-XRAPI_ATTR XrResult XRAPI_CALL LoadControllerModelMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrLoadControllerModelMSFT(
     XrSession                                   session,
     XrControllerModelKeyMSFT                    modelKey,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
     uint8_t*                                    buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelPropertiesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelPropertiesMSFT(
     XrSession                                   session,
     XrControllerModelKeyMSFT                    modelKey,
     XrControllerModelPropertiesMSFT*            properties);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelStateMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelStateMSFT(
     XrSession                                   session,
     XrControllerModelKeyMSFT                    modelKey,
     XrControllerModelStateMSFT*                 state);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPerceptionAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPerceptionAnchorMSFT(
     XrSession                                   session,
     IUnknown*                                   perceptionAnchor,
     XrSpatialAnchorMSFT*                        anchor);
 
-XRAPI_ATTR XrResult XRAPI_CALL TryGetPerceptionAnchorFromSpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(
     XrSession                                   session,
     XrSpatialAnchorMSFT                         anchor,
     IUnknown**                                  perceptionAnchor);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateReprojectionModesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateReprojectionModesMSFT(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrViewConfigurationType                     viewConfigurationType,
@@ -595,715 +608,715 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateReprojectionModesMSFT(
     uint32_t*                                   modeCountOutput,
     XrReprojectionModeMSFT*                     modes);
 
-XRAPI_ATTR XrResult XRAPI_CALL UpdateSwapchainFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrUpdateSwapchainFB(
     XrSwapchain                                 swapchain,
     const XrSwapchainStateBaseHeaderFB*         state);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSwapchainStateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSwapchainStateFB(
     XrSwapchain                                 swapchain,
     XrSwapchainStateBaseHeaderFB*               state);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateBodyTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateBodyTrackerFB(
     XrSession                                   session,
     const XrBodyTrackerCreateInfoFB*            createInfo,
     XrBodyTrackerFB*                            bodyTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyBodyTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyBodyTrackerFB(
     XrBodyTrackerFB                             bodyTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateBodyJointsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateBodyJointsFB(
     XrBodyTrackerFB                             bodyTracker,
     const XrBodyJointsLocateInfoFB*             locateInfo,
     XrBodyJointLocationsFB*                     locations);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetBodySkeletonFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetBodySkeletonFB(
     XrBodyTrackerFB                             bodyTracker,
     XrBodySkeletonFB*                           skeleton);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateSceneComputeFeaturesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSceneComputeFeaturesMSFT(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     uint32_t                                    featureCapacityInput,
     uint32_t*                                   featureCountOutput,
     XrSceneComputeFeatureMSFT*                  features);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSceneObserverMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneObserverMSFT(
     XrSession                                   session,
     const XrSceneObserverCreateInfoMSFT*        createInfo,
     XrSceneObserverMSFT*                        sceneObserver);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySceneObserverMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySceneObserverMSFT(
     XrSceneObserverMSFT                         sceneObserver);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSceneMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneMSFT(
     XrSceneObserverMSFT                         sceneObserver,
     const XrSceneCreateInfoMSFT*                createInfo,
     XrSceneMSFT*                                scene);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySceneMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySceneMSFT(
     XrSceneMSFT                                 scene);
 
-XRAPI_ATTR XrResult XRAPI_CALL ComputeNewSceneMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrComputeNewSceneMSFT(
     XrSceneObserverMSFT                         sceneObserver,
     const XrNewSceneComputeInfoMSFT*            computeInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneComputeStateMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneComputeStateMSFT(
     XrSceneObserverMSFT                         sceneObserver,
     XrSceneComputeStateMSFT*                    state);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneComponentsMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneComponentsMSFT(
     XrSceneMSFT                                 scene,
     const XrSceneComponentsGetInfoMSFT*         getInfo,
     XrSceneComponentsMSFT*                      components);
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateSceneComponentsMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateSceneComponentsMSFT(
     XrSceneMSFT                                 scene,
     const XrSceneComponentsLocateInfoMSFT*      locateInfo,
     XrSceneComponentLocationsMSFT*              locations);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneMeshBuffersMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMeshBuffersMSFT(
     XrSceneMSFT                                 scene,
     const XrSceneMeshBuffersGetInfoMSFT*        getInfo,
     XrSceneMeshBuffersMSFT*                     buffers);
 
-XRAPI_ATTR XrResult XRAPI_CALL DeserializeSceneMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDeserializeSceneMSFT(
     XrSceneObserverMSFT                         sceneObserver,
     const XrSceneDeserializeInfoMSFT*           deserializeInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSerializedSceneFragmentDataMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSerializedSceneFragmentDataMSFT(
     XrSceneMSFT                                 scene,
     const XrSerializedSceneFragmentDataGetInfoMSFT* getInfo,
     uint32_t                                    countInput,
     uint32_t*                                   readOutput,
     uint8_t*                                    buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateDisplayRefreshRatesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateDisplayRefreshRatesFB(
     XrSession                                   session,
     uint32_t                                    displayRefreshRateCapacityInput,
     uint32_t*                                   displayRefreshRateCountOutput,
     float*                                      displayRefreshRates);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetDisplayRefreshRateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetDisplayRefreshRateFB(
     XrSession                                   session,
     float*                                      displayRefreshRate);
 
-XRAPI_ATTR XrResult XRAPI_CALL RequestDisplayRefreshRateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrRequestDisplayRefreshRateFB(
     XrSession                                   session,
     float                                       displayRefreshRate);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateViveTrackerPathsHTCX(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViveTrackerPathsHTCX(
     XrInstance                                  instance,
     uint32_t                                    pathCapacityInput,
     uint32_t*                                   pathCountOutput,
     XrViveTrackerPathsHTCX*                     paths);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateFacialTrackerHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateFacialTrackerHTC(
     XrSession                                   session,
     const XrFacialTrackerCreateInfoHTC*         createInfo,
     XrFacialTrackerHTC*                         facialTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyFacialTrackerHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFacialTrackerHTC(
     XrFacialTrackerHTC                          facialTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetFacialExpressionsHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFacialExpressionsHTC(
     XrFacialTrackerHTC                          facialTracker,
     XrFacialExpressionsHTC*                     facialExpressions);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateColorSpacesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateColorSpacesFB(
     XrSession                                   session,
     uint32_t                                    colorSpaceCapacityInput,
     uint32_t*                                   colorSpaceCountOutput,
     XrColorSpaceFB*                             colorSpaces);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetColorSpaceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetColorSpaceFB(
     XrSession                                   session,
     const XrColorSpaceFB                        colorSpace);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetHandMeshFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetHandMeshFB(
     XrHandTrackerEXT                            handTracker,
     XrHandTrackingMeshFB*                       mesh);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFB(
     XrSession                                   session,
     const XrSpatialAnchorCreateInfoFB*          info,
     XrAsyncRequestIdFB*                         requestId);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceUuidFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUuidFB(
     XrSpace                                     space,
     XrUuidEXT*                                  uuid);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateSpaceSupportedComponentsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSpaceSupportedComponentsFB(
     XrSpace                                     space,
     uint32_t                                    componentTypeCapacityInput,
     uint32_t*                                   componentTypeCountOutput,
     XrSpaceComponentTypeFB*                     componentTypes);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetSpaceComponentStatusFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetSpaceComponentStatusFB(
     XrSpace                                     space,
     const XrSpaceComponentStatusSetInfoFB*      info,
     XrAsyncRequestIdFB*                         requestId);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceComponentStatusFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceComponentStatusFB(
     XrSpace                                     space,
     XrSpaceComponentTypeFB                      componentType,
     XrSpaceComponentStatusFB*                   status);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateFoveationProfileFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateFoveationProfileFB(
     XrSession                                   session,
     const XrFoveationProfileCreateInfoFB*       createInfo,
     XrFoveationProfileFB*                       profile);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyFoveationProfileFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFoveationProfileFB(
     XrFoveationProfileFB                        profile);
 
-XRAPI_ATTR XrResult XRAPI_CALL QuerySystemTrackedKeyboardFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrQuerySystemTrackedKeyboardFB(
     XrSession                                   session,
     const XrKeyboardTrackingQueryFB*            queryInfo,
     XrKeyboardTrackingDescriptionFB*            keyboard);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateKeyboardSpaceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateKeyboardSpaceFB(
     XrSession                                   session,
     const XrKeyboardSpaceCreateInfoFB*          createInfo,
     XrSpace*                                    keyboardSpace);
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshBeginUpdateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshBeginUpdateFB(
     XrTriangleMeshFB                            mesh);
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshEndUpdateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshEndUpdateFB(
     XrTriangleMeshFB                            mesh,
     uint32_t                                    vertexCount,
     uint32_t                                    triangleCount);
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshBeginVertexBufferUpdateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshBeginVertexBufferUpdateFB(
     XrTriangleMeshFB                            mesh,
     uint32_t*                                   outVertexCount);
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshEndVertexBufferUpdateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshEndVertexBufferUpdateFB(
     XrTriangleMeshFB                            mesh);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughFB(
     XrSession                                   session,
     const XrPassthroughCreateInfoFB*            createInfo,
     XrPassthroughFB*                            outPassthrough);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughFB(
     XrPassthroughFB                             passthrough);
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughStartFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughStartFB(
     XrPassthroughFB                             passthrough);
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughPauseFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughPauseFB(
     XrPassthroughFB                             passthrough);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughLayerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughLayerFB(
     XrSession                                   session,
     const XrPassthroughLayerCreateInfoFB*       createInfo,
     XrPassthroughLayerFB*                       outLayer);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughLayerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughLayerFB(
     XrPassthroughLayerFB                        layer);
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerPauseFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerPauseFB(
     XrPassthroughLayerFB                        layer);
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerResumeFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerResumeFB(
     XrPassthroughLayerFB                        layer);
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerSetStyleFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerSetStyleFB(
     XrPassthroughLayerFB                        layer,
     const XrPassthroughStyleFB*                 style);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateGeometryInstanceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateGeometryInstanceFB(
     XrSession                                   session,
     const XrGeometryInstanceCreateInfoFB*       createInfo,
     XrGeometryInstanceFB*                       outGeometryInstance);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyGeometryInstanceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyGeometryInstanceFB(
     XrGeometryInstanceFB                        instance);
 
-XRAPI_ATTR XrResult XRAPI_CALL GeometryInstanceSetTransformFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGeometryInstanceSetTransformFB(
     XrGeometryInstanceFB                        instance,
     const XrGeometryInstanceTransformFB*        transformation);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateRenderModelPathsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateRenderModelPathsFB(
     XrSession                                   session,
     uint32_t                                    pathCapacityInput,
     uint32_t*                                   pathCountOutput,
     XrRenderModelPathInfoFB*                    paths);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetRenderModelPropertiesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetRenderModelPropertiesFB(
     XrSession                                   session,
     XrPath                                      path,
     XrRenderModelPropertiesFB*                  properties);
 
-XRAPI_ATTR XrResult XRAPI_CALL LoadRenderModelFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrLoadRenderModelFB(
     XrSession                                   session,
     const XrRenderModelLoadInfoFB*              info,
     XrRenderModelBufferFB*                      buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetEnvironmentDepthEstimationVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetEnvironmentDepthEstimationVARJO(
     XrSession                                   session,
     XrBool32                                    enabled);
 
-XRAPI_ATTR XrResult  XRAPI_CALL SetMarkerTrackingVARJO(
+XRAPI_ATTR XrResult  XRAPI_CALL xrSetMarkerTrackingVARJO(
     XrSession                                   session,
     XrBool32                                    enabled);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetMarkerTrackingTimeoutVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetMarkerTrackingTimeoutVARJO(
     XrSession                                   session,
     uint64_t                                    markerId,
     XrDuration                                  timeout);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetMarkerTrackingPredictionVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetMarkerTrackingPredictionVARJO(
     XrSession                                   session,
     uint64_t                                    markerId,
     XrBool32                                    enable);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerSizeVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerSizeVARJO(
     XrSession                                   session,
     uint64_t                                    markerId,
     XrExtent2Df*                                size);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceVARJO(
     XrSession                                   session,
     const XrMarkerSpaceCreateInfoVARJO*         createInfo,
     XrSpace*                                    space);
 
-XRAPI_ATTR XrResult  XRAPI_CALL SetViewOffsetVARJO(
+XRAPI_ATTR XrResult  XRAPI_CALL xrSetViewOffsetVARJO(
     XrSession                                   session,
     float                                       offset);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceFromCoordinateFrameUIDML(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceFromCoordinateFrameUIDML(
     XrSession                                   session,
     const XrCoordinateSpaceCreateInfoML *       createInfo,
     XrSpace*                                    space);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerDetectorML(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerDetectorML(
     XrSession                                   session,
     const XrMarkerDetectorCreateInfoML*         createInfo,
     XrMarkerDetectorML*                         markerDetector);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyMarkerDetectorML(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyMarkerDetectorML(
     XrMarkerDetectorML                          markerDetector);
 
-XRAPI_ATTR XrResult XRAPI_CALL SnapshotMarkerDetectorML(
+XRAPI_ATTR XrResult XRAPI_CALL xrSnapshotMarkerDetectorML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerDetectorSnapshotInfoML*             snapshotInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerDetectorStateML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerDetectorStateML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerDetectorStateML*                    state);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkersML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkersML(
     XrMarkerDetectorML                          markerDetector,
     uint32_t                                    markerCapacityInput,
     uint32_t*                                   markerCountOutput,
     XrMarkerML*                                 markers);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerReprojectionErrorML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerReprojectionErrorML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerML                                  marker,
     float*                                      reprojectionErrorMeters);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerLengthML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerLengthML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerML                                  marker,
     float*                                      meters);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerNumberML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerNumberML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerML                                  marker,
     uint64_t*                                   number);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerStringML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerStringML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerML                                  marker,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceML(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceML(
     XrSession                                   session,
     const XrMarkerSpaceCreateInfoML*            createInfo,
     XrSpace*                                    space);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnableLocalizationEventsML(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnableLocalizationEventsML(
     XrSession                                   session,
     const XrLocalizationEnableEventsInfoML *    info);
 
-XRAPI_ATTR XrResult XRAPI_CALL QueryLocalizationMapsML(
+XRAPI_ATTR XrResult XRAPI_CALL xrQueryLocalizationMapsML(
     XrSession                                   session,
     const XrLocalizationMapQueryInfoBaseHeaderML* queryInfo,
     uint32_t                                    mapCapacityInput,
     uint32_t *                                  mapCountOutput,
     XrLocalizationMapML*                        maps);
 
-XRAPI_ATTR XrResult XRAPI_CALL RequestMapLocalizationML(
+XRAPI_ATTR XrResult XRAPI_CALL xrRequestMapLocalizationML(
     XrSession                                   session,
     const XrMapLocalizationRequestInfoML*       requestInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL ImportLocalizationMapML(
+XRAPI_ATTR XrResult XRAPI_CALL xrImportLocalizationMapML(
     XrSession                                   session,
     const XrLocalizationMapImportInfoML*        importInfo,
     XrUuidEXT*                                  mapUuid);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateExportedLocalizationMapML(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateExportedLocalizationMapML(
     XrSession                                   session,
     const XrUuidEXT*                            mapUuid,
     XrExportedLocalizationMapML*                map);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyExportedLocalizationMapML(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyExportedLocalizationMapML(
     XrExportedLocalizationMapML                 map);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetExportedLocalizationMapDataML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetExportedLocalizationMapDataML(
     XrExportedLocalizationMapML                 map,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorStoreConnectionMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorStoreConnectionMSFT(
     XrSession                                   session,
     XrSpatialAnchorStoreConnectionMSFT*         spatialAnchorStore);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialAnchorStoreConnectionMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpatialAnchorStoreConnectionMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore);
 
-XRAPI_ATTR XrResult XRAPI_CALL PersistSpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrPersistSpatialAnchorMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore,
     const XrSpatialAnchorPersistenceInfoMSFT*   spatialAnchorPersistenceInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumeratePersistedSpatialAnchorNamesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePersistedSpatialAnchorNamesMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore,
     uint32_t                                    spatialAnchorNameCapacityInput,
     uint32_t*                                   spatialAnchorNameCountOutput,
     XrSpatialAnchorPersistenceNameMSFT*         spatialAnchorNames);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPersistedNameMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPersistedNameMSFT(
     XrSession                                   session,
     const XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* spatialAnchorCreateInfo,
     XrSpatialAnchorMSFT*                        spatialAnchor);
 
-XRAPI_ATTR XrResult XRAPI_CALL UnpersistSpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrUnpersistSpatialAnchorMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore,
     const XrSpatialAnchorPersistenceNameMSFT*   spatialAnchorPersistenceName);
 
-XRAPI_ATTR XrResult XRAPI_CALL ClearSpatialAnchorStoreMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrClearSpatialAnchorStoreMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneMarkerRawDataMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMarkerRawDataMSFT(
     XrSceneMSFT                                 scene,
     const XrUuidMSFT*                           markerId,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
     uint8_t*                                    buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneMarkerDecodedStringMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMarkerDecodedStringMSFT(
     XrSceneMSFT                                 scene,
     const XrUuidMSFT*                           markerId,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL QuerySpacesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrQuerySpacesFB(
     XrSession                                   session,
     const XrSpaceQueryInfoBaseHeaderFB*         info,
     XrAsyncRequestIdFB*                         requestId);
 
-XRAPI_ATTR XrResult XRAPI_CALL RetrieveSpaceQueryResultsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrRetrieveSpaceQueryResultsFB(
     XrSession                                   session,
     XrAsyncRequestIdFB                          requestId,
     XrSpaceQueryResultsFB*                      results);
 
-XRAPI_ATTR XrResult XRAPI_CALL SaveSpaceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceFB(
     XrSession                                   session,
     const XrSpaceSaveInfoFB*                    info,
     XrAsyncRequestIdFB*                         requestId);
 
-XRAPI_ATTR XrResult XRAPI_CALL EraseSpaceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEraseSpaceFB(
     XrSession                                   session,
     const XrSpaceEraseInfoFB*                   info,
     XrAsyncRequestIdFB*                         requestId);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetAudioOutputDeviceGuidOculus(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetAudioOutputDeviceGuidOculus(
     XrInstance                                  instance,
     wchar_t                                     buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS]);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetAudioInputDeviceGuidOculus(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetAudioInputDeviceGuidOculus(
     XrInstance                                  instance,
     wchar_t                                     buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS]);
 
-XRAPI_ATTR XrResult XRAPI_CALL ShareSpacesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrShareSpacesFB(
     XrSession                                   session,
     const XrSpaceShareInfoFB*                   info,
     XrAsyncRequestIdFB*                         requestId);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceBoundingBox2DFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox2DFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrRect2Df*                                  boundingBox2DOutput);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceBoundingBox3DFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox3DFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrRect3DfFB*                                boundingBox3DOutput);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceSemanticLabelsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceSemanticLabelsFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrSemanticLabelsFB*                         semanticLabelsOutput);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceBoundary2DFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundary2DFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrBoundary2DFB*                             boundary2DOutput);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceRoomLayoutFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceRoomLayoutFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrRoomLayoutFB*                             roomLayoutOutput);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetDigitalLensControlALMALENCE(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetDigitalLensControlALMALENCE(
     XrSession                                   session,
     const XrDigitalLensControlALMALENCE*        digitalLensControl);
 
-XRAPI_ATTR XrResult XRAPI_CALL RequestSceneCaptureFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrRequestSceneCaptureFB(
     XrSession                                   session,
     const XrSceneCaptureRequestInfoFB*          info,
     XrAsyncRequestIdFB*                         requestId);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceContainerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceContainerFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrSpaceContainerFB*                         spaceContainerOutput);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetFoveationEyeTrackedStateMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFoveationEyeTrackedStateMETA(
     XrSession                                   session,
     XrFoveationEyeTrackedStateMETA*             foveationState);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTrackerFB(
     XrSession                                   session,
     const XrFaceTrackerCreateInfoFB*            createInfo,
     XrFaceTrackerFB*                            faceTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyFaceTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFaceTrackerFB(
     XrFaceTrackerFB                             faceTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetFaceExpressionWeightsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeightsFB(
     XrFaceTrackerFB                             faceTracker,
     const XrFaceExpressionInfoFB*               expressionInfo,
     XrFaceExpressionWeightsFB*                  expressionWeights);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateEyeTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateEyeTrackerFB(
     XrSession                                   session,
     const XrEyeTrackerCreateInfoFB*             createInfo,
     XrEyeTrackerFB*                             eyeTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyEyeTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEyeTrackerFB(
     XrEyeTrackerFB                              eyeTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetEyeGazesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetEyeGazesFB(
     XrEyeTrackerFB                              eyeTracker,
     const XrEyeGazesInfoFB*                     gazeInfo,
     XrEyeGazesFB*                               eyeGazes);
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerSetKeyboardHandsIntensityFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerSetKeyboardHandsIntensityFB(
     XrPassthroughLayerFB                        layer,
     const XrPassthroughKeyboardHandsIntensityFB* intensity);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetDeviceSampleRateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetDeviceSampleRateFB(
     XrSession                                   session,
     const XrHapticActionInfo*                   hapticActionInfo,
     XrDevicePcmSampleRateGetInfoFB*             deviceSampleRate);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPassthroughPreferencesMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPassthroughPreferencesMETA(
     XrSession                                   session,
     XrPassthroughPreferencesMETA*               preferences);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVirtualKeyboardMETA(
     XrSession                                   session,
     const XrVirtualKeyboardCreateInfoMETA*      createInfo,
     XrVirtualKeyboardMETA*                      keyboard);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyVirtualKeyboardMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyVirtualKeyboardMETA(
     XrVirtualKeyboardMETA                       keyboard);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardSpaceMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVirtualKeyboardSpaceMETA(
     XrSession                                   session,
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardSpaceCreateInfoMETA* createInfo,
     XrSpace*                                    keyboardSpace);
 
-XRAPI_ATTR XrResult XRAPI_CALL SuggestVirtualKeyboardLocationMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrSuggestVirtualKeyboardLocationMETA(
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardLocationInfoMETA*    locationInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardScaleMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardScaleMETA(
     XrVirtualKeyboardMETA                       keyboard,
     float*                                      scale);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetVirtualKeyboardModelVisibilityMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetVirtualKeyboardModelVisibilityMETA(
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardModelVisibilitySetInfoMETA* modelVisibility);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardModelAnimationStatesMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardModelAnimationStatesMETA(
     XrVirtualKeyboardMETA                       keyboard,
     XrVirtualKeyboardModelAnimationStatesMETA*  animationStates);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardDirtyTexturesMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardDirtyTexturesMETA(
     XrVirtualKeyboardMETA                       keyboard,
     uint32_t                                    textureIdCapacityInput,
     uint32_t*                                   textureIdCountOutput,
     uint64_t*                                   textureIds);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardTextureDataMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardTextureDataMETA(
     XrVirtualKeyboardMETA                       keyboard,
     uint64_t                                    textureId,
     XrVirtualKeyboardTextureDataMETA*           textureData);
 
-XRAPI_ATTR XrResult XRAPI_CALL SendVirtualKeyboardInputMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrSendVirtualKeyboardInputMETA(
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardInputInfoMETA*       info,
     XrPosef*                                    interactorRootPose);
 
-XRAPI_ATTR XrResult XRAPI_CALL ChangeVirtualKeyboardTextContextMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrChangeVirtualKeyboardTextContextMETA(
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardTextContextChangeInfoMETA* changeInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateExternalCamerasOCULUS(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateExternalCamerasOCULUS(
     XrSession                                   session,
     uint32_t                                    cameraCapacityInput,
     uint32_t*                                   cameraCountOutput,
     XrExternalCameraOCULUS*                     cameras);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumeratePerformanceMetricsCounterPathsMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePerformanceMetricsCounterPathsMETA(
     XrInstance                                  instance,
     uint32_t                                    counterPathCapacityInput,
     uint32_t*                                   counterPathCountOutput,
     XrPath*                                     counterPaths);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetPerformanceMetricsStateMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetPerformanceMetricsStateMETA(
     XrSession                                   session,
     const XrPerformanceMetricsStateMETA*        state);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPerformanceMetricsStateMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPerformanceMetricsStateMETA(
     XrSession                                   session,
     XrPerformanceMetricsStateMETA*              state);
 
-XRAPI_ATTR XrResult XRAPI_CALL QueryPerformanceMetricsCounterMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrQueryPerformanceMetricsCounterMETA(
     XrSession                                   session,
     XrPath                                      counterPath,
     XrPerformanceMetricsCounterMETA*            counter);
 
-XRAPI_ATTR XrResult XRAPI_CALL SaveSpaceListFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceListFB(
     XrSession                                   session,
     const XrSpaceListSaveInfoFB*                info,
     XrAsyncRequestIdFB*                         requestId);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceUserFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceUserFB(
     XrSession                                   session,
     const XrSpaceUserCreateInfoFB*              info,
     XrSpaceUserFB*                              user);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceUserIdFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUserIdFB(
     XrSpaceUserFB                               user,
     XrSpaceUserIdFB*                            userId);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpaceUserFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpaceUserFB(
     XrSpaceUserFB                               user);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetRecommendedLayerResolutionMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetRecommendedLayerResolutionMETA(
     XrSession                                   session,
     const XrRecommendedLayerResolutionGetInfoMETA* info,
     XrRecommendedLayerResolutionMETA*           resolution);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughColorLutMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughColorLutMETA(
     XrPassthroughFB                             passthrough,
     const XrPassthroughColorLutCreateInfoMETA*  createInfo,
     XrPassthroughColorLutMETA*                  colorLut);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughColorLutMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughColorLutMETA(
     XrPassthroughColorLutMETA                   colorLut);
 
-XRAPI_ATTR XrResult XRAPI_CALL UpdatePassthroughColorLutMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrUpdatePassthroughColorLutMETA(
     XrPassthroughColorLutMETA                   colorLut,
     const XrPassthroughColorLutUpdateInfoMETA*  updateInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceTriangleMeshMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceTriangleMeshMETA(
     XrSpace                                     space,
     const XrSpaceTriangleMeshGetInfoMETA*       getInfo,
     XrSpaceTriangleMeshMETA*                    triangleMeshOutput);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTracker2FB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTracker2FB(
     XrSession                                   session,
     const XrFaceTrackerCreateInfo2FB*           createInfo,
     XrFaceTracker2FB*                           faceTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyFaceTracker2FB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFaceTracker2FB(
     XrFaceTracker2FB                            faceTracker);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetFaceExpressionWeights2FB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeights2FB(
     XrFaceTracker2FB                            faceTracker,
     const XrFaceExpressionInfo2FB*              expressionInfo,
     XrFaceExpressionWeights2FB*                 expressionWeights);
 
-XRAPI_ATTR XrResult XRAPI_CALL SetTrackingOptimizationSettingsHintQCOM(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetTrackingOptimizationSettingsHintQCOM(
     XrSession                                   session,
     XrTrackingOptimizationSettingsDomainQCOM    domain,
     XrTrackingOptimizationSettingsHintQCOM      hint);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughHTC(
     XrSession                                   session,
     const XrPassthroughCreateInfoHTC*           createInfo,
     XrPassthroughHTC*                           passthrough);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughHTC(
     XrPassthroughHTC                            passthrough);
 
-XRAPI_ATTR XrResult XRAPI_CALL ApplyFoveationHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrApplyFoveationHTC(
     XrSession                                   session,
     const XrFoveationApplyInfoHTC*              applyInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorHTC(
     XrSession                                   session,
     const XrSpatialAnchorCreateInfoHTC*         createInfo,
     XrSpace*                                    anchor);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpatialAnchorNameHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpatialAnchorNameHTC(
     XrSpace                                     anchor,
     XrSpatialAnchorNameHTC*                     name);
 
-XRAPI_ATTR XrResult XRAPI_CALL ApplyForceFeedbackCurlMNDX(
+XRAPI_ATTR XrResult XRAPI_CALL xrApplyForceFeedbackCurlMNDX(
     XrHandTrackerEXT                            handTracker,
     const XrForceFeedbackCurlApplyLocationsMNDX* locations);
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePlaneDetectorEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePlaneDetectorEXT(
     XrSession                                   session,
     const XrPlaneDetectorCreateInfoEXT*         createInfo,
     XrPlaneDetectorEXT*                         planeDetector);
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPlaneDetectorEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPlaneDetectorEXT(
     XrPlaneDetectorEXT                          planeDetector);
 
-XRAPI_ATTR XrResult XRAPI_CALL BeginPlaneDetectionEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrBeginPlaneDetectionEXT(
     XrPlaneDetectorEXT                          planeDetector,
     const XrPlaneDetectorBeginInfoEXT*          beginInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPlaneDetectionStateEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionStateEXT(
     XrPlaneDetectorEXT                          planeDetector,
     XrPlaneDetectionStateEXT*                   state);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPlaneDetectionsEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionsEXT(
     XrPlaneDetectorEXT                          planeDetector,
     const XrPlaneDetectorGetInfoEXT*            info,
     XrPlaneDetectorLocationsEXT*                locations);
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPlanePolygonBufferEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPlanePolygonBufferEXT(
     XrPlaneDetectorEXT                          planeDetector,
     uint64_t                                    planeId,
     uint32_t                                    polygonBufferIndex,
     XrPlaneDetectorPolygonBufferEXT*            polygonBuffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL EnableUserCalibrationEventsML(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnableUserCalibrationEventsML(
     XrInstance                                  instance,
     const XrUserCalibrationEnableEventsInfoML*  enableInfo);
 

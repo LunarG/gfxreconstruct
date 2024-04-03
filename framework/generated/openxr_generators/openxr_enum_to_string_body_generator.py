@@ -117,6 +117,8 @@ class OpenXrEnumToStringBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generate_feature(self):
         for enum in sorted(self.enum_names):
+            if enum.startswith('Vk'):
+                continue
             if not enum in self.processedEnums and not enum in self.enumAliases:
                 self.processedEnums.add(enum)
                 if self.is_flags_enum_64bit(enum):

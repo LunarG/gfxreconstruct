@@ -645,7 +645,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanSwapchainFormatListCr
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeUInt32Value(value.viewFormatCount);
-    encoder->EncodeVkFormatArray(value.viewFormats, value.viewFormatCount);
+    encoder->EncodeEnumArray(value.viewFormats, value.viewFormatCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerCylinderKHR& value)
@@ -2443,15 +2443,15 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateSamplerVulkan
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVkFilterValue(value.minFilter);
-    encoder->EncodeVkFilterValue(value.magFilter);
-    encoder->EncodeVkSamplerMipmapModeValue(value.mipmapMode);
-    encoder->EncodeVkSamplerAddressModeValue(value.wrapModeS);
-    encoder->EncodeVkSamplerAddressModeValue(value.wrapModeT);
-    encoder->EncodeVkComponentSwizzleValue(value.swizzleRed);
-    encoder->EncodeVkComponentSwizzleValue(value.swizzleGreen);
-    encoder->EncodeVkComponentSwizzleValue(value.swizzleBlue);
-    encoder->EncodeVkComponentSwizzleValue(value.swizzleAlpha);
+    encoder->EncodeEnumValue(value.minFilter);
+    encoder->EncodeEnumValue(value.magFilter);
+    encoder->EncodeEnumValue(value.mipmapMode);
+    encoder->EncodeEnumValue(value.wrapModeS);
+    encoder->EncodeEnumValue(value.wrapModeT);
+    encoder->EncodeEnumValue(value.swizzleRed);
+    encoder->EncodeEnumValue(value.swizzleGreen);
+    encoder->EncodeEnumValue(value.swizzleBlue);
+    encoder->EncodeEnumValue(value.swizzleAlpha);
     encoder->EncodeFloatValue(value.maxAnisotropy);
     EncodeStruct(encoder, value.borderColor);
 }

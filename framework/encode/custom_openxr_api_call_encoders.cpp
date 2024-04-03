@@ -41,36 +41,36 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
-
-XRAPI_ATTR XrResult XRAPI_CALL CreateVulkanInstanceKHR(XrInstance                           instance,
-                                                       const XrVulkanInstanceCreateInfoKHR* createInfo,
-                                                       VkInstance*                          vulkanInstance,
-                                                       VkResult*                            vulkanResult)
+/*
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(XrInstance                           instance,
+                                                         const XrVulkanInstanceCreateInfoKHR* createInfo,
+                                                         VkInstance*                          vulkanInstance,
+                                                         VkResult*                            vulkanResult)
 {
     // TODO : Brainpain
     return XR_SUCCESS;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateVulkanDeviceKHR(XrInstance                         instance,
-                                                     const XrVulkanDeviceCreateInfoKHR* createInfo,
-                                                     VkDevice*                          vulkanDevice,
-                                                     VkResult*                          vulkanResult)
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance                         instance,
+                                                       const XrVulkanDeviceCreateInfoKHR* createInfo,
+                                                       VkDevice*                          vulkanDevice,
+                                                       VkResult*                          vulkanResult)
 {
     // TODO : Brainpain
     return XR_SUCCESS;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsDevice2KHR(XrInstance                              instance,
-                                                           const XrVulkanGraphicsDeviceGetInfoKHR* getInfo,
-                                                           VkPhysicalDevice*                       vulkanPhysicalDevice)
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(XrInstance                              instance,
+                                                             const XrVulkanGraphicsDeviceGetInfoKHR* getInfo,
+                                                             VkPhysicalDevice* vulkanPhysicalDevice)
 {
     // TODO : Brainpain
     return XR_SUCCESS;
-}
+}*/
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateTriangleMeshFB(XrSession                         session,
-                                                    const XrTriangleMeshCreateInfoFB* createInfo,
-                                                    XrTriangleMeshFB*                 outTriangleMesh)
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateTriangleMeshFB(XrSession                         session,
+                                                      const XrTriangleMeshCreateInfoFB* createInfo,
+                                                      XrTriangleMeshFB*                 outTriangleMesh)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
@@ -125,7 +125,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateTriangleMeshFB(XrSession                   
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyTriangleMeshFB(XrTriangleMeshFB mesh)
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyTriangleMeshFB(XrTriangleMeshFB mesh)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
@@ -161,7 +161,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyTriangleMeshFB(XrTriangleMeshFB mesh)
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshGetVertexBufferFB(XrTriangleMeshFB mesh, XrVector3f** outVertexBuffer)
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetVertexBufferFB(XrTriangleMeshFB mesh, XrVector3f** outVertexBuffer)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
@@ -207,7 +207,7 @@ XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshGetVertexBufferFB(XrTriangleMeshFB me
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshGetIndexBufferFB(XrTriangleMeshFB mesh, uint32_t** outIndexBuffer)
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetIndexBufferFB(XrTriangleMeshFB mesh, uint32_t** outIndexBuffer)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
