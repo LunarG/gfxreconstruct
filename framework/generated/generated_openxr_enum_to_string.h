@@ -38,6 +38,12 @@
 #include "openxr/openxr_platform.h"
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+template <> std::string ToString<VkComponentSwizzle>(const VkComponentSwizzle& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkFilter>(const VkFilter& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkFormat>(const VkFormat& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkResult>(const VkResult& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkSamplerAddressMode>(const VkSamplerAddressMode& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkSamplerMipmapMode>(const VkSamplerMipmapMode& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrActionType>(const XrActionType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 std::string XrCompositionLayerFlagBitsToString(const XrCompositionLayerFlagBits value);
 std::string XrCompositionLayerFlagsToString(VkFlags64 vkFlags);

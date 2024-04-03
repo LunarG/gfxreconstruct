@@ -47,37 +47,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateInstance(
-    const XrInstanceCreateInfo*                 createInfo,
-    XrInstance*                                 instance)
-{
-    auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-
-    bool omit_output_data = false;
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateInstance>::Dispatch(OpenXrCaptureManager::Get(), createInfo, instance);
-
-    XrResult result = OpenXrCaptureManager::OverrideCreateInstance(createInfo, instance);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
-
-    auto encoder = OpenXrCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateInstance);
-    if (encoder)
-    {
-        EncodeStructPtr(encoder, createInfo);
-        encoder->EncodeOpenXrHandlePtr<openxr_wrappers::InstanceWrapper>(instance, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        OpenXrCaptureManager::Get()->EndCreateApiCallCapture<const void*, openxr_wrappers::InstanceWrapper, XrInstanceCreateInfo>(result, nullptr, instance, createInfo);
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateInstance>::Dispatch(OpenXrCaptureManager::Get(), result, createInfo, instance);
-
-    return result;
-}
-
-XRAPI_ATTR XrResult XRAPI_CALL DestroyInstance(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyInstance(
     XrInstance                                  instance)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -114,7 +84,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyInstance(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProperties(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetInstanceProperties(
     XrInstance                                  instance,
     XrInstanceProperties*                       instanceProperties)
 {
@@ -156,7 +126,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProperties(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PollEvent(
+XRAPI_ATTR XrResult XRAPI_CALL xrPollEvent(
     XrInstance                                  instance,
     XrEventDataBuffer*                          eventData)
 {
@@ -198,7 +168,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PollEvent(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ResultToString(
+XRAPI_ATTR XrResult XRAPI_CALL xrResultToString(
     XrInstance                                  instance,
     XrResult                                    value,
     char                                        buffer[XR_MAX_RESULT_STRING_SIZE])
@@ -242,7 +212,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ResultToString(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL StructureTypeToString(
+XRAPI_ATTR XrResult XRAPI_CALL xrStructureTypeToString(
     XrInstance                                  instance,
     XrStructureType                             value,
     char                                        buffer[XR_MAX_STRUCTURE_NAME_SIZE])
@@ -286,7 +256,7 @@ XRAPI_ATTR XrResult XRAPI_CALL StructureTypeToString(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSystem(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSystem(
     XrInstance                                  instance,
     const XrSystemGetInfo*                      getInfo,
     XrSystemId*                                 systemId)
@@ -330,7 +300,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSystem(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSystemProperties(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSystemProperties(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrSystemProperties*                         properties)
@@ -374,7 +344,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSystemProperties(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateEnvironmentBlendModes(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateEnvironmentBlendModes(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrViewConfigurationType                     viewConfigurationType,
@@ -424,7 +394,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateEnvironmentBlendModes(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSession(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSession(
     XrInstance                                  instance,
     const XrSessionCreateInfo*                  createInfo,
     XrSession*                                  session)
@@ -473,7 +443,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSession(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySession(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySession(
     XrSession                                   session)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -510,7 +480,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySession(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateReferenceSpaces(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateReferenceSpaces(
     XrSession                                   session,
     uint32_t                                    spaceCapacityInput,
     uint32_t*                                   spaceCountOutput,
@@ -556,7 +526,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateReferenceSpaces(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateReferenceSpace(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateReferenceSpace(
     XrSession                                   session,
     const XrReferenceSpaceCreateInfo*           createInfo,
     XrSpace*                                    space)
@@ -605,7 +575,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateReferenceSpace(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetReferenceSpaceBoundsRect(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetReferenceSpaceBoundsRect(
     XrSession                                   session,
     XrReferenceSpaceType                        referenceSpaceType,
     XrExtent2Df*                                bounds)
@@ -649,7 +619,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetReferenceSpaceBoundsRect(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateActionSpace(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateActionSpace(
     XrSession                                   session,
     const XrActionSpaceCreateInfo*              createInfo,
     XrSpace*                                    space)
@@ -701,7 +671,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateActionSpace(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateSpace(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpace(
     XrSpace                                     space,
     XrSpace                                     baseSpace,
     XrTime                                      time,
@@ -747,7 +717,7 @@ XRAPI_ATTR XrResult XRAPI_CALL LocateSpace(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpace(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpace(
     XrSpace                                     space)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -784,7 +754,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpace(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateViewConfigurations(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViewConfigurations(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     uint32_t                                    viewConfigurationTypeCapacityInput,
@@ -832,7 +802,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateViewConfigurations(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetViewConfigurationProperties(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetViewConfigurationProperties(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrViewConfigurationType                     viewConfigurationType,
@@ -878,7 +848,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetViewConfigurationProperties(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateViewConfigurationViews(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViewConfigurationViews(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrViewConfigurationType                     viewConfigurationType,
@@ -928,7 +898,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateViewConfigurationViews(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateSwapchainFormats(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainFormats(
     XrSession                                   session,
     uint32_t                                    formatCapacityInput,
     uint32_t*                                   formatCountOutput,
@@ -974,7 +944,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateSwapchainFormats(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchain(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchain(
     XrSession                                   session,
     const XrSwapchainCreateInfo*                createInfo,
     XrSwapchain*                                swapchain)
@@ -1023,7 +993,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchain(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySwapchain(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySwapchain(
     XrSwapchain                                 swapchain)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -1060,7 +1030,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySwapchain(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateSwapchainImages(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainImages(
     XrSwapchain                                 swapchain,
     uint32_t                                    imageCapacityInput,
     uint32_t*                                   imageCountOutput,
@@ -1106,7 +1076,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateSwapchainImages(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL AcquireSwapchainImage(
+XRAPI_ATTR XrResult XRAPI_CALL xrAcquireSwapchainImage(
     XrSwapchain                                 swapchain,
     const XrSwapchainImageAcquireInfo*          acquireInfo,
     uint32_t*                                   index)
@@ -1150,7 +1120,7 @@ XRAPI_ATTR XrResult XRAPI_CALL AcquireSwapchainImage(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL WaitSwapchainImage(
+XRAPI_ATTR XrResult XRAPI_CALL xrWaitSwapchainImage(
     XrSwapchain                                 swapchain,
     const XrSwapchainImageWaitInfo*             waitInfo)
 {
@@ -1186,7 +1156,7 @@ XRAPI_ATTR XrResult XRAPI_CALL WaitSwapchainImage(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ReleaseSwapchainImage(
+XRAPI_ATTR XrResult XRAPI_CALL xrReleaseSwapchainImage(
     XrSwapchain                                 swapchain,
     const XrSwapchainImageReleaseInfo*          releaseInfo)
 {
@@ -1222,7 +1192,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ReleaseSwapchainImage(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL BeginSession(
+XRAPI_ATTR XrResult XRAPI_CALL xrBeginSession(
     XrSession                                   session,
     const XrSessionBeginInfo*                   beginInfo)
 {
@@ -1258,7 +1228,7 @@ XRAPI_ATTR XrResult XRAPI_CALL BeginSession(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EndSession(
+XRAPI_ATTR XrResult XRAPI_CALL xrEndSession(
     XrSession                                   session)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -1292,7 +1262,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EndSession(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL RequestExitSession(
+XRAPI_ATTR XrResult XRAPI_CALL xrRequestExitSession(
     XrSession                                   session)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -1326,7 +1296,7 @@ XRAPI_ATTR XrResult XRAPI_CALL RequestExitSession(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL WaitFrame(
+XRAPI_ATTR XrResult XRAPI_CALL xrWaitFrame(
     XrSession                                   session,
     const XrFrameWaitInfo*                      frameWaitInfo,
     XrFrameState*                               frameState)
@@ -1370,7 +1340,7 @@ XRAPI_ATTR XrResult XRAPI_CALL WaitFrame(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL BeginFrame(
+XRAPI_ATTR XrResult XRAPI_CALL xrBeginFrame(
     XrSession                                   session,
     const XrFrameBeginInfo*                     frameBeginInfo)
 {
@@ -1406,7 +1376,7 @@ XRAPI_ATTR XrResult XRAPI_CALL BeginFrame(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EndFrame(
+XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(
     XrSession                                   session,
     const XrFrameEndInfo*                       frameEndInfo)
 {
@@ -1445,7 +1415,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EndFrame(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateViews(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateViews(
     XrSession                                   session,
     const XrViewLocateInfo*                     viewLocateInfo,
     XrViewState*                                viewState,
@@ -1498,7 +1468,7 @@ XRAPI_ATTR XrResult XRAPI_CALL LocateViews(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL StringToPath(
+XRAPI_ATTR XrResult XRAPI_CALL xrStringToPath(
     XrInstance                                  instance,
     const char*                                 pathString,
     XrPath*                                     path)
@@ -1542,7 +1512,7 @@ XRAPI_ATTR XrResult XRAPI_CALL StringToPath(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PathToString(
+XRAPI_ATTR XrResult XRAPI_CALL xrPathToString(
     XrInstance                                  instance,
     XrPath                                      path,
     uint32_t                                    bufferCapacityInput,
@@ -1590,7 +1560,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PathToString(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateActionSet(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateActionSet(
     XrInstance                                  instance,
     const XrActionSetCreateInfo*                createInfo,
     XrActionSet*                                actionSet)
@@ -1639,7 +1609,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateActionSet(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyActionSet(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyActionSet(
     XrActionSet                                 actionSet)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -1676,7 +1646,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyActionSet(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateAction(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateAction(
     XrActionSet                                 actionSet,
     const XrActionCreateInfo*                   createInfo,
     XrAction*                                   action)
@@ -1725,7 +1695,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateAction(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyAction(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyAction(
     XrAction                                    action)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -1762,7 +1732,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyAction(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SuggestInteractionProfileBindings(
+XRAPI_ATTR XrResult XRAPI_CALL xrSuggestInteractionProfileBindings(
     XrInstance                                  instance,
     const XrInteractionProfileSuggestedBinding* suggestedBindings)
 {
@@ -1801,7 +1771,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SuggestInteractionProfileBindings(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL AttachSessionActionSets(
+XRAPI_ATTR XrResult XRAPI_CALL xrAttachSessionActionSets(
     XrSession                                   session,
     const XrSessionActionSetsAttachInfo*        attachInfo)
 {
@@ -1840,7 +1810,7 @@ XRAPI_ATTR XrResult XRAPI_CALL AttachSessionActionSets(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetCurrentInteractionProfile(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetCurrentInteractionProfile(
     XrSession                                   session,
     XrPath                                      topLevelUserPath,
     XrInteractionProfileState*                  interactionProfile)
@@ -1884,7 +1854,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetCurrentInteractionProfile(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetActionStateBoolean(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateBoolean(
     XrSession                                   session,
     const XrActionStateGetInfo*                 getInfo,
     XrActionStateBoolean*                       state)
@@ -1931,7 +1901,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetActionStateBoolean(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetActionStateFloat(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateFloat(
     XrSession                                   session,
     const XrActionStateGetInfo*                 getInfo,
     XrActionStateFloat*                         state)
@@ -1978,7 +1948,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetActionStateFloat(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetActionStateVector2f(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateVector2f(
     XrSession                                   session,
     const XrActionStateGetInfo*                 getInfo,
     XrActionStateVector2f*                      state)
@@ -2025,7 +1995,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetActionStateVector2f(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetActionStatePose(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStatePose(
     XrSession                                   session,
     const XrActionStateGetInfo*                 getInfo,
     XrActionStatePose*                          state)
@@ -2072,7 +2042,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetActionStatePose(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SyncActions(
+XRAPI_ATTR XrResult XRAPI_CALL xrSyncActions(
     XrSession                                   session,
     const XrActionsSyncInfo*                    syncInfo)
 {
@@ -2111,7 +2081,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SyncActions(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateBoundSourcesForAction(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateBoundSourcesForAction(
     XrSession                                   session,
     const XrBoundSourcesForActionEnumerateInfo* enumerateInfo,
     uint32_t                                    sourceCapacityInput,
@@ -2162,7 +2132,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateBoundSourcesForAction(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetInputSourceLocalizedName(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetInputSourceLocalizedName(
     XrSession                                   session,
     const XrInputSourceLocalizedNameGetInfo*    getInfo,
     uint32_t                                    bufferCapacityInput,
@@ -2210,7 +2180,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetInputSourceLocalizedName(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ApplyHapticFeedback(
+XRAPI_ATTR XrResult XRAPI_CALL xrApplyHapticFeedback(
     XrSession                                   session,
     const XrHapticActionInfo*                   hapticActionInfo,
     const XrHapticBaseHeader*                   hapticFeedback)
@@ -2251,7 +2221,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ApplyHapticFeedback(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL StopHapticFeedback(
+XRAPI_ATTR XrResult XRAPI_CALL xrStopHapticFeedback(
     XrSession                                   session,
     const XrHapticActionInfo*                   hapticActionInfo)
 {
@@ -2291,7 +2261,7 @@ XRAPI_ATTR XrResult XRAPI_CALL StopHapticFeedback(
 }
 
 
-XRAPI_ATTR XrResult XRAPI_CALL SetAndroidApplicationThreadKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetAndroidApplicationThreadKHR(
     XrSession                                   session,
     XrAndroidThreadTypeKHR                      threadType,
     uint32_t                                    threadId)
@@ -2329,7 +2299,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetAndroidApplicationThreadKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchainAndroidSurfaceKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchainAndroidSurfaceKHR(
     XrSession                                   session,
     const XrSwapchainCreateInfo*                info,
     XrSwapchain*                                swapchain,
@@ -2380,7 +2350,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSwapchainAndroidSurfaceKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetOpenGLGraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetOpenGLGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsOpenGLKHR*            graphicsRequirements)
@@ -2424,7 +2394,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetOpenGLGraphicsRequirementsKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetOpenGLESGraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetOpenGLESGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsOpenGLESKHR*          graphicsRequirements)
@@ -2468,7 +2438,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetOpenGLESGraphicsRequirementsKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanInstanceExtensionsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanInstanceExtensionsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     uint32_t                                    bufferCapacityInput,
@@ -2516,7 +2486,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVulkanInstanceExtensionsKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanDeviceExtensionsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanDeviceExtensionsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     uint32_t                                    bufferCapacityInput,
@@ -2564,7 +2534,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVulkanDeviceExtensionsKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsDeviceKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     VkInstance                                  vkInstance,
@@ -2615,7 +2585,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsDeviceKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsVulkanKHR*            graphicsRequirements)
@@ -2659,7 +2629,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsRequirementsKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetD3D11GraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D11GraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsD3D11KHR*             graphicsRequirements)
@@ -2703,7 +2673,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetD3D11GraphicsRequirementsKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetD3D12GraphicsRequirementsKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D12GraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsD3D12KHR*             graphicsRequirements)
@@ -2747,7 +2717,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetD3D12GraphicsRequirementsKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVisibilityMaskKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVisibilityMaskKHR(
     XrSession                                   session,
     XrViewConfigurationType                     viewConfigurationType,
     uint32_t                                    viewIndex,
@@ -2795,7 +2765,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVisibilityMaskKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ConvertWin32PerformanceCounterToTimeKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrConvertWin32PerformanceCounterToTimeKHR(
     XrInstance                                  instance,
     const LARGE_INTEGER*                        performanceCounter,
     XrTime*                                     time)
@@ -2839,7 +2809,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ConvertWin32PerformanceCounterToTimeKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ConvertTimeToWin32PerformanceCounterKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToWin32PerformanceCounterKHR(
     XrInstance                                  instance,
     XrTime                                      time,
     LARGE_INTEGER*                              performanceCounter)
@@ -2883,7 +2853,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ConvertTimeToWin32PerformanceCounterKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ConvertTimespecTimeToTimeKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimespecTimeToTimeKHR(
     XrInstance                                  instance,
     const struct timespec*                      timespecTime,
     XrTime*                                     time)
@@ -2927,7 +2897,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ConvertTimespecTimeToTimeKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ConvertTimeToTimespecTimeKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
     XrInstance                                  instance,
     XrTime                                      time,
     struct timespec*                            timespecTime)
@@ -2971,7 +2941,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ConvertTimeToTimespecTimeKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL InitializeLoaderKHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrInitializeLoaderKHR(
     const XrLoaderInitInfoBaseHeaderKHR*        loaderInitInfo)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -3005,7 +2975,164 @@ XRAPI_ATTR XrResult XRAPI_CALL InitializeLoaderKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsRequirements2KHR(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(
+    XrInstance                                  instance,
+    const XrVulkanInstanceCreateInfoKHR*        createInfo,
+    VkInstance*                                 vulkanInstance,
+    VkResult*                                   vulkanResult)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::Dispatch(manager, instance, createInfo, vulkanInstance, vulkanResult);
+
+    XrResult result = GetOpenXrInstanceTable(instance)->CreateVulkanInstanceKHR(instance, createInfo, vulkanInstance, vulkanResult);
+
+    if (result >= 0)
+    {
+        CreateWrappedVulkanHandle<openxr_wrappers::InstanceWrapper, OpenXrNoParentWrapper, vulkan_wrappers::InstanceWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, vulkanInstance, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        EncodeStructPtr(encoder, createInfo);
+        encoder->EncodeVulkanHandlePtr<vulkan_wrappers::InstanceWrapper>(vulkanInstance, omit_output_data);
+        encoder->EncodeEnumPtr(vulkanResult, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndCreateApiCallCapture<XrInstance, vulkan_wrappers::InstanceWrapper, XrVulkanInstanceCreateInfoKHR>(result, instance, vulkanInstance, createInfo);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::Dispatch(manager, result, instance, createInfo, vulkanInstance, vulkanResult);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(
+    XrInstance                                  instance,
+    const XrVulkanDeviceCreateInfoKHR*          createInfo,
+    VkDevice*                                   vulkanDevice,
+    VkResult*                                   vulkanResult)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::Dispatch(manager, instance, createInfo, vulkanDevice, vulkanResult);
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const XrVulkanDeviceCreateInfoKHR* createInfo_unwrapped = UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+
+    XrResult result = GetOpenXrInstanceTable(instance)->CreateVulkanDeviceKHR(instance, createInfo_unwrapped, vulkanDevice, vulkanResult);
+
+    if (result >= 0)
+    {
+        CreateWrappedVulkanHandle<openxr_wrappers::InstanceWrapper, OpenXrNoParentWrapper, vulkan_wrappers::DeviceWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, vulkanDevice, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        EncodeStructPtr(encoder, createInfo);
+        encoder->EncodeVulkanHandlePtr<vulkan_wrappers::DeviceWrapper>(vulkanDevice, omit_output_data);
+        encoder->EncodeEnumPtr(vulkanResult, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndCreateApiCallCapture<XrInstance, vulkan_wrappers::DeviceWrapper, XrVulkanDeviceCreateInfoKHR>(result, instance, vulkanDevice, createInfo);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::Dispatch(manager, result, instance, createInfo, vulkanDevice, vulkanResult);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(
+    XrInstance                                  instance,
+    const XrVulkanGraphicsDeviceGetInfoKHR*     getInfo,
+    VkPhysicalDevice*                           vulkanPhysicalDevice)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::Dispatch(manager, instance, getInfo, vulkanPhysicalDevice);
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const XrVulkanGraphicsDeviceGetInfoKHR* getInfo_unwrapped = UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+
+    XrResult result = GetOpenXrInstanceTable(instance)->GetVulkanGraphicsDevice2KHR(instance, getInfo_unwrapped, vulkanPhysicalDevice);
+
+    if (result >= 0)
+    {
+        CreateWrappedVulkanHandle<openxr_wrappers::InstanceWrapper, OpenXrNoParentWrapper, vulkan_wrappers::PhysicalDeviceWrapper>(instance, OpenXrNoParentWrapper::kHandleValue, vulkanPhysicalDevice, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        EncodeStructPtr(encoder, getInfo);
+        encoder->EncodeVulkanHandlePtr<vulkan_wrappers::PhysicalDeviceWrapper>(vulkanPhysicalDevice, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::Dispatch(manager, result, instance, getInfo, vulkanPhysicalDevice);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirements2KHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsVulkanKHR*            graphicsRequirements)
@@ -3049,7 +3176,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVulkanGraphicsRequirements2KHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PerfSettingsSetPerformanceLevelEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrPerfSettingsSetPerformanceLevelEXT(
     XrSession                                   session,
     XrPerfSettingsDomainEXT                     domain,
     XrPerfSettingsLevelEXT                      level)
@@ -3087,7 +3214,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PerfSettingsSetPerformanceLevelEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ThermalGetTemperatureTrendEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrThermalGetTemperatureTrendEXT(
     XrSession                                   session,
     XrPerfSettingsDomainEXT                     domain,
     XrPerfSettingsNotificationLevelEXT*         notificationLevel,
@@ -3135,7 +3262,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ThermalGetTemperatureTrendEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetDebugUtilsObjectNameEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetDebugUtilsObjectNameEXT(
     XrInstance                                  instance,
     const XrDebugUtilsObjectNameInfoEXT*        nameInfo)
 {
@@ -3171,7 +3298,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetDebugUtilsObjectNameEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateDebugUtilsMessengerEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateDebugUtilsMessengerEXT(
     XrInstance                                  instance,
     const XrDebugUtilsMessengerCreateInfoEXT*   createInfo,
     XrDebugUtilsMessengerEXT*                   messenger)
@@ -3220,7 +3347,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateDebugUtilsMessengerEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyDebugUtilsMessengerEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyDebugUtilsMessengerEXT(
     XrDebugUtilsMessengerEXT                    messenger)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -3257,7 +3384,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyDebugUtilsMessengerEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult                                    XRAPI_CALL SubmitDebugUtilsMessageEXT(
+XRAPI_ATTR XrResult                                    XRAPI_CALL xrSubmitDebugUtilsMessageEXT(
     XrInstance                                  instance,
     XrDebugUtilsMessageSeverityFlagsEXT         messageSeverity,
     XrDebugUtilsMessageTypeFlagsEXT             messageTypes,
@@ -3297,7 +3424,7 @@ XRAPI_ATTR XrResult                                    XRAPI_CALL SubmitDebugUti
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SessionBeginDebugUtilsLabelRegionEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSessionBeginDebugUtilsLabelRegionEXT(
     XrSession                                   session,
     const XrDebugUtilsLabelEXT*                 labelInfo)
 {
@@ -3333,7 +3460,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SessionBeginDebugUtilsLabelRegionEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SessionEndDebugUtilsLabelRegionEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSessionEndDebugUtilsLabelRegionEXT(
     XrSession                                   session)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -3367,7 +3494,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SessionEndDebugUtilsLabelRegionEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SessionInsertDebugUtilsLabelEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSessionInsertDebugUtilsLabelEXT(
     XrSession                                   session,
     const XrDebugUtilsLabelEXT*                 labelInfo)
 {
@@ -3403,7 +3530,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SessionInsertDebugUtilsLabelEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorMSFT(
     XrSession                                   session,
     const XrSpatialAnchorCreateInfoMSFT*        createInfo,
     XrSpatialAnchorMSFT*                        anchor)
@@ -3455,7 +3582,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorSpaceMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorSpaceMSFT(
     XrSession                                   session,
     const XrSpatialAnchorSpaceCreateInfoMSFT*   createInfo,
     XrSpace*                                    space)
@@ -3507,7 +3634,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorSpaceMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpatialAnchorMSFT(
     XrSpatialAnchorMSFT                         anchor)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -3544,7 +3671,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialAnchorMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceActiveEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceActiveEXT(
     XrSession                                   session,
     XrPath                                      interactionProfile,
     XrPath                                      topLevelPath,
@@ -3584,7 +3711,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceActiveEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceStateBoolEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceStateBoolEXT(
     XrSession                                   session,
     XrPath                                      topLevelPath,
     XrPath                                      inputSourcePath,
@@ -3624,7 +3751,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceStateBoolEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceStateFloatEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceStateFloatEXT(
     XrSession                                   session,
     XrPath                                      topLevelPath,
     XrPath                                      inputSourcePath,
@@ -3664,7 +3791,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceStateFloatEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceStateVector2fEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceStateVector2fEXT(
     XrSession                                   session,
     XrPath                                      topLevelPath,
     XrPath                                      inputSourcePath,
@@ -3704,7 +3831,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceStateVector2fEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceLocationEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceLocationEXT(
     XrSession                                   session,
     XrPath                                      topLevelPath,
     XrPath                                      inputSourcePath,
@@ -3746,7 +3873,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetInputDeviceLocationEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialGraphNodeSpaceMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialGraphNodeSpaceMSFT(
     XrSession                                   session,
     const XrSpatialGraphNodeSpaceCreateInfoMSFT* createInfo,
     XrSpace*                                    space)
@@ -3795,7 +3922,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialGraphNodeSpaceMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL TryCreateSpatialGraphStaticNodeBindingMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrTryCreateSpatialGraphStaticNodeBindingMSFT(
     XrSession                                   session,
     const XrSpatialGraphStaticNodeBindingCreateInfoMSFT* createInfo,
     XrSpatialGraphNodeBindingMSFT*              nodeBinding)
@@ -3847,7 +3974,7 @@ XRAPI_ATTR XrResult XRAPI_CALL TryCreateSpatialGraphStaticNodeBindingMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialGraphNodeBindingMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpatialGraphNodeBindingMSFT(
     XrSpatialGraphNodeBindingMSFT               nodeBinding)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -3884,7 +4011,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialGraphNodeBindingMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpatialGraphNodeBindingPropertiesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpatialGraphNodeBindingPropertiesMSFT(
     XrSpatialGraphNodeBindingMSFT               nodeBinding,
     const XrSpatialGraphNodeBindingPropertiesGetInfoMSFT* getInfo,
     XrSpatialGraphNodeBindingPropertiesMSFT*    properties)
@@ -3928,7 +4055,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpatialGraphNodeBindingPropertiesMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateHandTrackerEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandTrackerEXT(
     XrSession                                   session,
     const XrHandTrackerCreateInfoEXT*           createInfo,
     XrHandTrackerEXT*                           handTracker)
@@ -3977,7 +4104,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateHandTrackerEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyHandTrackerEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyHandTrackerEXT(
     XrHandTrackerEXT                            handTracker)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -4014,7 +4141,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyHandTrackerEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateHandJointsEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateHandJointsEXT(
     XrHandTrackerEXT                            handTracker,
     const XrHandJointsLocateInfoEXT*            locateInfo,
     XrHandJointLocationsEXT*                    locations)
@@ -4061,7 +4188,7 @@ XRAPI_ATTR XrResult XRAPI_CALL LocateHandJointsEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateHandMeshSpaceMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandMeshSpaceMSFT(
     XrHandTrackerEXT                            handTracker,
     const XrHandMeshSpaceCreateInfoMSFT*        createInfo,
     XrSpace*                                    space)
@@ -4110,7 +4237,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateHandMeshSpaceMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL UpdateHandMeshMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrUpdateHandMeshMSFT(
     XrHandTrackerEXT                            handTracker,
     const XrHandMeshUpdateInfoMSFT*             updateInfo,
     XrHandMeshMSFT*                             handMesh)
@@ -4154,7 +4281,7 @@ XRAPI_ATTR XrResult XRAPI_CALL UpdateHandMeshMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelKeyMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelKeyMSFT(
     XrSession                                   session,
     XrPath                                      topLevelUserPath,
     XrControllerModelKeyStateMSFT*              controllerModelKeyState)
@@ -4198,7 +4325,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelKeyMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL LoadControllerModelMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrLoadControllerModelMSFT(
     XrSession                                   session,
     XrControllerModelKeyMSFT                    modelKey,
     uint32_t                                    bufferCapacityInput,
@@ -4246,7 +4373,7 @@ XRAPI_ATTR XrResult XRAPI_CALL LoadControllerModelMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelPropertiesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelPropertiesMSFT(
     XrSession                                   session,
     XrControllerModelKeyMSFT                    modelKey,
     XrControllerModelPropertiesMSFT*            properties)
@@ -4290,7 +4417,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelPropertiesMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelStateMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelStateMSFT(
     XrSession                                   session,
     XrControllerModelKeyMSFT                    modelKey,
     XrControllerModelStateMSFT*                 state)
@@ -4334,7 +4461,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetControllerModelStateMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPerceptionAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPerceptionAnchorMSFT(
     XrSession                                   session,
     IUnknown*                                   perceptionAnchor,
     XrSpatialAnchorMSFT*                        anchor)
@@ -4383,7 +4510,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPerceptionAnchorMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL TryGetPerceptionAnchorFromSpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(
     XrSession                                   session,
     XrSpatialAnchorMSFT                         anchor,
     IUnknown**                                  perceptionAnchor)
@@ -4427,7 +4554,7 @@ XRAPI_ATTR XrResult XRAPI_CALL TryGetPerceptionAnchorFromSpatialAnchorMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateReprojectionModesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateReprojectionModesMSFT(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrViewConfigurationType                     viewConfigurationType,
@@ -4477,7 +4604,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateReprojectionModesMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL UpdateSwapchainFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrUpdateSwapchainFB(
     XrSwapchain                                 swapchain,
     const XrSwapchainStateBaseHeaderFB*         state)
 {
@@ -4513,7 +4640,7 @@ XRAPI_ATTR XrResult XRAPI_CALL UpdateSwapchainFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSwapchainStateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSwapchainStateFB(
     XrSwapchain                                 swapchain,
     XrSwapchainStateBaseHeaderFB*               state)
 {
@@ -4555,7 +4682,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSwapchainStateFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateBodyTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateBodyTrackerFB(
     XrSession                                   session,
     const XrBodyTrackerCreateInfoFB*            createInfo,
     XrBodyTrackerFB*                            bodyTracker)
@@ -4604,7 +4731,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateBodyTrackerFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyBodyTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyBodyTrackerFB(
     XrBodyTrackerFB                             bodyTracker)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -4641,7 +4768,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyBodyTrackerFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateBodyJointsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateBodyJointsFB(
     XrBodyTrackerFB                             bodyTracker,
     const XrBodyJointsLocateInfoFB*             locateInfo,
     XrBodyJointLocationsFB*                     locations)
@@ -4688,7 +4815,7 @@ XRAPI_ATTR XrResult XRAPI_CALL LocateBodyJointsFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetBodySkeletonFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetBodySkeletonFB(
     XrBodyTrackerFB                             bodyTracker,
     XrBodySkeletonFB*                           skeleton)
 {
@@ -4730,7 +4857,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetBodySkeletonFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateSceneComputeFeaturesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSceneComputeFeaturesMSFT(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     uint32_t                                    featureCapacityInput,
@@ -4778,7 +4905,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateSceneComputeFeaturesMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSceneObserverMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneObserverMSFT(
     XrSession                                   session,
     const XrSceneObserverCreateInfoMSFT*        createInfo,
     XrSceneObserverMSFT*                        sceneObserver)
@@ -4827,7 +4954,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSceneObserverMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySceneObserverMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySceneObserverMSFT(
     XrSceneObserverMSFT                         sceneObserver)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -4864,7 +4991,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySceneObserverMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSceneMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneMSFT(
     XrSceneObserverMSFT                         sceneObserver,
     const XrSceneCreateInfoMSFT*                createInfo,
     XrSceneMSFT*                                scene)
@@ -4913,7 +5040,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSceneMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySceneMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySceneMSFT(
     XrSceneMSFT                                 scene)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -4950,7 +5077,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySceneMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ComputeNewSceneMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrComputeNewSceneMSFT(
     XrSceneObserverMSFT                         sceneObserver,
     const XrNewSceneComputeInfoMSFT*            computeInfo)
 {
@@ -4989,7 +5116,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ComputeNewSceneMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneComputeStateMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneComputeStateMSFT(
     XrSceneObserverMSFT                         sceneObserver,
     XrSceneComputeStateMSFT*                    state)
 {
@@ -5031,7 +5158,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSceneComputeStateMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneComponentsMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneComponentsMSFT(
     XrSceneMSFT                                 scene,
     const XrSceneComponentsGetInfoMSFT*         getInfo,
     XrSceneComponentsMSFT*                      components)
@@ -5075,7 +5202,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSceneComponentsMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL LocateSceneComponentsMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateSceneComponentsMSFT(
     XrSceneMSFT                                 scene,
     const XrSceneComponentsLocateInfoMSFT*      locateInfo,
     XrSceneComponentLocationsMSFT*              locations)
@@ -5122,7 +5249,7 @@ XRAPI_ATTR XrResult XRAPI_CALL LocateSceneComponentsMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneMeshBuffersMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMeshBuffersMSFT(
     XrSceneMSFT                                 scene,
     const XrSceneMeshBuffersGetInfoMSFT*        getInfo,
     XrSceneMeshBuffersMSFT*                     buffers)
@@ -5166,7 +5293,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSceneMeshBuffersMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DeserializeSceneMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDeserializeSceneMSFT(
     XrSceneObserverMSFT                         sceneObserver,
     const XrSceneDeserializeInfoMSFT*           deserializeInfo)
 {
@@ -5202,7 +5329,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DeserializeSceneMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSerializedSceneFragmentDataMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSerializedSceneFragmentDataMSFT(
     XrSceneMSFT                                 scene,
     const XrSerializedSceneFragmentDataGetInfoMSFT* getInfo,
     uint32_t                                    countInput,
@@ -5250,7 +5377,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSerializedSceneFragmentDataMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateDisplayRefreshRatesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateDisplayRefreshRatesFB(
     XrSession                                   session,
     uint32_t                                    displayRefreshRateCapacityInput,
     uint32_t*                                   displayRefreshRateCountOutput,
@@ -5296,7 +5423,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateDisplayRefreshRatesFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetDisplayRefreshRateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetDisplayRefreshRateFB(
     XrSession                                   session,
     float*                                      displayRefreshRate)
 {
@@ -5338,7 +5465,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetDisplayRefreshRateFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL RequestDisplayRefreshRateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrRequestDisplayRefreshRateFB(
     XrSession                                   session,
     float                                       displayRefreshRate)
 {
@@ -5374,7 +5501,7 @@ XRAPI_ATTR XrResult XRAPI_CALL RequestDisplayRefreshRateFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateViveTrackerPathsHTCX(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViveTrackerPathsHTCX(
     XrInstance                                  instance,
     uint32_t                                    pathCapacityInput,
     uint32_t*                                   pathCountOutput,
@@ -5420,7 +5547,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateViveTrackerPathsHTCX(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateFacialTrackerHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateFacialTrackerHTC(
     XrSession                                   session,
     const XrFacialTrackerCreateInfoHTC*         createInfo,
     XrFacialTrackerHTC*                         facialTracker)
@@ -5469,7 +5596,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFacialTrackerHTC(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyFacialTrackerHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFacialTrackerHTC(
     XrFacialTrackerHTC                          facialTracker)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -5506,7 +5633,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyFacialTrackerHTC(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetFacialExpressionsHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFacialExpressionsHTC(
     XrFacialTrackerHTC                          facialTracker,
     XrFacialExpressionsHTC*                     facialExpressions)
 {
@@ -5548,7 +5675,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetFacialExpressionsHTC(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateColorSpacesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateColorSpacesFB(
     XrSession                                   session,
     uint32_t                                    colorSpaceCapacityInput,
     uint32_t*                                   colorSpaceCountOutput,
@@ -5594,7 +5721,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateColorSpacesFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetColorSpaceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetColorSpaceFB(
     XrSession                                   session,
     const XrColorSpaceFB                        colorSpace)
 {
@@ -5630,7 +5757,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetColorSpaceFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetHandMeshFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetHandMeshFB(
     XrHandTrackerEXT                            handTracker,
     XrHandTrackingMeshFB*                       mesh)
 {
@@ -5672,7 +5799,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetHandMeshFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFB(
     XrSession                                   session,
     const XrSpatialAnchorCreateInfoFB*          info,
     XrAsyncRequestIdFB*                         requestId)
@@ -5719,7 +5846,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceUuidFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUuidFB(
     XrSpace                                     space,
     XrUuidEXT*                                  uuid)
 {
@@ -5761,7 +5888,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceUuidFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateSpaceSupportedComponentsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSpaceSupportedComponentsFB(
     XrSpace                                     space,
     uint32_t                                    componentTypeCapacityInput,
     uint32_t*                                   componentTypeCountOutput,
@@ -5807,7 +5934,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateSpaceSupportedComponentsFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetSpaceComponentStatusFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetSpaceComponentStatusFB(
     XrSpace                                     space,
     const XrSpaceComponentStatusSetInfoFB*      info,
     XrAsyncRequestIdFB*                         requestId)
@@ -5851,7 +5978,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetSpaceComponentStatusFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceComponentStatusFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceComponentStatusFB(
     XrSpace                                     space,
     XrSpaceComponentTypeFB                      componentType,
     XrSpaceComponentStatusFB*                   status)
@@ -5895,7 +6022,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceComponentStatusFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateFoveationProfileFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateFoveationProfileFB(
     XrSession                                   session,
     const XrFoveationProfileCreateInfoFB*       createInfo,
     XrFoveationProfileFB*                       profile)
@@ -5944,7 +6071,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFoveationProfileFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyFoveationProfileFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFoveationProfileFB(
     XrFoveationProfileFB                        profile)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -5981,7 +6108,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyFoveationProfileFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL QuerySystemTrackedKeyboardFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrQuerySystemTrackedKeyboardFB(
     XrSession                                   session,
     const XrKeyboardTrackingQueryFB*            queryInfo,
     XrKeyboardTrackingDescriptionFB*            keyboard)
@@ -6025,7 +6152,7 @@ XRAPI_ATTR XrResult XRAPI_CALL QuerySystemTrackedKeyboardFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateKeyboardSpaceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateKeyboardSpaceFB(
     XrSession                                   session,
     const XrKeyboardSpaceCreateInfoFB*          createInfo,
     XrSpace*                                    keyboardSpace)
@@ -6074,7 +6201,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateKeyboardSpaceFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshBeginUpdateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshBeginUpdateFB(
     XrTriangleMeshFB                            mesh)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -6108,7 +6235,7 @@ XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshBeginUpdateFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshEndUpdateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshEndUpdateFB(
     XrTriangleMeshFB                            mesh,
     uint32_t                                    vertexCount,
     uint32_t                                    triangleCount)
@@ -6146,7 +6273,7 @@ XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshEndUpdateFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshBeginVertexBufferUpdateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshBeginVertexBufferUpdateFB(
     XrTriangleMeshFB                            mesh,
     uint32_t*                                   outVertexCount)
 {
@@ -6188,7 +6315,7 @@ XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshBeginVertexBufferUpdateFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshEndVertexBufferUpdateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshEndVertexBufferUpdateFB(
     XrTriangleMeshFB                            mesh)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -6222,7 +6349,7 @@ XRAPI_ATTR XrResult XRAPI_CALL TriangleMeshEndVertexBufferUpdateFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughFB(
     XrSession                                   session,
     const XrPassthroughCreateInfoFB*            createInfo,
     XrPassthroughFB*                            outPassthrough)
@@ -6271,7 +6398,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughFB(
     XrPassthroughFB                             passthrough)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -6308,7 +6435,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughStartFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughStartFB(
     XrPassthroughFB                             passthrough)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -6342,7 +6469,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PassthroughStartFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughPauseFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughPauseFB(
     XrPassthroughFB                             passthrough)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -6376,7 +6503,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PassthroughPauseFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughLayerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughLayerFB(
     XrSession                                   session,
     const XrPassthroughLayerCreateInfoFB*       createInfo,
     XrPassthroughLayerFB*                       outLayer)
@@ -6428,7 +6555,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughLayerFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughLayerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughLayerFB(
     XrPassthroughLayerFB                        layer)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -6465,7 +6592,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughLayerFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerPauseFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerPauseFB(
     XrPassthroughLayerFB                        layer)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -6499,7 +6626,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerPauseFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerResumeFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerResumeFB(
     XrPassthroughLayerFB                        layer)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -6533,7 +6660,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerResumeFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerSetStyleFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerSetStyleFB(
     XrPassthroughLayerFB                        layer,
     const XrPassthroughStyleFB*                 style)
 {
@@ -6572,7 +6699,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerSetStyleFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateGeometryInstanceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateGeometryInstanceFB(
     XrSession                                   session,
     const XrGeometryInstanceCreateInfoFB*       createInfo,
     XrGeometryInstanceFB*                       outGeometryInstance)
@@ -6624,7 +6751,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateGeometryInstanceFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyGeometryInstanceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyGeometryInstanceFB(
     XrGeometryInstanceFB                        instance)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -6661,7 +6788,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyGeometryInstanceFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GeometryInstanceSetTransformFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGeometryInstanceSetTransformFB(
     XrGeometryInstanceFB                        instance,
     const XrGeometryInstanceTransformFB*        transformation)
 {
@@ -6700,7 +6827,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GeometryInstanceSetTransformFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateRenderModelPathsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateRenderModelPathsFB(
     XrSession                                   session,
     uint32_t                                    pathCapacityInput,
     uint32_t*                                   pathCountOutput,
@@ -6746,7 +6873,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateRenderModelPathsFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetRenderModelPropertiesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetRenderModelPropertiesFB(
     XrSession                                   session,
     XrPath                                      path,
     XrRenderModelPropertiesFB*                  properties)
@@ -6790,7 +6917,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetRenderModelPropertiesFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL LoadRenderModelFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrLoadRenderModelFB(
     XrSession                                   session,
     const XrRenderModelLoadInfoFB*              info,
     XrRenderModelBufferFB*                      buffer)
@@ -6834,7 +6961,7 @@ XRAPI_ATTR XrResult XRAPI_CALL LoadRenderModelFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetEnvironmentDepthEstimationVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetEnvironmentDepthEstimationVARJO(
     XrSession                                   session,
     XrBool32                                    enabled)
 {
@@ -6870,7 +6997,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetEnvironmentDepthEstimationVARJO(
     return result;
 }
 
-XRAPI_ATTR XrResult  XRAPI_CALL SetMarkerTrackingVARJO(
+XRAPI_ATTR XrResult  XRAPI_CALL xrSetMarkerTrackingVARJO(
     XrSession                                   session,
     XrBool32                                    enabled)
 {
@@ -6906,7 +7033,7 @@ XRAPI_ATTR XrResult  XRAPI_CALL SetMarkerTrackingVARJO(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetMarkerTrackingTimeoutVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetMarkerTrackingTimeoutVARJO(
     XrSession                                   session,
     uint64_t                                    markerId,
     XrDuration                                  timeout)
@@ -6944,7 +7071,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetMarkerTrackingTimeoutVARJO(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetMarkerTrackingPredictionVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetMarkerTrackingPredictionVARJO(
     XrSession                                   session,
     uint64_t                                    markerId,
     XrBool32                                    enable)
@@ -6982,7 +7109,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetMarkerTrackingPredictionVARJO(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerSizeVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerSizeVARJO(
     XrSession                                   session,
     uint64_t                                    markerId,
     XrExtent2Df*                                size)
@@ -7026,7 +7153,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetMarkerSizeVARJO(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceVARJO(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceVARJO(
     XrSession                                   session,
     const XrMarkerSpaceCreateInfoVARJO*         createInfo,
     XrSpace*                                    space)
@@ -7075,7 +7202,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceVARJO(
     return result;
 }
 
-XRAPI_ATTR XrResult  XRAPI_CALL SetViewOffsetVARJO(
+XRAPI_ATTR XrResult  XRAPI_CALL xrSetViewOffsetVARJO(
     XrSession                                   session,
     float                                       offset)
 {
@@ -7111,7 +7238,7 @@ XRAPI_ATTR XrResult  XRAPI_CALL SetViewOffsetVARJO(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceFromCoordinateFrameUIDML(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceFromCoordinateFrameUIDML(
     XrSession                                   session,
     const XrCoordinateSpaceCreateInfoML *       createInfo,
     XrSpace*                                    space)
@@ -7160,7 +7287,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceFromCoordinateFrameUIDML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerDetectorML(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerDetectorML(
     XrSession                                   session,
     const XrMarkerDetectorCreateInfoML*         createInfo,
     XrMarkerDetectorML*                         markerDetector)
@@ -7209,7 +7336,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerDetectorML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyMarkerDetectorML(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyMarkerDetectorML(
     XrMarkerDetectorML                          markerDetector)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -7246,7 +7373,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyMarkerDetectorML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SnapshotMarkerDetectorML(
+XRAPI_ATTR XrResult XRAPI_CALL xrSnapshotMarkerDetectorML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerDetectorSnapshotInfoML*             snapshotInfo)
 {
@@ -7288,7 +7415,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SnapshotMarkerDetectorML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerDetectorStateML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerDetectorStateML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerDetectorStateML*                    state)
 {
@@ -7330,7 +7457,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetMarkerDetectorStateML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkersML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkersML(
     XrMarkerDetectorML                          markerDetector,
     uint32_t                                    markerCapacityInput,
     uint32_t*                                   markerCountOutput,
@@ -7376,7 +7503,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetMarkersML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerReprojectionErrorML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerReprojectionErrorML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerML                                  marker,
     float*                                      reprojectionErrorMeters)
@@ -7420,7 +7547,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetMarkerReprojectionErrorML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerLengthML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerLengthML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerML                                  marker,
     float*                                      meters)
@@ -7464,7 +7591,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetMarkerLengthML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerNumberML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerNumberML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerML                                  marker,
     uint64_t*                                   number)
@@ -7508,7 +7635,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetMarkerNumberML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetMarkerStringML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerStringML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerML                                  marker,
     uint32_t                                    bufferCapacityInput,
@@ -7556,7 +7683,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetMarkerStringML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceML(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceML(
     XrSession                                   session,
     const XrMarkerSpaceCreateInfoML*            createInfo,
     XrSpace*                                    space)
@@ -7608,7 +7735,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateMarkerSpaceML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnableLocalizationEventsML(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnableLocalizationEventsML(
     XrSession                                   session,
     const XrLocalizationEnableEventsInfoML *    info)
 {
@@ -7644,7 +7771,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnableLocalizationEventsML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL QueryLocalizationMapsML(
+XRAPI_ATTR XrResult XRAPI_CALL xrQueryLocalizationMapsML(
     XrSession                                   session,
     const XrLocalizationMapQueryInfoBaseHeaderML* queryInfo,
     uint32_t                                    mapCapacityInput,
@@ -7692,7 +7819,7 @@ XRAPI_ATTR XrResult XRAPI_CALL QueryLocalizationMapsML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL RequestMapLocalizationML(
+XRAPI_ATTR XrResult XRAPI_CALL xrRequestMapLocalizationML(
     XrSession                                   session,
     const XrMapLocalizationRequestInfoML*       requestInfo)
 {
@@ -7728,7 +7855,7 @@ XRAPI_ATTR XrResult XRAPI_CALL RequestMapLocalizationML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ImportLocalizationMapML(
+XRAPI_ATTR XrResult XRAPI_CALL xrImportLocalizationMapML(
     XrSession                                   session,
     const XrLocalizationMapImportInfoML*        importInfo,
     XrUuidEXT*                                  mapUuid)
@@ -7772,7 +7899,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ImportLocalizationMapML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateExportedLocalizationMapML(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateExportedLocalizationMapML(
     XrSession                                   session,
     const XrUuidEXT*                            mapUuid,
     XrExportedLocalizationMapML*                map)
@@ -7821,7 +7948,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateExportedLocalizationMapML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyExportedLocalizationMapML(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyExportedLocalizationMapML(
     XrExportedLocalizationMapML                 map)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -7858,7 +7985,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyExportedLocalizationMapML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetExportedLocalizationMapDataML(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetExportedLocalizationMapDataML(
     XrExportedLocalizationMapML                 map,
     uint32_t                                    bufferCapacityInput,
     uint32_t*                                   bufferCountOutput,
@@ -7904,7 +8031,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetExportedLocalizationMapDataML(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorStoreConnectionMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorStoreConnectionMSFT(
     XrSession                                   session,
     XrSpatialAnchorStoreConnectionMSFT*         spatialAnchorStore)
 {
@@ -7951,7 +8078,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorStoreConnectionMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialAnchorStoreConnectionMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpatialAnchorStoreConnectionMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -7988,7 +8115,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpatialAnchorStoreConnectionMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PersistSpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrPersistSpatialAnchorMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore,
     const XrSpatialAnchorPersistenceInfoMSFT*   spatialAnchorPersistenceInfo)
 {
@@ -8027,7 +8154,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PersistSpatialAnchorMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumeratePersistedSpatialAnchorNamesMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePersistedSpatialAnchorNamesMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore,
     uint32_t                                    spatialAnchorNameCapacityInput,
     uint32_t*                                   spatialAnchorNameCountOutput,
@@ -8073,7 +8200,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumeratePersistedSpatialAnchorNamesMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPersistedNameMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPersistedNameMSFT(
     XrSession                                   session,
     const XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* spatialAnchorCreateInfo,
     XrSpatialAnchorMSFT*                        spatialAnchor)
@@ -8125,7 +8252,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorFromPersistedNameMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL UnpersistSpatialAnchorMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrUnpersistSpatialAnchorMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore,
     const XrSpatialAnchorPersistenceNameMSFT*   spatialAnchorPersistenceName)
 {
@@ -8161,7 +8288,7 @@ XRAPI_ATTR XrResult XRAPI_CALL UnpersistSpatialAnchorMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ClearSpatialAnchorStoreMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrClearSpatialAnchorStoreMSFT(
     XrSpatialAnchorStoreConnectionMSFT          spatialAnchorStore)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -8195,7 +8322,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ClearSpatialAnchorStoreMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneMarkerRawDataMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMarkerRawDataMSFT(
     XrSceneMSFT                                 scene,
     const XrUuidMSFT*                           markerId,
     uint32_t                                    bufferCapacityInput,
@@ -8243,7 +8370,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSceneMarkerRawDataMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSceneMarkerDecodedStringMSFT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMarkerDecodedStringMSFT(
     XrSceneMSFT                                 scene,
     const XrUuidMSFT*                           markerId,
     uint32_t                                    bufferCapacityInput,
@@ -8291,7 +8418,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSceneMarkerDecodedStringMSFT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL QuerySpacesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrQuerySpacesFB(
     XrSession                                   session,
     const XrSpaceQueryInfoBaseHeaderFB*         info,
     XrAsyncRequestIdFB*                         requestId)
@@ -8335,7 +8462,7 @@ XRAPI_ATTR XrResult XRAPI_CALL QuerySpacesFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL RetrieveSpaceQueryResultsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrRetrieveSpaceQueryResultsFB(
     XrSession                                   session,
     XrAsyncRequestIdFB                          requestId,
     XrSpaceQueryResultsFB*                      results)
@@ -8384,7 +8511,7 @@ XRAPI_ATTR XrResult XRAPI_CALL RetrieveSpaceQueryResultsFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SaveSpaceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceFB(
     XrSession                                   session,
     const XrSpaceSaveInfoFB*                    info,
     XrAsyncRequestIdFB*                         requestId)
@@ -8431,7 +8558,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SaveSpaceFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EraseSpaceFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrEraseSpaceFB(
     XrSession                                   session,
     const XrSpaceEraseInfoFB*                   info,
     XrAsyncRequestIdFB*                         requestId)
@@ -8478,7 +8605,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EraseSpaceFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetAudioOutputDeviceGuidOculus(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetAudioOutputDeviceGuidOculus(
     XrInstance                                  instance,
     wchar_t                                     buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS])
 {
@@ -8520,7 +8647,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetAudioOutputDeviceGuidOculus(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetAudioInputDeviceGuidOculus(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetAudioInputDeviceGuidOculus(
     XrInstance                                  instance,
     wchar_t                                     buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS])
 {
@@ -8562,7 +8689,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetAudioInputDeviceGuidOculus(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ShareSpacesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrShareSpacesFB(
     XrSession                                   session,
     const XrSpaceShareInfoFB*                   info,
     XrAsyncRequestIdFB*                         requestId)
@@ -8609,7 +8736,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ShareSpacesFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceBoundingBox2DFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox2DFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrRect2Df*                                  boundingBox2DOutput)
@@ -8653,7 +8780,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceBoundingBox2DFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceBoundingBox3DFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox3DFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrRect3DfFB*                                boundingBox3DOutput)
@@ -8697,7 +8824,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceBoundingBox3DFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceSemanticLabelsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceSemanticLabelsFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrSemanticLabelsFB*                         semanticLabelsOutput)
@@ -8741,7 +8868,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceSemanticLabelsFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceBoundary2DFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundary2DFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrBoundary2DFB*                             boundary2DOutput)
@@ -8785,7 +8912,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceBoundary2DFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceRoomLayoutFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceRoomLayoutFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrRoomLayoutFB*                             roomLayoutOutput)
@@ -8829,7 +8956,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceRoomLayoutFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetDigitalLensControlALMALENCE(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetDigitalLensControlALMALENCE(
     XrSession                                   session,
     const XrDigitalLensControlALMALENCE*        digitalLensControl)
 {
@@ -8865,7 +8992,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetDigitalLensControlALMALENCE(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL RequestSceneCaptureFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrRequestSceneCaptureFB(
     XrSession                                   session,
     const XrSceneCaptureRequestInfoFB*          info,
     XrAsyncRequestIdFB*                         requestId)
@@ -8909,7 +9036,7 @@ XRAPI_ATTR XrResult XRAPI_CALL RequestSceneCaptureFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceContainerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceContainerFB(
     XrSession                                   session,
     XrSpace                                     space,
     XrSpaceContainerFB*                         spaceContainerOutput)
@@ -8953,7 +9080,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceContainerFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetFoveationEyeTrackedStateMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFoveationEyeTrackedStateMETA(
     XrSession                                   session,
     XrFoveationEyeTrackedStateMETA*             foveationState)
 {
@@ -8995,7 +9122,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetFoveationEyeTrackedStateMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTrackerFB(
     XrSession                                   session,
     const XrFaceTrackerCreateInfoFB*            createInfo,
     XrFaceTrackerFB*                            faceTracker)
@@ -9044,7 +9171,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTrackerFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyFaceTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFaceTrackerFB(
     XrFaceTrackerFB                             faceTracker)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -9081,7 +9208,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyFaceTrackerFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetFaceExpressionWeightsFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeightsFB(
     XrFaceTrackerFB                             faceTracker,
     const XrFaceExpressionInfoFB*               expressionInfo,
     XrFaceExpressionWeightsFB*                  expressionWeights)
@@ -9125,7 +9252,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetFaceExpressionWeightsFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateEyeTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateEyeTrackerFB(
     XrSession                                   session,
     const XrEyeTrackerCreateInfoFB*             createInfo,
     XrEyeTrackerFB*                             eyeTracker)
@@ -9174,7 +9301,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateEyeTrackerFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyEyeTrackerFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEyeTrackerFB(
     XrEyeTrackerFB                              eyeTracker)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -9211,7 +9338,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyEyeTrackerFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetEyeGazesFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetEyeGazesFB(
     XrEyeTrackerFB                              eyeTracker,
     const XrEyeGazesInfoFB*                     gazeInfo,
     XrEyeGazesFB*                               eyeGazes)
@@ -9258,7 +9385,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetEyeGazesFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerSetKeyboardHandsIntensityFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerSetKeyboardHandsIntensityFB(
     XrPassthroughLayerFB                        layer,
     const XrPassthroughKeyboardHandsIntensityFB* intensity)
 {
@@ -9294,7 +9421,7 @@ XRAPI_ATTR XrResult XRAPI_CALL PassthroughLayerSetKeyboardHandsIntensityFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetDeviceSampleRateFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetDeviceSampleRateFB(
     XrSession                                   session,
     const XrHapticActionInfo*                   hapticActionInfo,
     XrDevicePcmSampleRateGetInfoFB*             deviceSampleRate)
@@ -9341,7 +9468,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetDeviceSampleRateFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPassthroughPreferencesMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPassthroughPreferencesMETA(
     XrSession                                   session,
     XrPassthroughPreferencesMETA*               preferences)
 {
@@ -9383,7 +9510,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetPassthroughPreferencesMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVirtualKeyboardMETA(
     XrSession                                   session,
     const XrVirtualKeyboardCreateInfoMETA*      createInfo,
     XrVirtualKeyboardMETA*                      keyboard)
@@ -9432,7 +9559,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyVirtualKeyboardMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyVirtualKeyboardMETA(
     XrVirtualKeyboardMETA                       keyboard)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -9469,7 +9596,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyVirtualKeyboardMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardSpaceMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVirtualKeyboardSpaceMETA(
     XrSession                                   session,
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardSpaceCreateInfoMETA* createInfo,
@@ -9523,7 +9650,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateVirtualKeyboardSpaceMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SuggestVirtualKeyboardLocationMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrSuggestVirtualKeyboardLocationMETA(
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardLocationInfoMETA*    locationInfo)
 {
@@ -9562,7 +9689,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SuggestVirtualKeyboardLocationMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardScaleMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardScaleMETA(
     XrVirtualKeyboardMETA                       keyboard,
     float*                                      scale)
 {
@@ -9604,7 +9731,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardScaleMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetVirtualKeyboardModelVisibilityMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetVirtualKeyboardModelVisibilityMETA(
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardModelVisibilitySetInfoMETA* modelVisibility)
 {
@@ -9640,7 +9767,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetVirtualKeyboardModelVisibilityMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardModelAnimationStatesMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardModelAnimationStatesMETA(
     XrVirtualKeyboardMETA                       keyboard,
     XrVirtualKeyboardModelAnimationStatesMETA*  animationStates)
 {
@@ -9682,7 +9809,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardModelAnimationStatesMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardDirtyTexturesMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardDirtyTexturesMETA(
     XrVirtualKeyboardMETA                       keyboard,
     uint32_t                                    textureIdCapacityInput,
     uint32_t*                                   textureIdCountOutput,
@@ -9728,7 +9855,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardDirtyTexturesMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardTextureDataMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardTextureDataMETA(
     XrVirtualKeyboardMETA                       keyboard,
     uint64_t                                    textureId,
     XrVirtualKeyboardTextureDataMETA*           textureData)
@@ -9772,7 +9899,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetVirtualKeyboardTextureDataMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SendVirtualKeyboardInputMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrSendVirtualKeyboardInputMETA(
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardInputInfoMETA*       info,
     XrPosef*                                    interactorRootPose)
@@ -9819,7 +9946,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SendVirtualKeyboardInputMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ChangeVirtualKeyboardTextContextMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrChangeVirtualKeyboardTextContextMETA(
     XrVirtualKeyboardMETA                       keyboard,
     const XrVirtualKeyboardTextContextChangeInfoMETA* changeInfo)
 {
@@ -9855,7 +9982,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ChangeVirtualKeyboardTextContextMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateExternalCamerasOCULUS(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateExternalCamerasOCULUS(
     XrSession                                   session,
     uint32_t                                    cameraCapacityInput,
     uint32_t*                                   cameraCountOutput,
@@ -9901,7 +10028,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumerateExternalCamerasOCULUS(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnumeratePerformanceMetricsCounterPathsMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePerformanceMetricsCounterPathsMETA(
     XrInstance                                  instance,
     uint32_t                                    counterPathCapacityInput,
     uint32_t*                                   counterPathCountOutput,
@@ -9947,7 +10074,7 @@ XRAPI_ATTR XrResult XRAPI_CALL EnumeratePerformanceMetricsCounterPathsMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetPerformanceMetricsStateMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetPerformanceMetricsStateMETA(
     XrSession                                   session,
     const XrPerformanceMetricsStateMETA*        state)
 {
@@ -9983,7 +10110,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetPerformanceMetricsStateMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPerformanceMetricsStateMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPerformanceMetricsStateMETA(
     XrSession                                   session,
     XrPerformanceMetricsStateMETA*              state)
 {
@@ -10025,7 +10152,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetPerformanceMetricsStateMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL QueryPerformanceMetricsCounterMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrQueryPerformanceMetricsCounterMETA(
     XrSession                                   session,
     XrPath                                      counterPath,
     XrPerformanceMetricsCounterMETA*            counter)
@@ -10069,7 +10196,7 @@ XRAPI_ATTR XrResult XRAPI_CALL QueryPerformanceMetricsCounterMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SaveSpaceListFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceListFB(
     XrSession                                   session,
     const XrSpaceListSaveInfoFB*                info,
     XrAsyncRequestIdFB*                         requestId)
@@ -10116,7 +10243,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SaveSpaceListFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceUserFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceUserFB(
     XrSession                                   session,
     const XrSpaceUserCreateInfoFB*              info,
     XrSpaceUserFB*                              user)
@@ -10165,7 +10292,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpaceUserFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceUserIdFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUserIdFB(
     XrSpaceUserFB                               user,
     XrSpaceUserIdFB*                            userId)
 {
@@ -10207,7 +10334,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceUserIdFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroySpaceUserFB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpaceUserFB(
     XrSpaceUserFB                               user)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -10244,7 +10371,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroySpaceUserFB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetRecommendedLayerResolutionMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetRecommendedLayerResolutionMETA(
     XrSession                                   session,
     const XrRecommendedLayerResolutionGetInfoMETA* info,
     XrRecommendedLayerResolutionMETA*           resolution)
@@ -10291,7 +10418,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetRecommendedLayerResolutionMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughColorLutMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughColorLutMETA(
     XrPassthroughFB                             passthrough,
     const XrPassthroughColorLutCreateInfoMETA*  createInfo,
     XrPassthroughColorLutMETA*                  colorLut)
@@ -10340,7 +10467,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughColorLutMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughColorLutMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughColorLutMETA(
     XrPassthroughColorLutMETA                   colorLut)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -10377,7 +10504,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughColorLutMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL UpdatePassthroughColorLutMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrUpdatePassthroughColorLutMETA(
     XrPassthroughColorLutMETA                   colorLut,
     const XrPassthroughColorLutUpdateInfoMETA*  updateInfo)
 {
@@ -10413,7 +10540,7 @@ XRAPI_ATTR XrResult XRAPI_CALL UpdatePassthroughColorLutMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpaceTriangleMeshMETA(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceTriangleMeshMETA(
     XrSpace                                     space,
     const XrSpaceTriangleMeshGetInfoMETA*       getInfo,
     XrSpaceTriangleMeshMETA*                    triangleMeshOutput)
@@ -10457,7 +10584,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpaceTriangleMeshMETA(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTracker2FB(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTracker2FB(
     XrSession                                   session,
     const XrFaceTrackerCreateInfo2FB*           createInfo,
     XrFaceTracker2FB*                           faceTracker)
@@ -10506,7 +10633,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateFaceTracker2FB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyFaceTracker2FB(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFaceTracker2FB(
     XrFaceTracker2FB                            faceTracker)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -10543,7 +10670,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyFaceTracker2FB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetFaceExpressionWeights2FB(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeights2FB(
     XrFaceTracker2FB                            faceTracker,
     const XrFaceExpressionInfo2FB*              expressionInfo,
     XrFaceExpressionWeights2FB*                 expressionWeights)
@@ -10587,7 +10714,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetFaceExpressionWeights2FB(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL SetTrackingOptimizationSettingsHintQCOM(
+XRAPI_ATTR XrResult XRAPI_CALL xrSetTrackingOptimizationSettingsHintQCOM(
     XrSession                                   session,
     XrTrackingOptimizationSettingsDomainQCOM    domain,
     XrTrackingOptimizationSettingsHintQCOM      hint)
@@ -10625,7 +10752,7 @@ XRAPI_ATTR XrResult XRAPI_CALL SetTrackingOptimizationSettingsHintQCOM(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughHTC(
     XrSession                                   session,
     const XrPassthroughCreateInfoHTC*           createInfo,
     XrPassthroughHTC*                           passthrough)
@@ -10674,7 +10801,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePassthroughHTC(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughHTC(
     XrPassthroughHTC                            passthrough)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -10711,7 +10838,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPassthroughHTC(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ApplyFoveationHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrApplyFoveationHTC(
     XrSession                                   session,
     const XrFoveationApplyInfoHTC*              applyInfo)
 {
@@ -10750,7 +10877,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ApplyFoveationHTC(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorHTC(
     XrSession                                   session,
     const XrSpatialAnchorCreateInfoHTC*         createInfo,
     XrSpace*                                    anchor)
@@ -10802,7 +10929,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreateSpatialAnchorHTC(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetSpatialAnchorNameHTC(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpatialAnchorNameHTC(
     XrSpace                                     anchor,
     XrSpatialAnchorNameHTC*                     name)
 {
@@ -10844,7 +10971,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetSpatialAnchorNameHTC(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ApplyForceFeedbackCurlMNDX(
+XRAPI_ATTR XrResult XRAPI_CALL xrApplyForceFeedbackCurlMNDX(
     XrHandTrackerEXT                            handTracker,
     const XrForceFeedbackCurlApplyLocationsMNDX* locations)
 {
@@ -10880,7 +11007,7 @@ XRAPI_ATTR XrResult XRAPI_CALL ApplyForceFeedbackCurlMNDX(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL CreatePlaneDetectorEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePlaneDetectorEXT(
     XrSession                                   session,
     const XrPlaneDetectorCreateInfoEXT*         createInfo,
     XrPlaneDetectorEXT*                         planeDetector)
@@ -10929,7 +11056,7 @@ XRAPI_ATTR XrResult XRAPI_CALL CreatePlaneDetectorEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL DestroyPlaneDetectorEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPlaneDetectorEXT(
     XrPlaneDetectorEXT                          planeDetector)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -10966,7 +11093,7 @@ XRAPI_ATTR XrResult XRAPI_CALL DestroyPlaneDetectorEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL BeginPlaneDetectionEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrBeginPlaneDetectionEXT(
     XrPlaneDetectorEXT                          planeDetector,
     const XrPlaneDetectorBeginInfoEXT*          beginInfo)
 {
@@ -11005,7 +11132,7 @@ XRAPI_ATTR XrResult XRAPI_CALL BeginPlaneDetectionEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPlaneDetectionStateEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionStateEXT(
     XrPlaneDetectorEXT                          planeDetector,
     XrPlaneDetectionStateEXT*                   state)
 {
@@ -11047,7 +11174,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetPlaneDetectionStateEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPlaneDetectionsEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionsEXT(
     XrPlaneDetectorEXT                          planeDetector,
     const XrPlaneDetectorGetInfoEXT*            info,
     XrPlaneDetectorLocationsEXT*                locations)
@@ -11094,7 +11221,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetPlaneDetectionsEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL GetPlanePolygonBufferEXT(
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPlanePolygonBufferEXT(
     XrPlaneDetectorEXT                          planeDetector,
     uint64_t                                    planeId,
     uint32_t                                    polygonBufferIndex,
@@ -11140,7 +11267,7 @@ XRAPI_ATTR XrResult XRAPI_CALL GetPlanePolygonBufferEXT(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL EnableUserCalibrationEventsML(
+XRAPI_ATTR XrResult XRAPI_CALL xrEnableUserCalibrationEventsML(
     XrInstance                                  instance,
     const XrUserCalibrationEnableEventsInfoML*  enableInfo)
 {

@@ -1,6 +1,7 @@
 {
   "functions-all": [
     "xrGetInstanceProcAddr",
+    "xrCreateInstance",
     "xrEnumerateApiLayerProperties",
     "xrEnumerateInstanceExtensionProperties",
     "xrCreateApiLayerInstance",
@@ -12,9 +13,6 @@
     "xrTriangleMeshGetIndexBufferFB"
   ],
   "functions-encoder": [
-    "xrCreateVulkanInstanceKHR",
-    "xrCreateVulkanDeviceKHR",
-    "xrGetVulkanGraphicsDevice2KHR"
   ],
   "functions-decoder": [
   ],

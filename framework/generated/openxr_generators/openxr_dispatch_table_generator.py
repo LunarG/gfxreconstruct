@@ -196,9 +196,7 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
         write('{', file=self.outFile)
 
         for name in self.instance_cmd_names:
-            decl = '    PFN_{} {}{{ noop::{} }};'.format(
-                name, name[2:], name[2:]
-            )
+            decl = '    PFN_{} {}{{ noop::{} }};'.format(name, name[2:], name)
             write(decl, file=self.outFile)
 
         write('};', file=self.outFile)

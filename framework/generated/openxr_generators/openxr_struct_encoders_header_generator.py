@@ -75,7 +75,10 @@ class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        write('#include "encode/custom_openxr_struct_encoders.h"', file=self.outFile)
+        write(
+            '#include "encode/custom_openxr_struct_encoders.h"',
+            file=self.outFile
+        )
 
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "format/platform_types.h"', file=self.outFile)

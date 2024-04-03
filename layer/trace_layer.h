@@ -30,12 +30,32 @@
 
 #ifdef ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 // The following prototype declarations are required so the dispatch table can find these
 // functions which are defined in trace_layer.cpp
+
+#ifdef ENABLE_OPENXR_SUPPORT
+// OpenXR
+XRAPI_ATTR XrResult XRAPI_CALL OpenXrEnumerateInstanceExtensionProperties(const char*            layerName,
+                                                                          uint32_t               propertyCapacityInput,
+                                                                          uint32_t*              propertyCountOutput,
+                                                                          XrExtensionProperties* properties);
+XRAPI_ATTR XrResult XRAPI_CALL OpenXrEnumerateApiLayerProperties(uint32_t              propertyCapacityInput,
+                                                                 uint32_t*             propertyCountOutput,
+                                                                 XrApiLayerProperties* properties);
+XRAPI_ATTR XrResult XRAPI_CALL OpenXrCreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                            const XrApiLayerCreateInfo* apiLayerInfo,
+                                                            XrInstance*                 instance);
+XRAPI_ATTR XrResult XRAPI_CALL OpenXrGetInstanceProcAddr(XrInstance          instance,
+                                                         const char*         name,
+                                                         PFN_xrVoidFunction* function);
+#endif // ENABLE_OPENXR_SUPPORT
+
+// Vulkan
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VulkanGetInstanceProcAddr(VkInstance instance, const char* pName);
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VulkanGetDeviceProcAddr(VkDevice device, const char* pName);
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VulkanGetPhysicalDeviceProcAddr(VkInstance  ourInstanceWrapper,

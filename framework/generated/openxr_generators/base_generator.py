@@ -256,6 +256,7 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.code_generator = True
         self.extraOpenXrHeaders = extraOpenXrHeaders
 
+
 class BaseGenerator(OutputGenerator):
     """BaseGenerator - subclass of OutputGenerator.
     Base class providing common operations used to generate C++-language code for framework
@@ -291,9 +292,7 @@ class BaseGenerator(OutputGenerator):
         self.PLATFORM_TYPES = {}
 
         # Platform specific structure types that have been defined extarnally to the OpenXR header.
-        self.PLATFORM_STRUCTS = [
-            'timespec'
-        ]
+        self.PLATFORM_STRUCTS = ['timespec']
 
         self.GENERIC_HANDLE_APICALLS = {}
 
@@ -318,7 +317,7 @@ class BaseGenerator(OutputGenerator):
         self.INDENT_SIZE = 4
 
         # Typenames
-        self.base_types = dict() # Set of OpenXR basetypes
+        self.base_types = dict()  # Set of OpenXR basetypes
         self.struct_names = set()  # Set of OpenXR struct typenames
         self.handle_names = set()  # Set of OpenXR handle typenames
         self.flags_types = dict(
@@ -364,6 +363,14 @@ class BaseGenerator(OutputGenerator):
         self.handle_names.add('VkDevice')
         self.handle_names.add('VkImage')
         self.handle_names.add('VkSwapchainKHR')
+
+        # Add Vulkan enums
+        self.enum_names.add('VkResult')
+        self.enum_names.add('VkFormat')
+        self.enum_names.add('VkFilter')
+        self.enum_names.add('VkSamplerMipmapMode')
+        self.enum_names.add('VkSamplerAddressMode')
+        self.enum_names.add('VkComponentSwizzle')
 
         self.atom_names = [
             'XrSystemId',
@@ -630,8 +637,6 @@ class BaseGenerator(OutputGenerator):
                 text = noneStr(elem.text)
                 tail = noneStr(elem.tail)
                 if (elem.tag == 'name'):
-                    if text.startswith('xr'):
-                        text = text[2:]
                     proto_decl += self.makeProtoName(text, tail)
                 else:
                     proto_decl += text + tail
@@ -1401,7 +1406,8 @@ class BaseGenerator(OutputGenerator):
                 method_call += 'Flags'
             elif is_atom:
                 method_call += 'OpenXrAtom'
-            elif type_name in self.base_types and self.base_types[type_name] is not None:
+            elif type_name in self.base_types and self.base_types[
+                type_name] is not None:
                 method_call += self.encode_types[self.base_types[type_name]]
             else:
                 method_call += type_name

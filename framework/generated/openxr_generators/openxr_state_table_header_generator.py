@@ -89,7 +89,8 @@ class OpenXrStateTableHeaderGenerator(BaseGenerator):
         handle_prefix = self.get_handle_prefix(handle_atom)
         handle_wrapper_func = handle_prefix + handle_name + 'Wrapper'
         handle_wrapper_type = wrapper_prefix + '::' + handle_name + 'Wrapper'
-        handle_map = handle_atom[0:1].lower() + '_' + handle_atom[2].lower() + handle_atom[3:] + '_map_'
+        handle_map = handle_atom[0:1].lower() + '_' + handle_atom[2].lower(
+        ) + handle_atom[3:] + '_map_'
         self.insert_code += '    bool InsertWrapper(format::HandleId id, {0}* wrapper) {{ return InsertEntry(id, wrapper, {1}); }}\n'.format(
             handle_wrapper_type, handle_map
         )
@@ -191,7 +192,7 @@ class OpenXrStateTableHeaderGenerator(BaseGenerator):
         code += '\n'
         code += self.xr_const_get_code
         code += '\n'
-        code +=self. xr_get_code
+        code += self.xr_get_code
         write(code, file=self.outFile)
 
     def write_include(self):

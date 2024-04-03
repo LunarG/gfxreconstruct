@@ -209,7 +209,9 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                             member.name
                         )
                 else:
-                    member_wrapper_type = self.get_handle_wrapper(member.base_type)
+                    member_wrapper_type = self.get_handle_wrapper(
+                        member.base_type
+                    )
                     if member.is_array:
                         body += '        CreateWrappedOpenXrHandles<OpenXrParentWrapper, OpenXrCoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
                             member_wrapper_type, member.name,
