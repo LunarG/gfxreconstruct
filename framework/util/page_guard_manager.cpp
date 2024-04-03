@@ -1011,7 +1011,23 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
 
     if (aligned_address != nullptr)
     {
-        size_t guard_range       = mapped_range + aligned_offset;
+        size_t guard_range = mapped_range + aligned_offset;
+
+        // Userfaultfd requires the registered region to be multiples of the page size
+        if (kUserFaultFdMode == protection_mode_ && guard_range != GetAlignedSize(guard_range))
+        {
+            if (!use_shadow_memory)
+            {
+                assert(shadow_memory == nullptr);
+                GFXRECON_LOG_WARNING("Registering an externally allocated memory region to uffd using a range (%zu) "
+                                     "greater than the requested/original size (%zu).",
+                                     GetAlignedSize(guard_range),
+                                     guard_range);
+            }
+
+            guard_range = GetAlignedSize(guard_range);
+        }
+
         size_t total_pages       = guard_range >> system_page_pot_shift_;
         size_t last_segment_size = guard_range & (system_page_size_ - 1); // guard_range % system_page_size_
 
@@ -1092,8 +1108,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
             }
             else
             {
-                assert(shadow_memory == aligned_address);
-                success = UffdRegisterMemory(shadow_memory, shadow_size);
+                success = UffdRegisterMemory(aligned_address, guard_range);
             }
         }
 
