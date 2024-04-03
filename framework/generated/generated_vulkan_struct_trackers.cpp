@@ -31,6 +31,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(vulkan)
 
 VkBufferMemoryBarrier* TrackStruct(const VkBufferMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory)
 {
@@ -15036,5 +15037,6 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
     return nullptr;
 }
 
+GFXRECON_END_NAMESPACE(vulkan)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
